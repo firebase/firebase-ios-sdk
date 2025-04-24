@@ -25,7 +25,7 @@ public struct PipelineSnapshot: Sendable {
   public let pipeline: Pipeline
 
   /// An array of all the results in the `PipelineSnapshot`.
-  let results_cache: [PipelineResult<[String: Sendable]>]
+  let results_cache: [PipelineResult]
 
   /// The time at which the pipeline producing this result was executed.
   public let executionTime: Timestamp
@@ -39,16 +39,7 @@ public struct PipelineSnapshot: Sendable {
     results_cache = self.bridge.results.map { PipelineResult($0) }
   }
 
-  public func results() -> [PipelineResult<[String: Sendable]>] {
+  public func results() -> [PipelineResult] {
     return results_cache
-  }
-
-  public func results<T: Decodable>(decodeAsType: T.Type = T.self,
-                                    decoder: Firestore
-                                      .Decoder = .init()) async throws -> [PipelineResult<
-    T
-  >] {
-    return try decoder
-      .decode(T.self, from: results, in: nil as DocumentReference?) as! [PipelineResult<T>]
   }
 }

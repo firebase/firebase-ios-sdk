@@ -306,8 +306,6 @@ google_firestore_v1_Pipeline_Stage RemoveFieldsStage::to_proto() const {
   return result;
 }
 
-// TBD
-
 google_firestore_v1_Pipeline_Stage ReplaceWith::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray("replace_with");

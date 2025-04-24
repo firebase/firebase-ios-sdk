@@ -27,7 +27,6 @@ public class BooleanExpr: FunctionExpr, @unchecked Sendable {
     try BooleanExpr("or", [lhs, rhs()])
   }
 
-  // not
   public static prefix func ! (lhs: BooleanExpr) -> BooleanExpr {
     return BooleanExpr("not", [lhs])
   }

@@ -26,8 +26,11 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
   // Initializer for optional values (including nil)
   init(_ value: Any?) {
     self.value = value
-    // TODO:
-    bridge = ConstantBridge(value)
+    if value == nil {
+      bridge = ConstantBridge(NSNull())
+    } else {
+      bridge = ConstantBridge(value!)
+    }
   }
 
   // Initializer for numbers

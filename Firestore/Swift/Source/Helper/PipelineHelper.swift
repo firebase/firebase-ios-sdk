@@ -25,26 +25,12 @@ enum Helper {
     }
   }
 
-  static func selectablesToMap(selectables: [Any]) -> [String: Expr] {
-    var result = [String: Expr]()
-    for selectable in selectables {
-      if let stringSelectable = selectable as? String {
-        result[stringSelectable] = Field(stringSelectable)
-      } else if let fieldSelectable = selectable as? Field {
-        result[fieldSelectable.alias] = fieldSelectable.expr
-      } else if let exprAliasSelectable = selectable as? ExprWithAlias {
-        result[exprAliasSelectable.alias] = exprAliasSelectable.expr
-      }
+  static func selectablesToMap(selectables: [Selectable]) -> [String: Expr] {
+    let exprMap = selectables.reduce(into: [String: Expr]()) { result, selectable in
+      let value = selectable as! SelectableWrapper
+      result[value.alias] = value.expr
     }
-    return result
-  }
-
-  static func vectorToExpr(_ value: VectorValue) -> Expr {
-    return Field("PLACEHOLDER")
-  }
-
-  static func timeUnitToExpr(_ value: TimeUnit) -> Expr {
-    return Field("PLACEHOLDER")
+    return exprMap
   }
 
   static func map(_ elements: [String: Sendable]) -> FunctionExpr {

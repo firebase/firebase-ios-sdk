@@ -22,7 +22,7 @@ public class Ordering: @unchecked Sendable {
   init(expr: Expr, direction: Direction) {
     self.expr = expr
     self.direction = direction
-    bridge = OrderingBridge(expr: expr.exprToExprBridge(), direction: direction.rawValue)
+    bridge = OrderingBridge(expr: expr.toBridge(), direction: direction.rawValue)
   }
 }
 

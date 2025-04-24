@@ -23,7 +23,7 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
     self.agrs = agrs
     bridge = AggregateFunctionBridge(
       name: functionName,
-      args: self.agrs.map { ($0 as! BridgeWrapper).bridge
+      args: self.agrs.map { $0.toBridge()
       }
     )
   }

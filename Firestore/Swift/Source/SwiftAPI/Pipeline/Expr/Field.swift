@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, SelectableInternal,
+public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, SelectableWrapper,
   @unchecked Sendable {
   var bridge: ExprBridge
 
   var alias: String
 
-  var expr: any Expr {
+  var expr: Expr {
     return self
   }
 

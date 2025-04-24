@@ -46,6 +46,55 @@ class CollectionGroupSource: Stage {
   }
 }
 
+// Represents the entire database as a source.
+class DatabaseSource: Stage {
+  var name: String = "database"
+  var bridge: StageBridge
+
+  init() {
+    bridge = DatabaseSourceStageBridge()
+  }
+}
+
+// Represents a list of document references as a source.
+class DocumentsSource: Stage {
+  var name: String = "documents"
+  var bridge: StageBridge
+  private var references: [String]
+
+  // Initialize with an array of String paths
+  init(paths: [String]) {
+    references = paths
+    bridge = DocumentsSourceStageBridge(documents: paths)
+  }
+}
+
+// Represents an existing Query as a source.
+class QuerySource: Stage {
+  var name: String = "query"
+  var bridge: StageBridge
+  private var query: Query
+
+  init(query: Query) {
+    self.query = query
+    bridge = DatabaseSourceStageBridge()
+    // TODO: bridge = QuerySourceStageBridge(query: query.query)
+  }
+}
+
+// Represents an existing AggregateQuery as a source.
+class AggregateQuerySource: Stage {
+  var name: String = "aggregateQuery"
+  var bridge: StageBridge
+  private var aggregateQuery: AggregateQuery
+
+  init(aggregateQuery: AggregateQuery) {
+    self.aggregateQuery = aggregateQuery
+    bridge = DatabaseSourceStageBridge()
+    // TODO: bridge = AggregateQuerySourceStageBridge(aggregateQuery: aggregateQuery.query)
+  }
+}
+
 class Where: Stage {
   var name: String = "where"
 
@@ -54,7 +103,7 @@ class Where: Stage {
 
   init(condition: BooleanExpr) {
     self.condition = condition
-    bridge = WhereStageBridge(expr: condition.exprToExprBridge())
+    bridge = WhereStageBridge(expr: condition.toBridge())
   }
 }
 
@@ -93,8 +142,8 @@ class AddFields: Stage {
       result,
         field
       in
-      let seletable = field as! SelectableInternal
-      result[seletable.alias] = seletable.expr.exprToExprBridge()
+      let seletable = field as! SelectableWrapper
+      result[seletable.alias] = seletable.expr.toBridge()
     }
     bridge = AddFieldsStageBridge(fields: objc_accumulators)
   }
@@ -119,26 +168,26 @@ class RemoveFieldsStage: Stage {
 class Select: Stage {
   var name: String = "select"
   var bridge: StageBridge
-  private var selections: [Any]
+  private var selections: [Selectable]
 
-  init(selections: [Any]) {
+  init(selections: [Selectable]) {
     self.selections = selections
-    let objc_selections = Helper.selectablesToMap(selectables: selections)
-    bridge = SelectStageBridge(selections: objc_selections
-      .mapValues { Helper.sendableToExpr($0).exprToExprBridge() })
+    let map = Helper.selectablesToMap(selectables: selections)
+    bridge = SelectStageBridge(selections: map
+      .mapValues { Helper.sendableToExpr($0).toBridge() })
   }
 }
 
 class Distinct: Stage {
   var name: String = "distinct"
   var bridge: StageBridge
-  private var groups: [Any]
+  private var groups: [Selectable]
 
-  init(groups: [Any]) {
+  init(groups: [Selectable]) {
     self.groups = groups
-    let objc_groups = Helper.selectablesToMap(selectables: groups)
-    bridge = DistinctStageBridge(groups: objc_groups
-      .mapValues { Helper.sendableToExpr($0).exprToExprBridge() })
+    let map = Helper.selectablesToMap(selectables: groups)
+    bridge = DistinctStageBridge(groups: map
+      .mapValues { Helper.sendableToExpr($0).toBridge() })
   }
 }
 
@@ -148,18 +197,18 @@ class Aggregate: Stage {
   private var accumulators: [AggregateWithAlias]
   private var groups: [String: Expr] = [:]
 
-  init(accumulators: [AggregateWithAlias], groups: [Any]?) {
+  init(accumulators: [AggregateWithAlias], groups: [Selectable]?) {
     self.accumulators = accumulators
     if groups != nil {
       self.groups = Helper.selectablesToMap(selectables: groups!)
     }
-    let objc_accumulators = accumulators
+    let map = accumulators
       .reduce(into: [String: AggregateFunctionBridge]()) { result, accumulator in
         result[accumulator.alias] = accumulator.aggregate.bridge
       }
     bridge = AggregateStageBridge(
-      accumulators: objc_accumulators,
-      groups: self.groups.mapValues { Helper.sendableToExpr($0).exprToExprBridge() }
+      accumulators: map,
+      groups: self.groups.mapValues { Helper.sendableToExpr($0).toBridge() }
     )
   }
 }
@@ -213,7 +262,7 @@ class ReplaceWith: Stage {
   init(expr: Expr) {
     self.expr = expr
     fieldName = nil
-    bridge = ReplaceWithStageBridge(expr: expr.exprToExprBridge())
+    bridge = ReplaceWithStageBridge(expr: expr.toBridge())
   }
 
   init(fieldName: String) {
@@ -263,7 +312,7 @@ class Unnest: Stage {
     self.field = field
     self.indexField = indexField
     bridge = UnnestStageBridge(
-      field: Helper.sendableToExpr(field).exprToExprBridge(),
+      field: Helper.sendableToExpr(field).toBridge(),
       indexField: indexField
     )
   }
@@ -279,8 +328,8 @@ class GenericStage: Stage {
     self.name = name
     self.params = params
     self.options = options
-    let bridgeParams = params.map { Helper.sendableToExpr($0).exprToExprBridge() }
-    let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).exprToExprBridge() }
+    let bridgeParams = params.map { Helper.sendableToExpr($0).toBridge() }
+    let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).toBridge() }
     bridge = GenericStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
 }

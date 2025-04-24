@@ -33,22 +33,23 @@ public struct PipelineSource: @unchecked Sendable {
   }
 
   public func database() -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
+    return Pipeline(stages: [DatabaseSource()], db: db)
   }
 
   public func documents(_ docs: [DocumentReference]) -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
+    let paths = docs.map { $0.path }
+    return Pipeline(stages: [DocumentsSource(paths: paths)], db: db)
   }
 
   public func documents(_ paths: [String]) -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
+    return Pipeline(stages: [DocumentsSource(paths: paths)], db: db)
   }
 
   public func create(from query: Query) -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
+    return Pipeline(stages: [QuerySource(query: query)], db: db)
   }
 
   public func create(from aggregateQuery: AggregateQuery) -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: "placeholder")], db: db)
+    return Pipeline(stages: [AggregateQuerySource(aggregateQuery: aggregateQuery)], db: db)
   }
 }

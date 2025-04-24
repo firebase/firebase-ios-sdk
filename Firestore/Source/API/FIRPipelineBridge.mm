@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRConstantBridge {
-  std::shared_ptr<Constant> constant;
+  std::shared_ptr<Constant> cpp_constant;
   id _input;
   Boolean isUserDataRead;
 }
@@ -112,17 +112,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    constant = std::make_shared<Constant>([reader parsedQueryValue:_input]);
+    cpp_constant = std::make_shared<Constant>([reader parsedQueryValue:_input]);
   }
 
   isUserDataRead = YES;
-  return constant;
+  return cpp_constant;
 }
 
 @end
 
 @implementation FIRFunctionExprBridge {
-  std::shared_ptr<FunctionExpr> eq;
+  std::shared_ptr<FunctionExpr> cpp_function;
   NSString *_name;
   NSArray<FIRExprBridge *> *_args;
   Boolean isUserDataRead;
@@ -142,17 +142,17 @@ NS_ASSUME_NONNULL_BEGIN
     for (FIRExprBridge *arg in _args) {
       cpp_args.push_back([arg cppExprWithReader:reader]);
     }
-    eq = std::make_shared<FunctionExpr>(MakeString(_name), std::move(cpp_args));
+    cpp_function = std::make_shared<FunctionExpr>(MakeString(_name), std::move(cpp_args));
   }
 
   isUserDataRead = YES;
-  return eq;
+  return cpp_function;
 }
 
 @end
 
 @implementation FIRAggregateFunctionBridge {
-  std::shared_ptr<AggregateFunction> cpp_bridge;
+  std::shared_ptr<AggregateFunction> cpp_function;
   NSString *_name;
   NSArray<FIRExprBridge *> *_args;
   Boolean isUserDataRead;
@@ -171,17 +171,17 @@ NS_ASSUME_NONNULL_BEGIN
     for (FIRExprBridge *arg in _args) {
       cpp_args.push_back([arg cppExprWithReader:reader]);
     }
-    cpp_bridge = std::make_shared<AggregateFunction>(MakeString(_name), std::move(cpp_args));
+    cpp_function = std::make_shared<AggregateFunction>(MakeString(_name), std::move(cpp_args));
   }
 
   isUserDataRead = YES;
-  return cpp_bridge;
+  return cpp_function;
 }
 
 @end
 
 @implementation FIROrderingBridge {
-  std::shared_ptr<Ordering> cpp_bridge;
+  std::shared_ptr<Ordering> cpp_ordering;
   NSString *_direction;
   FIRExprBridge *_expr;
   Boolean isUserDataRead;
@@ -196,12 +196,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::shared_ptr<Ordering>)cppOrderingWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    cpp_bridge = std::make_shared<Ordering>([_expr cppExprWithReader:reader],
-                                            Ordering::DirectionFromString(MakeString(_direction)));
+    cpp_ordering = std::make_shared<Ordering>(
+        [_expr cppExprWithReader:reader], Ordering::DirectionFromString(MakeString(_direction)));
   }
 
   isUserDataRead = YES;
-  return cpp_bridge;
+  return cpp_ordering;
 }
 
 @end
@@ -228,43 +228,43 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FIRDatabaseSourceStageBridge {
-  std::shared_ptr<DatabaseSource> database_source;
+  std::shared_ptr<DatabaseSource> cpp_database_source;
 }
 
 - (id)init {
   self = [super init];
   if (self) {
-    database_source = std::make_shared<DatabaseSource>();
+    cpp_database_source = std::make_shared<DatabaseSource>();
   }
   return self;
 }
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
-  return database_source;
+  return cpp_database_source;
 }
 
 @end
 
 @implementation FIRCollectionGroupSourceStageBridge {
-  std::shared_ptr<CollectionGroupSource> collection_group_source;
+  std::shared_ptr<CollectionGroupSource> cpp_collection_group_source;
 }
 
 - (id)initWithCollectionId:(NSString *)id {
   self = [super init];
   if (self) {
-    collection_group_source = std::make_shared<CollectionGroupSource>(MakeString(id));
+    cpp_collection_group_source = std::make_shared<CollectionGroupSource>(MakeString(id));
   }
   return self;
 }
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
-  return collection_group_source;
+  return cpp_collection_group_source;
 }
 
 @end
 
 @implementation FIRDocumentsSourceStageBridge {
-  std::shared_ptr<DocumentsSource> document_source;
+  std::shared_ptr<DocumentsSource> cpp_document_source;
 }
 
 - (id)initWithDocuments:(NSArray<NSString *> *)documents {
@@ -274,13 +274,13 @@ NS_ASSUME_NONNULL_BEGIN
     for (NSString *doc in documents) {
       cpp_documents.push_back(MakeString(doc));
     }
-    document_source = std::make_shared<DocumentsSource>(std::move(cpp_documents));
+    cpp_document_source = std::make_shared<DocumentsSource>(std::move(cpp_documents));
   }
   return self;
 }
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
-  return document_source;
+  return cpp_document_source;
 }
 
 @end
@@ -288,7 +288,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRWhereStageBridge {
   FIRExprBridge *_exprBridge;
   Boolean isUserDataRead;
-  std::shared_ptr<Where> where;
+  std::shared_ptr<Where> cpp_where;
 }
 
 - (id)initWithExpr:(FIRExprBridge *)expr {
@@ -302,18 +302,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    where = std::make_shared<Where>([_exprBridge cppExprWithReader:reader]);
+    cpp_where = std::make_shared<Where>([_exprBridge cppExprWithReader:reader]);
   }
 
   isUserDataRead = YES;
-  return where;
+  return cpp_where;
 }
 
 @end
 
 @implementation FIRLimitStageBridge {
   Boolean isUserDataRead;
-  std::shared_ptr<LimitStage> limit_stage;
+  std::shared_ptr<LimitStage> cpp_limit_stage;
   int32_t limit;
 }
 
@@ -328,18 +328,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    limit_stage = std::make_shared<LimitStage>(limit);
+    cpp_limit_stage = std::make_shared<LimitStage>(limit);
   }
 
   isUserDataRead = YES;
-  return limit_stage;
+  return cpp_limit_stage;
 }
 
 @end
 
 @implementation FIROffsetStageBridge {
   Boolean isUserDataRead;
-  std::shared_ptr<OffsetStage> offset_stage;
+  std::shared_ptr<OffsetStage> cpp_offset_stage;
   int32_t offset;
 }
 
@@ -354,11 +354,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    offset_stage = std::make_shared<OffsetStage>(offset);
+    cpp_offset_stage = std::make_shared<OffsetStage>(offset);
   }
 
   isUserDataRead = YES;
-  return offset_stage;
+  return cpp_offset_stage;
 }
 
 @end
@@ -368,7 +368,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRAddFieldsStageBridge {
   NSDictionary<NSString *, FIRExprBridge *> *_fields;
   Boolean isUserDataRead;
-  std::shared_ptr<AddFields> add_fields;
+  std::shared_ptr<AddFields> cpp_add_fields;
 }
 
 - (id)initWithFields:(NSDictionary<NSString *, FIRExprBridge *> *)fields {
@@ -386,11 +386,11 @@ NS_ASSUME_NONNULL_BEGIN
     for (NSString *key in _fields) {
       cpp_fields[MakeString(key)] = [_fields[key] cppExprWithReader:reader];
     }
-    add_fields = std::make_shared<AddFields>(std::move(cpp_fields));
+    cpp_add_fields = std::make_shared<AddFields>(std::move(cpp_fields));
   }
 
   isUserDataRead = YES;
-  return add_fields;
+  return cpp_add_fields;
 }
 
 @end
@@ -398,7 +398,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRRemoveFieldsStageBridge {
   NSArray<NSString *> *_fields;
   Boolean isUserDataRead;
-  std::shared_ptr<RemoveFieldsStage> remove_fields;
+  std::shared_ptr<RemoveFieldsStage> cpp_remove_fields;
 }
 
 - (id)initWithFields:(NSArray<id> *)fields {
@@ -416,11 +416,11 @@ NS_ASSUME_NONNULL_BEGIN
     for (id field in _fields) {
       cpp_fields.push_back(Field(MakeString(field)));
     }
-    remove_fields = std::make_shared<RemoveFieldsStage>(std::move(cpp_fields));
+    cpp_remove_fields = std::make_shared<RemoveFieldsStage>(std::move(cpp_fields));
   }
 
   isUserDataRead = YES;
-  return remove_fields;
+  return cpp_remove_fields;
 }
 
 @end
@@ -428,7 +428,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRSelectStageBridge {
   NSDictionary<NSString *, FIRExprBridge *> *_selections;
   Boolean isUserDataRead;
-  std::shared_ptr<SelectStage> select;
+  std::shared_ptr<SelectStage> cpp_select;
 }
 
 - (id)initWithSelections:(NSDictionary<NSString *, FIRExprBridge *> *)selections {
@@ -446,11 +446,11 @@ NS_ASSUME_NONNULL_BEGIN
     for (NSString *key in _selections) {
       cpp_selections[MakeString(key)] = [_selections[key] cppExprWithReader:reader];
     }
-    select = std::make_shared<SelectStage>(std::move(cpp_selections));
+    cpp_select = std::make_shared<SelectStage>(std::move(cpp_selections));
   }
 
   isUserDataRead = YES;
-  return select;
+  return cpp_select;
 }
 
 @end
@@ -458,7 +458,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDistinctStageBridge {
   NSDictionary<NSString *, FIRExprBridge *> *_groups;
   Boolean isUserDataRead;
-  std::shared_ptr<DistinctStage> distinct;
+  std::shared_ptr<DistinctStage> cpp_distinct;
 }
 
 - (id)initWithGroups:(NSDictionary<NSString *, FIRExprBridge *> *)groups {
@@ -476,11 +476,11 @@ NS_ASSUME_NONNULL_BEGIN
     for (NSString *key in _groups) {
       cpp_groups[MakeString(key)] = [_groups[key] cppExprWithReader:reader];
     }
-    distinct = std::make_shared<DistinctStage>(std::move(cpp_groups));
+    cpp_distinct = std::make_shared<DistinctStage>(std::move(cpp_groups));
   }
 
   isUserDataRead = YES;
-  return distinct;
+  return cpp_distinct;
 }
 
 @end
@@ -489,7 +489,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSDictionary<NSString *, FIRAggregateFunctionBridge *> *_accumulators;
   NSDictionary<NSString *, FIRExprBridge *> *_groups;
   Boolean isUserDataRead;
-  std::shared_ptr<AggregateStage> aggregate;
+  std::shared_ptr<AggregateStage> cpp_aggregate;
 }
 
 - (id)initWithAccumulators:(NSDictionary<NSString *, FIRAggregateFunctionBridge *> *)accumulators
@@ -514,12 +514,12 @@ NS_ASSUME_NONNULL_BEGIN
     for (NSString *key in _groups) {
       cpp_groups[MakeString(key)] = [_groups[key] cppExprWithReader:reader];
     }
-    aggregate =
+    cpp_aggregate =
         std::make_shared<AggregateStage>(std::move(cpp_accumulators), std::move(cpp_groups));
   }
 
   isUserDataRead = YES;
-  return aggregate;
+  return cpp_aggregate;
 }
 
 @end
@@ -531,7 +531,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSNumber *_limit;
   NSString *_Nullable _distanceField;
   Boolean isUserDataRead;
-  std::shared_ptr<FindNearestStage> find_nearest;
+  std::shared_ptr<FindNearestStage> cpp_find_nearest;
 }
 
 - (id)initWithField:(FIRFieldBridge *)field
@@ -579,13 +579,13 @@ NS_ASSUME_NONNULL_BEGIN
       measure_enum = FindNearestStage::DistanceMeasure::EUCLIDEAN;
     }
 
-    find_nearest = std::make_shared<FindNearestStage>(
+    cpp_find_nearest = std::make_shared<FindNearestStage>(
         [_field cppExprWithReader:reader], [reader parsedQueryValue:_vectorValue],
         FindNearestStage::DistanceMeasure(measure_enum), optional_value);
   }
 
   isUserDataRead = YES;
-  return find_nearest;
+  return cpp_find_nearest;
 }
 
 @end
@@ -593,7 +593,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRSorStageBridge {
   NSArray<FIROrderingBridge *> *_orderings;
   Boolean isUserDataRead;
-  std::shared_ptr<SortStage> sort;
+  std::shared_ptr<SortStage> cpp_sort;
 }
 
 - (id)initWithOrderings:(NSArray<id> *)orderings {
@@ -611,11 +611,11 @@ NS_ASSUME_NONNULL_BEGIN
     for (FIROrderingBridge *ordering in _orderings) {
       cpp_orderings.push_back([ordering cppOrderingWithReader:reader]);
     }
-    sort = std::make_shared<SortStage>(std::move(cpp_orderings));
+    cpp_sort = std::make_shared<SortStage>(std::move(cpp_orderings));
   }
 
   isUserDataRead = YES;
-  return sort;
+  return cpp_sort;
 }
 
 @end
@@ -624,7 +624,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRExprBridge *_expr;
   NSString *_fieldName;
   Boolean isUserDataRead;
-  std::shared_ptr<ReplaceWith> replace_with;
+  std::shared_ptr<ReplaceWith> cpp_replace_with;
 }
 
 - (id)initWithExpr:(FIRExprBridge *)expr {
@@ -650,14 +650,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
     if (_expr) {
-      replace_with = std::make_shared<ReplaceWith>([_expr cppExprWithReader:reader]);
+      cpp_replace_with = std::make_shared<ReplaceWith>([_expr cppExprWithReader:reader]);
     } else {
-      replace_with = std::make_shared<ReplaceWith>(MakeString(_fieldName));
+      cpp_replace_with = std::make_shared<ReplaceWith>(MakeString(_fieldName));
     }
   }
 
   isUserDataRead = YES;
-  return replace_with;
+  return cpp_replace_with;
 }
 
 @end
@@ -667,7 +667,7 @@ NS_ASSUME_NONNULL_BEGIN
   double _percentage;
   Boolean isUserDataRead;
   NSString *type;
-  std::shared_ptr<Sample> sample;
+  std::shared_ptr<Sample> cpp_sample;
 }
 
 - (id)initWithCount:(int64_t)count {
@@ -695,14 +695,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
     if ([type isEqualToString:@"count"]) {
-      sample = std::make_shared<Sample>("count", _count, 0);
+      cpp_sample = std::make_shared<Sample>("count", _count, 0);
     } else {
-      sample = std::make_shared<Sample>("percentage", 0, _percentage);
+      cpp_sample = std::make_shared<Sample>("percentage", 0, _percentage);
     }
   }
 
   isUserDataRead = YES;
-  return sample;
+  return cpp_sample;
 }
 
 @end
@@ -710,7 +710,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRUnionStageBridge {
   FIRPipelineBridge *_other;
   Boolean isUserDataRead;
-  std::shared_ptr<Union> union_stage;
+  std::shared_ptr<Union> cpp_union_stage;
 }
 
 - (id)initWithOther:(FIRPipelineBridge *)other {
@@ -724,11 +724,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    union_stage = std::make_shared<Union>([_other cppPipelineWithReader:reader]);
+    cpp_union_stage = std::make_shared<Union>([_other cppPipelineWithReader:reader]);
   }
 
   isUserDataRead = YES;
-  return union_stage;
+  return cpp_union_stage;
 }
 
 @end
@@ -737,7 +737,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRExprBridge *_field;
   NSString *_Nullable _indexField;
   Boolean isUserDataRead;
-  std::shared_ptr<Unnest> unnest;
+  std::shared_ptr<Unnest> cpp_unnest;
 }
 
 - (id)initWithField:(FIRExprBridge *)field indexField:(NSString *_Nullable)indexField {
@@ -758,11 +758,11 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
       cpp_index_field = absl::nullopt;
     }
-    unnest = std::make_shared<Unnest>([_field cppExprWithReader:reader], cpp_index_field);
+    cpp_unnest = std::make_shared<Unnest>([_field cppExprWithReader:reader], cpp_index_field);
   }
 
   isUserDataRead = YES;
-  return unnest;
+  return cpp_unnest;
 }
 
 @end
@@ -772,7 +772,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<FIRExprBridge *> *_params;
   NSDictionary<NSString *, FIRExprBridge *> *_Nullable _options;
   Boolean isUserDataRead;
-  std::shared_ptr<GenericStage> generic_stage;
+  std::shared_ptr<GenericStage> cpp_generic_stage;
 }
 
 - (id)initWithName:(NSString *)name
@@ -800,12 +800,12 @@ NS_ASSUME_NONNULL_BEGIN
         cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
       }
     }
-    generic_stage = std::make_shared<GenericStage>(MakeString(_name), std::move(cpp_params),
-                                                   std::move(cpp_options));
+    cpp_generic_stage = std::make_shared<GenericStage>(MakeString(_name), std::move(cpp_params),
+                                                       std::move(cpp_options));
   }
 
   isUserDataRead = YES;
-  return generic_stage;
+  return cpp_generic_stage;
 }
 
 @end
@@ -922,7 +922,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRPipelineBridge {
   NSArray<FIRStageBridge *> *_stages;
   FIRFirestore *firestore;
-  std::shared_ptr<Pipeline> pipeline;
+  std::shared_ptr<Pipeline> cpp_pipeline;
 }
 
 - (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db {
@@ -937,9 +937,9 @@ NS_ASSUME_NONNULL_BEGIN
   for (FIRStageBridge *stage in _stages) {
     cpp_stages.push_back([stage cppStageWithReader:firestore.dataReader]);
   }
-  pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped);
+  cpp_pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped);
 
-  pipeline->execute([completion](StatusOr<api::PipelineSnapshot> maybe_value) {
+  cpp_pipeline->execute([completion](StatusOr<api::PipelineSnapshot> maybe_value) {
     if (maybe_value.ok()) {
       __FIRPipelineSnapshotBridge *bridge = [[__FIRPipelineSnapshotBridge alloc]
           initWithCppSnapshot:std::move(maybe_value).ValueOrDie()];
@@ -951,7 +951,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (std::shared_ptr<api::Pipeline>)cppPipelineWithReader:(FSTUserDataReader *)reader {
-  return pipeline;
+  return cpp_pipeline;
 }
 
 @end

@@ -34,12 +34,4 @@ public struct TimeUnit: Sendable, Equatable, Hashable {
   init(kind: Kind) {
     rawValue = kind.rawValue
   }
-
-  public init(rawValue: String) {
-    if let kind = Kind(rawValue: rawValue) {
-      self.rawValue = kind.rawValue
-    } else {
-      fatalError("Invalid TimeUnit: \(rawValue)")
-    }
-  }
 }

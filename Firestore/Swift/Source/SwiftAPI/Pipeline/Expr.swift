@@ -19,6 +19,7 @@
 #endif // SWIFT_PACKAGE
 import Foundation
 
+// TODO: the implementation of `Expr` is not complete
 public protocol Expr: Sendable {
   func `as`(_ name: String) -> ExprWithAlias
 
@@ -607,7 +608,7 @@ public extension Expr {
   }
 
   func cosineDistance(_ other: VectorValue) -> FunctionExpr {
-    return FunctionExpr("cosine_distance", [self, Helper.vectorToExpr(other)])
+    return FunctionExpr("cosine_distance", [self, Helper.sendableToExpr(other)])
   }
 
   func cosineDistance(_ other: [Double]) -> FunctionExpr {
@@ -619,7 +620,7 @@ public extension Expr {
   }
 
   func dotProduct(_ other: VectorValue) -> FunctionExpr {
-    return FunctionExpr("dot_product", [self, Helper.vectorToExpr(other)])
+    return FunctionExpr("dot_product", [self, Helper.sendableToExpr(other)])
   }
 
   func dotProduct(_ other: [Double]) -> FunctionExpr {
@@ -631,7 +632,7 @@ public extension Expr {
   }
 
   func euclideanDistance(_ other: VectorValue) -> FunctionExpr {
-    return FunctionExpr("euclidean_distance", [self, Helper.vectorToExpr(other)])
+    return FunctionExpr("euclidean_distance", [self, Helper.sendableToExpr(other)])
   }
 
   func euclideanDistance(_ other: [Double]) -> FunctionExpr {
@@ -643,7 +644,7 @@ public extension Expr {
   }
 
   func manhattanDistance(_ other: VectorValue) -> FunctionExpr {
-    return FunctionExpr("manhattan_distance", [self, Helper.vectorToExpr(other)])
+    return FunctionExpr("manhattan_distance", [self, Helper.sendableToExpr(other)])
   }
 
   func manhattanDistance(_ other: [Double]) -> FunctionExpr {
@@ -683,7 +684,7 @@ public extension Expr {
   func timestampAdd(_ unit: TimeUnit, _ amount: Int) -> FunctionExpr {
     return FunctionExpr(
       "timestamp_add",
-      [self, Helper.timeUnitToExpr(unit), Helper.sendableToExpr(amount)]
+      [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
     )
   }
 
@@ -694,7 +695,7 @@ public extension Expr {
   func timestampSub(_ unit: TimeUnit, _ amount: Int) -> FunctionExpr {
     return FunctionExpr(
       "timestamp_sub",
-      [self, Helper.timeUnitToExpr(unit), Helper.sendableToExpr(amount)]
+      [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
     )
   }
 
@@ -780,7 +781,7 @@ public extension Expr {
 }
 
 extension Expr {
-  func exprToExprBridge() -> ExprBridge {
+  func toBridge() -> ExprBridge {
     return (self as! BridgeWrapper).bridge
   }
 }

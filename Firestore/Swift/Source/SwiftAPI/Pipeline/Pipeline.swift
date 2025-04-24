@@ -117,9 +117,9 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter selections: `String` values representing field names.
   /// - Returns: A new `Pipeline` object with this stage appended to the stage list.
   public func select(_ selection: String, _ additionalSelections: String...) -> Pipeline {
-    let selections = [selection] + additionalSelections
+    let selections = ([selection] + additionalSelections).map { Field($0) }
     return Pipeline(
-      stages: stages + [Select(selections: selections + additionalSelections)],
+      stages: stages + [Select(selections: selections)],
       db: db
     )
   }
@@ -188,8 +188,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter selections: The fields to include in the output documents, specified as
   ///  `String` values representing field names.
   public func distinct(_ group: String, _ additionalGroups: String...) -> Pipeline {
-    let groups = [group] + additionalGroups
-    return Pipeline(stages: stages + [Distinct(groups: groups + additionalGroups)], db: db)
+    let selections = ([group] + additionalGroups).map { Field($0) }
+    return Pipeline(stages: stages + [Distinct(groups: selections)], db: db)
   }
 
   /// Returns a set of distinct `Expr` values from the inputs to this stage.
@@ -276,7 +276,11 @@ public struct Pipeline: @unchecked Sendable {
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func aggregate(_ accumulator: [AggregateWithAlias],
                         groups: [String]? = nil) -> Pipeline {
-    return Pipeline(stages: stages + [Aggregate(accumulators: accumulator, groups: groups)], db: db)
+    let selectables = groups?.map { Field($0) }
+    return Pipeline(
+      stages: stages + [Aggregate(accumulators: accumulator, groups: selectables)],
+      db: db
+    )
   }
 
   /// Performs a vector similarity search, ordering the result set by most similar to least
