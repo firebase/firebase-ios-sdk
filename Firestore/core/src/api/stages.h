@@ -264,7 +264,7 @@ class ReplaceWith : public Stage {
 
 class Sample : public Stage {
  public:
-  Sample(std::string type, int64_t count, double percentage_);
+  Sample(std::string type, int64_t count, double percentage);
   ~Sample() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 

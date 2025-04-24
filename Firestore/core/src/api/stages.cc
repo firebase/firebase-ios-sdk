@@ -332,8 +332,8 @@ ReplaceWith::ReplaceWith(std::string field_name)
     : expr_(nullptr), field_name_(std::move(field_name)) {
 }
 
-Sample::Sample(std::string type, int64_t count, double percentage_)
-    : type_(type), count_(count), percentage_(percentage_) {
+Sample::Sample(std::string type, int64_t count, double percentage)
+    : type_(type), count_(count), percentage_(percentage) {
 }
 
 google_firestore_v1_Pipeline_Stage Sample::to_proto() const {

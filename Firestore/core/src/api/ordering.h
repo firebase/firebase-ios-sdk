@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_API_ORDERING_H_
 #define FIRESTORE_CORE_SRC_API_ORDERING_H_
 
+#include <memory>
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/api/expressions.h"
@@ -25,8 +27,6 @@
 namespace firebase {
 namespace firestore {
 namespace api {
-
-class UserDataReader;  // forward declaration
 
 class Ordering {
  public:
