@@ -28,7 +28,7 @@ extension FunctionsSerializer {
   }
 }
 
-final class FunctionsSerializer {
+final class FunctionsSerializer: Sendable {
   // MARK: - Internal APIs
 
   func encode(_ object: Any) throws -> Any {
