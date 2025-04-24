@@ -299,14 +299,10 @@ class Query {
 
   Target ToTarget(const std::vector<OrderBy>& order_bys) const;
 
-  // For properties below, use a `std::shared_ptr<ThreadSafeMemoizer>` rather
-  // than using `ThreadSafeMemoizer` directly so that this class is copyable
-  // (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
-  // member variable, which is not copyable).
-
   // The memoized list of sort orders.
-  std::shared_ptr<std::vector<OrderBy>> CalculateNormalizedOrderBys() const;
-  mutable util::ThreadSafeMemoizer<std::vector<OrderBy>>
+  std::shared_ptr<const std::vector<OrderBy>> CalculateNormalizedOrderBys()
+      const;
+  mutable util::ThreadSafeMemoizer<const std::vector<OrderBy>>
       memoized_normalized_order_bys_;
 
   // The corresponding Target of this Query instance.

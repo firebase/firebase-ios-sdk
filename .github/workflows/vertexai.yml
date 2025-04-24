@@ -43,29 +43,26 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
           - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
-          - os: macos-15
             xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16.3
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     needs: spm-package-resolved
@@ -86,7 +83,7 @@ jobs:
       run: xcodebuild -downloadPlatform visionOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - uses: nick-fields/retry@v3
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 120
         max_attempts: 3
@@ -101,7 +98,7 @@ jobs:
         os: [macos-15]
         include:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
     needs: spm-package-resolved
     env:
@@ -136,15 +133,15 @@ jobs:
       matrix:
         include:
           - os: macos-14
-            xcode: Xcode_15.2
-            swift_version: 5.9
-            warnings: --allow-warnings
-          - os: macos-15
             xcode: Xcode_16.2
             swift_version: 5.9
             warnings:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
+            swift_version: 5.9
+            warnings:
+          - os: macos-15
+            xcode: Xcode_16.3
             swift_version: 6.0
             warnings:
     runs-on: ${{ matrix.os }}
@@ -152,7 +149,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Clone mock responses
       run: scripts/update_vertexai_responses.sh
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode

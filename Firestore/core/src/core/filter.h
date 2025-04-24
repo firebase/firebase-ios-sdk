@@ -164,7 +164,7 @@ class Filter {
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
      */
-    mutable util::ThreadSafeMemoizer<std::vector<FieldFilter>>
+    mutable util::ThreadSafeMemoizer<const std::vector<FieldFilter>>
         memoized_flattened_filters_;
   };
 

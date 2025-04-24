@@ -48,6 +48,9 @@ public struct GenerationConfig: Sendable {
   /// Output schema of the generated candidate text.
   let responseSchema: Schema?
 
+  /// Supported modalities of the response.
+  let responseModalities: [ResponseModality]?
+
   /// Creates a new `GenerationConfig` value.
   ///
   /// See the
@@ -140,11 +143,20 @@ public struct GenerationConfig: Sendable {
   ///     [Generate structured
   ///     output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios) guide
   ///     for more details.
+  ///   - responseModalities: The data types (modalities) that may be returned in model responses.
+  ///
+  ///     See the [multimodal
+  ///     responses](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal-response-generation)
+  ///     documentation for more details.
+  ///
+  ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
+  ///     > that it is not subject to any SLA or deprecation policy and could change in
+  ///     > backwards-incompatible ways.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
-              responseSchema: Schema? = nil) {
+              responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -157,6 +169,7 @@ public struct GenerationConfig: Sendable {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
+    self.responseModalities = responseModalities
   }
 }
 
@@ -175,5 +188,6 @@ extension GenerationConfig: Encodable {
     case stopSequences
     case responseMIMEType = "responseMimeType"
     case responseSchema
+    case responseModalities
   }
 }

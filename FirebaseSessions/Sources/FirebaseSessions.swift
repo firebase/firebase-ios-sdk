@@ -15,16 +15,16 @@
 import Foundation
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
-@_implementationOnly import FirebaseCoreExtension
-@_implementationOnly import FirebaseInstallations
-@_implementationOnly import GoogleDataTransport
+internal import FirebaseCoreExtension
+internal import FirebaseInstallations
+internal import GoogleDataTransport
 
 #if swift(>=6.0)
   internal import Promises
 #elseif swift(>=5.10)
   import Promises
 #else
-  @_implementationOnly import Promises
+  internal import Promises
 #endif
 
 private enum GoogleDataTransportConfig {
@@ -149,13 +149,14 @@ private enum GoogleDataTransportConfig {
 
     super.init()
 
-    for subscriberName in SessionsDependencies.dependencies {
+    let dependencies = SessionsDependencies.dependencies
+    for subscriberName in dependencies {
       subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
     Logger
       .logDebug(
-        "Version \(FirebaseVersion()). Expecting subscriptions from: \(SessionsDependencies.dependencies)"
+        "Version \(FirebaseVersion()). Expecting subscriptions from: \(dependencies)"
       )
 
     self.initiator.beginListening {

@@ -27,11 +27,7 @@ public final class Chat: Sendable {
   }
 
   private let historyLock = NSLock()
-  #if compiler(>=6)
-    private nonisolated(unsafe) var _history: [ModelContent] = []
-  #else
-    private var _history: [ModelContent] = []
-  #endif
+  private nonisolated(unsafe) var _history: [ModelContent] = []
   /// The previous content from the chat that has been successfully sent and received from the
   /// model. This will be provided to the model for each message sent as context for the discussion.
   public var history: [ModelContent] {

@@ -40,6 +40,6 @@ enum IntegrationTestUtils {
 
 extension Numeric where Self: Strideable, Self.Stride.Magnitude: Comparable {
   func isEqual(to other: Self, accuracy: Self.Stride) -> Bool {
-    return distance(to: other).magnitude < accuracy.magnitude
+    return distance(to: other).magnitude <= accuracy.magnitude
   }
 }

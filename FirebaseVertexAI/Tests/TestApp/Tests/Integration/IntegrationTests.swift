@@ -48,12 +48,7 @@ final class IntegrationTests: XCTestCase {
   var userID1 = ""
 
   override func setUp() async throws {
-    let authResult = try await Auth.auth().signIn(
-      withEmail: Credentials.emailAddress1,
-      password: Credentials.emailPassword1
-    )
-    userID1 = authResult.user.uid
-
+    userID1 = try await TestHelpers.getUserID()
     vertex = VertexAI.vertexAI()
     model = vertex.generativeModel(
       modelName: "gemini-2.0-flash",
@@ -65,62 +60,6 @@ final class IntegrationTests: XCTestCase {
     )
 
     storage = Storage.storage()
-  }
-
-  // MARK: - Generate Content
-
-  func testGenerateContentStream() async throws {
-    let expectedText = """
-    1.  Mercury
-    2.  Venus
-    3.  Earth
-    4.  Mars
-    5.  Jupiter
-    6.  Saturn
-    7.  Uranus
-    8.  Neptune
-    """
-    let prompt = """
-    What are the names of the planets in the solar system, ordered from closest to furthest from
-    the sun? Answer with a Markdown numbered list of the names and no other text.
-    """
-    let chat = model.startChat()
-
-    let stream = try chat.sendMessageStream(prompt)
-    var textValues = [String]()
-    for try await value in stream {
-      try textValues.append(XCTUnwrap(value.text))
-    }
-
-    let userHistory = try XCTUnwrap(chat.history.first)
-    XCTAssertEqual(userHistory.role, "user")
-    XCTAssertEqual(userHistory.parts.count, 1)
-    let promptTextPart = try XCTUnwrap(userHistory.parts.first as? TextPart)
-    XCTAssertEqual(promptTextPart.text, prompt)
-    let modelHistory = try XCTUnwrap(chat.history.last)
-    XCTAssertEqual(modelHistory.role, "model")
-    XCTAssertEqual(modelHistory.parts.count, 1)
-    let modelTextPart = try XCTUnwrap(modelHistory.parts.first as? TextPart)
-    let modelText = modelTextPart.text.trimmingCharacters(in: .whitespacesAndNewlines)
-    XCTAssertEqual(modelText, expectedText)
-    XCTAssertGreaterThan(textValues.count, 1)
-    let text = textValues.joined().trimmingCharacters(in: .whitespacesAndNewlines)
-    XCTAssertEqual(text, expectedText)
-  }
-
-  func testGenerateContent_appCheckNotConfigured_shouldFail() async throws {
-    let app = try FirebaseApp.defaultNamedCopy(name: FirebaseAppNames.appCheckNotConfigured)
-    addTeardownBlock { await app.delete() }
-    let vertex = VertexAI.vertexAI(app: app)
-    let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
-    let prompt = "Where is Google headquarters located? Answer with the city name only."
-
-    do {
-      _ = try await model.generateContent(prompt)
-      XCTFail("Expected a Firebase App Check error; none thrown.")
-    } catch let GenerateContentError.internalError(error) {
-      XCTAssertTrue(String(describing: error).contains("Firebase App Check token is invalid"))
-    }
   }
 
   // MARK: - Count Tokens
@@ -259,34 +198,8 @@ final class IntegrationTests: XCTestCase {
     XCTAssertEqual(promptTokensDetails.tokenCount, 24)
   }
 
-  func testCountTokens_jsonSchema() async throws {
-    model = vertex.generativeModel(
-      modelName: "gemini-2.0-flash",
-      generationConfig: GenerationConfig(
-        responseMIMEType: "application/json",
-        responseSchema: Schema.object(properties: [
-          "startDate": .string(format: .custom("date")),
-          "yearsSince": .integer(format: .custom("int16")),
-          "hoursSince": .integer(format: .int32),
-          "minutesSince": .integer(format: .int64),
-        ])
-      )
-    )
-    let prompt = "It is 2050-01-01, how many years, hours and minutes since 2000-01-01?"
-
-    let response = try await model.countTokens(prompt)
-
-    XCTAssertEqual(response.totalTokens, 58)
-    XCTAssertEqual(response.totalBillableCharacters, 160)
-    XCTAssertEqual(response.promptTokensDetails.count, 1)
-    let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
-    XCTAssertEqual(promptTokensDetails.modality, .text)
-    XCTAssertEqual(promptTokensDetails.tokenCount, 58)
-  }
-
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
-    let app = try FirebaseApp.defaultNamedCopy(name: FirebaseAppNames.appCheckNotConfigured)
-    addTeardownBlock { await app.delete() }
+    let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
     let vertex = VertexAI.vertexAI(app: app)
     let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
     let prompt = "Why is the sky blue?"
