@@ -152,12 +152,12 @@ class VertexComponentTests: XCTestCase {
   }
 
   func testSameAppAndDifferentAPI_newInstanceCreated() throws {
-    let vertex1 = FirebaseAI.firebaseAI(
+    let vertex1 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
       location: location,
       apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
     )
-    let vertex2 = FirebaseAI.firebaseAI(
+    let vertex2 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
       location: location,
       apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
@@ -208,7 +208,7 @@ class VertexComponentTests: XCTestCase {
   func testModelResourceName_developerAPI_generativeLanguage() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
-    let vertex = FirebaseAI.firebaseAI(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
 
     let modelResourceName = vertex.modelResourceName(modelName: model)
@@ -222,7 +222,7 @@ class VertexComponentTests: XCTestCase {
       service: .developer(endpoint: .firebaseVertexAIStaging),
       version: .v1beta
     )
-    let vertex = FirebaseAI.firebaseAI(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
 
@@ -253,7 +253,7 @@ class VertexComponentTests: XCTestCase {
       service: .developer(endpoint: .firebaseVertexAIStaging),
       version: .v1beta
     )
-    let vertex = FirebaseAI.firebaseAI(app: app, location: nil, apiConfig: apiConfig)
+    let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig)
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 

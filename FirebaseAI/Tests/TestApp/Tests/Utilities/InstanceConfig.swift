@@ -127,7 +127,7 @@ extension FirebaseAI {
     switch instanceConfig.apiConfig.service {
     case .vertexAI:
       let location = instanceConfig.location ?? "us-central1"
-      return FirebaseAI.firebaseAI(
+      return FirebaseAI.createInstance(
         app: instanceConfig.app,
         location: location,
         apiConfig: instanceConfig.apiConfig
@@ -137,7 +137,7 @@ extension FirebaseAI {
         instanceConfig.location == nil,
         "The Developer API is global and does not support `location`."
       )
-      return FirebaseAI.firebaseAI(
+      return FirebaseAI.createInstance(
         app: instanceConfig.app,
         location: nil,
         apiConfig: instanceConfig.apiConfig

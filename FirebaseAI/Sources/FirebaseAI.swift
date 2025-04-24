@@ -35,7 +35,11 @@ public final class FirebaseAI: Sendable {
   /// - Returns: A `FirebaseAI` instance, configured with the custom `FirebaseApp`.
   public static func firebaseAI(app: FirebaseApp? = nil,
                                 backend: Backend = .googleAI()) -> FirebaseAI {
-    let instance = firebaseAI(app: app, location: backend.location, apiConfig: backend.apiConfig)
+    let instance = createInstance(
+      app: app,
+      location: backend.location,
+      apiConfig: backend.apiConfig
+    )
     // Verify that the `FirebaseAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
     assert(instance.apiConfig.service.endpoint == .firebaseVertexAIProd)
@@ -159,7 +163,8 @@ public final class FirebaseAI: Sendable {
     version: .v1beta
   )
 
-  static func firebaseAI(app: FirebaseApp?, location: String?, apiConfig: APIConfig) -> FirebaseAI {
+  static func createInstance(app: FirebaseApp?, location: String?,
+                             apiConfig: APIConfig) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
