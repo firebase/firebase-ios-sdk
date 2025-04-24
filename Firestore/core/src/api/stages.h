@@ -28,6 +28,7 @@
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/ordering.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
@@ -65,6 +66,7 @@ class EvaluableStage : public Stage {
   EvaluableStage() = default;
   virtual ~EvaluableStage() = default;
 
+  virtual absl::string_view name() const = 0;
   virtual model::PipelineInputOutputVector Evaluate(
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const = 0;
@@ -72,18 +74,21 @@ class EvaluableStage : public Stage {
 
 class CollectionSource : public EvaluableStage {
  public:
-  explicit CollectionSource(std::string path) : path_(std::move(path)) {
-  }
+  explicit CollectionSource(std::string path);
   ~CollectionSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  absl::string_view name() const override {
+    return "collection";
+  }
 
   model::PipelineInputOutputVector Evaluate(
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const override;
 
  private:
-  std::string path_;
+  model::ResourcePath path_;
 };
 
 class DatabaseSource : public EvaluableStage {
@@ -92,6 +97,11 @@ class DatabaseSource : public EvaluableStage {
   ~DatabaseSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  absl::string_view name() const override {
+    return "database";
+  }
+
   model::PipelineInputOutputVector Evaluate(
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const override;
@@ -106,6 +116,14 @@ class CollectionGroupSource : public EvaluableStage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  absl::string_view name() const override {
+    return "collection_group";
+  }
+
+  model::PipelineInputOutputVector Evaluate(
+      const EvaluateContext& context,
+      const model::PipelineInputOutputVector& inputs) const override;
+
  private:
   std::string collection_id_;
 };
@@ -118,6 +136,10 @@ class DocumentsSource : public EvaluableStage {
   ~DocumentsSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  absl::string_view name() const override {
+    return "documents";
+  }
 
  private:
   std::vector<std::string> documents_;
@@ -158,6 +180,11 @@ class Where : public EvaluableStage {
   ~Where() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  absl::string_view name() const override {
+    return "where";
+  }
+
   model::PipelineInputOutputVector Evaluate(
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const override;
@@ -213,6 +240,11 @@ class LimitStage : public EvaluableStage {
   ~LimitStage() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  absl::string_view name() const override {
+    return "limit";
+  }
+
   model::PipelineInputOutputVector Evaluate(
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const override;
@@ -254,6 +286,18 @@ class SortStage : public EvaluableStage {
   ~SortStage() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  absl::string_view name() const override {
+    return "sort";
+  }
+
+  model::PipelineInputOutputVector Evaluate(
+      const EvaluateContext& context,
+      const model::PipelineInputOutputVector& inputs) const override;
+
+  const std::vector<Ordering>& orders() const {
+    return orders_;
+  }
 
  private:
   std::vector<Ordering> orders_;

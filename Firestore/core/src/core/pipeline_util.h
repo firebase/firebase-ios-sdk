@@ -14,47 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_API_ORDERING_H_
-#define FIRESTORE_CORE_SRC_API_ORDERING_H_
+#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_UTIL_H_
+#define FIRESTORE_CORE_SRC_CORE_PIPELINE_UTIL_H_
 
-#include <utility>
+#include <memory>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/src/api/realtime_pipeline.h"
+#include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
-namespace api {
+namespace core {
 
-class UserDataReader;  // forward declaration
+std::vector<std::shared_ptr<api::EvaluableStage>> RewriteStages(
+    const std::vector<std::shared_ptr<api::EvaluableStage>>&);
 
-class Ordering {
- public:
-  enum Direction {
-    ASCENDING,
-    DESCENDING,
-  };
-
-  Ordering(std::shared_ptr<Expr> expr, Direction direction)
-      : expr_(std::move(expr)), direction_(direction) {
-  }
-
-  const Expr* expr() const {
-    return expr_.get();
-  }
-
-  Direction direction() const {
-    return direction_;
-  }
-
-  google_firestore_v1_Value to_proto() const;
-
- private:
-  std::shared_ptr<Expr> expr_;
-  Direction direction_;
-};
-
-}  // namespace api
+}  // namespace core
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_API_ORDERING_H_
+#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_UTIL_H_
