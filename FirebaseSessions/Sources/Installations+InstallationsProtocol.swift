@@ -17,7 +17,7 @@ import Foundation
 
 internal import FirebaseInstallations
 
-protocol InstallationsProtocol {
+protocol InstallationsProtocol: Sendable {
   var installationsWaitTimeInSecond: Int { get }
 
   /// Override Installation function for testing

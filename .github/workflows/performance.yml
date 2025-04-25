@@ -62,10 +62,10 @@
 #     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
 #       run: scripts/third_party/travis/retry.sh scripts/build.sh Performance ${{ matrix.target }} ${{ matrix.test }}
 
-#   # Podspec lint check for Firebase Performance
-#   pod-lib-lint:
-#     # Don't run on private repo unless it is a PR.
-#     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  # # Podspec lint check for Firebase Performance
+  # pod-lib-lint:
+  #   # Don't run on private repo unless it is a PR.
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     # strategy:
     #   matrix:
@@ -87,8 +87,8 @@
     # #TODO: tests are not supported with Xcode 15 because the test spec depends on the iOS 8 GDCWebServer
     #   run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebasePerformance.podspec --skip-tests --platforms=${{ matrix.target }}
 
-#   quickstart:
-#     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+  # quickstart:
+  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     # env:
     #   plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -110,8 +110,8 @@
     # # - name: Test objc quickstart
     # #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true)
 
-#   quickstart-ftl-cron-only:
-#     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
+  # quickstart-ftl-cron-only:
+  #   if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
 
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

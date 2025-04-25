@@ -15,6 +15,7 @@
 
 import Foundation
 
+// TODO: sendable (remove preconcurrency)
 #if SWIFT_PACKAGE
   internal import GoogleUtilities_UserDefaults
 #else
@@ -30,7 +31,7 @@ struct CacheKey: Codable {
 }
 
 /// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
-protocol SettingsCacheClient {
+protocol SettingsCacheClient: Sendable {
   /// Returns in-memory cache content in O(1) time. Returns empty dictionary if it does not exist in
   /// cache.
   var cacheContent: [String: Any] { get set }
@@ -45,7 +46,7 @@ protocol SettingsCacheClient {
 /// when accessing Settings values during run-time. This is because UserDefaults encapsulates both
 /// in-memory and persisted-on-disk storage, allowing fast synchronous access in-app while hiding
 /// away the complexity of managing persistence asynchronously.
-class SettingsCache: SettingsCacheClient {
+final class SettingsCache: SettingsCacheClient {
   private static let settingsVersion: Int = 1
   private enum UserDefaultsKeys {
     static let forContent = "firebase-sessions-settings"

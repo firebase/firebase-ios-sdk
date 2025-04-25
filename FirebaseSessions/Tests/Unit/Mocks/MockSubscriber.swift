@@ -16,7 +16,7 @@
 @testable import FirebaseSessions
 import Foundation
 
-final class MockSubscriber: SessionsSubscriber {
+final class MockSubscriber: SessionsSubscriber, @unchecked Sendable /* not actually sendable */ {
   var sessionThatChanged: FirebaseSessions.SessionDetails?
 
   init(name: SessionsSubscriberName) {

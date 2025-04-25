@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
+
 # 11.12.0
 - [fixed] Fix a `fatalError` unenrolling from MFA. An invalid user token now throws an
   `invalidUserToken` error instead of crashing. (#14663)

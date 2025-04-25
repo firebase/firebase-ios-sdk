@@ -33,7 +33,7 @@ private let kPostBodyKey = "postBody"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest, @unchecked Sendable {
   typealias Response = EmailLinkSignInResponse
 
   let email: String

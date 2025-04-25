@@ -72,7 +72,7 @@
     private(set) var agentConfig: AuthRecaptchaConfig?
     private(set) var tenantConfigs: [String: AuthRecaptchaConfig] = [:]
     private(set) var recaptchaClient: RCARecaptchaClientProtocol?
-    private static var _shared = AuthRecaptchaVerifier()
+    private nonisolated(unsafe) static var _shared = AuthRecaptchaVerifier()
     private let kRecaptchaVersion = "RECAPTCHA_ENTERPRISE"
     init() {}
 
@@ -154,7 +154,7 @@
       #endif // !(COCOAPODS || SWIFT_PACKAGE)
     }
 
-    private static var recaptchaClient: (any RCARecaptchaClientProtocol)?
+    private nonisolated(unsafe) static var recaptchaClient: (any RCARecaptchaClientProtocol)?
 
     #if COCOAPODS || SWIFT_PACKAGE // No recaptcha on internal build system.
       private func recaptchaToken(siteKey: String,

@@ -16,7 +16,7 @@ import Foundation
 
 /// The generic interface for an RPC request needed by AuthBackend.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-protocol AuthRPCRequest {
+protocol AuthRPCRequest: Sendable {
   associatedtype Response: AuthRPCResponse
 
   /// Gets the request's full URL.

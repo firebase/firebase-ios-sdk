@@ -1,3 +1,4 @@
+# TODO(Swift 6): Re-enable these tests.
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +28,7 @@
 
 # jobs:
 #   changes:
-#     runs-on: macos-14
+#     runs-on: macos-15
 #     # Only when this is not a scheduled run
 #     if: github.event_name != 'schedule'
 #     outputs:
@@ -92,7 +93,7 @@
 #     if: |
 #       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
 #       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-#     runs-on: macos-14
+#     runs-on: macos-15
 #     steps:
 #     - uses: actions/checkout@v4
 
@@ -114,7 +115,7 @@
 #       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
 #     strategy:
 #       matrix:
-#         os: [macos-14, ubuntu-latest]
+#         os: [macos-15, ubuntu-latest]
 
 #     env:
 #       MINT_PATH: ${{ github.workspace }}/mint
@@ -161,7 +162,7 @@
 
 #     strategy:
 #       matrix:
-#         os: [macos-14]
+#         os: [macos-15]
 #         databaseId: [(default), test-db]
 
 #     env:
@@ -248,7 +249,7 @@
 
 #     strategy:
 #       matrix:
-#         os: [macos-14]
+#         os: [macos-15]
 #         sanitizer: [asan, tsan]
 
 #     runs-on: ${{ matrix.os }}
@@ -432,7 +433,7 @@
 #             --no-analyze
 
 #   spm-package-resolved:
-#     runs-on: macos-14
+#     runs-on: macos-15
 #     env:
 #       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
 #       FIREBASE_SOURCE_FIRESTORE: 1
@@ -524,7 +525,7 @@
 #     if: |
 #       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
 #       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-#     runs-on: macos-14
+#     runs-on: macos-15
 #     steps:
 #     - uses: actions/checkout@v4
 #     - name: Assert that Firestore and FirestoreInternal have identically named headers.
@@ -553,7 +554,7 @@
 #   # spm-source-cron:
 #   #   # Don't run on private repo.
 #   #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-#   #   runs-on: macos-14
+#   #   runs-on: macos-15
 #   #   strategy:
 #   #     matrix:
 #   #       target: [tvOS, macOS, catalyst]
