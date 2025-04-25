@@ -104,7 +104,6 @@ case "$project-$platform-$method" in
     ;;
 
   Firestore-iOS-cmake | Firestore-tvOS-cmake | Firestore-macOS-cmake)
-    brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
     brew install ccache
     brew install ninja

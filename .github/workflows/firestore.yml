@@ -142,6 +142,11 @@ jobs:
       with:
         python-version: '3.11'
 
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.16.x'
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
@@ -230,6 +235,11 @@ jobs:
         GOOGLE_APPLICATION_CREDENTIALS: ../google-service-account.json
       continue-on-error: true
 
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.16.x'
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
@@ -270,6 +280,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.16.x'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -316,6 +331,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.16.x'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
