@@ -1,0 +1,52 @@
+name: common_catalyst
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      # The product to test be tested (e.g. `FirebaseABTesting`).
+      product:
+        type: string
+        required: true
+
+      # The target scheme to be tested (e.g. `FirebaseABTesting-Unit-unit`.
+      target:
+        type: string
+        required: true
+
+      # Whether to build-only. Defaults to false.
+      buildonly:
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  # TODO: Can this be built via SPM?
+  catalyst:
+    # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    runs-on: macos-15
+    steps:
+    - uses: actions/checkout@v4
+    # TODO: Remove in favor of ccache.
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: catalyst${{ matrix.os }}
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: |
+          scripts/test_catalyst.sh \
+            ${{ inputs.product }} \
+            ${{ inputs.buildonly == true && 'build' || 'test' }} \
+            ${{ inputs.target }}

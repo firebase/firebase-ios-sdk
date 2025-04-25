@@ -2,6 +2,7 @@
 # name: spm
 
 # on:
+#   workflow_dispatch:
 #   pull_request:
 #     paths:
 #     - '.github/workflows/spm.yml'
@@ -34,6 +35,8 @@
 #       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
 #     steps:
 #       - uses: actions/checkout@v4
+#       - name: Xcode
+#         run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
 #       - name: Generate Swift Package.resolved
 #         id: swift_package_resolve
 #         run: |
@@ -57,10 +60,10 @@
 #       matrix:
 #         include:
 #           - os: macos-15
-#             xcode: Xcode_16.2
+#             xcode: Xcode_16.3
 #             test: spm
 #           - os: macos-14
-#             xcode: Xcode_15.3
+#             xcode: Xcode_16.2
 #             test: spm
 #     runs-on: ${{ matrix.os }}
 #     steps:
@@ -77,7 +80,7 @@
 #       run: scripts/setup_spm_tests.sh
 #     - name: Functions Integration Test Server
 #       run: FirebaseFunctions/Backend/start.sh synchronous
-#     - uses: nick-fields/retry@v3
+#     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
 #       with:
 #         timeout_minutes: 120
 #         max_attempts: 3
@@ -94,7 +97,7 @@
 #       matrix:
 #         include:
 #           - os: macos-14
-#             xcode: Xcode_15.3
+#             xcode: Xcode_16.2
 #           - os: macos-15
 #             xcode: Xcode_16.2
 #     runs-on: ${{ matrix.os }}
@@ -127,7 +130,7 @@
 #           - os: macos-15
 #             xcode: Xcode_16.2
 #           - os: macos-14
-#             xcode: Xcode_15.3
+#             xcode: Xcode_16.2
 #     runs-on: ${{ matrix.os }}
 #     steps:
 #     - uses: actions/checkout@v4

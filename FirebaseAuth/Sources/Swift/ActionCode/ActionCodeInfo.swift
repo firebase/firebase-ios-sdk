@@ -42,12 +42,12 @@ import Foundation
   /// - Returns: The corresponding ActionCodeOperation for the supplied request type.
   class func actionCodeOperation(forRequestType requestType: String?) -> ActionCodeOperation {
     switch requestType {
-    case "PASSWORD_RESET": return .passwordReset
-    case "VERIFY_EMAIL": return .verifyEmail
-    case "RECOVER_EMAIL": return .recoverEmail
-    case "EMAIL_SIGNIN": return .emailLink
-    case "VERIFY_AND_CHANGE_EMAIL": return .verifyAndChangeEmail
-    case "REVERT_SECOND_FACTOR_ADDITION": return .revertSecondFactorAddition
+    case "resetPassword": return .passwordReset
+    case "verifyEmail": return .verifyEmail
+    case "recoverEmail": return .recoverEmail
+    case "signIn": return .emailLink
+    case "verifyAndChangeEmail": return .verifyAndChangeEmail
+    case "revertSecondFactorAddition": return .revertSecondFactorAddition
     default: return .unknown
     }
   }

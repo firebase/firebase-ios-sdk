@@ -279,7 +279,7 @@ TEST(QueryTest, NanFilter) {
   EXPECT_THAT(query, Matches(doc3));
   EXPECT_THAT(query, Matches(doc4));
   EXPECT_THAT(query, Matches(doc5));
-  EXPECT_THAT(query, Matches(doc6));
+  EXPECT_THAT(query, Not(Matches(doc6)));
 }
 
 TEST(QueryTest, ArrayContainsFilter) {
@@ -383,7 +383,7 @@ TEST(QueryTest, NotInFilters) {
 
   // Null match.
   doc = Doc("collection/1", 0, Map("zip", nullptr));
-  EXPECT_THAT(query, Matches(doc));
+  EXPECT_THAT(query, Not(Matches(doc)));
 
   // NAN match.
   doc = Doc("collection/1", 0, Map("zip", NAN));
