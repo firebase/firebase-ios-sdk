@@ -50,7 +50,7 @@ extension APIConfig {
     /// The Gemini Developer API provided by Google AI.
     ///
     /// See the [Google AI docs](https://ai.google.dev/gemini-api/docs) for more details.
-    case developer(endpoint: Endpoint)
+    case googleAI(endpoint: Endpoint)
 
     /// The specific network address to use for API requests.
     ///
@@ -59,7 +59,7 @@ extension APIConfig {
       switch self {
       case let .vertexAI(endpoint: endpoint):
         return endpoint
-      case let .developer(endpoint: endpoint):
+      case let .googleAI(endpoint: endpoint):
         return endpoint
       }
     }
@@ -69,14 +69,23 @@ extension APIConfig {
 extension APIConfig.Service {
   /// Network addresses for generative AI API services.
   enum Endpoint: String {
-    /// The Vertex AI in Firebase production endpoint.
-    case firebaseVertexAIProd = "https://firebasevertexai.googleapis.com"
+    /// The Firebase proxy production endpoint.
+    ///
+    /// This endpoint supports both Google AI and Vertex AI.
+    case firebaseProxyProd = "https://firebasevertexai.googleapis.com"
 
-    /// The Vertex AI in Firebase staging endpoint; for SDK development and testing only.
-    case firebaseVertexAIStaging = "https://staging-firebasevertexai.sandbox.googleapis.com"
+    /// The Firebase proxy staging endpoint; for SDK development and testing only.
+    ///
+    /// This endpoint supports both the Gemini Developer API (commonly referred to as Google AI)
+    /// and the Gemini API in Vertex AI (commonly referred to simply as Vertex AI).
+    case firebaseProxyStaging = "https://staging-firebasevertexai.sandbox.googleapis.com"
 
-    /// The Gemini Developer API production endpoint; for SDK development and testing only.
-    case generativeLanguage = "https://generativelanguage.googleapis.com"
+    /// The Gemini Developer API (Google AI) direct production endpoint; for SDK development and
+    /// testing only.
+    ///
+    /// This bypasses the Firebase proxy and directly connects to the Gemini Developer API
+    /// (Google AI) backend. This endpoint only supports the Gemini Developer API, not Vertex AI.
+    case geminiDeveloperDirect = "https://generativelanguage.googleapis.com"
   }
 }
 
