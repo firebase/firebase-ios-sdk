@@ -56,7 +56,7 @@ import Foundation
     } else {
       continueURL = nil
     }
-    languageCode = queryItems["languageCode"]
+    languageCode = queryItems["lang"]
   }
 
   class func parseURL(_ urlString: String) -> [String: String] {

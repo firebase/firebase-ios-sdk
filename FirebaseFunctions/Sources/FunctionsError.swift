@@ -25,7 +25,7 @@ public let FunctionsErrorDetailsKey: String = "details"
  * canonical error codes for Google APIs, as documented here:
  * https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto#L26
  */
-@objc(FIRFunctionsErrorCode) public enum FunctionsErrorCode: Int {
+@objc(FIRFunctionsErrorCode) public enum FunctionsErrorCode: Int, Sendable {
   /** The operation completed successfully. */
   case OK = 0
 

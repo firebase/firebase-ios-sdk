@@ -15,7 +15,7 @@
 import Foundation
 import os.log
 
-@_implementationOnly import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 
 enum VertexLog {
   /// Log message codes for the Vertex AI SDK
@@ -33,8 +33,11 @@ enum VertexLog {
 
     // Generative Model Configuration
     case generativeModelInitialized = 1000
+    case unsupportedGeminiModel = 1001
+    case invalidSchemaFormat = 1002
 
     // Imagen Model Configuration
+    case unsupportedImagenModel = 1200
     case imagenInvalidJPEGCompressionQuality = 1201
 
     // Network Errors

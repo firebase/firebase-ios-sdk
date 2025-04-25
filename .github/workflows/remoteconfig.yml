@@ -1,6 +1,7 @@
 name: remoteconfig
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseRemoteConfig**'
@@ -18,6 +19,22 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  spm_1:
+    uses: ./.github/workflows/common.yml
+    with:
+      target: RemoteConfigUnit
+
+  spm_2:
+    uses: ./.github/workflows/common.yml
+    with:
+      target: RemoteConfigFakeConsole
+      buildonly_platforms: watchOS
+
+  catalyst:
+    uses: ./.github/workflows/common_catalyst.yml
+    with:
+      product: FirebaseRemoteConfig
+      target: FirebaseRemoteConfig-Unit-unit
 
   remoteconfig:
     # Don't run on private repo unless it is a PR.
@@ -25,7 +42,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       USE_REAL_CONSOLE: true
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [iOS]
@@ -34,7 +51,7 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: rc${{ matrix.target }}
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
@@ -46,6 +63,8 @@ jobs:
       if: matrix.target == 'iOS'
       run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
           FirebaseRemoteConfig/Tests/Swift/AccessToken.json)
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Fake Console API Tests
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} fakeconsole
     - name: IntegrationTest
@@ -64,9 +83,9 @@ jobs:
         podspec: [FirebaseRemoteConfig.podspec]
         build-env:
           - os: macos-14
-            xcode: Xcode_15.3
-            # TODO(#13078): Fix testing infra to enforce warnings again.
-            tests: --allow-warnings
+            xcode: Xcode_16.2
+#            # TODO(#13078): Fix testing infra to enforce warnings again.
+#            tests: --allow-warnings
           # Flaky tests on CI
           - os: macos-15
             xcode: Xcode_16.2
@@ -74,7 +93,7 @@ jobs:
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
@@ -83,102 +102,6 @@ jobs:
       run: |
        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }} \
          ${{ matrix.build-env.tests }}
-
-  spm-package-resolved:
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
-    outputs:
-      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Generate Swift Package.resolved
-        id: swift_package_resolve
-        run: |
-          swift package resolve
-      - name: Generate cache key
-        id: generate_cache_key
-        run: |
-          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
-          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/save@v4
-        id: cache
-        with:
-          path: .build
-          key: ${{ steps.generate_cache_key.outputs.cache_key }}
-
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    needs: [spm-package-resolved]
-    strategy:
-      matrix:
-        include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-            test: spm
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16.2
-            target: iOS
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16.2
-            target: tvOS
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16.2
-            target: macOS
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16.2
-            target: watchOS
-            test: spmbuildonly
-          - os: macos-15
-            xcode: Xcode_16.2
-            target: catalyst
-            test: spm
-          - os: macos-15
-            xcode: Xcode_16.2
-            target: visionOS
-            test: spm
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
-      with:
-        path: .build
-        key: ${{needs.spm-package-resolved.outputs.cache_key}}
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install visionOS, if needed.
-      if: matrix.target == 'visionOS'
-      run: xcodebuild -downloadPlatform visionOS
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} spm
-    - name: Fake Console tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigFakeConsole ${{ matrix.target }} ${{ matrix.test }}
-
-  catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-14
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: catalyst${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh FirebaseRemoteConfig test FirebaseRemoteConfig-Unit-unit
 
   quickstart:
     # Don't run on private repo unless it is a PR.
@@ -189,7 +112,9 @@ jobs:
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Install Secret GoogleService-Info.plist
@@ -208,7 +133,7 @@ jobs:
   #   runs-on: macos-14
   #   steps:
   #   - uses: actions/checkout@v4
-  #   - uses: ruby/setup-ruby@v1
+  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
   #   - uses: actions/setup-python@v5
   #     with:
   #      python-version: '3.11'
@@ -229,17 +154,17 @@ jobs:
   sample-build-test:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: build-test
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
     - name: Prereqs
       run: scripts/install_prereqs.sh RemoteConfigSample iOS
     - name: Build
@@ -248,7 +173,7 @@ jobs:
   remoteconfig-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -258,7 +183,9 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint RemoteConfig Cron

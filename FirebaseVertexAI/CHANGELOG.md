@@ -1,3 +1,25 @@
+# Unreleased
+- [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
+  omitted; this occurs when the count is 0. (#14745)
+
+# 11.12.0
+- [added] **Public Preview**: Added support for specifying response modalities
+  in `GenerationConfig`. This includes **public experimental** support for image
+  generation using Gemini 2.0 Flash (`gemini-2.0-flash-exp`). (#14658)
+  <br /><br />
+  Note: This feature is in Public Preview and relies on experimental models,
+  which means that it is not subject to any SLA or deprecation policy and could
+  change in backwards-incompatible ways.
+- [added] Added support for more `Schema` fields: `minItems`/`maxItems` (array
+  size limits), `title` (schema name), `minimum`/`maximum` (numeric ranges),
+  `anyOf` (select from sub-schemas), and `propertyOrdering` (JSON key order). (#14647)
+- [fixed] Fixed an issue where network requests would fail in the iOS 18.4
+  simulator due to a `URLSession` bug introduced in Xcode 16.3. (#14677)
+
+# 11.11.0
+- [added] Emits a warning when attempting to use an incompatible model with
+  `GenerativeModel` or `ImagenModel`. (#14610)
+
 # 11.10.0
 - [feature] The Vertex AI SDK no longer requires `@preconcurrency` when imported in Swift 6.
 - [feature] The Vertex AI Sample App now includes an image generation example.
@@ -7,12 +29,12 @@
   are required. (#14558)
 
 # 11.9.0
-- [feature] **Public Preview**: Added support for generating images using the
-  Imagen 3 model.
+- [feature] **Public Preview**: Added support for
+  [generating images](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
+  using the Imagen 3 models.
   <br /><br />
-  Note: This feature is in Public Preview, which means that the it is not
-  subject to any SLA or deprecation policy and could change in
-  backwards-incompatible ways.
+  Note: This feature is in Public Preview, which means that it is not subject to
+  any SLA or deprecation policy and could change in backwards-incompatible ways.
 - [feature] Added support for modality-based token count. (#14406)
 
 # 11.6.0

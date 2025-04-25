@@ -20,7 +20,13 @@ import Foundation
 /// content based on various input types.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class GenerativeModel: Sendable {
-  /// The resource name of the model in the backend; has the format "models/model-name".
+  /// Model name prefix to identify Gemini models.
+  static let geminiModelNamePrefix = "gemini-"
+
+  /// The name of the model, for example "gemini-2.0-flash".
+  let modelName: String
+
+  /// The model resource name corresponding with `modelName` in the backend.
   let modelResourceName: String
 
   /// Configuration for the backend API used by this model.
@@ -50,7 +56,13 @@ public final class GenerativeModel: Sendable {
   /// Initializes a new remote model with the given parameters.
   ///
   /// - Parameters:
-  ///   - name: The name of the model to use, for example `"gemini-1.0-pro"`.
+  ///   - modelName: The name of the model, for example "gemini-2.0-flash".
+  ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
+  ///     The form depends on the backend and will be one of:
+  ///       - Vertex AI via Vertex AI in Firebase:
+  ///       `"projects/{projectID}/locations/{locationID}/publishers/google/models/{modelName}"`
+  ///       - Developer API via Vertex AI in Firebase: `"projects/{projectID}/models/{modelName}"`
+  ///       - Developer API via Generative Language: `"models/{modelName}"`
   ///   - firebaseInfo: Firebase data used by the SDK, including project ID and API key.
   ///   - apiConfig: Configuration for the backend API used by this model.
   ///   - generationConfig: The content generation parameters your model should use.
@@ -61,7 +73,8 @@ public final class GenerativeModel: Sendable {
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
-  init(name: String,
+  init(modelName: String,
+       modelResourceName: String,
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
        generationConfig: GenerationConfig? = nil,
@@ -70,8 +83,9 @@ public final class GenerativeModel: Sendable {
        toolConfig: ToolConfig? = nil,
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
-       urlSession: URLSession = .shared) {
-    modelResourceName = name
+       urlSession: URLSession = GenAIURLSession.default) {
+    self.modelName = modelName
+    self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
@@ -98,7 +112,7 @@ public final class GenerativeModel: Sendable {
       `\(VertexLog.enableArgumentKey)` as a launch argument in Xcode.
       """)
     }
-    VertexLog.debug(code: .generativeModelInitialized, "Model \(name) initialized.")
+    VertexLog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
@@ -260,15 +274,45 @@ public final class GenerativeModel: Sendable {
   /// - Returns: The results of running the model's tokenizer on the input; contains
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
-    let countTokensRequest = CountTokensRequest(
-      model: modelResourceName,
-      contents: content,
-      systemInstruction: systemInstruction,
-      tools: tools,
+    let requestContent = switch apiConfig.service {
+    case .vertexAI:
+      content
+    case .developer:
+      // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
+      // erroneously counted towards the prompt and total token count when using the Developer API
+      // backend; set to `nil` to avoid token count discrepancies between `countTokens` and
+      // `generateContent` and the two backend APIs.
+      content.map { ModelContent(role: nil, parts: $0.parts) }
+    }
+
+    // When using the Developer API via the Firebase backend, the model name of the
+    // `GenerateContentRequest` nested in the `CountTokensRequest` must be of the form
+    // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
+    // request to the Generative Language backend, which expects the form "models/model-name".
+    let generateContentRequestModelResourceName = switch apiConfig.service {
+    case .vertexAI, .developer(endpoint: .generativeLanguage):
+      modelResourceName
+    case .developer(endpoint: .firebaseVertexAIProd),
+         .developer(endpoint: .firebaseVertexAIStaging):
+      "models/\(modelName)"
+    }
+
+    let generateContentRequest = GenerateContentRequest(
+      model: generateContentRequestModelResourceName,
+      contents: requestContent,
       generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
       apiConfig: apiConfig,
+      apiMethod: .countTokens,
       options: requestOptions
     )
+    let countTokensRequest = CountTokensRequest(
+      modelResourceName: modelResourceName, generateContentRequest: generateContentRequest
+    )
+
     return try await generativeAIService.loadRequest(request: countTokensRequest)
   }
 

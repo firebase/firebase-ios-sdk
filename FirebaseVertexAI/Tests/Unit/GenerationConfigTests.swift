@@ -61,7 +61,8 @@ final class GenerationConfigTests: XCTestCase {
       frequencyPenalty: frequencyPenalty,
       stopSequences: stopSequences,
       responseMIMEType: responseMIMEType,
-      responseSchema: .array(items: .string())
+      responseSchema: .array(items: .string()),
+      responseModalities: [.text, .image]
     )
 
     let jsonData = try encoder.encode(generationConfig)
@@ -74,6 +75,10 @@ final class GenerationConfigTests: XCTestCase {
       "maxOutputTokens" : \(maxOutputTokens),
       "presencePenalty" : \(presencePenalty),
       "responseMimeType" : "\(responseMIMEType)",
+      "responseModalities" : [
+        "TEXT",
+        "IMAGE"
+      ],
       "responseSchema" : {
         "items" : {
           "nullable" : false,
@@ -99,6 +104,7 @@ final class GenerationConfigTests: XCTestCase {
       responseMIMEType: mimeType,
       responseSchema: .object(properties: [
         "firstName": .string(),
+        "middleNames": .array(items: .string(), minItems: 0, maxItems: 3),
         "lastName": .string(),
         "age": .integer(),
       ])
@@ -124,12 +130,23 @@ final class GenerationConfigTests: XCTestCase {
           "lastName" : {
             "nullable" : false,
             "type" : "STRING"
+          },
+          "middleNames" : {
+            "items" : {
+              "nullable" : false,
+              "type" : "STRING"
+            },
+            "maxItems" : 3,
+            "minItems" : 0,
+            "nullable" : false,
+            "type" : "ARRAY"
           }
         },
         "required" : [
           "age",
           "firstName",
-          "lastName"
+          "lastName",
+          "middleNames"
         ],
         "type" : "OBJECT"
       }

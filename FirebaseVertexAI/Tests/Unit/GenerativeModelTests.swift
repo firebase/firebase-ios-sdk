@@ -17,7 +17,7 @@ import FirebaseAuthInterop
 import FirebaseCore
 import XCTest
 
-@testable import FirebaseVertexAI
+@testable public import FirebaseVertexAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerativeModelTests: XCTestCase {
@@ -56,9 +56,12 @@ final class GenerativeModelTests: XCTestCase {
       blocked: false
     ),
   ].sorted()
+  let testModelName = "test-model"
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let apiConfig = APIConfig(service: .vertexAI, version: .v1beta)
+  let apiConfig = VertexAI.defaultVertexAIAPIConfig
+
+  let vertexSubdirectory = "vertexai"
 
   var urlSession: URLSession!
   var model: GenerativeModel!
@@ -68,7 +71,8 @@ final class GenerativeModelTests: XCTestCase {
     configuration.protocolClasses = [MockURLProtocol.self]
     urlSession = try XCTUnwrap(URLSession(configuration: configuration))
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
@@ -87,7 +91,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-long",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -109,7 +114,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -131,7 +137,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-response-long-usage-metadata",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -155,7 +162,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-citations",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
     let expectedPublicationDate = DateComponents(
       calendar: Calendar(identifier: .gregorian),
@@ -199,7 +207,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-quote-reply",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -249,7 +258,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-unknown-enum-safety-ratings",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -263,11 +273,12 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
     let model = GenerativeModel(
-      // Model name is prefixed with "models/".
-      name: "models/test-model",
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
@@ -282,7 +293,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-function-call-empty-arguments",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -304,7 +316,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-function-call-no-arguments",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -326,7 +339,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-function-call-with-arguments",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -352,7 +366,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-function-call-parallel-calls",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -368,7 +383,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-function-call-mixed-content",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -385,7 +401,8 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
       apiConfig: apiConfig,
       tools: nil,
@@ -396,6 +413,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         appCheckToken: appCheckToken
       )
 
@@ -405,7 +423,8 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_dataCollectionOff() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken),
                                      privateAppID: true),
       apiConfig: apiConfig,
@@ -417,6 +436,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         appCheckToken: appCheckToken,
         dataCollection: false
       )
@@ -426,7 +446,8 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContent_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
       apiConfig: apiConfig,
       tools: nil,
@@ -437,6 +458,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         appCheckToken: AppCheckInteropFake.placeholderTokenValue
       )
 
@@ -446,7 +468,8 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_auth_validAuthToken() async throws {
     let authToken = "test-valid-token"
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: authToken)),
       apiConfig: apiConfig,
       tools: nil,
@@ -457,6 +480,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         authToken: authToken
       )
 
@@ -465,7 +489,8 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContent_auth_nilAuthToken() async throws {
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: nil)),
       apiConfig: apiConfig,
       tools: nil,
@@ -476,6 +501,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         authToken: nil
       )
 
@@ -484,7 +510,8 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContent_auth_authTokenRefreshError() async throws {
     model = GenerativeModel(
-      name: "my-model",
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(error: AuthErrorFake())),
       apiConfig: apiConfig,
       tools: nil,
@@ -495,6 +522,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         authToken: nil
       )
 
@@ -512,7 +540,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     let response = try await model.generateContent(testPrompt)
@@ -531,6 +560,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-api-key",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         statusCode: expectedStatusCode
       )
 
@@ -559,6 +589,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-firebasevertexai-api-not-enabled",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         statusCode: expectedStatusCode
       )
 
@@ -581,7 +612,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-empty-content",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -604,7 +636,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-finish-reason-safety",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -622,7 +655,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-finish-reason-safety-no-content",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -642,6 +676,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-image-rejected",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         statusCode: 400
       )
 
@@ -661,7 +696,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-prompt-blocked-safety",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -681,7 +717,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-prompt-blocked-safety-with-message",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -701,7 +738,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-unknown-enum-finish-reason",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
     let unknownFinishReason = FinishReason(rawValue: "FAKE_NEW_FINISH_REASON")
 
@@ -720,7 +758,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-unknown-enum-prompt-blocked",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
     let unknownBlockReason = PromptFeedback.BlockReason(rawValue: "FAKE_NEW_BLOCK_REASON")
 
@@ -741,6 +780,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-unknown-model",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         statusCode: 404
       )
 
@@ -783,7 +823,8 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContent_failure_invalidResponse() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-failure-invalid-response",
-      withExtension: "json"
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
     )
 
     var responseError: Error?
@@ -813,7 +854,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-malformed-content",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     var responseError: Error?
@@ -845,7 +887,8 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentMissingSafetyRatings() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-success-missing-safety-ratings",
-      withExtension: "json"
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
     )
 
     let content = try await model.generateContent(testPrompt)
@@ -860,11 +903,13 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-basic-reply-short",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         timeout: expectedTimeout
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
@@ -883,7 +928,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-api-key",
-        withExtension: "json"
+        withExtension: "json",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -913,6 +959,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-failure-firebasevertexai-api-not-enabled",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         statusCode: expectedStatusCode
       )
 
@@ -937,7 +984,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-failure-empty-content",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -957,7 +1005,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-failure-finish-reason-safety",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -980,7 +1029,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-failure-prompt-blocked-safety",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -1002,7 +1052,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-failure-prompt-blocked-safety-with-message",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
 
     do {
@@ -1024,7 +1075,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-failure-unknown-finish-enum",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
     let unknownFinishReason = FinishReason(rawValue: "FAKE_ENUM")
 
@@ -1045,7 +1097,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-success-basic-reply-long",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
 
     var responses = 0
@@ -1062,7 +1115,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-success-basic-reply-short",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
 
     var responses = 0
@@ -1079,7 +1133,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-success-unknown-safety-enum",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
     let unknownSafetyRating = SafetyRating(
       category: HarmCategory(rawValue: "HARM_CATEGORY_DANGEROUS_CONTENT_NEW_ENUM"),
@@ -1107,7 +1162,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-success-citations",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
     let expectedPublicationDate = DateComponents(
       calendar: Calendar(identifier: .gregorian),
@@ -1157,7 +1213,8 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentStream_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
       apiConfig: apiConfig,
       tools: nil,
@@ -1168,6 +1225,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-success-basic-reply-short",
         withExtension: "txt",
+        subdirectory: vertexSubdirectory,
         appCheckToken: appCheckToken
       )
 
@@ -1177,7 +1235,8 @@ final class GenerativeModelTests: XCTestCase {
 
   func testGenerateContentStream_appCheck_tokenRefreshError() async throws {
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
       apiConfig: apiConfig,
       tools: nil,
@@ -1188,6 +1247,7 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-success-basic-reply-short",
         withExtension: "txt",
+        subdirectory: vertexSubdirectory,
         appCheckToken: AppCheckInteropFake.placeholderTokenValue
       )
 
@@ -1199,7 +1259,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-success-basic-reply-short",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
     var responses = [GenerateContentResponse]()
 
@@ -1224,7 +1285,8 @@ final class GenerativeModelTests: XCTestCase {
   func testGenerateContentStream_errorMidStream() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "streaming-failure-error-mid-stream",
-      withExtension: "txt"
+      withExtension: "txt",
+      subdirectory: vertexSubdirectory
     )
 
     var responseCount = 0
@@ -1266,7 +1328,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-failure-invalid-json",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
 
     let stream = try model.generateContentStream(testPrompt)
@@ -1290,7 +1353,8 @@ final class GenerativeModelTests: XCTestCase {
     MockURLProtocol
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-failure-malformed-content",
-        withExtension: "txt"
+        withExtension: "txt",
+        subdirectory: vertexSubdirectory
       )
 
     let stream = try model.generateContentStream(testPrompt)
@@ -1317,11 +1381,13 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "streaming-success-basic-reply-short",
         withExtension: "txt",
+        subdirectory: vertexSubdirectory,
         timeout: expectedTimeout
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
@@ -1344,7 +1410,8 @@ final class GenerativeModelTests: XCTestCase {
   func testCountTokens_succeeds() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-success-total-tokens",
-      withExtension: "json"
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
     )
 
     let response = try await model.countTokens("Why is the sky blue?")
@@ -1356,7 +1423,8 @@ final class GenerativeModelTests: XCTestCase {
   func testCountTokens_succeeds_detailed() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-success-detailed-token-response",
-      withExtension: "json"
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
     )
 
     let response = try await model.countTokens("Why is the sky blue?")
@@ -1373,7 +1441,8 @@ final class GenerativeModelTests: XCTestCase {
   func testCountTokens_succeeds_allOptions() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-success-total-tokens",
-      withExtension: "json"
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
     )
     let generationConfig = GenerationConfig(
       temperature: 0.5,
@@ -1394,7 +1463,8 @@ final class GenerativeModelTests: XCTestCase {
       parts: "You are a calculator. Use the provided tools."
     )
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
       generationConfig: generationConfig,
@@ -1413,7 +1483,8 @@ final class GenerativeModelTests: XCTestCase {
   func testCountTokens_succeeds_noBillableCharacters() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-success-no-billable-characters",
-      withExtension: "json"
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
     )
 
     let response = try await model.countTokens(InlineDataPart(data: Data(), mimeType: "image/jpeg"))
@@ -1425,6 +1496,7 @@ final class GenerativeModelTests: XCTestCase {
   func testCountTokens_modelNotFound() async throws {
     MockURLProtocol.requestHandler = try httpRequestHandler(
       forResource: "unary-failure-model-not-found", withExtension: "json",
+      subdirectory: vertexSubdirectory,
       statusCode: 404
     )
 
@@ -1447,11 +1519,13 @@ final class GenerativeModelTests: XCTestCase {
       .requestHandler = try httpRequestHandler(
         forResource: "unary-success-total-tokens",
         withExtension: "json",
+        subdirectory: vertexSubdirectory,
         timeout: expectedTimeout
       )
     let requestOptions = RequestOptions(timeout: expectedTimeout)
     model = GenerativeModel(
-      name: testModelResourceName,
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
       firebaseInfo: testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
@@ -1478,7 +1552,7 @@ final class GenerativeModelTests: XCTestCase {
       auth: auth,
       projectID: "my-project-id",
       apiKey: "API_KEY",
-      googleAppID: "My app ID",
+      firebaseAppID: "My app ID",
       firebaseApp: app
     )
   }
@@ -1506,6 +1580,7 @@ final class GenerativeModelTests: XCTestCase {
 
   private func httpRequestHandler(forResource name: String,
                                   withExtension ext: String,
+                                  subdirectory subpath: String,
                                   statusCode: Int = 200,
                                   timeout: TimeInterval = RequestOptions().timeout,
                                   appCheckToken: String? = nil,
@@ -1520,7 +1595,9 @@ final class GenerativeModelTests: XCTestCase {
       throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
     #endif // os(watchOS)
     let bundle = BundleTestUtil.bundle()
-    let fileURL = try XCTUnwrap(bundle.url(forResource: name, withExtension: ext))
+    let fileURL = try XCTUnwrap(
+      bundle.url(forResource: name, withExtension: ext, subdirectory: subpath)
+    )
     return { request in
       let requestURL = try XCTUnwrap(request.url)
       XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
@@ -1530,9 +1607,14 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
       XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
       XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
-      // TODO: Wait for release approval
-      // let googleAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
-      // XCTAssertEqual(googleAppID, dataCollection ? "My app ID" : nil)
+
+      let firebaseAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
+      let appVersion = request.value(forHTTPHeaderField: "X-Firebase-AppVersion")
+      let expectedAppVersion =
+        try? XCTUnwrap(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
+      XCTAssertEqual(firebaseAppID, dataCollection ? "My app ID" : nil)
+      XCTAssertEqual(appVersion, dataCollection ? expectedAppVersion : nil)
+
       if let authToken {
         XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Firebase \(authToken)")
       } else {
@@ -1608,8 +1690,7 @@ struct AppCheckErrorFake: Error {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Swift.Comparable {
-  public static func < (lhs: FirebaseVertexAI.SafetyRating,
-                        rhs: FirebaseVertexAI.SafetyRating) -> Bool {
+  public static func < (lhs: SafetyRating, rhs: SafetyRating) -> Bool {
     return lhs.category.rawValue < rhs.category.rawValue
   }
 }
