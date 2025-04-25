@@ -73,7 +73,7 @@ public final class FirebaseAI: Sendable {
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
     if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix) {
-      VertexLog.warning(code: .unsupportedGeminiModel, """
+      AILog.warning(code: .unsupportedGeminiModel, """
       Unsupported Gemini model "\(modelName)"; see \
       https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
       """)
@@ -113,7 +113,7 @@ public final class FirebaseAI: Sendable {
                           safetySettings: ImagenSafetySettings? = nil,
                           requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
     if !modelName.starts(with: ImagenModel.imagenModelNamePrefix) {
-      VertexLog.warning(code: .unsupportedImagenModel, """
+      AILog.warning(code: .unsupportedImagenModel, """
       Unsupported Imagen model "\(modelName)"; see \
       https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
       """)

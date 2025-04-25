@@ -50,12 +50,12 @@ struct GenerativeAIService {
 
     // Verify the status code is 200
     guard response.statusCode == 200 else {
-      VertexLog.error(
+      AILog.error(
         code: .loadRequestResponseError,
         "The server responded with an error: \(response)"
       )
       if let responseString = String(data: data, encoding: .utf8) {
-        VertexLog.error(
+        AILog.error(
           code: .loadRequestResponseErrorPayload,
           "Response payload: \(responseString)"
         )
@@ -104,7 +104,7 @@ struct GenerativeAIService {
 
         // Verify the status code is 200
         guard response.statusCode == 200 else {
-          VertexLog.error(
+          AILog.error(
             code: .loadRequestStreamResponseError,
             "The server responded with an error: \(response)"
           )
@@ -113,7 +113,7 @@ struct GenerativeAIService {
             responseBody += line + "\n"
           }
 
-          VertexLog.error(
+          AILog.error(
             code: .loadRequestStreamResponseErrorPayload,
             "Response payload: \(responseBody)"
           )
@@ -128,7 +128,7 @@ struct GenerativeAIService {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         for try await line in stream.lines {
-          VertexLog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
+          AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
 
           if line.hasPrefix("data:") {
             // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
@@ -180,7 +180,7 @@ struct GenerativeAIService {
       let tokenResult = await appCheck.getToken(forcingRefresh: false)
       urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
       if let error = tokenResult.error {
-        VertexLog.error(
+        AILog.error(
           code: .appCheckTokenFetchFailed,
           "Failed to fetch AppCheck token. Error: \(error)"
         )
@@ -212,7 +212,7 @@ struct GenerativeAIService {
     // response objects you get back from the URLSession, NSURLConnection, or NSURLDownload class
     // are instances of the HTTPURLResponse class."
     guard let response = urlResponse as? HTTPURLResponse else {
-      VertexLog.error(
+      AILog.error(
         code: .generativeAIServiceNonHTTPResponse,
         "Response wasn't an HTTP response, internal error \(urlResponse)"
       )
@@ -260,8 +260,8 @@ struct GenerativeAIService {
   private func logRPCError(_ error: BackendError) {
     let projectID = firebaseInfo.projectID
     if error.isVertexAIInFirebaseServiceDisabledError() {
-      VertexLog.error(code: .vertexAIInFirebaseAPIDisabled, """
-      The Vertex AI in Firebase SDK requires the Vertex AI in Firebase API \
+      AILog.error(code: .vertexAIInFirebaseAPIDisabled, """
+      The Firebase AI SDK requires the Firebase AI API \
       (`firebasevertexai.googleapis.com`) to be enabled in your Firebase project. Enable this API \
       by visiting the Firebase Console at
       https://console.firebase.google.com/project/\(projectID)/genai/ and clicking "Get started". \
@@ -276,9 +276,9 @@ struct GenerativeAIService {
       return try JSONDecoder().decode(type, from: data)
     } catch {
       if let json = String(data: data, encoding: .utf8) {
-        VertexLog.error(code: .loadRequestParseResponseFailedJSON, "JSON response: \(json)")
+        AILog.error(code: .loadRequestParseResponseFailedJSON, "JSON response: \(json)")
       }
-      VertexLog.error(
+      AILog.error(
         code: .loadRequestParseResponseFailedJSONError,
         "Error decoding server JSON: \(error)"
       )
@@ -307,12 +307,12 @@ struct GenerativeAIService {
     }
 
     private func printCURLCommand(from request: URLRequest) {
-      guard VertexLog.additionalLoggingEnabled() else {
+      guard AILog.additionalLoggingEnabled() else {
         return
       }
       let command = cURLCommand(from: request)
-      os_log(.debug, log: VertexLog.logObject, """
-      \(VertexLog.service) Creating request with the equivalent cURL command:
+      os_log(.debug, log: AILog.logObject, """
+      \(AILog.service) Creating request with the equivalent cURL command:
       ----- cURL command -----
       \(command, privacy: .private)
       ------------------------

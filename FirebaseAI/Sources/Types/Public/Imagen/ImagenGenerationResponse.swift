@@ -61,7 +61,7 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
       } else if let filteredReason = try? predictionsContainer.decode(RAIFilteredReason.self) {
         filteredReasons.append(filteredReason.raiFilteredReason)
       } else if let unsupportedPrediction = try? predictionsContainer.decode(JSONObject.self) {
-        VertexLog.warning(
+        AILog.warning(
           code: .decodedUnsupportedImagenPredictionType,
           "Ignoring unsupported Imagen prediction: \(unsupportedPrediction)"
         )

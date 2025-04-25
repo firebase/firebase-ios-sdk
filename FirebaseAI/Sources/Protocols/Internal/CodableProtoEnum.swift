@@ -46,8 +46,8 @@ protocol ProtoEnum: Sendable {
 /// Protobuf enums are represented as strings in JSON. A default `Decodable` implementation is
 /// provided when conforming to this type.
 protocol DecodableProtoEnum: ProtoEnum, Decodable {
-  /// Returns the ``VertexLog/MessageCode`` associated with unrecognized (unknown) enum values.
-  static var unrecognizedValueMessageCode: VertexLog.MessageCode { get }
+  /// Returns the ``AILog/MessageCode`` associated with unrecognized (unknown) enum values.
+  static var unrecognizedValueMessageCode: AILog.MessageCode { get }
 
   /// Creates a new instance by decoding from the given decoder.
   ///
@@ -90,7 +90,7 @@ extension DecodableProtoEnum {
     self = Self(rawValue: rawValue)
 
     if Kind(rawValue: rawValue) == nil {
-      VertexLog.error(
+      AILog.error(
         code: Self.unrecognizedValueMessageCode,
         """
         Unrecognized \(Self.self) with value "\(rawValue)":
