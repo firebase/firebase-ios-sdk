@@ -18,7 +18,7 @@ import FirebaseStorage
 import XCTest
 
 @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
-class StorageAsyncAwait: StorageIntegrationCommon {
+class StorageAsyncAwait: StorageIntegrationCommon, @unchecked Sendable {
   func testGetMetadata() async throws {
     let ref = storage.reference().child("ios/public/1mb2")
     let result = try await ref.getMetadata()
@@ -279,7 +279,7 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     XCTAssertEqual(url.lastPathComponent, #function + "hello.txt")
   }
 
-  func testSimpleGetFile() throws {
+  @MainActor func testSimpleGetFile() throws {
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/helloworld" + #function)
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
@@ -427,7 +427,7 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     XCTAssertNil(listResult.pageToken, "pageToken should be nil")
   }
 
-  private func waitForExpectations() {
+  @MainActor private func waitForExpectations() {
     let kTestTimeout = 60.0
     waitForExpectations(timeout: kTestTimeout,
                         handler: { error in
