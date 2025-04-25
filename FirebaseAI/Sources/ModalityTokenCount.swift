@@ -54,7 +54,7 @@ public struct ContentModality: DecodableProtoEnum, Hashable, Sendable {
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =
-    VertexLog.MessageCode.generateContentResponseUnrecognizedContentModality
+    AILog.MessageCode.generateContentResponseUnrecognizedContentModality
 }
 
 // MARK: Codable Conformances

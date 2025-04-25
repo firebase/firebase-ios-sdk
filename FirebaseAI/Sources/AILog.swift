@@ -17,8 +17,8 @@ import os.log
 
 internal import FirebaseCoreExtension
 
-enum VertexLog {
-  /// Log message codes for the Vertex AI SDK
+enum AILog {
+  /// Log message codes for the Firebase AI SDK
   ///
   /// These codes should ideally not be re-used in order to facilitate matching error codes in
   /// support requests to lines in the SDK. These codes should range between 0 and 999999 to avoid
@@ -75,10 +75,10 @@ enum VertexLog {
   /// Subsystem that should be used for all Loggers.
   static let subsystem = "com.google.firebase"
 
-  /// Log identifier for the Vertex AI SDK.
+  /// Log identifier for the AI SDK.
   ///
   /// > Note: This corresponds to the `category` in `OSLog`.
-  static let service = "[FirebaseVertexAI]"
+  static let service = "[FirebaseAI]"
 
   /// The raw `OSLog` log object.
   ///
@@ -92,7 +92,7 @@ enum VertexLog {
     let messageCode = String(format: "I-VTX%06d", code.rawValue)
     FirebaseLogger.log(
       level: level,
-      service: VertexLog.service,
+      service: AILog.service,
       code: messageCode,
       message: message
     )

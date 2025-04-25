@@ -107,7 +107,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
-      VertexLog.MessageCode.generateContentResponseUnrecognizedHarmProbability
+      AILog.MessageCode.generateContentResponseUnrecognizedHarmProbability
   }
 
   /// The magnitude of how harmful a model response might be for the respective ``HarmCategory``.
@@ -139,7 +139,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
-      VertexLog.MessageCode.generateContentResponseUnrecognizedHarmSeverity
+      AILog.MessageCode.generateContentResponseUnrecognizedHarmSeverity
   }
 }
 
@@ -263,7 +263,7 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =
-    VertexLog.MessageCode.generateContentResponseUnrecognizedHarmCategory
+    AILog.MessageCode.generateContentResponseUnrecognizedHarmCategory
 }
 
 // MARK: - Codable Conformances

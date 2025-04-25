@@ -104,15 +104,15 @@ public final class GenerativeModel: Sendable {
     }
     self.requestOptions = requestOptions
 
-    if VertexLog.additionalLoggingEnabled() {
-      VertexLog.debug(code: .verboseLoggingEnabled, "Verbose logging enabled.")
+    if AILog.additionalLoggingEnabled() {
+      AILog.debug(code: .verboseLoggingEnabled, "Verbose logging enabled.")
     } else {
-      VertexLog.info(code: .verboseLoggingDisabled, """
+      AILog.info(code: .verboseLoggingDisabled, """
       [FirebaseVertexAI] To enable additional logging, add \
-      `\(VertexLog.enableArgumentKey)` as a launch argument in Xcode.
+      `\(AILog.enableArgumentKey)` as a launch argument in Xcode.
       """)
     }
-    VertexLog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
+    AILog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are

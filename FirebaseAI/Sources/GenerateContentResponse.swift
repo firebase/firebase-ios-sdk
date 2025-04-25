@@ -49,7 +49,7 @@ public struct GenerateContentResponse: Sendable {
   /// The response's content as text, if it exists.
   public var text: String? {
     guard let candidate = candidates.first else {
-      VertexLog.error(
+      AILog.error(
         code: .generateContentResponseNoCandidates,
         "Could not get text from a response that had no candidates."
       )
@@ -64,7 +64,7 @@ public struct GenerateContentResponse: Sendable {
       }
     }
     guard textValues.count > 0 else {
-      VertexLog.error(
+      AILog.error(
         code: .generateContentResponseNoText,
         "Could not get a text part from the first candidate."
       )
@@ -91,7 +91,7 @@ public struct GenerateContentResponse: Sendable {
   /// Returns inline data parts found in any `Part`s of the first candidate of the response, if any.
   public var inlineDataParts: [InlineDataPart] {
     guard let candidate = candidates.first else {
-      VertexLog.error(code: .generateContentResponseNoCandidates, """
+      AILog.error(code: .generateContentResponseNoCandidates, """
       Could not get inline data parts because the response has no candidates. The accessor only \
       checks the first candidate.
       """)
@@ -219,7 +219,7 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =
-    VertexLog.MessageCode.generateContentResponseUnrecognizedFinishReason
+    AILog.MessageCode.generateContentResponseUnrecognizedFinishReason
 }
 
 /// A metadata struct containing any feedback the model had on the prompt it was provided.
@@ -254,7 +254,7 @@ public struct PromptFeedback: Sendable {
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
-      VertexLog.MessageCode.generateContentResponseUnrecognizedBlockReason
+      AILog.MessageCode.generateContentResponseUnrecognizedBlockReason
   }
 
   /// The reason a prompt was blocked, if it was blocked.
@@ -428,7 +428,7 @@ extension Citation: Decodable {
     ) {
       publicationDate = publicationProtoDate.dateComponents
       if let publicationDate, !publicationDate.isValidDate {
-        VertexLog.warning(
+        AILog.warning(
           code: .decodedInvalidCitationPublicationDate,
           "Decoded an invalid citation publication date: \(publicationDate)"
         )
