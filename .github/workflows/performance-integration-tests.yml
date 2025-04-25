@@ -4,6 +4,7 @@
 # name: performance-integration-tests
 
 # on:
+#   workflow_dispatch:
 #   pull_request:
 #     paths:
 #     # This configuration file.
@@ -22,27 +23,27 @@
 
 # jobs:
 
-  # Public repository: Build and run the Integration Tests for the Firebase performance E2E Test App.
-  # performance-integration-tests:
-  #   if: github.repository == 'Firebase/firebase-ios-sdk'
-  #   env:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-15
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-  #     with:
-  #       cache_key: integration
-  #   - uses: ruby/setup-ruby@v1
-  #   - name: Setup Bundler
-  #     run: scripts/setup_bundler.sh
-  #   - name: Install xcpretty
-  #     run: gem install xcpretty
-  #   - name: Install Secret GoogleService-Info.plist
-  #     run: |
-  #       scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Performance/GoogleService-Info_e2e_autopush.plist.gpg \
-  #           FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EAutopush/GoogleService-Info.plist "$plist_secret"
-  #       scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Performance/GoogleService-Info_e2e_prod.plist.gpg \
-  #           FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EProd/GoogleService-Info.plist "$plist_secret"
-  #   - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
-  #     run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all integration
+#   # Public repository: Build and run the Integration Tests for the Firebase performance E2E Test App.
+#   performance-integration-tests:
+#     if: github.repository == 'Firebase/firebase-ios-sdk'
+#     env:
+#       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+#     runs-on: macos-15
+#     steps:
+#     - uses: actions/checkout@v4
+#     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+#       with:
+#         cache_key: integration
+#     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+#     - name: Setup Bundler
+#       run: scripts/setup_bundler.sh
+#     - name: Install xcpretty
+#       run: gem install xcpretty
+#     - name: Install Secret GoogleService-Info.plist
+#       run: |
+#         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Performance/GoogleService-Info_e2e_autopush.plist.gpg \
+#             FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EAutopush/GoogleService-Info.plist "$plist_secret"
+#         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Performance/GoogleService-Info_e2e_prod.plist.gpg \
+#             FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EProd/GoogleService-Info.plist "$plist_secret"
+#     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
+#       run: scripts/third_party/travis/retry.sh scripts/build.sh Performance all integration

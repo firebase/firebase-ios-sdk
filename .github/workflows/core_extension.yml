@@ -1,6 +1,7 @@
 name: core_extension
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseCoreExtension.podspec'
@@ -21,12 +22,16 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         build-env:
+          - os: macos-14
+            xcode: Xcode_16.2
           - os: macos-15
             xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
@@ -47,7 +52,9 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint CoreInternal Cron

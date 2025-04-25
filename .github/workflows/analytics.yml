@@ -1,6 +1,7 @@
 name: analytics
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseAnalytics**'
@@ -23,15 +24,24 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
+<<<<<<< HEAD
         os: [macos-15]
         include:
           - os: macos-15
             xcode: Xcode_16.2
+=======
+        os: [macos-14, macos-15]
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.3
+>>>>>>> swift-6
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode

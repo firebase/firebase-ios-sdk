@@ -20,10 +20,10 @@ import FirebaseCore
 import FirebaseCoreExtension
 import FirebaseCoreInternal
 #if COCOAPODS
-  @_implementationOnly import GoogleUtilities
+  internal import GoogleUtilities
 #else
-  @_implementationOnly import GoogleUtilities_AppDelegateSwizzler
-  @_implementationOnly import GoogleUtilities_Environment
+  internal import GoogleUtilities_AppDelegateSwizzler
+  internal import GoogleUtilities_Environment
 #endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

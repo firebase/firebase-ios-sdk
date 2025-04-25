@@ -4,6 +4,7 @@
 # # Verify that the Firebase.podspec will successfully `pod install`.
 
 # on:
+#   workflow_dispatch:
 #   pull_request:
 #     paths:
 #     - '*.podspec'
@@ -25,17 +26,17 @@
 
 #     runs-on: macos-latest
 
-#     steps:
-#     - uses: actions/checkout@v4
-#     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-#       with:
-#         cache_key: firebasepod
-#     - uses: ruby/setup-ruby@v1
-#     - name: Setup Bundler
-#       run: scripts/setup_bundler.sh
-#     - name: Xcode
-#       run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-#     - name: Prereqs
-#       run: scripts/install_prereqs.sh FirebasePod iOS
-#     - name: Build
-#       run: scripts/build.sh FirebasePod iOS
+    # steps:
+    # - uses: actions/checkout@v4
+    # - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+    #   with:
+    #     cache_key: firebasepod
+    # - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    # - name: Setup Bundler
+    #   run: scripts/setup_bundler.sh
+    # - name: Xcode
+    #   run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    # - name: Prereqs
+    #   run: scripts/install_prereqs.sh FirebasePod iOS
+    # - name: Build
+    #   run: scripts/build.sh FirebasePod iOS
