@@ -261,7 +261,6 @@ xcb_flags=("${xcb_flags[@]}" "${buildcache_xcb_flags[@]}")
 cmake_options=(
   -Wdeprecated
   -DCMAKE_BUILD_TYPE=Debug
-  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 )
 
 if [[ -n "${SANITIZERS:-}" ]]; then
