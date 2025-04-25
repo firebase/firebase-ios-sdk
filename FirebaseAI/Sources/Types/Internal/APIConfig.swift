@@ -69,10 +69,10 @@ extension APIConfig {
 extension APIConfig.Service {
   /// Network addresses for generative AI API services.
   enum Endpoint: String {
-    /// The Vertex AI in Firebase production endpoint.
+    /// The Firebase AI SDK production endpoint.
     case firebaseVertexAIProd = "https://firebasevertexai.googleapis.com"
 
-    /// The Vertex AI in Firebase staging endpoint; for SDK development and testing only.
+    /// The Firebase AI SDK staging endpoint; for SDK development and testing only.
     case firebaseVertexAIStaging = "https://staging-firebasevertexai.sandbox.googleapis.com"
 
     /// The Gemini Developer API production endpoint; for SDK development and testing only.

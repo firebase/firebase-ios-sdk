@@ -1,4 +1,4 @@
-# Vertex AI in Firebase Code Snippet Tests
+# Firebase AI SDK Code Snippet Tests
 
 These "tests" are for verifying that the code snippets provided in our
 documentation continue to compile. They are intentionally skipped in CI but can

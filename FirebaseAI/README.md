@@ -1,4 +1,4 @@
-# Vertex AI for Firebase SDK
+# Firebase AI SDK
 
 - For developer documentation, please visit https://firebase.google.com/docs/vertex-ai.
 - Try out the [sample app](https://github.com/firebase/quickstart-ios/tree/main/vertexai to get started.
@@ -7,7 +7,7 @@
 
 After following the Swift Package Manager
 [setup instructions](https://github.com/firebase/firebase-ios-sdk#swift-package-manager-1),
-choose the `FirebaseVertexAI` scheme to build the SDK.
+choose the `FirebaseAI` scheme to build the SDK.
 
 ### Unit Tests
 
@@ -15,7 +15,7 @@ choose the `FirebaseVertexAI` scheme to build the SDK.
 > These unit tests require mock response files, which can be downloaded by
 running `scripts/update_vertexai_responses.sh` from the root of this repository.
 
-Choose the `FirebaseVertexAIUnit` scheme to build and run the unit tests.
+Choose the `FirebaseAIUnit` scheme to build and run the unit tests.
 
 #### Updating Mock Responses
 

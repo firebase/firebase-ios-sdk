@@ -600,7 +600,7 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
-        .starts(with: "Vertex AI in Firebase API has not been used in project"))
+        .starts(with: "Firebase AI SDK API has not been used in project"))
       XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
       return
     } catch {
@@ -972,7 +972,7 @@ final class GenerativeModelTests: XCTestCase {
       XCTAssertEqual(error.httpResponseCode, expectedStatusCode)
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
-        .starts(with: "Vertex AI in Firebase API has not been used in project"))
+        .starts(with: "Firebase AI SDK API has not been used in project"))
       XCTAssertTrue(error.isVertexAIInFirebaseServiceDisabledError())
       return
     }

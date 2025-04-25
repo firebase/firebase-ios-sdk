@@ -219,7 +219,7 @@ struct GenerateContentIntegrationTests {
     InstanceConfig.vertexV1AppCheckNotConfigured,
     InstanceConfig.vertexV1BetaAppCheckNotConfigured,
     // App Check is not supported on the Generative Language Developer API endpoint since it
-    // bypasses the Vertex AI in Firebase proxy.
+    // bypasses the Firebase AI SDK proxy.
   ])
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
