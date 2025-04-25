@@ -118,6 +118,7 @@ jobs:
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
+      USE_LATEST_CMAKE: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -173,6 +174,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       MINT_PATH: ${{ github.workspace }}/mint
       TARGET_DATABASE_ID: ${{ matrix.databaseId }}
+      USE_LATEST_CMAKE: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -265,6 +267,7 @@ jobs:
 
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
+      USE_LATEST_CMAKE: false
 
     steps:
     - uses: actions/checkout@v4
@@ -316,6 +319,7 @@ jobs:
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
       ASAN_OPTIONS: detect_leaks=0
+      USE_LATEST_CMAKE: false
 
     steps:
     - uses: actions/checkout@v3
