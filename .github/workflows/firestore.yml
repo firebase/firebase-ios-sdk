@@ -145,7 +145,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v2
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -238,7 +238,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v2
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -284,7 +284,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v2
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -335,7 +335,7 @@ jobs:
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v2
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
