@@ -17,16 +17,16 @@
 		868A7C4F2CCC229F00E449DD /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 868A7C4D2CCC1F4700E449DD /* Credentials.swift */; };
 		868A7C522CCC263300E449DD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 868A7C502CCC263300E449DD /* Preview Assets.xcassets */; };
 		868A7C542CCC26B500E449DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 868A7C532CCC26B500E449DD /* Assets.xcassets */; };
-		8692F2982CC9477800539E8F /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F2972CC9477800539E8F /* FirebaseAppCheck */; };
-		8692F29A2CC9477800539E8F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F2992CC9477800539E8F /* FirebaseAuth */; };
-		8692F29C2CC9477800539E8F /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F29B2CC9477800539E8F /* FirebaseStorage */; };
-		8692F29E2CC9477800539E8F /* FirebaseVertexAI in Frameworks */ = {isa = PBXBuildFile; productRef = 8692F29D2CC9477800539E8F /* FirebaseVertexAI */; };
 		8698D7482CD4332B00ABA833 /* TestAppCheckProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8698D7472CD4332B00ABA833 /* TestAppCheckProviderFactory.swift */; };
 		86CC31352D91EE9E0087E964 /* FirebaseAppUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86CC31342D91EE9E0087E964 /* FirebaseAppUtils.swift */; };
 		86D77DFC2D7A5340003D155D /* GenerateContentIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D77DFB2D7A5340003D155D /* GenerateContentIntegrationTests.swift */; };
 		86D77DFE2D7B5C86003D155D /* GoogleService-Info-Spark.plist in Resources */ = {isa = PBXBuildFile; fileRef = 86D77DFD2D7B5C86003D155D /* GoogleService-Info-Spark.plist */; };
 		86D77E022D7B63AF003D155D /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D77E012D7B63AC003D155D /* Constants.swift */; };
 		86D77E042D7B6C9D003D155D /* InstanceConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D77E032D7B6C95003D155D /* InstanceConfig.swift */; };
+		86E8505B2DBAFBC3002E8D94 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505A2DBAFBC3002E8D94 /* FirebaseAI */; };
+		86E8505D2DBAFBC3002E8D94 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */; };
+		86E8505F2DBAFBC3002E8D94 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */; };
+		86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 86E850602DBAFBC3002E8D94 /* FirebaseStorage */; };
 		DEF0BB4F2DA74F680093E9F4 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF0BB4E2DA74F460093E9F4 /* TestHelpers.swift */; };
 		DEF0BB512DA9B7450093E9F4 /* SchemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF0BB502DA9B7400093E9F4 /* SchemaTests.swift */; };
 /* End PBXBuildFile section */
@@ -70,10 +70,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8692F2982CC9477800539E8F /* FirebaseAppCheck in Frameworks */,
-				8692F29E2CC9477800539E8F /* FirebaseVertexAI in Frameworks */,
-				8692F29A2CC9477800539E8F /* FirebaseAuth in Frameworks */,
-				8692F29C2CC9477800539E8F /* FirebaseStorage in Frameworks */,
+				86E8505D2DBAFBC3002E8D94 /* FirebaseAppCheck in Frameworks */,
+				86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */,
+				86E8505F2DBAFBC3002E8D94 /* FirebaseAuth in Frameworks */,
+				86E8505B2DBAFBC3002E8D94 /* FirebaseAI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,10 +187,10 @@
 			);
 			name = "VertexAITestApp-SPM";
 			packageProductDependencies = (
-				8692F2972CC9477800539E8F /* FirebaseAppCheck */,
-				8692F2992CC9477800539E8F /* FirebaseAuth */,
-				8692F29B2CC9477800539E8F /* FirebaseStorage */,
-				8692F29D2CC9477800539E8F /* FirebaseVertexAI */,
+				86E8505A2DBAFBC3002E8D94 /* FirebaseAI */,
+				86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */,
+				86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */,
+				86E850602DBAFBC3002E8D94 /* FirebaseStorage */,
 			);
 			productName = VertexAITestApp;
 			productReference = 866138582CC943DD00F4B78E /* VertexAITestApp-SPM.app */;
@@ -243,7 +243,7 @@
 			);
 			mainGroup = 8661384F2CC943DD00F4B78E;
 			packageReferences = (
-				8692F2962CC9477800539E8F /* XCLocalSwiftPackageReference "../../.." */,
+				86E850592DBAFBC3002E8D94 /* XCLocalSwiftPackageReference "../../.." */,
 			);
 			productRefGroup = 866138592CC943DD00F4B78E /* Products */;
 			projectDirPath = "";
@@ -585,28 +585,28 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		8692F2962CC9477800539E8F /* XCLocalSwiftPackageReference "../../.." */ = {
+		86E850592DBAFBC3002E8D94 /* XCLocalSwiftPackageReference "../../.." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../..;
+			relativePath = "../../..";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8692F2972CC9477800539E8F /* FirebaseAppCheck */ = {
+		86E8505A2DBAFBC3002E8D94 /* FirebaseAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseAI;
+		};
+		86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAppCheck;
 		};
-		8692F2992CC9477800539E8F /* FirebaseAuth */ = {
+		86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseAuth;
 		};
-		8692F29B2CC9477800539E8F /* FirebaseStorage */ = {
+		86E850602DBAFBC3002E8D94 /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseStorage;
-		};
-		8692F29D2CC9477800539E8F /* FirebaseVertexAI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseVertexAI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
