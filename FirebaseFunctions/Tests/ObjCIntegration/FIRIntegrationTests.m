@@ -290,4 +290,28 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
   [self waitForExpectations:@[ expectation ] timeout:10];
 }
 
+- (void)testFunctionsReturnsOnMainThread {
+  XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
+  FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"scalarTest"];
+  [function callWithObject:@17
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssert(NSThread.isMainThread);
+                  XCTAssertNotNil(result);
+                  [expectation fulfill];
+                }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
+- (void)testFunctionErrorsOnMainThread {
+  XCTestExpectation *expectation = [[XCTestExpectation alloc] init];
+  FIRHTTPSCallable *function = [_functions HTTPSCallableWithName:@"httpErrorTest"];
+  [function callWithObject:@{}
+                completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
+                  XCTAssert(NSThread.isMainThread);
+                  XCTAssertNotNil(error);
+                  [expectation fulfill];
+                }];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+}
+
 @end

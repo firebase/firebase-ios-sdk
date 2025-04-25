@@ -1,6 +1,6 @@
 name: API Diff Report
 
-on: [pull_request]
+on: [pull_request, workflow_dispatch]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref }}

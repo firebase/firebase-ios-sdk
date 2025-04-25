@@ -17,7 +17,7 @@ import Foundation
 @preconcurrency import FirebaseAppCheckInterop /* TODO: sendable */
 import FirebaseAuthInterop
 import FirebaseCore
-@_implementationOnly import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 
 #if COCOAPODS
   @preconcurrency import GTMSessionFetcher

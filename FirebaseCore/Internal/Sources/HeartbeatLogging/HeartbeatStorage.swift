@@ -58,7 +58,7 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   // `nonisolated(unsafe)` to disable concurrency-safety checks. The
   // property's access is protected by an external synchronization mechanism
   // (see `FIRAllocatedUnfairLock` type).
-  private nonisolated(unsafe) static var cachedInstances: FIRAllocatedUnfairLock<
+  private static let cachedInstances: FIRAllocatedUnfairLock<
     [String: WeakContainer<HeartbeatStorage>]
   > = FIRAllocatedUnfairLock(initialState: [:])
 

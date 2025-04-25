@@ -24,8 +24,7 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-// Avoids exposing internal FirebaseCore APIs to Swift users.
-@_implementationOnly import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 
 /// File specific constants.
 private enum Constants {
@@ -53,7 +52,7 @@ enum FunctionsConstants {
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
-  private nonisolated(unsafe) static var instances: FirebaseCoreInternal
+  private nonisolated(unsafe) static let instances: FirebaseCoreInternal
     .FIRAllocatedUnfairLock<[String: [Functions]]> =
     FirebaseCoreInternal.FIRAllocatedUnfairLock([:])
 
@@ -573,65 +572,34 @@ enum FunctionsConstants {
     }
   }
 
-  #if compiler(>=6.0)
-    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-    private func callableStreamResult(fromResponseData data: Data,
-                                      endpointURL url: URL) throws -> sending JSONStreamResponse {
-      let data = try processedData(fromResponseData: data, endpointURL: url)
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  private func callableStreamResult(fromResponseData data: Data,
+                                    endpointURL url: URL) throws -> sending JSONStreamResponse {
+    let data = try processedData(fromResponseData: data, endpointURL: url)
 
-      let responseJSONObject: Any
-      do {
-        responseJSONObject = try JSONSerialization.jsonObject(with: data)
-      } catch {
-        throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
-      }
-
-      guard let responseJSON = responseJSONObject as? [String: Any] else {
-        let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-        throw FunctionsError(.dataLoss, userInfo: userInfo)
-      }
-
-      if let _ = responseJSON["result"] {
-        return .result(responseJSON)
-      } else if let _ = responseJSON["message"] {
-        return .message(responseJSON)
-      } else {
-        throw FunctionsError(
-          .dataLoss,
-          userInfo: [NSLocalizedDescriptionKey: "Response is missing result or message field."]
-        )
-      }
+    let responseJSONObject: Any
+    do {
+      responseJSONObject = try JSONSerialization.jsonObject(with: data)
+    } catch {
+      throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
     }
-  #else
-    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-    private func callableStreamResult(fromResponseData data: Data,
-                                      endpointURL url: URL) throws -> JSONStreamResponse {
-      let data = try processedData(fromResponseData: data, endpointURL: url)
 
-      let responseJSONObject: Any
-      do {
-        responseJSONObject = try JSONSerialization.jsonObject(with: data)
-      } catch {
-        throw FunctionsError(.dataLoss, userInfo: [NSUnderlyingErrorKey: error])
-      }
-
-      guard let responseJSON = responseJSONObject as? [String: Any] else {
-        let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
-        throw FunctionsError(.dataLoss, userInfo: userInfo)
-      }
-
-      if let _ = responseJSON["result"] {
-        return .result(responseJSON)
-      } else if let _ = responseJSON["message"] {
-        return .message(responseJSON)
-      } else {
-        throw FunctionsError(
-          .dataLoss,
-          userInfo: [NSLocalizedDescriptionKey: "Response is missing result or message field."]
-        )
-      }
+    guard let responseJSON = responseJSONObject as? [String: Any] else {
+      let userInfo = [NSLocalizedDescriptionKey: "Response was not a dictionary."]
+      throw FunctionsError(.dataLoss, userInfo: userInfo)
     }
-  #endif // compiler(>=6.0)
+
+    if let _ = responseJSON["result"] {
+      return .result(responseJSON)
+    } else if let _ = responseJSON["message"] {
+      return .message(responseJSON)
+    } else {
+      throw FunctionsError(
+        .dataLoss,
+        userInfo: [NSLocalizedDescriptionKey: "Response is missing result or message field."]
+      )
+    }
+  }
 
   private func jsonData(jsonText: String) throws -> Data {
     guard let data = jsonText.data(using: .utf8) else {
