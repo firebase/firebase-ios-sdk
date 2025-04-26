@@ -436,13 +436,15 @@ enum FunctionsConstants {
                     withObject data: Any?,
                     options: HTTPSCallableOptions?,
                     timeout: TimeInterval,
-                    completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+                    completion: @escaping @MainActor (Result<HTTPSCallableResult, Error>) -> Void) {
     // Get context first.
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
       if let error {
-        completion(.failure(error))
+        DispatchQueue.main.async {
+          completion(.failure(error))
+        }
       } else {
         self.callFunction(url: url,
                           withObject: data,
@@ -459,7 +461,7 @@ enum FunctionsConstants {
                             options: HTTPSCallableOptions?,
                             timeout: TimeInterval,
                             context: FunctionsContext,
-                            completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+                            completion: @escaping @MainActor (Result<HTTPSCallableResult, Error>) -> Void) {
     let fetcher: GTMSessionFetcher
     do {
       fetcher = try makeFetcher(
@@ -762,7 +764,7 @@ enum FunctionsConstants {
   }
 
   private func callableResult(fromResponseData data: Data,
-                              endpointURL url: URL) throws -> HTTPSCallableResult {
+                              endpointURL url: URL) throws -> sending HTTPSCallableResult {
     let processedData = try processedData(fromResponseData: data, endpointURL: url)
     let json = try responseDataJSON(from: processedData)
     let payload = try serializer.decode(json)
@@ -784,7 +786,7 @@ enum FunctionsConstants {
     return data
   }
 
-  private func responseDataJSON(from data: Data) throws -> Any {
+  private func responseDataJSON(from data: Data) throws -> sending Any {
     let responseJSONObject = try JSONSerialization.jsonObject(with: data)
 
     guard let responseJSON = responseJSONObject as? NSDictionary else {
