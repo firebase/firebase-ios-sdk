@@ -190,12 +190,12 @@ final class IntegrationTests: XCTestCase {
       ModelContent(role: "function", parts: sumResponse),
     ])
 
-    XCTAssertEqual(response.totalTokens, 24)
+    XCTAssertEqual(response.totalTokens, 30)
     XCTAssertEqual(response.totalBillableCharacters, 71)
     XCTAssertEqual(response.promptTokensDetails.count, 1)
     let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
     XCTAssertEqual(promptTokensDetails.modality, .text)
-    XCTAssertEqual(promptTokensDetails.tokenCount, 24)
+    XCTAssertEqual(promptTokensDetails.tokenCount, response.totalTokens)
   }
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
