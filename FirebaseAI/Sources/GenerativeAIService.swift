@@ -167,7 +167,7 @@ struct GenerativeAIService {
   // MARK: - Private Helpers
 
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
-    var urlRequest = URLRequest(url: request.url)
+    var urlRequest = try URLRequest(url: requestURL(request: request))
     urlRequest.httpMethod = "POST"
     urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
     urlRequest.setValue(
@@ -205,6 +205,29 @@ struct GenerativeAIService {
     urlRequest.timeoutInterval = request.options.timeout
 
     return urlRequest
+  }
+
+  private func requestURL<T: GenerativeAIRequest>(request: T) throws -> URL {
+    guard var urlComponents = URLComponents(url: request.url, resolvingAgainstBaseURL: false) else {
+      throw URLError(.badURL, userInfo: [
+        NSLocalizedDescriptionKey: "Invalid Request URL: \(request.url)",
+      ])
+    }
+    var urlQueryItems = urlComponents.queryItems ?? []
+
+    // The query parameter `$outputDefaults` forces the backend to output proto default values for
+    // JSON responses instead of omitting them. See
+    // https://cloud.google.com/apis/docs/system-parameters#definitions for more details.
+    urlQueryItems.append(URLQueryItem(name: "$outputDefaults", value: "true"))
+
+    urlComponents.queryItems = urlQueryItems
+    guard let url = urlComponents.url else {
+      throw URLError(.badURL, userInfo: [
+        NSLocalizedDescriptionKey: "Invalid Request URL with components: \(urlComponents)",
+      ])
+    }
+
+    return url
   }
 
   private func httpResponse(urlResponse: URLResponse) throws -> HTTPURLResponse {
