@@ -167,7 +167,8 @@ public final class GenerativeModel: Sendable {
     }
 
     // Check to see if an error should be thrown for stop reason.
-    if let reason = response.candidates.first?.finishReason, reason != .stop {
+    if let reason = response.candidates.first?.finishReason, reason != .stop,
+       reason.rawValue != FinishReason.Kind.unspecified.rawValue {
       throw GenerateContentError.responseStoppedEarly(reason: reason, response: response)
     }
 

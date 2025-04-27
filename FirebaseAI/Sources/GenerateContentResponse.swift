@@ -171,6 +171,7 @@ public struct Citation: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
+    case unspecified = "FINISH_REASON_UNSPECIFIED"
     case stop = "STOP"
     case maxTokens = "MAX_TOKENS"
     case safety = "SAFETY"
@@ -366,16 +367,17 @@ extension Candidate: Decodable {
       }
     }
 
-    if let safetyRatings = try container.decodeIfPresent(
-      [SafetyRating].self,
-      forKey: .safetyRatings
-    ) {
-      self.safetyRatings = safetyRatings
-    } else {
-      safetyRatings = []
+    let safetyRatings = try container
+      .decodeIfPresent([SafetyRating].self, forKey: .safetyRatings) ?? []
+    // Filter out safety ratings where the category and probability are both unspecified by the
+    // backend.
+    self.safetyRatings = safetyRatings.filter {
+      $0.category.rawValue != HarmCategory.Kind.unspecified.rawValue
+        && $0.probability.rawValue != SafetyRating.HarmProbability.Kind.unspecified.rawValue
     }
 
     finishReason = try container.decodeIfPresent(FinishReason.self, forKey: .finishReason)
+      .flatMap { $0.rawValue == FinishReason.Kind.unspecified.rawValue ? nil : $0 }
 
     citationMetadata = try container.decodeIfPresent(
       CitationMetadata.self,

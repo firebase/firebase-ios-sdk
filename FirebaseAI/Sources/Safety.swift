@@ -78,6 +78,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct HarmProbability: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
+      case unspecified = "HARM_CATEGORY_UNSPECIFIED"
       case negligible = "NEGLIGIBLE"
       case low = "LOW"
       case medium = "MEDIUM"
@@ -114,6 +115,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct HarmSeverity: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
+      case unspecified = "HARM_SEVERITY_UNSPECIFIED"
       case negligible = "HARM_SEVERITY_NEGLIGIBLE"
       case low = "HARM_SEVERITY_LOW"
       case medium = "HARM_SEVERITY_MEDIUM"
@@ -234,6 +236,7 @@ public struct SafetySetting: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
+    case unspecified = "HARM_CATEGORY_UNSPECIFIED"
     case harassment = "HARM_CATEGORY_HARASSMENT"
     case hateSpeech = "HARM_CATEGORY_HATE_SPEECH"
     case sexuallyExplicit = "HARM_CATEGORY_SEXUALLY_EXPLICIT"
