@@ -116,9 +116,8 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.vertexV1Beta,
-    // TODO(andrewheard): Configs temporarily disabled due to backend issue.
-    // InstanceConfig.developerV1Beta,
-    // InstanceConfig.developerV1BetaStaging
+    InstanceConfig.developerV1Beta,
+    InstanceConfig.developerV1BetaStaging,
     InstanceConfig.developerV1BetaSpark,
   ])
   func generateImage(_ config: InstanceConfig) async throws {

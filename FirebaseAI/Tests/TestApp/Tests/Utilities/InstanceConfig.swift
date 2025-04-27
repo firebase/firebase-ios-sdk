@@ -51,9 +51,8 @@ struct InstanceConfig {
     vertexV1Staging,
     vertexV1Beta,
     vertexV1BetaStaging,
-    // TODO(andrewheard): Configs temporarily disabled due to backend issue:
-    // developerV1Beta,
-    // developerV1BetaStaging,
+    developerV1Beta,
+    developerV1BetaStaging,
     developerV1Spark,
     developerV1BetaSpark,
   ]
@@ -63,9 +62,8 @@ struct InstanceConfig {
     vertexV1Staging,
     vertexV1Beta,
     vertexV1BetaStaging,
-    // TODO(andrewheard): Configs temporarily disabled due to backend issue:
-    // developerV1Beta,
-    // developerV1BetaStaging,
+    developerV1Beta,
+    developerV1BetaStaging,
     developerV1BetaSpark,
   ]
 
