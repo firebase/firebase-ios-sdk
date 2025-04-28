@@ -12,25 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
 import XCTest
+
+@testable import FirebaseAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class CitationMetadataTests: XCTestCase {
   let decoder = JSONDecoder()
+
+  let expectedStartIndex = 100
+  let expectedEndIndex = 200
+  let expectedURI = "https://example.com/citation-1"
+  lazy var citationJSON = """
+  {
+    "startIndex" : \(expectedStartIndex),
+    "endIndex" : \(expectedEndIndex),
+    "uri" : "\(expectedURI)"
+  }
+  """
+  lazy var expectedCitation = Citation(
+    startIndex: expectedStartIndex,
+    endIndex: expectedEndIndex,
+    uri: expectedURI
+  )
 
   // MARK: - Google AI Format Decoding
 
   func testDecodeCitationMetadata_googleAIFormat() throws {
     let json = """
     {
-      "citationSources": [
-        {
-          "startIndex": 100,
-          "endIndex": 200,
-          "uri": "https://example.com/citation-1"
-        }
-      ]
+      "citationSources": [\(citationJSON)]
     }
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
@@ -42,26 +53,15 @@ final class CitationMetadataTests: XCTestCase {
 
     XCTAssertEqual(citationMetadata.citations.count, 1)
     let citation = try XCTUnwrap(citationMetadata.citations.first)
-    XCTAssertEqual(citation.startIndex, 100)
-    XCTAssertEqual(citation.endIndex, 200)
-    XCTAssertEqual(citation.uri, "https://example.com/citation-1")
-    XCTAssertNil(citation.license)
-    XCTAssertNil(citation.publicationDate)
-    XCTAssertNil(citation.title)
+    XCTAssertEqual(citation, expectedCitation)
   }
 
   // MARK: - Vertex AI Format Decoding
 
-  func testDecodeCitationMetadata_vertexAIFormat_basic() throws {
+  func testDecodeCitationMetadata_vertexAIFormat() throws {
     let json = """
     {
-      "citations": [
-        {
-          "startIndex": 100,
-          "endIndex": 200,
-          "uri": "https://example.com/citation-1"
-        }
-      ]
+      "citations": [\(citationJSON)]
     }
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
@@ -73,11 +73,6 @@ final class CitationMetadataTests: XCTestCase {
 
     XCTAssertEqual(citationMetadata.citations.count, 1)
     let citation = try XCTUnwrap(citationMetadata.citations.first)
-    XCTAssertEqual(citation.startIndex, 100)
-    XCTAssertEqual(citation.endIndex, 200)
-    XCTAssertEqual(citation.uri, "https://example.com/citation-1")
-    XCTAssertNil(citation.license)
-    XCTAssertNil(citation.publicationDate)
-    XCTAssertNil(citation.title)
+    XCTAssertEqual(citation, expectedCitation)
   }
 }
