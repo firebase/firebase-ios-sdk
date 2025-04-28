@@ -832,7 +832,6 @@ NS_ASSUME_NONNULL_BEGIN
       results_ = nil;
     } else {
       NSMutableArray<__FIRPipelineResultBridge *> *results = [NSMutableArray array];
-      auto &cpp_result = snapshot_.value().results();
       for (auto &result : snapshot_.value().results()) {
         [results addObject:[[__FIRPipelineResultBridge alloc]
                                initWithCppResult:result
