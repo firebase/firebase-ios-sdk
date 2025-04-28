@@ -145,7 +145,7 @@ public struct CitationMetadata: Sendable {
 
 /// A struct describing a source attribution.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct Citation: Sendable {
+public struct Citation: Sendable, Equatable {
   /// The inclusive beginning of a sequence in a model response that derives from a cited source.
   public let startIndex: Int
 
@@ -165,6 +165,20 @@ public struct Citation: Sendable {
   ///
   /// > Tip: `DateComponents` can be converted to a `Date` using the `date` computed property.
   public let publicationDate: DateComponents?
+
+  init(startIndex: Int,
+       endIndex: Int,
+       uri: String? = nil,
+       title: String? = nil,
+       license: String? = nil,
+       publicationDate: DateComponents? = nil) {
+    self.startIndex = startIndex
+    self.endIndex = endIndex
+    self.uri = uri
+    self.title = title
+    self.license = license
+    self.publicationDate = publicationDate
+  }
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
@@ -385,7 +399,23 @@ extension Candidate: Decodable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CitationMetadata: Decodable {}
+extension CitationMetadata: Decodable {
+  enum CodingKeys: CodingKey {
+    case citations // Vertex AI
+    case citationSources // Google AI
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    // Decode for Google API if `citationSources` key is present.
+    if container.contains(.citationSources) {
+      citations = try container.decode([Citation].self, forKey: .citationSources)
+    } else { // Fallback to default Vertex AI decoding.
+      citations = try container.decode([Citation].self, forKey: .citations)
+    }
+  }
+}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Citation: Decodable {
