@@ -29,9 +29,7 @@ open class HTTPSCallableResult: NSObject {
   }
 }
 
-/**
- * A `HTTPSCallable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
- */
+/// A `HTTPSCallable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
 @objc(FIRHTTPSCallable)
 open class HTTPSCallable: NSObject, @unchecked Sendable {
   // MARK: - Private Properties
@@ -123,82 +121,84 @@ open class HTTPSCallable: NSObject, @unchecked Sendable {
   }
 }
 
-private final class SendableHTTPSCallable: Sendable {
-  // MARK: - Private Properties
+extension HTTPSCallable {
+  private final class SendableHTTPSCallable: Sendable {
+    // MARK: - Private Properties
 
-  // The functions client to use for making calls.
-  private let functions: Functions
+    // The functions client to use for making calls.
+    private let functions: Functions
 
-  private let url: URL
+    private let url: URL
 
-  private let options: HTTPSCallableOptions?
+    private let options: HTTPSCallableOptions?
 
-  // MARK: - Public Properties
+    // MARK: - Public Properties
 
-  let _timeoutInterval: AtomicBox<TimeInterval> = .init(70)
+    let _timeoutInterval: AtomicBox<TimeInterval> = .init(70)
 
-  /// The timeout to use when calling the function. Defaults to 70 seconds.
-  var timeoutInterval: TimeInterval {
-    get { _timeoutInterval.value() }
-    set {
-      _timeoutInterval.withLock { timeoutInterval in
-        timeoutInterval = newValue
-      }
-    }
-  }
-
-  init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
-    self.functions = functions
-    self.url = url
-    self.options = options
-  }
-
-  func call(_ data: sending Any? = nil,
-            completion: @escaping @MainActor (HTTPSCallableResult?, Error?) -> Void) {
-    if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
-      Task {
-        do {
-          let result = try await call(data)
-          await completion(result, nil)
-        } catch {
-          await completion(nil, error)
-        }
-      }
-    } else {
-      // This isn’t expected to ever be called because Functions
-      // doesn’t officially support the older platforms.
-      functions.callFunction(
-        at: url,
-        withObject: data,
-        options: options,
-        timeout: timeoutInterval
-      ) { result in
-        switch result {
-        case let .success(callableResult):
-          DispatchQueue.main.async {
-            completion(callableResult, nil)
-          }
-        case let .failure(error):
-          DispatchQueue.main.async {
-            completion(nil, error)
-          }
+    /// The timeout to use when calling the function. Defaults to 70 seconds.
+    var timeoutInterval: TimeInterval {
+      get { _timeoutInterval.value() }
+      set {
+        _timeoutInterval.withLock { timeoutInterval in
+          timeoutInterval = newValue
         }
       }
     }
-  }
 
-  func __call(completion: @escaping @MainActor (HTTPSCallableResult?, Error?) -> Void) {
-    call(nil, completion: completion)
-  }
+    init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
+      self.functions = functions
+      self.url = url
+      self.options = options
+    }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  func call(_ data: Any? = nil) async throws -> sending HTTPSCallableResult {
-    try await functions
-      .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
-  }
+    func call(_ data: sending Any? = nil,
+              completion: @escaping @MainActor (HTTPSCallableResult?, Error?) -> Void) {
+      if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
+        Task {
+          do {
+            let result = try await call(data)
+            await completion(result, nil)
+          } catch {
+            await completion(nil, error)
+          }
+        }
+      } else {
+        // This isn’t expected to ever be called because Functions
+        // doesn’t officially support the older platforms.
+        functions.callFunction(
+          at: url,
+          withObject: data,
+          options: options,
+          timeout: timeoutInterval
+        ) { result in
+          switch result {
+          case let .success(callableResult):
+            DispatchQueue.main.async {
+              completion(callableResult, nil)
+            }
+          case let .failure(error):
+            DispatchQueue.main.async {
+              completion(nil, error)
+            }
+          }
+        }
+      }
+    }
 
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-  func stream(_ data: SendableWrapper? = nil) -> AsyncThrowingStream<JSONStreamResponse, Error> {
-    functions.stream(at: url, data: data, options: options, timeout: timeoutInterval)
+    func __call(completion: @escaping @MainActor (HTTPSCallableResult?, Error?) -> Void) {
+      call(nil, completion: completion)
+    }
+
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    func call(_ data: Any? = nil) async throws -> sending HTTPSCallableResult {
+      try await functions
+        .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
+    }
+
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+    func stream(_ data: SendableWrapper? = nil) -> AsyncThrowingStream<JSONStreamResponse, Error> {
+      functions.stream(at: url, data: data, options: options, timeout: timeoutInterval)
+    }
   }
 }
