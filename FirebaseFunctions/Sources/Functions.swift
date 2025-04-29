@@ -175,8 +175,8 @@ enum FunctionsConstants {
   ///   - name: The name of the Callable HTTPS trigger.
   ///   - options: The options with which to customize the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
-  @objc(HTTPSCallableWithName:options:) open func httpsCallable(_ name: String,
-                                                                options: HTTPSCallableOptions)
+  @objc(HTTPSCallableWithName:options:) public func httpsCallable(_ name: String,
+                                                                  options: HTTPSCallableOptions)
     -> HTTPSCallable {
     HTTPSCallable(functions: self, url: functionURL(for: name)!, options: options)
   }
@@ -194,8 +194,8 @@ enum FunctionsConstants {
   ///   - url: The URL of the Callable HTTPS trigger.
   ///   - options: The options with which to customize the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
-  @objc(HTTPSCallableWithURL:options:) open func httpsCallable(_ url: URL,
-                                                               options: HTTPSCallableOptions)
+  @objc(HTTPSCallableWithURL:options:) public func httpsCallable(_ url: URL,
+                                                                 options: HTTPSCallableOptions)
     -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url, options: options)
   }
