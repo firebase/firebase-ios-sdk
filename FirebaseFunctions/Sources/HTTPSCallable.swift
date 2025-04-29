@@ -121,8 +121,8 @@ open class HTTPSCallable: NSObject, @unchecked Sendable {
   }
 }
 
-extension HTTPSCallable {
-  private final class SendableHTTPSCallable: Sendable {
+private extension HTTPSCallable {
+  final class SendableHTTPSCallable: Sendable {
     // MARK: - Private Properties
 
     // The functions client to use for making calls.
