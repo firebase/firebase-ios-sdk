@@ -71,7 +71,7 @@ open class HTTPSCallable: NSObject, @unchecked Sendable {
   /// - Parameters:
   ///   - data: Parameters to pass to the trigger.
   ///   - completion: The block to call when the HTTPS request has completed.
-  @objc(callWithObject:completion:) open func call(_ data: sending Any? = nil,
+  @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
                                                    completion: @escaping @MainActor (HTTPSCallableResult?,
                                                                                      Error?)
                                                      -> Void) {
