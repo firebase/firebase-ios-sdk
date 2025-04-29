@@ -72,7 +72,7 @@ enum FunctionsConstants {
 }
 
 /// `Functions` is the client for Cloud Functions for a Firebase project.
-@objc(FIRFunctions) public final class Functions: NSObject, Sendable {
+@objc(FIRFunctions) open class Functions: NSObject, @unchecked Sendable {
   // MARK: - Private Variables
 
   /// The network client to use for http requests.
@@ -100,14 +100,14 @@ enum FunctionsConstants {
   // MARK: - Public APIs
 
   /// The current emulator origin, or `nil` if it is not set.
-  public var emulatorOrigin: String? {
+  open var emulatorOrigin: String? {
     _emulatorOrigin.value()
   }
 
   /// Creates a Cloud Functions client using the default or returns a pre-existing instance if it
   /// already exists.
   /// - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
-  @objc(functions) public class func functions() -> Functions {
+  @objc(functions) open class func functions() -> Functions {
     return functions(
       app: FirebaseApp.app(),
       region: FunctionsConstants.defaultRegion,
@@ -119,7 +119,7 @@ enum FunctionsConstants {
   /// instance if one already exists.
   /// - Parameter app: The app for the Firebase project.
   /// - Returns: A shared Functions instance initialized with the specified `FirebaseApp`.
-  @objc(functionsForApp:) public class func functions(app: FirebaseApp) -> Functions {
+  @objc(functionsForApp:) open class func functions(app: FirebaseApp) -> Functions {
     return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: nil)
   }
 
@@ -127,7 +127,7 @@ enum FunctionsConstants {
   ///  - Parameter region: The region for the HTTP trigger, such as `us-central1`.
   ///  - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a
   /// custom region.
-  @objc(functionsForRegion:) public class func functions(region: String) -> Functions {
+  @objc(functionsForRegion:) open class func functions(region: String) -> Functions {
     return functions(app: FirebaseApp.app(), region: region, customDomain: nil)
   }
 
@@ -137,7 +137,7 @@ enum FunctionsConstants {
   /// "https://mydomain.com".
   ///  - Returns: A shared Functions instance initialized with the default `FirebaseApp` and a
   /// custom HTTP trigger domain.
-  @objc(functionsForCustomDomain:) public class func functions(customDomain: String) -> Functions {
+  @objc(functionsForCustomDomain:) open class func functions(customDomain: String) -> Functions {
     return functions(app: FirebaseApp.app(),
                      region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
@@ -148,8 +148,8 @@ enum FunctionsConstants {
   ///    - app: The app for the Firebase project.
   ///    - region: The region for the HTTP trigger, such as `us-central1`.
   ///  - Returns: An instance of `Functions` with a custom app and region.
-  @objc(functionsForApp:region:) public class func functions(app: FirebaseApp,
-                                                             region: String) -> Functions {
+  @objc(functionsForApp:region:) open class func functions(app: FirebaseApp,
+                                                           region: String) -> Functions {
     return functions(app: app, region: region, customDomain: nil)
   }
 
@@ -160,8 +160,8 @@ enum FunctionsConstants {
   ///    - app: The app for the Firebase project.
   ///    - customDomain: A custom domain for the HTTP trigger, such as `https://mydomain.com`.
   ///  - Returns: An instance of `Functions` with a custom app and HTTP trigger domain.
-  @objc(functionsForApp:customDomain:) public class func functions(app: FirebaseApp,
-                                                                   customDomain: String)
+  @objc(functionsForApp:customDomain:) open class func functions(app: FirebaseApp,
+                                                                 customDomain: String)
     -> Functions {
     return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
@@ -169,7 +169,7 @@ enum FunctionsConstants {
   /// Creates a reference to the Callable HTTPS trigger with the given name.
   /// - Parameter name: The name of the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
-  @objc(HTTPSCallableWithName:) public func httpsCallable(_ name: String) -> HTTPSCallable {
+  @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
     HTTPSCallable(functions: self, url: functionURL(for: name)!)
   }
 
@@ -179,8 +179,8 @@ enum FunctionsConstants {
   ///   - name: The name of the Callable HTTPS trigger.
   ///   - options: The options with which to customize the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
-  @objc(HTTPSCallableWithName:options:) public func httpsCallable(_ name: String,
-                                                                  options: HTTPSCallableOptions)
+  @objc(HTTPSCallableWithName:options:) open func httpsCallable(_ name: String,
+                                                                options: HTTPSCallableOptions)
     -> HTTPSCallable {
     HTTPSCallable(functions: self, url: functionURL(for: name)!, options: options)
   }
@@ -188,7 +188,7 @@ enum FunctionsConstants {
   /// Creates a reference to the Callable HTTPS trigger with the given name.
   /// - Parameter url: The URL of the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
-  @objc(HTTPSCallableWithURL:) public func httpsCallable(_ url: URL) -> HTTPSCallable {
+  @objc(HTTPSCallableWithURL:) open func httpsCallable(_ url: URL) -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url)
   }
 
@@ -198,8 +198,8 @@ enum FunctionsConstants {
   ///   - url: The URL of the Callable HTTPS trigger.
   ///   - options: The options with which to customize the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
-  @objc(HTTPSCallableWithURL:options:) public func httpsCallable(_ url: URL,
-                                                                 options: HTTPSCallableOptions)
+  @objc(HTTPSCallableWithURL:options:) open func httpsCallable(_ url: URL,
+                                                               options: HTTPSCallableOptions)
     -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url, options: options)
   }
@@ -215,7 +215,7 @@ enum FunctionsConstants {
   ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud
   /// Functions invocations.
-  public func httpsCallable<Request: Encodable,
+  open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ name: String,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
@@ -243,7 +243,7 @@ enum FunctionsConstants {
   ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud
   /// Functions invocations.
-  public func httpsCallable<Request: Encodable,
+  open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ name: String,
                          options: HTTPSCallableOptions,
                          requestAs: Request.Type = Request.self,
@@ -271,7 +271,7 @@ enum FunctionsConstants {
   ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud
   /// Functions invocations.
-  public func httpsCallable<Request: Encodable,
+  open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ url: URL,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
@@ -299,7 +299,7 @@ enum FunctionsConstants {
   ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud
   /// Functions invocations.
-  public func httpsCallable<Request: Encodable,
+  open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ url: URL,
                          options: HTTPSCallableOptions,
                          requestAs: Request.Type = Request.self,
@@ -323,7 +323,7 @@ enum FunctionsConstants {
    *   - host: The host of the local emulator, such as "localhost".
    *   - port: The port of the local emulator, for example 5005.
    */
-  @objc public func useEmulator(withHost host: String, port: Int) {
+  @objc open func useEmulator(withHost host: String, port: Int) {
     let prefix = host.hasPrefix("http") ? "" : "http://"
     let origin = String(format: "\(prefix)\(host):%li", port)
     _emulatorOrigin.withLock { emulatorOrigin in
