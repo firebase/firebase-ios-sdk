@@ -34,10 +34,6 @@ final class AtomicBox<T>: Sendable {
     _value = value
   }
 
-  public init(_ value: @Sendable () -> T) where T == Any {
-    _value = value()
-  }
-
   public func value() -> T {
     lock.withLock {
       _value
