@@ -27,8 +27,12 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1/query.nanopb.h"
 #include "Firestore/Protos/nanopb/google/type/latlng.nanopb.h"
+#include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/pipeline.h"
+#include "Firestore/core/src/api/realtime_pipeline.h"
+#include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/field_filter.h"
@@ -56,8 +60,6 @@ enum class QueryPurpose;
 }  // namespace local
 
 namespace remote {
-
-core::Target InvalidTarget();
 
 /**
  * @brief Converts internal model objects to their equivalent protocol buffer
@@ -208,6 +210,13 @@ class Serializer {
   google_firestore_v1_StructuredPipeline EncodePipeline(
       const api::Pipeline& pipeline) const;
 
+  google_firestore_v1_StructuredPipeline EncodeRealtimePipeline(
+      const api::RealtimePipeline& pipeline) const;
+
+  absl::optional<core::TargetOrPipeline> DecodePipelineTarget(
+      util::ReadContext* context,
+      const google_firestore_v1_Target_PipelineQueryTarget& proto) const;
+
   /**
    * Decodes the watch change. Modifies the provided proto to release
    * ownership of any Value messages.
@@ -356,6 +365,20 @@ class Serializer {
   model::DatabaseId database_id_;
   // TODO(varconst): Android caches the result of calling `EncodeDatabaseName`
   // as well, consider implementing that.
+
+  // Helper methods for DecodePipelineTarget
+  std::unique_ptr<api::EvaluableStage> DecodeStage(
+      util::ReadContext* context,
+      const google_firestore_v1_Pipeline_Stage& proto_stage) const;
+  std::unique_ptr<api::Expr> DecodeExpression(
+      util::ReadContext* context,
+      const google_firestore_v1_Value& proto_value) const;
+  api::FunctionExpr DecodeFunctionExpression(
+      util::ReadContext* context,
+      const google_firestore_v1_Function& proto_function) const;
+  api::Ordering DecodeOrdering(
+      util::ReadContext* context,
+      const google_firestore_v1_Value& proto_value) const;
 };
 
 }  // namespace remote

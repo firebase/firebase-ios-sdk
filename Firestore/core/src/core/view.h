@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/document_set.h"
@@ -135,7 +136,7 @@ class ViewChange {
  */
 class View {
  public:
-  View(Query query, model::DocumentKeySet remote_documents);
+  View(QueryOrPipeline query, model::DocumentKeySet remote_documents);
 
   /**
    * The set of remote documents that the server has told us belongs to the
@@ -189,6 +190,14 @@ class View {
   }
 
  private:
+  // Helper methods to encapsulate limit logic based on query type
+  static absl::optional<int64_t> GetLimit(const QueryOrPipeline& query);
+  static LimitType GetLimitType(const QueryOrPipeline& query);
+  static std::pair<absl::optional<model::Document>,
+                   absl::optional<model::Document>>
+  GetLimitEdges(const QueryOrPipeline& query,
+                const model::DocumentSet& old_document_set);
+
   util::ComparisonResult Compare(const model::Document& lhs,
                                  const model::Document& rhs) const;
 
@@ -202,7 +211,7 @@ class View {
 
   std::vector<LimboDocumentChange> UpdateLimboDocuments();
 
-  Query query_;
+  QueryOrPipeline query_;
 
   model::DocumentSet document_set_;
 
