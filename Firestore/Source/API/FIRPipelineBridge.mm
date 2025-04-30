@@ -23,6 +23,7 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRPipelineBridge+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
 #import "Firestore/Source/API/FSTUserDataWriter.h"
@@ -38,7 +39,15 @@
 #include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/api/pipeline_result.h"
 #include "Firestore/core/src/api/pipeline_snapshot.h"
+#include "Firestore/core/src/api/query_listener_registration.h"
+#include "Firestore/core/src/api/realtime_pipeline.h"
+#include "Firestore/core/src/api/realtime_pipeline_snapshot.h"
+#include "Firestore/core/src/api/snapshot_metadata.h"
 #include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/core/event_listener.h"
+#include "Firestore/core/src/core/firestore_client.h"
+#include "Firestore/core/src/core/listen_options.h"
+#include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -63,14 +72,20 @@ using firebase::firestore::api::MakeFIRTimestamp;
 using firebase::firestore::api::OffsetStage;
 using firebase::firestore::api::Ordering;
 using firebase::firestore::api::Pipeline;
+using firebase::firestore::api::QueryListenerRegistration;
+using firebase::firestore::api::RealtimePipeline;
+using firebase::firestore::api::RealtimePipelineSnapshot;
 using firebase::firestore::api::RemoveFieldsStage;
 using firebase::firestore::api::ReplaceWith;
 using firebase::firestore::api::Sample;
 using firebase::firestore::api::SelectStage;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::SortStage;
 using firebase::firestore::api::Union;
 using firebase::firestore::api::Unnest;
 using firebase::firestore::api::Where;
+using firebase::firestore::core::EventListener;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::nanopb::SharedMessage;
 using firebase::firestore::util::MakeCallback;
@@ -960,6 +975,114 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (std::shared_ptr<api::Pipeline>)cppPipelineWithReader:(FSTUserDataReader *)reader {
+  return cpp_pipeline;
+}
+
+@end
+
+@interface __FIRRealtimePipelineSnapshotBridge ()
+
+@property(nonatomic, strong, readwrite) NSArray<__FIRPipelineResultBridge *> *results;
+
+@end
+
+@implementation __FIRRealtimePipelineSnapshotBridge {
+  absl::optional<api::RealtimePipelineSnapshot> snapshot_;
+  NSMutableArray<__FIRPipelineResultBridge *> *results_;
+}
+
+- (id)initWithCppSnapshot:(api::RealtimePipelineSnapshot)snapshot {
+  self = [super init];
+  if (self) {
+    snapshot_ = std::move(snapshot);
+    if (!snapshot_.has_value()) {
+      results_ = nil;
+    } else {
+      NSMutableArray<__FIRPipelineResultBridge *> *results = [NSMutableArray array];
+      for (auto &result : snapshot_.value().view_snapshot().documents()) {
+        [results addObject:[[__FIRPipelineResultBridge alloc]
+                               initWithCppResult:api::PipelineResult(result)
+                                              db:snapshot_.value().firestore()]];
+      }
+      results_ = results;
+    }
+  }
+
+  return self;
+}
+
+- (NSArray<__FIRPipelineResultBridge *> *)results {
+  return results_;
+}
+
+@end
+
+@implementation FIRRealtimePipelineBridge {
+  NSArray<FIRStageBridge *> *_stages;
+  FIRFirestore *firestore;
+  std::shared_ptr<api::RealtimePipeline> cpp_pipeline;
+}
+
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db {
+  _stages = stages;
+  firestore = db;
+  return [super init];
+}
+
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
+                          listener:
+                              (void (^)(__FIRRealtimePipelineSnapshotBridge *_Nullable snapshot,
+                                        NSError *_Nullable error))listener {
+  std::shared_ptr<api::Firestore> wrapped_firestore = firestore.wrapped;
+
+  std::vector<std::shared_ptr<firebase::firestore::api::EvaluableStage>> cpp_stages;
+  for (FIRStageBridge *stage in _stages) {
+    auto evaluable_stage = std::dynamic_pointer_cast<api::EvaluableStage>(
+        [stage cppStageWithReader:firestore.dataReader]);
+    if (evaluable_stage) {
+      cpp_stages.push_back(evaluable_stage);
+    } else {
+      HARD_FAIL("Failed to convert cpp stage to EvaluableStage for RealtimePipeline");
+    }
+  }
+
+  cpp_pipeline = std::make_shared<RealtimePipeline>(
+      cpp_stages, std::make_unique<remote::Serializer>(wrapped_firestore->database_id()));
+
+  // Convert from ViewSnapshots to RealtimePipelineSnapshots.
+  auto view_listener = EventListener<ViewSnapshot>::Create(
+      [listener, wrapped_firestore](StatusOr<ViewSnapshot> maybe_snapshot) {
+        if (!maybe_snapshot.status().ok()) {
+          listener(nil, MakeNSError(maybe_snapshot.status()));
+          return;
+        }
+
+        ViewSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
+        SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
+
+        listener(
+            [[__FIRRealtimePipelineSnapshotBridge alloc]
+                initWithCppSnapshot:RealtimePipelineSnapshot(wrapped_firestore, std::move(snapshot),
+                                                             std::move(metadata))],
+            nil);
+      });
+
+  // Call the view_listener on the user Executor.
+  auto async_listener = core::AsyncEventListener<ViewSnapshot>::Create(
+      wrapped_firestore->client()->user_executor(), std::move(view_listener));
+
+  std::shared_ptr<core::QueryListener> query_listener = wrapped_firestore->client()->ListenToQuery(
+      // TODO(pipeline): pass options properly
+      *cpp_pipeline, core::ListenOptions(), async_listener);
+
+  return [[FSTListenerRegistration alloc]
+      initWithRegistration:absl::make_unique<QueryListenerRegistration>(wrapped_firestore->client(),
+                                                                        std::move(async_listener),
+                                                                        std::move(query_listener))];
+}
+
+- (std::shared_ptr<api::RealtimePipeline>)cppPipelineWithReader:(FSTUserDataReader *)reader {
   return cpp_pipeline;
 }
 

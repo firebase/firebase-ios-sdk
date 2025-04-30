@@ -193,6 +193,8 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   NSString *databaseId = [[NSProcessInfo processInfo] environment][@"TARGET_DATABASE_ID"];
   if (databaseId) {
     defaultDatabaseId = databaseId;
+  } else {
+    defaultDatabaseId = @"enterprise";
   }
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
