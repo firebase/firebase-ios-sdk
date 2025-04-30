@@ -98,7 +98,7 @@ import Foundation
           uploadFetcher.uploadFileURL = fileURL
           uploadFetcher.comment = "File UploadTask"
 
-          if GULAppEnvironmentUtil.isAppExtension() {
+          if !GULAppEnvironmentUtil.supportsBackgroundURLSessionUploads() {
             uploadFetcher.useBackgroundSession = false
           }
         }
