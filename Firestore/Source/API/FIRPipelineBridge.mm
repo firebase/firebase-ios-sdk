@@ -24,7 +24,9 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRPipelineBridge+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
 #import "Firestore/Source/API/FSTUserDataWriter.h"
 #import "Firestore/Source/API/converters.h"
@@ -38,8 +40,17 @@
 #include "Firestore/core/src/api/ordering.h"
 #include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/api/pipeline_result.h"
+#include "Firestore/core/src/api/pipeline_result_change.h"
 #include "Firestore/core/src/api/pipeline_snapshot.h"
+#include "Firestore/core/src/api/query_listener_registration.h"
+#include "Firestore/core/src/api/realtime_pipeline.h"
+#include "Firestore/core/src/api/realtime_pipeline_snapshot.h"
+#include "Firestore/core/src/api/snapshot_metadata.h"
 #include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/core/event_listener.h"
+#include "Firestore/core/src/core/firestore_client.h"
+#include "Firestore/core/src/core/listen_options.h"
+#include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/status.h"
@@ -53,6 +64,7 @@ using firebase::firestore::api::CollectionSource;
 using firebase::firestore::api::Constant;
 using firebase::firestore::api::DatabaseSource;
 using firebase::firestore::api::DistinctStage;
+using firebase::firestore::api::DocumentChange;
 using firebase::firestore::api::DocumentReference;
 using firebase::firestore::api::DocumentsSource;
 using firebase::firestore::api::Expr;
@@ -64,15 +76,22 @@ using firebase::firestore::api::MakeFIRTimestamp;
 using firebase::firestore::api::OffsetStage;
 using firebase::firestore::api::Ordering;
 using firebase::firestore::api::Pipeline;
+using firebase::firestore::api::PipelineResultChange;
+using firebase::firestore::api::QueryListenerRegistration;
+using firebase::firestore::api::RealtimePipeline;
+using firebase::firestore::api::RealtimePipelineSnapshot;
 using firebase::firestore::api::RawStage;
 using firebase::firestore::api::RemoveFieldsStage;
 using firebase::firestore::api::ReplaceWith;
 using firebase::firestore::api::Sample;
 using firebase::firestore::api::SelectStage;
+using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::SortStage;
 using firebase::firestore::api::Union;
 using firebase::firestore::api::Unnest;
 using firebase::firestore::api::Where;
+using firebase::firestore::core::EventListener;
+using firebase::firestore::core::ViewSnapshot;
 using firebase::firestore::model::DeepClone;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::nanopb::MakeSharedMessage;
@@ -1016,6 +1035,48 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
+@implementation __FIRPipelineResultChangeBridge {
+  api::PipelineResultChange change_;
+  std::shared_ptr<api::Firestore> db_;
+}
+
+- (FIRDocumentChangeType)type {
+  switch (change_.type()) {
+    case PipelineResultChange::Type::Added:
+      return FIRDocumentChangeTypeAdded;
+    case PipelineResultChange::Type::Modified:
+      return FIRDocumentChangeTypeModified;
+    case PipelineResultChange::Type::Removed:
+      return FIRDocumentChangeTypeRemoved;
+  }
+
+  HARD_FAIL("Unknown PipelineResultChange::Type: %s", change_.type());
+}
+
+- (__FIRPipelineResultBridge *)result {
+  return [[__FIRPipelineResultBridge alloc] initWithCppResult:change_.result() db:db_];
+}
+
+- (NSUInteger)oldIndex {
+  return change_.old_index() == PipelineResultChange::npos ? NSNotFound : change_.old_index();
+}
+
+- (NSUInteger)newIndex {
+  return change_.new_index() == PipelineResultChange::npos ? NSNotFound : change_.new_index();
+}
+
+- (id)initWithCppChange:(api::PipelineResultChange)change db:(std::shared_ptr<api::Firestore>)db {
+  self = [super init];
+  if (self) {
+    change_ = std::move(change);
+    db_ = std::move(db);
+  }
+
+  return self;
+}
+
+@end
+
 @implementation FIRPipelineBridge {
   NSArray<FIRStageBridge *> *_stages;
   FIRFirestore *firestore;
@@ -1054,6 +1115,197 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   }
 
   isUserDataRead = YES;
+  return cpp_pipeline;
+}
+
+@end
+
+@interface __FIRRealtimePipelineSnapshotBridge ()
+
+@property(nonatomic, strong, readwrite) NSArray<__FIRPipelineResultBridge *> *results;
+
+@property(nonatomic, strong, readwrite) NSArray<__FIRPipelineResultChangeBridge *> *changes;
+
+@end
+
+@implementation __FIRRealtimePipelineSnapshotBridge {
+  absl::optional<api::RealtimePipelineSnapshot> snapshot_;
+  NSMutableArray<__FIRPipelineResultBridge *> *results_;
+  NSMutableArray<__FIRPipelineResultChangeBridge *> *changes_;
+  FIRSnapshotMetadata *_metadata;
+}
+
+- (id)initWithCppSnapshot:(api::RealtimePipelineSnapshot)snapshot {
+  self = [super init];
+  if (self) {
+    snapshot_ = std::move(snapshot);
+    if (!snapshot_.has_value()) {
+      results_ = nil;
+    } else {
+      _metadata =
+          [[FIRSnapshotMetadata alloc] initWithMetadata:snapshot_.value().snapshot_metadata()];
+
+      NSMutableArray<__FIRPipelineResultBridge *> *results = [NSMutableArray array];
+      for (auto &result : snapshot_.value().view_snapshot().documents()) {
+        [results addObject:[[__FIRPipelineResultBridge alloc]
+                               initWithCppResult:api::PipelineResult(result)
+                                              db:snapshot_.value().firestore()]];
+      }
+      results_ = results;
+
+      NSMutableArray<__FIRPipelineResultChangeBridge *> *changes = [NSMutableArray array];
+      for (auto &change : snapshot_.value().CalculateResultChanges(false)) {
+        [changes addObject:[[__FIRPipelineResultChangeBridge alloc]
+                               initWithCppChange:change
+                                              db:snapshot_.value().firestore()]];
+      }
+      changes_ = changes;
+    }
+  }
+
+  return self;
+}
+
+- (NSArray<__FIRPipelineResultBridge *> *)results {
+  return results_;
+}
+
+- (NSArray<__FIRPipelineResultChangeBridge *> *)changes {
+  return changes_;
+}
+
+- (FIRSnapshotMetadata *)metadata {
+  return _metadata;
+}
+
+@end
+
+@implementation __FIRPipelineListenOptionsBridge
+
+- (instancetype)initWithServerTimestampBehavior:(NSString *)serverTimestampBehavior
+                                includeMetadata:(BOOL)includeMetadata
+                                         source:(FIRListenSource)source {
+  // Call the designated initializer of the superclass (NSObject).
+  self = [super init];
+  if (self) {
+    // Assign the passed-in values to the backing instance variables
+    // for the readonly properties.
+    // We use `copy` here for the string to ensure our object owns an immutable version.
+    _serverTimestampBehavior = [serverTimestampBehavior copy];
+    _includeMetadata = includeMetadata;
+    _source = source;
+  }
+  return self;
+}
+
+@end
+
+@implementation FIRRealtimePipelineBridge {
+  NSArray<FIRStageBridge *> *_stages;
+  FIRFirestore *firestore;
+  std::shared_ptr<api::RealtimePipeline> cpp_pipeline;
+}
+
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db {
+  _stages = stages;
+  firestore = db;
+  return [super init];
+}
+
+core::ListenOptions ToListenOptions(__FIRPipelineListenOptionsBridge *_Nullable bridge) {
+  // If the bridge object is nil, return a default-constructed ListenOptions.
+  if (bridge == nil) {
+    return core::ListenOptions::DefaultOptions();
+  }
+
+  // 1. Translate include_metadata_changes
+  bool include_metadata = bridge.includeMetadata;
+
+  // 2. Translate ListenSource
+  core::ListenSource source = core::ListenSource::Default;
+  switch (bridge.source) {
+    case FIRListenSourceDefault:
+      source = core::ListenSource::Default;
+      break;
+    case FIRListenSourceCache:
+      source = core::ListenSource::Cache;
+      break;
+  }
+
+  // 3. Translate ServerTimestampBehavior
+  core::ListenOptions::ServerTimestampBehavior behavior =
+      core::ListenOptions::ServerTimestampBehavior::kNone;
+  if ([bridge.serverTimestampBehavior isEqual:@"estimate"]) {
+    behavior = core::ListenOptions::ServerTimestampBehavior::kEstimate;
+  } else if ([bridge.serverTimestampBehavior isEqual:@"previous"]) {
+    behavior = core::ListenOptions::ServerTimestampBehavior::kPrevious;
+  } else {
+    // "none" or any other value defaults to kNone.
+    behavior = core::ListenOptions::ServerTimestampBehavior::kNone;
+  }
+
+  // 4. Construct the final C++ object using the canonical private constructor.
+  // Note: wait_for_sync_when_online is not part of the bridge, so we use 'false'
+  // to match the behavior of the existing static factories.
+  return core::ListenOptions(
+      /*include_query_metadata_changes=*/include_metadata,
+      /*include_document_metadata_changes=*/include_metadata,
+      /*wait_for_sync_when_online=*/false, source, behavior);
+}
+
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithOptions:(__FIRPipelineListenOptionsBridge *)options
+                          listener:
+                              (void (^)(__FIRRealtimePipelineSnapshotBridge *_Nullable snapshot,
+                                        NSError *_Nullable error))listener {
+  std::shared_ptr<api::Firestore> wrapped_firestore = firestore.wrapped;
+
+  std::vector<std::shared_ptr<firebase::firestore::api::EvaluableStage>> cpp_stages;
+  for (FIRStageBridge *stage in _stages) {
+    auto evaluable_stage = std::dynamic_pointer_cast<api::EvaluableStage>(
+        [stage cppStageWithReader:firestore.dataReader]);
+    if (evaluable_stage) {
+      cpp_stages.push_back(evaluable_stage);
+    } else {
+      HARD_FAIL("Failed to convert cpp stage to EvaluableStage for RealtimePipeline");
+    }
+  }
+
+  cpp_pipeline = std::make_shared<RealtimePipeline>(
+      cpp_stages, std::make_unique<remote::Serializer>(wrapped_firestore->database_id()));
+
+  // Convert from ViewSnapshots to RealtimePipelineSnapshots.
+  auto view_listener = EventListener<ViewSnapshot>::Create(
+      [listener, wrapped_firestore](StatusOr<ViewSnapshot> maybe_snapshot) {
+        if (!maybe_snapshot.status().ok()) {
+          listener(nil, MakeNSError(maybe_snapshot.status()));
+          return;
+        }
+
+        ViewSnapshot snapshot = std::move(maybe_snapshot).ValueOrDie();
+        SnapshotMetadata metadata(snapshot.has_pending_writes(), snapshot.from_cache());
+
+        listener(
+            [[__FIRRealtimePipelineSnapshotBridge alloc]
+                initWithCppSnapshot:RealtimePipelineSnapshot(wrapped_firestore, std::move(snapshot),
+                                                             std::move(metadata))],
+            nil);
+      });
+
+  // Call the view_listener on the user Executor.
+  auto async_listener = core::AsyncEventListener<ViewSnapshot>::Create(
+      wrapped_firestore->client()->user_executor(), std::move(view_listener));
+
+  std::shared_ptr<core::QueryListener> query_listener = wrapped_firestore->client()->ListenToQuery(
+      *cpp_pipeline, ToListenOptions(options), async_listener);
+
+  return [[FSTListenerRegistration alloc]
+      initWithRegistration:absl::make_unique<QueryListenerRegistration>(wrapped_firestore->client(),
+                                                                        std::move(async_listener),
+                                                                        std::move(query_listener))];
+}
+
+- (std::shared_ptr<api::RealtimePipeline>)cppPipelineWithReader:(FSTUserDataReader *)reader {
   return cpp_pipeline;
 }
 
