@@ -27,6 +27,25 @@ using api::ListenSource;
 
 class ListenOptions {
  public:
+  /**
+   * An enumeration of the possible behaviors for server-generated timestamps.
+   * This is only useful for pipelines.
+   */
+  enum class ServerTimestampBehavior {
+    /**
+     * Do not estimate server timestamps. Just return null.
+     */
+    kNone,
+    /**
+     * Estimate server timestamps, integrated with the server's confirmed time.
+     */
+    kEstimate,
+    /**
+     * Use the previous value, until the server confirms the new value.
+     */
+    kPrevious,
+  };
+
   ListenOptions() = default;
 
   /**
@@ -66,6 +85,18 @@ class ListenOptions {
         include_document_metadata_changes_(include_document_metadata_changes),
         wait_for_sync_when_online_(wait_for_sync_when_online),
         source_(std::move(source)) {
+  }
+
+  ListenOptions(bool include_query_metadata_changes,
+                bool include_document_metadata_changes,
+                bool wait_for_sync_when_online,
+                ListenSource source,
+                ServerTimestampBehavior behavior)
+      : include_query_metadata_changes_(include_query_metadata_changes),
+        include_document_metadata_changes_(include_document_metadata_changes),
+        wait_for_sync_when_online_(wait_for_sync_when_online),
+        source_(std::move(source)),
+        server_timestamp_(behavior) {
   }
 
   /**
@@ -120,11 +151,16 @@ class ListenOptions {
     return source_;
   }
 
+  ServerTimestampBehavior server_timestamp_behavior() const {
+    return server_timestamp_;
+  }
+
  private:
   bool include_query_metadata_changes_ = false;
   bool include_document_metadata_changes_ = false;
   bool wait_for_sync_when_online_ = false;
   ListenSource source_ = ListenSource::Default;
+  ServerTimestampBehavior server_timestamp_ = ServerTimestampBehavior::kNone;
 };
 
 }  // namespace core

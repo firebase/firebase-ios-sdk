@@ -1642,8 +1642,8 @@ TEST_F(DisjunctivePipelineTest, ArrayContainsAllDuplicateValues) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(ArrayContainsAllExpr(
       {std::make_shared<Field>("scores"),
        SharedConstant(Array(Value(1LL), Value(2LL), Value(2LL), Value(2LL),
-                            Value(3LL)))}  // Requires 1, two 2s, and 3
-      )));
+                            Value(3LL)))})  // Requires 1, two 2s, and 3
+                                                          ));
 
   // Expect docs where scores contain 1, two 2s, and 3 (only doc2)
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1, doc2));
