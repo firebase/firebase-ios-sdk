@@ -21,6 +21,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/api/snapshot_metadata.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -50,6 +51,27 @@ class PipelineResult {
 
   PipelineResult() = default;
 
+  PipelineResult(model::Document document)
+      : internal_key_{document->key()},
+        value_{document->shared_data()},
+        // TODO(pipeline): add create time support
+        create_time_{document->version()},
+        update_time_{document->version()},
+        execution_time_{document.read_time()} {
+  }
+
+  PipelineResult(model::Document document, SnapshotMetadata metadata)
+      : internal_key_{document->key()},
+        value_{document->shared_data()},
+        // TODO(pipeline): add create time support
+        create_time_{document->version()},
+        update_time_{document->version()},
+        execution_time_{document.read_time()},
+        metadata_(metadata) {
+  }
+
+  size_t Hash() const;
+
   std::shared_ptr<model::ObjectValue> internal_value() const;
   absl::optional<absl::string_view> document_id() const;
 
@@ -65,6 +87,10 @@ class PipelineResult {
     return internal_key_;
   }
 
+  SnapshotMetadata metadata() const {
+    return metadata_;
+  }
+
  private:
   absl::optional<model::DocumentKey> internal_key_;
   // Using a shared pointer to ObjectValue makes PipelineResult copy-assignable
@@ -74,7 +100,10 @@ class PipelineResult {
   absl::optional<model::SnapshotVersion> create_time_;
   absl::optional<model::SnapshotVersion> update_time_;
   absl::optional<model::SnapshotVersion> execution_time_;
+  SnapshotMetadata metadata_;
 };
+
+bool operator==(const PipelineResult& lhs, const PipelineResult& rhs);
 
 }  // namespace api
 }  // namespace firestore
