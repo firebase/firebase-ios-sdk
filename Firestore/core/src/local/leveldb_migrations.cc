@@ -343,7 +343,7 @@ void RewriteTargetsCanonicalIds(leveldb::DB* db,
     }
 
     auto new_key = LevelDbQueryTargetKey::Key(
-        target_data.ValueOrDie().target().CanonicalId(),
+        target_data.ValueOrDie().target_or_pipeline().CanonicalId(),
         target_data.ValueOrDie().target_id());
 
     transaction.Delete(it->key());
