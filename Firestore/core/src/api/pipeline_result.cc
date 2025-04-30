@@ -40,6 +40,16 @@ std::shared_ptr<model::ObjectValue> PipelineResult::internal_value() const {
   return value_;
 }
 
+size_t PipelineResult::Hash() const {
+  return util::Hash(internal_key_, *value_, metadata_);
+}
+
+bool operator==(const PipelineResult& lhs, const PipelineResult& rhs) {
+  return lhs.internal_key() == rhs.internal_key() &&
+         lhs.internal_value() == rhs.internal_value() &&
+         lhs.metadata() == rhs.metadata();
+}
+
 absl::optional<absl::string_view> PipelineResult::document_id() const {
   if (!internal_key_.has_value()) {
     return absl::nullopt;
