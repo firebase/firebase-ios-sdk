@@ -56,9 +56,8 @@ google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
   result.args[0].which_value_type =
       google_firestore_v1_Value_reference_value_tag;
-  // TODO(wuandy): use EncodeResourceName instead
-  result.args[0].reference_value =
-      nanopb::MakeBytesArray(this->path_.CanonicalString());
+  result.args[0].reference_value = nanopb::MakeBytesArray(
+      util::StringFormat("/%s", this->path_.CanonicalString()));
 
   result.options_count = 0;
   result.options = nullptr;
