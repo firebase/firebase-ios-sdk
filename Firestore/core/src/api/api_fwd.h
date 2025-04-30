@@ -46,6 +46,7 @@ class Firestore;
 class ListenerRegistration;
 class Pipeline;
 class PipelineSnapshot;
+class RealtimePipeline;
 class Query;
 class QuerySnapshot;
 class Settings;

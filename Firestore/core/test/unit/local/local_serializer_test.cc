@@ -49,12 +49,18 @@
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
+#include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/src/api/realtime_pipeline.h"
+#include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/test/unit/testutil/expression_test_util.h"
+
 namespace firebase {
 namespace firestore {
 namespace local {
 namespace {
 
 namespace v1 = google::firestore::v1;
+namespace api = firebase::firestore::api;
 using bundle::BundledQuery;
 using bundle::NamedQuery;
 using core::Query;
@@ -242,6 +248,14 @@ class LocalSerializerTest : public ::testing::Test {
 
   static void ExpectNoUpdateTransform(google_firestore_v1_Write encoded) {
     EXPECT_EQ(0, encoded.update_transforms_count);
+  }
+
+  api::RealtimePipeline StartPipeline(const std::string& collection_path) {
+    std::vector<std::shared_ptr<api::EvaluableStage>> stages;
+    stages.push_back(std::make_shared<api::CollectionSource>(collection_path));
+    return api::RealtimePipeline(
+        std::move(stages),
+        std::make_unique<remote::Serializer>(remote_serializer.database_id()));
   }
 
  private:
@@ -470,9 +484,10 @@ TEST_F(LocalSerializerTest, EncodesTargetData) {
   ByteString resume_token = testutil::ResumeToken(1039);
 
   TargetData target_data(
-      query.ToTarget(), target_id, sequence_number, QueryPurpose::Listen,
-      SnapshotVersion(version), SnapshotVersion(limbo_free_version),
-      ByteString(resume_token), /*expected_count=*/absl::nullopt);
+      core::TargetOrPipeline(query.ToTarget()), target_id, sequence_number,
+      QueryPurpose::Listen, SnapshotVersion(version),
+      SnapshotVersion(limbo_free_version), ByteString(resume_token),
+      /*expected_count=*/absl::nullopt);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
@@ -505,8 +520,9 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWillDropExpectedCount) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  TargetData target_data(query.ToTarget(), target_id, sequence_number,
-                         QueryPurpose::Listen, SnapshotVersion(version),
+  TargetData target_data(core::TargetOrPipeline(query.ToTarget()), target_id,
+                         sequence_number, QueryPurpose::Listen,
+                         SnapshotVersion(version),
                          SnapshotVersion(limbo_free_version),
                          ByteString(resume_token), /*expected_count=*/1234);
 
@@ -570,9 +586,10 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithDocumentQuery) {
   ByteString resume_token = testutil::ResumeToken(1039);
 
   TargetData target_data(
-      query.ToTarget(), target_id, sequence_number, QueryPurpose::Listen,
-      SnapshotVersion(version), SnapshotVersion(limbo_free_version),
-      ByteString(resume_token), /*expected_count=*/absl::nullopt);
+      core::TargetOrPipeline(query.ToTarget()), target_id, sequence_number,
+      QueryPurpose::Listen, SnapshotVersion(version),
+      SnapshotVersion(limbo_free_version), ByteString(resume_token),
+      /*expected_count=*/absl::nullopt);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
@@ -595,8 +612,9 @@ TEST_F(LocalSerializerTest,
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  TargetData target_data(query.ToTarget(), target_id, sequence_number,
-                         QueryPurpose::Listen, SnapshotVersion(version),
+  TargetData target_data(core::TargetOrPipeline(query.ToTarget()), target_id,
+                         sequence_number, QueryPurpose::Listen,
+                         SnapshotVersion(version),
                          SnapshotVersion(limbo_free_version),
                          ByteString(resume_token), /*expected_count=*/1234);
 
@@ -704,6 +722,117 @@ TEST_F(LocalSerializerTest, EncodesMutation) {
   v1::Write expected_mutation = PatchProto();
 
   ExpectRoundTrip(mutation, expected_mutation);
+}
+
+TEST_F(LocalSerializerTest, EncodesTargetDataWithPipeline) {
+  TargetId target_id = 42;
+  ListenSequenceNumber sequence_number = 10;
+  SnapshotVersion version = testutil::Version(1039);
+  SnapshotVersion limbo_free_version = testutil::Version(1000);
+  ByteString resume_token = testutil::ResumeToken(1039);
+
+  // Construct the pipeline
+  auto ppl = StartPipeline("rooms");
+  ppl = ppl.AddingStage(std::make_shared<api::Where>(
+      testutil::EqExpr({std::make_shared<api::Field>("name"),
+                        testutil::SharedConstant("testroom")})));
+  api::Ordering ordering(std::make_unique<api::Field>("age"),
+                         api::Ordering::DESCENDING);
+  ppl = ppl.AddingStage(
+      std::make_shared<api::SortStage>(std::vector<api::Ordering>{ordering}));
+  ppl = ppl.AddingStage(std::make_shared<api::LimitStage>(10));
+
+  TargetData target_data(
+      core::TargetOrPipeline(std::move(ppl)), target_id, sequence_number,
+      QueryPurpose::Listen, SnapshotVersion(version),
+      SnapshotVersion(limbo_free_version), ByteString(resume_token),
+      /*expected_count=*/absl::nullopt);
+
+  // Construct the expected protobuf
+  ::firestore::client::Target expected_proto;
+  expected_proto.set_target_id(target_id);
+  expected_proto.set_last_listen_sequence_number(sequence_number);
+  expected_proto.mutable_snapshot_version()->set_nanos(1039000);
+  expected_proto.mutable_last_limbo_free_snapshot_version()->set_nanos(1000000);
+  expected_proto.set_resume_token(resume_token.data(), resume_token.size());
+
+  v1::Target::PipelineQueryTarget* pipeline_query_proto =
+      expected_proto.mutable_pipeline_query();
+  v1::StructuredPipeline* structured_pipeline_proto =
+      pipeline_query_proto->mutable_structured_pipeline();
+  v1::Pipeline* pipeline_proto_obj =
+      structured_pipeline_proto->mutable_pipeline();
+
+  // Stage 1: CollectionSource("rooms")
+  {
+    google::firestore::v1::Pipeline_Stage* stage1_proto =
+        pipeline_proto_obj->add_stages();  // Changed type
+    stage1_proto->set_name("collection");
+    v1::Value* stage1_arg1 = stage1_proto->add_args();
+    stage1_arg1->set_reference_value("rooms");
+  }
+
+  // Stage 2: Where(EqExpr(Field("name"), Value("testroom")))
+  {
+    google::firestore::v1::Pipeline_Stage* stage2_proto =
+        pipeline_proto_obj->add_stages();  // Changed type
+    stage2_proto->set_name("where");
+    v1::Value* stage2_arg1_expr = stage2_proto->add_args();  // The EqExpr
+    v1::Function* eq_func = stage2_arg1_expr->mutable_function_value();
+    eq_func->set_name("eq");
+
+    v1::Value* eq_arg1_field = eq_func->add_args();  // Field("name")
+    eq_arg1_field->set_field_reference_value("name");
+
+    v1::Value* eq_arg2_value = eq_func->add_args();  // Value("testroom")
+    eq_arg2_value->set_string_value("testroom");
+  }
+
+  // Stage 3: Sort(Field("age").descending(), Field("__name__").ascending())
+  {
+    google::firestore::v1::Pipeline_Stage* stage3_proto =
+        pipeline_proto_obj->add_stages();
+    stage3_proto->set_name("sort");
+
+    // First ordering: age descending
+    v1::Value* sort_arg1 = stage3_proto->add_args();
+    v1::MapValue* sort_arg1_map = sort_arg1->mutable_map_value();
+    google::protobuf::Map<std::string, v1::Value>* sort_arg1_fields =
+        sort_arg1_map->mutable_fields();
+
+    v1::Value direction_val_desc;
+    direction_val_desc.set_string_value("descending");
+    (*sort_arg1_fields)["direction"] = direction_val_desc;
+
+    v1::Value expr_val_age;
+    expr_val_age.set_field_reference_value("age");
+    (*sort_arg1_fields)["expression"] = expr_val_age;
+
+    // Second ordering: __name__ ascending
+    v1::Value* sort_arg2 = stage3_proto->add_args();
+    v1::MapValue* sort_arg2_map = sort_arg2->mutable_map_value();
+    google::protobuf::Map<std::string, v1::Value>* sort_arg2_fields =
+        sort_arg2_map->mutable_fields();
+
+    v1::Value direction_val_asc;
+    direction_val_asc.set_string_value("ascending");
+    (*sort_arg2_fields)["direction"] = direction_val_asc;
+
+    v1::Value expr_val_name;
+    expr_val_name.set_field_reference_value("__name__");
+    (*sort_arg2_fields)["expression"] = expr_val_name;
+  }
+
+  // Stage 4: Limit(10)
+  {
+    google::firestore::v1::Pipeline_Stage* stage4_proto =
+        pipeline_proto_obj->add_stages();
+    stage4_proto->set_name("limit");
+    v1::Value* limit_arg = stage4_proto->add_args();
+    limit_arg->set_integer_value(10);
+  }
+
+  ExpectRoundTrip(target_data, expected_proto);
 }
 
 }  // namespace

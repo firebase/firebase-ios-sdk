@@ -24,9 +24,9 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-remote::Serializer TestSerializer() {
-  static remote::Serializer serializer(model::DatabaseId("test-project"));
-  return serializer;
+std::unique_ptr<remote::Serializer> TestSerializer() {
+  return std::make_unique<remote::Serializer>(
+      model::DatabaseId("test-project"));
 }
 
 }  // namespace core

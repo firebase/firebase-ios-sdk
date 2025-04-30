@@ -110,7 +110,8 @@ void QuerySnapshot::ForEachChange(
     // Special case the first snapshot because index calculation is easy and
     // fast. Also all changes on the first snapshot are adds so there are also
     // no metadata-only changes to filter out.
-    DocumentComparator doc_comparator = snapshot_.query().Comparator();
+    DocumentComparator doc_comparator =
+        snapshot_.query_or_pipeline().Comparator();
     absl::optional<Document> last_document;
     size_t index = 0;
     for (const DocumentViewChange& change : snapshot_.document_changes()) {

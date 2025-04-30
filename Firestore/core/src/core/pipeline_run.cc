@@ -30,10 +30,6 @@ namespace core {
 model::PipelineInputOutputVector RunPipeline(
     api::RealtimePipeline& pipeline,
     const std::vector<model::MutableDocument>& inputs) {
-  if (pipeline.rewritten_stages().empty()) {
-    pipeline.SetRewrittentStages(RewriteStages(pipeline.stages()));
-  }
-
   auto current = std::vector<model::MutableDocument>(inputs);
   for (const auto& stage : pipeline.rewritten_stages()) {
     current = stage->Evaluate(pipeline.evaluate_context(), current);

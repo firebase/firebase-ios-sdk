@@ -27,6 +27,7 @@
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -117,7 +118,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   /** Starts listening to a query. */
   std::shared_ptr<QueryListener> ListenToQuery(
-      Query query,
+      QueryOrPipeline query,
       ListenOptions options,
       ViewSnapshotSharedListener&& listener);
 
