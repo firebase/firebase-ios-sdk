@@ -19,6 +19,7 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/remote/serializer.h"
 
 namespace firebase {
@@ -27,8 +28,26 @@ namespace api {
 
 RealtimePipeline::RealtimePipeline(
     std::vector<std::shared_ptr<EvaluableStage>> stages,
-    remote::Serializer serializer)
-    : stages_(std::move(stages)), serializer_(serializer) {
+    std::unique_ptr<remote::Serializer> serializer)
+    : stages_(std::move(stages)), serializer_(std::move(serializer)) {
+  this->rewritten_stages_ = core::RewriteStages(this->stages());
+}
+
+RealtimePipeline::RealtimePipeline(const RealtimePipeline& other)
+    : stages_(other.stages_),
+      rewritten_stages_(other.rewritten_stages_),
+      serializer_(std::make_unique<remote::Serializer>(
+          other.serializer_->database_id())) {
+}
+
+RealtimePipeline& RealtimePipeline::operator=(const RealtimePipeline& other) {
+  if (this != &other) {
+    stages_ = other.stages_;
+    rewritten_stages_ = other.rewritten_stages_;
+    serializer_ =
+        std::make_unique<remote::Serializer>(other.serializer_->database_id());
+  }
+  return *this;
 }
 
 RealtimePipeline RealtimePipeline::AddingStage(
@@ -36,7 +55,8 @@ RealtimePipeline RealtimePipeline::AddingStage(
   auto copy = std::vector<std::shared_ptr<EvaluableStage>>(this->stages_);
   copy.push_back(stage);
 
-  return {copy, serializer_};
+  return {copy,
+          std::make_unique<remote::Serializer>(serializer_->database_id())};
 }
 
 const std::vector<std::shared_ptr<EvaluableStage>>& RealtimePipeline::stages()
@@ -49,13 +69,8 @@ RealtimePipeline::rewritten_stages() const {
   return this->rewritten_stages_;
 }
 
-void RealtimePipeline::SetRewrittentStages(
-    std::vector<std::shared_ptr<EvaluableStage>> stages) {
-  this->rewritten_stages_ = std::move(stages);
-}
-
-EvaluateContext RealtimePipeline::evaluate_context() {
-  return EvaluateContext(&serializer_);
+EvaluateContext RealtimePipeline::evaluate_context() const {
+  return EvaluateContext(serializer_.get());
 }
 
 }  // namespace api

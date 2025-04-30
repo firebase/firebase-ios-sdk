@@ -36,7 +36,12 @@ EventManager::EventManager(QueryEventSource* query_event_source)
 
 model::TargetId EventManager::AddQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
-  const Query& query = listener->query();
+  const QueryOrPipeline& query_or_pipeline = listener->query();
+  if (query_or_pipeline.IsPipeline()) {
+    HARD_FAIL("Unimplemented");
+  }
+
+  const auto& query = query_or_pipeline.query();
   ListenerSetupAction listener_action =
       ListenerSetupAction::NoSetupActionRequired;
 
@@ -92,7 +97,12 @@ model::TargetId EventManager::AddQueryListener(
 
 void EventManager::RemoveQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
-  const Query& query = listener->query();
+  const auto& query_or_pipeline = listener->query();
+  if (query_or_pipeline.IsPipeline()) {
+    HARD_FAIL("Unimplemented");
+  }
+
+  const auto& query = query_or_pipeline.query();
   ListenerRemovalAction listener_action =
       ListenerRemovalAction::NoRemovalActionRequired;
 
@@ -170,7 +180,7 @@ void EventManager::OnViewSnapshots(
     std::vector<core::ViewSnapshot>&& snapshots) {
   bool raised_event = false;
   for (ViewSnapshot& snapshot : snapshots) {
-    const Query& query = snapshot.query();
+    const QueryOrPipeline& query = snapshot.query_or_pipeline();
     auto found_iter = queries_.find(query);
     if (found_iter != queries_.end()) {
       QueryListenersInfo& query_info = found_iter->second;
@@ -187,7 +197,7 @@ void EventManager::OnViewSnapshots(
   }
 }
 
-void EventManager::OnError(const core::Query& query,
+void EventManager::OnError(const core::QueryOrPipeline& query,
                            const util::Status& error) {
   auto found_iter = queries_.find(query);
   if (found_iter == queries_.end()) {
