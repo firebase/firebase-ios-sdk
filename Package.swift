@@ -208,7 +208,7 @@ let package = Package(
       ],
       path: "FirebaseAI/Tests/Unit",
       resources: [
-        .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
+        .copy("vertexai-sdk-test-data/mock-responses"),
         .process("Resources"),
       ],
       cSettings: [
