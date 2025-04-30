@@ -136,7 +136,7 @@ std::string DocumentViewChangeSet::ToString() const {
 
 // ViewSnapshot
 
-ViewSnapshot::ViewSnapshot(Query query,
+ViewSnapshot::ViewSnapshot(QueryOrPipeline query,
                            DocumentSet documents,
                            DocumentSet old_documents,
                            std::vector<DocumentViewChange> document_changes,
@@ -156,7 +156,7 @@ ViewSnapshot::ViewSnapshot(Query query,
       has_cached_results_{has_cached_results} {
 }
 
-ViewSnapshot ViewSnapshot::FromInitialDocuments(Query query,
+ViewSnapshot ViewSnapshot::FromInitialDocuments(QueryOrPipeline query,
                                                 DocumentSet documents,
                                                 DocumentKeySet mutated_keys,
                                                 bool from_cache,
@@ -179,7 +179,7 @@ ViewSnapshot ViewSnapshot::FromInitialDocuments(Query query,
                       has_cached_results};
 }
 
-const Query& ViewSnapshot::query() const {
+const QueryOrPipeline& ViewSnapshot::query_or_pipeline() const {
   return query_;
 }
 
@@ -202,13 +202,14 @@ size_t ViewSnapshot::Hash() const {
   // straightforward way to compute its hash value. Since `ViewSnapshot` is
   // currently not stored in any dictionaries, this has no side effects.
 
-  return util::Hash(query(), documents(), old_documents(), document_changes(),
-                    from_cache(), sync_state_changed(),
+  return util::Hash(query_or_pipeline(), documents(), old_documents(),
+                    document_changes(), from_cache(), sync_state_changed(),
                     excludes_metadata_changes(), has_cached_results());
 }
 
 bool operator==(const ViewSnapshot& lhs, const ViewSnapshot& rhs) {
-  return lhs.query() == rhs.query() && lhs.documents() == rhs.documents() &&
+  return lhs.query_or_pipeline() == rhs.query_or_pipeline() &&
+         lhs.documents() == rhs.documents() &&
          lhs.old_documents() == rhs.old_documents() &&
          lhs.document_changes() == rhs.document_changes() &&
          lhs.from_cache() == rhs.from_cache() &&

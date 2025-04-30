@@ -982,7 +982,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     const TargetData &actual = found->second;
 
     XCTAssertEqual(actual.purpose(), targetData.purpose());
-    XCTAssertEqual(actual.target(), targetData.target());
+    XCTAssertEqual(actual.target_or_pipeline(), targetData.target_or_pipeline());
     XCTAssertEqual(actual.target_id(), targetData.target_id());
     XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());

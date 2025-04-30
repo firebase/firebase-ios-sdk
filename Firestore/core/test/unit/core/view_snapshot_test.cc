@@ -119,7 +119,7 @@ TEST(ViewSnapshotTest, ViewSnapshotConstructor) {
                         /*excludes_metadata_changes=*/false,
                         has_cached_results};
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
   ASSERT_EQ(snapshot.documents(), documents);
   ASSERT_EQ(snapshot.old_documents(), old_documents);
   ASSERT_EQ(snapshot.document_changes(), document_changes);
