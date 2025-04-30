@@ -16,10 +16,13 @@
 
 #include "Firestore/core/src/core/view.h"
 
+#include <algorithm>  // For std::sort
 #include <utility>
+#include <valarray>
 
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/document_set.h"
+#include "Firestore/core/src/util/hard_assert.h"  // For HARD_ASSERT and HARD_FAIL
 
 namespace firebase {
 namespace firestore {
@@ -33,6 +36,67 @@ using model::DocumentSet;
 using model::OnlineState;
 using remote::TargetChange;
 using util::ComparisonResult;
+
+// MARK: - Helper Functions for View
+absl::optional<int64_t> View::GetLimit(const QueryOrPipeline& query) {
+  if (query.IsPipeline()) {
+    absl::optional<int64_t> limit = GetLastEffectiveLimit(query.pipeline());
+    if (limit) {
+      return limit;
+    }
+    return absl::nullopt;
+  } else {
+    const auto& q = query.query();
+    if (q.has_limit_to_first()) {
+      return q.limit();
+    } else if (q.has_limit_to_last()) {
+      return -q.limit();  // Negative to indicate limitToLast
+    }
+    return absl::nullopt;
+  }
+}
+
+LimitType View::GetLimitType(const QueryOrPipeline& query) {
+  if (query.IsPipeline()) {
+    absl::optional<int64_t> limit = GetLastEffectiveLimit(query.pipeline());
+    return limit > 0 ? LimitType::First : LimitType::Last;
+  } else {
+    return query.query().limit_type();
+  }
+}
+
+std::pair<absl::optional<model::Document>, absl::optional<model::Document>>
+View::GetLimitEdges(const QueryOrPipeline& query,
+                    const model::DocumentSet& old_document_set) {
+  absl::optional<int32_t> limit_opt = GetLimit(query);
+  if (!limit_opt) {
+    return {absl::nullopt, absl::nullopt};
+  }
+  int32_t limit_val = *limit_opt;
+
+  if (query.IsPipeline()) {
+    // For pipelines, converted_from_limit_to_last in EffectiveLimitDetails
+    // tells us if it was originally a limitToLast.
+    // The GetLimit function already encodes this as a negative number.
+    if (limit_val > 0 &&
+        old_document_set.size() == static_cast<size_t>(limit_val)) {
+      return {old_document_set.GetLastDocument(), absl::nullopt};
+    } else if (limit_val < 0 &&
+               old_document_set.size() == static_cast<size_t>(-limit_val)) {
+      return {absl::nullopt, old_document_set.GetFirstDocument()};
+    }
+  } else {
+    const auto& q = query.query();
+    if (q.has_limit_to_first() &&
+        old_document_set.size() == static_cast<size_t>(q.limit())) {
+      return {old_document_set.GetLastDocument(), absl::nullopt};
+    } else if (q.has_limit_to_last() &&
+               old_document_set.size() == static_cast<size_t>(q.limit())) {
+      return {absl::nullopt, old_document_set.GetFirstDocument()};
+    }
+  }
+  return {absl::nullopt, absl::nullopt};
+}
 
 // MARK: - LimboDocumentChange
 
@@ -82,9 +146,10 @@ int GetDocumentViewChangeTypePosition(DocumentViewChange::Type change_type) {
 
 }  // namespace
 
-View::View(Query query, DocumentKeySet remote_documents)
+View::View(QueryOrPipeline query, DocumentKeySet remote_documents)
     : query_(std::move(query)),
-      document_set_(query_.Comparator()),
+      document_set_(query_.Comparator()),  // QueryOrPipeline must provide a
+                                           // valid comparator
       synced_documents_(std::move(remote_documents)) {
 }
 
@@ -108,25 +173,9 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   DocumentSet new_document_set = old_document_set;
   bool needs_refill = false;
 
-  // Track the last doc in a (full) limit. This is necessary, because some
-  // update (a delete, or an update moving a doc past the old limit) might mean
-  // there is some other document in the local cache that either should come (1)
-  // between the old last limit doc and the new last document, in the case of
-  // updates, or (2) after the new last document, in the case of deletes. So we
-  // keep this doc at the old limit to compare the updates to.
-  //
-  // Note that this should never get used in a refill (when previous_changes is
-  // set), because there will only be adds -- no deletes or updates.
-  absl::optional<Document> last_doc_in_limit;
-  if (query_.has_limit_to_first() &&
-      old_document_set.size() == static_cast<size_t>(query_.limit())) {
-    last_doc_in_limit = old_document_set.GetLastDocument();
-  }
-  absl::optional<Document> first_doc_in_limit;
-  if (query_.has_limit_to_last() &&
-      old_document_set.size() == static_cast<size_t>(query_.limit())) {
-    first_doc_in_limit = old_document_set.GetFirstDocument();
-  }
+  auto limit_edges = GetLimitEdges(query_, old_document_set);
+  absl::optional<Document> last_doc_in_limit = limit_edges.first;
+  absl::optional<Document> first_doc_in_limit = limit_edges.second;
 
   for (const auto& kv : doc_changes) {
     const DocumentKey& key = kv.first;
@@ -209,13 +258,16 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   }
 
   // Drop documents out to meet limitToFirst/limitToLast requirement.
-  if (query_.limit_type() != LimitType::None) {
-    auto limit = static_cast<size_t>(query_.limit());
-    if (limit < new_document_set.size()) {
-      for (size_t i = new_document_set.size() - limit; i > 0; --i) {
+  auto limit = GetLimit(query_);
+  if (limit.has_value()) {
+    auto limit_type = GetLimitType(query_);
+    auto abs_limit = std::abs(limit.value());
+    if (abs_limit < static_cast<int64_t>(new_document_set.size())) {
+      for (size_t i = new_document_set.size() - abs_limit; i > 0; --i) {
         absl::optional<Document> found =
-            query_.has_limit_to_first() ? new_document_set.GetLastDocument()
-                                        : new_document_set.GetFirstDocument();
+            limit_type == LimitType::First
+                ? new_document_set.GetLastDocument()
+                : new_document_set.GetFirstDocument();
         const Document& old_doc = *found;
         new_document_set = new_document_set.erase(old_doc->key());
         new_mutated_keys = new_mutated_keys.erase(old_doc->key());

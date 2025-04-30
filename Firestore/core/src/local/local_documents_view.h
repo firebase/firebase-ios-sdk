@@ -22,23 +22,34 @@
 #include <unordered_map>
 #include <vector>
 
+#include <functional>  // Added for std::function
 #include "Firestore/core/src/immutable/sorted_set.h"
 #include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/index_manager.h"
 #include "Firestore/core/src/local/mutation_queue.h"
 #include "Firestore/core/src/local/query_context.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
+
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/overlayed_document.h"
 #include "Firestore/core/src/util/range.h"
 
+// Forward declarations
 namespace firebase {
 namespace firestore {
-
 namespace core {
 class Query;
+class QueryOrPipeline;  // Added forward declaration
 }  // namespace core
+namespace api {
+class RealtimePipeline;  // Added forward declaration
+}  // namespace api
+}  // namespace firestore
+}  // namespace firebase
+
+namespace firebase {
+namespace firestore {
 
 namespace local {
 
@@ -140,19 +151,20 @@ class LocalDocumentsView {
    */
   // Virtual for testing.
   virtual model::DocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query, const model::IndexOffset& offset);
+      const core::QueryOrPipeline& query, const model::IndexOffset& offset);
 
   /**
    * Performs a query against the local view of all documents.
    *
-   * @param query The query to match documents against.
+   * @param query_or_pipeline The query to match documents against.
    * @param offset Read time and document key to start scanning by (exclusive).
    * @param context A optional tracker to keep a record of important details
    * during database local query execution.
    */
   // Virtual for testing.
+  // Changed parameter type from Query to QueryOrPipeline
   virtual model::DocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::IndexOffset& offset,
       absl::optional<QueryContext>& context);
 
@@ -174,11 +186,32 @@ class LocalDocumentsView {
       const model::IndexOffset& offset,
       absl::optional<QueryContext>& context);
 
-  /** Queries the remote documents and overlays mutations. */
+  /** Queries the remote documents and overlays mutations for standard queries.
+   */
   model::DocumentMap GetDocumentsMatchingCollectionQuery(
       const core::Query& query,
       const model::IndexOffset& offset,
       absl::optional<QueryContext>& context);
+
+  /** Queries the remote documents and overlays mutations for pipelines. */
+  model::DocumentMap GetDocumentsMatchingPipeline(
+      const core::QueryOrPipeline& pipeline,
+      const model::IndexOffset& offset,
+      absl::optional<QueryContext>& context);
+
+  /** Gets the overlays for the given pipeline. */
+  model::OverlayByDocumentKeyMap GetOverlaysForPipeline(
+      const core::QueryOrPipeline& query_or_pipeline,
+      model::BatchId largest_batch_id);
+
+  /**
+   * Takes a base document map and overlays, applies the overlays, and filters
+   * the documents using the provided matcher.
+   */
+  model::DocumentMap RetrieveMatchingLocalDocuments(
+      model::OverlayByDocumentKeyMap overlays,
+      model::MutableDocumentMap remote_documents,
+      const std::function<bool(const model::Document&)>& matcher);
 
   RemoteDocumentCache* remote_document_cache() {
     return remote_document_cache_;

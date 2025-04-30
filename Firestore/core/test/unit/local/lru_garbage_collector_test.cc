@@ -144,8 +144,8 @@ TargetData LruGarbageCollectorTest::NextTestQuery() {
   ListenSequenceNumber listen_sequence_number =
       persistence_->current_sequence_number();
   core::Query query = Query(absl::StrCat("path", target_id));
-  return TargetData(query.ToTarget(), target_id, listen_sequence_number,
-                    QueryPurpose::Listen);
+  return TargetData(core::TargetOrPipeline(query.ToTarget()), target_id,
+                    listen_sequence_number, QueryPurpose::Listen);
 }
 
 TargetData LruGarbageCollectorTest::AddNextQuery() {
@@ -382,7 +382,7 @@ TEST_P(LruGarbageCollectorTest, RemoveQueriesUpThroughSequenceNumber) {
   // Make sure we removed the next 10 even targets.
   persistence_->Run("verify remaining targets", [&] {
     for (const auto& target : targets) {
-      auto entry = target_cache_->GetTarget(target.target());
+      auto entry = target_cache_->GetTarget(target.target_or_pipeline());
 
       if (live_queries.find(target.target_id()) != live_queries.end()) {
         ASSERT_TRUE(entry.has_value());

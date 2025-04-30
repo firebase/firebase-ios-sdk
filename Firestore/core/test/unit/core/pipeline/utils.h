@@ -32,7 +32,7 @@ namespace firestore {
 namespace core {
 
 // Provides a shared placeholder Firestore instance for pipeline tests.
-remote::Serializer TestSerializer();
+std::unique_ptr<remote::Serializer> TestSerializer();
 
 // Basic matcher to compare document vectors by key.
 // TODO(wuandy): Enhance to compare contents if necessary.

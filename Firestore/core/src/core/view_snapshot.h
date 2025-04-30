@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Firestore/core/src/core/event_listener.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/model/document.h"
@@ -97,7 +98,7 @@ class DocumentViewChangeSet {
  */
 class ViewSnapshot {
  public:
-  ViewSnapshot(Query query,
+  ViewSnapshot(QueryOrPipeline query,
                model::DocumentSet documents,
                model::DocumentSet old_documents,
                std::vector<DocumentViewChange> document_changes,
@@ -111,7 +112,7 @@ class ViewSnapshot {
    * Returns a view snapshot as if all documents in the snapshot were
    * added.
    */
-  static ViewSnapshot FromInitialDocuments(Query query,
+  static ViewSnapshot FromInitialDocuments(QueryOrPipeline query,
                                            model::DocumentSet documents,
                                            model::DocumentKeySet mutated_keys,
                                            bool from_cache,
@@ -119,7 +120,7 @@ class ViewSnapshot {
                                            bool has_cached_results);
 
   /** The query this view is tracking the results for. */
-  const Query& query() const;
+  const QueryOrPipeline& query_or_pipeline() const;
 
   /** The documents currently known to be results of the query. */
   const model::DocumentSet& documents() const {
@@ -171,7 +172,7 @@ class ViewSnapshot {
   size_t Hash() const;
 
  private:
-  Query query_;
+  QueryOrPipeline query_;
 
   model::DocumentSet documents_;
   model::DocumentSet old_documents_;

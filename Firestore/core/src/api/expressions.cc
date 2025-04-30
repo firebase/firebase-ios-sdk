@@ -50,6 +50,10 @@ google_firestore_v1_Value Constant::to_proto() const {
   return *model::DeepClone(*value_).release();
 }
 
+const google_firestore_v1_Value& Constant::value() const {
+  return *value_;
+}
+
 std::unique_ptr<core::EvaluableExpr> Constant::ToEvaluable() const {
   return std::make_unique<core::CoreConstant>(
       std::make_unique<Constant>(*this));
