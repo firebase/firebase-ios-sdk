@@ -54,7 +54,6 @@ google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
   result.args[0].which_value_type =
       google_firestore_v1_Value_reference_value_tag;
-  // TODO: use EncodeResourceName instead
   result.args[0].reference_value =
       nanopb::MakeBytesArray(this->path_.CanonicalString());
 
@@ -106,10 +105,12 @@ google_firestore_v1_Pipeline_Stage DocumentsSource::to_proto() const {
   result.args_count = documents_.size();
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
 
-  for (size_t i = 0; i < documents_.size(); ++i) {
+  size_t i = 0;
+  for (const auto& document : documents_) {
     result.args[i].which_value_type =
         google_firestore_v1_Value_reference_value_tag;
-    result.args[i].reference_value = nanopb::MakeBytesArray(documents_[i]);
+    result.args[i].reference_value = nanopb::MakeBytesArray(document);
+    i++;
   }
 
   result.options_count = 0;
@@ -478,6 +479,19 @@ model::PipelineInputOutputVector DatabaseSource::Evaluate(
   return results;
 }
 
+model::PipelineInputOutputVector DocumentsSource::Evaluate(
+    const EvaluateContext& /*context*/,
+    const model::PipelineInputOutputVector& inputs) const {
+  model::PipelineInputOutputVector results;
+  for (const model::PipelineInputOutput& input : inputs) {
+    if (input.is_found_document() &&
+        documents_.count(input.key().path().CanonicalString()) > 0) {
+      results.push_back(input);
+    }
+  }
+  return results;
+}
+
 model::PipelineInputOutputVector Where::Evaluate(
     const EvaluateContext& context,
     const model::PipelineInputOutputVector& inputs) const {
@@ -499,16 +513,29 @@ model::PipelineInputOutputVector Where::Evaluate(
 model::PipelineInputOutputVector LimitStage::Evaluate(
     const EvaluateContext& /*context*/,
     const model::PipelineInputOutputVector& inputs) const {
+  model::PipelineInputOutputVector::const_iterator begin;
+  model::PipelineInputOutputVector::const_iterator end;
+  size_t count;
+
   if (limit_ < 0) {
-    // Or handle as error? Assuming non-negative limit.
-    return {};
+    // if limit_ is negative, we treat it as limit to last, returns the last
+    // limit_ documents.
+    count = static_cast<size_t>(-limit_);
+    if (count > inputs.size()) {
+      count = inputs.size();
+    }
+    begin = inputs.end() - count;
+    end = inputs.end();
+  } else {
+    count = static_cast<size_t>(limit_);
+    if (count > inputs.size()) {
+      count = inputs.size();
+    }
+    begin = inputs.begin();
+    end = inputs.begin() + count;
   }
-  size_t count = static_cast<size_t>(limit_);
-  if (count > inputs.size()) {
-    count = inputs.size();
-  }
-  return model::PipelineInputOutputVector(inputs.begin(),
-                                          inputs.begin() + count);
+
+  return model::PipelineInputOutputVector(begin, end);
 }
 
 model::PipelineInputOutputVector SortStage::Evaluate(

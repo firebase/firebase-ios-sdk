@@ -25,6 +25,7 @@
 #include "Firestore/core/src/bundle/bundle_callback.h"
 #include "Firestore/core/src/bundle/bundle_metadata.h"
 #include "Firestore/core/src/bundle/named_query.h"
+#include "Firestore/core/src/core/pipeline_util.h"  // Added for TargetOrPipeline
 #include "Firestore/core/src/core/target_id_generator.h"
 #include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/overlay_migration_manager.h"
@@ -205,7 +206,7 @@ class LocalStore : public bundle::BundleCallback {
    * Allocating an already allocated target will return the existing
    * `TargetData` for that target.
    */
-  TargetData AllocateTarget(core::Target target);
+  TargetData AllocateTarget(const core::TargetOrPipeline& target_or_pipeline);
 
   /**
    * Unpin all the documents associated with a target.
@@ -222,7 +223,8 @@ class LocalStore : public bundle::BundleCallback {
    * @param use_previous_results Whether results from previous executions can be
    *     used to optimize this query execution.
    */
-  QueryResult ExecuteQuery(const core::Query& query, bool use_previous_results);
+  QueryResult ExecuteQuery(const core::QueryOrPipeline& query_or_pipeline,
+                           bool use_previous_results);
 
   /**
    * Notify the local store of the changed views to locally pin / unpin
@@ -341,7 +343,8 @@ class LocalStore : public bundle::BundleCallback {
    * Returns the TargetData as seen by the LocalStore, including updates that
    * may have not yet been persisted to the TargetCache.
    */
-  absl::optional<TargetData> GetTargetData(const core::Target& target);
+  absl::optional<TargetData> GetTargetData(
+      const core::TargetOrPipeline& target);
 
   /**
    * Creates a new target using the given bundle name, which will be used to
@@ -433,8 +436,9 @@ class LocalStore : public bundle::BundleCallback {
   /** Maps target ids to data about their queries. */
   std::unordered_map<model::TargetId, TargetData> target_data_by_target_;
 
-  /** Maps a target to its targetID. */
-  std::unordered_map<core::Target, model::TargetId> target_id_by_target_;
+  /** Maps a target or pipeline to its targetID. */
+  std::unordered_map<core::TargetOrPipeline, model::TargetId>
+      target_id_by_target_;
 };
 
 }  // namespace local
