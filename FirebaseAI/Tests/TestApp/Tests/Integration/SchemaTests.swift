@@ -48,7 +48,7 @@ struct SchemaTests {
     storage = Storage.storage()
   }
 
-  @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
+  @Test(arguments: InstanceConfig.allConfigsExceptGoogleAI_v1)
   func generateContentSchemaItems(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
@@ -73,7 +73,7 @@ struct SchemaTests {
     #expect(decodedJSON.count <= 5, "Expected at most 5 cities, but got \(decodedJSON.count)")
   }
 
-  @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
+  @Test(arguments: InstanceConfig.allConfigsExceptGoogleAI_v1)
   func generateContentSchemaNumberRange(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
@@ -96,7 +96,7 @@ struct SchemaTests {
     #expect(decodedNumber <= 120.0, "Expected a number <= 120, but got \(decodedNumber)")
   }
 
-  @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
+  @Test(arguments: InstanceConfig.allConfigsExceptGoogleAI_v1)
   func generateContentSchemaNumberRangeMultiType(_ config: InstanceConfig) async throws {
     struct ProductInfo: Codable {
       let productName: String
@@ -149,7 +149,7 @@ struct SchemaTests {
     #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
   }
 
-  @Test(arguments: InstanceConfig.allConfigsExceptDeveloperV1)
+  @Test(arguments: InstanceConfig.allConfigsExceptGoogleAI_v1)
   func generateContentAnyOfSchema(_ config: InstanceConfig) async throws {
     struct MailingAddress: Decodable {
       let streetAddress: String

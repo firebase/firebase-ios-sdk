@@ -19,62 +19,66 @@ import VertexAITestApp
 
 @testable import struct FirebaseAI.APIConfig
 
-struct InstanceConfig {
-  static let vertexV1 = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
+struct InstanceConfig: Equatable, Encodable {
+  static let vertexAI_v1 = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1)
   )
-  static let vertexV1Staging = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1)
+  static let vertexAI_v1_staging = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyStaging), version: .v1)
   )
-  static let vertexV1Beta = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
+  static let vertexAI_v1beta = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
   )
-  static let vertexV1BetaStaging = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1beta)
+  static let vertexAI_v1beta_staging = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyStaging), version: .v1beta)
   )
-  static let developerV1Beta = InstanceConfig(
-    apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIProd), version: .v1beta)
+  static let googleAI_v1beta = InstanceConfig(
+    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
   )
-  static let developerV1BetaStaging = InstanceConfig(
-    apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIStaging), version: .v1beta)
+  static let googleAI_v1beta_staging = InstanceConfig(
+    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyStaging), version: .v1beta)
   )
-  static let developerV1Spark = InstanceConfig(
+  static let googleAI_v1_freeTier_bypassProxy = InstanceConfig(
     appName: FirebaseAppNames.spark,
-    apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1)
+    apiConfig: APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1)
   )
-  static let developerV1BetaSpark = InstanceConfig(
+  static let googleAI_v1beta_freeTier_bypassProxy = InstanceConfig(
     appName: FirebaseAppNames.spark,
-    apiConfig: APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
+    apiConfig: APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
   )
+
   static let allConfigs = [
-    vertexV1,
-    vertexV1Staging,
-    vertexV1Beta,
-    vertexV1BetaStaging,
-    developerV1Beta,
-    developerV1BetaStaging,
-    developerV1Spark,
-    developerV1BetaSpark,
+    vertexAI_v1,
+    vertexAI_v1_staging,
+    vertexAI_v1beta,
+    vertexAI_v1beta_staging,
+    googleAI_v1beta,
+    googleAI_v1beta_staging,
+    googleAI_v1_freeTier_bypassProxy,
+    googleAI_v1beta_freeTier_bypassProxy,
   ]
+  static let allConfigsExceptGoogleAI_v1 = allConfigs.filter {
+    $0 != googleAI_v1_freeTier_bypassProxy
+  }
 
-  static let allConfigsExceptDeveloperV1 = [
-    vertexV1,
-    vertexV1Staging,
-    vertexV1Beta,
-    vertexV1BetaStaging,
-    developerV1Beta,
-    developerV1BetaStaging,
-    developerV1BetaSpark,
+  static let vertexAI_v1_appCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1)
+  )
+  static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
+  )
+  static let googleAI_v1beta_appCheckNotConfigured = InstanceConfig(
+    appName: FirebaseAppNames.appCheckNotConfigured,
+    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+  )
+
+  static let appCheckNotConfiguredConfigs = [
+    vertexAI_v1_appCheckNotConfigured,
+    vertexAI_v1beta_appCheckNotConfigured,
+    googleAI_v1beta_appCheckNotConfigured,
   ]
-
-  static let vertexV1AppCheckNotConfigured = InstanceConfig(
-    appName: FirebaseAppNames.appCheckNotConfigured,
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
-  )
-  static let vertexV1BetaAppCheckNotConfigured = InstanceConfig(
-    appName: FirebaseAppNames.appCheckNotConfigured,
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
-  )
 
   let appName: String?
   let location: String?
@@ -94,8 +98,8 @@ struct InstanceConfig {
     switch apiConfig.service {
     case .vertexAI:
       return "Vertex AI"
-    case .developer:
-      return "Developer"
+    case .googleAI:
+      return "Google AI"
     }
   }
 
@@ -106,17 +110,18 @@ struct InstanceConfig {
 
 extension InstanceConfig: CustomTestStringConvertible {
   var testDescription: String {
+    let freeTierDesignator = (appName == FirebaseAppNames.spark) ? " - Free Tier" : ""
     let endpointSuffix = switch apiConfig.service.endpoint {
-    case .firebaseVertexAIProd:
+    case .firebaseProxyProd:
       ""
-    case .firebaseVertexAIStaging:
+    case .firebaseProxyStaging:
       " - Staging"
-    case .generativeLanguage:
-      " - Generative Language"
+    case .googleAIBypassProxy:
+      " - Bypass Proxy"
     }
     let locationSuffix = location.map { " - \($0)" } ?? ""
 
-    return "\(serviceName) (\(versionName))\(endpointSuffix)\(locationSuffix)"
+    return "\(serviceName) (\(versionName))\(freeTierDesignator)\(endpointSuffix)\(locationSuffix)"
   }
 }
 
@@ -130,7 +135,7 @@ extension FirebaseAI {
         location: location,
         apiConfig: instanceConfig.apiConfig
       )
-    case .developer:
+    case .googleAI:
       assert(
         instanceConfig.location == nil,
         "The Developer API is global and does not support `location`."
