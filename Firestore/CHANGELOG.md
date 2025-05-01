@@ -1,3 +1,7 @@
+# Unreleased
+- [feature] Adds support for the following new types: MinKey, MaxKey, RegexValue, Int32Value, BsonObjectId,
+  BsonTimestamp, and BsonBinaryData. (#14800)
+
 # 11.9.0
 - [fixed] Fixed memory leak in `Query.whereField()`. (#13978)
 
