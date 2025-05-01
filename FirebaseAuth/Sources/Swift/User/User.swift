@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+import AuthenticationServices
+
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension User: NSSecureCoding {}
@@ -57,6 +59,9 @@ extension User: NSSecureCoding {}
 
   /// The tenant ID of the current user. `nil` if none is available.
   @objc public private(set) var tenantID: String?
+  
+  /// The list of enrolled passkeys for the user.
+      public private(set) var enrolledPasskeys: [PasskeyInfo]?
 
   #if os(iOS)
     /// Multi factor object associated with the user.
@@ -1046,6 +1051,98 @@ extension User: NSSecureCoding {}
       }
     }
   }
+  
+  /// Current user object.
+  var currentUser: User?
+  
+  /// Starts the passkey enrollment flow, creating a platform public key registration request.
+  ///
+  /// - Parameter name: The desired name for the passkey.
+  /// - Returns: The ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest.
+  @available(iOS 15.0, *)
+  public func startPasskeyEnrollmentWithName(withName name: String?) async throws -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
+    let idToken = rawAccessToken()
+    let request = StartPasskeyEnrollmentRequest(
+      idToken: idToken,
+      requestConfiguration: requestConfiguration,
+      tenantId: auth?.tenantID
+    )
+    let response = try await backend.startPasskeyEnrollment(request: request)
+    // Cache the passkey name
+    passkeyName = name
+    let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: response.rpID)
+    let registrationRequest = provider.createCredentialRegistrationRequest(
+      challenge: response.challenge,
+      name: self.passkeyName ?? "Unnamed account (Apple)",
+      userID: response.userID
+    )
+    return registrationRequest
+  }
+  
+  @available(iOS 15.0, *)
+  public func finalizePasskeyEnrollmentWithPlatformCredentials(platformCredential: ASAuthorizationPlatformPublicKeyCredentialRegistration) async throws -> AuthDataResult {
+    
+    let credentialID = platformCredential.credentialID.base64EncodedString() ?? "nil"
+    let clientDataJson = platformCredential.rawClientDataJSON.base64EncodedString() ?? "nil"
+    let attestationObject = platformCredential.rawAttestationObject!.base64EncodedString()
+    
+    let rawAccessToken = self.rawAccessToken
+    let request = FinalizePasskeyEnrollmentRequest(
+      idToken: rawAccessToken(),
+      name: passkeyName!,
+      credentialID: credentialID,
+      clientDataJson: clientDataJson,
+      attestationObject: attestationObject!,
+      requestConfiguration: self.auth!.requestConfiguration
+    )
+    
+    let response = try await backend.finalizePasskeyEnrollment(request: request)
+    
+    let user = try await self.auth!.completeSignIn(
+      withAccessToken: response.idToken,
+      accessTokenExpirationDate: nil,
+      refreshToken: response.refreshToken,
+      anonymous: false
+    )
+    return AuthDataResult(withUser: user, additionalUserInfo: nil)
+  }
+  
+  
+  /// To unenroll a passkey with platform credential.
+  /// - Parameter credentialID: The passkey credential ID to unenroll.
+  @objc open func unenrollPasskey(with credentialID: String, completion: ((Error?) -> Void)? = nil) {
+    kAuthGlobalWorkQueue.async {
+      self.internalGetToken(backend: self.backend) { accessToken, error in
+        if let error {
+          User.callInMainThreadWithError(callback: completion, error: error)
+          return
+        }
+        guard let accessToken = accessToken else {
+          fatalError("Auth Internal Error: Both error and accessToken are nil")
+        }
+        guard let requestConfiguration = self.auth?.requestConfiguration else {
+          fatalError("Auth Internal Error: Missing request configuration.")
+        }
+        
+        self.executeUserUpdateWithChanges(changeBlock: { user, request in
+          request.deletePasskeys = [credentialID]
+        }) { error in
+          if let error {
+            User.callInMainThreadWithError(callback: completion, error: error)
+            return
+          }
+          
+          // Remove passkey from local cache
+          if let enrolledPasskeys = self.enrolledPasskeys, let index = enrolledPasskeys.firstIndex(where: { $0.credentialID == credentialID }) {
+            self.enrolledPasskeys?.remove(at: index)
+          }
+          
+          User.callInMainThreadWithError(callback: completion, error: nil)
+        }
+      }
+    }
+  }
+  
 
   // MARK: Internal implementations below
 
@@ -1111,6 +1208,8 @@ extension User: NSSecureCoding {}
 
   /// The name of the user.
   @objc open var displayName: String?
+  
+  open var passkeyName: String?
 
   /// The URL of the user's profile photo.
   @objc open var photoURL: URL?
@@ -1302,6 +1401,7 @@ extension User: NSSecureCoding {}
       }
       multiFactor.user = self
     #endif
+    enrolledPasskeys = user.enrolledPasskeys
   }
 
   #if os(iOS)
