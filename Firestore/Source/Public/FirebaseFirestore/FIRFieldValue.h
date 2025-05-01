@@ -107,6 +107,67 @@ NS_SWIFT_NAME(FieldValue)
  */
 + (FIRVectorValue *)vectorWithArray:(NSArray<NSNumber *> *)array NS_REFINED_FOR_SWIFT;
 
+/**
+ * Returns a `MinKey` value instance.
+ *
+ * @return A `MinKey` value instance.
+ */
++ (nonnull FIRMinKey *)minKey NS_REFINED_FOR_SWIFT;
+
+/**
+ * Returns a `MaxKey` value instance.
+ *
+ * @return A `MaxKey` value instance.
+ */
++ (nonnull FIRMaxKey *)maxKey NS_REFINED_FOR_SWIFT;
+
+/**
+ * Creates a new `RegexValue` constructed with the given pattern and options.
+ *
+ * @param pattern The pattern to use for the regular expression.
+ * @param options The options to use for the regular expression.
+ * @return A new `RegexValue` constructed with the given pattern and options.
+ */
++ (nonnull FIRRegexValue *)regexWithPattern:(nonnull NSString *)pattern
+                                    options:(nonnull NSString *)options NS_REFINED_FOR_SWIFT;
+
+/**
+ * Creates a new `Int32Value` with the given signed 32-bit integer value.
+ *
+ * @param value The 32-bit number to be used for constructing the Int32Value.
+ * @return A new `Int32Value` instance.
+ */
++ (nonnull FIRInt32Value *)int32WithValue:(int)value NS_REFINED_FOR_SWIFT;
+
+/**
+ * Creates a new `BsonObjectId` with the given value.
+ *
+ * @param value The 24-character hex string representation of the ObjectId.
+ * @return A new `BsonObjectId` instance constructed with the given value.
+ */
++ (nonnull FIRBsonObjectId *)bsonObjectIdWithValue:(nonnull NSString *)value NS_REFINED_FOR_SWIFT;
+
+/**
+ * Creates a new `BsonTimestamp` with the given values.
+ *
+ * @param seconds The underlying unsigned 32-bit integer for seconds.
+ * @param increment The underlying unsigned 32-bit integer for increment.
+ * @return A new `BsonTimestamp` instance constructed with the given values.
+ */
++ (nonnull FIRBsonTimestamp *)bsonTimestampWithSeconds:(uint32_t)seconds
+                                             increment:(uint32_t)increment NS_REFINED_FOR_SWIFT;
+
+/**
+ * Creates a new `BsonBinaryData` object with the given subtype and data.
+ *
+ * @param subtype An 8-bit unsigned integer denoting the subtype of the data.
+ * @param data The binary data.
+ * @return A new `BsonBinaryData` instance constructed with the given values.
+ */
++ (nonnull FIRBsonBinaryData *)bsonBinaryDataWithSubtype:(uint8_t)subtype
+                                                    data:(nonnull NSData *)data
+    NS_REFINED_FOR_SWIFT;
+
 @end
 
 NS_ASSUME_NONNULL_END

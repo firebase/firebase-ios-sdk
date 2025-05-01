@@ -194,9 +194,9 @@ TEST(FieldValueTest, ValueHelpers) {
   ASSERT_EQ(GetTypeOrder(*map_value), TypeOrder::kMap);
   ASSERT_EQ(DetectMapType(*map_value), MapType::kNormal);
 
-  auto max_value = DeepClone(MaxValue());
-  ASSERT_EQ(GetTypeOrder(*max_value), TypeOrder::kMaxValue);
-  ASSERT_EQ(DetectMapType(*max_value), MapType::kMaxValue);
+  auto max_value = DeepClone(InternalMaxValue());
+  ASSERT_EQ(GetTypeOrder(*max_value), TypeOrder::kInternalMaxValue);
+  ASSERT_EQ(DetectMapType(*max_value), MapType::kInternalMaxValue);
 
   auto server_timestamp = EncodeServerTimestamp(kTimestamp1, absl::nullopt);
   ASSERT_EQ(GetTypeOrder(*server_timestamp), TypeOrder::kServerTimestamp);
@@ -463,7 +463,7 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   // MaxKey
   Add(comparison_groups, MaxKey());
 
-  Add(comparison_groups, DeepClone(MaxValue()));
+  Add(comparison_groups, DeepClone(InternalMaxValue()));
 
   for (size_t i = 0; i < comparison_groups.size(); ++i) {
     for (size_t j = i; j < comparison_groups.size(); ++j) {
@@ -627,11 +627,192 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, MaxKey());
 
   // MaxValue (internal)
-  Add(comparison_groups, DeepClone(MaxValue()));
+  Add(comparison_groups, DeepClone(InternalMaxValue()));
 
   for (size_t i = 0; i < comparison_groups.size(); ++i) {
     for (size_t j = i; j < comparison_groups.size(); ++j) {
       VerifyRelaxedAscending(comparison_groups[i], comparison_groups[j]);
+    }
+  }
+}
+
+TEST_F(ValueUtilTest, ComputesLowerBound) {
+  auto GetLowerBoundMessage = [](Message<google_firestore_v1_Value> value) {
+    return DeepClone(GetLowerBound(*value));
+  };
+
+  std::vector<Message<google_firestore_v1_ArrayValue>> groups;
+
+  // Lower bound of null is null
+  Add(groups, DeepClone(NullValue()),
+      GetLowerBoundMessage(DeepClone(NullValue())));
+
+  // Lower bound of MinKey is MinKey
+  Add(groups, MinKey(), GetLowerBoundMessage(DeepClone(MinKeyValue())),
+      DeepClone(MinKeyValue()));
+
+  // Booleans
+  Add(groups, false, GetLowerBoundMessage(Value(true)));
+  Add(groups, true);
+
+  // Numbers
+  Add(groups, GetLowerBoundMessage(Value(0.0)), GetLowerBoundMessage(Value(0L)),
+      GetLowerBoundMessage(Int32(0)), std::nan(""), DeepClone(MinNumber()));
+  Add(groups, INT_MIN);
+
+  // Timestamps
+  Add(groups, GetLowerBoundMessage(Value(kTimestamp1)),
+      DeepClone(MinTimestamp()));
+  Add(groups, kTimestamp1);
+
+  // BSON Timestamps
+  Add(groups, GetLowerBoundMessage(BsonTimestamp(500, 600)),
+      BsonTimestamp(0, 0), DeepClone(MinBsonTimestamp()));
+  Add(groups, BsonTimestamp(1, 1));
+
+  // Strings
+  Add(groups, GetLowerBoundMessage(Value("Z")), "", DeepClone(MinString()));
+  Add(groups, "\u0000");
+
+  // Blobs
+  Add(groups, GetLowerBoundMessage(BlobValue(1, 2, 3)), BlobValue(),
+      DeepClone(MinBytes()));
+  Add(groups, BlobValue(0));
+
+  // BSON Binary Data
+  Add(groups, GetLowerBoundMessage(BsonBinaryData(128, {128, 128})),
+      DeepClone(MinBsonBinaryData()));
+  Add(groups, BsonBinaryData(0, {0}));
+
+  // References
+  Add(groups, GetLowerBoundMessage(RefValue(DbId("p1/d1"), Key("c1/doc1"))),
+      DeepClone(MinReference()));
+  Add(groups, RefValue(DbId(), Key("a/a")));
+
+  // BSON Object Ids
+  Add(groups, GetLowerBoundMessage(BsonObjectId("ZZZ")), BsonObjectId(""),
+      DeepClone(MinBsonObjectId()));
+  Add(groups, BsonObjectId("a"));
+
+  // GeoPoints
+  Add(groups, GetLowerBoundMessage(Value(GeoPoint(30, 60))),
+      GeoPoint(-90, -180), DeepClone(MinGeoPoint()));
+  Add(groups, GeoPoint(-90, 0));
+
+  // Regular Expressions
+  Add(groups, GetLowerBoundMessage(Regex("ZZZ", "i")), Regex("", ""),
+      DeepClone(MinRegex()));
+  Add(groups, Regex("a", "i"));
+
+  // Arrays
+  Add(groups, GetLowerBoundMessage(Value(Array())), Array(),
+      DeepClone(MinArray()));
+  Add(groups, Array(false));
+
+  // Vectors
+  Add(groups, GetLowerBoundMessage(VectorType(1.0)), VectorType(),
+      DeepClone(MinVector()));
+  Add(groups, VectorType(1.0));
+
+  // Maps
+  Add(groups, GetLowerBoundMessage(Map()), Map(), DeepClone(MinMap()));
+  Add(groups, Map("a", "b"));
+
+  // MaxKey
+  Add(groups, MaxKey(), GetLowerBoundMessage(DeepClone(MaxKeyValue())),
+      DeepClone(MaxKeyValue()));
+
+  for (size_t i = 0; i < groups.size(); ++i) {
+    for (size_t j = i; j < groups.size(); ++j) {
+      VerifyRelaxedAscending(groups[i], groups[j]);
+    }
+  }
+}
+
+TEST_F(ValueUtilTest, ComputesUpperBound) {
+  auto GetUpperBoundMessage = [](Message<google_firestore_v1_Value> value) {
+    return DeepClone(GetUpperBound(*value));
+  };
+
+  std::vector<Message<google_firestore_v1_ArrayValue>> groups;
+
+  // Null first
+  Add(groups, DeepClone(NullValue()));
+
+  // The upper bound of null is MinKey
+  Add(groups, MinKey(), GetUpperBoundMessage(DeepClone(NullValue())));
+
+  // The upper bound of MinKey is boolean `false`
+  Add(groups, false, GetUpperBoundMessage(MinKey()));
+
+  // Booleans
+  Add(groups, true);
+  Add(groups, GetUpperBoundMessage(Value(false)));
+
+  // Numbers
+  Add(groups, INT_MAX);
+  Add(groups, GetUpperBoundMessage(Value(INT_MAX)),
+      GetUpperBoundMessage(Value(0L)), GetUpperBoundMessage(Int32(0)),
+      GetUpperBoundMessage(Value(std::nan(""))));
+
+  // Timestamps
+  Add(groups, kTimestamp1);
+  Add(groups, GetUpperBoundMessage(Value(kTimestamp1)));
+
+  // BSON Timestamps
+  Add(groups, BsonTimestamp(4294967295, 4294967295));  // largest BSON Timestamp
+  Add(groups, GetUpperBoundMessage(DeepClone(MinBsonTimestamp())));
+
+  // Strings
+  Add(groups, "\u0000");
+  Add(groups, GetUpperBoundMessage(DeepClone(MinString())));
+
+  // Blobs
+  Add(groups, BlobValue(255));
+  Add(groups, GetUpperBoundMessage(BlobValue()));
+
+  // BSON Binary Data
+  Add(groups, BsonBinaryData(255, {255, 255}));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinBsonBinaryData())));
+
+  // References
+  Add(groups, DeepClone(MinReference()));
+  Add(groups, RefValue(DbId(), Key("c/d")));
+  Add(groups, GetUpperBoundMessage(RefValue(DbId(), Key("a/b"))));
+
+  // BSON Object Ids
+  Add(groups, BsonObjectId("foo"));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinBsonObjectId())));
+
+  // GeoPoints
+  Add(groups, GeoPoint(90, 180));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinGeoPoint())));
+
+  // Regular Expressions
+  Add(groups, Regex("a", "i"));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinRegex())));
+
+  // Arrays
+  Add(groups, Array(false));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinArray())));
+
+  // Vectors
+  Add(groups, VectorType(1.0, 2.0, 3.0));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinVector())));
+
+  // Maps
+  Add(groups, Map("a", "b"));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinMap())));
+
+  // MaxKey
+  Add(groups, MaxKey());
+
+  // The upper bound of MaxKey is internal max value.
+  Add(groups, GetUpperBoundMessage(DeepClone(MaxKeyValue())));
+
+  for (size_t i = 0; i < groups.size(); ++i) {
+    for (size_t j = i; j < groups.size(); ++j) {
+      VerifyRelaxedAscending(groups[i], groups[j]);
     }
   }
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
@@ -37,20 +38,30 @@ using model::IndexState;
 
 using testutil::AddedRemoteEvent;
 using testutil::Array;
+using testutil::BlobValue;
+using testutil::BsonBinaryData;
+using testutil::BsonObjectId;
+using testutil::BsonTimestamp;
 using testutil::DeletedDoc;
 using testutil::DeleteMutation;
 using testutil::Doc;
 using testutil::Field;
 using testutil::Filter;
+using testutil::Int32;
 using testutil::Key;
 using testutil::MakeFieldIndex;
 using testutil::Map;
+using testutil::MaxKey;
+using testutil::MinKey;
 using testutil::OrderBy;
 using testutil::OrFilters;
 using testutil::OverlayTypeMap;
+using testutil::Ref;
+using testutil::Regex;
 using testutil::SetMutation;
 using testutil::UpdateRemoteEvent;
 using testutil::Vector;
+using testutil::VectorType;
 using testutil::Version;
 
 class TestHelper : public LocalStoreTestHelper {
@@ -309,6 +320,680 @@ TEST_F(LevelDbLocalStoreTest, UsesIndexForLimitQueryWhenIndexIsUpdated) {
   FSTAssertQueryReturned("coll/a", "coll/c");
 }
 
+TEST_F(LevelDbLocalStoreTest, IndexesBsonObjectId) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(SetMutation(
+      "coll/doc1", Map("key", BsonObjectId("507f191e810c19729de860ea"))));
+  WriteMutation(SetMutation(
+      "coll/doc2", Map("key", BsonObjectId("507f191e810c19729de860eb"))));
+  WriteMutation(SetMutation(
+      "coll/doc3", Map("key", BsonObjectId("507f191e810c19729de860ec"))));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "asc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 3, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "==", BsonObjectId("507f191e810c19729de860ea")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 1, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "!=", BsonObjectId("507f191e810c19729de860ea")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">=", BsonObjectId("507f191e810c19729de860eb")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<=", BsonObjectId("507f191e810c19729de860eb")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">", BsonObjectId("507f191e810c19729de860ec")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<", BsonObjectId("507f191e810c19729de860ea")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "in",
+             Array(BsonObjectId("507f191e810c19729de860ea"),
+                   BsonObjectId("507f191e810c19729de860eb"))));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2");
+}
+
+TEST_F(LevelDbLocalStoreTest, IndexesBsonTimestamp) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(
+      SetMutation("coll/doc1", Map("key", BsonTimestamp(1000, 1000))));
+  WriteMutation(
+      SetMutation("coll/doc2", Map("key", BsonTimestamp(1001, 1000))));
+  WriteMutation(
+      SetMutation("coll/doc3", Map("key", BsonTimestamp(1000, 1001))));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "asc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 3, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc3", "coll/doc2");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "==", BsonTimestamp(1000, 1000)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 1, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "!=", BsonTimestamp(1000, 1000)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc3", "coll/doc2");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">=", BsonTimestamp(1000, 1001)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc3", "coll/doc2");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<=", BsonTimestamp(1000, 1001)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">", BsonTimestamp(1001, 1000)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<", BsonTimestamp(1000, 1000)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "in",
+             Array(BsonTimestamp(1000, 1000), BsonTimestamp(1000, 1001))));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc3");
+}
+
+TEST_F(LevelDbLocalStoreTest, IndexesBsonBinary) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(
+      SetMutation("coll/doc1", Map("key", BsonBinaryData(1, {1, 2, 3}))));
+  WriteMutation(
+      SetMutation("coll/doc2", Map("key", BsonBinaryData(1, {1, 2}))));
+  WriteMutation(
+      SetMutation("coll/doc3", Map("key", BsonBinaryData(1, {1, 2, 4}))));
+  WriteMutation(
+      SetMutation("coll/doc4", Map("key", BsonBinaryData(2, {1, 2}))));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "asc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 4, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set},
+                      {Key("coll/doc4"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc1", "coll/doc3", "coll/doc4");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "==", BsonBinaryData(1, {1, 2, 3})));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 1, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "!=", BsonBinaryData(1, {1, 2, 3})));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 3, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set},
+                      {Key("coll/doc4"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3", "coll/doc4");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">=", BsonBinaryData(1, {1, 2, 3})));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 3, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set},
+                      {Key("coll/doc4"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc3", "coll/doc4");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<=", BsonBinaryData(1, {1, 2, 3})));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc1");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">", BsonBinaryData(2, {1, 2})));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<", BsonBinaryData(1, {1, 2})));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "in",
+             Array(BsonBinaryData(1, {1, 2, 3}), BsonBinaryData(1, {1, 2}))));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2");
+}
+
+TEST_F(LevelDbLocalStoreTest, IndexesRegex) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(SetMutation("coll/doc1", Map("key", Regex("^bar", "i"))));
+  WriteMutation(SetMutation("coll/doc2", Map("key", Regex("^bar", "m"))));
+  WriteMutation(SetMutation("coll/doc3", Map("key", Regex("^foo", "i"))));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "asc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 3, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "==", Regex("^bar", "i")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 1, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "!=", Regex("^bar", "i")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">", Regex("^foo", "i")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<", Regex("^bar", "i")));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "in", Array(Regex("^bar", "i"), Regex("^foo", "i"))));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc3");
+}
+
+TEST_F(LevelDbLocalStoreTest, IndexesInt32) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(SetMutation("coll/doc1", Map("key", Int32(-1))));
+  WriteMutation(SetMutation("coll/doc2", Map("key", Int32(0))));
+  WriteMutation(SetMutation("coll/doc3", Map("key", Int32(1))));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "asc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 3, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(Filter("key", "==", Int32(-1)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 1, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1");
+
+  query = testutil::Query("coll").AddingFilter(Filter("key", "!=", Int32(-1)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(Filter("key", ">=", Int32(0)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(Filter("key", "<=", Int32(0)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2");
+
+  query = testutil::Query("coll").AddingFilter(Filter("key", ">", Int32(1)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(Filter("key", "<", Int32(-1)));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "in", Array(Int32(-1), Int32(0))));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2");
+}
+
+TEST_F(LevelDbLocalStoreTest, IndexesMinKey) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(SetMutation("coll/doc1", Map("key", nullptr)));
+  WriteMutation(SetMutation("coll/doc2", Map("key", MinKey())));
+  WriteMutation(SetMutation("coll/doc3", Map("key", MinKey())));
+  WriteMutation(SetMutation("coll/doc4", Map("key", Int32(1))));
+  WriteMutation(SetMutation("coll/doc5", Map("key", MaxKey())));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "asc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 5, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set},
+                      {Key("coll/doc4"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2", "coll/doc3", "coll/doc4",
+                         "coll/doc5");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "==", testutil::MinKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "!=", testutil::MinKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc4"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc4", "coll/doc5");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">=", testutil::MinKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<=", testutil::MinKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">", testutil::MinKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<", testutil::MinKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "in", Array(testutil::MinKey(), testutil::MaxKey())));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 3, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3", "coll/doc5");
+}
+
+TEST_F(LevelDbLocalStoreTest, IndexesMaxKey) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(SetMutation("coll/doc1", Map("key", nullptr)));
+  WriteMutation(SetMutation("coll/doc2", Map("key", MinKey())));
+  WriteMutation(SetMutation("coll/doc3", Map("key", Int32(1))));
+  WriteMutation(SetMutation("coll/doc4", Map("key", MaxKey())));
+  WriteMutation(SetMutation("coll/doc5", Map("key", MaxKey())));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "asc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 5, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set},
+                      {Key("coll/doc4"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc1", "coll/doc2", "coll/doc3", "coll/doc4",
+                         "coll/doc5");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "==", testutil::MaxKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc4"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc4", "coll/doc5");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "!=", testutil::MaxKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc2", "coll/doc3");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">=", testutil::MaxKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc4"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc4", "coll/doc5");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<=", testutil::MaxKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc4"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set}}));
+  FSTAssertQueryReturned("coll/doc4", "coll/doc5");
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", ">", testutil::MaxKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+
+  query = testutil::Query("coll").AddingFilter(
+      Filter("key", "<", testutil::MaxKey()));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 0, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(OverlayTypeMap());
+  FSTAssertQueryReturned();
+}
+
+TEST_F(LevelDbLocalStoreTest, IndexesAllBsonTypesTogether) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kDescending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(SetMutation("coll/doc1", Map("key", MinKey())));
+  WriteMutation(SetMutation("coll/doc2", Map("key", Int32(2))));
+  WriteMutation(SetMutation("coll/doc3", Map("key", Int32(1))));
+  WriteMutation(
+      SetMutation("coll/doc4", Map("key", BsonTimestamp(1000, 1001))));
+  WriteMutation(
+      SetMutation("coll/doc5", Map("key", BsonTimestamp(1000, 1000))));
+  WriteMutation(
+      SetMutation("coll/doc6", Map("key", BsonBinaryData(1, {1, 2, 4}))));
+  WriteMutation(
+      SetMutation("coll/doc7", Map("key", BsonBinaryData(1, {1, 2, 3}))));
+  WriteMutation(SetMutation(
+      "coll/doc8", Map("key", BsonObjectId("507f191e810c19729de860eb"))));
+  WriteMutation(SetMutation(
+      "coll/doc9", Map("key", BsonObjectId("507f191e810c19729de860ea"))));
+  WriteMutation(SetMutation("coll/doc10", Map("key", Regex("^bar", "m"))));
+  WriteMutation(SetMutation("coll/doc11", Map("key", Regex("^bar", "i"))));
+  WriteMutation(SetMutation("coll/doc12", Map("key", MaxKey())));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "desc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 12, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set},
+                      {Key("coll/doc4"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set},
+                      {Key("coll/doc6"), model::Mutation::Type::Set},
+                      {Key("coll/doc7"), model::Mutation::Type::Set},
+                      {Key("coll/doc8"), model::Mutation::Type::Set},
+                      {Key("coll/doc9"), model::Mutation::Type::Set},
+                      {Key("coll/doc10"), model::Mutation::Type::Set},
+                      {Key("coll/doc11"), model::Mutation::Type::Set},
+                      {Key("coll/doc12"), model::Mutation::Type::Set}}));
+
+  FSTAssertQueryReturned("coll/doc12", "coll/doc10", "coll/doc11", "coll/doc8",
+                         "coll/doc9", "coll/doc6", "coll/doc7", "coll/doc4",
+                         "coll/doc5", "coll/doc2", "coll/doc3", "coll/doc1");
+}
+
+TEST_F(LevelDbLocalStoreTest, IndexesAllTypesTogether) {
+  FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
+                                    "key", model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  WriteMutation(SetMutation("coll/doc1", Map("key", nullptr)));
+  WriteMutation(SetMutation("coll/doc2", Map("key", MinKey())));
+  WriteMutation(SetMutation("coll/doc3", Map("key", true)));
+  WriteMutation(SetMutation("coll/doc4", Map("key", NAN)));
+  WriteMutation(SetMutation("coll/doc5", Map("key", Int32(1))));
+  WriteMutation(SetMutation("coll/doc6", Map("key", 2.0)));
+  WriteMutation(SetMutation("coll/doc7", Map("key", 3L)));
+  WriteMutation(
+      SetMutation("coll/doc8", Map("key", Timestamp(100, 123456000))));
+  WriteMutation(SetMutation("coll/doc9", Map("key", BsonTimestamp(1, 2))));
+  WriteMutation(SetMutation("coll/doc10", Map("key", "string")));
+  WriteMutation(SetMutation("coll/doc11", Map("key", BlobValue(1, 2, 3))));
+  WriteMutation(
+      SetMutation("coll/doc12", Map("key", BsonBinaryData(1, {1, 2, 3}))));
+  WriteMutation(
+      SetMutation("coll/doc13", Map("key", Ref("project/db", "col/doc"))));
+  WriteMutation(SetMutation(
+      "coll/doc14", Map("key", BsonObjectId("507f191e810c19729de860ea"))));
+  WriteMutation(SetMutation("coll/doc15", Map("key", GeoPoint(1, 2))));
+  WriteMutation(SetMutation("coll/doc16", Map("key", Regex("^bar", "m"))));
+  WriteMutation(SetMutation("coll/doc17", Map("key", Array(2L, "foo"))));
+  WriteMutation(
+      SetMutation("coll/doc18", Map("key", VectorType(1.0, 2.0, 3.0))));
+  WriteMutation(
+      SetMutation("coll/doc19", Map("key", Map("bar", 1L, "foo", 2L))));
+  WriteMutation(SetMutation("coll/doc20", Map("key", MaxKey())));
+
+  BackfillIndexes();
+
+  core::Query query =
+      testutil::Query("coll").AddingOrderBy(OrderBy("key", "asc"));
+  ExecuteQuery(query);
+  FSTAssertOverlaysRead(/* byKey= */ 20, /* byCollection= */ 0);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("coll/doc1"), model::Mutation::Type::Set},
+                      {Key("coll/doc2"), model::Mutation::Type::Set},
+                      {Key("coll/doc3"), model::Mutation::Type::Set},
+                      {Key("coll/doc4"), model::Mutation::Type::Set},
+                      {Key("coll/doc5"), model::Mutation::Type::Set},
+                      {Key("coll/doc6"), model::Mutation::Type::Set},
+                      {Key("coll/doc7"), model::Mutation::Type::Set},
+                      {Key("coll/doc8"), model::Mutation::Type::Set},
+                      {Key("coll/doc9"), model::Mutation::Type::Set},
+                      {Key("coll/doc10"), model::Mutation::Type::Set},
+                      {Key("coll/doc11"), model::Mutation::Type::Set},
+                      {Key("coll/doc12"), model::Mutation::Type::Set},
+                      {Key("coll/doc13"), model::Mutation::Type::Set},
+                      {Key("coll/doc14"), model::Mutation::Type::Set},
+                      {Key("coll/doc15"), model::Mutation::Type::Set},
+                      {Key("coll/doc16"), model::Mutation::Type::Set},
+                      {Key("coll/doc17"), model::Mutation::Type::Set},
+                      {Key("coll/doc18"), model::Mutation::Type::Set},
+                      {Key("coll/doc19"), model::Mutation::Type::Set},
+                      {Key("coll/doc20"), model::Mutation::Type::Set}}));
+
+  FSTAssertQueryReturned(
+      "coll/doc1", "coll/doc2", "coll/doc3", "coll/doc4", "coll/doc5",
+      "coll/doc6", "coll/doc7", "coll/doc8", "coll/doc9", "coll/doc10",
+      "coll/doc11", "coll/doc12", "coll/doc13", "coll/doc14", "coll/doc15",
+      "coll/doc16", "coll/doc17", "coll/doc18", "coll/doc19", "coll/doc20");
+}
+
 TEST_F(LevelDbLocalStoreTest, IndexesServerTimestamps) {
   FieldIndex index = MakeFieldIndex("coll", 0, FieldIndex::InitialState(),
                                     "time", model::Segment::Kind::kAscending);
@@ -426,7 +1111,7 @@ TEST_F(LevelDbLocalStoreTest, DoesNotAutoCreateIndexesForSmallCollections) {
   // SDK will not create indexes since collection size is too small.
   ExecuteQuery(query);
   FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 2);
-  FSTAssertQueryReturned("coll/a", "coll/e");
+  FSTAssertQueryReturned("coll/e", "coll/a");
 
   BackfillIndexes();
 
@@ -435,7 +1120,7 @@ TEST_F(LevelDbLocalStoreTest, DoesNotAutoCreateIndexesForSmallCollections) {
 
   ExecuteQuery(query);
   FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 3);
-  FSTAssertQueryReturned("coll/a", "coll/e", "coll/f");
+  FSTAssertQueryReturned("coll/e", "coll/a", "coll/f");
 }
 
 TEST_F(LevelDbLocalStoreTest,
@@ -541,7 +1226,7 @@ TEST_F(LevelDbLocalStoreTest,
   // (2). Full matched index should be created.
   ExecuteQuery(query);
   FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 2);
-  FSTAssertQueryReturned("coll/a", "coll/e");
+  FSTAssertQueryReturned("coll/e", "coll/a");
 
   SetIndexAutoCreationEnabled(false);
 
@@ -552,7 +1237,7 @@ TEST_F(LevelDbLocalStoreTest,
 
   ExecuteQuery(query);
   FSTAssertRemoteDocumentsRead(/* byKey= */ 2, /* byCollection= */ 1);
-  FSTAssertQueryReturned("coll/a", "coll/e", "coll/f");
+  FSTAssertQueryReturned("coll/e", "coll/a", "coll/f");
 }
 
 TEST_F(LevelDbLocalStoreTest, DisableIndexAutoCreationWorks) {

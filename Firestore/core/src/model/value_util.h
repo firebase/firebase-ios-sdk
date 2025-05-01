@@ -46,8 +46,8 @@ extern const char* kRawTypeValueFieldKey;
 extern pb_bytes_array_s* kTypeValueFieldKey;
 
 /** The field value of a maximum proto value. */
-extern const char* kRawMaxValueFieldValue;
-extern pb_bytes_array_s* kMaxValueFieldValue;
+extern const char* kRawInternalMaxValueFieldValue;
+extern pb_bytes_array_s* kInternalMaxValueFieldValue;
 
 /** The type of a VectorValue proto. */
 extern const char* kRawVectorTypeFieldValue;
@@ -128,7 +128,7 @@ enum class TypeOrder {
   kVector = 15,
   kMap = 16,
   kMaxKey = 17,
-  kMaxValue = 18
+  kInternalMaxValue = 18
 };
 
 /**
@@ -139,7 +139,7 @@ enum class TypeOrder {
 enum class MapType {
   kNormal = 0,
   kServerTimestamp = 1,
-  kMaxValue = 2,
+  kInternalMaxValue = 2,
   kVector = 3,
   kMinKey = 4,
   kMaxKey = 5,
@@ -229,28 +229,31 @@ bool IsNullValue(const google_firestore_v1_Value& value);
  * The returned value might point to heap allocated memory that is owned by
  * this function. To take ownership of this memory, call `DeepClone`.
  */
-google_firestore_v1_Value MinValue();
+google_firestore_v1_Value InternalMinValue();
 
-/** Returns `true` if `value` is MinValue() in its Protobuf representation. */
-bool IsMinValue(const google_firestore_v1_Value& value);
+/**
+ * Returns `true` if `value` is InternalMinValue() in its Protobuf
+ * representation.
+ */
+bool IsInternalMinValue(const google_firestore_v1_Value& value);
 
 /**
  * Returns a Protobuf value that is larger than any legitimate value SDK
  * users can create.
  *
  * Under the hood, it is a sentinel Protobuf Map with special fields that
- * Firestore comparison logic always return true for `MaxValue() > v`, for any
- * v users can create, regardless `v`'s type and value.
+ * Firestore comparison logic always return true for `InternalMaxValue() > v`,
+ * for any `v` users can create, regardless `v`'s type and value.
  *
  * The returned value might point to heap allocated memory that is owned by
  * this function. To take ownership of this memory, call `DeepClone`.
  */
-google_firestore_v1_Value MaxValue();
+google_firestore_v1_Value InternalMaxValue();
 
 /**
- * Returns `true` if `value` is equal to `MaxValue()`.
+ * Returns `true` if `value` is equal to `InternalMaxValue()`.
  */
-bool IsMaxValue(const google_firestore_v1_Value& value);
+bool IsInternalMaxValue(const google_firestore_v1_Value& value);
 
 /**
  * Returns `true` if `value` represents a VectorValue.
@@ -330,6 +333,10 @@ google_firestore_v1_Value MinBytes();
 google_firestore_v1_Value MinReference();
 
 google_firestore_v1_Value MinGeoPoint();
+
+google_firestore_v1_Value MinKeyValue();
+
+google_firestore_v1_Value MaxKeyValue();
 
 google_firestore_v1_Value MinBsonBinaryData();
 

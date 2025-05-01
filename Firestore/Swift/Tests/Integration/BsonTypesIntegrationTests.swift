@@ -57,7 +57,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
 
     for i in 0 ..< expectedDocIds.count {
       let expectedDocId = expectedDocIds[i]
-      let expectedDocData = allData[expectedDocId]!
+      let expectedDocData = allData[expectedDocId] ?? [:]
       let actualDocData = snapshot.documents[i].data()
 
       // We don't need to compare expectedDocId and actualDocId because
@@ -137,6 +137,58 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(
       snapshot.get("binary") as? BsonBinaryData,
       BsonBinaryData(subtype: 1, data: Data([1, 2, 3]))
+    )
+    XCTAssertEqual(
+      snapshot.get("timestamp") as? BsonTimestamp,
+      BsonTimestamp(seconds: 1, increment: 2)
+    )
+    XCTAssertEqual(
+      snapshot.get("regex") as? RegexValue,
+      RegexValue(pattern: "^foo", options: "i")
+    )
+  }
+
+  func testCanWriteAndReadBsonTypesOffline() throws {
+    let collection = collectionRef()
+    disableNetwork()
+
+    let ref = collection.document("doc")
+
+    // Adding docs to cache, do not wait for promise to resolve.
+    ref.setData([
+      "binary": BsonBinaryData(subtype: 1, data: Data([1, 2, 3])),
+      "objectId": BsonObjectId("507f191e810c19729de860ea"),
+      "int32": Int32Value(1),
+      "min": MinKey.instance(),
+      "max": MaxKey.instance(),
+      "regex": RegexValue(pattern: "^foo", options: "i"),
+    ])
+    ref.updateData([
+      "binary": BsonBinaryData(subtype: 128, data: Data([1, 2, 3])),
+      "timestamp": BsonTimestamp(seconds: 1, increment: 2),
+      "int32": Int32Value(2),
+    ])
+
+    let snapshot = readDocument(forRef: ref, source: FirestoreSource.cache)
+    XCTAssertEqual(
+      snapshot.get("objectId") as? BsonObjectId,
+      BsonObjectId("507f191e810c19729de860ea")
+    )
+    XCTAssertEqual(
+      snapshot.get("int32") as? Int32Value,
+      Int32Value(2)
+    )
+    XCTAssertEqual(
+      snapshot.get("min") as? MinKey,
+      MinKey.instance()
+    )
+    XCTAssertEqual(
+      snapshot.get("max") as? MaxKey,
+      MaxKey.instance()
+    )
+    XCTAssertEqual(
+      snapshot.get("binary") as? BsonBinaryData,
+      BsonBinaryData(subtype: 128, data: Data([1, 2, 3]))
     )
     XCTAssertEqual(
       snapshot.get("timestamp") as? BsonTimestamp,
@@ -307,13 +359,15 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     let testDocs: [String: [String: Any]] = [
       "a": ["key": MinKey.instance()],
       "b": ["key": MinKey.instance()],
-      "c": ["key": MaxKey.instance()],
+      "c": ["key": NSNull()],
+      "d": ["key": 1],
+      "e": ["key": MaxKey.instance()],
     ]
 
     let collection = collectionRef()
     await setDocumentData(testDocs, toCollection: collection)
 
-    let query = collection
+    var query = collection
       .whereField("key", isEqualTo: MinKey.instance())
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
@@ -321,29 +375,176 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       query: query,
       expectedResult: ["b", "a"]
     )
+
+    // TODO(b/410032145): This currently fails, and is fixed by
+    // PR #14704. Uncomment this when moving to the main branch.
+    // var query2 = collection
+    //   .whereField("key", isNotEqualTo: MinKey.instance())
+    //   .order(by: "key")
+    // try await assertSdkQueryResultsConsistentWithBackend(
+    //   testDocs,
+    //   query: query2,
+    //   expectedResult: ["d", "e"]
+    // )
+
+    query = collection
+      .whereField("key", isGreaterThanOrEqualTo: MinKey.instance())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: ["a", "b"]
+    )
+
+    query = collection
+      .whereField("key", isLessThanOrEqualTo: MinKey.instance())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: ["a", "b"]
+    )
+
+    query = collection
+      .whereField("key", isGreaterThan: MinKey.instance())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: []
+    )
+
+    query = collection
+      .whereField("key", isLessThan: MinKey.instance())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: []
+    )
+
+    query = collection
+      .whereField("key", isLessThan: 1)
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: []
+    )
   }
 
   func testCanFilterAndOrderMaxKeyValues() async throws {
     let testDocs: [String: [String: Any]] = [
       "a": ["key": MinKey.instance()],
-      "b": ["key": MaxKey.instance()],
+      "b": ["key": 1],
       "c": ["key": MaxKey.instance()],
+      "d": ["key": MaxKey.instance()],
+      "e": ["key": NSNull()],
     ]
 
     let collection = collectionRef()
     await setDocumentData(testDocs, toCollection: collection)
 
-    let query = collection
+    var query = collection
       .whereField("key", isEqualTo: MaxKey.instance())
-      .order(by: "key", descending: true)
+      .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
       query: query,
-      expectedResult: ["c", "b"]
+      expectedResult: ["c", "d"]
+    )
+
+    // TODO(b/410032145): This currently fails, and is fixed by
+    // PR #14704. Uncomment this when moving to the main branch.
+    // query = collection
+    //   .whereField("key", isNotEqualTo: MaxKey.instance())
+    //   .order(by: "key")
+    // try await assertSdkQueryResultsConsistentWithBackend(
+    //   testDocs,
+    //   query: query,
+    //   expectedResult: ["a", "b"]
+    // )
+
+    query = collection
+      .whereField("key", isGreaterThanOrEqualTo: MaxKey.instance())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: ["c", "d"]
+    )
+
+    query = collection
+      .whereField("key", isLessThanOrEqualTo: MaxKey.instance())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: ["c", "d"]
+    )
+
+    query = collection
+      .whereField("key", isGreaterThan: MaxKey.instance())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: []
+    )
+
+    query = collection
+      .whereField("key", isLessThan: MaxKey.instance())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: []
+    )
+
+    query = collection
+      .whereField("key", isGreaterThan: 1)
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: []
     )
   }
 
-  func testCanOrderBsonTypesTogether() async throws {
+  func testCanHandleNullWithBsonValues() async throws {
+    let testDocs: [String: [String: Any]] = [
+      "a": ["key": MinKey.instance()],
+      "b": ["key": NSNull()],
+      "c": ["key": NSNull()],
+      "d": ["key": 1],
+      "e": ["key": MaxKey.instance()],
+    ]
+
+    let collection = collectionRef()
+    await setDocumentData(testDocs, toCollection: collection)
+
+    var query = collection
+      .whereField("key", isEqualTo: NSNull())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: ["b", "c"]
+    )
+
+    query = collection
+      .whereField("key", isNotEqualTo: NSNull())
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: query,
+      expectedResult: ["a", "d", "e"]
+    )
+  }
+
+  func testCanOrderBsonValues() async throws {
+    // This test includes several BSON values of different types and ensures
+    // correct inter-type and intra-type order for BSON values.
     let testDocs: [String: [String: Any]] = [
       "bsonObjectId1": ["key": BsonObjectId("507f191e810c19729de860ea")],
       "bsonObjectId2": ["key": BsonObjectId("507f191e810c19729de860eb")],
@@ -391,6 +592,69 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "minKey2",
       "minKey1",
     ])
+  }
+
+  func testCanOrderValuesOfDifferentTypes() async throws {
+    // This test has only 1 value of each type, and ensures correct order
+    // across all types.
+    let collection = collectionRef()
+    let testDocs: [String: [String: Any]] = [
+      "nullValue": ["key": NSNull()],
+      "minValue": ["key": MinKey.instance()],
+      "booleanValue": ["key": true],
+      "nanValue": ["key": Double.nan],
+      "int32Value": ["key": Int32Value(1)],
+      "doubleValue": ["key": 2.0],
+      "integerValue": ["key": 3],
+      "timestampValue": ["key": Timestamp(seconds: 100, nanoseconds: 123_456_000)],
+      "bsonTimestampValue": ["key": BsonTimestamp(seconds: 1, increment: 2)],
+      "stringValue": ["key": "string"],
+      "bytesValue": ["key": Data([0, 1, 255])],
+      "bsonBinaryValue": ["key": BsonBinaryData(subtype: 1, data: Data([1, 2, 3]))],
+      "referenceValue": ["key": collection.document("doc")],
+      "objectIdValue": ["key": BsonObjectId("507f191e810c19729de860ea")],
+      "geoPointValue": ["key": GeoPoint(latitude: 0, longitude: 0)],
+      "regexValue": ["key": RegexValue(pattern: "^foo", options: "i")],
+      "arrayValue": ["key": [1, 2]],
+      "vectorValue": ["key": VectorValue([1.0, 2.0])],
+      "objectValue": ["key": ["a": 1]],
+      "maxValue": ["key": MaxKey.instance()],
+    ]
+
+    for (docId, data) in testDocs {
+      try await collection.document(docId).setData(data as [String: Any])
+    }
+
+    let orderedQuery = collection.order(by: "key")
+
+    let expectedOrder = [
+      "nullValue",
+      "minValue",
+      "booleanValue",
+      "nanValue",
+      "int32Value",
+      "doubleValue",
+      "integerValue",
+      "timestampValue",
+      "bsonTimestampValue",
+      "stringValue",
+      "bytesValue",
+      "bsonBinaryValue",
+      "referenceValue",
+      "objectIdValue",
+      "geoPointValue",
+      "regexValue",
+      "arrayValue",
+      "vectorValue",
+      "objectValue",
+      "maxValue",
+    ]
+
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      query: orderedQuery,
+      expectedResult: expectedOrder
+    )
   }
 
   func testCanRunTransactionsOnDocumentsWithBsonTypes() async throws {

@@ -135,8 +135,8 @@ NS_ASSUME_NONNULL_BEGIN
       return [self convertedBsonBinaryData:value.map_value];
     case TypeOrder::kVector:
       return [self convertedVector:value.map_value];
-    case TypeOrder::kMaxValue:
-      // It is not possible for users to construct a kMaxValue manually.
+    case TypeOrder::kInternalMaxValue:
+      // It is not possible for users to construct a kInternalMaxValue manually.
       break;
   }
 

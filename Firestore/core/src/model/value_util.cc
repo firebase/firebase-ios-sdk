@@ -52,9 +52,9 @@ pb_bytes_array_s* kTypeValueFieldKey =
     nanopb::MakeBytesArray(kRawTypeValueFieldKey);
 
 /** The field value of a maximum proto value. */
-const char* kRawMaxValueFieldValue = "__max__";
-pb_bytes_array_s* kMaxValueFieldValue =
-    nanopb::MakeBytesArray(kRawMaxValueFieldValue);
+const char* kRawInternalMaxValueFieldValue = "__max__";
+pb_bytes_array_s* kInternalMaxValueFieldValue =
+    nanopb::MakeBytesArray(kRawInternalMaxValueFieldValue);
 
 /** The type of a VectorValue proto. */
 const char* kRawVectorTypeFieldValue = "__vector__";
@@ -130,8 +130,8 @@ MapType DetectMapType(const google_firestore_v1_Value& value) {
   // Check for type-based mappings
   if (IsServerTimestamp(value)) {
     return MapType::kServerTimestamp;
-  } else if (IsMaxValue(value)) {
-    return MapType::kMaxValue;
+  } else if (IsInternalMaxValue(value)) {
+    return MapType::kInternalMaxValue;
   } else if (IsVectorValue(value)) {
     return MapType::kVector;
   }
@@ -195,8 +195,8 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
       switch (DetectMapType(value)) {
         case MapType::kServerTimestamp:
           return TypeOrder::kServerTimestamp;
-        case MapType::kMaxValue:
-          return TypeOrder::kMaxValue;
+        case MapType::kInternalMaxValue:
+          return TypeOrder::kInternalMaxValue;
         case MapType::kVector:
           return TypeOrder::kVector;
         case MapType::kMinKey:
@@ -548,7 +548,7 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
 
   switch (left_type) {
     case TypeOrder::kNull:
-    case TypeOrder::kMaxValue:
+    case TypeOrder::kInternalMaxValue:
     // All MinKeys are equal.
     case TypeOrder::kMinKey:
     // All MaxKeys are equal.
@@ -745,9 +745,7 @@ bool Equals(const google_firestore_v1_Value& lhs,
 
     case TypeOrder::kVector:
     case TypeOrder::kMap:
-      return MapValueEquals(lhs.map_value, rhs.map_value);
-
-    case TypeOrder::kMaxValue:
+    case TypeOrder::kInternalMaxValue:
       return MapValueEquals(lhs.map_value, rhs.map_value);
 
     default:
@@ -900,6 +898,21 @@ google_firestore_v1_Value GetLowerBound(
     case google_firestore_v1_Value_map_value_tag: {
       if (IsVectorValue(value)) {
         return MinVector();
+      } else if (IsBsonObjectId(value)) {
+        return MinBsonObjectId();
+      } else if (IsBsonTimestamp(value)) {
+        return MinBsonTimestamp();
+      } else if (IsBsonBinaryData(value)) {
+        return MinBsonBinaryData();
+      } else if (IsRegexValue(value)) {
+        return MinRegex();
+      } else if (IsInt32Value(value)) {
+        // int32Value is treated the same as integerValue and doubleValue.
+        return MinNumber();
+      } else if (IsMinKeyValue(value)) {
+        return MinKeyValue();
+      } else if (IsMaxKeyValue(value)) {
+        return MaxKeyValue();
       }
 
       return MinMap();
@@ -914,29 +927,47 @@ google_firestore_v1_Value GetUpperBound(
     const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
     case google_firestore_v1_Value_null_value_tag:
-      return MinBoolean();
+      return MinKeyValue();
     case google_firestore_v1_Value_boolean_value_tag:
       return MinNumber();
     case google_firestore_v1_Value_integer_value_tag:
     case google_firestore_v1_Value_double_value_tag:
       return MinTimestamp();
     case google_firestore_v1_Value_timestamp_value_tag:
-      return MinString();
+      return MinBsonTimestamp();
     case google_firestore_v1_Value_string_value_tag:
       return MinBytes();
     case google_firestore_v1_Value_bytes_value_tag:
-      return MinReference();
+      return MinBsonBinaryData();
     case google_firestore_v1_Value_reference_value_tag:
-      return MinGeoPoint();
+      return MinBsonObjectId();
     case google_firestore_v1_Value_geo_point_value_tag:
-      return MinArray();
+      return MinRegex();
     case google_firestore_v1_Value_array_value_tag:
       return MinVector();
     case google_firestore_v1_Value_map_value_tag:
       if (IsVectorValue(value)) {
         return MinMap();
+      } else if (IsMinKeyValue(value)) {
+        return MinBoolean();
+      } else if (IsInt32Value(value)) {
+        // int32Value is treated the same as integerValue and doubleValue.
+        return MinTimestamp();
+      } else if (IsBsonTimestamp(value)) {
+        return MinString();
+      } else if (IsBsonBinaryData(value)) {
+        return MinReference();
+      } else if (IsBsonObjectId(value)) {
+        return MinGeoPoint();
+      } else if (IsRegexValue(value)) {
+        return MinArray();
+      } else if (IsMaxKeyValue(value)) {
+        // The upper bound for MaxKey is the internal max value.
+        return InternalMaxValue();
       }
-      return MaxValue();
+
+      // For normal maps, the upper bound is MaxKey.
+      return MaxKeyValue();
     default:
       HARD_FAIL("Invalid type value: %s", value.which_value_type);
   }
@@ -963,14 +994,14 @@ bool IsNullValue(const google_firestore_v1_Value& value) {
   return value.which_value_type == google_firestore_v1_Value_null_value_tag;
 }
 
-google_firestore_v1_Value MinValue() {
+google_firestore_v1_Value InternalMinValue() {
   google_firestore_v1_Value null_value;
   null_value.which_value_type = google_firestore_v1_Value_null_value_tag;
   null_value.null_value = {};
   return null_value;
 }
 
-bool IsMinValue(const google_firestore_v1_Value& value) {
+bool IsInternalMinValue(const google_firestore_v1_Value& value) {
   return IsNullValue(value);
 }
 
@@ -979,10 +1010,10 @@ bool IsMinValue(const google_firestore_v1_Value& value) {
  * values. Underlying it is a map value with a special map field that SDK user
  * cannot possibly construct.
  */
-google_firestore_v1_Value MaxValue() {
+google_firestore_v1_Value InternalMaxValue() {
   google_firestore_v1_Value value;
   value.which_value_type = google_firestore_v1_Value_string_value_tag;
-  value.string_value = kMaxValueFieldValue;
+  value.string_value = kInternalMaxValueFieldValue;
 
   // Make `field_entry` static so that it has a memory address that outlives
   // this function's scope; otherwise, using its address in the `map_value`
@@ -1007,7 +1038,7 @@ google_firestore_v1_Value MaxValue() {
   return max_value;
 }
 
-bool IsMaxValue(const google_firestore_v1_Value& value) {
+bool IsInternalMaxValue(const google_firestore_v1_Value& value) {
   if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
     return false;
   }
@@ -1031,9 +1062,10 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
 
   // Comparing the pointer address, then actual content if addresses are
   // different.
-  return value.map_value.fields[0].value.string_value == kMaxValueFieldValue ||
+  return value.map_value.fields[0].value.string_value ==
+             kInternalMaxValueFieldValue ||
          nanopb::MakeStringView(value.map_value.fields[0].value.string_value) ==
-             kRawMaxValueFieldValue;
+             kRawInternalMaxValueFieldValue;
 }
 
 absl::optional<pb_size_t> IndexOfKey(
@@ -1531,6 +1563,38 @@ google_firestore_v1_Value MinBsonBinaryData() {
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
   field_entries[0].key = kBsonBinaryDataTypeFieldValue;
   field_entries[0].value = MinBytes();
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 1;
+  map_value.fields = field_entries;
+
+  google_firestore_v1_Value lower_bound;
+  lower_bound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lower_bound.map_value = map_value;
+
+  return lower_bound;
+}
+
+google_firestore_v1_Value MinKeyValue() {
+  google_firestore_v1_MapValue_FieldsEntry* field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  field_entries[0].key = kMinKeyTypeFieldValue;
+  field_entries[0].value = NullValue();
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 1;
+  map_value.fields = field_entries;
+
+  google_firestore_v1_Value lower_bound;
+  lower_bound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lower_bound.map_value = map_value;
+
+  return lower_bound;
+}
+
+google_firestore_v1_Value MaxKeyValue() {
+  google_firestore_v1_MapValue_FieldsEntry* field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  field_entries[0].key = kMaxKeyTypeFieldValue;
+  field_entries[0].value = NullValue();
   google_firestore_v1_MapValue map_value;
   map_value.fields_count = 1;
   map_value.fields = field_entries;

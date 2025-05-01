@@ -24,36 +24,19 @@
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
+#include "absl/strings/str_split.h"
+
 namespace firebase {
 namespace firestore {
 namespace index {
 namespace {
 
-// Note: This code is copied from the backend. Code that is not used by
-// Firestore was removed.
+// Note: This file is copied from the backend. Code that is not used by
+// Firestore was removed. Code that has different behavior was modified.
 
 // The client SDK only supports references to documents from the same database.
 // We can skip the first five segments.
 constexpr int DocumentNameOffset = 5;
-
-enum IndexType {
-  kNull = 5,
-  kBoolean = 10,
-  kNan = 13,
-  kNumber = 15,
-  kTimestamp = 20,
-  kString = 25,
-  kBlob = 30,
-  kReference = 37,
-  kGeopoint = 45,
-  kArray = 50,
-  kVector = 53,
-  kMap = 55,
-  kReferenceSegment = 60,
-  // A terminator that indicates that a truncatable value was not truncated.
-  // This must be smaller than all other type labels.
-  kNotTruncated = 2
-};
 
 void WriteValueTypeLabel(DirectionalIndexByteEncoder* encoder, int type_order) {
   encoder->WriteLong(type_order);
@@ -86,11 +69,16 @@ void WriteIndexEntityRef(pb_bytes_array_t* reference_value,
                          DirectionalIndexByteEncoder* encoder) {
   WriteValueTypeLabel(encoder, IndexType::kReference);
 
-  auto path = model::ResourcePath::FromStringView(
-      nanopb::MakeStringView(reference_value));
-  auto num_segments = path.size();
+  // We must allow empty strings. We could be dealing with a reference_value
+  // with empty segmenets. The reference value has the following format:
+  // projects/<project_id>/databases/<database_id>/documents/<col>/<doc>
+  // So we may have something like:
+  // projects//databases//documents/coll_1/doc_1
+  std::vector<std::string> segments = absl::StrSplit(
+      nanopb::MakeStringView(reference_value), '/', absl::AllowEmpty());
+  auto num_segments = segments.size();
   for (size_t index = DocumentNameOffset; index < num_segments; ++index) {
-    const std::string& segment = path[index];
+    const std::string& segment = segments[index];
     WriteValueTypeLabel(encoder, IndexType::kReferenceSegment);
     WriteUnlabeledIndexString(segment, encoder);
   }
@@ -139,6 +127,78 @@ void WriteIndexMap(google_firestore_v1_MapValue map_index_value,
     WriteIndexString(map_index_value.fields[i].key, encoder);
     WriteIndexValueAux(map_index_value.fields[i].value, encoder);
   }
+}
+
+void WriteIndexBsonBinaryData(
+    const google_firestore_v1_MapValue& map_index_value,
+    DirectionalIndexByteEncoder* encoder) {
+  WriteValueTypeLabel(encoder, IndexType::kBsonBinaryData);
+  encoder->WriteBytes(map_index_value.fields[0].value.bytes_value);
+  WriteTruncationMarker(encoder);
+}
+
+void WriteIndexBsonObjectId(const google_firestore_v1_MapValue& map_index_value,
+                            DirectionalIndexByteEncoder* encoder) {
+  WriteValueTypeLabel(encoder, IndexType::kBsonObjectId);
+  encoder->WriteBytes(map_index_value.fields[0].value.string_value);
+}
+
+void WriteIndexBsonTimestamp(
+    const google_firestore_v1_MapValue& map_index_value,
+    DirectionalIndexByteEncoder* encoder) {
+  WriteValueTypeLabel(encoder, IndexType::kBsonTimestamp);
+
+  // Figure out the seconds and increment value.
+  const google_firestore_v1_MapValue& inner_map =
+      map_index_value.fields[0].value.map_value;
+  absl::optional<pb_size_t> seconds_index = model::IndexOfKey(
+      inner_map, model::kRawBsonTimestampTypeSecondsFieldValue,
+      model::kBsonTimestampTypeSecondsFieldValue);
+  absl::optional<pb_size_t> increment_index = model::IndexOfKey(
+      inner_map, model::kRawBsonTimestampTypeIncrementFieldValue,
+      model::kBsonTimestampTypeIncrementFieldValue);
+  const int64_t seconds =
+      inner_map.fields[seconds_index.value()].value.integer_value;
+  const int64_t increment =
+      inner_map.fields[increment_index.value()].value.integer_value;
+
+  // BsonTimestamp is encoded as a 64-bit long.
+  int64_t value_to_encode = (seconds << 32) | (increment & 0xFFFFFFFFL);
+  encoder->WriteLong(value_to_encode);
+}
+
+void WriteIndexRegexValue(const google_firestore_v1_MapValue& map_index_value,
+                          DirectionalIndexByteEncoder* encoder) {
+  WriteValueTypeLabel(encoder, IndexType::kRegex);
+
+  // Figure out the pattern and options.
+  const google_firestore_v1_MapValue& inner_map =
+      map_index_value.fields[0].value.map_value;
+  absl::optional<pb_size_t> pattern_index =
+      model::IndexOfKey(inner_map, model::kRawRegexTypePatternFieldValue,
+                        model::kRegexTypePatternFieldValue);
+  absl::optional<pb_size_t> options_index =
+      model::IndexOfKey(inner_map, model::kRawRegexTypeOptionsFieldValue,
+                        model::kRegexTypeOptionsFieldValue);
+  const auto& pattern =
+      inner_map.fields[pattern_index.value()].value.string_value;
+  const auto& options =
+      inner_map.fields[options_index.value()].value.string_value;
+
+  // Write pattern and then options.
+  WriteUnlabeledIndexString(pattern, encoder);
+  WriteUnlabeledIndexString(options, encoder);
+
+  // Also needs truncation marker.
+  WriteTruncationMarker(encoder);
+}
+
+void WriteIndexInt32Value(const google_firestore_v1_MapValue& map_index_value,
+                          DirectionalIndexByteEncoder* encoder) {
+  WriteValueTypeLabel(encoder, IndexType::kNumber);
+  // Similar to 64-bit integers (see integer_value below), we write 32-bit
+  // integers as double so that 0 and 0.0 are considered the same.
+  encoder->WriteDouble(map_index_value.fields[0].value.integer_value);
 }
 
 void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
@@ -205,15 +265,38 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
       break;
     }
     case google_firestore_v1_Value_map_value_tag:
-      // model::MaxValue() is sentinel map value (see the comment there).
-      // In that case, we encode the max int value instead.
-      if (model::IsMaxValue(index_value)) {
+      // model::InternalMaxValue() is a sentinel map value (see the comment
+      // there). In that case, we encode the max int value instead.
+      if (model::IsInternalMaxValue(index_value)) {
         WriteValueTypeLabel(encoder, std::numeric_limits<int>::max());
         break;
       } else if (model::IsVectorValue(index_value)) {
         WriteIndexVector(index_value.map_value, encoder);
         break;
+      } else if (model::IsMaxKeyValue(index_value)) {
+        WriteValueTypeLabel(encoder, IndexType::kMaxKey);
+        break;
+      } else if (model::IsMinKeyValue(index_value)) {
+        WriteValueTypeLabel(encoder, IndexType::kMinKey);
+        break;
+      } else if (model::IsBsonBinaryData(index_value)) {
+        WriteIndexBsonBinaryData(index_value.map_value, encoder);
+        break;
+      } else if (model::IsRegexValue(index_value)) {
+        WriteIndexRegexValue(index_value.map_value, encoder);
+        break;
+      } else if (model::IsBsonTimestamp(index_value)) {
+        WriteIndexBsonTimestamp(index_value.map_value, encoder);
+        break;
+      } else if (model::IsBsonObjectId(index_value)) {
+        WriteIndexBsonObjectId(index_value.map_value, encoder);
+        break;
+      } else if (model::IsInt32Value(index_value)) {
+        WriteIndexInt32Value(index_value.map_value, encoder);
+        break;
       }
+
+      // For regular maps:
       WriteIndexMap(index_value.map_value, encoder);
       WriteTruncationMarker(encoder);
       break;
