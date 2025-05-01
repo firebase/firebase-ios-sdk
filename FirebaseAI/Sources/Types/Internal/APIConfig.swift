@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /// Configuration for the generative AI backend API used by this SDK.
-struct APIConfig: Sendable, Hashable {
+struct APIConfig: Sendable, Hashable, Encodable {
   /// The service to use for generative AI.
   ///
   /// This controls which backend API is used by the SDK.
@@ -39,7 +39,7 @@ extension APIConfig {
   /// See [Vertex AI and Google AI
   /// differences](https://cloud.google.com/vertex-ai/generative-ai/docs/overview#how-gemini-vertex-different-gemini-aistudio)
   /// for a comparison of the two [API services](https://google.aip.dev/9#api-service).
-  enum Service: Hashable {
+  enum Service: Hashable, Encodable {
     /// The Gemini Enterprise API provided by Vertex AI.
     ///
     /// See the [Cloud
@@ -68,7 +68,7 @@ extension APIConfig {
 
 extension APIConfig.Service {
   /// Network addresses for generative AI API services.
-  enum Endpoint: String {
+  enum Endpoint: String, Encodable {
     /// The Firebase proxy production endpoint.
     ///
     /// This endpoint supports both Google AI and Vertex AI.
@@ -91,7 +91,7 @@ extension APIConfig.Service {
 
 extension APIConfig {
   /// Versions of the configured API service (`APIConfig.Service`).
-  enum Version: String {
+  enum Version: String, Encodable {
     /// The stable channel for version 1 of the API.
     case v1
 
