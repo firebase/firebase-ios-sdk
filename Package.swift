@@ -44,9 +44,23 @@ let package = Package(
     // Adding this library to your project is enough for it to take effect. The module
     // does not need to be imported into any source files.
     .library(
+      name: "FirebaseAnalyticsCore",
+      targets: ["FirebaseAnalyticsCoreTarget"]
+    ),
+    // Adding this library to your project is enough for it to take effect. The module
+    // does not need to be imported into any source files.
+    .library(
+      name: "FirebaseAnalyticsIdentitySupport",
+      targets: ["FirebaseAnalyticsIdentitySupportTarget"]
+    ),
+    // Deprecated. Use FirebaseAnalyticsCore instead.
+    // Adding this library to your project is enough for it to take effect. The module
+    // does not need to be imported into any source files.
+    .library(
       name: "FirebaseAnalyticsWithoutAdIdSupport",
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
+    // Deprecated. Use GoogleAdsOnDeviceConversion instead.
     // Adding this library to your project is enough for it to take effect. The module
     // does not need to be imported into any source files.
     .library(
@@ -372,6 +386,66 @@ let package = Package(
       name: "AnalyticsObjCAPI",
       dependencies: ["FirebaseAnalyticsTarget"],
       path: "FirebaseAnalytics/Tests/ObjCAPI"
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsCoreTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsCoreWrapper",
+                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap"
+    ),
+    .target(
+      name: "FirebaseAnalyticsCoreWrapper",
+      dependencies: [
+        .target(
+          name: "FirebaseAnalytics",
+          condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+        ),
+        .product(name: "GoogleAppMeasurementCore",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
+        "FirebaseCore",
+        "FirebaseInstallations",
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULNSData", package: "GoogleUtilities"),
+        .product(name: "GULNetwork", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseAnalyticsCoreWrapper",
+      linkerSettings: [
+        .linkedLibrary("sqlite3"),
+        .linkedLibrary("c++"),
+        .linkedLibrary("z"),
+        .linkedFramework("StoreKit"),
+      ]
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsIdentitySupportTarget",
+      dependencies: [
+        .target(
+          name: "FirebaseAnalytics",
+          condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+        ),
+        .product(name: "GoogleAppMeasurementIdentitySupport",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
+        "FirebaseCore",
+        "FirebaseInstallations",
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULNSData", package: "GoogleUtilities"),
+        .product(name: "GULNetwork", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseAnalyticsIdentitySupportWrapper",
+      linkerSettings: [
+        .linkedLibrary("sqlite3"),
+        .linkedLibrary("c++"),
+        .linkedLibrary("z"),
+        .linkedFramework("StoreKit"),
+      ]
     ),
 
     .target(
