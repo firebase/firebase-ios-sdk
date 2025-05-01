@@ -15,7 +15,7 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 
 ///
 /// Logger is responsible for printing console logs

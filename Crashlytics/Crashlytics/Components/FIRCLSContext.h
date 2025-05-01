@@ -39,6 +39,7 @@ __BEGIN_DECLS
 @class FIRCLSInstallIdentifierModel;
 @class FIRCLSFileManager;
 @class FIRCLSContextInitData;
+@class FBLPromise;
 #endif
 
 typedef struct {
@@ -82,7 +83,8 @@ typedef struct {
   FIRCLSAllocatorRef allocator;
 } FIRCLSContext;
 #ifdef __OBJC__
-bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager* fileManager);
+FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
+                                    FIRCLSFileManager* fileManager);
 FIRCLSContextInitData* FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
                                                   FIRCLSSettings* settings,
                                                   FIRCLSFileManager* fileManager,

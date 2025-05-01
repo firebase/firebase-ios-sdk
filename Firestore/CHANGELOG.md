@@ -2,6 +2,12 @@
 - [feature] Adds support for the following new types: MinKey, MaxKey, RegexValue, Int32Value, BsonObjectId,
   BsonTimestamp, and BsonBinaryData. (#14800)
 
+# 11.12.0
+- [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
+
+# 11.11.0
+- [fixed] Fixed the customized priority queue compare function used cache index manager. (#14496)
+
 # 11.9.0
 - [fixed] Fixed memory leak in `Query.whereField()`. (#13978)
 

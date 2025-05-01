@@ -92,7 +92,7 @@ absl::optional<Operator> Query::FindOpInsideFilters(
   return absl::nullopt;
 }
 
-std::shared_ptr<std::vector<OrderBy>> Query::CalculateNormalizedOrderBys()
+std::shared_ptr<const std::vector<OrderBy>> Query::CalculateNormalizedOrderBys()
     const {
   // Any explicit order by fields should be added as is.
   auto result = std::make_shared<std::vector<OrderBy>>(explicit_order_bys_);

@@ -1,3 +1,10 @@
+# 11.12.0
+- [fixed] Fix regression from 11.6.0 where `HTTPSCallable` did not invoke
+  completion block on main thread (#14653).
+
+# 11.10.0
+- [added] Streaming callable functions are now supported.
+
 # 11.9.0
 - [fixed] Fixed App Check token reporting to enable differentiating outdated
   (`MISSING`) and inauthentic (`INVALID`) clients; see [Monitor App Check

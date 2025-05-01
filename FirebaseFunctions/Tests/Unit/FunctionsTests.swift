@@ -290,7 +290,7 @@ class FunctionsTests: XCTestCase {
         }
 
         XCTAssertEqual(error as NSError, networkError)
-
+        XCTAssert(Thread.isMainThread)
         completionExpectation.fulfill()
       }
 

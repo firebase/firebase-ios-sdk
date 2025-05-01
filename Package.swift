@@ -19,12 +19,24 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.10.0"
+let firebaseVersion = "11.13.0"
 
 let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
   products: [
+    .library(
+      name: "FirebaseAI",
+      targets: ["FirebaseAI"]
+    ),
+    // Backwards-compatibility library for existing "Vertex AI in Firebase" users.
+    .library(
+      name: "FirebaseVertexAI",
+      targets: [
+        "FirebaseAI",
+        "FirebaseVertexAI",
+      ]
+    ),
     .library(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
@@ -121,10 +133,6 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
-    .library(
-      name: "FirebaseVertexAI",
-      targets: ["FirebaseVertexAI"]
-    ),
   ],
   dependencies: [
     .package(
@@ -179,6 +187,55 @@ let package = Package(
       path: "CoreOnly/Sources",
       publicHeadersPath: "./"
     ),
+
+    // MARK: - Firebase AI
+
+    .target(
+      name: "FirebaseAI",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+      ],
+      path: "FirebaseAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseAIUnit",
+      dependencies: [
+        "FirebaseAI",
+        "FirebaseStorage",
+      ],
+      path: "FirebaseAI/Tests/Unit",
+      resources: [
+        .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
+        .process("Resources"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    // Backwards-compatibility targets for existing "Vertex AI in Firebase" users.
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAI",
+      ],
+      path: "FirebaseVertexAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseVertexAIUnit",
+      dependencies: [
+        "FirebaseVertexAI",
+      ],
+      path: "FirebaseVertexAI/Tests/Unit",
+      resources: [
+        .process("Resources"),
+      ]
+    ),
+
+    // MARK: - Firebase Core
+
     .target(
       name: "FirebaseCore",
       dependencies: [
@@ -303,8 +360,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/11.9.0/FirebaseAnalytics.zip",
-      checksum: "9582ae3649a185a3b097f0e3ec7ee328708539061927455a3e18a761c8a0d872"
+      url: "https://dl.google.com/firebase/ios/swiftpm/11.12.0/FirebaseAnalytics.zip",
+      checksum: "c08377e08631271788e6302a060f83ca1f17cdda345c8bce441ea2ba2a6999ae"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1297,34 +1354,6 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
-
-    // MARK: - Firebase Vertex AI
-
-    .target(
-      name: "FirebaseVertexAI",
-      dependencies: [
-        "FirebaseAppCheckInterop",
-        "FirebaseAuthInterop",
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-      ],
-      path: "FirebaseVertexAI/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseVertexAIUnit",
-      dependencies: [
-        "FirebaseVertexAI",
-        "FirebaseStorage",
-      ],
-      path: "FirebaseVertexAI/Tests/Unit",
-      resources: [
-        .process("vertexai-sdk-test-data/mock-responses"),
-        .process("Resources"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ]
-    ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
@@ -1341,7 +1370,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.9.0")
+  return .package(url: appMeasurementURL, exact: "11.12.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1510,8 +1539,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.9.0/rc1/FirebaseFirestoreInternal.zip",
-        checksum: "ca177bf6152fcdbba47d176cbca584c873c21edfda4e11fb72830563ed0cb565"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.12.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "4c2b4f8bbe863aa295a91b90882ebd523248e82da46497e15797f03e3b6b0a0a"
       )
     }
   }()

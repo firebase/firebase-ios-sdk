@@ -20,9 +20,9 @@ import Foundation
 #endif // SWIFT_PACKAGE
 
 #if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_Environment
+  internal import GoogleUtilities_Environment
 #else
-  @_implementationOnly import GoogleUtilities
+  internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 protocol NetworkInfoProtocol {

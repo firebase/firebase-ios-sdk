@@ -1,3 +1,9 @@
+# 11.12.0
+- [fixed] Fix a `fatalError` unenrolling from MFA. An invalid user token now throws an
+  `invalidUserToken` error instead of crashing. (#14663)
+- [fixed] Fix the parameter from "languageCode" to "lang" in ActionCodeURL. (#14664)
+- [fixed] Fix the parameters for requestType in ActionCodeOperation. (#14665)
+
 # 11.9.0
 - [changed] Using reCAPTCHA Enterprise and Firebase Auth requires reCAPTCHA
   Enterprise 18.7.0 or later.

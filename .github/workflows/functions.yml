@@ -1,6 +1,7 @@
 name: functions
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseFunctions**'
@@ -31,26 +32,22 @@ jobs:
       matrix:
         target: [ios, tvos, macos, watchos]
         build-env:
-          - os: macos-14
-            xcode: Xcode_15.2
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    # The integration tests are flaky on Xcode 15 so only run the unit tests. The integration tests still run with SPM.
-    # - name: Integration Test Server
-    #   run: FirebaseFunctions/Backend/start.sh synchronous
+    - name: Integration Test Server
+      run: FirebaseFunctions/Backend/start.sh synchronous
     - name: Build and test
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec \
-          --test-specs=unit --platforms=${{ matrix.target }}
-
+          --platforms=${{ matrix.target }}
 
   spm-package-resolved:
     runs-on: macos-14
@@ -60,6 +57,8 @@ jobs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
@@ -81,8 +80,8 @@ jobs:
     needs: [spm-package-resolved]
     strategy:
       matrix:
-        os: [macos-14]
-        xcode: [Xcode_15.4]
+        os: [macos-15]
+        xcode: [Xcode_16.3]
     runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -112,29 +111,26 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
           - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
-          - os: macos-15
             xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16.3
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: watchOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -145,6 +141,9 @@ jobs:
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install visionOS, if needed.
+      if: matrix.target == 'visionOS'
+      run: xcodebuild -downloadPlatform visionOS
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
@@ -163,7 +162,7 @@ jobs:
 
   #   steps:
   #   - uses: actions/checkout@v4
-  #   - uses: ruby/setup-ruby@v1
+  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
   #   - name: Setup quickstart
   #     run: scripts/setup_quickstart.sh functions
   #   - name: install secret googleservice-info.plist
@@ -190,7 +189,7 @@ jobs:
 
   #   steps:
   #   - uses: actions/checkout@v4
-  #   - uses: ruby/setup-ruby@v1
+  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
   #   - uses: actions/setup-python@v5
   #     with:
   #       python-version: '3.11'
@@ -228,7 +227,9 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Integration Test Server

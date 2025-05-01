@@ -19,10 +19,10 @@ import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreExtension
 #if COCOAPODS
-  @_implementationOnly import GoogleUtilities
+  internal import GoogleUtilities
 #else
-  @_implementationOnly import GoogleUtilities_AppDelegateSwizzler
-  @_implementationOnly import GoogleUtilities_Environment
+  internal import GoogleUtilities_AppDelegateSwizzler
+  internal import GoogleUtilities_Environment
 #endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -2348,7 +2348,7 @@ extension Auth: AuthInterop {
 
   /// The configuration object comprising of parameters needed to make a request to Firebase
   ///   Auth's backend.
-  var requestConfiguration: AuthRequestConfiguration
+  let requestConfiguration: AuthRequestConfiguration
 
   let backend: AuthBackend
 

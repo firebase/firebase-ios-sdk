@@ -45,6 +45,8 @@ final class FunctionsErrorTests: XCTestCase {
     // The error should be `nil`.
     let error = FunctionsError(
       httpStatusCode: 200,
+      region: "my-region",
+      url: URL(string: "https://example.com/fake_func")!,
       body: nil,
       serializer: FunctionsSerializer()
     )
@@ -56,6 +58,8 @@ final class FunctionsErrorTests: XCTestCase {
     // The error should be inferred from the HTTP status code.
     let error = FunctionsError(
       httpStatusCode: 429,
+      region: "my-region",
+      url: URL(string: "https://example.com/fake_func")!,
       body: nil,
       serializer: FunctionsSerializer()
     )
@@ -66,7 +70,7 @@ final class FunctionsErrorTests: XCTestCase {
     XCTAssertEqual(nsError.domain, "com.firebase.functions")
     XCTAssertEqual(nsError.code, 8)
     XCTAssertEqual(nsError.localizedDescription, "RESOURCE EXHAUSTED")
-    XCTAssertEqual(nsError.userInfo.count, 1)
+    XCTAssertEqual(nsError.userInfo.count, 3)
   }
 
   func testInitWithOKStatusCodeAndIncompleteErrorBody() {
@@ -75,6 +79,8 @@ final class FunctionsErrorTests: XCTestCase {
 
     let error = FunctionsError(
       httpStatusCode: 200,
+      region: "my-region",
+      url: URL(string: "https://example.com/fake_func")!,
       body: responseData,
       serializer: FunctionsSerializer()
     )
@@ -85,7 +91,7 @@ final class FunctionsErrorTests: XCTestCase {
     XCTAssertEqual(nsError.domain, "com.firebase.functions")
     XCTAssertEqual(nsError.code, 11)
     XCTAssertEqual(nsError.localizedDescription, "OUT OF RANGE")
-    XCTAssertEqual(nsError.userInfo.count, 1)
+    XCTAssertEqual(nsError.userInfo.count, 3)
   }
 
   func testInitWithErrorStatusCodeAndErrorBody() {
@@ -96,6 +102,8 @@ final class FunctionsErrorTests: XCTestCase {
 
     let error = FunctionsError(
       httpStatusCode: 499,
+      region: "my-region",
+      url: URL(string: "https://example.com/fake_func")!,
       body: responseData,
       serializer: FunctionsSerializer()
     )
@@ -106,7 +114,7 @@ final class FunctionsErrorTests: XCTestCase {
     XCTAssertEqual(nsError.domain, "com.firebase.functions")
     XCTAssertEqual(nsError.code, 11)
     XCTAssertEqual(nsError.localizedDescription, "TEST_ErrorMessage")
-    XCTAssertEqual(nsError.userInfo.count, 2)
+    XCTAssertEqual(nsError.userInfo.count, 4)
     XCTAssertEqual(nsError.userInfo["details"] as? Int, 123)
   }
 
@@ -119,6 +127,8 @@ final class FunctionsErrorTests: XCTestCase {
 
     let error = FunctionsError(
       httpStatusCode: 401,
+      region: "my-region",
+      url: URL(string: "https://example.com/fake_func")!,
       body: responseData,
       serializer: FunctionsSerializer()
     )
@@ -133,6 +143,8 @@ final class FunctionsErrorTests: XCTestCase {
 
     let error = FunctionsError(
       httpStatusCode: 403,
+      region: "my-region",
+      url: URL(string: "https://example.com/fake_func")!,
       body: responseData,
       serializer: FunctionsSerializer()
     )
@@ -143,7 +155,7 @@ final class FunctionsErrorTests: XCTestCase {
     XCTAssertEqual(nsError.domain, "com.firebase.functions")
     XCTAssertEqual(nsError.code, 7) // `permissionDenied`, inferred from the HTTP status code
     XCTAssertEqual(nsError.localizedDescription, "TEST_ErrorMessage")
-    XCTAssertEqual(nsError.userInfo.count, 2)
+    XCTAssertEqual(nsError.userInfo.count, 4)
     XCTAssertEqual(nsError.userInfo["details"] as? NSNull, NSNull())
   }
 
@@ -155,6 +167,8 @@ final class FunctionsErrorTests: XCTestCase {
 
     let error = FunctionsError(
       httpStatusCode: 503,
+      region: "my-region",
+      url: URL(string: "https://example.com/fake_func")!,
       body: responseData,
       serializer: FunctionsSerializer()
     )
