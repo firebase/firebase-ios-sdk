@@ -112,6 +112,14 @@ extension ModelContent: Codable {
     case role
     case internalParts = "parts"
   }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.role = try container.decodeIfPresent(String.self, forKey: .role)
+    self.internalParts = try container.decodeIfPresent(
+      [ModelContent.InternalPart].self, forKey: .internalParts
+    ) ?? []
+  }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
