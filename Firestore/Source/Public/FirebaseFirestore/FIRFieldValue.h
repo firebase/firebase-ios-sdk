@@ -18,6 +18,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 @class FIRVectorValue;
+@class FIRMinKey;
+@class FIRMaxKey;
+@class FIRRegexValue;
+@class FIRInt32Value;
+@class FIRBsonObjectId;
+@class FIRBsonTimestamp;
+@class FIRBsonBinaryData;
 
 /**
  * Sentinel values that can be used when writing document fields with `setData()` or `updateData()`.

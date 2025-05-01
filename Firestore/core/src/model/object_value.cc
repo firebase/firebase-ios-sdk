@@ -270,7 +270,8 @@ FieldMask ObjectValue::ExtractFieldMask(
     const google_firestore_v1_MapValue_FieldsEntry& entry = value.fields[i];
     FieldPath current_path{MakeString(entry.key)};
 
-    if (!IsMap(entry.value)) {
+    // BSON types do not need to extract reserved keys such as '__regex__', etc.
+    if (!IsMap(entry.value) || IsBsonType(entry.value)) {
       fields.insert(std::move(current_path));
       continue;
     }

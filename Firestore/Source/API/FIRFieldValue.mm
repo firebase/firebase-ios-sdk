@@ -15,6 +15,13 @@
  */
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRBsonBinaryData.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRBsonObjectId.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRBsonTimestamp.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRInt32Value.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRMaxKey.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRMinKey.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRRegexValue.h"
 #import "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
 
 NS_ASSUME_NONNULL_BEGIN

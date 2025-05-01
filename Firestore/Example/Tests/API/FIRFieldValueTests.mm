@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
+#import <FirebaseFirestore/FIRBsonBinaryData.h>
+#import <FirebaseFirestore/FIRBsonObjectId.h>
+#import <FirebaseFirestore/FIRBsonTimestamp.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
+#import <FirebaseFirestore/FIRInt32Value.h>
+#import <FirebaseFirestore/FIRRegexValue.h>
 #import <FirebaseFirestore/FIRVectorValue.h>
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #import <XCTest/XCTest.h>
 

@@ -111,16 +111,23 @@ using nanopb::Writer;
 using remote::Serializer;
 using testutil::AndFilters;
 using testutil::Array;
+using testutil::BsonBinaryData;
+using testutil::BsonObjectId;
+using testutil::BsonTimestamp;
 using testutil::Bytes;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Filter;
+using testutil::Int32;
 using testutil::Key;
 using testutil::Map;
+using testutil::MaxKey;
+using testutil::MinKey;
 using testutil::OrderBy;
 using testutil::OrFilters;
 using testutil::Query;
 using testutil::Ref;
+using testutil::Regex;
 using testutil::Value;
 using testutil::Version;
 using util::Status;
@@ -819,6 +826,98 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   (*fields)["o"] = middle_proto;
 
   ExpectRoundTrip(model, proto, TypeOrder::kMap);
+}
+
+TEST_F(SerializerTest, EncodesMinKey) {
+  Message<google_firestore_v1_Value> model = MinKey();
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__min__"] = ValueProto(nullptr);
+
+  ExpectRoundTrip(model, proto, TypeOrder::kMinKey);
+}
+
+TEST_F(SerializerTest, EncodesMaxKey) {
+  Message<google_firestore_v1_Value> model = MaxKey();
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__max__"] = ValueProto(nullptr);
+
+  ExpectRoundTrip(model, proto, TypeOrder::kMaxKey);
+}
+
+TEST_F(SerializerTest, EncodesRegexValue) {
+  Message<google_firestore_v1_Value> model = Regex("^foo", "i");
+
+  v1::Value inner_map_proto;
+  google::protobuf::Map<std::string, v1::Value>* inner_fields =
+      inner_map_proto.mutable_map_value()->mutable_fields();
+  (*inner_fields)["pattern"] = ValueProto("^foo");
+  (*inner_fields)["options"] = ValueProto("i");
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__regex__"] = inner_map_proto;
+
+  ExpectRoundTrip(model, proto, TypeOrder::kRegex);
+}
+
+TEST_F(SerializerTest, EncodesInt32Value) {
+  Message<google_firestore_v1_Value> model = Int32(78);
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__int__"] = ValueProto(78);
+
+  ExpectRoundTrip(model, proto, TypeOrder::kNumber);
+}
+
+TEST_F(SerializerTest, EncodesBsonObjectId) {
+  Message<google_firestore_v1_Value> model = BsonObjectId("foo");
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__oid__"] = ValueProto("foo");
+
+  ExpectRoundTrip(model, proto, TypeOrder::kBsonObjectId);
+}
+
+TEST_F(SerializerTest, EncodesBsonTimestamp) {
+  Message<google_firestore_v1_Value> model = BsonTimestamp(123u, 456u);
+
+  v1::Value inner_map_proto;
+  google::protobuf::Map<std::string, v1::Value>* inner_fields =
+      inner_map_proto.mutable_map_value()->mutable_fields();
+  (*inner_fields)["seconds"] = ValueProto(123);
+  (*inner_fields)["increment"] = ValueProto(456);
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__request_timestamp__"] = inner_map_proto;
+
+  ExpectRoundTrip(model, proto, TypeOrder::kBsonTimestamp);
+}
+
+TEST_F(SerializerTest, EncodesBsonBinaryData) {
+  Message<google_firestore_v1_Value> model =
+      BsonBinaryData(128u, {0x1, 0x2, 0x3});
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  std::vector<uint8_t> concat{128, 1, 2, 3};
+  (*fields)["__binary__"] =
+      ValueProto(ByteString(concat.data(), concat.size()));
+
+  ExpectRoundTrip(model, proto, TypeOrder::kBsonBinaryData);
 }
 
 TEST_F(SerializerTest, EncodesVectorValue) {

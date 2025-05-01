@@ -198,6 +198,12 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   // SSL certs.
   NSString *project = [[NSProcessInfo processInfo] environment][@"PROJECT_ID"];
   NSString *targetBackend = [[NSProcessInfo processInfo] environment][@"TARGET_BACKEND"];
+
+  // Forcing use of nightly.
+  // TODO(types/ehsann): remove this before merging into main.
+  targetBackend = @"nightly";
+  project = @"firestore-sdk-nightly";
+
   NSString *host;
   if (targetBackend) {
     if ([targetBackend isEqualToString:@"emulator"]) {

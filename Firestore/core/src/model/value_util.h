@@ -57,25 +57,101 @@ extern pb_bytes_array_s* kVectorTypeFieldValue;
 extern const char* kRawVectorValueFieldKey;
 extern pb_bytes_array_s* kVectorValueFieldKey;
 
+/** The key of a MinKey in a map proto. */
+extern const char* kRawMinKeyTypeFieldValue;
+extern pb_bytes_array_s* kMinKeyTypeFieldValue;
+
+/** The key of a MaxKey in a map proto. */
+extern const char* kRawMaxKeyTypeFieldValue;
+extern pb_bytes_array_s* kMaxKeyTypeFieldValue;
+
+/** The key of a regex in a map proto. */
+extern const char* kRawRegexTypeFieldValue;
+extern pb_bytes_array_s* kRegexTypeFieldValue;
+
+/** The regex pattern key. */
+extern const char* kRawRegexTypePatternFieldValue;
+extern pb_bytes_array_s* kRegexTypePatternFieldValue;
+
+/** The regex options key. */
+extern const char* kRawRegexTypeOptionsFieldValue;
+extern pb_bytes_array_s* kRegexTypeOptionsFieldValue;
+
+/** The key of an int32 in a map proto. */
+extern const char* kRawInt32TypeFieldValue;
+extern pb_bytes_array_s* kInt32TypeFieldValue;
+
+/** The key of a BSON ObjectId in a map proto. */
+extern const char* kRawBsonObjectIdTypeFieldValue;
+extern pb_bytes_array_s* kBsonObjectIdTypeFieldValue;
+
+/** The key of a BSON Timestamp in a map proto. */
+extern const char* kRawBsonTimestampTypeFieldValue;
+extern pb_bytes_array_s* kBsonTimestampTypeFieldValue;
+
+/** The key of a BSON Timestamp seconds in a map proto. */
+extern const char* kRawBsonTimestampTypeSecondsFieldValue;
+extern pb_bytes_array_s* kBsonTimestampTypeSecondsFieldValue;
+
+/** The key of a BSON Timestamp increment in a map proto. */
+extern const char* kRawBsonTimestampTypeIncrementFieldValue;
+extern pb_bytes_array_s* kBsonTimestampTypeIncrementFieldValue;
+
+/** The key of a BSON Binary Data in a map proto. */
+extern const char* kRawBsonBinaryDataTypeFieldValue;
+extern pb_bytes_array_s* kBsonBinaryDataTypeFieldValue;
+
 /**
  * The order of types in Firestore. This order is based on the backend's
- * ordering, but modified to support server timestamps.
+ * ordering, but modified to support server timestamps and `MAX_VALUE` inside
+ * the SDK.
  */
 enum class TypeOrder {
   kNull = 0,
-  kBoolean = 1,
-  kNumber = 2,
-  kTimestamp = 3,
-  kServerTimestamp = 4,
-  kString = 5,
-  kBlob = 6,
-  kReference = 7,
-  kGeoPoint = 8,
-  kArray = 9,
-  kVector = 10,
-  kMap = 11,
-  kMaxValue = 12
+  kMinKey = 1,
+  kBoolean = 2,
+  // Note: all numbers (32-bit int, 64-bit int, 64-bit double, 128-bit decimal,
+  // etc.) are sorted together numerically. The `CompareNumbers` function
+  // distinguishes between different number types and compares them accordingly.
+  kNumber = 3,
+  kTimestamp = 4,
+  kBsonTimestamp = 5,
+  kServerTimestamp = 6,
+  kString = 7,
+  kBlob = 8,
+  kBsonBinaryData = 9,
+  kReference = 10,
+  kBsonObjectId = 11,
+  kGeoPoint = 12,
+  kRegex = 13,
+  kArray = 14,
+  kVector = 15,
+  kMap = 16,
+  kMaxKey = 17,
+  kMaxValue = 18
 };
+
+/**
+ * The type that a Map is used to represent.
+ * Most Maps are NORMAL maps, however, some maps are used to identify more
+ * complex types.
+ */
+enum class MapType {
+  kNormal = 0,
+  kServerTimestamp = 1,
+  kMaxValue = 2,
+  kVector = 3,
+  kMinKey = 4,
+  kMaxKey = 5,
+  kRegex = 6,
+  kInt32 = 7,
+  kBsonObjectId = 8,
+  kBsonTimestamp = 9,
+  kBsonBinaryData = 10
+};
+
+/** Returns the Map type for the given value. */
+MapType DetectMapType(const google_firestore_v1_Value& value);
 
 /** Returns the backend's type order of the given Value type. */
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value);
@@ -177,9 +253,47 @@ google_firestore_v1_Value MaxValue();
 bool IsMaxValue(const google_firestore_v1_Value& value);
 
 /**
- * Returns `true` if `value` represents a VectorValue..
+ * Returns `true` if `value` represents a VectorValue.
  */
 bool IsVectorValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a MinKey.
+ */
+bool IsMinKeyValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a MaxKey.
+ */
+bool IsMaxKeyValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a RegexValue.
+ */
+bool IsRegexValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents an Int32Value.
+ */
+bool IsInt32Value(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a BsonObjectId.
+ */
+bool IsBsonObjectId(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a BsonTimestamp.
+ */
+bool IsBsonTimestamp(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a BsonBinaryData.
+ */
+bool IsBsonBinaryData(const google_firestore_v1_Value& value);
+
+/** Returns true if `value` is a BSON Type. */
+bool IsBsonType(const google_firestore_v1_Value& value);
 
 /**
  * Returns the index of the specified key (`kRawTypeValueFieldKey`) in the
@@ -216,6 +330,14 @@ google_firestore_v1_Value MinBytes();
 google_firestore_v1_Value MinReference();
 
 google_firestore_v1_Value MinGeoPoint();
+
+google_firestore_v1_Value MinBsonBinaryData();
+
+google_firestore_v1_Value MinBsonObjectId();
+
+google_firestore_v1_Value MinBsonTimestamp();
+
+google_firestore_v1_Value MinRegex();
 
 google_firestore_v1_Value MinArray();
 
