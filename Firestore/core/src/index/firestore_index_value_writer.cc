@@ -19,6 +19,7 @@
 #include <cmath>
 #include <limits>
 #include <string>
+#include <vector>
 
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/value_util.h"

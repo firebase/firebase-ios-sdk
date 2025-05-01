@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRBsonBinaryData.h>
-#import <FirebaseFirestore/FIRBsonObjectId.h>
-#import <FirebaseFirestore/FIRBsonTimestamp.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
-#import <FirebaseFirestore/FIRInt32Value.h>
-#import <FirebaseFirestore/FIRRegexValue.h>
 #import <FirebaseFirestore/FIRVectorValue.h>
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 #import <XCTest/XCTest.h>
 
@@ -46,38 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual([deleted hash], [deleteDup hash]);
   XCTAssertEqual([serverTimestamp hash], [serverTimestamp hash]);
   XCTAssertNotEqual([deleted hash], [serverTimestamp hash]);
-}
-
-- (void)testCanCreateRegexValue {
-  FIRRegexValue *regex = [FIRFieldValue regexWithPattern:@"^foo" options:@"x"];
-  XCTAssertEqual(regex.pattern, @"^foo");
-  XCTAssertEqual(regex.options, @"x");
-}
-
-- (void)testCanCreateInt32Value {
-  FIRInt32Value *int1 = [FIRFieldValue int32WithValue:1234];
-  XCTAssertEqual(int1.value, 1234);
-
-  FIRInt32Value *int2 = [FIRFieldValue int32WithValue:-1234];
-  XCTAssertEqual(int2.value, -1234);
-}
-
-- (void)testCanCreateBsonObjectId {
-  FIRBsonObjectId *objectId = [FIRFieldValue bsonObjectIdWithValue:@"foo"];
-  XCTAssertEqual(objectId.value, @"foo");
-}
-
-- (void)testCanCreateBsonTimestamp {
-  FIRBsonTimestamp *timestamp = [FIRFieldValue bsonTimestampWithSeconds:123 increment:456];
-  XCTAssertEqual(timestamp.seconds, 123U);
-  XCTAssertEqual(timestamp.increment, 456U);
-}
-
-- (void)testCanCreateBsonBinaryData {
-  FIRBsonBinaryData *binData = [FIRFieldValue bsonBinaryDataWithSubtype:128
-                                                                   data:FSTTestData(1, 2, 3, -1)];
-  XCTAssertEqual(binData.subtype, 128);
-  XCTAssertTrue([binData.data isEqualToData:FSTTestData(1, 2, 3, -1)]);
 }
 
 @end
