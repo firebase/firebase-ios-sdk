@@ -71,7 +71,7 @@ struct CountTokensIntegrationTests {
 
   @Test(
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptDeveloperV1
+    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
   )
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -98,7 +98,7 @@ struct CountTokensIntegrationTests {
 
   @Test(arguments: [
     /* System instructions are not supported on the v1 Developer API. */
-    InstanceConfig.developerV1Spark,
+    InstanceConfig.googleAI_v1_freeTier_bypassProxy,
   ])
   func countTokens_text_systemInstruction_unsupported(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -120,7 +120,7 @@ struct CountTokensIntegrationTests {
 
   @Test(
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptDeveloperV1
+    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
   )
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(

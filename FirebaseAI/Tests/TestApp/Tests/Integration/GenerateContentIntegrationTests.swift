@@ -78,7 +78,7 @@ struct GenerateContentIntegrationTests {
   @Test(
     "Generate an enum and provide a system instruction",
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptDeveloperV1
+    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -118,9 +118,9 @@ struct GenerateContentIntegrationTests {
     // TODO(andrewheard): Vertex AI configs temporarily disabled to due empty SafetyRatings bug.
     // InstanceConfig.vertexV1,
     // InstanceConfig.vertexV1Beta,
-    InstanceConfig.developerV1Beta,
-    InstanceConfig.developerV1BetaStaging,
-    InstanceConfig.developerV1BetaSpark,
+    InstanceConfig.googleAI_v1beta,
+    InstanceConfig.googleAI_v1beta_staging,
+    InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
   ])
   func generateImage(_ config: InstanceConfig) async throws {
     let generationConfig = GenerationConfig(
@@ -216,12 +216,7 @@ struct GenerateContentIntegrationTests {
 
   // MARK: - App Check Tests
 
-  @Test(arguments: [
-    InstanceConfig.vertexV1AppCheckNotConfigured,
-    InstanceConfig.vertexV1BetaAppCheckNotConfigured,
-    // App Check is not supported on the Generative Language Developer API endpoint since it
-    // bypasses the Firebase AI SDK proxy.
-  ])
+  @Test(arguments: InstanceConfig.appCheckNotConfiguredConfigs)
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash
