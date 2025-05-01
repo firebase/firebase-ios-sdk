@@ -207,7 +207,7 @@ class VertexComponentTests: XCTestCase {
 
   func testModelResourceName_developerAPI_generativeLanguage() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let apiConfig = APIConfig(service: .googleAI(endpoint: .geminiDeveloperDirect), version: .v1beta)
+    let apiConfig = APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
     let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
 

@@ -65,7 +65,7 @@ final class APIConfigTests: XCTestCase {
   }
 
   func testInitialize_developer_generativeLanguage_v1beta() {
-    let apiConfig = APIConfig(service: .googleAI(endpoint: .geminiDeveloperDirect), version: .v1beta)
+    let apiConfig = APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
 
     XCTAssertEqual(apiConfig.service.endpoint.rawValue, "https://generativelanguage.googleapis.com")
     XCTAssertEqual(apiConfig.version.rawValue, "v1beta")

@@ -85,7 +85,7 @@ extension APIConfig.Service {
     ///
     /// This bypasses the Firebase proxy and directly connects to the Gemini Developer API
     /// (Google AI) backend. This endpoint only supports the Gemini Developer API, not Vertex AI.
-    case geminiDeveloperDirect = "https://generativelanguage.googleapis.com"
+    case googleAIBypassProxy = "https://generativelanguage.googleapis.com"
   }
 }
 

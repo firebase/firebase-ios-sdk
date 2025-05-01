@@ -236,7 +236,7 @@ public final class FirebaseAI: Sendable {
     case .firebaseProxyStaging, .firebaseProxyProd:
       let projectID = firebaseInfo.projectID
       return "projects/\(projectID)/models/\(modelName)"
-    case .geminiDeveloperDirect:
+    case .googleAIBypassProxy:
       return "models/\(modelName)"
     }
   }
