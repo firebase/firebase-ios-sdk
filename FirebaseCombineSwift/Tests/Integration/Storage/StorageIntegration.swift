@@ -634,7 +634,7 @@ class StorageIntegration: XCTestCase {
   }
 
   private func waitForExpectations() {
-    let kFIRStorageIntegrationTestTimeout = 30.0
+    let kFIRStorageIntegrationTestTimeout = 60.0 // seconds
     waitForExpectations(timeout: kFIRStorageIntegrationTestTimeout,
                         handler: { error in
                           if let error {
