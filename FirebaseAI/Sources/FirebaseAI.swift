@@ -20,7 +20,7 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
 
-/// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
+/// The Firebase AI SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
@@ -95,7 +95,7 @@ public final class FirebaseAI: Sendable {
 
   /// **[Public Preview]** Initializes an ``ImagenModel`` with the given parameters.
   ///
-  /// > Warning: For Vertex AI in Firebase, image generation using Imagen 3 models is in Public
+  /// > Warning: For Firebase AI SDK, image generation using Imagen 3 models is in Public
   /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
   /// could change in backwards-incompatible ways.
   ///
@@ -129,32 +129,23 @@ public final class FirebaseAI: Sendable {
     )
   }
 
-  /// Class to enable VertexAI to register via the Objective-C based Firebase component system
-  /// to include VertexAI in the userAgent.
+  /// Class to enable FirebaseAI to register via the Objective-C based Firebase component system
+  /// to include FirebaseAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
 
   // MARK: - Private
 
-  /// Firebase data relevant to Vertex AI.
+  /// Firebase data relevant to Firebase AI.
   let firebaseInfo: FirebaseInfo
 
   let apiConfig: APIConfig
 
-  #if compiler(>=6)
-    /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
-    /// the format `appName:location`.
-    private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
+  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp` name and the `location`,
+  /// in the format `appName:location`.
+  private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
 
-    /// Lock to manage access to the `instances` array to avoid race conditions.
-    private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
-  #else
-    /// A map of active  `VertexAI` instances keyed by the `FirebaseApp` name and the `location`, in
-    /// the format `appName:location`.
-    private static var instances: [InstanceKey: VertexAI] = [:]
-
-    /// Lock to manage access to the `instances` array to avoid race conditions.
-    private static var instancesLock: os_unfair_lock = .init()
-  #endif
+  /// Lock to manage access to the `instances` array to avoid race conditions.
+  private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
 
   let location: String?
 
@@ -225,7 +216,7 @@ public final class FirebaseAI: Sendable {
 
   private func vertexAIModelResourceName(modelName: String) -> String {
     guard let location else {
-      fatalError("Location must be specified for the Vertex AI service.")
+      fatalError("Location must be specified for the Firebase AI service.")
     }
     guard !location.isEmpty && location
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
@@ -250,7 +241,7 @@ public final class FirebaseAI: Sendable {
     }
   }
 
-  /// Identifier for a unique instance of ``VertexAI``.
+  /// Identifier for a unique instance of ``FirebaseAI``.
   ///
   /// This type is `Hashable` so that it can be used as a key in the `instances` dictionary.
   private struct InstanceKey: Sendable, Hashable {

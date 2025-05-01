@@ -68,9 +68,10 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 }
 
 - (void)test_notSettingSessionID_protoHasNilSessionID {
-  [self.contextManager setupContextWithReport:self.report
-                                     settings:self.mockSettings
-                                  fileManager:self.fileManager];
+  FBLPromiseAwait([self.contextManager setupContextWithReport:self.report
+                                                     settings:self.mockSettings
+                                                  fileManager:self.fileManager],
+                  nil);
 
   FIRCLSReportAdapter *adapter = [[FIRCLSReportAdapter alloc] initWithPath:self.report.path
                                                                googleAppId:@"TestGoogleAppID"
@@ -84,9 +85,10 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 - (void)test_settingSessionIDMultipleTimes_protoHasLastSessionID {
   [self.contextManager setAppQualitySessionId:TestContextSessionID];
 
-  [self.contextManager setupContextWithReport:self.report
-                                     settings:self.mockSettings
-                                  fileManager:self.fileManager];
+  FBLPromiseAwait([self.contextManager setupContextWithReport:self.report
+                                                     settings:self.mockSettings
+                                                  fileManager:self.fileManager],
+                  nil);
 
   [self.contextManager setAppQualitySessionId:TestContextSessionID2];
 
@@ -101,9 +103,10 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 }
 
 - (void)test_settingSessionIDOutOfOrder_protoHasLastSessionID {
-  [self.contextManager setupContextWithReport:self.report
-                                     settings:self.mockSettings
-                                  fileManager:self.fileManager];
+  FBLPromiseAwait([self.contextManager setupContextWithReport:self.report
+                                                     settings:self.mockSettings
+                                                  fileManager:self.fileManager],
+                  nil);
 
   [self.contextManager setAppQualitySessionId:TestContextSessionID];
 

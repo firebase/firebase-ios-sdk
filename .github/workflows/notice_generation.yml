@@ -2,6 +2,7 @@ name: generate_notices
 
 permissions:
   pull-requests: write
+  contents: write
 
 on:
   pull_request:

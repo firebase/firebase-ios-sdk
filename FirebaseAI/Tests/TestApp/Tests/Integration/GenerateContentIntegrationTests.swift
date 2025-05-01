@@ -115,10 +115,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    InstanceConfig.vertexV1Beta,
-    // TODO(andrewheard): Configs temporarily disabled due to backend issue.
-    // InstanceConfig.developerV1Beta,
-    // InstanceConfig.developerV1BetaStaging
+    // TODO(andrewheard): Vertex AI configs temporarily disabled to due empty SafetyRatings bug.
+    // InstanceConfig.vertexV1,
+    // InstanceConfig.vertexV1Beta,
+    InstanceConfig.developerV1Beta,
+    InstanceConfig.developerV1BetaStaging,
     InstanceConfig.developerV1BetaSpark,
   ])
   func generateImage(_ config: InstanceConfig) async throws {
@@ -219,7 +220,7 @@ struct GenerateContentIntegrationTests {
     InstanceConfig.vertexV1AppCheckNotConfigured,
     InstanceConfig.vertexV1BetaAppCheckNotConfigured,
     // App Check is not supported on the Generative Language Developer API endpoint since it
-    // bypasses the Vertex AI in Firebase proxy.
+    // bypasses the Firebase AI SDK proxy.
   ])
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(

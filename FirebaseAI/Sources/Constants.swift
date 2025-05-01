@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// Constants associated with the Vertex AI for Firebase SDK.
+/// Constants associated with the Firebase AI SDK.
 enum Constants {
   /// The base reverse-DNS name for `NSError` or `CustomNSError` error domains.
   ///
