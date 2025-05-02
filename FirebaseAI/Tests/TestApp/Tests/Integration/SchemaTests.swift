@@ -25,8 +25,8 @@ import VertexAITestApp
 
 @testable import struct FirebaseAI.BackendError
 
-@Suite(.serialized)
 /// Test the schema fields.
+@Suite(.serialized)
 struct SchemaTests {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
   let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
