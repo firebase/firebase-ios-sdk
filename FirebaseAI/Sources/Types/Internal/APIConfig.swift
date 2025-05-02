@@ -40,7 +40,7 @@ extension APIConfig {
   /// differences](https://cloud.google.com/vertex-ai/generative-ai/docs/overview#how-gemini-vertex-different-gemini-aistudio)
   /// for a comparison of the two [API services](https://google.aip.dev/9#api-service).
   enum Service: Hashable, Encodable {
-    /// The Gemini Enterprise API provided by Vertex AI.
+    /// Vertex AI Gemini API.
     ///
     /// See the [Cloud
     /// docs](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference) for
