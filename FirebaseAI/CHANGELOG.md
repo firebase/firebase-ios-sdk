@@ -1,6 +1,6 @@
 # Unreleased
 - [added] Add support for the Gemini Developer API, enabling usage in a free tier, and add new `AI`
-  API to accomodate new product naming. Going forward, `FirebaseAI` should to reference this
+  API to accomodate new product naming. Going forward, `FirebaseAI` should reference this
   package and its top-level class.
 - [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
   omitted; this occurs when the count is 0. (#14745)
