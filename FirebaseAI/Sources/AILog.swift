@@ -25,7 +25,7 @@ enum AILog {
   /// being truncated in log messages.
   enum MessageCode: Int {
     // Logging Configuration
-    case verboseLoggingDisabled = 100
+     case verboseLoggingDisabled = 100
     case verboseLoggingEnabled = 101
 
     // API Enablement Errors
