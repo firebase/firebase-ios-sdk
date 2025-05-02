@@ -321,14 +321,13 @@ case "$product-$platform-$method" in
     fi
     ;;
 
-  # TODO(ncooke3): Avoids 18.4 failures. Remove -sdk and -destination flags and replace with "${xcb_flags[@]}"
   CombineSwift-*-xcodebuild)
     pod_gen FirebaseCombineSwift.podspec --platforms=ios
     RunXcodebuild \
       -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
       -scheme "FirebaseCombineSwift-Unit-unit" \
-      -sdk 'iphonesimulator' \
-      -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+      "${xcb_flags[@]}" \
+      build \
       test
     ;;
 
