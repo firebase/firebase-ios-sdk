@@ -461,7 +461,8 @@ enum FunctionsConstants {
                             options: HTTPSCallableOptions?,
                             timeout: TimeInterval,
                             context: FunctionsContext,
-                            completion: @escaping @MainActor (Result<HTTPSCallableResult, Error>) -> Void) {
+                            completion: @escaping @MainActor (Result<HTTPSCallableResult, Error>)
+                              -> Void) {
     let fetcher: GTMSessionFetcher
     do {
       fetcher = try makeFetcher(
