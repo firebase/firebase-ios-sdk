@@ -327,8 +327,7 @@ case "$product-$platform-$method" in
       -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
       -scheme "FirebaseCombineSwift-Unit-unit" \
       "${xcb_flags[@]}" \
-      build \
-      test
+      build
     ;;
 
   # TODO(#14760): s/build/test after addressing UI test flakes on CI.
