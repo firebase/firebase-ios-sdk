@@ -21,7 +21,7 @@ import VertexAITestApp
 
 @testable import struct FirebaseAI.APIConfig
 
-@Suite(.serialized)
+@Suite(.serialized, .ignoreBackendOverloaded)
 struct CountTokensIntegrationTests {
   let generationConfig = GenerationConfig(
     temperature: 1.2,

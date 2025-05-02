@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8603266C2DC5671C00C2BCFA /* IgnoreBackendOverloadedTrait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8603266B2DC5671C00C2BCFA /* IgnoreBackendOverloadedTrait.swift */; };
 		862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */; };
 		864F8F712D4980DD0002EA7E /* ImagenIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864F8F702D4980D60002EA7E /* ImagenIntegrationTests.swift */; };
 		8661385C2CC943DD00F4B78E /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661385B2CC943DD00F4B78E /* TestApp.swift */; };
@@ -42,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8603266B2DC5671C00C2BCFA /* IgnoreBackendOverloadedTrait.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IgnoreBackendOverloadedTrait.swift; sourceTree = "<group>"; };
 		862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTestUtils.swift; sourceTree = "<group>"; };
 		864F8F702D4980D60002EA7E /* ImagenIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagenIntegrationTests.swift; sourceTree = "<group>"; };
 		866138582CC943DD00F4B78E /* VertexAITestApp-SPM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "VertexAITestApp-SPM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -164,6 +166,7 @@
 		8698D7442CD3CEF700ABA833 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				8603266B2DC5671C00C2BCFA /* IgnoreBackendOverloadedTrait.swift */,
 				86D77E032D7B6C95003D155D /* InstanceConfig.swift */,
 				862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */,
 			);
@@ -297,6 +300,7 @@
 				86D77E042D7B6C9D003D155D /* InstanceConfig.swift in Sources */,
 				DEF0BB512DA9B7450093E9F4 /* SchemaTests.swift in Sources */,
 				DEF0BB4F2DA74F680093E9F4 /* TestHelpers.swift in Sources */,
+				8603266C2DC5671C00C2BCFA /* IgnoreBackendOverloadedTrait.swift in Sources */,
 				868A7C4F2CCC229F00E449DD /* Credentials.swift in Sources */,
 				864F8F712D4980DD0002EA7E /* ImagenIntegrationTests.swift in Sources */,
 				862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */,

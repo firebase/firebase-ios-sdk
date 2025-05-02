@@ -25,7 +25,7 @@ import VertexAITestApp
 
 @testable import struct FirebaseAI.BackendError
 
-@Suite(.serialized)
+@Suite(.serialized, .ignoreBackendOverloaded)
 struct GenerateContentIntegrationTests {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
   let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
@@ -116,8 +116,8 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     // TODO(andrewheard): Vertex AI configs temporarily disabled to due empty SafetyRatings bug.
-    // InstanceConfig.vertexV1,
-    // InstanceConfig.vertexV1Beta,
+    // InstanceConfig.vertexAI_v1,
+    // InstanceConfig.vertexAI_v1beta,
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.googleAI_v1beta_staging,
     InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
@@ -136,17 +136,8 @@ struct GenerateContentIntegrationTests {
     )
     let prompt = "Generate an image of a cute cartoon kitten playing with a ball of yarn."
 
-    var response: GenerateContentResponse?
-    try await withKnownIssue(
-      "Backend may fail with a 503 - Service Unavailable error when overloaded",
-      isIntermittent: true
-    ) {
-      response = try await model.generateContent(prompt)
-    } matching: { issue in
-      (issue.error as? BackendError).map { $0.httpResponseCode == 503 } ?? false
-    }
+    let response = try await model.generateContent(prompt)
 
-    guard let response else { return }
     let candidate = try #require(response.candidates.first)
     let inlineDataPart = try #require(candidate.content.parts
       .first { $0 is InlineDataPart } as? InlineDataPart)
