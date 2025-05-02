@@ -77,7 +77,8 @@ open class HTTPSCallable: NSObject {
   ///   - completion: The block to call when the HTTPS request has completed.
   @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
                                                    completion: @escaping @MainActor (HTTPSCallableResult?,
-                                                                          Error?) -> Void) {
+                                                                                     Error?)
+                                                     -> Void) {
     if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
       Task {
         do {
