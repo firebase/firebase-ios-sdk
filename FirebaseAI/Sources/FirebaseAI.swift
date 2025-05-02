@@ -45,7 +45,7 @@ public final class FirebaseAI: Sendable {
     assert(instance.apiConfig.service.endpoint == .firebaseProxyProd)
     assert(instance.apiConfig.version == .v1beta)
     return instance
-                           }   // Test style issue
+  }
 
   /// Initializes a generative model with the given parameters.
   ///
