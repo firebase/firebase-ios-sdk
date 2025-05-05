@@ -19,26 +19,14 @@
 set -xeuo pipefail
 
 SAMPLE=$1
+XCODEPROJ=${SAMPLE}/${SAMPLE}Example.xcodeproj/project.pbxproj
+echo "before"
+echo ${BRANCH_NAME}
+echo "after"
 
-scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-root_dir="$(dirname "$scripts_dir")"
-
-$scripts_dir/setup_bundler.sh
-
-# Source function to check if CI secrets are available.
-# source $scripts_dir/check_secrets.sh
-
-#WORKSPACE_DIR="quickstart-ios/${SAMPLE}"
-
-gem install xcpretty
-
-git clone https://github.com/firebase/quickstart-ios.git
-
-cd quickstart-ios
-
-source $scripts_dir/quickstart_spm_xcodeproj.sh ${SAMPLE}
-
-# Placeholder GoogleService-Info.plist good enough for build only testing.
-cp ./mock-GoogleService-Info.plist ./firebaseai/GoogleService-Info.plist
-
-SAMPLE=$1 DIR=$1 SPM="true" TEST="false" ./scripts/test.sh
+if grep -q "branch = main;" ${XCODEPROJ}; then 
+  sed -i '' 's#branch = main;#branch = ${BRANCH_NAME};#' ${XCODEPROJ}
+else
+  echo "Failed to update quickstart's Xcode project to the current branch"
+  exit 1
+fi

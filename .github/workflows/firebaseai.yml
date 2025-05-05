@@ -5,6 +5,7 @@ on:
     paths:
     - 'FirebaseAI**'
     - '.github/workflows/firebaseai.yml'
+    - 'scripts/quickstart_build_spm.sh'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -162,3 +163,13 @@ jobs:
       run: sed -i "" "s#s.swift_version = '5.9'#s.swift_version = '${{ matrix.swift_version}}'#" FirebaseAI.podspec
     - name: Build and test
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAI.podspec --platforms=${{ matrix.target }} ${{ matrix.warnings }}
+
+  quickstart:
+    # Verifies the quickstart builds with this PR. Only run on pulls where branch is available.
+    if: github.event_name == 'pull_request'
+    runs-on: macos-15
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+    steps:
+    - name: Build Quickstart
+      run: scripts/quickstart_build_spm.sh FirebaseAI
