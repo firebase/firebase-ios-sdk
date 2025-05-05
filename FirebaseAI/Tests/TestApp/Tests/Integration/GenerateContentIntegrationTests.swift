@@ -115,9 +115,8 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    // TODO(andrewheard): Vertex AI configs temporarily disabled to due empty SafetyRatings bug.
-    // InstanceConfig.vertexV1,
-    // InstanceConfig.vertexV1Beta,
+    InstanceConfig.vertexAI_v1,
+    InstanceConfig.vertexAI_v1beta,
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.googleAI_v1beta_staging,
     InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
