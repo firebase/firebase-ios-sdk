@@ -399,6 +399,25 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(text, "The sum of [1, 2, 3] is")
   }
 
+  func testGenerateContent_success_image_invalidSafetyRatings() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-image-invalid-safety-ratings",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 1)
+    let inlineDataParts = response.inlineDataParts
+    XCTAssertEqual(inlineDataParts.count, 1)
+    let imagePart = try XCTUnwrap(inlineDataParts.first)
+    XCTAssertEqual(imagePart.mimeType, "image/png")
+    XCTAssertGreaterThan(imagePart.data.count, 0)
+  }
+
   func testGenerateContent_appCheck_validToken() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
