@@ -20,9 +20,6 @@ set -xeuo pipefail
 
 SAMPLE=$1
 XCODEPROJ=${SAMPLE}/${SAMPLE}Example.xcodeproj/project.pbxproj
-echo "before"
-echo ${BRANCH_NAME}
-echo "after"
 
 if grep -q "branch = main;" ${XCODEPROJ}; then
   sed -i "" "s#branch = main;#branch = $BRANCH_NAME;#" ${XCODEPROJ}

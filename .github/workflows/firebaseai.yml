@@ -169,7 +169,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: macos-15
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
     steps:
     - uses: actions/checkout@v4
     - name: Build Quickstart
