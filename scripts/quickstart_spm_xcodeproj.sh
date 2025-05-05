@@ -25,7 +25,7 @@ echo ${BRANCH_NAME}
 echo "after"
 
 if grep -q "branch = main;" ${XCODEPROJ}; then
-  sed -i '' 's#branch = main;#branch = ${BRANCH_NAME};#' ${XCODEPROJ}
+  sed -i "" "s#branch = main;#branch = $BRANCH_NAME;#" ${XCODEPROJ}
 else
   echo "Failed to update quickstart's Xcode project to the current branch"
   exit 1
