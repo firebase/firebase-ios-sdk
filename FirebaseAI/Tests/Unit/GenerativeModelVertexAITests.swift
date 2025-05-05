@@ -20,7 +20,7 @@ import XCTest
 @testable import FirebaseAI
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class GenerativeModelTests: XCTestCase {
+final class GenerativeModelVertexAITests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let safetyRatingsNegligible: [SafetyRating] = [
     .init(
