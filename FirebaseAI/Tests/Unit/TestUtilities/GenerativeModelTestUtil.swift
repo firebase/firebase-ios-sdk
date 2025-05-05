@@ -85,24 +85,25 @@ enum GenerativeModelTestUtil {
   )) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
-#if os(watchOS)
-    throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
-#endif // os(watchOS)
-    return { request in
-      // This is *not* an HTTPURLResponse
-      let response = URLResponse(
-        url: request.url!,
-        mimeType: nil,
-        expectedContentLength: 0,
-        textEncodingName: nil
-      )
-      return (response, nil)
-    }
+    #if os(watchOS)
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    #else // os(watchOS)
+      return { request in
+        // This is *not* an HTTPURLResponse
+        let response = URLResponse(
+          url: request.url!,
+          mimeType: nil,
+          expectedContentLength: 0,
+          textEncodingName: nil
+        )
+        return (response, nil)
+      }
+    #endif // os(watchOS)
   }
 
   static func testFirebaseInfo(appCheck: AppCheckInterop? = nil,
-                                auth: AuthInterop? = nil,
-                                privateAppID: Bool = false) -> FirebaseInfo {
+                               auth: AuthInterop? = nil,
+                               privateAppID: Bool = false) -> FirebaseInfo {
     let app = FirebaseApp(instanceWithName: "testApp",
                           options: FirebaseOptions(googleAppID: "ignore",
                                                    gcmSenderID: "ignore"))
