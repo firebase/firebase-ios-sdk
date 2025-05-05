@@ -31,7 +31,8 @@ import VertexAITestApp
     if: ProcessInfo.processInfo.environment["VTXIntegrationImagen"] != nil,
     "Only runs if the environment variable VTXIntegrationImagen is set."
   ),
-  .serialized
+  .serialized,
+  .ignoreBackendOverloaded
 )
 struct ImagenIntegrationTests {
   var vertex: FirebaseAI
