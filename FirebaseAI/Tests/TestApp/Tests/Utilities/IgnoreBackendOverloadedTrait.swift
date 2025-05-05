@@ -30,6 +30,12 @@ struct IgnoreBackendOverloadedTrait: TestTrait, SuiteTrait, TestScoping {
     } matching: { issue in
       if case let .internalError(error as BackendError) = issue.error as? GenerateContentError,
          error.isServiceUnavailable {
+        if let sourceLocation = issue.sourceLocation {
+          print("""
+          ::error file={\(sourceLocation.fileName)},line={\(sourceLocation.line)},\
+          title={Ignored Backend Overloaded Error}::{\(issue.description)}
+          """)
+        }
         return true
       } else if let error = issue.error as? BackendError, error.isServiceUnavailable {
         return true
