@@ -150,7 +150,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "8.0.0" ..< "9.0.0"
+      "8.1.0" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -208,7 +208,7 @@ let package = Package(
       ],
       path: "FirebaseAI/Tests/Unit",
       resources: [
-        .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
+        .copy("vertexai-sdk-test-data/mock-responses"),
         .process("Resources"),
       ],
       cSettings: [

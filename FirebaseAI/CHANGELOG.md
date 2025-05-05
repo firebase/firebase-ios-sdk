@@ -6,6 +6,9 @@
   module and use the top-level `FirebaseAI` class.
 - [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
   omitted; this occurs when the count is 0. (#14745)
+- [fixed] Fixed `Candidate` decoding when `SafetyRating` values are missing a
+  category or probability; this may occur when using `gemini-2.0-flash-exp` for
+  image generation. (#14817)
 
 # 11.12.0
 - [added] **Public Preview**: Added support for specifying response modalities

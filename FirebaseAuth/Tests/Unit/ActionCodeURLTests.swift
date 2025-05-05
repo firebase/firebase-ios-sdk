@@ -18,7 +18,6 @@ import XCTest
 
 /// Unit tests for ActionCodeURL
 class ActionCodeURLTests: XCTestCase {
-
   /// Tests parsing a valid URL with resetPassword mode.
   func testParseURL() {
     let urlString = "https://www.example.com?apiKey=API_KEY&mode=resetPassword&oobCode=OOB_CODE"

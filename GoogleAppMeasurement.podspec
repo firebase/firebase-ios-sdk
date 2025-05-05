@@ -28,10 +28,10 @@ Pod::Spec.new do |s|
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.0'
-    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.0'
-    s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'
-    s.dependency 'GoogleUtilities/Network', '~> 8.0'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
+    s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
+    s.dependency 'GoogleUtilities/Network', '~> 8.1'
     s.dependency 'nanopb', '~> 3.30910.0'
 
     s.default_subspecs = 'AdIdSupport'
