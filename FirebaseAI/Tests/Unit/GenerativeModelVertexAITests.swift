@@ -56,6 +56,41 @@ final class GenerativeModelVertexAITests: XCTestCase {
       blocked: false
     ),
   ].sorted()
+  let safetyRatingsInvalidIgnored = [
+    SafetyRating(
+      category: .hateSpeech,
+      probability: .negligible,
+      probabilityScore: 0.00039444832,
+      severity: .negligible,
+      severityScore: 0.0,
+      blocked: false
+    ),
+    SafetyRating(
+      category: .dangerousContent,
+      probability: .negligible,
+      probabilityScore: 0.0010654529,
+      severity: .negligible,
+      severityScore: 0.0049325973,
+      blocked: false
+    ),
+    SafetyRating(
+      category: .harassment,
+      probability: .negligible,
+      probabilityScore: 0.00026658305,
+      severity: .negligible,
+      severityScore: 0.0,
+      blocked: false
+    ),
+    SafetyRating(
+      category: .sexuallyExplicit,
+      probability: .negligible,
+      probabilityScore: 0.0013701695,
+      severity: .negligible,
+      severityScore: 0.07626295,
+      blocked: false
+    ),
+    // Ignored Invalid Safety Ratings: {},{},{},{}
+  ].sorted()
   let testModelName = "test-model"
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
@@ -397,6 +432,26 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(functionCalls.count, 2)
     let text = try XCTUnwrap(response.text)
     XCTAssertEqual(text, "The sum of [1, 2, 3] is")
+  }
+
+  func testGenerateContent_success_image_invalidSafetyRatingsIgnored() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-image-invalid-safety-ratings",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 1)
+    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsInvalidIgnored)
+    let inlineDataParts = response.inlineDataParts
+    XCTAssertEqual(inlineDataParts.count, 1)
+    let imagePart = try XCTUnwrap(inlineDataParts.first)
+    XCTAssertEqual(imagePart.mimeType, "image/png")
+    XCTAssertGreaterThan(imagePart.data.count, 0)
   }
 
   func testGenerateContent_appCheck_validToken() async throws {
@@ -1118,7 +1173,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       responses += 1
     }
 
-    XCTAssertEqual(responses, 6)
+    XCTAssertEqual(responses, 4)
   }
 
   func testGenerateContentStream_successBasicReplyShort() async throws {
@@ -1218,6 +1273,31 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertFalse(citations.contains { $0.uri?.isEmpty ?? false })
     XCTAssertFalse(citations.contains { $0.title?.isEmpty ?? false })
     XCTAssertFalse(citations.contains { $0.license?.isEmpty ?? false })
+  }
+
+  func testGenerateContentStream_successWithInvalidSafetyRatingsIgnored() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-image-invalid-safety-ratings",
+      withExtension: "txt",
+      subdirectory: vertexSubdirectory
+    )
+
+    let stream = try model.generateContentStream(testPrompt)
+    var responses = [GenerateContentResponse]()
+    for try await content in stream {
+      responses.append(content)
+    }
+
+    let response = try XCTUnwrap(responses.first)
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.safetyRatings.sorted(), safetyRatingsInvalidIgnored)
+    XCTAssertEqual(candidate.content.parts.count, 1)
+    let inlineDataParts = response.inlineDataParts
+    XCTAssertEqual(inlineDataParts.count, 1)
+    let imagePart = try XCTUnwrap(inlineDataParts.first)
+    XCTAssertEqual(imagePart.mimeType, "image/png")
+    XCTAssertGreaterThan(imagePart.data.count, 0)
   }
 
   func testGenerateContentStream_appCheck_validToken() async throws {
