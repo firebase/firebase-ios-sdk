@@ -381,10 +381,14 @@ extension Candidate: Decodable {
     }
 
     if let safetyRatings = try container.decodeIfPresent(
-      [SafetyRating].self,
-      forKey: .safetyRatings
+      [SafetyRating].self, forKey: .safetyRatings
     ) {
-      self.safetyRatings = safetyRatings
+      self.safetyRatings = safetyRatings.filter {
+        // Due to a bug in the backend, the SDK may receive invalid `SafetyRating` values that do
+        // not include a category or probability; these are filtered out of the safety ratings.
+        $0.category != HarmCategory.unspecified
+          && $0.probability != SafetyRating.HarmProbability.unspecified
+      }
     } else {
       safetyRatings = []
     }
