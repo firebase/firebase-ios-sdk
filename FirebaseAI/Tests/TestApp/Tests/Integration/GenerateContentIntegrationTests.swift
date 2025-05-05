@@ -48,19 +48,6 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
-  func foo(_ config: InstanceConfig) async throws {
-    throw GenerateContentError
-      .internalError(
-        underlying: BackendError(
-          httpResponseCode: 503,
-          message: "Backend Overloaded",
-          status: .unavailable,
-          details: []
-        )
-      )
-  }
-
-  @Test(arguments: InstanceConfig.allConfigs)
   func generateContent(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
