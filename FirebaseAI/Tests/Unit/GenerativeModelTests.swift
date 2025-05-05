@@ -73,7 +73,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -280,7 +280,7 @@ final class GenerativeModelTests: XCTestCase {
     let model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -404,7 +404,9 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        appCheck: AppCheckInteropFake(token: appCheckToken)
+      ),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -426,8 +428,9 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken),
-                                     privateAppID: true),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        appCheck: AppCheckInteropFake(token: appCheckToken), privateAppID: true
+      ),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -449,7 +452,9 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        appCheck: AppCheckInteropFake(error: AppCheckErrorFake())
+      ),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -471,7 +476,9 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: authToken)),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        auth: AuthInteropFake(token: authToken)
+      ),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -492,7 +499,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(token: nil)),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(auth: AuthInteropFake(token: nil)),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -513,7 +520,9 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(auth: AuthInteropFake(error: AuthErrorFake())),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        auth: AuthInteropFake(error: AuthErrorFake())
+      ),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -798,7 +807,7 @@ final class GenerativeModelTests: XCTestCase {
   }
 
   func testGenerateContent_failure_nonHTTPResponse() async throws {
-    MockURLProtocol.requestHandler = try nonHTTPRequestHandler()
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.nonHTTPRequestHandler()
 
     var responseError: Error?
     var content: GenerateContentResponse?
@@ -911,7 +920,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
@@ -1216,7 +1225,9 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(token: appCheckToken)),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        appCheck: AppCheckInteropFake(token: appCheckToken)
+      ),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -1238,7 +1249,9 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(appCheck: AppCheckInteropFake(error: AppCheckErrorFake())),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        appCheck: AppCheckInteropFake(error: AppCheckErrorFake())
+      ),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -1310,7 +1323,7 @@ final class GenerativeModelTests: XCTestCase {
   }
 
   func testGenerateContentStream_nonHTTPResponse() async throws {
-    MockURLProtocol.requestHandler = try nonHTTPRequestHandler()
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.nonHTTPRequestHandler()
 
     let stream = try model.generateContentStream("Hi")
     do {
@@ -1389,7 +1402,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
@@ -1466,7 +1479,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
       apiConfig: apiConfig,
       generationConfig: generationConfig,
       tools: [Tool(functionDeclarations: [sumFunction])],
@@ -1527,7 +1540,7 @@ final class GenerativeModelTests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
@@ -1538,97 +1551,7 @@ final class GenerativeModelTests: XCTestCase {
 
     XCTAssertEqual(response.totalTokens, 6)
   }
-
-  // MARK: - Helpers
-
-  private func testFirebaseInfo(appCheck: AppCheckInterop? = nil,
-                                auth: AuthInterop? = nil,
-                                privateAppID: Bool = false) -> FirebaseInfo {
-    let app = FirebaseApp(instanceWithName: "testApp",
-                          options: FirebaseOptions(googleAppID: "ignore",
-                                                   gcmSenderID: "ignore"))
-    app.isDataCollectionDefaultEnabled = !privateAppID
-    return FirebaseInfo(
-      appCheck: appCheck,
-      auth: auth,
-      projectID: "my-project-id",
-      apiKey: "API_KEY",
-      firebaseAppID: "My app ID",
-      firebaseApp: app
-    )
-  }
-
-  private func nonHTTPRequestHandler() throws -> ((URLRequest) -> (
-    URLResponse,
-    AsyncLineSequence<URL.AsyncBytes>?
-  )) {
-    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
-    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
-    #if os(watchOS)
-      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
-    #endif // os(watchOS)
-    return { request in
-      // This is *not* an HTTPURLResponse
-      let response = URLResponse(
-        url: request.url!,
-        mimeType: nil,
-        expectedContentLength: 0,
-        textEncodingName: nil
-      )
-      return (response, nil)
-    }
-  }
 }
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-class AppCheckInteropFake: NSObject, AppCheckInterop {
-  /// The placeholder token value returned when an error occurs
-  static let placeholderTokenValue = "placeholder-token"
-
-  var token: String
-  var error: Error?
-
-  private init(token: String, error: Error?) {
-    self.token = token
-    self.error = error
-  }
-
-  convenience init(token: String) {
-    self.init(token: token, error: nil)
-  }
-
-  convenience init(error: Error) {
-    self.init(token: AppCheckInteropFake.placeholderTokenValue, error: error)
-  }
-
-  func getToken(forcingRefresh: Bool) async -> any FIRAppCheckTokenResultInterop {
-    return AppCheckTokenResultInteropFake(token: token, error: error)
-  }
-
-  func tokenDidChangeNotificationName() -> String {
-    fatalError("\(#function) not implemented.")
-  }
-
-  func notificationTokenKey() -> String {
-    fatalError("\(#function) not implemented.")
-  }
-
-  func notificationAppNameKey() -> String {
-    fatalError("\(#function) not implemented.")
-  }
-
-  private class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop {
-    var token: String
-    var error: Error?
-
-    init(token: String, error: Error?) {
-      self.token = token
-      self.error = error
-    }
-  }
-}
-
-struct AppCheckErrorFake: Error {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Swift.Comparable {

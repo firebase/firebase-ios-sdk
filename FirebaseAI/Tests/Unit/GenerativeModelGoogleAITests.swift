@@ -72,7 +72,7 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
-      firebaseInfo: testFirebaseInfo(),
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
@@ -388,24 +388,5 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(firstResponse.text, "text1")
     let lastResponse = try XCTUnwrap(responses.last)
     XCTAssertEqual(lastResponse.text, "text8")
-  }
-
-  // MARK: - Helpers
-
-  private func testFirebaseInfo(appCheck: AppCheckInterop? = nil,
-                                auth: AuthInterop? = nil,
-                                privateAppID: Bool = false) -> FirebaseInfo {
-    let app = FirebaseApp(instanceWithName: "testApp",
-                          options: FirebaseOptions(googleAppID: "ignore",
-                                                   gcmSenderID: "ignore"))
-    app.isDataCollectionDefaultEnabled = !privateAppID
-    return FirebaseInfo(
-      appCheck: appCheck,
-      auth: auth,
-      projectID: "my-project-id",
-      apiKey: "API_KEY",
-      firebaseAppID: "My app ID",
-      firebaseApp: app
-    )
   }
 }
