@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-# Script to run in a CI `before_install` phase to setup the quickstart repo
-# so that it can be used for integration testing.
+# Modify a .xcodeproj to use a specific branch.
+# TODO: Update to transform from a release, as well as from `main`.
 
 set -xeuo pipefail
 

@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-# Script to run in a CI `before_install` phase to setup the quickstart repo
-# so that it can be used for integration testing.
+# Verifies changes to firebase-ios-sdk repo can continue to build the
+# product's SPM quickstart.
 
 set -xeuo pipefail
 
@@ -24,8 +24,6 @@ scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(dirname "$scripts_dir")"
 
 $scripts_dir/setup_bundler.sh
-
-#WORKSPACE_DIR="quickstart-ios/${SAMPLE}"
 
 gem install xcpretty
 
