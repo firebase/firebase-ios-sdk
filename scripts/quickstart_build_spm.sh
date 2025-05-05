@@ -25,9 +25,6 @@ root_dir="$(dirname "$scripts_dir")"
 
 $scripts_dir/setup_bundler.sh
 
-# Source function to check if CI secrets are available.
-# source $scripts_dir/check_secrets.sh
-
 #WORKSPACE_DIR="quickstart-ios/${SAMPLE}"
 
 gem install xcpretty
