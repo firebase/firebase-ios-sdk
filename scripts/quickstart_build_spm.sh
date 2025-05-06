@@ -21,7 +21,6 @@ set -xeuo pipefail
 SAMPLE=$1
 
 scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-root_dir="$(dirname "$scripts_dir")"
 
 $scripts_dir/setup_bundler.sh
 
