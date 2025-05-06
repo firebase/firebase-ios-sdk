@@ -1,4 +1,4 @@
-# Unreleased
+# 11.13.0
 - [fixed] Fix an issue where network requests would fail in the iOS 18.4
   simulator due to a URLSession bug introduced in Xcode 16.3. (#14728)
 
