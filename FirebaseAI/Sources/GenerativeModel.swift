@@ -23,6 +23,9 @@ public final class GenerativeModel: Sendable {
   /// Model name prefix to identify Gemini models.
   static let geminiModelNamePrefix = "gemini-"
 
+  /// Model name prefix to identify Gemma models.
+  static let gemmaModelNamePrefix = "gemma-"
+
   /// The name of the model, for example "gemini-2.0-flash".
   let modelName: String
 
