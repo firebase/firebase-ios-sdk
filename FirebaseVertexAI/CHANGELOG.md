@@ -1,4 +1,12 @@
-# Unreleased
+# 11.13.0
+- [changed] **Renamed:** Vertex AI in Firebase (`FirebaseVertexAI`) has been
+  renamed and replaced by the new Firebase AI SDK (`FirebaseAI`). Please migrate
+  to the new `FirebaseAI` module. See the Firebase AI release notes for
+  migration details and new changes.
+  <br /><br />
+  Note: Existing Vertex AI in Firebase users may continue to use
+  `import FirebaseVertexAI` and the `VertexAI` top-level class, though these
+  will be removed in a future release.
 - [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
   omitted; this occurs when the count is 0. (#14745)
 
