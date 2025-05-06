@@ -26,6 +26,18 @@ let package = Package(
   platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
   products: [
     .library(
+      name: "FirebaseAI",
+      targets: ["FirebaseAI"]
+    ),
+    // Backwards-compatibility library for existing "Vertex AI in Firebase" users.
+    .library(
+      name: "FirebaseVertexAI",
+      targets: [
+        "FirebaseAI",
+        "FirebaseVertexAI",
+      ]
+    ),
+    .library(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
@@ -121,10 +133,6 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
-    .library(
-      name: "FirebaseVertexAI",
-      targets: ["FirebaseVertexAI"]
-    ),
   ],
   dependencies: [
     .package(
@@ -142,7 +150,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "8.0.0" ..< "9.0.0"
+      "8.1.0" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -179,6 +187,55 @@ let package = Package(
       path: "CoreOnly/Sources",
       publicHeadersPath: "./"
     ),
+
+    // MARK: - Firebase AI
+
+    .target(
+      name: "FirebaseAI",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+      ],
+      path: "FirebaseAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseAIUnit",
+      dependencies: [
+        "FirebaseAI",
+        "FirebaseStorage",
+      ],
+      path: "FirebaseAI/Tests/Unit",
+      resources: [
+        .copy("vertexai-sdk-test-data/mock-responses"),
+        .process("Resources"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    // Backwards-compatibility targets for existing "Vertex AI in Firebase" users.
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAI",
+      ],
+      path: "FirebaseVertexAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseVertexAIUnit",
+      dependencies: [
+        "FirebaseVertexAI",
+      ],
+      path: "FirebaseVertexAI/Tests/Unit",
+      resources: [
+        .process("Resources"),
+      ]
+    ),
+
+    // MARK: - Firebase Core
+
     .target(
       name: "FirebaseCore",
       dependencies: [
@@ -1295,34 +1352,6 @@ let package = Package(
       path: "FirebaseTestingSupport/Firestore/Tests",
       cSettings: [
         .headerSearchPath("../../.."),
-      ]
-    ),
-
-    // MARK: - Firebase Vertex AI
-
-    .target(
-      name: "FirebaseVertexAI",
-      dependencies: [
-        "FirebaseAppCheckInterop",
-        "FirebaseAuthInterop",
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-      ],
-      path: "FirebaseVertexAI/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseVertexAIUnit",
-      dependencies: [
-        "FirebaseVertexAI",
-        "FirebaseStorage",
-      ],
-      path: "FirebaseVertexAI/Tests/Unit",
-      resources: [
-        .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
-        .process("Resources"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
       ]
     ),
   ] + firestoreTargets(),

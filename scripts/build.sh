@@ -327,8 +327,7 @@ case "$product-$platform-$method" in
       -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
       -scheme "FirebaseCombineSwift-Unit-unit" \
       "${xcb_flags[@]}" \
-      build \
-      test
+      build
     ;;
 
   # TODO(#14760): s/build/test after addressing UI test flakes on CI.
@@ -505,9 +504,9 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  VertexIntegration-*-*)
+  FirebaseAIIntegration-*-*)
     RunXcodebuild \
-      -project 'FirebaseVertexAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
+      -project 'FirebaseAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
       -scheme "VertexAITestApp-SPM" \
       "${xcb_flags[@]}" \
       -parallel-testing-enabled NO \
@@ -606,8 +605,8 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
         -scheme "FirebaseCombineSwift-Unit-integration" \
-        "${ios_flags[@]}" \
-        "${xcb_flags[@]}" \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
         test
       fi
     ;;

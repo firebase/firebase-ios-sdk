@@ -104,8 +104,8 @@ case "$project-$platform-$method" in
     ;;
 
   Firestore-iOS-cmake | Firestore-tvOS-cmake | Firestore-macOS-cmake)
-    # Only upgrade CMake if explicitly requested
-    if [[ "${USE_LATEST_CMAKE:-false}" == "true" ]]; then
+    # Only skip upgrade when explicitly ask for
+    if [[ "${USE_LATEST_CMAKE:-true}" == "true" ]]; then
       echo "Use latest CMake because USE_LATEST_CMAKE=true"
       brew outdated cmake || brew upgrade cmake
     else
