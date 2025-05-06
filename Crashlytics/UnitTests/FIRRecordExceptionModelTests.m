@@ -54,9 +54,10 @@
                              executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
 
   FIRCLSContextManager *contextManager = [[FIRCLSContextManager alloc] init];
-  [contextManager setupContextWithReport:report
-                                settings:self.mockSettings
-                             fileManager:self.fileManager];
+  FBLPromiseAwait([contextManager setupContextWithReport:report
+                                                settings:self.mockSettings
+                                             fileManager:self.fileManager],
+                  nil);
 }
 
 - (void)tearDown {

@@ -71,7 +71,7 @@ extension CountTokensRequest: Encodable {
     switch apiConfig.service {
     case .vertexAI:
       try encodeForVertexAI(to: encoder)
-    case .developer:
+    case .googleAI:
       try encodeForDeveloper(to: encoder)
     }
   }

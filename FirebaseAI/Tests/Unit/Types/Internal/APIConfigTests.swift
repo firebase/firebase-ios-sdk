@@ -19,21 +19,21 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class APIConfigTests: XCTestCase {
   func testInitialize_vertexAI_prod_v1() {
-    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
+    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1)
 
     XCTAssertEqual(apiConfig.service.endpoint.rawValue, "https://firebasevertexai.googleapis.com")
     XCTAssertEqual(apiConfig.version.rawValue, "v1")
   }
 
   func testInitialize_vertexAI_prod_v1beta() {
-    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
+    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
 
     XCTAssertEqual(apiConfig.service.endpoint.rawValue, "https://firebasevertexai.googleapis.com")
     XCTAssertEqual(apiConfig.version.rawValue, "v1beta")
   }
 
   func testInitialize_vertexAI_staging_v1() {
-    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIStaging), version: .v1)
+    let apiConfig = APIConfig(service: .vertexAI(endpoint: .firebaseProxyStaging), version: .v1)
 
     XCTAssertEqual(
       apiConfig.service.endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com"
@@ -43,7 +43,7 @@ final class APIConfigTests: XCTestCase {
 
   func testInitialize_vertexAI_staging_v1beta() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseVertexAIStaging),
+      service: .vertexAI(endpoint: .firebaseProxyStaging),
       version: .v1beta
     )
 
@@ -55,7 +55,7 @@ final class APIConfigTests: XCTestCase {
 
   func testInitialize_developer_staging_v1beta() {
     let apiConfig = APIConfig(
-      service: .developer(endpoint: .firebaseVertexAIStaging), version: .v1beta
+      service: .googleAI(endpoint: .firebaseProxyStaging), version: .v1beta
     )
 
     XCTAssertEqual(
@@ -65,7 +65,7 @@ final class APIConfigTests: XCTestCase {
   }
 
   func testInitialize_developer_generativeLanguage_v1beta() {
-    let apiConfig = APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
+    let apiConfig = APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
 
     XCTAssertEqual(apiConfig.service.endpoint.rawValue, "https://generativelanguage.googleapis.com")
     XCTAssertEqual(apiConfig.version.rawValue, "v1beta")
