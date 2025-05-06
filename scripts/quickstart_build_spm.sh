@@ -22,7 +22,7 @@ SAMPLE=$1
 
 scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-$scripts_dir/setup_bundler.sh
+"$scripts_dir/setup_bundler.sh"
 
 gem install xcpretty
 
