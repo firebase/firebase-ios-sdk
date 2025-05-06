@@ -6,6 +6,7 @@ on:
     - 'FirebaseAI**'
     - '.github/workflows/firebaseai.yml'
     - 'scripts/quickstart_build_spm.sh'
+    - 'scripts/quickstart_spm_xcodeproj.sh'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
