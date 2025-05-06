@@ -52,9 +52,15 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   // MARK: - Instance Management
 
   /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
-  private nonisolated(unsafe) static var cachedInstances: AtomicBox<
+  // In Swift 6, this property is not concurrency-safe because it is
+  // nonisolated global shared mutable state. Because this target's
+  // deployment version does not support Swift concurrency, it is marked as
+  // `nonisolated(unsafe)` to disable concurrency-safety checks. The
+  // property's access is protected by an external synchronization mechanism
+  // (see `FIRAllocatedUnfairLock` type).
+  private static let cachedInstances: FIRAllocatedUnfairLock<
     [String: WeakContainer<HeartbeatStorage>]
-  > = AtomicBox([:])
+  > = FIRAllocatedUnfairLock(initialState: [:])
 
   /// Gets an existing `HeartbeatStorage` instance with the given `id` if one exists. Otherwise,
   /// makes a new instance with the given `id`.
