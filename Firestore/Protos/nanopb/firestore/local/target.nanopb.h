@@ -46,6 +46,7 @@ typedef struct _firestore_client_Target {
     union {
         google_firestore_v1_Target_QueryTarget query;
         google_firestore_v1_Target_DocumentsTarget documents;
+        google_firestore_v1_Target_PipelineQueryTarget pipeline_query;
     };
     google_protobuf_Timestamp last_limbo_free_snapshot_version;
 
@@ -74,6 +75,7 @@ typedef struct _firestore_client_TargetGlobal {
 /* Field tags (for use in manual encoding/decoding) */
 #define firestore_client_Target_query_tag        5
 #define firestore_client_Target_documents_tag    6
+#define firestore_client_Target_pipeline_query_tag 13
 #define firestore_client_Target_target_id_tag    1
 #define firestore_client_Target_snapshot_version_tag 2
 #define firestore_client_Target_resume_token_tag 3
@@ -85,7 +87,7 @@ typedef struct _firestore_client_TargetGlobal {
 #define firestore_client_TargetGlobal_target_count_tag 4
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t firestore_client_Target_fields[8];
+extern const pb_field_t firestore_client_Target_fields[9];
 extern const pb_field_t firestore_client_TargetGlobal_fields[5];
 
 /* Maximum encoded size of messages (where known) */
