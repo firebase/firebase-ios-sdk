@@ -173,7 +173,6 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(ReplaceWithStageBridge)
 @interface FIRReplaceWithStageBridge : FIRStageBridge
 - (id)initWithExpr:(FIRExprBridge *)expr;
-- (id)initWithFieldName:(NSString *)fieldName;
 @end
 
 NS_SWIFT_SENDABLE

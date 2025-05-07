@@ -581,7 +581,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter fieldName: The name of the field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func replace(with fieldName: String) -> Pipeline {
-    return Pipeline(stages: stages + [ReplaceWith(fieldName: fieldName)], db: db)
+    return Pipeline(stages: stages + [ReplaceWith(expr: Field(fieldName))], db: db)
   }
 
   /// Performs pseudo-random sampling of input documents, returning a specific count.

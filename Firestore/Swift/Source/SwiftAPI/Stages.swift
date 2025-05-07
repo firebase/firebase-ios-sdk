@@ -256,19 +256,11 @@ class Sort: Stage {
 class ReplaceWith: Stage {
   var name: String = "replaceWith"
   var bridge: StageBridge
-  private var expr: Expr?
-  private var fieldName: String?
+  private var expr: Expr
 
   init(expr: Expr) {
     self.expr = expr
-    fieldName = nil
     bridge = ReplaceWithStageBridge(expr: expr.toBridge())
-  }
-
-  init(fieldName: String) {
-    self.fieldName = fieldName
-    expr = nil
-    bridge = ReplaceWithStageBridge(fieldName: fieldName)
   }
 }
 

@@ -253,13 +253,11 @@ class RemoveFieldsStage : public Stage {
 class ReplaceWith : public Stage {
  public:
   explicit ReplaceWith(std::shared_ptr<Expr> expr);
-  explicit ReplaceWith(std::string field_name);
   ~ReplaceWith() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
   std::shared_ptr<Expr> expr_;
-  absl::optional<std::string> field_name_;
 };
 
 class Sample : public Stage {

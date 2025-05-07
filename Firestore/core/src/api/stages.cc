@@ -312,13 +312,7 @@ google_firestore_v1_Pipeline_Stage ReplaceWith::to_proto() const {
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
-  if (expr_) {
-    result.args[0] = expr_->to_proto();
-  } else {
-    result.args[0].which_value_type =
-        google_firestore_v1_Value_string_value_tag;
-    result.args[0].string_value = nanopb::MakeBytesArray(field_name_.value());
-  }
+  result.args[0] = expr_->to_proto();
 
   result.options_count = 0;
   result.options = nullptr;
@@ -326,10 +320,7 @@ google_firestore_v1_Pipeline_Stage ReplaceWith::to_proto() const {
 }
 
 ReplaceWith::ReplaceWith(std::shared_ptr<Expr> expr)
-    : expr_(std::move(expr)), field_name_(absl::nullopt) {
-}
-ReplaceWith::ReplaceWith(std::string field_name)
-    : expr_(nullptr), field_name_(std::move(field_name)) {
+    : expr_(std::move(expr)) {
 }
 
 Sample::Sample(std::string type, int64_t count, double percentage)

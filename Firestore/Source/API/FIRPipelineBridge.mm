@@ -625,7 +625,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRReplaceWithStageBridge {
   FIRExprBridge *_expr;
-  NSString *_fieldName;
   Boolean isUserDataRead;
   std::shared_ptr<ReplaceWith> cpp_replace_with;
 }
@@ -634,17 +633,6 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _expr = expr;
-    _fieldName = nil;
-    isUserDataRead = NO;
-  }
-  return self;
-}
-
-- (id)initWithFieldName:(NSString *)fieldName {
-  self = [super init];
-  if (self) {
-    _fieldName = fieldName;
-    _expr = nil;
     isUserDataRead = NO;
   }
   return self;
@@ -652,11 +640,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    if (_expr) {
-      cpp_replace_with = std::make_shared<ReplaceWith>([_expr cppExprWithReader:reader]);
-    } else {
-      cpp_replace_with = std::make_shared<ReplaceWith>(MakeString(_fieldName));
-    }
+    cpp_replace_with = std::make_shared<ReplaceWith>([_expr cppExprWithReader:reader]);
   }
 
   isUserDataRead = YES;
