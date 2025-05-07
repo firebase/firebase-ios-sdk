@@ -37,18 +37,7 @@ import Dispatch
 #endif // swift(>=5.9)
 
 extension XCTestCase {
-  func postBackgroundedNotification() {
-    // On Catalyst, the notifications can only be called on a the main thread
-    if Thread.isMainThread {
-      postBackgroundedNotificationInternal()
-    } else {
-      DispatchQueue.main.sync {
-        self.postBackgroundedNotificationInternal()
-      }
-    }
-  }
-
-  private func postBackgroundedNotificationInternal() {
+  @MainActor func postBackgroundedNotification() {
     let notificationCenter = NotificationCenter.default
     #if os(iOS) || os(tvOS)
       notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -74,18 +63,7 @@ extension XCTestCase {
     #endif // swift(>=5.9)
   }
 
-  func postForegroundedNotification() {
-    // On Catalyst, the notifications can only be called on a the main thread
-    if Thread.isMainThread {
-      postForegroundedNotificationInternal()
-    } else {
-      DispatchQueue.main.sync {
-        self.postForegroundedNotificationInternal()
-      }
-    }
-  }
-
-  private func postForegroundedNotificationInternal() {
+  @MainActor func postForegroundedNotification() {
     let notificationCenter = NotificationCenter.default
     #if os(iOS) || os(tvOS)
       notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
