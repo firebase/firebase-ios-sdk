@@ -52,9 +52,9 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   // MARK: - Instance Management
 
   /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
-  private nonisolated(unsafe) static var cachedInstances: AtomicBox<
+  private static let cachedInstances: FIRAllocatedUnfairLock<
     [String: WeakContainer<HeartbeatStorage>]
-  > = AtomicBox([:])
+  > = FIRAllocatedUnfairLock(initialState: [:])
 
   /// Gets an existing `HeartbeatStorage` instance with the given `id` if one exists. Otherwise,
   /// makes a new instance with the given `id`.
