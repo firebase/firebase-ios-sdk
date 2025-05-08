@@ -82,7 +82,7 @@ struct GenerateContentIntegrationTests {
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
     // The field `candidatesTokensDetails` is not included when using Gemma models.
-    if modelName == ModelNames.gemma3_27B {
+    if modelName == ModelNames.gemma3_4B {
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
       #expect(usageMetadata.candidatesTokensDetails.count == 1)
