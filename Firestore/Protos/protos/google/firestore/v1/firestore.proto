@@ -797,6 +797,15 @@ message Target {
     }
   }
 
+  // A target specified by a pipeline query.
+  message PipelineQueryTarget {
+    // The pipeline to run.
+    oneof pipeline_type {
+      // A pipelined operation in structured format.
+      StructuredPipeline structured_pipeline = 1;
+    }
+  }
+
   // The type of target to listen to.
   oneof target_type {
     // A target specified by a query.
@@ -804,6 +813,9 @@ message Target {
 
     // A target specified by a set of document names.
     DocumentsTarget documents = 3;
+
+    // A target specified by a pipeline query.
+    PipelineQueryTarget pipeline_query = 13;
   }
 
   // When to start listening.
