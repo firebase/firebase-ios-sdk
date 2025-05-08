@@ -15,7 +15,7 @@
 import Foundation
 
 /// Manages information regarding action codes.
-@objc(FIRActionCodeInfo) open class ActionCodeInfo: NSObject {
+@objc(FIRActionCodeInfo) public final class ActionCodeInfo: NSObject, Sendable {
   /// The operation being performed.
   @objc public let operation: ActionCodeOperation
 
