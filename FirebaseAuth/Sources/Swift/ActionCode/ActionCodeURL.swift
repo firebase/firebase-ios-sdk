@@ -14,8 +14,11 @@
 
 import Foundation
 
+// TODO(Swift 6 Breaking): This type is immutable. Consider removing `open` at
+// breaking change so checked Sendable can be used.
+
 /// This class will allow developers to easily extract information about out of band links.
-@objc(FIRActionCodeURL) open class ActionCodeURL: NSObject {
+@objc(FIRActionCodeURL) open class ActionCodeURL: NSObject, @unchecked Sendable {
   /// Returns the API key from the link. nil, if not provided.
   @objc(APIKey) public let apiKey: String?
 
