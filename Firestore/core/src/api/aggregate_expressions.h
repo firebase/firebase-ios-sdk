@@ -29,12 +29,12 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-class AggregateExpr {
+class AggregateFunction {
  public:
-  AggregateExpr(std::string name, std::vector<std::shared_ptr<Expr>> params)
+  AggregateFunction(std::string name, std::vector<std::shared_ptr<Expr>> params)
       : name_(std::move(name)), params_(std::move(params)) {
   }
-  ~AggregateExpr() = default;
+  ~AggregateFunction() = default;
 
   google_firestore_v1_Value to_proto() const;
 
