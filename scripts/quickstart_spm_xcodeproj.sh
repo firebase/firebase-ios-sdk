@@ -25,6 +25,11 @@ XCODEPROJ=${SAMPLE}/${SAMPLE}Example.xcodeproj/project.pbxproj
 
 if grep -q "branch = main;" "$XCODEPROJ"; then
   sed -i "" "s#branch = main;#branch = $BRANCH_NAME;#" "$XCODEPROJ"
+
+  # Point SPM CI to the tip of `main` of
+  # https://github.com/google/GoogleAppMeasurement so that the release process
+  # can defer publishing the `GoogleAppMeasurement` tag until after testing.
+  export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
 else
   echo "Failed to update quickstart's Xcode project to the current branch"
   exit 1
