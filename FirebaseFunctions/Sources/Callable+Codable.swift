@@ -338,7 +338,7 @@ enum JSONStreamResponse {
   case result([String: Any])
 }
 
-// TODO: Remove need for below type by changing `FirebaseDataEncoder` to not returning `Any`.
+// TODO(Swift 6): Remove need for below type by changing `FirebaseDataEncoder` to not returning `Any`.
 /// This wrapper is only intended to be used for passing encoded data in the
 /// `stream` function's hierarchy. When using, carefully audit that `value` is
 /// only ever accessed in one isolation domain.
