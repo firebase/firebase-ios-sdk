@@ -60,7 +60,7 @@ struct CountTokensIntegrationTests {
     switch config.apiConfig.service {
     case .vertexAI:
       #expect(response.totalBillableCharacters == 16)
-    case .developer:
+    case .googleAI:
       #expect(response.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
@@ -71,7 +71,7 @@ struct CountTokensIntegrationTests {
 
   @Test(
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptDeveloperV1
+    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
   )
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -87,7 +87,7 @@ struct CountTokensIntegrationTests {
     switch config.apiConfig.service {
     case .vertexAI:
       #expect(response.totalBillableCharacters == 61)
-    case .developer:
+    case .googleAI:
       #expect(response.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
@@ -98,7 +98,7 @@ struct CountTokensIntegrationTests {
 
   @Test(arguments: [
     /* System instructions are not supported on the v1 Developer API. */
-    InstanceConfig.developerV1Spark,
+    InstanceConfig.googleAI_v1_freeTier_bypassProxy,
   ])
   func countTokens_text_systemInstruction_unsupported(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -120,7 +120,7 @@ struct CountTokensIntegrationTests {
 
   @Test(
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptDeveloperV1
+    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
   )
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -144,7 +144,7 @@ struct CountTokensIntegrationTests {
     case .vertexAI:
       #expect(response.totalTokens == 65)
       #expect(response.totalBillableCharacters == 170)
-    case .developer:
+    case .googleAI:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting
       // in a lower total count than Vertex AI.
       #expect(response.totalTokens == 34)

@@ -58,8 +58,8 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, "us-central1")
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseVertexAIProd))
-    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd))
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
 
@@ -72,8 +72,8 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, location)
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseVertexAIProd))
-    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd))
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
 
@@ -88,8 +88,8 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
     XCTAssertEqual(vertex.location, location)
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseVertexAIProd))
-    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseVertexAIProd)
+    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd))
+    XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
 
@@ -155,12 +155,12 @@ class VertexComponentTests: XCTestCase {
     let vertex1 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
       location: location,
-      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta)
+      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
     )
     let vertex2 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
       location: location,
-      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1)
+      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1)
     )
 
     // Ensure they are different instances.
@@ -207,7 +207,7 @@ class VertexComponentTests: XCTestCase {
 
   func testModelResourceName_developerAPI_generativeLanguage() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let apiConfig = APIConfig(service: .developer(endpoint: .generativeLanguage), version: .v1beta)
+    let apiConfig = APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
     let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig)
     let model = "test-model-name"
 
@@ -219,7 +219,7 @@ class VertexComponentTests: XCTestCase {
   func testModelResourceName_developerAPI_firebaseVertexAI() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(
-      service: .developer(endpoint: .firebaseVertexAIStaging),
+      service: .googleAI(endpoint: .firebaseProxyStaging),
       version: .v1beta
     )
     let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig)
@@ -250,7 +250,7 @@ class VertexComponentTests: XCTestCase {
   func testGenerativeModel_developerAPI() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(
-      service: .developer(endpoint: .firebaseVertexAIStaging),
+      service: .googleAI(endpoint: .firebaseProxyStaging),
       version: .v1beta
     )
     let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig)

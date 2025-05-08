@@ -40,57 +40,58 @@ final class ChatTests: XCTestCase {
     let fileURL = try XCTUnwrap(bundle.url(
       forResource: "streaming-success-basic-reply-parts",
       withExtension: "txt",
-      subdirectory: "vertexai"
+      subdirectory: "mock-responses/vertexai"
     ))
 
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
     #if os(watchOS)
       throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    #else // os(watchOS)
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+        return (response, fileURL.lines)
+      }
+
+      let app = FirebaseApp(instanceWithName: "testApp",
+                            options: FirebaseOptions(googleAppID: "ignore",
+                                                     gcmSenderID: "ignore"))
+      let model = GenerativeModel(
+        modelName: modelName,
+        modelResourceName: modelResourceName,
+        firebaseInfo: FirebaseInfo(
+          projectID: "my-project-id",
+          apiKey: "API_KEY",
+          firebaseAppID: "My app ID",
+          firebaseApp: app
+        ),
+        apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+        tools: nil,
+        requestOptions: RequestOptions(),
+        urlSession: urlSession
+      )
+      let chat = Chat(model: model, history: [])
+      let input = "Test input"
+      let stream = try chat.sendMessageStream(input)
+
+      // Ensure the values are parsed correctly
+      for try await value in stream {
+        XCTAssertNotNil(value.text)
+      }
+
+      XCTAssertEqual(chat.history.count, 2)
+      let part = try XCTUnwrap(chat.history[0].parts[0])
+      let textPart = try XCTUnwrap(part as? TextPart)
+      XCTAssertEqual(textPart.text, input)
+
+      let finalText = "1 2 3 4 5 6 7 8"
+      let assembledExpectation = ModelContent(role: "model", parts: finalText)
+      XCTAssertEqual(chat.history[1], assembledExpectation)
     #endif // os(watchOS)
-    MockURLProtocol.requestHandler = { request in
-      let response = HTTPURLResponse(
-        url: request.url!,
-        statusCode: 200,
-        httpVersion: nil,
-        headerFields: nil
-      )!
-      return (response, fileURL.lines)
-    }
-
-    let app = FirebaseApp(instanceWithName: "testApp",
-                          options: FirebaseOptions(googleAppID: "ignore",
-                                                   gcmSenderID: "ignore"))
-    let model = GenerativeModel(
-      modelName: modelName,
-      modelResourceName: modelResourceName,
-      firebaseInfo: FirebaseInfo(
-        projectID: "my-project-id",
-        apiKey: "API_KEY",
-        firebaseAppID: "My app ID",
-        firebaseApp: app
-      ),
-      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
-      tools: nil,
-      requestOptions: RequestOptions(),
-      urlSession: urlSession
-    )
-    let chat = Chat(model: model, history: [])
-    let input = "Test input"
-    let stream = try chat.sendMessageStream(input)
-
-    // Ensure the values are parsed correctly
-    for try await value in stream {
-      XCTAssertNotNil(value.text)
-    }
-
-    XCTAssertEqual(chat.history.count, 2)
-    let part = try XCTUnwrap(chat.history[0].parts[0])
-    let textPart = try XCTUnwrap(part as? TextPart)
-    XCTAssertEqual(textPart.text, input)
-
-    let finalText = "1 2 3 4 5 6 7 8"
-    let assembledExpectation = ModelContent(role: "model", parts: finalText)
-    XCTAssertEqual(chat.history[1], assembledExpectation)
   }
 }

@@ -23,6 +23,9 @@ public final class GenerativeModel: Sendable {
   /// Model name prefix to identify Gemini models.
   static let geminiModelNamePrefix = "gemini-"
 
+  /// Model name prefix to identify Gemma models.
+  static let gemmaModelNamePrefix = "gemma-"
+
   /// The name of the model, for example "gemini-2.0-flash".
   let modelName: String
 
@@ -277,7 +280,7 @@ public final class GenerativeModel: Sendable {
     let requestContent = switch apiConfig.service {
     case .vertexAI:
       content
-    case .developer:
+    case .googleAI:
       // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
       // erroneously counted towards the prompt and total token count when using the Developer API
       // backend; set to `nil` to avoid token count discrepancies between `countTokens` and
@@ -290,10 +293,10 @@ public final class GenerativeModel: Sendable {
     // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
     // request to the Generative Language backend, which expects the form "models/model-name".
     let generateContentRequestModelResourceName = switch apiConfig.service {
-    case .vertexAI, .developer(endpoint: .generativeLanguage):
+    case .vertexAI, .googleAI(endpoint: .googleAIBypassProxy):
       modelResourceName
-    case .developer(endpoint: .firebaseVertexAIProd),
-         .developer(endpoint: .firebaseVertexAIStaging):
+    case .googleAI(endpoint: .firebaseProxyProd),
+         .googleAI(endpoint: .firebaseProxyStaging):
       "models/\(modelName)"
     }
 

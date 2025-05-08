@@ -371,25 +371,32 @@ extension Candidate: Decodable {
         content = ModelContent(parts: [])
       }
     } catch {
-      // Check if `content` can be decoded as an empty dictionary to detect the `"content": {}` bug.
-      if let content = try? container.decode([String: String].self, forKey: .content),
-         content.isEmpty {
-        throw InvalidCandidateError.emptyContent(underlyingError: error)
-      } else {
-        throw InvalidCandidateError.malformedContent(underlyingError: error)
-      }
+      throw InvalidCandidateError.malformedContent(underlyingError: error)
     }
 
     if let safetyRatings = try container.decodeIfPresent(
-      [SafetyRating].self,
-      forKey: .safetyRatings
+      [SafetyRating].self, forKey: .safetyRatings
     ) {
-      self.safetyRatings = safetyRatings
+      self.safetyRatings = safetyRatings.filter {
+        // Due to a bug in the backend, the SDK may receive invalid `SafetyRating` values that do
+        // not include a category or probability; these are filtered out of the safety ratings.
+        $0.category != HarmCategory.unspecified
+          && $0.probability != SafetyRating.HarmProbability.unspecified
+      }
     } else {
       safetyRatings = []
     }
 
     finishReason = try container.decodeIfPresent(FinishReason.self, forKey: .finishReason)
+
+    // The `content` may only be empty if a `finishReason` is included; if neither are included in
+    // the response then this is likely the `"content": {}` bug.
+    guard !content.parts.isEmpty || finishReason != nil else {
+      throw InvalidCandidateError.emptyContent(underlyingError: DecodingError.dataCorrupted(.init(
+        codingPath: [CodingKeys.content, CodingKeys.finishReason],
+        debugDescription: "Invalid Candidate: empty content and no finish reason"
+      )))
+    }
 
     citationMetadata = try container.decodeIfPresent(
       CitationMetadata.self,

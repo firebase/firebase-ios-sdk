@@ -42,7 +42,7 @@ public final class FirebaseAI: Sendable {
     )
     // Verify that the `FirebaseAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
-    assert(instance.apiConfig.service.endpoint == .firebaseVertexAIProd)
+    assert(instance.apiConfig.service.endpoint == .firebaseProxyProd)
     assert(instance.apiConfig.version == .v1beta)
     return instance
   }
@@ -72,7 +72,8 @@ public final class FirebaseAI: Sendable {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix) {
+    if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix)
+      && !modelName.starts(with: GenerativeModel.gemmaModelNamePrefix) {
       AILog.warning(code: .unsupportedGeminiModel, """
       Unsupported Gemini model "\(modelName)"; see \
       https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
@@ -150,7 +151,7 @@ public final class FirebaseAI: Sendable {
   let location: String?
 
   static let defaultVertexAIAPIConfig = APIConfig(
-    service: .vertexAI(endpoint: .firebaseVertexAIProd),
+    service: .vertexAI(endpoint: .firebaseProxyProd),
     version: .v1beta
   )
 
@@ -209,7 +210,7 @@ public final class FirebaseAI: Sendable {
     switch apiConfig.service {
     case .vertexAI:
       return vertexAIModelResourceName(modelName: modelName)
-    case .developer:
+    case .googleAI:
       return developerModelResourceName(modelName: modelName)
     }
   }
@@ -233,10 +234,10 @@ public final class FirebaseAI: Sendable {
 
   private func developerModelResourceName(modelName: String) -> String {
     switch apiConfig.service.endpoint {
-    case .firebaseVertexAIStaging, .firebaseVertexAIProd:
+    case .firebaseProxyStaging, .firebaseProxyProd:
       let projectID = firebaseInfo.projectID
       return "projects/\(projectID)/models/\(modelName)"
-    case .generativeLanguage:
+    case .googleAIBypassProxy:
       return "models/\(modelName)"
     }
   }

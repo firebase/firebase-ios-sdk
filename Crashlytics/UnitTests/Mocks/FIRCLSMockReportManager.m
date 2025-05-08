@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if __has_include(<FBLPromises/FBLPromises.h>)
+#import <FBLPromises/FBLPromises.h>
+#else
+#import "FBLPromises.h"
+#endif
+
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
@@ -22,10 +28,10 @@
 
 @implementation FIRCLSMockReportManager
 
-- (BOOL)startCrashReporterWithProfilingReport:(FIRCLSInternalReport *)report {
+- (FBLPromise<NSNumber *> *)startCrashReporterWithProfilingReport:(FIRCLSInternalReport *)report {
   NSLog(@"Crash Reporting system disabled for testing");
 
-  return YES;
+  return [FBLPromise resolvedWith:@YES];
 }
 
 - (BOOL)installCrashReportingHandlers:(FIRCLSContextInitData *)initData {
