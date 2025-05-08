@@ -25,6 +25,7 @@ XCODEPROJ=${SAMPLE}/${SAMPLE}Example.xcodeproj/project.pbxproj
 
 if grep -q "branch = main;" "$XCODEPROJ"; then
   sed -i "" "s#branch = main;#branch = $BRANCH_NAME;#" "$XCODEPROJ"
+  export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
 else
   echo "Failed to update quickstart's Xcode project to the current branch"
   exit 1
