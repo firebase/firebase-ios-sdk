@@ -40,7 +40,7 @@ final class PipelineTests: FSTIntegrationTestCase {
   func testWhereStage() async throws {
     _ = db.pipeline().collection("books")
       .where(
-        Field("rating") > 4.0 && Field("genre") == "Science Fiction" || ArrayContains(
+        Field("rating").gt(4.0) && Field("genre").eq("Science Fiction") || ArrayContains(
           fieldName: "fieldName",
           values: "rating"
         )
@@ -327,7 +327,7 @@ final class PipelineTests: FSTIntegrationTestCase {
   }
 
   func testBooleanExpr() async throws {
-    let isApple: BooleanExpr = Field("type") == "apple"
+    let isApple: BooleanExpr = Field("type").eq("apple")
 
     // USAGE: stage where requires an expression of type BooleanExpr
     let allAppleOptions: Pipeline = db.pipeline().collection("fruitOptions").where(isApple)

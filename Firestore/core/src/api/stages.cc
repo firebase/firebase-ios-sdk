@@ -319,8 +319,7 @@ google_firestore_v1_Pipeline_Stage ReplaceWith::to_proto() const {
   return result;
 }
 
-ReplaceWith::ReplaceWith(std::shared_ptr<Expr> expr)
-    : expr_(std::move(expr)) {
+ReplaceWith::ReplaceWith(std::shared_ptr<Expr> expr) : expr_(std::move(expr)) {
 }
 
 Sample::Sample(std::string type, int64_t count, double percentage)

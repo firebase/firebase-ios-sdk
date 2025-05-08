@@ -118,7 +118,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await firestore()
       .pipeline()
       .collection("/foo")
-      .where(Field("foo") == Constant("bar"))
+      .where(Field("foo").eq(Constant("bar")))
       .execute()
 
     print(snapshot)
