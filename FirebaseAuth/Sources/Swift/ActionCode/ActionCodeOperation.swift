@@ -15,7 +15,7 @@
 import Foundation
 
 /// Operations which can be performed with action codes.
-@objc(FIRActionCodeOperation) public enum ActionCodeOperation: Int, @unchecked Sendable {
+@objc(FIRActionCodeOperation) public enum ActionCodeOperation: Int, Sendable {
   /// Action code for unknown operation.
   case unknown = 0
 

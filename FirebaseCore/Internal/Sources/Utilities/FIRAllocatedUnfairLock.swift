@@ -42,6 +42,12 @@ public final class FIRAllocatedUnfairLock<State>: @unchecked Sendable {
     os_unfair_lock_unlock(lockPointer)
   }
 
+  public func value() -> State {
+    lock()
+    defer { unlock() }
+    return state
+  }
+
   @discardableResult
   public func withLock<R>(_ body: (inout State) throws -> R) rethrows -> R {
     let value: R
