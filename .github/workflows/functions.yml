@@ -31,6 +31,7 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
+        swift_version: [5.9, 6.0]
         build-env:
           - os: macos-15
             xcode: Xcode_16.3
@@ -44,6 +45,8 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Integration Test Server
       run: FirebaseFunctions/Backend/start.sh synchronous
+    - name: Set Swift swift_version
+      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '${{ matrix.build-env.swift_version }}'/" FirebaseFunctions.podspec
     - name: Build and test
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec \
