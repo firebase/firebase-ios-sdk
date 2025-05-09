@@ -16,7 +16,7 @@
   import Foundation
 
   /// A data structure for an APNs token.
-  class AuthAPNSToken {
+  final class AuthAPNSToken: Sendable {
     let data: Data
     let type: AuthAPNSTokenType
 
@@ -30,13 +30,13 @@
     }
 
     /// The uppercase hexadecimal string form of the APNs token data.
-    lazy var string: String = {
+    var string: String {
       let byteArray = [UInt8](data)
       var s = ""
       for byte in byteArray {
         s.append(String(format: "%02X", byte))
       }
       return s
-    }()
+    }
   }
 #endif

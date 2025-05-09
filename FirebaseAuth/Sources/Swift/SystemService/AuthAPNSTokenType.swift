@@ -19,7 +19,7 @@
   ///
   /// This enum is available on iOS, macOS Catalyst, tvOS, and watchOS only.
 
-  @objc(FIRAuthAPNSTokenType) public enum AuthAPNSTokenType: Int {
+  @objc(FIRAuthAPNSTokenType) public enum AuthAPNSTokenType: Int, Sendable {
     /// Unknown token type.
     ///
     /// The actual token type will be detected from the provisioning profile in the app's bundle.
