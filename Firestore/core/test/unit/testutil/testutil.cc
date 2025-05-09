@@ -106,6 +106,13 @@ Message<google_firestore_v1_Value> BlobValue(
   return result;
 }
 
+Message<google_firestore_v1_Value> BlobValue(std::vector<uint8_t> octets) {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_bytes_value_tag;
+  result->bytes_value = nanopb::MakeBytesArray(octets.data(), octets.size());
+  return result;
+}
+
 }  // namespace details
 
 ByteString Bytes(std::initializer_list<uint8_t> octets) {
@@ -183,6 +190,40 @@ Message<google_firestore_v1_Value> Value(
 
 Message<google_firestore_v1_Value> Value(const model::ObjectValue& value) {
   return DeepClone(value.Get());
+}
+
+Message<google_firestore_v1_Value> MinKey() {
+  return Map("__min__", nullptr);
+}
+
+Message<google_firestore_v1_Value> MaxKey() {
+  return Map("__max__", nullptr);
+}
+
+Message<google_firestore_v1_Value> Regex(std::string pattern,
+                                         std::string options) {
+  return Map("__regex__", Map("pattern", pattern, "options", options));
+}
+
+nanopb::Message<google_firestore_v1_Value> Int32(int32_t value) {
+  return Map("__int__", Value(value));
+}
+
+nanopb::Message<google_firestore_v1_Value> BsonObjectId(std::string oid) {
+  return Map("__oid__", Value(oid));
+}
+
+nanopb::Message<google_firestore_v1_Value> BsonTimestamp(uint32_t seconds,
+                                                         uint32_t increment) {
+  return Map("__request_timestamp__",
+             Map("seconds", Value(seconds), "increment", Value(increment)));
+}
+
+nanopb::Message<google_firestore_v1_Value> BsonBinaryData(
+    uint8_t subtype, std::initializer_list<uint8_t> data) {
+  std::vector<uint8_t> bytes{subtype};
+  bytes.insert(bytes.end(), data.begin(), data.end());
+  return Map("__binary__", details::BlobValue(bytes));
 }
 
 ObjectValue WrapObject(Message<google_firestore_v1_Value> value) {

@@ -31,9 +31,16 @@ const char kBarString[] = "bar";
 namespace {
 
 using absl::nullopt;
+using testutil::BsonBinaryData;
+using testutil::BsonObjectId;
+using testutil::BsonTimestamp;
 using testutil::DbId;
 using testutil::Field;
+using testutil::Int32;
 using testutil::Map;
+using testutil::MaxKey;
+using testutil::MinKey;
+using testutil::Regex;
 using testutil::Value;
 using testutil::WrapObject;
 
@@ -43,7 +50,11 @@ class ObjectValueTest : public ::testing::Test {
 };
 
 TEST_F(ObjectValueTest, ExtractsFields) {
-  ObjectValue value = WrapObject("foo", Map("a", 1, "b", true, "c", "string"));
+  ObjectValue value = WrapObject(
+      "foo", Map("a", 1, "b", true, "c", "string"), "bson",
+      Map("minKey", MinKey(), "maxKey", MaxKey(), "regex", Regex("^foo", "i"),
+          "int32", Int32(1234), "objectId", BsonObjectId("foo"), "timestamp",
+          BsonTimestamp(123, 456), "binary", BsonBinaryData(128, {7, 8, 9})));
 
   ASSERT_EQ(google_firestore_v1_Value_map_value_tag,
             value.Get(Field("foo"))->which_value_type);
@@ -51,21 +62,32 @@ TEST_F(ObjectValueTest, ExtractsFields) {
   EXPECT_EQ(*Value(1), *value.Get(Field("foo.a")));
   EXPECT_EQ(*Value(true), *value.Get(Field("foo.b")));
   EXPECT_EQ(*Value("string"), *value.Get(Field("foo.c")));
-
+  EXPECT_EQ(
+      *Value(Map("minKey", MinKey(), "maxKey", MaxKey(), "regex",
+                 Regex("^foo", "i"), "int32", Int32(1234), "objectId",
+                 BsonObjectId("foo"), "timestamp", BsonTimestamp(123, 456),
+                 "binary", BsonBinaryData(128, {7, 8, 9}))),
+      *value.Get(Field("bson")));
   EXPECT_EQ(nullopt, value.Get(Field("foo.a.b")));
   EXPECT_EQ(nullopt, value.Get(Field("bar")));
   EXPECT_EQ(nullopt, value.Get(Field("bar.a")));
 }
 
 TEST_F(ObjectValueTest, ExtractsFieldMask) {
-  ObjectValue value =
-      WrapObject("a", "b", "Map",
-                 Map("a", 1, "b", true, "c", "string", "nested", Map("d", "e")),
-                 "emptymap", Map());
+  ObjectValue value = WrapObject(
+      "a", "b", "Map",
+      Map("a", 1, "b", true, "c", "string", "nested", Map("d", "e")),
+      "emptymap", Map(), "bson",
+      Value(Map("minKey", MinKey(), "maxKey", MaxKey(), "regex",
+                Regex("^foo", "i"), "int32", Int32(1234), "objectId",
+                BsonObjectId("foo"), "timestamp", BsonTimestamp(123, 456),
+                "binary", BsonBinaryData(128, {7, 8, 9}))));
 
-  FieldMask expected_mask =
-      FieldMask({Field("a"), Field("Map.a"), Field("Map.b"), Field("Map.c"),
-                 Field("Map.nested.d"), Field("emptymap")});
+  FieldMask expected_mask = FieldMask(
+      {Field("a"), Field("Map.a"), Field("Map.b"), Field("Map.c"),
+       Field("Map.nested.d"), Field("emptymap"), Field("bson.minKey"),
+       Field("bson.maxKey"), Field("bson.regex"), Field("bson.int32"),
+       Field("bson.objectId"), Field("bson.timestamp"), Field("bson.binary")});
   FieldMask actual_mask = value.ToFieldMask();
 
   EXPECT_EQ(expected_mask, actual_mask);
@@ -333,6 +355,48 @@ TEST_F(ObjectValueTest, DoesNotRequireSortedInserts) {
                    Map("c", 2, "nested", Map("c", 2, "a", 1), "a", 1));
   EXPECT_EQ(*Value(2), *object_value.Get(Field("nested.c")));
   EXPECT_EQ(*Value(2), *object_value.Get(Field("nested.nested.c")));
+}
+
+TEST_F(ObjectValueTest, CanHandleBsonTypesInObjectValue) {
+  ObjectValue object_value{};
+  object_value.Set(Field("minKey"), MinKey());
+  object_value.Set(Field("maxKey"), MaxKey());
+  object_value.Set(Field("regex"), Regex("^foo", "i"));
+  object_value.Set(Field("int32"), Int32(1234));
+  object_value.Set(Field("objectId"), BsonObjectId("foo"));
+  object_value.Set(Field("timestamp"), BsonTimestamp(123, 456));
+  object_value.Set(Field("binary"), BsonBinaryData(128, {7, 8, 9}));
+
+  EXPECT_EQ(
+      WrapObject(Map("minKey", MinKey(), "maxKey", MaxKey(), "regex",
+                     Regex("^foo", "i"), "int32", Int32(1234), "objectId",
+                     BsonObjectId("foo"), "timestamp", BsonTimestamp(123, 456),
+                     "binary", BsonBinaryData(128, {7, 8, 9}))),
+      object_value);
+
+  // Overwrite existing fields
+  object_value.Set(Field("regex"), Regex("^baz", "g"));
+  object_value.Set(Field("objectId"), BsonObjectId("new-foo-value"));
+
+  // Create nested objects
+  object_value.Set(Field("foo.regex1"), Regex("^foo", "i"));
+  object_value.Set(Field("foo.regex2"), Regex("^bar", "i"));
+  object_value.Set(Field("foo.timestamp"), BsonTimestamp(2, 1));
+
+  // Delete fields
+  object_value.Delete(Field("foo.regex1"));
+
+  // Overwrite nested objects
+  object_value.Set(Field("foo.regex2"), Regex("^bar", "x"));
+
+  EXPECT_EQ(
+      WrapObject(Map(
+          "minKey", MinKey(), "maxKey", MaxKey(), "regex", Regex("^baz", "g"),
+          "int32", Int32(1234), "objectId", BsonObjectId("new-foo-value"),
+          "timestamp", BsonTimestamp(123, 456), "binary",
+          BsonBinaryData(128, {7, 8, 9}), "foo",
+          Map("regex2", Regex("^bar", "x"), "timestamp", BsonTimestamp(2, 1)))),
+      object_value);
 }
 
 }  // namespace

@@ -40,12 +40,20 @@ using model::RefValue;
 using nanopb::Message;
 using testutil::Array;
 using testutil::BlobValue;
+using testutil::BsonBinaryData;
+using testutil::BsonObjectId;
+using testutil::BsonTimestamp;
 using testutil::DbId;
+using testutil::Int32;
 using testutil::kCanonicalNanBits;
 using testutil::Key;
 using testutil::Map;
+using testutil::MaxKey;
+using testutil::MinKey;
+using testutil::Regex;
 using testutil::time_point;
 using testutil::Value;
+using testutil::VectorType;
 using util::ComparisonResult;
 
 namespace {
@@ -99,9 +107,6 @@ class ValueUtilTest : public ::testing::Test {
                            ComparisonResult expected_result) {
     for (pb_size_t i = 0; i < left->values_count; ++i) {
       for (pb_size_t j = 0; j < right->values_count; ++j) {
-        if (expected_result != Compare(left->values[i], right->values[j])) {
-          std::cout << "here" << std::endl;
-        }
         EXPECT_EQ(expected_result, Compare(left->values[i], right->values[j]))
             << "Order check failed for '" << CanonicalId(left->values[i])
             << "' and '" << CanonicalId(right->values[j]) << "' (expected "
@@ -184,6 +189,50 @@ TEST(FieldValueTest, ValueHelpers) {
   auto double_value = Value(2.0);
   ASSERT_EQ(GetTypeOrder(*double_value), TypeOrder::kNumber);
   EXPECT_EQ(double_value->double_value, 2.0);
+
+  auto map_value = Map("foo", "bar");
+  ASSERT_EQ(GetTypeOrder(*map_value), TypeOrder::kMap);
+  ASSERT_EQ(DetectMapType(*map_value), MapType::kNormal);
+
+  auto max_value = DeepClone(InternalMaxValue());
+  ASSERT_EQ(GetTypeOrder(*max_value), TypeOrder::kInternalMaxValue);
+  ASSERT_EQ(DetectMapType(*max_value), MapType::kInternalMaxValue);
+
+  auto server_timestamp = EncodeServerTimestamp(kTimestamp1, absl::nullopt);
+  ASSERT_EQ(GetTypeOrder(*server_timestamp), TypeOrder::kServerTimestamp);
+  ASSERT_EQ(DetectMapType(*server_timestamp), MapType::kServerTimestamp);
+
+  auto vector_value = VectorType(100);
+  ASSERT_EQ(GetTypeOrder(*vector_value), TypeOrder::kVector);
+  ASSERT_EQ(DetectMapType(*vector_value), MapType::kVector);
+
+  auto min_key_value = MinKey();
+  ASSERT_EQ(GetTypeOrder(*min_key_value), TypeOrder::kMinKey);
+  ASSERT_EQ(DetectMapType(*min_key_value), MapType::kMinKey);
+
+  auto max_key_value = MaxKey();
+  ASSERT_EQ(GetTypeOrder(*max_key_value), TypeOrder::kMaxKey);
+  ASSERT_EQ(DetectMapType(*max_key_value), MapType::kMaxKey);
+
+  auto regex_value = Regex("^foo", "x");
+  ASSERT_EQ(GetTypeOrder(*regex_value), TypeOrder::kRegex);
+  ASSERT_EQ(DetectMapType(*regex_value), MapType::kRegex);
+
+  auto int32_value = Int32(1);
+  ASSERT_EQ(GetTypeOrder(*int32_value), TypeOrder::kNumber);
+  ASSERT_EQ(DetectMapType(*int32_value), MapType::kInt32);
+
+  auto bson_object_id_value = BsonObjectId("foo");
+  ASSERT_EQ(GetTypeOrder(*bson_object_id_value), TypeOrder::kBsonObjectId);
+  ASSERT_EQ(DetectMapType(*bson_object_id_value), MapType::kBsonObjectId);
+
+  auto bson_timestamp_value = BsonTimestamp(1, 2);
+  ASSERT_EQ(GetTypeOrder(*bson_timestamp_value), TypeOrder::kBsonTimestamp);
+  ASSERT_EQ(DetectMapType(*bson_timestamp_value), MapType::kBsonTimestamp);
+
+  auto bson_binary_data_value = BsonBinaryData(1, {1, 2, 3});
+  ASSERT_EQ(GetTypeOrder(*bson_binary_data_value), TypeOrder::kBsonBinaryData);
+  ASSERT_EQ(DetectMapType(*bson_binary_data_value), MapType::kBsonBinaryData);
 }
 
 #if __APPLE__
@@ -210,6 +259,7 @@ TEST_F(ValueUtilTest, Equality) {
   std::vector<Message<google_firestore_v1_ArrayValue>> equals_group;
 
   Add(equals_group, nullptr, nullptr);
+  Add(equals_group, MinKey(), MinKey());
   Add(equals_group, false, false);
   Add(equals_group, true, true);
   Add(equals_group, std::numeric_limits<double>::quiet_NaN(),
@@ -222,6 +272,8 @@ TEST_F(ValueUtilTest, Equality) {
   // Doubles and Longs aren't equal (even though they compare same).
   Add(equals_group, 1.0, 1.0);
   Add(equals_group, 1.1, 1.1);
+  Add(equals_group, Int32(-1), Int32(-1));
+  Add(equals_group, Int32(1), Int32(1));
   Add(equals_group, BlobValue(0, 1, 1));
   Add(equals_group, BlobValue(0, 1));
   Add(equals_group, "string", "string");
@@ -248,10 +300,21 @@ TEST_F(ValueUtilTest, Equality) {
   Add(equals_group, Array("foo"));
   Add(equals_group, Map("__type__", "__vector__", "value", Array()),
       DeepClone(MinVector()));
+  Add(equals_group, Regex("foo", "bar"), Regex("foo", "bar"));
+  Add(equals_group, BsonObjectId("bar"));
+  Add(equals_group, BsonObjectId("foo"), BsonObjectId("foo"));
+  Add(equals_group, BsonTimestamp(1, 3));
+  Add(equals_group, BsonTimestamp(1, 2), BsonTimestamp(1, 2));
+  Add(equals_group, BsonTimestamp(2, 3));
+  Add(equals_group, BsonBinaryData(1, {7, 8, 9}));
+  Add(equals_group, BsonBinaryData(128, {7, 8, 9}),
+      BsonBinaryData(128, {7, 8, 9}));
+  Add(equals_group, BsonBinaryData(128, {7, 8, 10}));
   Add(equals_group, Map("bar", 1, "foo", 2), Map("bar", 1, "foo", 2));
   Add(equals_group, Map("bar", 2, "foo", 1));
   Add(equals_group, Map("bar", 1));
   Add(equals_group, Map("foo", 1));
+  Add(equals_group, MaxKey(), MaxKey());
 
   for (size_t i = 0; i < equals_group.size(); ++i) {
     for (size_t j = i; j < equals_group.size(); ++j) {
@@ -271,6 +334,9 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   // null first
   Add(comparison_groups, nullptr);
 
+  // MinKey
+  Add(comparison_groups, MinKey());
+
   // booleans
   Add(comparison_groups, false);
   Add(comparison_groups, true);
@@ -281,10 +347,12 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   Add(comparison_groups, std::numeric_limits<int64_t>::min());
   Add(comparison_groups, -0.1);
   // Zeros all compare the same.
-  Add(comparison_groups, -0.0, 0.0, 0L);
+  Add(comparison_groups, -0.0, 0.0, 0L, Int32(0));
   Add(comparison_groups, 0.1);
-  // Doubles and longs Compare() the same.
-  Add(comparison_groups, 1.0, 1L);
+  // Doubles, longs, and Int32 Compare() the same.
+  Add(comparison_groups, 1.0, 1L, Int32(1));
+  Add(comparison_groups, Int32(2));
+  Add(comparison_groups, Int32(2147483647));
   Add(comparison_groups, std::numeric_limits<int64_t>::max());
   Add(comparison_groups, 1e20);
 
@@ -292,6 +360,12 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   Add(comparison_groups, DeepClone(MinTimestamp()));
   Add(comparison_groups, kTimestamp1);
   Add(comparison_groups, kTimestamp2);
+
+  // BSON Timestamp
+  Add(comparison_groups, DeepClone(MinBsonTimestamp()));
+  Add(comparison_groups, BsonTimestamp(123, 4), BsonTimestamp(123, 4));
+  Add(comparison_groups, BsonTimestamp(123, 5));
+  Add(comparison_groups, BsonTimestamp(124, 0));
 
   // server timestamps come after all concrete timestamps.
   // NOTE: server timestamps can't be parsed with .
@@ -318,6 +392,13 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   Add(comparison_groups, BlobValue(0, 1, 2, 4, 3));
   Add(comparison_groups, BlobValue(255));
 
+  // BSON Binary Data
+  Add(comparison_groups, DeepClone(MinBsonBinaryData()));
+  Add(comparison_groups, BsonBinaryData(5, {1, 2, 3}),
+      BsonBinaryData(5, {1, 2, 3}));
+  Add(comparison_groups, BsonBinaryData(7, {1}));
+  Add(comparison_groups, BsonBinaryData(7, {2}));
+
   // resource names
   Add(comparison_groups, DeepClone(MinReference()));
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c1/doc1")));
@@ -326,6 +407,14 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c2/doc1")));
   Add(comparison_groups, RefValue(DbId("p1/d2"), Key("c1/doc1")));
   Add(comparison_groups, RefValue(DbId("p2/d1"), Key("c1/doc1")));
+
+  // BSON ObjectId
+  Add(comparison_groups, DeepClone(MinBsonObjectId()));
+  Add(comparison_groups, BsonObjectId("foo"), BsonObjectId("foo"));
+  // TODO(types/ehsann): uncomment after string sort bug is fixed
+  // Add(comparison_groups, BsonObjectId("Ḟoo"));
+  // Add(comparison_groups, BsonObjectId("foo\u0301"));
+  Add(comparison_groups, BsonObjectId("xyz"));
 
   // geo points
   Add(comparison_groups, GeoPoint(-90, -180));
@@ -341,8 +430,15 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   Add(comparison_groups, GeoPoint(90, 0));
   Add(comparison_groups, GeoPoint(90, 180));
 
-  // arrays
-  Add(comparison_groups, DeepClone(MinArray()));
+  // regular expressions
+  Add(comparison_groups, DeepClone(MinRegex()));
+  Add(comparison_groups, Regex("a", "bar1")),
+      Add(comparison_groups, Regex("foo", "bar1")),
+      Add(comparison_groups, Regex("foo", "bar2")),
+      Add(comparison_groups, Regex("go", "bar1")),
+
+      // arrays
+      Add(comparison_groups, DeepClone(MinArray()));
   Add(comparison_groups, Array("bar"));
   Add(comparison_groups, Array("foo", 1));
   Add(comparison_groups, Array("foo", 2));
@@ -363,7 +459,11 @@ TEST_F(ValueUtilTest, StrictOrdering) {
   Add(comparison_groups, Map("foo", 1));
   Add(comparison_groups, Map("foo", 2));
   Add(comparison_groups, Map("foo", "0"));
-  Add(comparison_groups, DeepClone(MaxValue()));
+
+  // MaxKey
+  Add(comparison_groups, MaxKey());
+
+  Add(comparison_groups, DeepClone(InternalMaxValue()));
 
   for (size_t i = 0; i < comparison_groups.size(); ++i) {
     for (size_t j = i; j < comparison_groups.size(); ++j) {
@@ -386,6 +486,9 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   // null first
   Add(comparison_groups, DeepClone(NullValue()));
   Add(comparison_groups, nullptr);
+
+  // MinKey
+  Add(comparison_groups, MinKey());
   Add(comparison_groups, DeepClone(MinBoolean()));
 
   // booleans
@@ -401,10 +504,12 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, std::numeric_limits<int64_t>::min());
   Add(comparison_groups, -0.1);
   // Zeros all compare the same.
-  Add(comparison_groups, -0.0, 0.0, 0L);
+  Add(comparison_groups, -0.0, 0.0, 0L, Int32(0));
   Add(comparison_groups, 0.1);
   // Doubles and longs Compare() the same.
-  Add(comparison_groups, 1.0, 1L);
+  Add(comparison_groups, 1.0, 1L, Int32(1));
+  Add(comparison_groups, Int32(2));
+  Add(comparison_groups, Int32(2147483647));
   Add(comparison_groups, std::numeric_limits<int64_t>::max());
   Add(comparison_groups, 1e20);
   Add(comparison_groups, DeepClone(MinTimestamp()));
@@ -414,6 +519,12 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, DeepClone(MinTimestamp()));
   Add(comparison_groups, kTimestamp1);
   Add(comparison_groups, kTimestamp2);
+
+  // BSON Timestamp
+  Add(comparison_groups, DeepClone(MinBsonTimestamp()));
+  Add(comparison_groups, BsonTimestamp(123, 4), BsonTimestamp(123, 4));
+  Add(comparison_groups, BsonTimestamp(123, 5));
+  Add(comparison_groups, BsonTimestamp(124, 0));
 
   // server timestamps come after all concrete timestamps.
   // NOTE: server timestamps can't be parsed with .
@@ -443,7 +554,13 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, BlobValue(0, 1, 2, 3, 4));
   Add(comparison_groups, BlobValue(0, 1, 2, 4, 3));
   Add(comparison_groups, BlobValue(255));
-  Add(comparison_groups, DeepClone(MinReference()));
+
+  // BSON Binary Data
+  Add(comparison_groups, DeepClone(MinBsonBinaryData()));
+  Add(comparison_groups, BsonBinaryData(5, {1, 2, 3}),
+      BsonBinaryData(5, {1, 2, 3}));
+  Add(comparison_groups, BsonBinaryData(7, {1}));
+  Add(comparison_groups, BsonBinaryData(7, {2}));
 
   // resource names
   Add(comparison_groups, DeepClone(MinReference()));
@@ -453,7 +570,14 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, RefValue(DbId("p1/d1"), Key("c2/doc1")));
   Add(comparison_groups, RefValue(DbId("p1/d2"), Key("c1/doc1")));
   Add(comparison_groups, RefValue(DbId("p2/d1"), Key("c1/doc1")));
-  Add(comparison_groups, DeepClone(MinGeoPoint()));
+
+  // BSON ObjectId
+  Add(comparison_groups, DeepClone(MinBsonObjectId()));
+  Add(comparison_groups, BsonObjectId("foo"), BsonObjectId("foo"));
+  // TODO(types/ehsann): uncomment after string sort bug is fixed
+  // Add(comparison_groups, BsonObjectId("Ḟoo"));
+  // Add(comparison_groups, BsonObjectId("foo\u0301"));
+  Add(comparison_groups, BsonObjectId("xyz"));
 
   // geo points
   Add(comparison_groups, DeepClone(MinGeoPoint()));
@@ -469,10 +593,16 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, GeoPoint(90, -180));
   Add(comparison_groups, GeoPoint(90, 0));
   Add(comparison_groups, GeoPoint(90, 180));
-  Add(comparison_groups, DeepClone(MinArray()));
 
-  // arrays
-  Add(comparison_groups, DeepClone(MinArray()));
+  // regular expressions
+  Add(comparison_groups, DeepClone(MinRegex()));
+  Add(comparison_groups, Regex("a", "bar1")),
+      Add(comparison_groups, Regex("foo", "bar1")),
+      Add(comparison_groups, Regex("foo", "bar2")),
+      Add(comparison_groups, Regex("go", "bar1")),
+
+      // arrays
+      Add(comparison_groups, DeepClone(MinArray()));
   Add(comparison_groups, Array("bar"));
   Add(comparison_groups, Array("foo", 1));
   Add(comparison_groups, Array("foo", 2));
@@ -481,11 +611,9 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
 
   // vectors
   Add(comparison_groups, DeepClone(MinVector()));
-  Add(comparison_groups, Map("__type__", "__vector__", "value", Array(100)));
-  Add(comparison_groups,
-      Map("__type__", "__vector__", "value", Array(1.0, 2.0, 3.0)));
-  Add(comparison_groups,
-      Map("__type__", "__vector__", "value", Array(1.0, 3.0, 2.0)));
+  Add(comparison_groups, VectorType(100));
+  Add(comparison_groups, VectorType(1.0, 2.0, 3.0));
+  Add(comparison_groups, VectorType(1.0, 3.0, 2.0));
 
   // objects
   Add(comparison_groups, DeepClone(MinMap()));
@@ -494,11 +622,197 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   Add(comparison_groups, Map("foo", 1));
   Add(comparison_groups, Map("foo", 2));
   Add(comparison_groups, Map("foo", "0"));
-  Add(comparison_groups, DeepClone(MaxValue()));
+
+  // MaxKey
+  Add(comparison_groups, MaxKey());
+
+  // MaxValue (internal)
+  Add(comparison_groups, DeepClone(InternalMaxValue()));
 
   for (size_t i = 0; i < comparison_groups.size(); ++i) {
     for (size_t j = i; j < comparison_groups.size(); ++j) {
       VerifyRelaxedAscending(comparison_groups[i], comparison_groups[j]);
+    }
+  }
+}
+
+TEST_F(ValueUtilTest, ComputesLowerBound) {
+  auto GetLowerBoundMessage = [](Message<google_firestore_v1_Value> value) {
+    return DeepClone(GetLowerBound(*value));
+  };
+
+  std::vector<Message<google_firestore_v1_ArrayValue>> groups;
+
+  // Lower bound of null is null
+  Add(groups, DeepClone(NullValue()),
+      GetLowerBoundMessage(DeepClone(NullValue())));
+
+  // Lower bound of MinKey is MinKey
+  Add(groups, MinKey(), GetLowerBoundMessage(DeepClone(MinKeyValue())),
+      DeepClone(MinKeyValue()));
+
+  // Booleans
+  Add(groups, false, GetLowerBoundMessage(Value(true)));
+  Add(groups, true);
+
+  // Numbers
+  Add(groups, GetLowerBoundMessage(Value(0.0)), GetLowerBoundMessage(Value(0L)),
+      GetLowerBoundMessage(Int32(0)), std::nan(""), DeepClone(MinNumber()));
+  Add(groups, INT_MIN);
+
+  // Timestamps
+  Add(groups, GetLowerBoundMessage(Value(kTimestamp1)),
+      DeepClone(MinTimestamp()));
+  Add(groups, kTimestamp1);
+
+  // BSON Timestamps
+  Add(groups, GetLowerBoundMessage(BsonTimestamp(500, 600)),
+      BsonTimestamp(0, 0), DeepClone(MinBsonTimestamp()));
+  Add(groups, BsonTimestamp(1, 1));
+
+  // Strings
+  Add(groups, GetLowerBoundMessage(Value("Z")), "", DeepClone(MinString()));
+  Add(groups, "\u0000");
+
+  // Blobs
+  Add(groups, GetLowerBoundMessage(BlobValue(1, 2, 3)), BlobValue(),
+      DeepClone(MinBytes()));
+  Add(groups, BlobValue(0));
+
+  // BSON Binary Data
+  Add(groups, GetLowerBoundMessage(BsonBinaryData(128, {128, 128})),
+      DeepClone(MinBsonBinaryData()));
+  Add(groups, BsonBinaryData(0, {0}));
+
+  // References
+  Add(groups, GetLowerBoundMessage(RefValue(DbId("p1/d1"), Key("c1/doc1"))),
+      DeepClone(MinReference()));
+  Add(groups, RefValue(DbId(), Key("a/a")));
+
+  // BSON Object Ids
+  Add(groups, GetLowerBoundMessage(BsonObjectId("ZZZ")), BsonObjectId(""),
+      DeepClone(MinBsonObjectId()));
+  Add(groups, BsonObjectId("a"));
+
+  // GeoPoints
+  Add(groups, GetLowerBoundMessage(Value(GeoPoint(30, 60))),
+      GeoPoint(-90, -180), DeepClone(MinGeoPoint()));
+  Add(groups, GeoPoint(-90, 0));
+
+  // Regular Expressions
+  Add(groups, GetLowerBoundMessage(Regex("ZZZ", "i")), Regex("", ""),
+      DeepClone(MinRegex()));
+  Add(groups, Regex("a", "i"));
+
+  // Arrays
+  Add(groups, GetLowerBoundMessage(Value(Array())), Array(),
+      DeepClone(MinArray()));
+  Add(groups, Array(false));
+
+  // Vectors
+  Add(groups, GetLowerBoundMessage(VectorType(1.0)), VectorType(),
+      DeepClone(MinVector()));
+  Add(groups, VectorType(1.0));
+
+  // Maps
+  Add(groups, GetLowerBoundMessage(Map()), Map(), DeepClone(MinMap()));
+  Add(groups, Map("a", "b"));
+
+  // MaxKey
+  Add(groups, MaxKey(), GetLowerBoundMessage(DeepClone(MaxKeyValue())),
+      DeepClone(MaxKeyValue()));
+
+  for (size_t i = 0; i < groups.size(); ++i) {
+    for (size_t j = i; j < groups.size(); ++j) {
+      VerifyRelaxedAscending(groups[i], groups[j]);
+    }
+  }
+}
+
+TEST_F(ValueUtilTest, ComputesUpperBound) {
+  auto GetUpperBoundMessage = [](Message<google_firestore_v1_Value> value) {
+    return DeepClone(GetUpperBound(*value));
+  };
+
+  std::vector<Message<google_firestore_v1_ArrayValue>> groups;
+
+  // Null first
+  Add(groups, DeepClone(NullValue()));
+
+  // The upper bound of null is MinKey
+  Add(groups, MinKey(), GetUpperBoundMessage(DeepClone(NullValue())));
+
+  // The upper bound of MinKey is boolean `false`
+  Add(groups, false, GetUpperBoundMessage(MinKey()));
+
+  // Booleans
+  Add(groups, true);
+  Add(groups, GetUpperBoundMessage(Value(false)));
+
+  // Numbers
+  Add(groups, INT_MAX);
+  Add(groups, GetUpperBoundMessage(Value(INT_MAX)),
+      GetUpperBoundMessage(Value(0L)), GetUpperBoundMessage(Int32(0)),
+      GetUpperBoundMessage(Value(std::nan(""))));
+
+  // Timestamps
+  Add(groups, kTimestamp1);
+  Add(groups, GetUpperBoundMessage(Value(kTimestamp1)));
+
+  // BSON Timestamps
+  Add(groups, BsonTimestamp(4294967295, 4294967295));  // largest BSON Timestamp
+  Add(groups, GetUpperBoundMessage(DeepClone(MinBsonTimestamp())));
+
+  // Strings
+  Add(groups, "\u0000");
+  Add(groups, GetUpperBoundMessage(DeepClone(MinString())));
+
+  // Blobs
+  Add(groups, BlobValue(255));
+  Add(groups, GetUpperBoundMessage(BlobValue()));
+
+  // BSON Binary Data
+  Add(groups, BsonBinaryData(255, {255, 255}));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinBsonBinaryData())));
+
+  // References
+  Add(groups, DeepClone(MinReference()));
+  Add(groups, RefValue(DbId(), Key("c/d")));
+  Add(groups, GetUpperBoundMessage(RefValue(DbId(), Key("a/b"))));
+
+  // BSON Object Ids
+  Add(groups, BsonObjectId("foo"));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinBsonObjectId())));
+
+  // GeoPoints
+  Add(groups, GeoPoint(90, 180));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinGeoPoint())));
+
+  // Regular Expressions
+  Add(groups, Regex("a", "i"));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinRegex())));
+
+  // Arrays
+  Add(groups, Array(false));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinArray())));
+
+  // Vectors
+  Add(groups, VectorType(1.0, 2.0, 3.0));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinVector())));
+
+  // Maps
+  Add(groups, Map("a", "b"));
+  Add(groups, GetUpperBoundMessage(DeepClone(MinMap())));
+
+  // MaxKey
+  Add(groups, MaxKey());
+
+  // The upper bound of MaxKey is internal max value.
+  Add(groups, GetUpperBoundMessage(DeepClone(MaxKeyValue())));
+
+  for (size_t i = 0; i < groups.size(); ++i) {
+    for (size_t j = i; j < groups.size(); ++j) {
+      VerifyRelaxedAscending(groups[i], groups[j]);
     }
   }
 }
@@ -519,9 +833,17 @@ TEST_F(ValueUtilTest, CanonicalId) {
   VerifyCanonicalId(Map("a", 1, "b", 2, "c", "3"), "{a:1,b:2,c:3}");
   VerifyCanonicalId(Map("a", Array("b", Map("c", GeoPoint(30, 60)))),
                     "{a:[b,{c:geo(30.0,60.0)}]}");
-  VerifyCanonicalId(
-      Map("__type__", "__vector__", "value", Array(1.0, 1.0, -2.0, 3.14)),
-      "{__type__:__vector__,value:[1.0,1.0,-2.0,3.1]}");
+  VerifyCanonicalId(VectorType(1.0, 1.0, -2.0, 3.14),
+                    "{__type__:__vector__,value:[1.0,1.0,-2.0,3.1]}");
+  VerifyCanonicalId(MinKey(), "{__min__:null}");
+  VerifyCanonicalId(MaxKey(), "{__max__:null}");
+  VerifyCanonicalId(Regex("^foo", "x"), "{__regex__:{pattern:^foo,options:x}}");
+  VerifyCanonicalId(Int32(123), "{__int__:123}");
+  VerifyCanonicalId(BsonObjectId("foo"), "{__oid__:foo}");
+  VerifyCanonicalId(BsonTimestamp(1, 2),
+                    "{__request_timestamp__:{seconds:1,increment:2}}");
+  // Binary representation: 128 = 0x80, 2 = 0x02, 3 = 0x03, 4 = 0x04
+  VerifyCanonicalId(BsonBinaryData(128, {2, 3, 4}), "{__binary__:80020304}");
 }
 
 TEST_F(ValueUtilTest, DeepClone) {

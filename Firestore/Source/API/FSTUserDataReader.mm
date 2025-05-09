@@ -24,7 +24,14 @@
 
 #import "Firestore/Source/API/FSTUserDataReader.h"
 
+#import "FIRBsonBinaryData.h"
+#import "FIRBsonObjectId.h"
+#import "FIRBsonTimestamp.h"
 #import "FIRGeoPoint.h"
+#import "FIRInt32Value.h"
+#import "FIRMaxKey.h"
+#import "FIRMinKey.h"
+#import "FIRRegexValue.h"
 #import "FIRVectorValue.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -378,6 +385,143 @@ NS_ASSUME_NONNULL_BEGIN
   return std::move(result);
 }
 
+- (Message<google_firestore_v1_Value>)parseMinKey {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+  result->map_value.fields_count = 1;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kMinKeyTypeFieldValue);
+  result->map_value.fields[0].value = *DeepClone(NullValue()).release();
+
+  return std::move(result);
+}
+
+- (Message<google_firestore_v1_Value>)parseMaxKey {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+  result->map_value.fields_count = 1;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kMaxKeyTypeFieldValue);
+  result->map_value.fields[0].value = *DeepClone(NullValue()).release();
+
+  return std::move(result);
+}
+
+- (Message<google_firestore_v1_Value>)parseRegexValue:(FIRRegexValue *)regexValue
+                                              context:(ParseContext &&)context {
+  NSString *pattern = regexValue.pattern;
+  NSString *options = regexValue.options;
+
+  __block Message<google_firestore_v1_Value> regexMessage;
+  regexMessage->which_value_type = google_firestore_v1_Value_map_value_tag;
+  regexMessage->map_value = {};
+  regexMessage->map_value.fields_count = 2;
+  regexMessage->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
+  regexMessage->map_value.fields[0].key =
+      nanopb::CopyBytesArray(model::kRegexTypePatternFieldValue);
+  regexMessage->map_value.fields[0].value = *[self encodeStringValue:MakeString(pattern)].release();
+  regexMessage->map_value.fields[1].key =
+      nanopb::CopyBytesArray(model::kRegexTypeOptionsFieldValue);
+  regexMessage->map_value.fields[1].value = *[self encodeStringValue:MakeString(options)].release();
+
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+  result->map_value.fields_count = 1;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kRegexTypeFieldValue);
+  result->map_value.fields[0].value = *regexMessage.release();
+
+  return std::move(result);
+}
+
+- (Message<google_firestore_v1_Value>)parseInt32Value:(FIRInt32Value *)int32
+                                              context:(ParseContext &&)context {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+  result->map_value.fields_count = 1;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kInt32TypeFieldValue);
+  // The 32-bit integer value is encoded as a 64-bit long in the proto.
+  result->map_value.fields[0].value =
+      *[self encodeInteger:static_cast<int64_t>(int32.value)].release();
+
+  return std::move(result);
+}
+
+- (Message<google_firestore_v1_Value>)parseBsonObjectId:(FIRBsonObjectId *)oid
+                                                context:(ParseContext &&)context {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+  result->map_value.fields_count = 1;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kBsonObjectIdTypeFieldValue);
+  result->map_value.fields[0].value = *[self encodeStringValue:MakeString(oid.value)].release();
+
+  return std::move(result);
+}
+
+- (Message<google_firestore_v1_Value>)parseBsonTimestamp:(FIRBsonTimestamp *)timestamp
+                                                 context:(ParseContext &&)context {
+  uint32_t seconds = timestamp.seconds;
+  uint32_t increment = timestamp.increment;
+
+  __block Message<google_firestore_v1_Value> timestampMessage;
+  timestampMessage->which_value_type = google_firestore_v1_Value_map_value_tag;
+  timestampMessage->map_value = {};
+  timestampMessage->map_value.fields_count = 2;
+  timestampMessage->map_value.fields =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
+
+  timestampMessage->map_value.fields[0].key =
+      nanopb::CopyBytesArray(model::kBsonTimestampTypeSecondsFieldValue);
+  // The 32-bit unsigned integer value is encoded as a 64-bit long in the proto.
+  timestampMessage->map_value.fields[0].value =
+      *[self encodeInteger:static_cast<int64_t>(seconds)].release();
+
+  timestampMessage->map_value.fields[1].key =
+      nanopb::CopyBytesArray(model::kBsonTimestampTypeIncrementFieldValue);
+  // The 32-bit unsigned integer value is encoded as a 64-bit long in the proto.
+  timestampMessage->map_value.fields[1].value =
+      *[self encodeInteger:static_cast<int64_t>(increment)].release();
+
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+  result->map_value.fields_count = 1;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kBsonTimestampTypeFieldValue);
+  result->map_value.fields[0].value = *timestampMessage.release();
+
+  return std::move(result);
+}
+
+- (Message<google_firestore_v1_Value>)parseBsonBinaryData:(FIRBsonBinaryData *)binaryData
+                                                  context:(ParseContext &&)context {
+  uint8_t subtypeByte = binaryData.subtype;
+  NSData *data = binaryData.data;
+
+  // We need to prepend the data with one byte representation of the subtype.
+  NSMutableData *concatData = [NSMutableData data];
+  [concatData appendBytes:&subtypeByte length:1];
+  [concatData appendData:data];
+
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+  result->map_value.fields_count = 1;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kBsonBinaryDataTypeFieldValue);
+  result->map_value.fields[0].value =
+      *[self encodeBlob:(nanopb::MakeByteString(concatData))].release();
+
+  return std::move(result);
+}
+
 - (Message<google_firestore_v1_Value>)parseArray:(NSArray<id> *)array
                                          context:(ParseContext &&)context {
   __block Message<google_firestore_v1_Value> result;
@@ -569,6 +713,25 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([input isKindOfClass:[FIRVectorValue class]]) {
     FIRVectorValue *vector = input;
     return [self parseVectorValue:vector context:std::move(context)];
+  } else if ([input isKindOfClass:[FIRMinKey class]]) {
+    return [self parseMinKey];
+  } else if ([input isKindOfClass:[FIRMaxKey class]]) {
+    return [self parseMaxKey];
+  } else if ([input isKindOfClass:[FIRRegexValue class]]) {
+    FIRRegexValue *regex = input;
+    return [self parseRegexValue:regex context:std::move(context)];
+  } else if ([input isKindOfClass:[FIRInt32Value class]]) {
+    FIRInt32Value *value = input;
+    return [self parseInt32Value:value context:std::move(context)];
+  } else if ([input isKindOfClass:[FIRBsonObjectId class]]) {
+    FIRBsonObjectId *oid = input;
+    return [self parseBsonObjectId:oid context:std::move(context)];
+  } else if ([input isKindOfClass:[FIRBsonTimestamp class]]) {
+    FIRBsonTimestamp *timestamp = input;
+    return [self parseBsonTimestamp:timestamp context:std::move(context)];
+  } else if ([input isKindOfClass:[FIRBsonBinaryData class]]) {
+    FIRBsonBinaryData *binaryData = input;
+    return [self parseBsonBinaryData:binaryData context:std::move(context)];
   } else {
     ThrowInvalidArgument("Unsupported type: %s%s", NSStringFromClass([input class]),
                          context.FieldDescription());
