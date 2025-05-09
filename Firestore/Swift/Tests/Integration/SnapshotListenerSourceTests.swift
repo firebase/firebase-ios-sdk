@@ -757,8 +757,8 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
   func testCanListenToDocumentsWithBsonTypes() throws {
     let collection = collectionRef()
     let testData = [
-      "a": ["key": MaxKey.instance()],
-      "b": ["key": MinKey.instance()],
+      "a": ["key": MaxKey.shared],
+      "b": ["key": MinKey.shared],
       "c": ["key": BsonTimestamp(seconds: 1, increment: 2)],
       "d": ["key": BsonObjectId("507f191e810c19729de860ea")],
       "e": ["key": BsonBinaryData(subtype: 1, data: Data([1, 2, 3]))],

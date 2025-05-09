@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(Int32Value)
-@interface FIRInt32Value : NSObject <NSCopying>
+__attribute__((objc_subclassing_restricted))
+@interface FIRInt32Value : NSObject<NSCopying>
 
 /** The 32-bit integer value. */
 @property(atomic, assign, readonly) int32_t value;

@@ -122,9 +122,9 @@ NS_ASSUME_NONNULL_BEGIN
       return MakeFIRGeoPoint(
           GeoPoint(value.geo_point_value.latitude, value.geo_point_value.longitude));
     case TypeOrder::kMinKey:
-      return [FIRMinKey instance];
+      return [FIRMinKey shared];
     case TypeOrder::kMaxKey:
-      return [FIRMaxKey instance];
+      return [FIRMaxKey shared];
     case TypeOrder::kRegex:
       return [self convertedRegex:value.map_value];
     case TypeOrder::kBsonObjectId:

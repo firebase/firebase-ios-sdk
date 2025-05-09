@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(BsonBinaryData)
-@interface FIRBsonBinaryData : NSObject <NSCopying>
+__attribute__((objc_subclassing_restricted))
+@interface FIRBsonBinaryData : NSObject<NSCopying>
 
 /** An 8-bit unsigned integer denoting the subtype of the data. */
 @property(atomic, readonly) uint8_t subtype;

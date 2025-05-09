@@ -33,15 +33,15 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRBsonTypesUnitTests
 
 - (void)testMinKeySingleton {
-  FIRMinKey *minKey1 = [FIRMinKey instance];
-  FIRMinKey *minKey2 = [FIRMinKey instance];
+  FIRMinKey *minKey1 = [FIRMinKey shared];
+  FIRMinKey *minKey2 = [FIRMinKey shared];
   XCTAssertEqual(minKey1, minKey2);
   XCTAssertTrue([minKey1 isEqual:minKey2]);
 }
 
 - (void)testMaxKeySingleton {
-  FIRMaxKey *maxKey1 = [FIRMaxKey instance];
-  FIRMaxKey *maxKey2 = [FIRMaxKey instance];
+  FIRMaxKey *maxKey1 = [FIRMaxKey shared];
+  FIRMaxKey *maxKey2 = [FIRMaxKey shared];
   XCTAssertEqual(maxKey1, maxKey2);
   XCTAssertTrue([maxKey1 isEqual:maxKey2]);
 }
@@ -128,15 +128,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testFieldValueMinKey {
-  FIRMinKey *minKey1 = [FIRMinKey instance];
-  FIRMinKey *minKey2 = [FIRMinKey instance];
+  FIRMinKey *minKey1 = [FIRMinKey shared];
+  FIRMinKey *minKey2 = [FIRMinKey shared];
   XCTAssertEqual(minKey1, minKey2);
   XCTAssertTrue([minKey1 isEqual:minKey2]);
 }
 
 - (void)testFieldValueMaxKey {
-  FIRMaxKey *maxKey1 = [FIRMaxKey instance];
-  FIRMaxKey *maxKey2 = [FIRMaxKey instance];
+  FIRMaxKey *maxKey1 = [FIRMaxKey shared];
+  FIRMaxKey *maxKey2 = [FIRMaxKey shared];
   XCTAssertEqual(maxKey1, maxKey2);
   XCTAssertTrue([maxKey1 isEqual:maxKey2]);
 }

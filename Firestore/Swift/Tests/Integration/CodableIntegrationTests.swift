@@ -128,8 +128,8 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
                       vector: FieldValue.vector([0.7, 0.6]),
                       regex: RegexValue(pattern: "^foo", options: "i"),
                       int32: Int32Value(1),
-                      minKey: MinKey.instance(),
-                      maxKey: MaxKey.instance(),
+                      minKey: MinKey.shared,
+                      maxKey: MaxKey.shared,
                       bsonOjectId: BsonObjectId("507f191e810c19729de860ec"),
                       bsonTimestamp: BsonTimestamp(seconds: 123, increment: 456),
                       bsonBinaryData: BsonBinaryData(subtype: 128, data: Data([1, 2])))
@@ -233,11 +233,11 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMinKey() throws {
-    try assertCanWriteAndReadCodableValueWithAllFlavors(value: MinKey.instance())
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: MinKey.shared)
   }
 
   func testMaxKey() throws {
-    try assertCanWriteAndReadCodableValueWithAllFlavors(value: MaxKey.instance())
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: MaxKey.shared)
   }
 
   func testRegexValue() throws {

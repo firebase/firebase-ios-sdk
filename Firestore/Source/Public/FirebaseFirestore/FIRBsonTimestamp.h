@@ -24,7 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(BsonTimestamp)
-@interface FIRBsonTimestamp : NSObject <NSCopying>
+__attribute__((objc_subclassing_restricted))
+@interface FIRBsonTimestamp : NSObject<NSCopying>
 
 /** The underlying unsigned 32-bit integer for seconds */
 @property(atomic, readonly) uint32_t seconds;

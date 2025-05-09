@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 static FIRMinKey *sharedInstance = nil;
 static dispatch_once_t onceToken;
 
-+ (FIRMinKey *)instance {
++ (FIRMinKey *)shared {
   dispatch_once(&onceToken, ^{
     sharedInstance = [[self alloc] init];
   });

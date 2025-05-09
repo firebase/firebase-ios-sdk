@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(RegexValue)
-@interface FIRRegexValue : NSObject <NSCopying>
+__attribute__((objc_subclassing_restricted))
+@interface FIRRegexValue : NSObject<NSCopying>
 
 /** The regular expression pattern */
 @property(atomic, copy, readonly) NSString *pattern;

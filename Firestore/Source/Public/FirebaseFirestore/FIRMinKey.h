@@ -23,10 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(MinKey)
+__attribute__((objc_subclassing_restricted))
 @interface FIRMinKey : NSObject
 
-/** Returns the only instance of MinKey. */
-+ (FIRMinKey *)instance;
+/** The only instance of MinKey. */
+@property(class, readonly) FIRMinKey *shared;
 
 /** Returns true if the given object is equal to this, and false otherwise. */
 - (BOOL)isEqual:(id)object;

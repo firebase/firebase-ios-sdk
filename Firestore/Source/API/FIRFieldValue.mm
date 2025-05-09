@@ -189,11 +189,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (nonnull FIRMinKey *)minKey {
-  return [FIRMinKey instance];
+  return [FIRMinKey shared];
 }
 
 + (nonnull FIRMaxKey *)maxKey {
-  return [FIRMaxKey instance];
+  return [FIRMaxKey shared];
 }
 
 + (nonnull FIRRegexValue *)regexWithPattern:(nonnull NSString *)pattern

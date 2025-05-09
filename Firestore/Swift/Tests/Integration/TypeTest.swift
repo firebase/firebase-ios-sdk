@@ -97,15 +97,15 @@ class TypeTest: FSTIntegrationTestCase {
    */
 
   func testMinKeyEquality() {
-    let k1 = MinKey.instance()
-    let k2 = MinKey.instance()
+    let k1 = MinKey.shared
+    let k2 = MinKey.shared
     XCTAssertTrue(k1 == k2)
     XCTAssertFalse(k1 != k2)
   }
 
   func testMaxKeyEquality() {
-    let k1 = MaxKey.instance()
-    let k2 = MaxKey.instance()
+    let k1 = MaxKey.shared
+    let k2 = MaxKey.shared
     XCTAssertTrue(k1 == k2)
     XCTAssertFalse(k1 != k2)
   }
@@ -182,14 +182,14 @@ class TypeTest: FSTIntegrationTestCase {
   func testCanReadAndWriteMinKeyFields() async throws {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["min": MinKey.instance()]
+      data: ["min": MinKey.shared]
     )
   }
 
   func testCanReadAndWriteMaxKeyFields() async throws {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["max": MaxKey.instance()]
+      data: ["max": MaxKey.shared]
     )
   }
 
@@ -244,8 +244,8 @@ class TypeTest: FSTIntegrationTestCase {
         BsonObjectId("507f191e810c19729de860ea"),
         BsonTimestamp(seconds: 123, increment: 456),
         Int32Value(1),
-        MinKey.instance(),
-        MaxKey.instance(),
+        MinKey.shared,
+        MaxKey.shared,
         RegexValue(pattern: "^foo", options: "i"),
       ]]
     )
@@ -259,8 +259,8 @@ class TypeTest: FSTIntegrationTestCase {
         "objectId": BsonObjectId("507f191e810c19729de860ea"),
         "bsonTimestamp": BsonTimestamp(seconds: 123, increment: 456),
         "int32": Int32Value(1),
-        "min": MinKey.instance(),
-        "max": MaxKey.instance(),
+        "min": MinKey.shared,
+        "max": MaxKey.shared,
         "regex": RegexValue(pattern: "^foo", options: "i"),
       ]]
     )
@@ -307,7 +307,7 @@ class TypeTest: FSTIntegrationTestCase {
     let collection = collectionRef()
     let testDocs: [String: [String: Any?]] = [
       "nullValue": ["key": NSNull()],
-      "minValue": ["key": MinKey.instance()],
+      "minValue": ["key": MinKey.shared],
       "booleanValue": ["key": true],
       "nanValue": ["key": Double.nan],
       "int32Value": ["key": Int32Value(1)],
@@ -325,7 +325,7 @@ class TypeTest: FSTIntegrationTestCase {
       "arrayValue": ["key": [1, 2]],
       "vectorValue": ["key": VectorValue([1.0, 2.0])],
       "objectValue": ["key": ["a": 1]],
-      "maxValue": ["key": MaxKey.instance()],
+      "maxValue": ["key": MaxKey.shared],
     ]
 
     for (docId, data) in testDocs {

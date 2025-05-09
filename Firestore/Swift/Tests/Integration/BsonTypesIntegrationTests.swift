@@ -107,8 +107,8 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "binary": BsonBinaryData(subtype: 1, data: Data([1, 2, 3])),
       "objectId": BsonObjectId("507f191e810c19729de860ea"),
       "int32": Int32Value(1),
-      "min": MinKey.instance(),
-      "max": MaxKey.instance(),
+      "min": MinKey.shared,
+      "max": MaxKey.shared,
       "regex": RegexValue(pattern: "^foo", options: "i"),
     ])
 
@@ -129,11 +129,11 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     )
     XCTAssertEqual(
       snapshot.get("min") as? MinKey,
-      MinKey.instance()
+      MinKey.shared
     )
     XCTAssertEqual(
       snapshot.get("max") as? MaxKey,
-      MaxKey.instance()
+      MaxKey.shared
     )
     XCTAssertEqual(
       snapshot.get("binary") as? BsonBinaryData,
@@ -160,8 +160,8 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "binary": BsonBinaryData(subtype: 1, data: Data([1, 2, 3])),
       "objectId": BsonObjectId("507f191e810c19729de860ea"),
       "int32": Int32Value(1),
-      "min": MinKey.instance(),
-      "max": MaxKey.instance(),
+      "min": MinKey.shared,
+      "max": MaxKey.shared,
       "regex": RegexValue(pattern: "^foo", options: "i"),
     ])
     ref.updateData([
@@ -181,11 +181,11 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     )
     XCTAssertEqual(
       snapshot.get("min") as? MinKey,
-      MinKey.instance()
+      MinKey.shared
     )
     XCTAssertEqual(
       snapshot.get("max") as? MaxKey,
-      MaxKey.instance()
+      MaxKey.shared
     )
     XCTAssertEqual(
       snapshot.get("binary") as? BsonBinaryData,
@@ -367,18 +367,18 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
 
   func testCanFilterAndOrderMinKeyValues() async throws {
     let testDocs: [String: [String: Any]] = [
-      "a": ["key": MinKey.instance()],
-      "b": ["key": MinKey.instance()],
+      "a": ["key": MinKey.shared],
+      "b": ["key": MinKey.shared],
       "c": ["key": NSNull()],
       "d": ["key": 1],
-      "e": ["key": MaxKey.instance()],
+      "e": ["key": MaxKey.shared],
     ]
 
     let collection = collectionRef()
     await setDocumentData(testDocs, toCollection: collection)
 
     var query = collection
-      .whereField("key", isEqualTo: MinKey.instance())
+      .whereField("key", isEqualTo: MinKey.shared)
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -390,7 +390,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     // TODO(b/410032145): This currently fails, and is fixed by
     // PR #14704. Uncomment this when moving to the main branch.
     // var query2 = collection
-    //   .whereField("key", isNotEqualTo: MinKey.instance())
+    //   .whereField("key", isNotEqualTo: MinKey.shared))
     //   .order(by: "key")
     // try await assertSdkQueryResultsConsistentWithBackend(
     //   testDocs,
@@ -400,7 +400,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     // )
 
     query = collection
-      .whereField("key", isGreaterThanOrEqualTo: MinKey.instance())
+      .whereField("key", isGreaterThanOrEqualTo: MinKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -410,7 +410,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     )
 
     query = collection
-      .whereField("key", isLessThanOrEqualTo: MinKey.instance())
+      .whereField("key", isLessThanOrEqualTo: MinKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -420,7 +420,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     )
 
     query = collection
-      .whereField("key", isGreaterThan: MinKey.instance())
+      .whereField("key", isGreaterThan: MinKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -430,7 +430,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     )
 
     query = collection
-      .whereField("key", isLessThan: MinKey.instance())
+      .whereField("key", isLessThan: MinKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -452,10 +452,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
 
   func testCanFilterAndOrderMaxKeyValues() async throws {
     let testDocs: [String: [String: Any]] = [
-      "a": ["key": MinKey.instance()],
+      "a": ["key": MinKey.shared],
       "b": ["key": 1],
-      "c": ["key": MaxKey.instance()],
-      "d": ["key": MaxKey.instance()],
+      "c": ["key": MaxKey.shared],
+      "d": ["key": MaxKey.shared],
       "e": ["key": NSNull()],
     ]
 
@@ -463,7 +463,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     await setDocumentData(testDocs, toCollection: collection)
 
     var query = collection
-      .whereField("key", isEqualTo: MaxKey.instance())
+      .whereField("key", isEqualTo: MaxKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -475,7 +475,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     // TODO(b/410032145): This currently fails, and is fixed by
     // PR #14704. Uncomment this when moving to the main branch.
     // query = collection
-    //   .whereField("key", isNotEqualTo: MaxKey.instance())
+    //   .whereField("key", isNotEqualTo: MaxKey.shared))
     //   .order(by: "key")
     // try await assertSdkQueryResultsConsistentWithBackend(
     //   testDocs,
@@ -485,7 +485,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     // )
 
     query = collection
-      .whereField("key", isGreaterThanOrEqualTo: MaxKey.instance())
+      .whereField("key", isGreaterThanOrEqualTo: MaxKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -495,7 +495,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     )
 
     query = collection
-      .whereField("key", isLessThanOrEqualTo: MaxKey.instance())
+      .whereField("key", isLessThanOrEqualTo: MaxKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -505,7 +505,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     )
 
     query = collection
-      .whereField("key", isGreaterThan: MaxKey.instance())
+      .whereField("key", isGreaterThan: MaxKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -515,7 +515,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     )
 
     query = collection
-      .whereField("key", isLessThan: MaxKey.instance())
+      .whereField("key", isLessThan: MaxKey.shared)
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
@@ -537,11 +537,11 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
 
   func testCanHandleNullWithBsonValues() async throws {
     let testDocs: [String: [String: Any]] = [
-      "a": ["key": MinKey.instance()],
+      "a": ["key": MinKey.shared],
       "b": ["key": NSNull()],
       "c": ["key": NSNull()],
       "d": ["key": 1],
-      "e": ["key": MaxKey.instance()],
+      "e": ["key": MaxKey.shared],
     ]
 
     let collection = collectionRef()
@@ -587,10 +587,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "int32Value1": ["key": Int32Value(-1)],
       "int32Value2": ["key": Int32Value(1)],
       "int32Value3": ["key": Int32Value(0)],
-      "minKey1": ["key": MinKey.instance()],
-      "minKey2": ["key": MinKey.instance()],
-      "maxKey1": ["key": MaxKey.instance()],
-      "maxKey2": ["key": MaxKey.instance()],
+      "minKey1": ["key": MinKey.shared],
+      "minKey2": ["key": MinKey.shared],
+      "maxKey1": ["key": MaxKey.shared],
+      "maxKey2": ["key": MaxKey.shared],
     ]
 
     let collection = collectionRef()
@@ -628,7 +628,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     let collection = collectionRef()
     let testDocs: [String: [String: Any]] = [
       "nullValue": ["key": NSNull()],
-      "minValue": ["key": MinKey.instance()],
+      "minValue": ["key": MinKey.shared],
       "booleanValue": ["key": true],
       "nanValue": ["key": Double.nan],
       "int32Value": ["key": Int32Value(1)],
@@ -646,7 +646,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "arrayValue": ["key": [1, 2]],
       "vectorValue": ["key": VectorValue([1.0, 2.0])],
       "objectValue": ["key": ["a": 1]],
-      "maxValue": ["key": MaxKey.instance()],
+      "maxValue": ["key": MaxKey.shared],
     ]
 
     for (docId, data) in testDocs {

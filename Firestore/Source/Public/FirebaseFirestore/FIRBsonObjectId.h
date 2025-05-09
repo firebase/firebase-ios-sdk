@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(BsonObjectId)
-@interface FIRBsonObjectId : NSObject <NSCopying>
+__attribute__((objc_subclassing_restricted))
+@interface FIRBsonObjectId : NSObject<NSCopying>
 
 /** The 24-character hex string representation of the ObjectId. */
 @property(atomic, copy, readonly) NSString *value;
