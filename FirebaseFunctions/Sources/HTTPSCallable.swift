@@ -71,10 +71,39 @@ open class HTTPSCallable: NSObject, @unchecked Sendable {
   /// - Parameters:
   ///   - data: Parameters to pass to the trigger.
   ///   - completion: The block to call when the HTTPS request has completed.
+  @available(swift 1000.0) // Objective-C only API
   @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
                                                    completion: @escaping @MainActor (HTTPSCallableResult?,
                                                                                      Error?)
                                                      -> Void) {
+    sendableCallable.call(SendableWrapper(value: data as Any), completion: completion)
+  }
+
+  /// Executes this Callable HTTPS trigger asynchronously.
+  ///
+  /// The data passed into the trigger can be any of the following types:
+  /// - `nil` or `NSNull`
+  /// - `String`
+  /// - `NSNumber`, or any Swift numeric type bridgeable to `NSNumber`
+  /// - `[Any]`, where the contained objects are also one of these types.
+  /// - `[String: Any]` where the values are also one of these types.
+  ///
+  /// The request to the Cloud Functions backend made by this method automatically includes a
+  /// Firebase Installations ID token to identify the app instance. If a user is logged in with
+  /// Firebase Auth, an auth ID token for the user is also automatically included.
+  ///
+  /// Firebase Cloud Messaging sends data to the Firebase backend periodically to collect
+  /// information
+  /// regarding the app instance. To stop this, see `Messaging.deleteData()`. It
+  /// resumes with a new FCM Token the next time you call this method.
+  ///
+  /// - Parameters:
+  ///   - data: Parameters to pass to the trigger.
+  ///   - completion: The block to call when the HTTPS request has completed.
+  @nonobjc open func call(_ data: sending Any? = nil,
+                          completion: @escaping @MainActor (HTTPSCallableResult?,
+                                                            Error?)
+                            -> Void) {
     sendableCallable.call(data, completion: completion)
   }
 
@@ -154,6 +183,7 @@ private extension HTTPSCallable {
 
     func call(_ data: sending Any? = nil,
               completion: @escaping @MainActor (HTTPSCallableResult?, Error?) -> Void) {
+      let data = (data as? SendableWrapper)?.value ?? data
       if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
         Task {
           do {
