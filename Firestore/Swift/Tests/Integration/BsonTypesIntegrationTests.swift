@@ -77,6 +77,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
   // 2. Performing the given query using source=server.
   // 3. Performing the given query using source=cache.
   func assertSdkQueryResultsConsistentWithBackend(_ documentDataMap: [String: [String: Any]],
+                                                  collection: CollectionReference,
                                                   query: Query,
                                                   expectedResult: [String]) async throws {
     let watchSnapshot = try await Future<QuerySnapshot, Error>() { promise in
@@ -97,7 +98,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       description: "snapshot listener"
     )
 
-    checkOnlineAndOfflineQuery(query, matchesResult: expectedResult)
+    checkOnlineAndOfflineCollection(collection, query: query, matchesResult: expectedResult)
   }
 
   func testCanWriteAndReadBsonTypes() async throws {
@@ -216,6 +217,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
 
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "b"]
     )
@@ -229,6 +231,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["b", "a"]
     )
@@ -249,6 +252,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "b"]
     )
@@ -258,6 +262,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "a"]
     )
@@ -278,6 +283,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "b"]
     )
@@ -287,6 +293,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "b"]
     )
@@ -310,6 +317,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "b"]
     )
@@ -326,6 +334,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["b", "a"]
     )
@@ -350,6 +359,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       ).order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "a"]
     )
@@ -372,6 +382,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key", descending: true)
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["b", "a"]
     )
@@ -383,6 +394,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     //   .order(by: "key")
     // try await assertSdkQueryResultsConsistentWithBackend(
     //   testDocs,
+    //   collection: collection,
     //   query: query2,
     //   expectedResult: ["d", "e"]
     // )
@@ -392,6 +404,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["a", "b"]
     )
@@ -401,6 +414,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["a", "b"]
     )
@@ -410,6 +424,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: []
     )
@@ -419,6 +434,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: []
     )
@@ -428,6 +444,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: []
     )
@@ -450,6 +467,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "d"]
     )
@@ -461,6 +479,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     //   .order(by: "key")
     // try await assertSdkQueryResultsConsistentWithBackend(
     //   testDocs,
+    //   collection: collection,
     //   query: query,
     //   expectedResult: ["a", "b"]
     // )
@@ -470,6 +489,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "d"]
     )
@@ -479,6 +499,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["c", "d"]
     )
@@ -488,6 +509,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: []
     )
@@ -497,6 +519,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: []
     )
@@ -506,6 +529,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: []
     )
@@ -528,6 +552,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["b", "c"]
     )
@@ -537,6 +562,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       .order(by: "key")
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: query,
       expectedResult: ["a", "d", "e"]
     )
@@ -571,27 +597,29 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     await setDocumentData(testDocs, toCollection: collection)
 
     let query = collection.order(by: "key", descending: true)
-    try await assertSdkQueryResultsConsistentWithBackend(testDocs, query: query, expectedResult: [
-      "maxKey2",
-      "maxKey1",
-      "regex3",
-      "regex1",
-      "regex2",
-      "bsonObjectId2",
-      "bsonObjectId1",
-      "bsonObjectId3",
-      "bsonBinary3",
-      "bsonBinary2",
-      "bsonBinary1",
-      "bsonTimestamp1",
-      "bsonTimestamp2",
-      "bsonTimestamp3",
-      "int32Value2",
-      "int32Value3",
-      "int32Value1",
-      "minKey2",
-      "minKey1",
-    ])
+    try await assertSdkQueryResultsConsistentWithBackend(testDocs,
+                                                         collection: collection,
+                                                         query: query, expectedResult: [
+                                                           "maxKey2",
+                                                           "maxKey1",
+                                                           "regex3",
+                                                           "regex1",
+                                                           "regex2",
+                                                           "bsonObjectId2",
+                                                           "bsonObjectId1",
+                                                           "bsonObjectId3",
+                                                           "bsonBinary3",
+                                                           "bsonBinary2",
+                                                           "bsonBinary1",
+                                                           "bsonTimestamp1",
+                                                           "bsonTimestamp2",
+                                                           "bsonTimestamp3",
+                                                           "int32Value2",
+                                                           "int32Value3",
+                                                           "int32Value1",
+                                                           "minKey2",
+                                                           "minKey1",
+                                                         ])
   }
 
   func testCanOrderValuesOfDifferentTypes() async throws {
@@ -652,6 +680,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
 
     try await assertSdkQueryResultsConsistentWithBackend(
       testDocs,
+      collection: collection,
       query: orderedQuery,
       expectedResult: expectedOrder
     )
