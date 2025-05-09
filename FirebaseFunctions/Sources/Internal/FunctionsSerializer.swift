@@ -31,6 +31,13 @@ extension FunctionsSerializer {
 final class FunctionsSerializer: Sendable {
   // MARK: - Internal APIs
 
+  // This function only supports the following types and will otherwise throw
+  // an error.
+  // - NSNull (note: `nil` collection values from a Swift caller will be treated as NSNull)
+  // - NSNumber
+  // - NSString
+  // - NSDicionary
+  // - NSArray
   func encode(_ object: Any) throws -> Any {
     if object is NSNull {
       return object
@@ -53,6 +60,13 @@ final class FunctionsSerializer: Sendable {
     }
   }
 
+  // This function only supports the following types and will otherwise throw
+  // an error.
+  // - NSNull (note: `nil` collection values from a Swift caller will be treated as NSNull)
+  // - NSNumber
+  // - NSString
+  // - NSDicionary
+  // - NSArray
   func decode(_ object: Any) throws -> Any {
     // Return these types as is. PORTING NOTE: Moved from the bottom of the func for readability.
     if let dict = object as? NSDictionary {

@@ -151,8 +151,10 @@ private extension FunctionsErrorCode {
   }
 }
 
+// TODO(ncooke3): Revisit this unchecked Sendable conformance.
+
 /// The object used to report errors that occur during a function’s execution.
-struct FunctionsError: CustomNSError {
+struct FunctionsError: CustomNSError, @unchecked Sendable {
   static let errorDomain = FunctionsErrorDomain
 
   let code: FunctionsErrorCode
