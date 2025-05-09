@@ -217,9 +217,9 @@ struct FunctionsError: CustomNSError {
     }
 
     if code == .OK {
-      // Technically, there's an edge case where a developer could explicitly return an error code
-      // of
-      // OK, and we will treat it as success, but that seems reasonable.
+      // Technically, there's an edge case where a developer could explicitly
+      // return an error code of OK, and we will treat it as success, but that
+      // seems reasonable.
       return nil
     }
 
