@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseSharedSwift
+@preconcurrency import FirebaseSharedSwift
 import Foundation
 
 /// A `Callable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
@@ -20,7 +20,7 @@ import Foundation
 /// - Note: If the Callable HTTPS trigger accepts no parameters, ``Never`` can be used for
 ///   iOS 17.0+. Otherwise, a simple encodable placeholder type (e.g.,
 ///   `struct EmptyRequest: Encodable {}`) can be used.
-public struct Callable<Request: Encodable, Response: Decodable> {
+public struct Callable<Request: Encodable, Response: Decodable>: Sendable {
   /// The timeout to use when calling the function. Defaults to 70 seconds.
   public var timeoutInterval: TimeInterval {
     get {
@@ -61,11 +61,10 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   /// - Parameter data: Parameters to pass to the trigger.
   /// - Parameter completion: The block to call when the HTTPS request has completed.
   public func call(_ data: Request,
-                   completion: @escaping (Result<Response, Error>)
+                   completion: @escaping @MainActor (Result<Response, Error>)
                      -> Void) {
     do {
       let encoded = try encoder.encode(data)
-
       callable.call(encoded) { result, error in
         do {
           if let result {
@@ -81,7 +80,9 @@ public struct Callable<Request: Encodable, Response: Decodable> {
         }
       }
     } catch {
-      completion(.failure(error))
+      DispatchQueue.main.async {
+        completion(.failure(error))
+      }
     }
   }
 
@@ -108,7 +109,7 @@ public struct Callable<Request: Encodable, Response: Decodable> {
   ///   - data: Parameters to pass to the trigger.
   ///   - completion: The block to call when the HTTPS request has completed.
   public func callAsFunction(_ data: Request,
-                             completion: @escaping (Result<Response, Error>)
+                             completion: @escaping @MainActor (Result<Response, Error>)
                                -> Void) {
     call(data, completion: completion)
   }
@@ -265,9 +266,9 @@ public extension Callable where Request: Sendable, Response: Sendable {
   /// - Returns: A stream wrapping responses yielded by the streaming callable function or
   ///   a ``FunctionsError`` if an error occurred.
   func stream(_ data: Request? = nil) throws -> AsyncThrowingStream<Response, Error> {
-    let encoded: Any
+    let encoded: SendableWrapper
     do {
-      encoded = try encoder.encode(data)
+      encoded = try SendableWrapper(value: encoder.encode(data))
     } catch {
       throw FunctionsError(.invalidArgument, userInfo: [NSUnderlyingErrorKey: error])
     }
@@ -335,4 +336,13 @@ public extension Callable where Request: Sendable, Response: Sendable {
 enum JSONStreamResponse {
   case message([String: Any])
   case result([String: Any])
+}
+
+// TODO(Swift 6): Remove need for below type by changing `FirebaseDataEncoder` to not returning
+// `Any`.
+/// This wrapper is only intended to be used for passing encoded data in the
+/// `stream` function's hierarchy. When using, carefully audit that `value` is
+/// only ever accessed in one isolation domain.
+struct SendableWrapper: @unchecked Sendable {
+  let value: Any
 }

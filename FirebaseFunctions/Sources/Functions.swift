@@ -19,18 +19,18 @@ import FirebaseMessagingInterop
 import FirebaseSharedSwift
 import Foundation
 #if COCOAPODS
-  import GTMSessionFetcher
+  @preconcurrency import GTMSessionFetcher
 #else
-  import GTMSessionFetcherCore
+  @preconcurrency import GTMSessionFetcherCore
 #endif
 
 internal import FirebaseCoreExtension
 
-final class AtomicBox<T> {
-  private var _value: T
+final class AtomicBox<T>: Sendable {
+  private nonisolated(unsafe) var _value: T
   private let lock = NSLock()
 
-  public init(_ value: T) {
+  public init(_ value: T) where T: Sendable {
     _value = value
   }
 
@@ -68,7 +68,7 @@ enum FunctionsConstants {
 }
 
 /// `Functions` is the client for Cloud Functions for a Firebase project.
-@objc(FIRFunctions) open class Functions: NSObject {
+@objc(FIRFunctions) open class Functions: NSObject, @unchecked Sendable {
   // MARK: - Private Variables
 
   /// The network client to use for http requests.
@@ -82,7 +82,7 @@ enum FunctionsConstants {
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
-  private nonisolated(unsafe) static var instances: AtomicBox<[String: [Functions]]> =
+  private static let instances: AtomicBox<[String: [Functions]]> =
     AtomicBox([:])
 
   /// The custom domain to use for all functions references (optional).
@@ -91,10 +91,14 @@ enum FunctionsConstants {
   /// The region to use for all function references.
   let region: String
 
+  private let _emulatorOrigin: AtomicBox<String?>
+
   // MARK: - Public APIs
 
   /// The current emulator origin, or `nil` if it is not set.
-  open private(set) var emulatorOrigin: String?
+  open var emulatorOrigin: String? {
+    _emulatorOrigin.value()
+  }
 
   /// Creates a Cloud Functions client using the default or returns a pre-existing instance if it
   /// already exists.
@@ -318,7 +322,9 @@ enum FunctionsConstants {
   @objc open func useEmulator(withHost host: String, port: Int) {
     let prefix = host.hasPrefix("http") ? "" : "http://"
     let origin = String(format: "\(prefix)\(host):%li", port)
-    emulatorOrigin = origin
+    _emulatorOrigin.withLock { emulatorOrigin in
+      emulatorOrigin = origin
+    }
   }
 
   // MARK: - Private Funcs (or Internal for tests)
@@ -365,7 +371,7 @@ enum FunctionsConstants {
     self.projectID = projectID
     self.region = region
     self.customDomain = customDomain
-    emulatorOrigin = nil
+    _emulatorOrigin = AtomicBox(nil)
     contextProvider = FunctionsContextProvider(auth: auth,
                                                messaging: messaging,
                                                appCheck: appCheck)
@@ -414,7 +420,7 @@ enum FunctionsConstants {
   func callFunction(at url: URL,
                     withObject data: Any?,
                     options: HTTPSCallableOptions?,
-                    timeout: TimeInterval) async throws -> HTTPSCallableResult {
+                    timeout: TimeInterval) async throws -> sending HTTPSCallableResult {
     let context = try await contextProvider.context(options: options)
     let fetcher = try makeFetcher(
       url: url,
@@ -501,7 +507,7 @@ enum FunctionsConstants {
 
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func stream(at url: URL,
-              data: Any?,
+              data: SendableWrapper?,
               options: HTTPSCallableOptions?,
               timeout: TimeInterval)
     -> AsyncThrowingStream<JSONStreamResponse, Error> {
@@ -512,7 +518,7 @@ enum FunctionsConstants {
           let context = try await contextProvider.context(options: options)
           urlRequest = try makeRequestForStreamableContent(
             url: url,
-            data: data,
+            data: data?.value,
             options: options,
             timeout: timeout,
             context: context
