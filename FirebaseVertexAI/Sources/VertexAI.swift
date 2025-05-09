@@ -17,11 +17,26 @@
 import FirebaseCore
 
 /// The Vertex AI for Firebase SDK provides access to Gemini models directly from your app.
+///
+/// @DeprecationSummary {
+///   The Vertex AI in Firebase library (`FirebaseVertexAI`) has been replaced with the FirebaseAI
+///   library (`FirebaseAI`) to accommodate the evolving set of supported features and services.
+/// }
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public class VertexAI {
   // MARK: - Public APIs
 
   /// Creates an instance of `VertexAI`.
+  ///
+  /// @DeprecationSummary {
+  ///   The Vertex AI in Firebase library (`FirebaseVertexAI`) has been replaced with the FirebaseAI
+  ///   library (`FirebaseAI`) to accommodate the evolving set of supported features and services.
+  ///
+  ///   Testing DocC Links :
+  ///   Replace `VertexAI` with ``FirebaseAI`` and call ``FirebaseAI/firebaseAI(app:backend:)``, specifying
+  ///   ``Backend/vertexAI(location:)`` as the `backend`, for example,
+  ///   `FirebaseAI.firebaseAI(backend: .vertexAI())`.
+  /// }
   ///
   ///  - Parameters:
   ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
