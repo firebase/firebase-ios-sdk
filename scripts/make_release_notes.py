@@ -27,6 +27,7 @@ NO_HEADING = 'PRODUCT HAS NO HEADING'
 
 PRODUCTS = {
     'FirebaseABTesting/CHANGELOG.md': '{{ab_testing}}',
+    'FirebaseAI/CHANGELOG.md': 'Firebase AI Logic',  # update with var
     'FirebaseAppCheck/CHANGELOG.md': 'App Check',
     'FirebaseAppDistribution/CHANGELOG.md': 'App Distribution',
     'FirebaseAuth/CHANGELOG.md': '{{auth}}',
