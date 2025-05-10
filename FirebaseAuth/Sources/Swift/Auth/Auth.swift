@@ -140,6 +140,16 @@ extension Auth: AuthInterop {
   }
 }
 
+/// Holds region & tenant for R-GCIP
+public struct LocationData {
+  public let location: String
+  public let tenantId: String?
+  public init(location: String = "prod-global", tenantId: String? = nil) {
+    self.location = location
+    self.tenantId = tenantId
+  }
+}
+
 /// Manages authentication for Firebase apps.
 ///
 /// This class is thread-safe.
@@ -165,6 +175,17 @@ extension Auth: AuthInterop {
   /// - Returns: The `Auth` instance associated with the given app.
   @objc open class func auth(app: FirebaseApp) -> Auth {
     return ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container) as! Auth
+  }
+
+  /// New R-GCIP v2 + BYO-CIAM initializer
+  public class func auth(app: FirebaseApp, locationData: LocationData) -> Auth {
+    // start from the legacy initializer so we get a fully-formed Auth object
+    let auth = auth(app: app)
+    kAuthGlobalWorkQueue.sync {
+      auth.requestConfiguration.location = locationData.location
+      auth.requestConfiguration.tenantId = locationData.tenantId
+    }
+    return auth
   }
 
   /// Gets the `FirebaseApp` object that this auth object is connected to.
@@ -2424,4 +2445,35 @@ extension Auth: AuthInterop {
   ///
   /// Mutations should occur within a @synchronized(self) context.
   private var listenerHandles: NSMutableArray = []
+}
+
+@available(iOS 13, *)
+public extension Auth {
+  /// Exchange a third-party OIDC token for a short-lived Firebase STS token.
+  @objc func exchangeToken(_ idpConfigID: String,
+                           _ ciamOidcToken: String,
+                           completion: @escaping (String?, Error?) -> Void) {
+    // Must have opted into R-GCIP
+    guard let region = requestConfiguration.location,
+          let tenant = requestConfiguration.tenantId
+    else {
+      completion(nil, AuthErrorUtils.operationNotAllowedError(
+        message: "Set region & tenantID first"
+      ))
+      return
+    }
+    let req = ExchangeTokenRequest(
+      idpConfigID: idpConfigID,
+      idToken: ciamOidcToken,
+      cfg: requestConfiguration
+    )
+    Task {
+      do {
+        let resp = try await backend.call(with: req)
+        DispatchQueue.main.async { completion(resp.firebaseToken, nil) }
+      } catch {
+        DispatchQueue.main.async { completion(nil, error) }
+      }
+    }
+  }
 }
