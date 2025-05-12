@@ -110,7 +110,7 @@ source scripts/check_secrets.sh
 function RunXcodebuild() {
   echo xcodebuild "$@"
 
-  xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging --preserve-unbeautified)
 
   result=0
   NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 \
