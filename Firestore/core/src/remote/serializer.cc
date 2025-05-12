@@ -1209,16 +1209,8 @@ Serializer::DecodeCursorValue(google_firestore_v1_Cursor& cursor) const {
 google_firestore_v1_StructuredPipeline Serializer::EncodePipeline(
     const api::Pipeline& pipeline) const {
   google_firestore_v1_StructuredPipeline result;
-  auto* stages =
-      MakeArray<google_firestore_v1_Pipeline_Stage>(pipeline.stages().size());
 
-  size_t i = 0;
-  for (const auto& stage : pipeline.stages()) {
-    stages[i++] = stage->to_proto();
-  }
-
-  result.pipeline.stages_count = pipeline.stages().size();
-  result.pipeline.stages = stages;
+  result.pipeline = pipeline.to_proto().pipeline_value;
 
   result.options_count = 0;
   result.options = nullptr;
