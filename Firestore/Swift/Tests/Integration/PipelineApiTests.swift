@@ -37,6 +37,57 @@ final class PipelineTests: FSTIntegrationTestCase {
     let _: PipelineSnapshot = try await pipeline.execute()
   }
 
+  func testPipelineOptions() async throws {
+    let pipelineSource: PipelineSource = db.pipeline()
+
+    let pipeline: Pipeline = pipelineSource.documents(
+      [db.collection("foo").document("bar"), db.document("foo/baz")]
+    )
+
+    let developmentModeEnabled = true
+
+    let _: PipelineSnapshot = try await pipeline.execute {
+      // Use different options under different scenarios
+      if developmentModeEnabled {
+        ExplainOptions(
+          mode: "analyze",
+          outputFormat: "json",
+          verbosity: "execution_tree",
+          indexRecommendation: true,
+          profiles: "bytes_throughput",
+          redact: false
+        )
+        IndexMode("recommended")
+      } else {
+        GenericOptions(
+          ["option_not_known_to_sdk": true]
+        )
+      }
+
+      // Default options
+      GenericOptions(
+        ["option_not_known_to_sdk": true]
+      )
+    }
+
+    let _: PipelineSnapshot = try await pipeline.execute2(
+      // Use different options under different scenarios
+      explainOptions:
+      ExplainOptions(
+        mode: "analyze",
+        outputFormat: "json",
+        verbosity: "execution_tree",
+        indexRecommendation: true,
+        profiles: "bytes_throughput",
+        redact: false
+      ),
+      indexMode: "recommended",
+      genericOptions: GenericOptions(
+        ["option_not_known_to_sdk": true]
+      )
+    )
+  }
+
   func testWhereStage() async throws {
     _ = db.pipeline().collection("books")
       .where(
