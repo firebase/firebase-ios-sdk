@@ -113,8 +113,8 @@ function RunXcodebuild() {
   xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
   result=0
-  xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
-    && CheckUnexpectedFailures xcodebuild.log \
+  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 \
+  | "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures xcodebuild.log \
     || result=$?
 
   if [[ $result == 65 ]]; then
@@ -124,8 +124,8 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
-      && CheckUnexpectedFailures xcodebuild.log \
+    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 | \
+      "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures xcodebuild.log \
       || result=$?
   fi
 
