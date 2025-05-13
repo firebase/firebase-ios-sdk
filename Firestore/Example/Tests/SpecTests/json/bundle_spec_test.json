@@ -3,7 +3,8 @@
     "describeName": "Bundles:",
     "itName": "Bundles query can be loaded and resumed from different tabs",
     "tags": [
-      "multi-client"
+      "multi-client",
+      "no-pipeline-conversion"
     ],
     "config": {
       "numClients": 2,
@@ -225,6 +226,7 @@
     "describeName": "Bundles:",
     "itName": "Bundles query can be resumed from same query.",
     "tags": [
+      "no-pipeline-conversion"
     ],
     "config": {
       "numClients": 1,

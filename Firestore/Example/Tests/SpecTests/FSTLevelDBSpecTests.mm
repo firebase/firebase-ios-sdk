@@ -62,4 +62,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/**
+ * An implementation of FSTLevelDBSpecTests that runs tests in pipeline mode.
+ */
+@interface FSTLevelDBPipelineSpecTests : FSTLevelDBSpecTests
+@end
+
+@implementation FSTLevelDBPipelineSpecTests
+
+- (BOOL)usePipelineMode {
+  return YES;
+}
+
+@end
+
 NS_ASSUME_NONNULL_END
