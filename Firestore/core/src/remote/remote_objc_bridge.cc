@@ -33,6 +33,7 @@
 #include "Firestore/core/src/remote/grpc_util.h"
 #include "Firestore/core/src/remote/watch_change.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "grpcpp/support/status.h"
@@ -381,6 +382,41 @@ util::StatusOr<ObjectValue> DatastoreSerializer::DecodeAggregateQueryResponse(
   return ObjectValue::FromAggregateFieldsEntry(
       message->result.aggregate_fields, message->result.aggregate_fields_count,
       aliasMap);
+}
+
+Message<google_firestore_v1_ExecutePipelineRequest>
+DatastoreSerializer::EncodeExecutePipelineRequest(
+    const firebase::firestore::api::Pipeline& pipeline) const {
+  Message<google_firestore_v1_ExecutePipelineRequest> result;
+  result->database = serializer_.EncodeDatabaseName();
+  result->which_pipeline_type =
+      google_firestore_v1_ExecutePipelineRequest_structured_pipeline_tag;
+  result->pipeline_type.structured_pipeline =
+      serializer_.EncodePipeline(pipeline);
+
+  return result;
+}
+
+util::StatusOr<api::PipelineSnapshot>
+DatastoreSerializer::DecodeExecutePipelineResponse(
+    const grpc::ByteBuffer& response,
+    std::shared_ptr<api::Firestore> db) const {
+  ByteBufferReader reader{response};
+  auto message =
+      Message<google_firestore_v1_ExecutePipelineResponse>::TryParse(&reader);
+  if (!reader.ok()) {
+    return reader.status();
+  }
+
+  LOG_DEBUG("Pipeline Response: %s", message.ToString());
+
+  auto snapshot = serializer_.DecodePipelineResponse(reader.context(), message);
+  if (!reader.ok()) {
+    return reader.status();
+  }
+
+  snapshot.SetFirestore(std::move(db));
+  return snapshot;
 }
 
 }  // namespace remote
