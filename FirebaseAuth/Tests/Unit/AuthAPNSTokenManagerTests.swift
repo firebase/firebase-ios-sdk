@@ -129,9 +129,12 @@
      */
     func testTimeout() throws {
       // Set up timeout.
+      manager = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: kRegistrationTimeout
+      )
       let manager = try XCTUnwrap(manager)
       XCTAssertGreaterThan(try XCTUnwrap(manager.timeout), 0)
-      manager.timeout = kRegistrationTimeout
 
       // Add callback to time out.
       let expectation = self.expectation(description: #function)
@@ -166,9 +169,12 @@
      */
     func testCancel() throws {
       // Set up timeout.
+      manager = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: kRegistrationTimeout
+      )
       let manager = try XCTUnwrap(manager)
       XCTAssertGreaterThan(try XCTUnwrap(manager.timeout), 0)
-      manager.timeout = kRegistrationTimeout
 
       // Add callback to cancel.
       var callbackCalled = false

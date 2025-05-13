@@ -23,8 +23,8 @@
   #endif // COCOAPODS
 
   // Protocol to help with unit tests.
-  @MainActor protocol AuthAPNSTokenApplication {
-    func registerForRemoteNotifications()
+  protocol AuthAPNSTokenApplication {
+    @MainActor func registerForRemoteNotifications()
   }
 
   extension UIApplication: AuthAPNSTokenApplication {}
@@ -33,15 +33,14 @@
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAPNSTokenManager: @unchecked Sendable /* TODO: sendable */ {
     /// The timeout for registering for remote notification.
-    ///
-    /// Only tests should access this property.
-    var timeout: TimeInterval = 5
+    let timeout: TimeInterval
 
     /// Initializes the instance.
     /// - Parameter application: The  `UIApplication` to request the token from.
     /// - Returns: The initialized instance.
-    init(withApplication application: sending AuthAPNSTokenApplication) {
+    init(withApplication application: sending AuthAPNSTokenApplication, timeout: TimeInterval = 5) {
       self.application = application
+      self.timeout = timeout
     }
 
     /// Attempts to get the APNs token.
@@ -56,6 +55,8 @@
       }
       if pendingCallbacks.count > 0 {
         pendingCallbacks.append(callback)
+        // TODO(ncooke3): This is likely a bug in that the async wrapper method
+        // cannot make forward progress.
         return
       }
       pendingCallbacks = [callback]
