@@ -75,7 +75,7 @@ using testutil::EqExpr;
 
 // Helper to get canonical ID directly for RealtimePipeline
 std::string GetPipelineCanonicalId(const RealtimePipeline& pipeline) {
-  QueryOrPipeline variant = pipeline;
+  QueryOrPipeline variant = QueryOrPipeline(pipeline);
   // Use the specific helper for QueryOrPipeline canonicalization
   return variant.CanonicalId();
 }
@@ -246,8 +246,8 @@ TEST_F(CanonifyEqPipelineTest, EqReturnsTrueForIdenticalPipelines) {
   p2 = p2.AddingStage(std::make_shared<Where>(EqExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
-  QueryOrPipeline v1 = p1;
-  QueryOrPipeline v2 = p2;
+  QueryOrPipeline v1 = QueryOrPipeline(p1);
+  QueryOrPipeline v2 = QueryOrPipeline(p2);
   EXPECT_TRUE(v1 == v2);  // Expect TRUE based on TS
 }
 
@@ -259,8 +259,8 @@ TEST_F(CanonifyEqPipelineTest, EqReturnsFalseForDifferentStages) {
   RealtimePipeline p2 = StartPipeline("test");
   p2 = p2.AddingStage(std::make_shared<LimitStage>(10));
 
-  QueryOrPipeline v1 = p1;
-  QueryOrPipeline v2 = p2;
+  QueryOrPipeline v1 = QueryOrPipeline(p1);
+  QueryOrPipeline v2 = QueryOrPipeline(p2);
   EXPECT_FALSE(v1 == v2);  // Expect FALSE based on TS
 }
 
@@ -274,8 +274,8 @@ TEST_F(CanonifyEqPipelineTest, EqReturnsFalseForDifferentParamsInStage) {
       EqExpr({std::make_shared<api::Field>("bar"),
               SharedConstant(Value(42LL))})));  // Different field
 
-  QueryOrPipeline v1 = p1;
-  QueryOrPipeline v2 = p2;
+  QueryOrPipeline v1 = QueryOrPipeline(p1);
+  QueryOrPipeline v2 = QueryOrPipeline(p2);
   EXPECT_FALSE(v1 == v2);  // Expect FALSE based on TS
 }
 
@@ -290,8 +290,8 @@ TEST_F(CanonifyEqPipelineTest, EqReturnsFalseForDifferentStageOrder) {
   p2 = p2.AddingStage(std::make_shared<Where>(EqExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
-  QueryOrPipeline v1 = p1;
-  QueryOrPipeline v2 = p2;
+  QueryOrPipeline v1 = QueryOrPipeline(p1);
+  QueryOrPipeline v2 = QueryOrPipeline(p2);
   EXPECT_FALSE(v1 == v2);  // Expect FALSE based on TS
 }
 
