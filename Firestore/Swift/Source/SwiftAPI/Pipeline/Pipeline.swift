@@ -81,7 +81,7 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct Pipeline: @unchecked Sendable {
   private var stages: [Stage]
-  var bridge: PipelineBridge
+  let bridge: PipelineBridge
   let db: Firestore
 
   init(stages: [Stage], db: Firestore) {

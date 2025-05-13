@@ -14,7 +14,7 @@
 
 public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, SelectableWrapper,
   @unchecked Sendable {
-  var bridge: ExprBridge
+  let bridge: ExprBridge
 
   var alias: String
 

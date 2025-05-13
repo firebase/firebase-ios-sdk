@@ -13,7 +13,7 @@
 // limitations under the License.
 
 public class FunctionExpr: Expr, BridgeWrapper, @unchecked Sendable {
-  var bridge: ExprBridge
+  let bridge: ExprBridge
 
   let functionName: String
   let agrs: [Expr]

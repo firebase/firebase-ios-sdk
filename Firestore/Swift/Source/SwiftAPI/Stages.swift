@@ -23,9 +23,9 @@ protocol Stage {
 }
 
 class CollectionSource: Stage {
-  var name: String = "collection"
+  let name: String = "collection"
 
-  var bridge: StageBridge
+  let bridge: StageBridge
   private var collection: String
 
   init(collection: String) {
@@ -35,9 +35,9 @@ class CollectionSource: Stage {
 }
 
 class CollectionGroupSource: Stage {
-  var name: String = "collectionId"
+  let name: String = "collectionId"
 
-  var bridge: StageBridge
+  let bridge: StageBridge
   private var collectionId: String
 
   init(collectionId: String) {
@@ -48,8 +48,8 @@ class CollectionGroupSource: Stage {
 
 // Represents the entire database as a source.
 class DatabaseSource: Stage {
-  var name: String = "database"
-  var bridge: StageBridge
+  let name: String = "database"
+  let bridge: StageBridge
 
   init() {
     bridge = DatabaseSourceStageBridge()
@@ -58,8 +58,8 @@ class DatabaseSource: Stage {
 
 // Represents a list of document references as a source.
 class DocumentsSource: Stage {
-  var name: String = "documents"
-  var bridge: StageBridge
+  let name: String = "documents"
+  let bridge: StageBridge
   private var references: [String]
 
   // Initialize with an array of String paths
@@ -71,8 +71,8 @@ class DocumentsSource: Stage {
 
 // Represents an existing Query as a source.
 class QuerySource: Stage {
-  var name: String = "query"
-  var bridge: StageBridge
+  let name: String = "query"
+  let bridge: StageBridge
   private var query: Query
 
   init(query: Query) {
@@ -84,8 +84,8 @@ class QuerySource: Stage {
 
 // Represents an existing AggregateQuery as a source.
 class AggregateQuerySource: Stage {
-  var name: String = "aggregateQuery"
-  var bridge: StageBridge
+  let name: String = "aggregateQuery"
+  let bridge: StageBridge
   private var aggregateQuery: AggregateQuery
 
   init(aggregateQuery: AggregateQuery) {
@@ -96,9 +96,9 @@ class AggregateQuerySource: Stage {
 }
 
 class Where: Stage {
-  var name: String = "where"
+  let name: String = "where"
 
-  var bridge: StageBridge
+  let bridge: StageBridge
   private var condition: BooleanExpr
 
   init(condition: BooleanExpr) {
@@ -108,9 +108,9 @@ class Where: Stage {
 }
 
 class Limit: Stage {
-  var name: String = "limit"
+  let name: String = "limit"
 
-  var bridge: StageBridge
+  let bridge: StageBridge
   private var limit: Int32
 
   init(_ limit: Int32) {
@@ -120,9 +120,9 @@ class Limit: Stage {
 }
 
 class Offset: Stage {
-  var name: String = "offset"
+  let name: String = "offset"
 
-  var bridge: StageBridge
+  let bridge: StageBridge
   private var offset: Int32
 
   init(_ offset: Int32) {
@@ -132,8 +132,8 @@ class Offset: Stage {
 }
 
 class AddFields: Stage {
-  var name: String = "addFields"
-  var bridge: StageBridge
+  let name: String = "addFields"
+  let bridge: StageBridge
   private var fields: [Selectable]
 
   init(fields: [Selectable]) {
@@ -150,8 +150,8 @@ class AddFields: Stage {
 }
 
 class RemoveFieldsStage: Stage {
-  var name: String = "removeFields"
-  var bridge: StageBridge
+  let name: String = "removeFields"
+  let bridge: StageBridge
   private var fields: [String]
 
   init(fields: [String]) {
@@ -166,8 +166,8 @@ class RemoveFieldsStage: Stage {
 }
 
 class Select: Stage {
-  var name: String = "select"
-  var bridge: StageBridge
+  let name: String = "select"
+  let bridge: StageBridge
   private var selections: [Selectable]
 
   init(selections: [Selectable]) {
@@ -179,8 +179,8 @@ class Select: Stage {
 }
 
 class Distinct: Stage {
-  var name: String = "distinct"
-  var bridge: StageBridge
+  let name: String = "distinct"
+  let bridge: StageBridge
   private var groups: [Selectable]
 
   init(groups: [Selectable]) {
@@ -192,8 +192,8 @@ class Distinct: Stage {
 }
 
 class Aggregate: Stage {
-  var name: String = "aggregate"
-  var bridge: StageBridge
+  let name: String = "aggregate"
+  let bridge: StageBridge
   private var accumulators: [AggregateWithAlias]
   private var groups: [String: Expr] = [:]
 
@@ -214,8 +214,8 @@ class Aggregate: Stage {
 }
 
 class FindNearest: Stage {
-  var name: String = "findNearest"
-  var bridge: StageBridge
+  let name: String = "findNearest"
+  let bridge: StageBridge
   private var field: Field
   private var vectorValue: [Double]
   private var distanceMeasure: DistanceMeasure
@@ -243,8 +243,8 @@ class FindNearest: Stage {
 }
 
 class Sort: Stage {
-  var name: String = "sort"
-  var bridge: StageBridge
+  let name: String = "sort"
+  let bridge: StageBridge
   private var orderings: [Ordering]
 
   init(orderings: [Ordering]) {
@@ -254,8 +254,8 @@ class Sort: Stage {
 }
 
 class ReplaceWith: Stage {
-  var name: String = "replaceWith"
-  var bridge: StageBridge
+  let name: String = "replaceWith"
+  let bridge: StageBridge
   private var expr: Expr
 
   init(expr: Expr) {
@@ -265,8 +265,8 @@ class ReplaceWith: Stage {
 }
 
 class Sample: Stage {
-  var name: String = "sample"
-  var bridge: StageBridge
+  let name: String = "sample"
+  let bridge: StageBridge
   private var count: Int64?
   private var percentage: Double?
 
@@ -284,8 +284,8 @@ class Sample: Stage {
 }
 
 class Union: Stage {
-  var name: String = "union"
-  var bridge: StageBridge
+  let name: String = "union"
+  let bridge: StageBridge
   private var other: Pipeline
 
   init(other: Pipeline) {
@@ -295,8 +295,8 @@ class Union: Stage {
 }
 
 class Unnest: Stage {
-  var name: String = "unnest"
-  var bridge: StageBridge
+  let name: String = "unnest"
+  let bridge: StageBridge
   private var field: Selectable
   private var indexField: String?
 
@@ -311,8 +311,8 @@ class Unnest: Stage {
 }
 
 class GenericStage: Stage {
-  var name: String
-  var bridge: StageBridge
+  let name: String
+  let bridge: StageBridge
   private var params: [Sendable]
   private var options: [String: Sendable]?
 

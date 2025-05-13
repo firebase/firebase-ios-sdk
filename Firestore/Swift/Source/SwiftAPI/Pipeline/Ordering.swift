@@ -17,7 +17,7 @@
 public class Ordering: @unchecked Sendable {
   let expr: Expr
   let direction: Direction
-  var bridge: OrderingBridge
+  let bridge: OrderingBridge
 
   init(expr: Expr, direction: Direction) {
     self.expr = expr

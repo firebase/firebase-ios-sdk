@@ -13,7 +13,7 @@
 // limitations under the License.
 
 public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
-  var bridge: AggregateFunctionBridge
+  let bridge: AggregateFunctionBridge
 
   let functionName: String
   let args: [Expr]

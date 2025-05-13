@@ -19,7 +19,7 @@
 #endif // SWIFT_PACKAGE
 
 public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
-  var bridge: ExprBridge
+  let bridge: ExprBridge
 
   let value: Any?
 
