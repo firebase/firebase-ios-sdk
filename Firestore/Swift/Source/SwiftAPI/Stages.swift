@@ -14,8 +14,13 @@
  * limitations under the License.
  */
 
-import FirebaseFirestoreInternal
 import Foundation
+
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
 
 protocol Stage {
   var name: String { get }
