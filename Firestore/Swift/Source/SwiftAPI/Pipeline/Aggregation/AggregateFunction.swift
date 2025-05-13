@@ -16,14 +16,14 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   var bridge: AggregateFunctionBridge
 
   let functionName: String
-  let agrs: [Expr]
+  let args: [Expr]
 
-  public init(_ functionName: String, _ agrs: [Expr]) {
+  public init(_ functionName: String, _ args: [Expr]) {
     self.functionName = functionName
-    self.agrs = agrs
+    self.args = args
     bridge = AggregateFunctionBridge(
       name: functionName,
-      args: self.agrs.map { $0.toBridge()
+      args: self.args.map { $0.toBridge()
       }
     )
   }
