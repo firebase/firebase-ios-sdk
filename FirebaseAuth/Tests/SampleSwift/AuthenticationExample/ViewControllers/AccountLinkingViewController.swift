@@ -523,6 +523,37 @@ extension AccountLinkingViewController: DataSourceProvidable {
   }
 }
 
+// MARK: - Passkey Enrollment
+@available(iOS 16.0, *)
+private func handlePasskeyEnrollment(platformCredential: ASAuthorizationPlatformPublicKeyCredentialRegistration){
+    let user = Auth.auth().currentUser
+    Task {
+        do {
+          let authResult = try await user?.finalizePasskeyEnrollmentWithPlatformCredentials(
+            platformCredential: platformCredential
+          )
+          print("Passkey Enrollment succeeded with uid: \(authResult?.user.uid ?? "empty with uid")")
+        } catch {
+            print("Passkey Enrollment failed with error: \(error)")
+        }
+    }
+}
+
+// MARK: - Passkey Sign-in
+@available(iOS 16.0, *)
+private func handlePasskeySignIn(platformCredential: ASAuthorizationPlatformPublicKeyCredentialAssertion){
+    Task {
+        do {
+            let authResult = try await AppManager.shared.auth().finalizePasskeySignIn(platformCredential: platformCredential)
+          print("Passkey sign-in succeeded with uid: \(authResult.user.uid)")
+
+        } catch {
+            print("Passkey sign-in failed with error: \(error)")
+        }
+    }
+}
+
+
 // MARK: - Implementing Sign in with Apple with Firebase
 
 extension AccountLinkingViewController: ASAuthorizationControllerDelegate,
@@ -541,10 +572,18 @@ extension AccountLinkingViewController: ASAuthorizationControllerDelegate,
       authorizationController.performRequests()
     }
   }
+  
+  // MARK: - ASAuthorizationControllerDelegate
 
-  func authorizationController(controller: ASAuthorizationController,
-                               didCompleteWithAuthorization authorization: ASAuthorization) {
-    if case let appleIDCredential as ASAuthorizationAppleIDCredential = authorization.credential {
+  @available(iOS 13.0, *)
+  func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+    if #available(iOS 16.0, *) {
+      if let platformCredential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialRegistration {
+        handlePasskeyEnrollment(platformCredential: platformCredential)
+      } else if let platformAssertionCredential = authorization.credential as? ASAuthorizationPlatformPublicKeyCredentialAssertion {
+        handlePasskeySignIn(platformCredential: platformAssertionCredential)
+      }
+    } else if case let appleIDCredential as ASAuthorizationAppleIDCredential = authorization.credential {
       continuation?.resume(returning: appleIDCredential)
     } else {
       fatalError("Unexpected authorization credential type.")

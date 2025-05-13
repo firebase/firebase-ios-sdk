@@ -37,6 +37,39 @@ final class AuthBackend: AuthBackendProtocol {
   init(rpcIssuer: any AuthBackendRPCIssuerProtocol) {
     self.rpcIssuer = rpcIssuer
   }
+  
+  public func startPasskeyEnrollment(request: StartPasskeyEnrollmentRequest) async throws -> StartPasskeyEnrollmentResponse {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      throw AuthErrorUtils.error(code: AuthErrorCode.operationNotAllowed, message: "OS version is not supported for this action.")
+    }
+    let response = try await call(with: request) as StartPasskeyEnrollmentResponse
+    return response
+  }
+  
+  public func finalizePasskeyEnrollment(request: FinalizePasskeyEnrollmentRequest) async throws -> FinalizePasskeyEnrollmentResponse {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      throw AuthErrorUtils.error(code: AuthErrorCode.operationNotAllowed, message: "OS version is not supported for this action.")
+    }
+    let response = try await call(with: request) as FinalizePasskeyEnrollmentResponse
+    return response
+  }
+  
+  public func startPasskeySignIn(request: StartPasskeySignInRequest) async throws -> StartPasskeySignInResponse {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      throw AuthErrorUtils.error(code: AuthErrorCode.operationNotAllowed, message: "OS version is not supported for this action.")
+    }
+    let response = try await call(with: request) as StartPasskeySignInResponse
+    return response
+  }
+  
+  public func finalizePasskeySignIn(request: FinalizePasskeySignInRequest) async throws -> FinalizePasskeySignInResponse {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else{
+      throw AuthErrorUtils.error(code: AuthErrorCode.operationNotAllowed, message: "OS version is not supported for this action.")
+    }
+    let response = try await call(with: request) as FinalizePasskeySignInResponse
+    return response
+  }
+  
 
   /// Calls the RPC using HTTP request.
   /// Possible error responses:

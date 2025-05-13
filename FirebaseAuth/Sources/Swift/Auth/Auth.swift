@@ -18,6 +18,7 @@ import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreExtension
+
 #if COCOAPODS
   internal import GoogleUtilities
 #else
@@ -28,6 +29,10 @@ import FirebaseCoreExtension
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
   import UIKit
 #endif
+#if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+    import AuthenticationServices
+#endif
+
 
 // Export the deprecated Objective-C defined globals and typedefs.
 #if SWIFT_PACKAGE
@@ -824,6 +829,62 @@ extension Auth: AuthInterop {
       }
     }
   }
+  
+  let sessionId = "sessionId"
+  
+  // MARK: Passkeys
+  @available(iOS 15.0, *)
+  public func startPasskeySignIn() async throws -> ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
+    
+    let request = StartPasskeySignInRequest(
+      sessionId: sessionId,
+      requestConfiguration: requestConfiguration
+    )
+    
+    let response = try await self.backend.startPasskeySignIn(request: request)
+    
+    guard let challengeData = Data(base64Encoded: response.challenge ?? "nil") else {
+      throw NSError(domain: "com.firebase.auth", code: -3, userInfo: [NSLocalizedDescriptionKey: "Invalid challenge data"])
+    }
+    
+    let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+      relyingPartyIdentifier: response.rpID ?? "fir-ios-auth-sample.web.app.com"
+    )
+    let assertionRequest = provider.createCredentialAssertionRequest(challenge: challengeData)
+    
+    return assertionRequest
+  }
+  
+  @available(iOS 15.0, *)
+  public func finalizePasskeySignIn(platformCredential: ASAuthorizationPlatformPublicKeyCredentialAssertion) async throws -> AuthDataResult {
+    guard let credentialID = platformCredential.credentialID.base64EncodedString(),
+          let clientDataJson = platformCredential.rawClientDataJSON.base64EncodedString(),
+          let authenticatorData = platformCredential.rawAuthenticatorData.base64EncodedString(),
+          let signature = platformCredential.signature.base64EncodedString(),
+          let userID = platformCredential.userID.base64EncodedString()
+    else {
+      throw NSError(domain: "com.firebase.auth", code: -4, userInfo: [NSLocalizedDescriptionKey: "Invalid platform credential data"])
+    }
+    
+    let request = FinalizePasskeySignInRequest(credentialID: credentialID,
+                                               clientDataJson: clientDataJson,
+                                               authenticatorData: authenticatorData,
+                                               signature: signature,
+                                               userID: userID,
+                                               requestConfiguration: requestConfiguration)
+    
+    let response = try await backend.finalizePasskeySignIn(request: request)
+    
+    let user = try await completeSignIn(withAccessToken: response.idToken,
+                                        accessTokenExpirationDate: nil,
+                                        refreshToken: response.refreshToken,
+                                        anonymous: false)
+    let authDataResult = AuthDataResult(withUser: user, additionalUserInfo: nil)
+    
+    try updateCurrentUser(user, byForce: false, savingToDisk: false)
+    return authDataResult
+  }
+  
 
   /// Creates and, on success, signs in a user with the given email address and password.
   ///
@@ -2424,4 +2485,16 @@ extension Auth: AuthInterop {
   ///
   /// Mutations should occur within a @synchronized(self) context.
   private var listenerHandles: NSMutableArray = []
+}
+
+extension Data {
+    func base64EncodedString() -> String? {
+        return base64EncodedString()
+    }
+}
+
+extension String {
+    func base64EncodedString() -> String? {
+      return self.data(using: .utf8)?.base64EncodedString()
+    }
 }
