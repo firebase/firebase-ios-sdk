@@ -237,11 +237,44 @@ create_existence_filter_mismatch_info_for_testing_hooks(
           std::move(bloom_filter_info)};
 }
 
-bool IsSingleDocumentTarget(const core::TargetOrPipeline target_or_pipeline) {
-  // TODO(pipeline): We only handle the non-pipeline case because realtime
-  // pipeline does not support single document lookup yet.
-  return !target_or_pipeline.IsPipeline() &&
-         target_or_pipeline.target().IsDocumentQuery();
+absl::optional<model::ResourcePath> GetSingleDocumentPath(
+    const core::TargetOrPipeline target_or_pipeline) {
+  if (target_or_pipeline.IsPipeline()) {
+    if (core::GetPipelineSourceType(target_or_pipeline.pipeline()) ==
+        core::PipelineSourceType::kDocuments) {
+      const auto& documents =
+          core::GetPipelineDocuments(target_or_pipeline.pipeline());
+      if (documents.has_value() && documents.value().size() == 1) {
+        return model::ResourcePath::FromString(documents.value()[0]);
+      }
+    }
+  } else if (target_or_pipeline.target().IsDocumentQuery()) {
+    return target_or_pipeline.target().path();
+  }
+
+  return absl::nullopt;
+}
+
+absl::optional<std::vector<model::ResourcePath>> GetDocumentPaths(
+    const core::TargetOrPipeline target_or_pipeline) {
+  if (target_or_pipeline.IsPipeline()) {
+    if (core::GetPipelineSourceType(target_or_pipeline.pipeline()) ==
+        core::PipelineSourceType::kDocuments) {
+      const auto& documents =
+          core::GetPipelineDocuments(target_or_pipeline.pipeline());
+      if (documents.has_value()) {
+        std::vector<model::ResourcePath> results;
+        for (const std::string& document : documents.value()) {
+          results.push_back(model::ResourcePath::FromString(document));
+        }
+        return results;
+      }
+    }
+  } else if (target_or_pipeline.target().IsDocumentQuery()) {
+    return std::vector<model::ResourcePath>{target_or_pipeline.target().path()};
+  }
+
+  return absl::nullopt;
 }
 
 }  // namespace
@@ -256,7 +289,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
     const core::TargetOrPipeline& target_or_pipeline =
         target_data->target_or_pipeline();
 
-    if (!IsSingleDocumentTarget(target_or_pipeline)) {
+    auto single_doc_path = GetSingleDocumentPath(target_or_pipeline);
+    if (!single_doc_path.has_value()) {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
         // Apply bloom filter to identify and mark removed documents.
@@ -292,7 +326,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
         // another query that will raise this document as part of a snapshot
         // until it is resolved, essentially exposing inconsistency between
         // queries.
-        DocumentKey key{target_or_pipeline.target().path()};
+        DocumentKey key{std::move(single_doc_path.value())};
         RemoveDocumentFromTarget(
             target_id, key,
             MutableDocument::NoDocument(key, SnapshotVersion::None()));
@@ -377,20 +411,22 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     absl::optional<TargetData> target_data =
         TargetDataForActiveTarget(target_id);
     if (target_data) {
-      if (target_state.current() &&
-          IsSingleDocumentTarget(target_data->target_or_pipeline())) {
+      auto doc_paths = GetDocumentPaths(target_data->target_or_pipeline());
+      if (target_state.current() && doc_paths.has_value()) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
         // the limbo state of the document, removing it from
         // SyncEngine::limbo_document_refs_.
-        DocumentKey key{target_data->target_or_pipeline().target().path()};
-        if (pending_document_updates_.find(key) ==
-                pending_document_updates_.end() &&
-            !TargetContainsDocument(target_id, key)) {
-          RemoveDocumentFromTarget(
-              target_id, key,
-              MutableDocument::NoDocument(key, snapshot_version));
+        for (const model::ResourcePath& single_doc_path : doc_paths.value()) {
+          DocumentKey key{std::move(single_doc_path)};
+          if (pending_document_updates_.find(key) ==
+                  pending_document_updates_.end() &&
+              !TargetContainsDocument(target_id, key)) {
+            RemoveDocumentFromTarget(
+                target_id, key,
+                MutableDocument::NoDocument(key, snapshot_version));
+          }
         }
       }
 

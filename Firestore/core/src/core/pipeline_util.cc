@@ -337,11 +337,11 @@ bool QueryOrPipeline::Matches(const model::Document& doc) const {
 model::DocumentComparator QueryOrPipeline::Comparator() const {
   if (IsPipeline()) {
     // Capture pipeline by reference. Orderings captured by value inside lambda.
-    const auto& p = pipeline();
+    const api::RealtimePipeline& p = pipeline();
     const auto& orderings = GetLastEffectiveSortOrderings(p);
     return model::DocumentComparator(
-        [&p, &orderings](const model::Document& d1,
-                         const model::Document& d2) -> util::ComparisonResult {
+        [p, orderings](const model::Document& d1,
+                       const model::Document& d2) -> util::ComparisonResult {
           auto context =
               const_cast<api::RealtimePipeline&>(p).evaluate_context();
 
