@@ -93,7 +93,7 @@ struct GenerateContentIntegrationTests {
     }
     #expect(usageMetadata.totalTokenCount > 0)
     #expect(usageMetadata.totalTokenCount ==
-            (usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount))
+      (usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount))
   }
 
   @Test(
