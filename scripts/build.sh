@@ -110,7 +110,7 @@ source scripts/check_secrets.sh
 function RunXcodebuild() {
   echo xcodebuild "$@"
   local xcodebuild_args=("$@")
-  local buildaction="${xcodebuild_args[-1]}" # The buildaction is the last arg
+  local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
   local log_filename="xcodebuild-${buildaction}.log"
 
   local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
