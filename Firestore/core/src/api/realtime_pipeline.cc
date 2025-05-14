@@ -28,8 +28,7 @@ namespace api {
 RealtimePipeline::RealtimePipeline(
     std::vector<std::shared_ptr<EvaluableStage>> stages,
     remote::Serializer serializer)
-    : stages_(std::move(stages)),
-      serializer_(serializer) {
+    : stages_(std::move(stages)), serializer_(serializer) {
 }
 
 RealtimePipeline RealtimePipeline::AddingStage(

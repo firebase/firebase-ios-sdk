@@ -54,7 +54,6 @@ using testutil::RefConstant;
 using testutil::Returns;
 using testutil::ReturnsError;
 using testutil::ReturnsNull;
-using testutil::ReturnsUnset;
 using testutil::SharedConstant;
 
 // Base fixture for common setup
@@ -150,7 +149,7 @@ TEST_F(EqFunctionTest, NullOperandReturnsNull) {
   EXPECT_THAT(
       EvaluateExpr(*EqExpr({SharedConstant(model::NullValue()),
                             std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 // Corresponds to eq.nan tests in typescript
@@ -251,26 +250,26 @@ TEST_F(EqFunctionTest, ErrorHandling) {
   for (const auto& val :
        ComparisonValueTestData::AllSupportedComparableValues()) {
     EXPECT_THAT(EvaluateExpr(*EqExpr({error_expr, val}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
     EXPECT_THAT(EvaluateExpr(*EqExpr({val, error_expr}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
   }
   EXPECT_THAT(EvaluateExpr(*EqExpr({error_expr, error_expr}), non_map_input),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*EqExpr({error_expr, SharedConstant(model::NullValue())}),
                    non_map_input),
-      ReturnsUnset());
+      ReturnsError());
 }
 
-TEST_F(EqFunctionTest, MissingFieldReturnsUnset) {
+TEST_F(EqFunctionTest, MissingFieldReturnsError) {
   EXPECT_THAT(EvaluateExpr(*EqExpr({std::make_shared<api::Field>("nonexistent"),
                                     SharedConstant(testutil::Value(1LL))})),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*EqExpr({SharedConstant(testutil::Value(1LL)),
                             std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 // --- Neq (!=) Tests ---
@@ -331,7 +330,7 @@ TEST_F(NeqFunctionTest, NullOperandReturnsNull) {
   EXPECT_THAT(
       EvaluateExpr(*NeqExpr({SharedConstant(model::NullValue()),
                              std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 // Corresponds to neq.nan tests
@@ -393,27 +392,27 @@ TEST_F(NeqFunctionTest, ErrorHandling) {
   for (const auto& val :
        ComparisonValueTestData::AllSupportedComparableValues()) {
     EXPECT_THAT(EvaluateExpr(*NeqExpr({error_expr, val}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
     EXPECT_THAT(EvaluateExpr(*NeqExpr({val, error_expr}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
   }
   EXPECT_THAT(EvaluateExpr(*NeqExpr({error_expr, error_expr}), non_map_input),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*NeqExpr({error_expr, SharedConstant(model::NullValue())}),
                    non_map_input),
-      ReturnsUnset());
+      ReturnsError());
 }
 
-TEST_F(NeqFunctionTest, MissingFieldReturnsUnset) {
+TEST_F(NeqFunctionTest, MissingFieldReturnsError) {
   EXPECT_THAT(
       EvaluateExpr(*NeqExpr({std::make_shared<api::Field>("nonexistent"),
                              SharedConstant(testutil::Value(1LL))})),
-      ReturnsUnset());
+      ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*NeqExpr({SharedConstant(testutil::Value(1LL)),
                              std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 // --- Lt (<) Tests ---
@@ -475,7 +474,7 @@ TEST_F(LtFunctionTest, NullOperandReturnsNull) {
   EXPECT_THAT(
       EvaluateExpr(*LtExpr({SharedConstant(model::NullValue()),
                             std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 TEST_F(LtFunctionTest, NaNComparisonsReturnFalse) {
@@ -524,26 +523,26 @@ TEST_F(LtFunctionTest, ErrorHandling) {
   for (const auto& val :
        ComparisonValueTestData::AllSupportedComparableValues()) {
     EXPECT_THAT(EvaluateExpr(*LtExpr({error_expr, val}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
     EXPECT_THAT(EvaluateExpr(*LtExpr({val, error_expr}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
   }
   EXPECT_THAT(EvaluateExpr(*LtExpr({error_expr, error_expr}), non_map_input),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*LtExpr({error_expr, SharedConstant(model::NullValue())}),
                    non_map_input),
-      ReturnsUnset());
+      ReturnsError());
 }
 
-TEST_F(LtFunctionTest, MissingFieldReturnsUnset) {
+TEST_F(LtFunctionTest, MissingFieldReturnsError) {
   EXPECT_THAT(EvaluateExpr(*LtExpr({std::make_shared<api::Field>("nonexistent"),
                                     SharedConstant(testutil::Value(1LL))})),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*LtExpr({SharedConstant(testutil::Value(1LL)),
                             std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 // --- Lte (<=) Tests ---
@@ -600,7 +599,7 @@ TEST_F(LteFunctionTest, NullOperandReturnsNull) {
   EXPECT_THAT(
       EvaluateExpr(*LteExpr({SharedConstant(model::NullValue()),
                              std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 TEST_F(LteFunctionTest, NaNComparisonsReturnFalse) {
@@ -649,27 +648,27 @@ TEST_F(LteFunctionTest, ErrorHandling) {
   for (const auto& val :
        ComparisonValueTestData::AllSupportedComparableValues()) {
     EXPECT_THAT(EvaluateExpr(*LteExpr({error_expr, val}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
     EXPECT_THAT(EvaluateExpr(*LteExpr({val, error_expr}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
   }
   EXPECT_THAT(EvaluateExpr(*LteExpr({error_expr, error_expr}), non_map_input),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*LteExpr({error_expr, SharedConstant(model::NullValue())}),
                    non_map_input),
-      ReturnsUnset());
+      ReturnsError());
 }
 
-TEST_F(LteFunctionTest, MissingFieldReturnsUnset) {
+TEST_F(LteFunctionTest, MissingFieldReturnsError) {
   EXPECT_THAT(
       EvaluateExpr(*LteExpr({std::make_shared<api::Field>("nonexistent"),
                              SharedConstant(testutil::Value(1LL))})),
-      ReturnsUnset());
+      ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*LteExpr({SharedConstant(testutil::Value(1LL)),
                              std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 // --- Gt (>) Tests ---
@@ -732,7 +731,7 @@ TEST_F(GtFunctionTest, NullOperandReturnsNull) {
   EXPECT_THAT(
       EvaluateExpr(*GtExpr({SharedConstant(model::NullValue()),
                             std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 TEST_F(GtFunctionTest, NaNComparisonsReturnFalse) {
@@ -781,26 +780,26 @@ TEST_F(GtFunctionTest, ErrorHandling) {
   for (const auto& val :
        ComparisonValueTestData::AllSupportedComparableValues()) {
     EXPECT_THAT(EvaluateExpr(*GtExpr({error_expr, val}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
     EXPECT_THAT(EvaluateExpr(*GtExpr({val, error_expr}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
   }
   EXPECT_THAT(EvaluateExpr(*GtExpr({error_expr, error_expr}), non_map_input),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*GtExpr({error_expr, SharedConstant(model::NullValue())}),
                    non_map_input),
-      ReturnsUnset());
+      ReturnsError());
 }
 
-TEST_F(GtFunctionTest, MissingFieldReturnsUnset) {
+TEST_F(GtFunctionTest, MissingFieldReturnsError) {
   EXPECT_THAT(EvaluateExpr(*GtExpr({std::make_shared<api::Field>("nonexistent"),
                                     SharedConstant(testutil::Value(1LL))})),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*GtExpr({SharedConstant(testutil::Value(1LL)),
                             std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 // --- Gte (>=) Tests ---
@@ -857,7 +856,7 @@ TEST_F(GteFunctionTest, NullOperandReturnsNull) {
   EXPECT_THAT(
       EvaluateExpr(*GteExpr({SharedConstant(model::NullValue()),
                              std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 TEST_F(GteFunctionTest, NaNComparisonsReturnFalse) {
@@ -906,27 +905,27 @@ TEST_F(GteFunctionTest, ErrorHandling) {
   for (const auto& val :
        ComparisonValueTestData::AllSupportedComparableValues()) {
     EXPECT_THAT(EvaluateExpr(*GteExpr({error_expr, val}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
     EXPECT_THAT(EvaluateExpr(*GteExpr({val, error_expr}), non_map_input),
-                ReturnsUnset());
+                ReturnsError());
   }
   EXPECT_THAT(EvaluateExpr(*GteExpr({error_expr, error_expr}), non_map_input),
-              ReturnsUnset());
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*GteExpr({error_expr, SharedConstant(model::NullValue())}),
                    non_map_input),
-      ReturnsUnset());
+      ReturnsError());
 }
 
-TEST_F(GteFunctionTest, MissingFieldReturnsUnset) {
+TEST_F(GteFunctionTest, MissingFieldReturnsError) {
   EXPECT_THAT(
       EvaluateExpr(*GteExpr({std::make_shared<api::Field>("nonexistent"),
                              SharedConstant(testutil::Value(1LL))})),
-      ReturnsUnset());
+      ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*GteExpr({SharedConstant(testutil::Value(1LL)),
                              std::make_shared<api::Field>("nonexistent")})),
-      ReturnsUnset());
+      ReturnsError());
 }
 
 }  // namespace core
