@@ -109,12 +109,13 @@ source scripts/check_secrets.sh
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   echo xcodebuild "$@"
-  for buildaction in "$@"; do :; done
-  log_filename="xcodebuild-${buildaction}.log"
+  local xcodebuild_args=("$@")
+  local buildaction="${xcodebuild_args[-1]}" # The buildaction is the last arg
+  local log_filename="xcodebuild-${buildaction}.log"
 
-  xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
-  result=0
+  local result=0
   NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" 2>&1 | \
     "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
     || result=$?
