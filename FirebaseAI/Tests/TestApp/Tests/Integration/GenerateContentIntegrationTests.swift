@@ -75,21 +75,25 @@ struct GenerateContentIntegrationTests {
 
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
-    #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
-    #expect(usageMetadata.totalTokenCount.isEqual(to: 16, accuracy: tokenCountAccuracy))
     #expect(usageMetadata.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
-    // The field `candidatesTokensDetails` is not included when using Gemma models.
-    if modelName == ModelNames.gemma3_4B {
+    // The fields `candidatesTokenCount` and `candidatesTokensDetails` are not included when using
+    // Gemma models.
+    if modelName.hasPrefix("gemma") {
+      #expect(usageMetadata.candidatesTokenCount == 0)
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
+      #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
       #expect(usageMetadata.candidatesTokensDetails.count == 1)
       let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
       #expect(candidatesTokensDetails.modality == .text)
       #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
+    #expect(usageMetadata.totalTokenCount > 0)
+    #expect(usageMetadata.totalTokenCount ==
+      (usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount))
   }
 
   @Test(
