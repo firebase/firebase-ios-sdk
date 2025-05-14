@@ -109,12 +109,14 @@ source scripts/check_secrets.sh
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   echo xcodebuild "$@"
+  for buildaction in "$@"; do :; done
+  log_filename="xcodebuild-${buildaction}.log"
 
-  xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging --preserve-unbeautified)
+  xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
   result=0
-  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 \
-  | "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures xcodebuild.log \
+  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" 2>&1 | \
+    "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
     || result=$?
 
   if [[ $result == 65 ]]; then
@@ -124,8 +126,8 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee xcodebuild.log 2>&1 | \
-      "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures xcodebuild.log \
+    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" 2>&1 | \
+      "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
       || result=$?
   fi
 
@@ -505,12 +507,19 @@ case "$product-$platform-$method" in
     ;;
 
   FirebaseAIIntegration-*-*)
+    # Build
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
+      -scheme "VertexAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build
+
+    # Run tests
     RunXcodebuild \
       -project 'FirebaseAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
       -scheme "VertexAITestApp-SPM" \
       "${xcb_flags[@]}" \
       -parallel-testing-enabled NO \
-      build \
       test
     ;;
 
