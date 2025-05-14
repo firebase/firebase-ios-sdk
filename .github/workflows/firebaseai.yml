@@ -1,0 +1,177 @@
+name: firebaseai
+
+on:
+  pull_request:
+    paths:
+    - 'FirebaseAI**'
+    - '.github/workflows/firebaseai.yml'
+    - 'scripts/quickstart_build_spm.sh'
+    - 'scripts/quickstart_spm_xcodeproj.sh'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read  # Needed for actions/checkout
+  actions: write # Needed for actions/cache (save and restore)
+
+jobs:
+  spm-package-resolved:
+    runs-on: macos-14
+    outputs:
+      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Swift Package.resolved
+        id: swift_package_resolve
+        run: |
+          swift package resolve
+      - name: Generate cache key
+        id: generate_cache_key
+        run: |
+          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
+          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/save@v4
+        id: cache
+        with:
+          path: .build
+          key: ${{ steps.generate_cache_key.outputs.cache_key }}
+
+  spm-unit:
+    strategy:
+      matrix:
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16.3
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16.3
+            target: tvOS
+          - os: macos-15
+            xcode: Xcode_16.3
+            target: macOS
+          - os: macos-15
+            xcode: Xcode_16.3
+            target: watchOS
+          - os: macos-15
+            xcode: Xcode_16.3
+            target: catalyst
+          - os: macos-15
+            xcode: Xcode_16.3
+            target: visionOS
+    runs-on: ${{ matrix.os }}
+    needs: spm-package-resolved
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
+    - name: Clone mock responses
+      run: scripts/update_vertexai_responses.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install visionOS, if needed.
+      if: matrix.target == 'visionOS'
+      run: xcodebuild -downloadPlatform visionOS
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: scripts/build.sh FirebaseAIUnit ${{ matrix.target }} spm
+
+  testapp-integration:
+    strategy:
+      matrix:
+        target: [iOS]
+        os: [macos-15]
+        include:
+          - os: macos-15
+            xcode: Xcode_16.3
+    runs-on: ${{ matrix.os }}
+    needs: spm-package-resolved
+    env:
+      TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      TEST_RUNNER_VTXIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info.plist.gpg \
+        FirebaseAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"
+    - name: Install Secret GoogleService-Info-Spark.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info-Spark.plist.gpg \
+        FirebaseAI/Tests/TestApp/Resources/GoogleService-Info-Spark.plist "$secrets_passphrase"
+    - name: Install Secret Credentials.swift
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-Credentials.swift.gpg \
+        FirebaseAI/Tests/TestApp/Tests/Integration/Credentials.swift "$secrets_passphrase"
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Run IntegrationTests
+      run: scripts/build.sh FirebaseAIIntegration ${{ matrix.target }}
+
+  pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+            swift_version: 5.9
+            warnings:
+          - os: macos-15
+            xcode: Xcode_16.3
+            swift_version: 5.9
+            warnings:
+          - os: macos-15
+            xcode: Xcode_16.3
+            swift_version: 6.0
+            warnings:
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Clone mock responses
+      run: scripts/update_vertexai_responses.sh
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Set Swift swift_version
+      run: sed -i "" "s#s.swift_version = '5.9'#s.swift_version = '${{ matrix.swift_version}}'#" FirebaseAI.podspec
+    - name: Build and test
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAI.podspec --platforms=${{ matrix.target }} ${{ matrix.warnings }}
+
+  quickstart:
+    # Verifies the quickstart builds with this PR. Only run on pulls where branch is available.
+    if: github.event_name == 'pull_request'
+    runs-on: macos-15
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build Quickstart
+      run: scripts/quickstart_build_spm.sh FirebaseAI

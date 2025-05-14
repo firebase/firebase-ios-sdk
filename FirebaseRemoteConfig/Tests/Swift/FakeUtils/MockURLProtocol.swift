@@ -15,17 +15,10 @@
 import Foundation
 
 class MockURLProtocol: URLProtocol {
-  #if compiler(>=6)
-    nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (
-      Data,
-      HTTPURLResponse
-    ))?
-  #else
-    static var requestHandler: ((URLRequest) throws -> (
-      Data,
-      HTTPURLResponse
-    ))?
-  #endif
+  nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (
+    Data,
+    HTTPURLResponse
+  ))?
 
   override class func canInit(with request: URLRequest) -> Bool {
     #if os(watchOS)

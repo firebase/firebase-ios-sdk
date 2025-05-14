@@ -118,6 +118,7 @@ jobs:
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
+      USE_LATEST_CMAKE: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -141,6 +142,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -168,6 +174,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       MINT_PATH: ${{ github.workspace }}/mint
       TARGET_DATABASE_ID: ${{ matrix.databaseId }}
+      USE_LATEST_CMAKE: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -230,6 +237,11 @@ jobs:
         GOOGLE_APPLICATION_CREDENTIALS: ../google-service-account.json
       continue-on-error: true
 
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
@@ -255,6 +267,7 @@ jobs:
 
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
+      USE_LATEST_CMAKE: false
 
     steps:
     - uses: actions/checkout@v4
@@ -270,6 +283,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -301,6 +319,7 @@ jobs:
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
       ASAN_OPTIONS: detect_leaks=0
+      USE_LATEST_CMAKE: false
 
     steps:
     - uses: actions/checkout@v3
@@ -316,6 +335,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -377,7 +401,7 @@ jobs:
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
 
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
@@ -470,19 +494,19 @@ jobs:
             xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     env:

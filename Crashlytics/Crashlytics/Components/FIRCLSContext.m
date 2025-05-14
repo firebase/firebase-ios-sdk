@@ -46,8 +46,6 @@
 // We need enough space here for the context, plus storage for strings.
 #define CLS_MINIMUM_READABLE_SIZE (sizeof(FIRCLSReadOnlyContext) + 4096 * 4)
 
-static const int64_t FIRCLSContextInitWaitTime = 5LL * NSEC_PER_SEC;
-
 static const char* FIRCLSContextAppendToRoot(NSString* root, NSString* component);
 static void FIRCLSContextAllocate(FIRCLSContext* context);
 
@@ -76,7 +74,8 @@ FIRCLSContextInitData* FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   return initData;
 }
 
-bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager* fileManager) {
+FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
+                                    FIRCLSFileManager* fileManager) {
   if (!initData) {
     return false;
   }
@@ -101,6 +100,8 @@ bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager*
 
   // some values that aren't tied to particular subsystem
   _firclsContext.readonly->debuggerAttached = FIRCLSProcessDebuggerAttached();
+
+  __block FBLPromise* initPromise = [FBLPromise pendingPromise];
 
   dispatch_group_async(group, queue, ^{
     FIRCLSHostInitialize(&_firclsContext.readonly->host);
@@ -220,14 +221,10 @@ bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager*
     if (!FIRCLSAllocatorProtect(_firclsContext.allocator)) {
       FIRCLSSDKLog("Error: Memory protection failed\n");
     }
+    [initPromise fulfill:nil];
   });
 
-  if (dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, FIRCLSContextInitWaitTime)) !=
-      0) {
-    FIRCLSSDKLog("Error: Delayed initialization\n");
-  }
-
-  return true;
+  return initPromise;
 }
 
 void FIRCLSContextBaseInit(void) {
