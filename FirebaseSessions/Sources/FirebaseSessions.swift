@@ -268,7 +268,8 @@ private enum GoogleDataTransportConfig {
         "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
       )
 
-    // After bumping to iOS 13, this hack should be replaced with `Task { @MainActor in }`
+    // TODO(Firebase 12): After bumping to iOS 13, this hack should be replaced
+    // with `Task { @MainActor in }`.
     let callback = MainActorNotificationCallback { notification in
       subscriber.onSessionChanged(self.currentSessionDetails)
     }
