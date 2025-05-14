@@ -131,8 +131,8 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Run IntegrationTests
       run: scripts/build.sh FirebaseAIIntegration ${{ matrix.target }}
-    - name: Upload xcodebuild.log
-      if: always()
+    - name: Upload xcodebuild logs
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: xcodebuild-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
