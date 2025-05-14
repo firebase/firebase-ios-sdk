@@ -62,13 +62,13 @@ private enum GoogleDataTransportConfig {
 
   // Initializes the SDK and top-level classes
   required convenience init(appID: String, installations: InstallationsProtocol) {
-    let googleDataTransport = GDTCORTransport(
+    let googleDataTransport = GoogleDataTransporter(
       mappingID: GoogleDataTransportConfig.sessionsLogSource,
       transformers: nil,
       target: GoogleDataTransportConfig.sessionsTarget
     )
 
-    let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
+    let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport)
 
     let appInfo = ApplicationInfo(appID: appID)
     let settings = SessionsSettings(
