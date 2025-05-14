@@ -116,7 +116,7 @@ function RunXcodebuild() {
   local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
   local result=0
-  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" 2>&1 | \
+  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
     "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
     || result=$?
 
@@ -127,7 +127,7 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" 2>&1 | \
+    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
       "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
       || result=$?
   fi
