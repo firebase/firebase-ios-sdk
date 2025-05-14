@@ -135,8 +135,10 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: xcodebuild.log
-        path: xcodebuild.log
+        name: xcodebuild-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
+        path: xcodebuild-*.log
+        retention-days: 3
+        compression-level: 9
 
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
