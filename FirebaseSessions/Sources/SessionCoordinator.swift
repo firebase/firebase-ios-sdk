@@ -14,7 +14,7 @@
 
 import Foundation
 
-protocol SessionCoordinatorProtocol {
+protocol SessionCoordinatorProtocol: Sendable {
   func attemptLoggingSessionStart(event: SessionStartEvent,
                                   callback: @escaping (Result<Void, FirebaseSessionsError>) -> Void)
 }
@@ -23,9 +23,11 @@ protocol SessionCoordinatorProtocol {
 /// SessionCoordinator is responsible for coordinating the systems in this SDK
 /// involved with sending a Session Start event.
 ///
-class SessionCoordinator: SessionCoordinatorProtocol {
+final class SessionCoordinator: SessionCoordinatorProtocol {
   let installations: InstallationsProtocol
-  let fireLogger: EventGDTLoggerProtocol
+
+  // TODO: Make this type sendable
+  nonisolated(unsafe) let fireLogger: EventGDTLoggerProtocol
 
   init(installations: InstallationsProtocol,
        fireLogger: EventGDTLoggerProtocol) {

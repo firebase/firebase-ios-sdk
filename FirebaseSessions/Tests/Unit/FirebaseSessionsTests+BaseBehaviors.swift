@@ -24,7 +24,7 @@ import XCTest
 final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
   // MARK: - Test Settings & Sampling
 
-  func test_settingsDisabled_doesNotLogSessionEventButDoesFetchSettings() {
+  @MainActor func test_settingsDisabled_doesNotLogSessionEventButDoesFetchSettings() {
     runSessionsSDK(
       subscriberSDKs: [
         mockPerformanceSubscriber,
@@ -49,7 +49,7 @@ final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
     )
   }
 
-  func test_sessionSampled_doesNotLogSessionEventButDoesFetchSettings() {
+  @MainActor func test_sessionSampled_doesNotLogSessionEventButDoesFetchSettings() {
     runSessionsSDK(
       subscriberSDKs: [
         mockPerformanceSubscriber,

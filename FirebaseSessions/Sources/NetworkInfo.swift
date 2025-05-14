@@ -25,13 +25,13 @@ import Foundation
   internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
-protocol NetworkInfoProtocol {
+protocol NetworkInfoProtocol: Sendable {
   var networkType: GULNetworkType { get }
 
   var mobileSubtype: String { get }
 }
 
-class NetworkInfo: NetworkInfoProtocol {
+final class NetworkInfo: NetworkInfoProtocol {
   var networkType: GULNetworkType {
     return GULNetworkInfo.getNetworkType()
   }

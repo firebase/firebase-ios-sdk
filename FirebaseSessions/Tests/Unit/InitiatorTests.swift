@@ -58,7 +58,7 @@ class InitiatorTests: XCTestCase {
     XCTAssert(initiateCalled)
   }
 
-  @MainActor func test_appForegrounded_initiatesNewSession() throws {
+  func test_appForegrounded_initiatesNewSession() throws {
     // Given
     var pausedClock = date
     let initiator = SessionInitiator(
