@@ -191,7 +191,7 @@
       }
       XCTAssertFalse(callbackCalled.value())
 
-      // Call cancel.gi
+      // Call cancel.
       manager.cancel(withError: error)
 
       // In the main thread, Verify the that the fake `registerForRemoteNotifications` was called.
