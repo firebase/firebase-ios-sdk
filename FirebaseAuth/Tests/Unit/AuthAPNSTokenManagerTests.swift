@@ -17,6 +17,7 @@
   import XCTest
 
   @testable import FirebaseAuth
+  import FirebaseCoreInternal
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAPNSTokenManagerTests: XCTestCase {
@@ -61,10 +62,10 @@
     func testCallback() throws {
       let expectation = self.expectation(description: #function)
       XCTAssertFalse(fakeApplication!.registerCalled)
-      var firstCallbackCalled = false
+      let firstCallbackCalled = FIRAllocatedUnfairLock(initialState: false)
       let manager = try XCTUnwrap(manager)
       manager.getTokenInternal { result in
-        firstCallbackCalled = true
+        firstCallbackCalled.withLock { $0 = true }
         switch result {
         case let .success(token):
           XCTAssertEqual(token.data, self.data)
@@ -73,12 +74,12 @@
           XCTFail("Unexpected error: \(error)")
         }
       }
-      XCTAssertFalse(firstCallbackCalled)
+      XCTAssertFalse(firstCallbackCalled.value())
 
       // Add second callback, which is yet to be called either.
-      var secondCallbackCalled = false
+      let secondCallbackCalled = FIRAllocatedUnfairLock(initialState: false)
       manager.getTokenInternal { result in
-        secondCallbackCalled = true
+        secondCallbackCalled.withLock { $0 = true }
         switch result {
         case let .success(token):
           XCTAssertEqual(token.data, self.data)
@@ -87,25 +88,25 @@
           XCTFail("Unexpected error: \(error)")
         }
       }
-      XCTAssertFalse(secondCallbackCalled)
+      XCTAssertFalse(secondCallbackCalled.value())
 
       // Setting nil token shouldn't trigger either callbacks.
       manager.token = nil
-      XCTAssertFalse(firstCallbackCalled)
-      XCTAssertFalse(secondCallbackCalled)
+      XCTAssertFalse(firstCallbackCalled.value())
+      XCTAssertFalse(secondCallbackCalled.value())
       XCTAssertNil(manager.token)
 
       // Setting a real token should trigger both callbacks.
       manager.token = AuthAPNSToken(withData: data!, type: .sandbox)
-      XCTAssertTrue(firstCallbackCalled)
-      XCTAssertTrue(secondCallbackCalled)
+      XCTAssertTrue(firstCallbackCalled.value())
+      XCTAssertTrue(secondCallbackCalled.value())
       XCTAssertEqual(manager.token?.data, data)
       XCTAssertEqual(manager.token?.type, .sandbox)
 
       // Add third callback, which should be called back immediately.
-      var thirdCallbackCalled = false
+      let thirdCallbackCalled = FIRAllocatedUnfairLock(initialState: false)
       manager.getTokenInternal { result in
-        thirdCallbackCalled = true
+        thirdCallbackCalled.withLock { $0 = true }
         switch result {
         case let .success(token):
           XCTAssertEqual(token.data, self.data)
@@ -114,7 +115,7 @@
           XCTFail("Unexpected error: \(error)")
         }
       }
-      XCTAssertTrue(thirdCallbackCalled)
+      XCTAssertTrue(thirdCallbackCalled.value())
 
       // In the main thread, Verify the that the fake `registerForRemoteNotifications` was called.
       DispatchQueue.main.async {
@@ -177,7 +178,7 @@
       XCTAssertGreaterThan(try XCTUnwrap(manager.timeout), 0)
 
       // Add callback to cancel.
-      var callbackCalled = false
+      let callbackCalled = FIRAllocatedUnfairLock(initialState: false)
       manager.getTokenInternal { result in
         switch result {
         case let .success(token):
@@ -185,10 +186,10 @@
         case let .failure(error):
           XCTAssertEqual(error as NSError, self.error as NSError)
         }
-        XCTAssertFalse(callbackCalled) // verify callback is not called twice
-        callbackCalled = true
+        XCTAssertFalse(callbackCalled.value()) // verify callback is not called twice
+        callbackCalled.withLock { $0 = true }
       }
-      XCTAssertFalse(callbackCalled)
+      XCTAssertFalse(callbackCalled.value())
 
       // Call cancel.
       manager.cancel(withError: error)
