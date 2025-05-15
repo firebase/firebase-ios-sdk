@@ -15,20 +15,31 @@
 
 import Foundation
 
-internal import GoogleDataTransport
+@preconcurrency internal import GoogleDataTransport
 
 enum GoogleDataTransportProtocolErrors: Error {
   case writeFailure
 }
 
-protocol GoogleDataTransportProtocol {
+protocol GoogleDataTransportProtocol: Sendable {
   func logGDTEvent(event: GDTCOREvent, completion: @escaping (Result<Void, Error>) -> Void)
   func eventForTransport() -> GDTCOREvent
 }
 
-extension GDTCORTransport: GoogleDataTransportProtocol {
-  func logGDTEvent(event: GDTCOREvent, completion: @escaping (Result<Void, Error>) -> Void) {
-    sendDataEvent(event) { wasWritten, error in
+/// Workaround in combo with preconcurrency import of GDT. When GDT's
+/// `GDTCORTransport`type conforms to Sendable within the GDT module,
+/// this can be removed.
+final class GoogleDataTransporter: GoogleDataTransportProtocol {
+  private let transporter: GDTCORTransport
+
+  init(mappingID: String,
+       transformers: [any GDTCOREventTransformer]?,
+       target: GDTCORTarget) {
+    transporter = GDTCORTransport(mappingID: mappingID, transformers: transformers, target: target)!
+  }
+
+  func logGDTEvent(event: GDTCOREvent, completion: @escaping (Result<Void, any Error>) -> Void) {
+    transporter.sendDataEvent(event) { wasWritten, error in
       if let error {
         completion(.failure(error))
       } else if !wasWritten {
@@ -37,5 +48,9 @@ extension GDTCORTransport: GoogleDataTransportProtocol {
         completion(.success(()))
       }
     }
+  }
+
+  func eventForTransport() -> GDTCOREvent {
+    transporter.eventForTransport()
   }
 }

@@ -17,7 +17,8 @@ import Foundation
 
 @testable import FirebaseSessions
 
-class MockGDTLogger: EventGDTLoggerProtocol {
+// TODO(Swift 6): Add checked Sendable support.
+final class MockGDTLogger: EventGDTLoggerProtocol, @unchecked Sendable {
   var loggedEvent: SessionStartEvent?
   var result: Result<Void, Error> = .success(())
 

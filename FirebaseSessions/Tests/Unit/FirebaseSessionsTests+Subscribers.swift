@@ -25,7 +25,7 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
   // Check that the Session ID that was passed to the Subscriber SDK
   // matches the Session ID that the Sessions SDK logged, and ensure
   // both are not empty.
-  func assertValidChangedSessionID() {
+  @MainActor func assertValidChangedSessionID() {
     let expectedSessionID = sessions.currentSessionDetails.sessionId
     XCTAssert(expectedSessionID!.count > 0)
     for mock in [mockCrashlyticsSubscriber, mockPerformanceSubscriber] {
@@ -37,7 +37,7 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
 
   // MARK: - Test Subscriber Callbacks
 
-  func test_registerSubscriber_callsOnSessionChanged() {
+  @MainActor func test_registerSubscriber_callsOnSessionChanged() {
     runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
@@ -61,7 +61,7 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
   // Make sure that even if the Sessions SDK is disabled, and data collection
   // is disabled, the Sessions SDK still generates Session IDs and provides
   // them to Subscribers
-  func test_subscribersDataCollectionDisabled_callsOnSessionChanged() {
+  @MainActor func test_subscribersDataCollectionDisabled_callsOnSessionChanged() {
     runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
@@ -86,7 +86,7 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
     )
   }
 
-  func test_noDependencies_doesNotLogSessionEvent() {
+  @MainActor func test_noDependencies_doesNotLogSessionEvent() {
     runSessionsSDK(
       subscriberSDKs: [],
       preSessionsInit: { _ in
@@ -102,7 +102,7 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
     )
   }
 
-  func test_noSubscribersWithRegistrations_doesNotCrash() {
+  @MainActor func test_noSubscribersWithRegistrations_doesNotCrash() {
     runSessionsSDK(
       subscriberSDKs: [],
       preSessionsInit: { _ in
