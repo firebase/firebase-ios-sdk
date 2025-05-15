@@ -51,6 +51,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       MINT_PATH: ${{ github.workspace }}/mint
       TARGET_DATABASE_ID: ${{ matrix.databaseId }}
+      USE_LATEST_CMAKE: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -78,6 +79,11 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-nightly.plist.gpg \
         Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
 
     # Skipping terraform index creation because we are not allowed to download SA key json.
 
