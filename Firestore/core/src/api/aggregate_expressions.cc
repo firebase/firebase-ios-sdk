@@ -22,7 +22,7 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
-google_firestore_v1_Value AggregateExpr::to_proto() const {
+google_firestore_v1_Value AggregateFunction::to_proto() const {
   google_firestore_v1_Value result;
   result.which_value_type = google_firestore_v1_Value_function_value_tag;
 
