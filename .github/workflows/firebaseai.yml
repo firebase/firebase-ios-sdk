@@ -8,6 +8,8 @@ on:
     - 'scripts/quickstart_build_spm.sh'
     - 'scripts/quickstart_spm_xcodeproj.sh'
     - 'Gemfile*'
+    # Do not run for documentation-only PRs.
+    - '!**.md'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
     - cron:  '0 7 * * *'
