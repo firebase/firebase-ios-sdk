@@ -89,8 +89,8 @@ google_firestore_v1_Pipeline_Stage DocumentsSource::to_proto() const {
 
   for (size_t i = 0; i < documents_.size(); ++i) {
     result.args[i].which_value_type =
-        google_firestore_v1_Value_string_value_tag;
-    result.args[i].string_value = nanopb::MakeBytesArray(documents_[i]);
+        google_firestore_v1_Value_reference_value_tag;
+    result.args[i].reference_value = nanopb::MakeBytesArray(documents_[i]);
   }
 
   result.options_count = 0;

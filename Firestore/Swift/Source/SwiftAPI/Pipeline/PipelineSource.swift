@@ -37,12 +37,13 @@ public struct PipelineSource: @unchecked Sendable {
   }
 
   public func documents(_ docs: [DocumentReference]) -> Pipeline {
-    let paths = docs.map { $0.path }
+    let paths = docs.map { $0.path.hasPrefix("/") ? $0.path : "/" + $0.path }
     return Pipeline(stages: [DocumentsSource(paths: paths)], db: db)
   }
 
   public func documents(_ paths: [String]) -> Pipeline {
-    return Pipeline(stages: [DocumentsSource(paths: paths)], db: db)
+    let normalizedPaths = paths.map { $0.hasPrefix("/") ? $0 : "/" + $0 }
+    return Pipeline(stages: [DocumentsSource(paths: normalizedPaths)], db: db)
   }
 
   public func create(from query: Query) -> Pipeline {

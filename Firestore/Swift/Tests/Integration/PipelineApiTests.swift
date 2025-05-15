@@ -18,6 +18,11 @@ import XCTest
 import FirebaseFirestore
 
 final class PipelineTests: FSTIntegrationTestCase {
+  override func setUp() {
+    FSTIntegrationTestCase.switchToEnterpriseMode()
+    super.setUp()
+  }
+
   func testCreatePipeline() async throws {
     let pipelineSource: PipelineSource = db.pipeline()
 

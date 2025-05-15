@@ -113,6 +113,11 @@ private let bookDocs: [String: [String: Any]] = [
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineIntegrationTests: FSTIntegrationTestCase {
+  override func setUp() {
+    FSTIntegrationTestCase.switchToEnterpriseMode()
+    super.setUp()
+  }
+
   func testCount() async throws {
     try await firestore().collection("foo").document("bar").setData(["foo": "bar", "x": 42])
     let snapshot = try await firestore()
