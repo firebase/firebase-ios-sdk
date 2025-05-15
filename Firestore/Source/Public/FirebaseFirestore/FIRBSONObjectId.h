@@ -15,33 +15,28 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <stdint.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Represents a BSON timestamp type in Firestore documents.
+ * Represents a BSON ObjectId type in Firestore documents.
  */
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(BsonTimestamp)
+NS_SWIFT_NAME(BSONObjectId)
 __attribute__((objc_subclassing_restricted))
-@interface FIRBsonTimestamp : NSObject<NSCopying>
+@interface FIRBSONObjectId : NSObject<NSCopying>
 
-/** The underlying unsigned 32-bit integer for seconds */
-@property(nonatomic, readonly) uint32_t seconds;
-
-/** The underlying unsigned 32-bit integer for increment */
-@property(nonatomic, readonly) uint32_t increment;
+/** The 24-character hex string representation of the ObjectId. */
+@property(nonatomic, copy, readonly) NSString *value;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Creates a `BsonTimestamp` with the given seconds and increment values.
- * @param seconds  The underlying unsigned 32-bit integer for seconds.
- * @param increment The underlying unsigned 32-bit integer for increment.
+ * Creates a `BSONObjectId` constructed with the given value.
+ * @param value The 24-character hex string representation of the ObjectId.
  */
-- (instancetype)initWithSeconds:(uint32_t)seconds increment:(uint32_t)increment;
+- (instancetype)initWithValue:(nonnull NSString *)value NS_SWIFT_NAME(init(_:));
 
 /** Returns true if the given object is equal to this, and false otherwise. */
 - (BOOL)isEqual:(id)object;

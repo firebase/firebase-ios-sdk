@@ -138,10 +138,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testBsonTimestampEquality() {
-    let v1 = BsonTimestamp(seconds: 1, increment: 1)
-    let v2 = BsonTimestamp(seconds: 1, increment: 1)
-    let v3 = BsonTimestamp(seconds: 1, increment: 2)
-    let v4 = BsonTimestamp(seconds: 2, increment: 1)
+    let v1 = BSONTimestamp(seconds: 1, increment: 1)
+    let v2 = BSONTimestamp(seconds: 1, increment: 1)
+    let v3 = BSONTimestamp(seconds: 1, increment: 2)
+    let v4 = BSONTimestamp(seconds: 2, increment: 1)
 
     XCTAssertTrue(v1 == v2)
     XCTAssertFalse(v1 == v3)
@@ -153,9 +153,9 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testBsonObjectIdEquality() {
-    let v1 = BsonObjectId("foo")
-    let v2 = BsonObjectId("foo")
-    let v3 = BsonObjectId("bar")
+    let v1 = BSONObjectId("foo")
+    let v2 = BSONObjectId("foo")
+    let v3 = BSONObjectId("bar")
 
     XCTAssertTrue(v1 == v2)
     XCTAssertFalse(v1 == v3)
@@ -165,10 +165,10 @@ class TypeTest: FSTIntegrationTestCase {
   }
 
   func testBsonBinaryDataEquality() {
-    let v1 = BsonBinaryData(subtype: 1, data: Data([1, 2, 3]))
-    let v2 = BsonBinaryData(subtype: 1, data: Data([1, 2, 3]))
-    let v3 = BsonBinaryData(subtype: 128, data: Data([1, 2, 3]))
-    let v4 = BsonBinaryData(subtype: 1, data: Data([1, 2, 3, 4]))
+    let v1 = BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))
+    let v2 = BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))
+    let v3 = BSONBinaryData(subtype: 128, data: Data([1, 2, 3]))
+    let v4 = BSONBinaryData(subtype: 1, data: Data([1, 2, 3, 4]))
 
     XCTAssertTrue(v1 == v2)
     XCTAssertFalse(v1 == v3)
@@ -210,29 +210,29 @@ class TypeTest: FSTIntegrationTestCase {
   func testCanReadAndWriteBsonTimestampFields() async throws {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["bsonTimestamp": BsonTimestamp(seconds: 1, increment: 2)]
+      data: ["bsonTimestamp": BSONTimestamp(seconds: 1, increment: 2)]
     )
   }
 
   func testCanReadAndWriteBsonObjectIdFields() async throws {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["bsonObjectId": BsonObjectId("507f191e810c19729de860ea")]
+      data: ["bsonObjectId": BSONObjectId("507f191e810c19729de860ea")]
     )
   }
 
   func testCanReadAndWriteBsonBinaryDataFields() async throws {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["bsonBinaryData": BsonBinaryData(subtype: 1, data: Data([1, 2, 3]))]
+      data: ["bsonBinaryData": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))]
     )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["bsonBinaryData": BsonBinaryData(subtype: 128, data: Data([1, 2, 3]))]
+      data: ["bsonBinaryData": BSONBinaryData(subtype: 128, data: Data([1, 2, 3]))]
     )
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["bsonBinaryData": BsonBinaryData(subtype: 255, data: Data([]))]
+      data: ["bsonBinaryData": BSONBinaryData(subtype: 255, data: Data([]))]
     )
   }
 
@@ -240,9 +240,9 @@ class TypeTest: FSTIntegrationTestCase {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["array": [
-        BsonBinaryData(subtype: 1, data: Data([1, 2, 3])),
-        BsonObjectId("507f191e810c19729de860ea"),
-        BsonTimestamp(seconds: 123, increment: 456),
+        BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
+        BSONObjectId("507f191e810c19729de860ea"),
+        BSONTimestamp(seconds: 123, increment: 456),
         Int32Value(1),
         MinKey.shared,
         MaxKey.shared,
@@ -255,9 +255,9 @@ class TypeTest: FSTIntegrationTestCase {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
       data: ["array": [
-        "binary": BsonBinaryData(subtype: 1, data: Data([1, 2, 3])),
-        "objectId": BsonObjectId("507f191e810c19729de860ea"),
-        "bsonTimestamp": BsonTimestamp(seconds: 123, increment: 456),
+        "binary": BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
+        "objectId": BSONObjectId("507f191e810c19729de860ea"),
+        "bsonTimestamp": BSONTimestamp(seconds: 123, increment: 456),
         "int32": Int32Value(1),
         "min": MinKey.shared,
         "max": MaxKey.shared,
@@ -290,8 +290,8 @@ class TypeTest: FSTIntegrationTestCase {
     var errorMessage: String?
 
     do {
-      // BsonObjectId with string length not equal to 24
-      try await docRef.setData(["key": BsonObjectId("foo")])
+      // BSONObjectId with string length not equal to 24
+      try await docRef.setData(["key": BSONObjectId("foo")])
       XCTFail("Expected error for invalid BSON Object ID string length")
     } catch {
       errorMessage = (error as NSError).userInfo[NSLocalizedDescriptionKey] as? String
@@ -314,12 +314,12 @@ class TypeTest: FSTIntegrationTestCase {
       "doubleValue": ["key": 2.0],
       "integerValue": ["key": 3],
       "timestampValue": ["key": Timestamp(seconds: 100, nanoseconds: 123_456_000)],
-      "bsonTimestampValue": ["key": BsonTimestamp(seconds: 1, increment: 2)],
+      "bsonTimestampValue": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "stringValue": ["key": "string"],
       "bytesValue": ["key": Data([0, 1, 255])],
-      "bsonBinaryValue": ["key": BsonBinaryData(subtype: 1, data: Data([1, 2, 3]))],
+      "bsonBinaryValue": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
       "referenceValue": ["key": collection.document("doc")],
-      "objectIdValue": ["key": BsonObjectId("507f191e810c19729de860ea")],
+      "objectIdValue": ["key": BSONObjectId("507f191e810c19729de860ea")],
       "geoPointValue": ["key": GeoPoint(latitude: 0, longitude: 0)],
       "regexValue": ["key": RegexValue(pattern: "^foo", options: "i")],
       "arrayValue": ["key": [1, 2]],

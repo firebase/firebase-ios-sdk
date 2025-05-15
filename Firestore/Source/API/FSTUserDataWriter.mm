@@ -23,9 +23,9 @@
 #include "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #include "Firestore/Source/API/FIRFieldValue+Internal.h"
 #include "Firestore/Source/API/converters.h"
-#include "Firestore/Source/Public/FirebaseFirestore/FIRBsonBinaryData.h"
-#include "Firestore/Source/Public/FirebaseFirestore/FIRBsonObjectId.h"
-#include "Firestore/Source/Public/FirebaseFirestore/FIRBsonTimestamp.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRBSONBinaryData.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRBSONObjectId.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRBSONTimestamp.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRInt32Value.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRMaxKey.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRMinKey.h"
@@ -198,7 +198,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FIRInt32Value alloc] initWithValue:value];
 }
 
-- (FIRBsonObjectId *)convertedBsonObjectId:(const google_firestore_v1_MapValue &)mapValue {
+- (FIRBSONObjectId *)convertedBsonObjectId:(const google_firestore_v1_MapValue &)mapValue {
   NSString *oid = @"";
   if (mapValue.fields_count == 1) {
     const google_firestore_v1_Value &oidValue = mapValue.fields[0].value;
@@ -207,10 +207,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  return [[FIRBsonObjectId alloc] initWithValue:oid];
+  return [[FIRBSONObjectId alloc] initWithValue:oid];
 }
 
-- (FIRBsonTimestamp *)convertedBsonTimestamp:(const google_firestore_v1_MapValue &)mapValue {
+- (FIRBSONTimestamp *)convertedBsonTimestamp:(const google_firestore_v1_MapValue &)mapValue {
   uint32_t seconds = 0;
   uint32_t increment = 0;
   if (mapValue.fields_count == 1) {
@@ -233,10 +233,10 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  return [[FIRBsonTimestamp alloc] initWithSeconds:seconds increment:increment];
+  return [[FIRBSONTimestamp alloc] initWithSeconds:seconds increment:increment];
 }
 
-- (FIRBsonBinaryData *)convertedBsonBinaryData:(const google_firestore_v1_MapValue &)mapValue {
+- (FIRBSONBinaryData *)convertedBsonBinaryData:(const google_firestore_v1_MapValue &)mapValue {
   uint8_t subtype = 0;
   NSData *data = [[NSData alloc] init];
 
@@ -255,7 +255,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  return [[FIRBsonBinaryData alloc] initWithSubtype:subtype data:data];
+  return [[FIRBSONBinaryData alloc] initWithSubtype:subtype data:data];
 }
 
 - (NSArray<id> *)convertedArray:(const google_firestore_v1_ArrayValue &)arrayValue {

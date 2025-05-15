@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "Firestore/Source/Public/FirebaseFirestore/FIRBsonTimestamp.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRBSONTimestamp.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRBsonTimestamp
+@implementation FIRBSONTimestamp
 
 - (instancetype)initWithSeconds:(uint32_t)seconds increment:(uint32_t)increment {
   self = [super init];
@@ -34,20 +34,20 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
   }
 
-  if (![object isKindOfClass:[FIRBsonTimestamp class]]) {
+  if (![object isKindOfClass:[FIRBSONTimestamp class]]) {
     return NO;
   }
 
-  FIRBsonTimestamp *other = (FIRBsonTimestamp *)object;
+  FIRBSONTimestamp *other = (FIRBSONTimestamp *)object;
   return self.seconds == other.seconds && self.increment == other.increment;
 }
 
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
-  return [[FIRBsonTimestamp alloc] initWithSeconds:self.seconds increment:self.increment];
+  return [[FIRBSONTimestamp alloc] initWithSeconds:self.seconds increment:self.increment];
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FIRBsonTimestamp: (seconds:%u, increment:%u)>", self.seconds,
+  return [NSString stringWithFormat:@"<FIRBSONTimestamp: (seconds:%u, increment:%u)>", self.seconds,
                                     self.increment];
 }
 

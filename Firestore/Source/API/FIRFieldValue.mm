@@ -15,13 +15,6 @@
  */
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRBsonBinaryData.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRBsonObjectId.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRBsonTimestamp.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRInt32Value.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRMaxKey.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRMinKey.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRRegexValue.h"
 #import "Firestore/Source/Public/FirebaseFirestore/FIRVectorValue.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -186,36 +179,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nonnull FIRVectorValue *)vectorWithArray:(nonnull NSArray<NSNumber *> *)array {
   return [[FIRVectorValue alloc] initWithArray:array];
-}
-
-+ (nonnull FIRMinKey *)minKey {
-  return [FIRMinKey shared];
-}
-
-+ (nonnull FIRMaxKey *)maxKey {
-  return [FIRMaxKey shared];
-}
-
-+ (nonnull FIRRegexValue *)regexWithPattern:(nonnull NSString *)pattern
-                                    options:(nonnull NSString *)options {
-  return [[FIRRegexValue alloc] initWithPattern:pattern options:options];
-}
-
-+ (nonnull FIRInt32Value *)int32WithValue:(int)value {
-  return [[FIRInt32Value alloc] initWithValue:value];
-}
-
-+ (nonnull FIRBsonObjectId *)bsonObjectIdWithValue:(NSString *)value {
-  return [[FIRBsonObjectId alloc] initWithValue:value];
-}
-
-+ (nonnull FIRBsonTimestamp *)bsonTimestampWithSeconds:(uint32_t)seconds
-                                             increment:(uint32_t)increment {
-  return [[FIRBsonTimestamp alloc] initWithSeconds:seconds increment:increment];
-}
-
-+ (nonnull FIRBsonBinaryData *)bsonBinaryDataWithSubtype:(uint8_t)subtype data:(NSData *)data {
-  return [[FIRBsonBinaryData alloc] initWithSubtype:subtype data:data];
 }
 
 @end

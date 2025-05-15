@@ -21,46 +21,46 @@
 #endif // SWIFT_PACKAGE
 
 /**
- * A protocol describing the encodable properties of an BsonTimestamp.
+ * A protocol describing the encodable properties of an BSONBinaryData.
  *
- * Note: this protocol exists as a workaround for the Swift compiler: if the BsonTimestamp class
+ * Note: this protocol exists as a workaround for the Swift compiler: if the BSONBinaryData class
  * was extended directly to conform to Codable, the methods implementing the protocol would be need
  * to be marked required but that can't be done in an extension. Declaring the extension on the
  * protocol sidesteps this issue.
  */
-private protocol CodableBsonTimestamp: Codable {
-  var seconds: UInt32 { get }
-  var increment: UInt32 { get }
+private protocol CodableBSONBinaryData: Codable {
+  var subtype: UInt8 { get }
+  var data: Data { get }
 
-  init(seconds: UInt32, increment: UInt32)
+  init(subtype: UInt8, data: Data)
 }
 
-/** The keys in an BsonTimestamp. Must match the properties of CodableBsonTimestamp. */
-private enum BsonTimestampKeys: String, CodingKey {
-  case seconds
-  case increment
+/** The keys in an BSONBinaryData. Must match the properties of CodableBSONBinaryData. */
+private enum BSONBinaryDataKeys: String, CodingKey {
+  case subtype
+  case data
 }
 
 /**
- * An extension of BsonTimestamp that implements the behavior of the Codable protocol.
+ * An extension of BSONBinaryData that implements the behavior of the Codable protocol.
  *
  * Note: this is implemented manually here because the Swift compiler can't synthesize these methods
  * when declaring an extension to conform to Codable.
  */
-extension CodableBsonTimestamp {
+extension CodableBSONBinaryData {
   public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: BsonTimestampKeys.self)
-    let seconds = try container.decode(UInt32.self, forKey: .seconds)
-    let increment = try container.decode(UInt32.self, forKey: .increment)
-    self.init(seconds: seconds, increment: increment)
+    let container = try decoder.container(keyedBy: BSONBinaryDataKeys.self)
+    let subtype = try container.decode(UInt8.self, forKey: .subtype)
+    let data = try container.decode(Data.self, forKey: .data)
+    self.init(subtype: subtype, data: data)
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: BsonTimestampKeys.self)
-    try container.encode(seconds, forKey: .seconds)
-    try container.encode(increment, forKey: .increment)
+    var container = encoder.container(keyedBy: BSONBinaryDataKeys.self)
+    try container.encode(subtype, forKey: .subtype)
+    try container.encode(data, forKey: .data)
   }
 }
 
-/** Extends BsonTimestamp to conform to Codable. */
-extension FirebaseFirestore.BsonTimestamp: FirebaseFirestore.CodableBsonTimestamp {}
+/** Extends BSONBinaryData to conform to Codable. */
+extension FirebaseFirestore.BSONBinaryData: FirebaseFirestore.CodableBSONBinaryData {}

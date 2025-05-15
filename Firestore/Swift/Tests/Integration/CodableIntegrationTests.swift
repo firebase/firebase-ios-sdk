@@ -115,9 +115,9 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       var int32: Int32Value
       var minKey: MinKey
       var maxKey: MaxKey
-      var bsonOjectId: BsonObjectId
-      var bsonTimestamp: BsonTimestamp
-      var bsonBinaryData: BsonBinaryData
+      var bsonOjectId: BSONObjectId
+      var bsonTimestamp: BSONTimestamp
+      var bsonBinaryData: BSONBinaryData
     }
     let docToWrite = documentRef()
     let model = Model(name: "test",
@@ -130,9 +130,9 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
                       int32: Int32Value(1),
                       minKey: MinKey.shared,
                       maxKey: MaxKey.shared,
-                      bsonOjectId: BsonObjectId("507f191e810c19729de860ec"),
-                      bsonTimestamp: BsonTimestamp(seconds: 123, increment: 456),
-                      bsonBinaryData: BsonBinaryData(subtype: 128, data: Data([1, 2])))
+                      bsonOjectId: BSONObjectId("507f191e810c19729de860ec"),
+                      bsonTimestamp: BSONTimestamp(seconds: 123, increment: 456),
+                      bsonBinaryData: BSONBinaryData(subtype: 128, data: Data([1, 2])))
 
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
@@ -253,19 +253,19 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
   func testBsonObjectId() throws {
     try assertCanWriteAndReadCodableValueWithAllFlavors(
-      value: BsonObjectId("507f191e810c19729de860ec")
+      value: BSONObjectId("507f191e810c19729de860ec")
     )
   }
 
   func testBsonTimestamp() throws {
     try assertCanWriteAndReadCodableValueWithAllFlavors(
-      value: BsonTimestamp(seconds: 123, increment: 456)
+      value: BSONTimestamp(seconds: 123, increment: 456)
     )
   }
 
   func testBsonBinaryData() throws {
     try assertCanWriteAndReadCodableValueWithAllFlavors(
-      value: BsonBinaryData(subtype: 128, data: Data([1, 2, 3]))
+      value: BSONBinaryData(subtype: 128, data: Data([1, 2, 3]))
     )
   }
 

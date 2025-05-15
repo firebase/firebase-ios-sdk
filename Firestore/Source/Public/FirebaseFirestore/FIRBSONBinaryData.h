@@ -22,9 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Represents a BSON Binary Data type in Firestore documents.
  */
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(BsonBinaryData)
+NS_SWIFT_NAME(BSONBinaryData)
 __attribute__((objc_subclassing_restricted))
-@interface FIRBsonBinaryData : NSObject<NSCopying>
+@interface FIRBSONBinaryData : NSObject<NSCopying>
 
 /** An 8-bit unsigned integer denoting the subtype of the data. */
 @property(nonatomic, readonly) uint8_t subtype;
@@ -36,7 +36,7 @@ __attribute__((objc_subclassing_restricted))
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Creates a `BsonBinaryData` constructed with the given subtype and data.
+ * Creates a `BSONBinaryData` constructed with the given subtype and data.
  * @param subtype An 8-bit unsigned integer denoting the subtype of the data.
  * @param data The binary data.
  */

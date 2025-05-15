@@ -24,9 +24,9 @@
 
 #import "Firestore/Source/API/FSTUserDataReader.h"
 
-#import "FIRBsonBinaryData.h"
-#import "FIRBsonObjectId.h"
-#import "FIRBsonTimestamp.h"
+#import "FIRBSONBinaryData.h"
+#import "FIRBSONObjectId.h"
+#import "FIRBSONTimestamp.h"
 #import "FIRGeoPoint.h"
 #import "FIRInt32Value.h"
 #import "FIRMaxKey.h"
@@ -452,7 +452,7 @@ NS_ASSUME_NONNULL_BEGIN
   return std::move(result);
 }
 
-- (Message<google_firestore_v1_Value>)parseBsonObjectId:(FIRBsonObjectId *)oid
+- (Message<google_firestore_v1_Value>)parseBsonObjectId:(FIRBSONObjectId *)oid
                                                 context:(ParseContext &&)context {
   __block Message<google_firestore_v1_Value> result;
   result->which_value_type = google_firestore_v1_Value_map_value_tag;
@@ -465,7 +465,7 @@ NS_ASSUME_NONNULL_BEGIN
   return std::move(result);
 }
 
-- (Message<google_firestore_v1_Value>)parseBsonTimestamp:(FIRBsonTimestamp *)timestamp
+- (Message<google_firestore_v1_Value>)parseBsonTimestamp:(FIRBSONTimestamp *)timestamp
                                                  context:(ParseContext &&)context {
   uint32_t seconds = timestamp.seconds;
   uint32_t increment = timestamp.increment;
@@ -500,7 +500,7 @@ NS_ASSUME_NONNULL_BEGIN
   return std::move(result);
 }
 
-- (Message<google_firestore_v1_Value>)parseBsonBinaryData:(FIRBsonBinaryData *)binaryData
+- (Message<google_firestore_v1_Value>)parseBsonBinaryData:(FIRBSONBinaryData *)binaryData
                                                   context:(ParseContext &&)context {
   uint8_t subtypeByte = binaryData.subtype;
   NSData *data = binaryData.data;
@@ -723,14 +723,14 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([input isKindOfClass:[FIRInt32Value class]]) {
     FIRInt32Value *value = input;
     return [self parseInt32Value:value context:std::move(context)];
-  } else if ([input isKindOfClass:[FIRBsonObjectId class]]) {
-    FIRBsonObjectId *oid = input;
+  } else if ([input isKindOfClass:[FIRBSONObjectId class]]) {
+    FIRBSONObjectId *oid = input;
     return [self parseBsonObjectId:oid context:std::move(context)];
-  } else if ([input isKindOfClass:[FIRBsonTimestamp class]]) {
-    FIRBsonTimestamp *timestamp = input;
+  } else if ([input isKindOfClass:[FIRBSONTimestamp class]]) {
+    FIRBSONTimestamp *timestamp = input;
     return [self parseBsonTimestamp:timestamp context:std::move(context)];
-  } else if ([input isKindOfClass:[FIRBsonBinaryData class]]) {
-    FIRBsonBinaryData *binaryData = input;
+  } else if ([input isKindOfClass:[FIRBSONBinaryData class]]) {
+    FIRBSONBinaryData *binaryData = input;
     return [self parseBsonBinaryData:binaryData context:std::move(context)];
   } else {
     ThrowInvalidArgument("Unsupported type: %s%s", NSStringFromClass([input class]),

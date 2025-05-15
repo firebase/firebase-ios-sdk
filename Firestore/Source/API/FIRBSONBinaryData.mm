@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-#include "Firestore/Source/Public/FirebaseFirestore/FIRBsonObjectId.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRBSONBinaryData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRBsonObjectId
+@implementation FIRBSONBinaryData
 
-- (instancetype)initWithValue:(NSString *)value {
+- (instancetype)initWithSubtype:(uint8_t)subtype data:(NSData *)data {
   self = [super init];
   if (self) {
-    _value = value;
+    _subtype = subtype;
+    _data = data;
   }
   return self;
 }
@@ -33,20 +34,21 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
   }
 
-  if (![object isKindOfClass:[FIRBsonObjectId class]]) {
+  if (![object isKindOfClass:[FIRBSONBinaryData class]]) {
     return NO;
   }
 
-  FIRBsonObjectId *other = (FIRBsonObjectId *)object;
-  return [self.value isEqualToString:other.value];
+  FIRBSONBinaryData *other = (FIRBSONBinaryData *)object;
+  return self.subtype == other.subtype && [self.data isEqualToData:other.data];
 }
 
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
-  return [[FIRBsonObjectId alloc] initWithValue:self.value];
+  return [[FIRBSONBinaryData alloc] initWithSubtype:self.subtype data:self.data];
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FIRBsonObjectId: (%@)>", self.value];
+  return [NSString stringWithFormat:@"<FIRBSONBinaryData: (subtype:%u, data:%@)>",
+                                    (unsigned int)self.subtype, self.data];
 }
 
 @end

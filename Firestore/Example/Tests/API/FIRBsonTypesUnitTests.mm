@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRBsonBinaryData.h>
-#import <FirebaseFirestore/FIRBsonObjectId.h>
-#import <FirebaseFirestore/FIRBsonTimestamp.h>
+#import <FirebaseFirestore/FIRBSONBinaryData.h>
+#import <FirebaseFirestore/FIRBSONObjectId.h>
+#import <FirebaseFirestore/FIRBSONTimestamp.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRInt32Value.h>
 #import <FirebaseFirestore/FIRMaxKey.h>
@@ -76,9 +76,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testCreateAndReadAndCompareBsonObjectId {
-  FIRBsonObjectId *val1 = [[FIRBsonObjectId alloc] initWithValue:@"abcd"];
-  FIRBsonObjectId *val2 = [[FIRBsonObjectId alloc] initWithValue:@"abcd"];
-  FIRBsonObjectId *val3 = [[FIRBsonObjectId alloc] initWithValue:@"efgh"];
+  FIRBSONObjectId *val1 = [[FIRBSONObjectId alloc] initWithValue:@"abcd"];
+  FIRBSONObjectId *val2 = [[FIRBSONObjectId alloc] initWithValue:@"abcd"];
+  FIRBSONObjectId *val3 = [[FIRBSONObjectId alloc] initWithValue:@"efgh"];
 
   // Test reading the value back
   XCTAssertEqual(@"abcd", val1.value);
@@ -89,10 +89,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testCreateAndReadAndCompareBsonTimestamp {
-  FIRBsonTimestamp *val1 = [[FIRBsonTimestamp alloc] initWithSeconds:1234 increment:100];
-  FIRBsonTimestamp *val2 = [[FIRBsonTimestamp alloc] initWithSeconds:1234 increment:100];
-  FIRBsonTimestamp *val3 = [[FIRBsonTimestamp alloc] initWithSeconds:4444 increment:100];
-  FIRBsonTimestamp *val4 = [[FIRBsonTimestamp alloc] initWithSeconds:1234 increment:444];
+  FIRBSONTimestamp *val1 = [[FIRBSONTimestamp alloc] initWithSeconds:1234 increment:100];
+  FIRBSONTimestamp *val2 = [[FIRBSONTimestamp alloc] initWithSeconds:1234 increment:100];
+  FIRBSONTimestamp *val3 = [[FIRBSONTimestamp alloc] initWithSeconds:4444 increment:100];
+  FIRBSONTimestamp *val4 = [[FIRBSONTimestamp alloc] initWithSeconds:1234 increment:444];
 
   // Test reading the values back.
   XCTAssertEqual(1234U, val1.seconds);
@@ -111,10 +111,10 @@ NS_ASSUME_NONNULL_BEGIN
   NSData *data2 = [NSData dataWithBytes:byteArray1 length:sizeof(byteArray1)];
   NSData *data3 = [NSData dataWithBytes:byteArray2 length:sizeof(byteArray2)];
 
-  FIRBsonBinaryData *val1 = [[FIRBsonBinaryData alloc] initWithSubtype:128 data:data1];
-  FIRBsonBinaryData *val2 = [[FIRBsonBinaryData alloc] initWithSubtype:128 data:data2];
-  FIRBsonBinaryData *val3 = [[FIRBsonBinaryData alloc] initWithSubtype:128 data:data3];
-  FIRBsonBinaryData *val4 = [[FIRBsonBinaryData alloc] initWithSubtype:1 data:data1];
+  FIRBSONBinaryData *val1 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data1];
+  FIRBSONBinaryData *val2 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data2];
+  FIRBSONBinaryData *val3 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data3];
+  FIRBSONBinaryData *val4 = [[FIRBSONBinaryData alloc] initWithSubtype:1 data:data1];
 
   // Test reading the values back.
   XCTAssertEqual(128, val1.subtype);
@@ -157,15 +157,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testFieldValueObjectId {
-  FIRBsonObjectId *oid1 = [[FIRBsonObjectId alloc] initWithValue:@"abcd"];
-  FIRBsonObjectId *oid2 = [[FIRBsonObjectId alloc] initWithValue:@"abcd"];
+  FIRBSONObjectId *oid1 = [[FIRBSONObjectId alloc] initWithValue:@"abcd"];
+  FIRBSONObjectId *oid2 = [[FIRBSONObjectId alloc] initWithValue:@"abcd"];
   XCTAssertTrue([oid1 isEqual:oid2]);
   XCTAssertEqual(@"abcd", oid2.value);
 }
 
 - (void)testFieldValueBsonTimestamp {
-  FIRBsonTimestamp *val1 = [[FIRBsonTimestamp alloc] initWithSeconds:1234 increment:100];
-  FIRBsonTimestamp *val2 = [[FIRBsonTimestamp alloc] initWithSeconds:1234 increment:100];
+  FIRBSONTimestamp *val1 = [[FIRBSONTimestamp alloc] initWithSeconds:1234 increment:100];
+  FIRBSONTimestamp *val2 = [[FIRBSONTimestamp alloc] initWithSeconds:1234 increment:100];
   XCTAssertTrue([val1 isEqual:val2]);
   XCTAssertEqual(1234U, val2.seconds);
   XCTAssertEqual(100U, val2.increment);
@@ -174,8 +174,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testFieldValueBsonBinaryData {
   uint8_t byteArray[] = {0x01, 0x02, 0x03, 0x04, 0x05};
   NSData *data = [NSData dataWithBytes:byteArray length:sizeof(byteArray)];
-  FIRBsonBinaryData *val1 = [[FIRBsonBinaryData alloc] initWithSubtype:128 data:data];
-  FIRBsonBinaryData *val2 = [[FIRBsonBinaryData alloc] initWithSubtype:128 data:data];
+  FIRBSONBinaryData *val1 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data];
+  FIRBSONBinaryData *val2 = [[FIRBSONBinaryData alloc] initWithSubtype:128 data:data];
   XCTAssertTrue([val1 isEqual:val2]);
   XCTAssertEqual(128, val2.subtype);
   XCTAssertEqual(data, val2.data);
