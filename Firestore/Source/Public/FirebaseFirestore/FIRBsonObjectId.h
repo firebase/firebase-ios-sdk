@@ -27,7 +27,7 @@ __attribute__((objc_subclassing_restricted))
 @interface FIRBsonObjectId : NSObject<NSCopying>
 
 /** The 24-character hex string representation of the ObjectId. */
-@property(atomic, copy, readonly) NSString *value;
+@property(nonatomic, copy, readonly) NSString *value;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;

@@ -27,10 +27,10 @@ __attribute__((objc_subclassing_restricted))
 @interface FIRBsonBinaryData : NSObject<NSCopying>
 
 /** An 8-bit unsigned integer denoting the subtype of the data. */
-@property(atomic, readonly) uint8_t subtype;
+@property(nonatomic, readonly) uint8_t subtype;
 
 /** The binary data. */
-@property(atomic, copy, readonly) NSData *data;
+@property(nonatomic, copy, readonly) NSData *data;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;

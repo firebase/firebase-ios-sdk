@@ -27,7 +27,7 @@ __attribute__((objc_subclassing_restricted))
 @interface FIRInt32Value : NSObject<NSCopying>
 
 /** The 32-bit integer value. */
-@property(atomic, assign, readonly) int32_t value;
+@property(nonatomic, readonly) int32_t value;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;

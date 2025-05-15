@@ -28,10 +28,10 @@ __attribute__((objc_subclassing_restricted))
 @interface FIRBsonTimestamp : NSObject<NSCopying>
 
 /** The underlying unsigned 32-bit integer for seconds */
-@property(atomic, readonly) uint32_t seconds;
+@property(nonatomic, readonly) uint32_t seconds;
 
 /** The underlying unsigned 32-bit integer for increment */
-@property(atomic, readonly) uint32_t increment;
+@property(nonatomic, readonly) uint32_t increment;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;

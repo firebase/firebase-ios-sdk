@@ -27,10 +27,10 @@ __attribute__((objc_subclassing_restricted))
 @interface FIRRegexValue : NSObject<NSCopying>
 
 /** The regular expression pattern */
-@property(atomic, copy, readonly) NSString *pattern;
+@property(nonatomic, copy, readonly) NSString *pattern;
 
 /** The regular expression options */
-@property(atomic, copy, readonly) NSString *options;
+@property(nonatomic, copy, readonly) NSString *options;
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;
