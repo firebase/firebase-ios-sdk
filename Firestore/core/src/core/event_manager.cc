@@ -37,15 +37,11 @@ EventManager::EventManager(QueryEventSource* query_event_source)
 model::TargetId EventManager::AddQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const QueryOrPipeline& query_or_pipeline = listener->query();
-  if (query_or_pipeline.IsPipeline()) {
-    HARD_FAIL("Unimplemented");
-  }
 
-  const auto& query = query_or_pipeline.query();
   ListenerSetupAction listener_action =
       ListenerSetupAction::NoSetupActionRequired;
 
-  auto inserted = queries_.emplace(query, QueryListenersInfo{});
+  auto inserted = queries_.emplace(query_or_pipeline, QueryListenersInfo{});
   // If successfully inserted, it means we haven't listened to this query
   // before.
   bool first_listen = inserted.second;
@@ -80,14 +76,14 @@ model::TargetId EventManager::AddQueryListener(
   switch (listener_action) {
     case ListenerSetupAction::InitializeLocalListenAndRequireWatchConnection:
       query_info.target_id = query_event_source_->Listen(
-          query, /** should_listen_to_remote= */ true);
+          query_or_pipeline, /** should_listen_to_remote= */ true);
       break;
     case ListenerSetupAction::InitializeLocalListenOnly:
       query_info.target_id = query_event_source_->Listen(
-          query, /** should_listen_to_remote= */ false);
+          query_or_pipeline, /** should_listen_to_remote= */ false);
       break;
     case ListenerSetupAction::RequireWatchConnectionOnly:
-      query_event_source_->ListenToRemoteStore(query);
+      query_event_source_->ListenToRemoteStore(query_or_pipeline);
       break;
     default:
       break;
@@ -98,15 +94,10 @@ model::TargetId EventManager::AddQueryListener(
 void EventManager::RemoveQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const auto& query_or_pipeline = listener->query();
-  if (query_or_pipeline.IsPipeline()) {
-    HARD_FAIL("Unimplemented");
-  }
-
-  const auto& query = query_or_pipeline.query();
   ListenerRemovalAction listener_action =
       ListenerRemovalAction::NoRemovalActionRequired;
 
-  auto found_iter = queries_.find(query);
+  auto found_iter = queries_.find(query_or_pipeline);
   if (found_iter != queries_.end()) {
     QueryListenersInfo& query_info = found_iter->second;
     query_info.Erase(listener);
@@ -129,13 +120,14 @@ void EventManager::RemoveQueryListener(
         TerminateLocalListenAndRequireWatchDisconnection:
       queries_.erase(found_iter);
       return query_event_source_->StopListening(
-          query, /** should_stop_remote_listening= */ true);
+          query_or_pipeline, /** should_stop_remote_listening= */ true);
     case ListenerRemovalAction::TerminateLocalListenOnly:
       queries_.erase(found_iter);
       return query_event_source_->StopListening(
-          query, /** should_stop_remote_listening= */ false);
+          query_or_pipeline, /** should_stop_remote_listening= */ false);
     case ListenerRemovalAction::RequireWatchDisconnectionOnly:
-      return query_event_source_->StopListeningToRemoteStoreOnly(query);
+      return query_event_source_->StopListeningToRemoteStoreOnly(
+          query_or_pipeline);
     default:
       return;
   }
