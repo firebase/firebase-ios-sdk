@@ -1,5 +1,7 @@
-# Unreleased
-- [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
+# 11.13.0
+- [fixed] `putFile` now works in App Clips. Similarly to app extensions, background session
+  configurations are not used in App Clips (#14794).
+
 
 # 11.1.0
 - [fixed] Fix a potential data race in Storage initialization. (#13369)

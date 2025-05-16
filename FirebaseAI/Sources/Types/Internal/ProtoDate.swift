@@ -68,7 +68,7 @@ extension ProtoDate: Decodable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     if let year = try container.decodeIfPresent(Int.self, forKey: .year), year != 0 {
       if year < 0 || year > 9999 {
-        VertexLog.warning(
+        AILog.warning(
           code: .decodedInvalidProtoDateYear,
           """
           Invalid year: \(year); must be from 1 to 9999, or 0 for a date without a specified year.
@@ -82,7 +82,7 @@ extension ProtoDate: Decodable {
 
     if let month = try container.decodeIfPresent(Int.self, forKey: .month), month != 0 {
       if month < 0 || month > 12 {
-        VertexLog.warning(
+        AILog.warning(
           code: .decodedInvalidProtoDateMonth,
           """
           Invalid month: \(month); must be from 1 to 12, or 0 for a year date without a specified \
@@ -97,7 +97,7 @@ extension ProtoDate: Decodable {
 
     if let day = try container.decodeIfPresent(Int.self, forKey: .day), day != 0 {
       if day < 0 || day > 31 {
-        VertexLog.warning(
+        AILog.warning(
           code: .decodedInvalidProtoDateDay,
           "Invalid day: \(day); must be from 1 to 31, or 0 for a date without a specified day."
         )

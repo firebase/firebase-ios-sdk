@@ -23,6 +23,9 @@ public final class GenerativeModel: Sendable {
   /// Model name prefix to identify Gemini models.
   static let geminiModelNamePrefix = "gemini-"
 
+  /// Model name prefix to identify Gemma models.
+  static let gemmaModelNamePrefix = "gemma-"
+
   /// The name of the model, for example "gemini-2.0-flash".
   let modelName: String
 
@@ -59,9 +62,9 @@ public final class GenerativeModel: Sendable {
   ///   - modelName: The name of the model, for example "gemini-2.0-flash".
   ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
   ///     The form depends on the backend and will be one of:
-  ///       - Vertex AI via Vertex AI in Firebase:
+  ///       - Vertex AI via Firebase AI SDK:
   ///       `"projects/{projectID}/locations/{locationID}/publishers/google/models/{modelName}"`
-  ///       - Developer API via Vertex AI in Firebase: `"projects/{projectID}/models/{modelName}"`
+  ///       - Developer API via Firebase AI SDK: `"projects/{projectID}/models/{modelName}"`
   ///       - Developer API via Generative Language: `"models/{modelName}"`
   ///   - firebaseInfo: Firebase data used by the SDK, including project ID and API key.
   ///   - apiConfig: Configuration for the backend API used by this model.
@@ -104,15 +107,15 @@ public final class GenerativeModel: Sendable {
     }
     self.requestOptions = requestOptions
 
-    if VertexLog.additionalLoggingEnabled() {
-      VertexLog.debug(code: .verboseLoggingEnabled, "Verbose logging enabled.")
+    if AILog.additionalLoggingEnabled() {
+      AILog.debug(code: .verboseLoggingEnabled, "Verbose logging enabled.")
     } else {
-      VertexLog.info(code: .verboseLoggingDisabled, """
+      AILog.info(code: .verboseLoggingDisabled, """
       [FirebaseVertexAI] To enable additional logging, add \
-      `\(VertexLog.enableArgumentKey)` as a launch argument in Xcode.
+      `\(AILog.enableArgumentKey)` as a launch argument in Xcode.
       """)
     }
-    VertexLog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
+    AILog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
@@ -277,7 +280,7 @@ public final class GenerativeModel: Sendable {
     let requestContent = switch apiConfig.service {
     case .vertexAI:
       content
-    case .developer:
+    case .googleAI:
       // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
       // erroneously counted towards the prompt and total token count when using the Developer API
       // backend; set to `nil` to avoid token count discrepancies between `countTokens` and
@@ -290,10 +293,10 @@ public final class GenerativeModel: Sendable {
     // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
     // request to the Generative Language backend, which expects the form "models/model-name".
     let generateContentRequestModelResourceName = switch apiConfig.service {
-    case .vertexAI, .developer(endpoint: .generativeLanguage):
+    case .vertexAI, .googleAI(endpoint: .googleAIBypassProxy):
       modelResourceName
-    case .developer(endpoint: .firebaseVertexAIProd),
-         .developer(endpoint: .firebaseVertexAIStaging):
+    case .googleAI(endpoint: .firebaseProxyProd),
+         .googleAI(endpoint: .firebaseProxyStaging):
       "models/\(modelName)"
     }
 

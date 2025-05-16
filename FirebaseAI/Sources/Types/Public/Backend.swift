@@ -25,7 +25,7 @@ public struct Backend {
   ///     for a list of supported locations.
   public static func vertexAI(location: String = "us-central1") -> Backend {
     return Backend(
-      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseVertexAIProd), version: .v1beta),
+      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta),
       location: location
     )
   }
@@ -33,7 +33,7 @@ public struct Backend {
   /// Initializes a `Backend` configured for the Google Developer API.
   public static func googleAI() -> Backend {
     return Backend(
-      apiConfig: APIConfig(service: .developer(endpoint: .firebaseVertexAIProd), version: .v1beta),
+      apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta),
       location: nil
     )
   }

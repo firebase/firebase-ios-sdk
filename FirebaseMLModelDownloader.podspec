@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCoreExtension', '~> 11.13.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'GoogleDataTransport', '~> 10.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
   s.dependency 'SwiftProtobuf', '~> 1.19'
 
   s.pod_target_xcconfig = {

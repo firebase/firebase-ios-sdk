@@ -51,8 +51,8 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.watchos.framework = 'WatchKit'
 
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
-  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
-  s.dependency 'GoogleUtilities/Logger', '~> 8.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
+  s.dependency 'GoogleUtilities/Logger', '~> 8.1'
   s.dependency 'FirebaseCoreInternal', '~> 11.13.0'
 
   s.pod_target_xcconfig = {

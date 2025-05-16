@@ -585,7 +585,7 @@ LruResults LocalStore::CollectGarbage(LruGarbageCollector* garbage_collector) {
   });
 }
 
-int LocalStore::Backfill() const {
+size_t LocalStore::Backfill() const {
   return persistence_->Run("Backfill Indexes", [&] {
     return index_backfiller_->WriteIndexEntries(this);
   });

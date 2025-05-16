@@ -63,7 +63,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
       unit_tests_dir + 'Snippets/**/*.swift',
     ]
     unit_tests.resources = [
-      unit_tests_dir + 'vertexai-sdk-test-data/mock-responses/vertexai',
+      unit_tests_dir + 'vertexai-sdk-test-data/mock-responses',
       unit_tests_dir + 'Resources/**/*',
     ]
   end

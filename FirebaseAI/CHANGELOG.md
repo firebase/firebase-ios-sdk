@@ -1,7 +1,20 @@
-# Unreleased
+# 11.13.0
+- [feature] Initial release of the Firebase AI Logic SDK (`FirebaseAI`). This
+  SDK *replaces* the previous Vertex AI in Firebase SDK (`FirebaseVertexAI`) to
+  accommodate the evolving set of supported features and services.
+  - The new Firebase AI Logic SDK provides **preview** support for the Gemini
+    Developer API, including its free tier offering.
+  - Using the Firebase AI Logic SDK with the Vertex AI Gemini API is still
+    generally available (GA).
+
+  To start using the new SDK, import the `FirebaseAI` module and use the
+  top-level `FirebaseAI` class. See details in the [migration guide
+  ](https://firebase.google.com/docs/vertex-ai/migrate-to-latest-sdk).
 - [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
   omitted; this occurs when the count is 0. (#14745)
-- [fixed] Replaced unsafe uses of `os_unfair_lock` (#14548).
+- [fixed] Fixed `Candidate` decoding when `SafetyRating` values are missing a
+  category or probability; this may occur when using Gemini for image
+  generation. (#14817)
 
 # 11.12.0
 - [added] **Public Preview**: Added support for specifying response modalities

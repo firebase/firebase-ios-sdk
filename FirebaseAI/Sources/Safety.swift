@@ -78,11 +78,15 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct HarmProbability: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
+      case unspecified = "HARM_PROBABILITY_UNSPECIFIED"
       case negligible = "NEGLIGIBLE"
       case low = "LOW"
       case medium = "MEDIUM"
       case high = "HIGH"
     }
+
+    /// Internal-only; harm probability is unknown or unspecified by the backend.
+    static let unspecified = HarmProbability(kind: .unspecified)
 
     /// The probability is zero or close to zero.
     ///
@@ -107,18 +111,22 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
-      VertexLog.MessageCode.generateContentResponseUnrecognizedHarmProbability
+      AILog.MessageCode.generateContentResponseUnrecognizedHarmProbability
   }
 
   /// The magnitude of how harmful a model response might be for the respective ``HarmCategory``.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct HarmSeverity: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
+      case unspecified = "HARM_SEVERITY_UNSPECIFIED"
       case negligible = "HARM_SEVERITY_NEGLIGIBLE"
       case low = "HARM_SEVERITY_LOW"
       case medium = "HARM_SEVERITY_MEDIUM"
       case high = "HARM_SEVERITY_HIGH"
     }
+
+    /// Internal-only; harm severity is unknown or unspecified by the backend.
+    static let unspecified: HarmSeverity = .init(kind: .unspecified)
 
     /// Negligible level of harm severity.
     public static let negligible = HarmSeverity(kind: .negligible)
@@ -139,7 +147,7 @@ public struct SafetyRating: Equatable, Hashable, Sendable {
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
-      VertexLog.MessageCode.generateContentResponseUnrecognizedHarmSeverity
+      AILog.MessageCode.generateContentResponseUnrecognizedHarmSeverity
   }
 }
 
@@ -234,12 +242,16 @@ public struct SafetySetting: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
+    case unspecified = "HARM_CATEGORY_UNSPECIFIED"
     case harassment = "HARM_CATEGORY_HARASSMENT"
     case hateSpeech = "HARM_CATEGORY_HATE_SPEECH"
     case sexuallyExplicit = "HARM_CATEGORY_SEXUALLY_EXPLICIT"
     case dangerousContent = "HARM_CATEGORY_DANGEROUS_CONTENT"
     case civicIntegrity = "HARM_CATEGORY_CIVIC_INTEGRITY"
   }
+
+  /// Internal-only; harm category is unknown or unspecified by the backend.
+  static let unspecified = HarmCategory(kind: .unspecified)
 
   /// Harassment content.
   public static let harassment = HarmCategory(kind: .harassment)
@@ -263,7 +275,7 @@ public struct HarmCategory: CodableProtoEnum, Hashable, Sendable {
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =
-    VertexLog.MessageCode.generateContentResponseUnrecognizedHarmCategory
+    AILog.MessageCode.generateContentResponseUnrecognizedHarmCategory
 }
 
 // MARK: - Codable Conformances
@@ -281,13 +293,14 @@ extension SafetyRating: Decodable {
 
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    category = try container.decode(HarmCategory.self, forKey: .category)
-    probability = try container.decode(HarmProbability.self, forKey: .probability)
+    category = try container.decodeIfPresent(HarmCategory.self, forKey: .category) ?? .unspecified
+    probability = try container.decodeIfPresent(
+      HarmProbability.self, forKey: .probability
+    ) ?? .unspecified
 
-    // The following 3 fields are only omitted in our test data.
+    // The following 3 fields are only provided when using the Vertex AI backend (not Google AI).
     probabilityScore = try container.decodeIfPresent(Float.self, forKey: .probabilityScore) ?? 0.0
-    severity = try container.decodeIfPresent(HarmSeverity.self, forKey: .severity) ??
-      HarmSeverity(rawValue: "HARM_SEVERITY_UNSPECIFIED")
+    severity = try container.decodeIfPresent(HarmSeverity.self, forKey: .severity) ?? .unspecified
     severityScore = try container.decodeIfPresent(Float.self, forKey: .severityScore) ?? 0.0
 
     // The blocked field is only included when true.

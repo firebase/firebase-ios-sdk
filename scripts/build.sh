@@ -109,12 +109,15 @@ source scripts/check_secrets.sh
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   echo xcodebuild "$@"
+  local xcodebuild_args=("$@")
+  local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
+  local log_filename="xcodebuild-${buildaction}.log"
 
-  xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
-  result=0
-  xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
-    && CheckUnexpectedFailures xcodebuild.log \
+  local result=0
+  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
+    "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
     || result=$?
 
   if [[ $result == 65 ]]; then
@@ -124,8 +127,8 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    xcodebuild "$@" | tee xcodebuild.log | "${xcbeautify_cmd[@]}" \
-      && CheckUnexpectedFailures xcodebuild.log \
+    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
+      "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
       || result=$?
   fi
 
@@ -327,8 +330,7 @@ case "$product-$platform-$method" in
       -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
       -scheme "FirebaseCombineSwift-Unit-unit" \
       "${xcb_flags[@]}" \
-      build \
-      test
+      build
     ;;
 
   # TODO(#14760): s/build/test after addressing UI test flakes on CI.
@@ -506,12 +508,19 @@ case "$product-$platform-$method" in
     ;;
 
   FirebaseAIIntegration-*-*)
+    # Build
+    RunXcodebuild \
+      -project 'FirebaseAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
+      -scheme "VertexAITestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build
+
+    # Run tests
     RunXcodebuild \
       -project 'FirebaseAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
       -scheme "VertexAITestApp-SPM" \
       "${xcb_flags[@]}" \
       -parallel-testing-enabled NO \
-      build \
       test
     ;;
 
@@ -606,8 +615,8 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
         -scheme "FirebaseCombineSwift-Unit-integration" \
-        "${ios_flags[@]}" \
-        "${xcb_flags[@]}" \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
         test
       fi
     ;;

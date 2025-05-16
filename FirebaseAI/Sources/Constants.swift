@@ -14,11 +14,11 @@
 
 import Foundation
 
-/// Constants associated with the Vertex AI for Firebase SDK.
+/// Constants associated with the Firebase AI SDK.
 enum Constants {
   /// The base reverse-DNS name for `NSError` or `CustomNSError` error domains.
   ///
   /// - Important: A suffix must be appended to produce an error domain (e.g.,
-  ///   "com.google.firebase.vertexai.ExampleError").
-  static let baseErrorDomain = "com.google.firebase.vertexai"
+  ///   "com.google.firebase.firebaseai.ExampleError").
+  static let baseErrorDomain = "com.google.firebase.firebaseai"
 }

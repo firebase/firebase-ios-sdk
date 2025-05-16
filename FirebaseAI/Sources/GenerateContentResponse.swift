@@ -49,7 +49,7 @@ public struct GenerateContentResponse: Sendable {
   /// The response's content as text, if it exists.
   public var text: String? {
     guard let candidate = candidates.first else {
-      VertexLog.error(
+      AILog.error(
         code: .generateContentResponseNoCandidates,
         "Could not get text from a response that had no candidates."
       )
@@ -64,7 +64,7 @@ public struct GenerateContentResponse: Sendable {
       }
     }
     guard textValues.count > 0 else {
-      VertexLog.error(
+      AILog.error(
         code: .generateContentResponseNoText,
         "Could not get a text part from the first candidate."
       )
@@ -91,7 +91,7 @@ public struct GenerateContentResponse: Sendable {
   /// Returns inline data parts found in any `Part`s of the first candidate of the response, if any.
   public var inlineDataParts: [InlineDataPart] {
     guard let candidate = candidates.first else {
-      VertexLog.error(code: .generateContentResponseNoCandidates, """
+      AILog.error(code: .generateContentResponseNoCandidates, """
       Could not get inline data parts because the response has no candidates. The accessor only \
       checks the first candidate.
       """)
@@ -145,7 +145,7 @@ public struct CitationMetadata: Sendable {
 
 /// A struct describing a source attribution.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct Citation: Sendable {
+public struct Citation: Sendable, Equatable {
   /// The inclusive beginning of a sequence in a model response that derives from a cited source.
   public let startIndex: Int
 
@@ -165,6 +165,20 @@ public struct Citation: Sendable {
   ///
   /// > Tip: `DateComponents` can be converted to a `Date` using the `date` computed property.
   public let publicationDate: DateComponents?
+
+  init(startIndex: Int,
+       endIndex: Int,
+       uri: String? = nil,
+       title: String? = nil,
+       license: String? = nil,
+       publicationDate: DateComponents? = nil) {
+    self.startIndex = startIndex
+    self.endIndex = endIndex
+    self.uri = uri
+    self.title = title
+    self.license = license
+    self.publicationDate = publicationDate
+  }
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
@@ -219,7 +233,7 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   public let rawValue: String
 
   static let unrecognizedValueMessageCode =
-    VertexLog.MessageCode.generateContentResponseUnrecognizedFinishReason
+    AILog.MessageCode.generateContentResponseUnrecognizedFinishReason
 }
 
 /// A metadata struct containing any feedback the model had on the prompt it was provided.
@@ -254,7 +268,7 @@ public struct PromptFeedback: Sendable {
     public let rawValue: String
 
     static let unrecognizedValueMessageCode =
-      VertexLog.MessageCode.generateContentResponseUnrecognizedBlockReason
+      AILog.MessageCode.generateContentResponseUnrecognizedBlockReason
   }
 
   /// The reason a prompt was blocked, if it was blocked.
@@ -357,25 +371,32 @@ extension Candidate: Decodable {
         content = ModelContent(parts: [])
       }
     } catch {
-      // Check if `content` can be decoded as an empty dictionary to detect the `"content": {}` bug.
-      if let content = try? container.decode([String: String].self, forKey: .content),
-         content.isEmpty {
-        throw InvalidCandidateError.emptyContent(underlyingError: error)
-      } else {
-        throw InvalidCandidateError.malformedContent(underlyingError: error)
-      }
+      throw InvalidCandidateError.malformedContent(underlyingError: error)
     }
 
     if let safetyRatings = try container.decodeIfPresent(
-      [SafetyRating].self,
-      forKey: .safetyRatings
+      [SafetyRating].self, forKey: .safetyRatings
     ) {
-      self.safetyRatings = safetyRatings
+      self.safetyRatings = safetyRatings.filter {
+        // Due to a bug in the backend, the SDK may receive invalid `SafetyRating` values that do
+        // not include a category or probability; these are filtered out of the safety ratings.
+        $0.category != HarmCategory.unspecified
+          && $0.probability != SafetyRating.HarmProbability.unspecified
+      }
     } else {
       safetyRatings = []
     }
 
     finishReason = try container.decodeIfPresent(FinishReason.self, forKey: .finishReason)
+
+    // The `content` may only be empty if a `finishReason` is included; if neither are included in
+    // the response then this is likely the `"content": {}` bug.
+    guard !content.parts.isEmpty || finishReason != nil else {
+      throw InvalidCandidateError.emptyContent(underlyingError: DecodingError.dataCorrupted(.init(
+        codingPath: [CodingKeys.content, CodingKeys.finishReason],
+        debugDescription: "Invalid Candidate: empty content and no finish reason"
+      )))
+    }
 
     citationMetadata = try container.decodeIfPresent(
       CitationMetadata.self,
@@ -385,7 +406,23 @@ extension Candidate: Decodable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension CitationMetadata: Decodable {}
+extension CitationMetadata: Decodable {
+  enum CodingKeys: CodingKey {
+    case citations // Vertex AI
+    case citationSources // Google AI
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    // Decode for Google API if `citationSources` key is present.
+    if container.contains(.citationSources) {
+      citations = try container.decode([Citation].self, forKey: .citationSources)
+    } else { // Fallback to default Vertex AI decoding.
+      citations = try container.decode([Citation].self, forKey: .citations)
+    }
+  }
+}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Citation: Decodable {
@@ -428,7 +465,7 @@ extension Citation: Decodable {
     ) {
       publicationDate = publicationProtoDate.dateComponents
       if let publicationDate, !publicationDate.isValidDate {
-        VertexLog.warning(
+        AILog.warning(
           code: .decodedInvalidCitationPublicationDate,
           "Decoded an invalid citation publication date: \(publicationDate)"
         )

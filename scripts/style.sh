@@ -180,14 +180,10 @@ s%^./%%
 needs_formatting=false
 for f in $files; do
   if [[ "${f: -6}" == '.swift' ]]; then
-    if [[ "$system" == 'Darwin' ]]; then
-      # Match output that says:
-      # 1/1 files would have been formatted.  (with --dryrun)
-      # 1/1 files formatted.                  (without --dryrun)
-      mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
-    else
-      false
-    fi
+    # Match output that says:
+    # 1/1 files would have been formatted.  (with --dryrun)
+    # 1/1 files formatted.                  (without --dryrun)
+    mint run swiftformat "${swift_options[@]}" "$f" 2>&1 | grep '^1/1 files' > /dev/null
   else
     "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   fi

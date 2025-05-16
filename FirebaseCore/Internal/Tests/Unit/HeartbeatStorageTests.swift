@@ -407,7 +407,7 @@ class HeartbeatStorageTests: XCTestCase {
     final class WeakRefs: @unchecked Sendable {
       // Lock is used to synchronize `weakRefs` during concurrent access.
       private(set) var weakRefs =
-          FIRAllocatedUnfairLock<[WeakContainer<HeartbeatStorage>]>(initialState: [])
+        FIRAllocatedUnfairLock<[WeakContainer<HeartbeatStorage>]>(initialState: [])
 
       func append(_ weakRef: WeakContainer<HeartbeatStorage>) {
         weakRefs.withLock {
