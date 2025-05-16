@@ -16,8 +16,6 @@
 
 #include "Firestore/Source/Public/FirebaseFirestore/FIRBSONTimestamp.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @implementation FIRBSONTimestamp
 
 - (instancetype)initWithSeconds:(uint32_t)seconds increment:(uint32_t)increment {
@@ -52,5 +50,3 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

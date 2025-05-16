@@ -40,10 +40,10 @@ __attribute__((objc_subclassing_restricted))
  * @param subtype An 8-bit unsigned integer denoting the subtype of the data.
  * @param data The binary data.
  */
-- (instancetype)initWithSubtype:(uint8_t)subtype data:(nonnull NSData *)data;
+- (instancetype)initWithSubtype:(uint8_t)subtype data:(NSData *)data;
 
 /** Returns true if the given object is equal to this, and false otherwise. */
-- (BOOL)isEqual:(id)object;
+- (BOOL)isEqual:(nullable id)object;
 
 @end
 

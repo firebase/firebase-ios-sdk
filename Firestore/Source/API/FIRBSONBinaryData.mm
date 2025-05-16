@@ -16,20 +16,18 @@
 
 #include "Firestore/Source/Public/FirebaseFirestore/FIRBSONBinaryData.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @implementation FIRBSONBinaryData
 
 - (instancetype)initWithSubtype:(uint8_t)subtype data:(NSData *)data {
   self = [super init];
   if (self) {
     _subtype = subtype;
-    _data = data;
+    _data = [data copy];
   }
   return self;
 }
 
-- (BOOL)isEqual:(id)object {
+- (BOOL)isEqual:(nullable id)object {
   if (self == object) {
     return YES;
   }
@@ -52,5 +50,3 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

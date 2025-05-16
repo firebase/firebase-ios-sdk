@@ -16,8 +16,6 @@
 
 #include "Firestore/Source/Public/FirebaseFirestore/FIRRegexValue.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @implementation FIRRegexValue
 
 - (instancetype)initWithPattern:(NSString *)pattern options:(NSString *)options {
@@ -53,5 +51,3 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -16,8 +16,6 @@
 
 #include "Firestore/Source/Public/FirebaseFirestore/FIRBSONObjectId.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @implementation FIRBSONObjectId
 
 - (instancetype)initWithValue:(NSString *)value {
@@ -50,5 +48,3 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-NS_ASSUME_NONNULL_END

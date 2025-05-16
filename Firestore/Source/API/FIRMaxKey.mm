@@ -16,8 +16,6 @@
 
 #include "Firestore/Source/Public/FirebaseFirestore/FIRMaxKey.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @implementation FIRMaxKey
 static FIRMaxKey *sharedInstance = nil;
 static dispatch_once_t onceToken;
@@ -53,5 +51,3 @@ static dispatch_once_t onceToken;
 }
 
 @end
-
-NS_ASSUME_NONNULL_END
