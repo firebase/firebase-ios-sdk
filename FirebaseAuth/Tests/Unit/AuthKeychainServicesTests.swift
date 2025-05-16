@@ -36,7 +36,7 @@ class AuthKeychainServicesTests: XCTestCase {
   #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     let storage: AuthKeychainStorage = FakeAuthKeychainStorage()
   #else
-    let storage: AuthKeychainStorage = AuthKeychainStorageReal()
+    let storage: AuthKeychainStorage = AuthKeychainStorageReal.shared
   #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
 
   override func setUp() {

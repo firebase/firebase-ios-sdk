@@ -31,8 +31,7 @@ final class AuthKeychainServices: Sendable {
 
   // MARK: - Internal methods for shared keychain operations
 
-  required init(service: String = "Unset service",
-                storage: AuthKeychainStorage = AuthKeychainStorageReal()) {
+  required init(service: String = "Unset service", storage: AuthKeychainStorage) {
     self.service = service
     keychainStorage = storage
   }
@@ -104,10 +103,6 @@ final class AuthKeychainServices: Sendable {
   ///
   /// This dictionary is to avoid unnecessary keychain operations against legacy items.
   private let legacyEntryDeletedForKey = FIRAllocatedUnfairLock<Set<String>>(initialState: [])
-
-  static func storage(identifier: String) -> Self {
-    return Self(service: identifier)
-  }
 
   func data(forKey key: String) throws -> Data? {
     if let data = try getItemLegacy(query: genericPasswordQuery(key: key)) {
