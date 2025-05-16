@@ -13,29 +13,28 @@
 // limitations under the License.
 
 @testable import FirebaseAuth
+import FirebaseCoreInternal
 import Foundation
 import XCTest
 
-/** @class AuthKeychainStorage
-    @brief The utility class to update the real keychain
- */
+/// The utility class to update the real keychain
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-final class FakeAuthKeychainStorage: AuthKeychainStorage, @unchecked Sendable {
+final class FakeAuthKeychainStorage: AuthKeychainStorage {
   // Fake Keychain. It's a dictionary, keyed by service name, for each key-value store dictionary
-  private var fakeKeychain: [String: [String: Any]] = [:]
+  private let fakeKeychain = FIRAllocatedUnfairLock<[String: [String: Any]]>(initialState: [:])
 
-  private var fakeLegacyKeychain: [String: Any] = [:]
+  private let fakeLegacyKeychain = FIRAllocatedUnfairLock<[String: Any]>(initialState: [:])
 
   func get(query: [String: Any], result: inout AnyObject?) -> OSStatus {
     if let service = queryService(query) {
-      guard let value = fakeKeychain[service]?[queryKey(query)] else {
+      guard let value = fakeKeychain.value()[service]?[queryKey(query)] else {
         return errSecItemNotFound
       }
       let returnArrayofDictionary = [[kSecValueData as String: value]]
       result = returnArrayofDictionary as AnyObject
       return noErr
     } else {
-      guard let value = fakeLegacyKeychain[queryKey(query)] else {
+      guard let value = fakeLegacyKeychain.value()[queryKey(query)] else {
         return errSecItemNotFound
       }
       let returnArrayofDictionary = [[kSecValueData as String: value]]
@@ -46,9 +45,9 @@ final class FakeAuthKeychainStorage: AuthKeychainStorage, @unchecked Sendable {
 
   func add(query: [String: Any]) -> OSStatus {
     if let service = queryService(query) {
-      fakeKeychain[service]?[queryKey(query)] = query[kSecValueData as String]
+      fakeKeychain.withLock { $0[service]?[queryKey(query)] = query[kSecValueData as String] }
     } else {
-      fakeLegacyKeychain[queryKey(query)] = query[kSecValueData as String]
+      fakeLegacyKeychain.withLock { $0[queryKey(query)] = query[kSecValueData as String] }
     }
     return noErr
   }
@@ -59,9 +58,9 @@ final class FakeAuthKeychainStorage: AuthKeychainStorage, @unchecked Sendable {
 
   @discardableResult func delete(query: [String: Any]) -> OSStatus {
     if let service = queryService(query) {
-      fakeKeychain[service]?[queryKey(query)] = nil
+      fakeKeychain.withLock { $0[service]?[queryKey(query)] = nil }
     } else {
-      fakeLegacyKeychain[queryKey(query)] = nil
+      fakeLegacyKeychain.withLock { $0[queryKey(query)] = nil }
     }
     return noErr
   }
@@ -79,8 +78,10 @@ final class FakeAuthKeychainStorage: AuthKeychainStorage, @unchecked Sendable {
     guard let service = query[kSecAttrService as String] as? String else {
       return nil
     }
-    if fakeKeychain[service] == nil {
-      fakeKeychain[service] = [:]
+    fakeKeychain.withLock { fakeKeychain in
+      if fakeKeychain[service] == nil {
+        fakeKeychain[service] = [:]
+      }
     }
     return service
   }
