@@ -44,7 +44,7 @@ __attribute__((objc_subclassing_restricted))
 - (instancetype)initWithSeconds:(uint32_t)seconds increment:(uint32_t)increment;
 
 /** Returns true if the given object is equal to this, and false otherwise. */
-- (BOOL)isEqual:(id)object;
+- (BOOL)isEqual:(nullable id)object;
 
 @end
 

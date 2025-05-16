@@ -39,7 +39,7 @@ __attribute__((objc_subclassing_restricted))
 - (instancetype)initWithValue:(nonnull NSString *)value NS_SWIFT_NAME(init(_:));
 
 /** Returns true if the given object is equal to this, and false otherwise. */
-- (BOOL)isEqual:(id)object;
+- (BOOL)isEqual:(nullable id)object;
 
 @end
 

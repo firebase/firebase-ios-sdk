@@ -30,7 +30,7 @@ __attribute__((objc_subclassing_restricted))
 @property(class, readonly) FIRMaxKey *shared;
 
 /** Returns true if the given object is equal to this, and false otherwise. */
-- (BOOL)isEqual:(id)object;
+- (BOOL)isEqual:(nullable id)object;
 
 @end
 

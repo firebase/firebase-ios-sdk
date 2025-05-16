@@ -21,13 +21,13 @@
 - (instancetype)initWithPattern:(NSString *)pattern options:(NSString *)options {
   self = [super init];
   if (self) {
-    _pattern = pattern;
-    _options = options;
+    _pattern = [pattern copy];
+    _options = [options copy];
   }
   return self;
 }
 
-- (BOOL)isEqual:(id)object {
+- (BOOL)isEqual:(nullable id)object {
   if (self == object) {
     return YES;
   }

@@ -21,12 +21,12 @@
 - (instancetype)initWithValue:(NSString *)value {
   self = [super init];
   if (self) {
-    _value = value;
+    _value = [value copy];
   }
   return self;
 }
 
-- (BOOL)isEqual:(id)object {
+- (BOOL)isEqual:(nullable id)object {
   if (self == object) {
     return YES;
   }

@@ -36,7 +36,7 @@ static dispatch_once_t onceToken;
   return self;
 }
 
-- (BOOL)isEqual:(id)object {
+- (BOOL)isEqual:(nullable id)object {
   if (self == object) {
     return YES;
   }
