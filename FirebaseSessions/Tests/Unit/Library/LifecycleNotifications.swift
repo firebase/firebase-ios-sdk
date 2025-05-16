@@ -17,7 +17,7 @@ import XCTest
 
 import Dispatch
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
   import UIKit
 #elseif os(macOS)
   import AppKit
@@ -26,19 +26,10 @@ import Dispatch
   import WatchKit
 #endif // os(iOS) || os(tvOS)
 
-// swift(>=5.9) implies Xcode 15+
-// Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
-// TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
-// when Xcode 15 is the minimum supported by Firebase.
-#if swift(>=5.9)
-  #if os(visionOS)
-    import UIKit
-  #endif // os(visionOS)
-#endif // swift(>=5.9)
-
-private func _postBackgroundedNotificationInternal() {
+@MainActor func postBackgroundedNotification() {
+  // On Catalyst, the notifications can only be called on the main thread
   let notificationCenter = NotificationCenter.default
-  #if os(iOS) || os(tvOS)
+  #if os(iOS) || os(tvOS) || os(visionOS)
     notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
   #elseif os(macOS)
     notificationCenter.post(name: NSApplication.didResignActiveNotification, object: nil)
@@ -50,21 +41,12 @@ private func _postBackgroundedNotificationInternal() {
       )
     }
   #endif // os(iOS) || os(tvOS)
-
-  // swift(>=5.9) implies Xcode 15+
-  // Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
-  // TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
-  // when Xcode 15 is the minimum supported by Firebase.
-  #if swift(>=5.9)
-    #if os(visionOS)
-      notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
-    #endif // os(visionOS)
-  #endif // swift(>=5.9)
 }
 
-private func _postForegroundedNotificationInternal() {
+@MainActor func postForegroundedNotification() {
+  // On Catalyst, the notifications can only be called on a the main thread
   let notificationCenter = NotificationCenter.default
-  #if os(iOS) || os(tvOS)
+  #if os(iOS) || os(tvOS) || os(visionOS)
     notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
   #elseif os(macOS)
     notificationCenter.post(name: NSApplication.didBecomeActiveNotification, object: nil)
@@ -76,38 +58,4 @@ private func _postForegroundedNotificationInternal() {
       )
     }
   #endif // os(iOS) || os(tvOS)
-
-  // swift(>=5.9) implies Xcode 15+
-  // Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
-  // TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
-  // when Xcode 15 is the minimum supported by Firebase.
-  #if swift(>=5.9)
-    #if os(visionOS)
-      notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
-    #endif // os(visionOS)
-  #endif // swift(>=5.9)
-}
-
-extension XCTestCase {
-  func postBackgroundedNotification() {
-    // On Catalyst, the notifications can only be called on a the main thread
-    if Thread.isMainThread {
-      _postBackgroundedNotificationInternal()
-    } else {
-      DispatchQueue.main.sync {
-        _postBackgroundedNotificationInternal()
-      }
-    }
-  }
-
-  func postForegroundedNotification() {
-    // On Catalyst, the notifications can only be called on a the main thread
-    if Thread.isMainThread {
-      _postForegroundedNotificationInternal()
-    } else {
-      DispatchQueue.main.sync {
-        _postForegroundedNotificationInternal()
-      }
-    }
-  }
 }

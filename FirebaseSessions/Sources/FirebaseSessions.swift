@@ -62,13 +62,13 @@ private enum GoogleDataTransportConfig {
 
   // Initializes the SDK and top-level classes
   required convenience init(appID: String, installations: InstallationsProtocol) {
-    let googleDataTransport = GDTCORTransport(
+    let googleDataTransport = GoogleDataTransporter(
       mappingID: GoogleDataTransportConfig.sessionsLogSource,
       transformers: nil,
       target: GoogleDataTransportConfig.sessionsTarget
     )
 
-    let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport!)
+    let fireLogger = EventGDTLogger(googleDataTransport: googleDataTransport)
 
     let appInfo = ApplicationInfo(appID: appID)
     let settings = SessionsSettings(
@@ -268,7 +268,8 @@ private enum GoogleDataTransportConfig {
         "Registering Sessions SDK subscriber with name: \(subscriber.sessionsSubscriberName), data collection enabled: \(subscriber.isDataCollectionEnabled)"
       )
 
-    // After bumping to iOS 13, this hack should be replaced with `Task { @MainActor in }`
+    // TODO(Firebase 12): After bumping to iOS 13, this hack should be replaced
+    // with `Task { @MainActor in }`.
     let callback = MainActorNotificationCallback { notification in
       subscriber.onSessionChanged(self.currentSessionDetails)
     }

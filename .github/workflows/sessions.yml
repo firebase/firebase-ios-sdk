@@ -39,10 +39,17 @@ jobs:
           - os: macos-14
             xcode: Xcode_16.2
             tests:
+            swift_version: 5.9
           # Flaky tests on CI
           - os: macos-15
             xcode: Xcode_16.3
             tests: --skip-tests
+            swift_version: 5.9
+          # Flaky tests on CI
+          - os: macos-15
+            xcode: Xcode_16.2
+            tests: --skip-tests
+            swift_version: 6.0
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -51,6 +58,8 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
+    - name: Set Swift swift_version
+      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '${{ matrix.build-env.swift_version }}'/" FirebaseSessions.podspec
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 120

@@ -128,9 +128,9 @@ final class FirebaseSessionsTestsBase_BaseBehaviors: FirebaseSessionsTestsBase {
             // then bring the app to the foreground to generate another session.
             //
             // This postLogEvent callback will be called again after this
-            self.postBackgroundedNotification()
+            postBackgroundedNotification()
             self.pausedClock.addTimeInterval(30 * 60 + 1)
-            self.postForegroundedNotification()
+            postForegroundedNotification()
 
           } else {
             loggedTwiceExpectation.fulfill()

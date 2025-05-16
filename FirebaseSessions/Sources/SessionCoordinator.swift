@@ -26,8 +26,7 @@ protocol SessionCoordinatorProtocol: Sendable {
 final class SessionCoordinator: SessionCoordinatorProtocol {
   let installations: InstallationsProtocol
 
-  // TODO: Make this type sendable
-  nonisolated(unsafe) let fireLogger: EventGDTLoggerProtocol
+  let fireLogger: EventGDTLoggerProtocol
 
   init(installations: InstallationsProtocol,
        fireLogger: EventGDTLoggerProtocol) {

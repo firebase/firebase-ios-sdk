@@ -15,6 +15,8 @@
 #if !os(macOS)
   import Foundation
 
+  // TODO(ncooke3): I believe this could be made a struct now.
+
   /// A data structure for an APNs token.
   final class AuthAPNSToken: Sendable {
     let data: Data

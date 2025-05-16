@@ -24,19 +24,12 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
-<<<<<<< HEAD
-        os: [macos-15]
-        include:
-          - os: macos-15
-            xcode: Xcode_16.2
-=======
         os: [macos-14, macos-15]
         include:
           - os: macos-14
             xcode: Xcode_16.2
           - os: macos-15
             xcode: Xcode_16.3
->>>>>>> swift-6
     runs-on: ${{ matrix.os }}
 
     steps:

@@ -38,7 +38,7 @@ public class SessionDetails: NSObject {
 
 /// Session Subscriber Names are used for identifying subscribers
 @objc(FIRSessionsSubscriberName)
-public enum SessionsSubscriberName: Int, CustomStringConvertible {
+public enum SessionsSubscriberName: Int, CustomStringConvertible, Sendable {
   case Unknown
   case Crashlytics
   case Performance
