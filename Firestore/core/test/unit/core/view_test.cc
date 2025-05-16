@@ -93,7 +93,7 @@ TEST(ViewTest, AddsDocumentsBasedOnQuery) {
   ASSERT_TRUE(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc2));
 
@@ -125,7 +125,7 @@ TEST(ViewTest, RemovesDocuments) {
   ASSERT_TRUE(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc3));
 
@@ -178,7 +178,7 @@ TEST(ViewTest, FiltersDocumentsBasedOnQueryWithFilter) {
   ASSERT_TRUE(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc5, doc2));
 
@@ -204,7 +204,7 @@ TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
   ViewSnapshot snapshot =
       ApplyChanges(&view, {doc1, doc2, doc3, doc4}, absl::nullopt).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc3));
 
@@ -215,7 +215,7 @@ TEST(ViewTest, UpdatesDocumentsBasedOnQueryWithFilter) {
   snapshot = ApplyChanges(&view, {new_doc2, new_doc3, new_doc4}, absl::nullopt)
                  .value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(new_doc4, doc1, new_doc2));
 
@@ -245,7 +245,7 @@ TEST(ViewTest, RemovesDocumentsForQueryWithLimit) {
   ViewSnapshot snapshot =
       ApplyChanges(&view, {doc2}, AckTarget({doc1, doc2, doc3})).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc2));
 
@@ -288,7 +288,7 @@ TEST(ViewTest, DoesntReportChangesForDocumentBeyondLimitOfQuery) {
   ASSERT_TRUE(maybe_snapshot.has_value());
   ViewSnapshot snapshot = std::move(maybe_snapshot).value();
 
-  ASSERT_EQ(snapshot.query(), query);
+  ASSERT_EQ(snapshot.query_or_pipeline(), query);
 
   ASSERT_THAT(snapshot.documents(), ElementsAre(doc1, doc3));
 

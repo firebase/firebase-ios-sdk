@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include "Firestore/core/src/core/pipeline_util.h"  // Added
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/overlay.h"
@@ -103,7 +104,7 @@ class RemoteDocumentCache {
    *
    * Cached DeletedDocument entries have no bearing on query results.
    *
-   * @param query The query to match documents against.
+   * @param query_or_pipeline The query to match documents against.
    * @param offset The read time and document key to start scanning at
    * (exclusive).
    * @param limit The maximum number of results to return.
@@ -113,7 +114,7 @@ class RemoteDocumentCache {
    * @return The set of matching documents.
    */
   virtual model::MutableDocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::IndexOffset& offset,
       absl::optional<size_t> limit = absl::nullopt,
       const model::OverlayByDocumentKeyMap& mutated_docs = {}) const = 0;
@@ -126,7 +127,7 @@ class RemoteDocumentCache {
    *
    * Cached DeletedDocument entries have no bearing on query results.
    *
-   * @param query The query to match documents against.
+   * @param query_or_pipeline The query to match documents against.
    * @param offset The read time and document key to start scanning at
    * (exclusive).
    * @param context A optional tracker to keep a record of important details
@@ -138,7 +139,7 @@ class RemoteDocumentCache {
    * @return The set of matching documents.
    */
   virtual model::MutableDocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::IndexOffset& offset,
       absl::optional<QueryContext>& context,
       absl::optional<size_t> limit = absl::nullopt,

@@ -342,7 +342,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // Clear the resume token for the query, since we're in a known mismatch
     // state.
     target_data =
-        TargetData(target_data.target(), target_id,
+        TargetData(target_data.target_or_pipeline(), target_id,
                    target_data.sequence_number(), target_data.purpose());
     listen_targets_[target_id] = target_data;
 
@@ -354,7 +354,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // mismatch, but don't actually retain that in listen_targets_. This ensures
     // that we flag the first re-listen this way without impacting future
     // listens of this target (that might happen e.g. on reconnect).
-    TargetData request_target_data(target_data.target(), target_id,
+    TargetData request_target_data(target_data.target_or_pipeline(), target_id,
                                    target_data.sequence_number(), purpose);
     SendWatchRequest(request_target_data);
   }
