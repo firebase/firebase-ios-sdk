@@ -40,7 +40,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
     "#{s.module_name}_Privacy" => 'FirebaseCore/Sources/Resources/PrivacyInfo.xcprivacy'
   }
 
-  s.swift_version = '5.9'
+  s.swift_version = '6.0'
 
   s.public_header_files = 'FirebaseCore/Sources/Public/FirebaseCore/*.h'
 

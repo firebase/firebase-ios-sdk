@@ -17,7 +17,7 @@ iOS SDK for App Distribution for Firebase.
 
   s.ios.deployment_target = '13.0'
 
-  s.swift_version = '5.9'
+  s.swift_version = '6.0'
 
   s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false

@@ -16,7 +16,7 @@ import Foundation
 
 /// Utility type for constructing federated auth provider credentials.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRFederatedAuthProvider) public protocol FederatedAuthProvider: NSObjectProtocol {
+@objc(FIRFederatedAuthProvider) public protocol FederatedAuthProvider: NSObjectProtocol, Sendable {
   #if os(iOS)
 
     /// Used to obtain an auth credential via a mobile web flow.

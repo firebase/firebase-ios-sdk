@@ -15,9 +15,9 @@
 import Foundation
 
 #if COCOAPODS
-  import GTMSessionFetcher
+  @preconcurrency import GTMSessionFetcher
 #else
-  import GTMSessionFetcherCore
+  @preconcurrency import GTMSessionFetcherCore
 #endif
 
 /**
@@ -34,7 +34,8 @@ import Foundation
  */
 @objc(FIRStorageDownloadTask)
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
+open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement,
+  @unchecked Sendable /* TODO: sendable */ {
   /**
    * Prepares a task and begins execution.
    */

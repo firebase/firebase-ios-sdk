@@ -22,7 +22,7 @@ import Foundation
   /// This class is available on iOS only.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorResolver)
-  open class MultiFactorResolver: NSObject {
+  open class MultiFactorResolver: NSObject, @unchecked Sendable /* TODO: sendable */ {
     /// The opaque session identifier for the current sign-in flow.
     @objc public let session: MultiFactorSession
 
@@ -39,7 +39,7 @@ import Foundation
     /// - Parameter completion: The block invoked when the request is complete, or fails.
     @objc(resolveSignInWithAssertion:completion:)
     open func resolveSignIn(with assertion: MultiFactorAssertion,
-                            completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                            completion: (@Sendable (AuthDataResult?, Error?) -> Void)? = nil) {
       var finalizedMFARequestInfo: AuthProto?
       if let totpAssertion = assertion as? TOTPMultiFactorAssertion {
         switch totpAssertion.secretOrID {

@@ -97,24 +97,18 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 
 @end
 
-@interface FIRMessagingExtensionHelper ()
-@property(nonatomic, strong) void (^contentHandler)(UNNotificationContent *contentToDeliver);
-@property(nonatomic, strong) UNMutableNotificationContent *bestAttemptContent;
-
-@end
-
 @implementation FIRMessagingExtensionHelper
 
 - (void)populateNotificationContent:(UNMutableNotificationContent *)content
                  withContentHandler:(void (^)(UNNotificationContent *_Nonnull))contentHandler {
-  self.contentHandler = [contentHandler copy];
-  self.bestAttemptContent = content;
+  __block void (^handler)(UNNotificationContent *_Nonnull) = [contentHandler copy];
+  __block UNMutableNotificationContent *bestAttemptContent = [content mutableCopy];
 
   // The `userInfo` property isn't available on newer versions of tvOS.
 #if !TARGET_OS_TV
   NSObject *currentImageURL = content.userInfo[kPayloadOptionsName][kPayloadOptionsImageURLName];
   if (!currentImageURL || currentImageURL == [NSNull null]) {
-    [self deliverNotification];
+    [self deliverNotificationWithContent:bestAttemptContent handler:handler];
     return;
   }
   NSURL *attachmentURL = [NSURL URLWithString:(NSString *)currentImageURL];
@@ -122,14 +116,14 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
     [self loadAttachmentForURL:attachmentURL
              completionHandler:^(UNNotificationAttachment *attachment) {
                if (attachment != nil) {
-                 self.bestAttemptContent.attachments = @[ attachment ];
+                 bestAttemptContent.attachments = @[ attachment ];
                }
-               [self deliverNotification];
+               [self deliverNotificationWithContent:bestAttemptContent handler:handler];
              }];
   } else {
     FIRMessagingLoggerError(kFIRMessagingServiceExtensionImageInvalidURL,
                             @"The Image URL provided is invalid %@.", currentImageURL);
-    [self deliverNotification];
+    [self deliverNotificationWithContent:bestAttemptContent handler:handler];
   }
 #else   // !TARGET_OS_TV
   [self deliverNotification];
@@ -150,14 +144,15 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 }
 
 - (void)loadAttachmentForURL:(NSURL *)attachmentURL
-           completionHandler:(void (^)(UNNotificationAttachment *))completionHandler {
-  __block UNNotificationAttachment *attachment = nil;
-
+           completionHandler:
+               (void (^NS_SWIFT_SENDABLE)(UNNotificationAttachment *))completionHandler
+    NS_SWIFT_SENDABLE {
   NSURLSession *session = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
   [[session
       downloadTaskWithURL:attachmentURL
         completionHandler:^(NSURL *temporaryFileLocation, NSURLResponse *response, NSError *error) {
+          UNNotificationAttachment *attachment = nil;
           if (error != nil) {
             FIRMessagingLoggerError(kFIRMessagingServiceExtensionImageNotDownloaded,
                                     @"Failed to download image given URL %@, error: %@\n",
@@ -196,9 +191,10 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 }
 #endif  // !TARGET_OS_TV
 
-- (void)deliverNotification {
-  if (self.contentHandler) {
-    self.contentHandler(self.bestAttemptContent);
+- (void)deliverNotificationWithContent:(UNNotificationContent *)content
+                               handler:(void (^_Nullable)(UNNotificationContent *_Nonnull))handler {
+  if (handler) {
+    handler(content);
   }
 }
 

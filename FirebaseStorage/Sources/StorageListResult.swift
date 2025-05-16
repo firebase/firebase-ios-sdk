@@ -16,7 +16,7 @@ import Foundation
 
 /** Contains the prefixes and items returned by a `StorageReference.list()` call. */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRStorageListResult) open class StorageListResult: NSObject {
+@objc(FIRStorageListResult) public final class StorageListResult: NSObject, Sendable {
   /**
    * The prefixes (folders) returned by a `list()` operation.
    */
@@ -35,7 +35,7 @@ import Foundation
 
   // MARK: - NSObject overrides
 
-  @objc override open func copy() -> Any {
+  @objc override public func copy() -> Any {
     return StorageListResult(withPrefixes: prefixes,
                              items: items,
                              pageToken: pageToken)

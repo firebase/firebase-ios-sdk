@@ -23,8 +23,9 @@ import Foundation
 /// - Returns: A closure parameterized with an optional generic and optional `Error` to match
 ///            Objective-C APIs.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-private func getResultCallback<T>(completion: @escaping (Result<T, Error>) -> Void) -> (_: T?,
-                                                                                        _: Error?)
+private func getResultCallback<T>(completion: @escaping @Sendable (Result<T, Error>) -> Void)
+  -> @Sendable (_: T?,
+                _: Error?)
   -> Void {
   return { (value: T?, error: Error?) in
     if let value {
@@ -48,7 +49,7 @@ public extension StorageReference {
   ///
   /// - Parameters:
   ///   - completion: A completion block returning a `Result` enum with either a URL or an `Error`.
-  func downloadURL(completion: @escaping (Result<URL, Error>) -> Void) {
+  func downloadURL(completion: @escaping @Sendable (Result<URL, Error>) -> Void) {
     downloadURL(completion: getResultCallback(completion: completion))
   }
 
@@ -64,7 +65,7 @@ public extension StorageReference {
   ///
   /// - Returns: A StorageDownloadTask that can be used to monitor or manage the download.
   @discardableResult
-  func getData(maxSize: Int64, completion: @escaping (Result<Data, Error>) -> Void)
+  func getData(maxSize: Int64, completion: @escaping @Sendable (Result<Data, Error>) -> Void)
     -> StorageDownloadTask {
     return getData(maxSize: maxSize, completion: getResultCallback(completion: completion))
   }
@@ -74,7 +75,7 @@ public extension StorageReference {
   /// - Parameters:
   ///   - completion: A completion block which returns a `Result` enum with either the
   ///                 object metadata or an `Error`.
-  func getMetadata(completion: @escaping (Result<StorageMetadata, Error>) -> Void) {
+  func getMetadata(completion: @escaping @Sendable (Result<StorageMetadata, Error>) -> Void) {
     getMetadata(completion: getResultCallback(completion: completion))
   }
 
@@ -97,7 +98,7 @@ public extension StorageReference {
   ///                with either the list or an `Error`.
   func list(maxResults: Int64,
             pageToken: String,
-            completion: @escaping (Result<StorageListResult, Error>) -> Void) {
+            completion: @escaping @Sendable (Result<StorageListResult, Error>) -> Void) {
     list(maxResults: maxResults,
          pageToken: pageToken,
          completion: getResultCallback(completion: completion))
@@ -118,7 +119,7 @@ public extension StorageReference {
   ///                prefixes under the current `StorageReference`. It returns a `Result` enum
   ///                with either the list or an `Error`.
   func list(maxResults: Int64,
-            completion: @escaping (Result<StorageListResult, Error>) -> Void) {
+            completion: @escaping @Sendable (Result<StorageListResult, Error>) -> Void) {
     list(maxResults: maxResults,
          completion: getResultCallback(completion: completion))
   }
@@ -135,7 +136,7 @@ public extension StorageReference {
   ///   - completion: A completion handler that will be invoked with all items and prefixes
   ///                under the current StorageReference. It returns a `Result` enum with either the
   ///                list or an `Error`.
-  func listAll(completion: @escaping (Result<StorageListResult, Error>) -> Void) {
+  func listAll(completion: @escaping @Sendable (Result<StorageListResult, Error>) -> Void) {
     listAll(completion: getResultCallback(completion: completion))
   }
 
@@ -154,7 +155,7 @@ public extension StorageReference {
   @discardableResult
   func putData(_ uploadData: Data,
                metadata: StorageMetadata? = nil,
-               completion: @escaping (Result<StorageMetadata, Error>) -> Void)
+               completion: @escaping @Sendable (Result<StorageMetadata, Error>) -> Void)
     -> StorageUploadTask {
     return putData(uploadData,
                    metadata: metadata,
@@ -175,7 +176,7 @@ public extension StorageReference {
   @discardableResult
   func putFile(from: URL,
                metadata: StorageMetadata? = nil,
-               completion: @escaping (Result<StorageMetadata, Error>) -> Void)
+               completion: @escaping @Sendable (Result<StorageMetadata, Error>) -> Void)
     -> StorageUploadTask {
     return putFile(from: from,
                    metadata: metadata,
@@ -189,7 +190,7 @@ public extension StorageReference {
   ///   - completion: A completion block which returns a `Result` enum with either the
   ///                object metadata or an `Error`.
   func updateMetadata(_ metadata: StorageMetadata,
-                      completion: @escaping (Result<StorageMetadata, Error>) -> Void) {
+                      completion: @escaping @Sendable (Result<StorageMetadata, Error>) -> Void) {
     updateMetadata(metadata, completion: getResultCallback(completion: completion))
   }
 
@@ -203,7 +204,7 @@ public extension StorageReference {
   ///
   /// - Returns: A `StorageDownloadTask` that can be used to monitor or manage the download.
   @discardableResult
-  func write(toFile: URL, completion: @escaping (Result<URL, Error>)
+  func write(toFile: URL, completion: @escaping @Sendable (Result<URL, Error>)
     -> Void) -> StorageDownloadTask {
     return write(toFile: toFile, completion: getResultCallback(completion: completion))
   }
