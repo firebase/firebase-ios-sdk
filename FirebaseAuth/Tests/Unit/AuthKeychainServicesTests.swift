@@ -33,14 +33,15 @@ class AuthKeychainServicesTests: XCTestCase {
   }
 
   var keychain: AuthKeychainServices!
+  #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
+    let storage: AuthKeychainStorage = FakeAuthKeychainStorage()
+  #else
+    let storage: AuthKeychainStorage = AuthKeychainStorageReal.shared
+  #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
 
   override func setUp() {
     super.setUp()
-    #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
-      keychain = AuthKeychainServices(service: Self.service, storage: FakeAuthKeychainStorage())
-    #else
-      keychain = AuthKeychainServices(service: Self.service)
-    #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
+    keychain = AuthKeychainServices(service: Self.service, storage: storage)
   }
 
   func testReadNonexisting() throws {
@@ -142,7 +143,7 @@ class AuthKeychainServicesTests: XCTestCase {
     }
 
     var result: CFTypeRef?
-    let status = keychain.keychainStorage.get(query: query as [String: Any], result: &result)
+    let status = storage.get(query: query as [String: Any], result: &result)
 
     guard let result = result as? Data, status != errSecItemNotFound else {
       if let resultArray = result as? [[String: Any]],
@@ -168,7 +169,7 @@ class AuthKeychainServicesTests: XCTestCase {
     if let service {
       query[kSecAttrService] = service
     }
-    XCTAssertEqual(keychain.keychainStorage.add(query: query as [String: Any]), errSecSuccess)
+    XCTAssertEqual(storage.add(query: query as [String: Any]), errSecSuccess)
   }
 
   private func setPassword(_ password: String?,
@@ -192,6 +193,6 @@ class AuthKeychainServicesTests: XCTestCase {
     if let service {
       query[kSecAttrService] = service
     }
-    XCTAssertEqual(keychain.keychainStorage.delete(query: query as [String: Any]), errSecSuccess)
+    XCTAssertEqual(storage.delete(query: query as [String: Any]), errSecSuccess)
   }
 }
