@@ -20,7 +20,7 @@ import XCTest
     @brief The utility class to update the real keychain
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class FakeAuthKeychainStorage: AuthKeychainStorage {
+final class FakeAuthKeychainStorage: AuthKeychainStorage, @unchecked Sendable {
   // Fake Keychain. It's a dictionary, keyed by service name, for each key-value store dictionary
   private var fakeKeychain: [String: [String: Any]] = [:]
 
