@@ -109,7 +109,22 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `PipelineSnapshot` containing the result of the pipeline execution.
-  public func execute() async throws -> PipelineSnapshot {
+  public func execute(@OptionBuilder options: () -> [OptionProtocol] = { [] }) async throws
+    -> PipelineSnapshot {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.bridge.execute { result, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume(returning: PipelineSnapshot(result!, pipeline: self))
+        }
+      }
+    }
+  }
+
+  public func execute2(explainOptions: ExplainOptions? = nil,
+                       indexMode: String? = nil,
+                       genericOptions: GenericOptions? = nil) async throws -> PipelineSnapshot {
     return try await withCheckedThrowingContinuation { continuation in
       self.bridge.execute { result, error in
         if let error {
