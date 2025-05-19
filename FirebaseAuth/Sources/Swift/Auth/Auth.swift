@@ -169,10 +169,11 @@ extension Auth: AuthInterop {
 
   /// Gets the `FirebaseApp` object that this auth object is connected to.
   @objc public internal(set) weak var app: FirebaseApp?
-  
+
   /// New R-GCIP v2 + BYO-CIAM initializer.
   ///
-  /// This initializer allows to create an `Auth` instance with a specific `tenantConfig` for R-GCIP.
+  /// This initializer allows to create an `Auth` instance with a specific `tenantConfig` for
+  /// R-GCIP.
   /// - Parameters:
   ///   - app: The `FirebaseApp` for which to initialize the `Auth` instance.
   ///   - tenantConfig: The configuration for the tenant, including location and tenant ID.
@@ -189,9 +190,9 @@ extension Auth: AuthInterop {
 
   /// Holds configuration for a R-GCIP tenant.
   public struct TenantConfig {
-    public let location: String    /// The location of the tenant.
-    public let tenantId: String     /// The ID of the tenant.
-  
+    public let location: String /// The location of the tenant.
+    public let tenantId: String /// The ID of the tenant.
+
     /// Initializes a `TenantConfig` instance.
     /// - Parameters:
     ///   - location: The location of the tenant, defaults to "prod-global".
@@ -201,15 +202,15 @@ extension Auth: AuthInterop {
       self.tenantId = tenantId
     }
   }
-  
+
   /// Holds a Firebase ID token and its expiration.
   public struct AuthExchangeToken {
-      public let token: String
-      public let expirationDate: Date?
-      init(token: String, expirationDate: Date?) {
-          self.token = token
-          self.expirationDate = expirationDate
-      }
+    public let token: String
+    public let expirationDate: Date?
+    init(token: String, expirationDate: Date?) {
+      self.token = token
+      self.expirationDate = expirationDate
+    }
   }
 
   /// Synchronously gets the cached current user, or null if there is none.
@@ -2470,7 +2471,6 @@ extension Auth: AuthInterop {
 
 @available(iOS 13, *)
 public extension Auth {
-
   /// Exchanges a third-party OIDC token for a Firebase STS token.
   ///
   /// Requires the `Auth` instance to be configured with a `TenantConfig` for R-GCIP.

@@ -70,7 +70,7 @@ struct ExchangeTokenRequest: AuthRPCRequest {
     let path = "/v2/projects/\(project)/locations/\(region)" +
       "/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
     guard let url = URL(string: "https://\(host)\(path)?key=\(config.apiKey)") else {
-        fatalError("Failed to create URL for exchangeOidcToken")
+      fatalError("Failed to create URL for exchangeOidcToken")
     }
     return url
   }

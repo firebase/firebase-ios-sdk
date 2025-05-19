@@ -43,7 +43,7 @@ final class AuthRequestConfiguration {
 
   /// If set, the local emulator host and port to point to instead of the remote backend.
   var emulatorHostAndPort: String?
-  
+
   /// R-GCIP region, set once during Auth init.
   var location: String?
 
@@ -61,7 +61,7 @@ final class AuthRequestConfiguration {
     self.auth = auth
     self.heartbeatLogger = heartbeatLogger
     self.appCheck = appCheck
-    self.location = tenantConfig.location
-    self.tenantId = tenantConfig.tenantId
+    location = tenantConfig.location
+    tenantId = tenantConfig.tenantId
   }
 }
