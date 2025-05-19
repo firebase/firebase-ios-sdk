@@ -21,7 +21,7 @@ import Foundation
   /// The identifier of this second factor is "totp".
   ///
   /// This class is available on iOS only.
-  class TOTPMultiFactorInfo: MultiFactorInfo {
+  class TOTPMultiFactorInfo: MultiFactorInfo, @unchecked Sendable {
     /// Initialize the AuthProtoMFAEnrollment instance with proto.
     /// - Parameter proto: AuthProtoMFAEnrollment proto object.
     init(proto: AuthProtoMFAEnrollment) {

@@ -19,7 +19,7 @@ import Foundation
 ///
 /// This class is available on iOS only.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject {
+@objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject, @unchecked Sendable {
   /// A string constant identifying the phone identity provider.
   @objc public static let id = "phone"
   private static let recaptchaVersion = "RECAPTCHA_ENTERPRISE"
@@ -55,8 +55,8 @@ import Foundation
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
     @objc(verifyPhoneNumber:UIDelegate:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                uiDelegate: AuthUIDelegate? = nil,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                  uiDelegate: AuthUIDelegate? = nil,
+                                  completion: (@MainActor (String?, Error?) -> Void)?) {
       verifyPhoneNumber(phoneNumber,
                         uiDelegate: uiDelegate,
                         multiFactorSession: nil,
@@ -73,9 +73,9 @@ import Foundation
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                uiDelegate: AuthUIDelegate? = nil,
-                                multiFactorSession: MultiFactorSession? = nil,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                  uiDelegate: AuthUIDelegate? = nil,
+                                  multiFactorSession: MultiFactorSession? = nil,
+                                  completion: (@MainActor (String?, Error?) -> Void)?) {
       Task {
         do {
           let verificationID = try await verifyPhoneNumber(
@@ -83,13 +83,9 @@ import Foundation
             uiDelegate: uiDelegate,
             multiFactorSession: multiFactorSession
           )
-          await MainActor.run {
-            completion?(verificationID, nil)
-          }
+          await completion?(verificationID, nil)
         } catch {
-          await MainActor.run {
-            completion?(nil, error)
-          }
+          await completion?(nil, error)
         }
       }
     }
@@ -104,8 +100,8 @@ import Foundation
     /// - Returns: The verification ID
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                uiDelegate: AuthUIDelegate? = nil,
-                                multiFactorSession: MultiFactorSession? = nil) async throws
+                                  uiDelegate: AuthUIDelegate? = nil,
+                                  multiFactorSession: MultiFactorSession? = nil) async throws
       -> String {
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: auth.mainBundleUrlTypes) else {
@@ -133,9 +129,9 @@ import Foundation
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                uiDelegate: AuthUIDelegate? = nil,
-                                multiFactorSession: MultiFactorSession?,
-                                completion: ((_: String?, _: Error?) -> Void)?) {
+                                  uiDelegate: AuthUIDelegate? = nil,
+                                  multiFactorSession: MultiFactorSession?,
+                                  completion: ((String?, Error?) -> Void)?) {
       Task {
         do {
           let verificationID = try await verifyPhoneNumber(
@@ -164,8 +160,8 @@ import Foundation
     /// - Returns: The verification ID.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                uiDelegate: AuthUIDelegate? = nil,
-                                multiFactorSession: MultiFactorSession?) async throws -> String {
+                                  uiDelegate: AuthUIDelegate? = nil,
+                                  multiFactorSession: MultiFactorSession?) async throws -> String {
       multiFactorSession?.multiFactorInfo = multiFactorInfo
       return try await verifyPhoneNumber(multiFactorInfo.phoneNumber,
                                          uiDelegate: uiDelegate,
@@ -182,7 +178,7 @@ import Foundation
     /// code provided.
     @objc(credentialWithVerificationID:verificationCode:)
     open func credential(withVerificationID verificationID: String,
-                         verificationCode: String) -> PhoneAuthCredential {
+                           verificationCode: String) -> PhoneAuthCredential {
       return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
                                  verificationID: verificationID,
                                  verificationCode: verificationCode)
@@ -641,7 +637,6 @@ import Foundation
     private let auth: Auth
     private let callbackScheme: String
     private let usingClientIDScheme: Bool
-    private var recaptchaVerifier: AuthRecaptchaVerifier?
 
     init(auth: Auth) {
       self.auth = auth
@@ -662,7 +657,6 @@ import Foundation
         return
       }
       callbackScheme = ""
-      recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
     }
 
     private let kAuthTypeVerifyApp = "verifyApp"
