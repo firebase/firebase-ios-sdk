@@ -45,7 +45,7 @@ class UserTests: RPCBaseTests {
     #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
       let keychainStorageProvider = FakeAuthKeychainStorage()
     #else
-      let keychainStorageProvider = AuthKeychainStorageReal()
+      let keychainStorageProvider = AuthKeychainStorageReal.shared
     #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: "test-UserTests")!,
