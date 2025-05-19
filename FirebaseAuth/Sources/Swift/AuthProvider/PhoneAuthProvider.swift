@@ -55,8 +55,8 @@ import Foundation
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
     @objc(verifyPhoneNumber:UIDelegate:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  completion: (@MainActor (String?, Error?) -> Void)?) {
+                                uiDelegate: AuthUIDelegate? = nil,
+                                completion: (@MainActor (String?, Error?) -> Void)?) {
       verifyPhoneNumber(phoneNumber,
                         uiDelegate: uiDelegate,
                         multiFactorSession: nil,
@@ -73,9 +73,9 @@ import Foundation
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession? = nil,
-                                  completion: (@MainActor (String?, Error?) -> Void)?) {
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession? = nil,
+                                completion: (@MainActor (String?, Error?) -> Void)?) {
       Task {
         do {
           let verificationID = try await verifyPhoneNumber(
@@ -100,8 +100,8 @@ import Foundation
     /// - Returns: The verification ID
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession? = nil) async throws
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession? = nil) async throws
       -> String {
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: auth.mainBundleUrlTypes) else {
@@ -129,9 +129,9 @@ import Foundation
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession?,
-                                  completion: ((String?, Error?) -> Void)?) {
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession?,
+                                completion: ((String?, Error?) -> Void)?) {
       Task {
         do {
           let verificationID = try await verifyPhoneNumber(
@@ -160,8 +160,8 @@ import Foundation
     /// - Returns: The verification ID.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession?) async throws -> String {
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession?) async throws -> String {
       multiFactorSession?.multiFactorInfo = multiFactorInfo
       return try await verifyPhoneNumber(multiFactorInfo.phoneNumber,
                                          uiDelegate: uiDelegate,
@@ -178,7 +178,7 @@ import Foundation
     /// code provided.
     @objc(credentialWithVerificationID:verificationCode:)
     open func credential(withVerificationID verificationID: String,
-                           verificationCode: String) -> PhoneAuthCredential {
+                         verificationCode: String) -> PhoneAuthCredential {
       return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
                                  verificationID: verificationID,
                                  verificationCode: verificationCode)
