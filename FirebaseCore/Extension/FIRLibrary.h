@@ -33,7 +33,7 @@ NS_SWIFT_NAME(Library)
 
 /// Returns one or more Components that will be registered in
 /// FirebaseApp and participate in dependency resolution and injection.
-+ (NSArray<FIRComponent *> *NS_SWIFT_SENDING)componentsToRegister NS_SWIFT_UI_ACTOR;
++ (NSArray<FIRComponent *> *)componentsToRegister;
 
 @end
 
