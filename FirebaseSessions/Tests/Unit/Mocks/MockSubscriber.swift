@@ -31,7 +31,7 @@ final class MockSubscriber: SessionsSubscriber, Sendable {
   }
 
   private let _sessionThatChanged = FIRAllocatedUnfairLock<FirebaseSessions.SessionDetails?>(
-    initialState: nil initialState: nil
+    initialState: nil
   )
   private let _isDataCollectionEnabled = FIRAllocatedUnfairLock<Bool>(initialState: true)
 
