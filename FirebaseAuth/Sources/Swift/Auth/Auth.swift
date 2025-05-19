@@ -169,6 +169,48 @@ extension Auth: AuthInterop {
 
   /// Gets the `FirebaseApp` object that this auth object is connected to.
   @objc public internal(set) weak var app: FirebaseApp?
+  
+  /// New R-GCIP v2 + BYO-CIAM initializer.
+  ///
+  /// This initializer allows to create an `Auth` instance with a specific `tenantConfig` for R-GCIP.
+  /// - Parameters:
+  ///   - app: The `FirebaseApp` for which to initialize the `Auth` instance.
+  ///   - tenantConfig: The configuration for the tenant, including location and tenant ID.
+  /// - Returns: An `Auth` instance configured for the specified tenant.
+  public static func auth(app: FirebaseApp, tenantConfig: TenantConfig) -> Auth {
+    // start from the legacy initializer so we get a fully-formed Auth object
+    let auth = auth(app: app)
+    kAuthGlobalWorkQueue.sync {
+      auth.requestConfiguration.location = tenantConfig.location
+      auth.requestConfiguration.tenantId = tenantConfig.tenantId
+    }
+    return auth
+  }
+
+  /// Holds configuration for a R-GCIP tenant.
+  public struct TenantConfig {
+    public let location: String    /// The location of the tenant.
+    public let tenantId: String     /// The ID of the tenant.
+  
+    /// Initializes a `TenantConfig` instance.
+    /// - Parameters:
+    ///   - location: The location of the tenant, defaults to "prod-global".
+    ///   - tenantId: The ID of the tenant.
+    public init(location: String = "prod-global", tenantId: String) {
+      self.location = location
+      self.tenantId = tenantId
+    }
+  }
+  
+  /// Holds a Firebase ID token and its expiration.
+  public struct AuthExchangeToken {
+      public let token: String
+      public let expirationDate: Date?
+      init(token: String, expirationDate: Date?) {
+          self.token = token
+          self.expirationDate = expirationDate
+      }
+  }
 
   /// Synchronously gets the cached current user, or null if there is none.
   @objc public var currentUser: User? {
@@ -2424,4 +2466,42 @@ extension Auth: AuthInterop {
   ///
   /// Mutations should occur within a @synchronized(self) context.
   private var listenerHandles: NSMutableArray = []
+}
+
+@available(iOS 13, *)
+public extension Auth {
+
+  /// Exchanges a third-party OIDC token for a Firebase STS token.
+  ///
+  /// Requires the `Auth` instance to be configured with a `TenantConfig` for R-GCIP.
+  /// - Parameters:
+  ///   - idpConfigID: The ID of the OIDC provider configuration.
+  ///   - ciamOidcToken: The OIDC token to exchange.
+  ///   - completion: Called with the Firebase ID token or an error.
+  @objc func exchangeToken(_ idpConfigID: String,
+                           _ ciamOidcToken: String,
+                           completion: @escaping (String?, Error?) -> Void) {
+    // Check if R-GCIP (location and tenantId) is configured.
+    guard let location = requestConfiguration.location,
+          let tenantId = requestConfiguration.tenantId
+    else {
+      completion(nil, AuthErrorUtils.operationNotAllowedError(
+        message: "Set location & tenantId first"
+      ))
+      return
+    }
+    let request = ExchangeTokenRequest(
+      idpConfigID: idpConfigID,
+      idToken: ciamOidcToken,
+      config: requestConfiguration
+    )
+    Task {
+      do {
+        let resp = try await backend.call(with: request)
+        DispatchQueue.main.async { completion(resp.firebaseToken, nil) }
+      } catch {
+        DispatchQueue.main.async { completion(nil, error) }
+      }
+    }
+  }
 }
