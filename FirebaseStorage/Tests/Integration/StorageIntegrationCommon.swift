@@ -17,13 +17,13 @@ import FirebaseCore
 import FirebaseStorage
 import XCTest
 
-class StorageIntegrationCommon: XCTestCase {
+class StorageIntegrationCommon: XCTestCase, @unchecked Sendable {
   var app: FirebaseApp!
   var auth: Auth!
   var storage: Storage!
-  static var configured = false
-  static var once = false
-  static var signedIn = false
+  nonisolated(unsafe) static var configured = false
+  nonisolated(unsafe) static var once = false
+  nonisolated(unsafe) static var signedIn = false
 
   override class func setUp() {
     if !StorageIntegrationCommon.configured {
@@ -32,14 +32,14 @@ class StorageIntegrationCommon: XCTestCase {
     }
   }
 
-  override func setUp() {
-    super.setUp()
+  override func setUp() async throws {
+    try await super.setUp()
     app = FirebaseApp.app()
     auth = Auth.auth(app: app)
     storage = Storage.storage(app: app!)
 
     if !StorageIntegrationCommon.signedIn {
-      signInAndWait()
+      await signInAndWait()
     }
 
     if !StorageIntegrationCommon.once {
@@ -72,7 +72,7 @@ class StorageIntegrationCommon: XCTestCase {
             setupExpectation.fulfill()
           }
         }
-        waitForExpectations()
+        await waitForExpectations()
       } catch {
         XCTFail("Error thrown setting up files in setUp")
       }
@@ -85,7 +85,7 @@ class StorageIntegrationCommon: XCTestCase {
     super.tearDown()
   }
 
-  private func signInAndWait() {
+  @MainActor private func signInAndWait() {
     let expectation = self.expectation(description: #function)
     auth.signIn(withEmail: Credentials.kUserName,
                 password: Credentials.kPassword) { result, error in
@@ -97,7 +97,7 @@ class StorageIntegrationCommon: XCTestCase {
     waitForExpectations()
   }
 
-  private func waitForExpectations() {
+  @MainActor private func waitForExpectations() {
     let kTestTimeout = 60.0
     waitForExpectations(timeout: kTestTimeout,
                         handler: { error in
@@ -108,7 +108,7 @@ class StorageIntegrationCommon: XCTestCase {
   }
 
   private func assertResultSuccess<T>(_ result: Result<T, Error>,
-                                      file: StaticString = #file, line: UInt = #line) {
+                                      file: StaticString = #filePath, line: UInt = #line) {
     switch result {
     case let .success(value):
       XCTAssertNotNil(value, file: file, line: line)
