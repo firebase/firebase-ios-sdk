@@ -54,11 +54,14 @@ final class AuthRequestConfiguration {
        appID: String,
        auth: Auth? = nil,
        heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
-       appCheck: AppCheckInterop? = nil) {
+       appCheck: AppCheckInterop? = nil,
+       tenantConfig: Auth.TenantConfig) {
     self.apiKey = apiKey
     self.appID = appID
     self.auth = auth
     self.heartbeatLogger = heartbeatLogger
     self.appCheck = appCheck
+    let location = tenantConfig.location
+    let tenantId = tenantConfig.tenantId
   }
 }

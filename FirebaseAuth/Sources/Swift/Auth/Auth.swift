@@ -140,16 +140,6 @@ extension Auth: AuthInterop {
   }
 }
 
-/// Holds region & tenant for R-GCIP
-public struct LocationData {
-  public let location: String
-  public let tenantId: String?
-  public init(location: String = "prod-global", tenantId: String? = nil) {
-    self.location = location
-    self.tenantId = tenantId
-  }
-}
-
 /// Manages authentication for Firebase apps.
 ///
 /// This class is thread-safe.
@@ -178,14 +168,24 @@ public struct LocationData {
   }
 
   /// New R-GCIP v2 + BYO-CIAM initializer
-  public class func auth(app: FirebaseApp, locationData: LocationData) -> Auth {
+  public static func auth(app: FirebaseApp, tenantConfig: TenantConfig) -> Auth {
     // start from the legacy initializer so we get a fully-formed Auth object
     let auth = auth(app: app)
     kAuthGlobalWorkQueue.sync {
-      auth.requestConfiguration.location = locationData.location
-      auth.requestConfiguration.tenantId = locationData.tenantId
+      auth.requestConfiguration.location = tenantConfig.location
+      auth.requestConfiguration.tenantId = tenantConfig.tenantId
     }
     return auth
+  }
+  
+  /// Holds region & tenant for R-GCIP
+  public struct TenantConfig {
+    public let location: String
+    public let tenantId: String
+    public init(location: String = "prod-global", tenantId: String) {
+      self.location = location
+      self.tenantId = tenantId
+    }
   }
 
   /// Gets the `FirebaseApp` object that this auth object is connected to.
@@ -2449,16 +2449,26 @@ public struct LocationData {
 
 @available(iOS 13, *)
 public extension Auth {
+  
+  struct AuthExchangeToken {
+      public let token: String             // The Firebase ID token.
+      public let expirationDate: Date?     // The expiration time of the token.
+      init(token: String, expirationDate: Date?) {
+          self.token = token
+          self.expirationDate = expirationDate
+      }
+  }
+  
   /// Exchange a third-party OIDC token for a short-lived Firebase STS token.
   @objc func exchangeToken(_ idpConfigID: String,
                            _ ciamOidcToken: String,
                            completion: @escaping (String?, Error?) -> Void) {
     // Must have opted into R-GCIP
-    guard let region = requestConfiguration.location,
-          let tenant = requestConfiguration.tenantId
+    guard let location = requestConfiguration.location,
+          let tenantId = requestConfiguration.tenantId
     else {
       completion(nil, AuthErrorUtils.operationNotAllowedError(
-        message: "Set region & tenantID first"
+        message: "Set location & tenantId first"
       ))
       return
     }
