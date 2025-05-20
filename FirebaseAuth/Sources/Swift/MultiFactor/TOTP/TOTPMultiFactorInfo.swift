@@ -14,6 +14,9 @@
 
 import Foundation
 
+// TODO(Swift 6 Breaking): Make checked Sendable. Also, does this need
+// to be public?
+
 #if os(iOS)
 
   /// Extends the MultiFactorInfo class for time based one-time password second factors.

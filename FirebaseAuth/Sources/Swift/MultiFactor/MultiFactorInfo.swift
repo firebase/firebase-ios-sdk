@@ -14,6 +14,8 @@
 
 import Foundation
 
+// TODO(Swift 6 Breaking): Make checked Sendable.
+
 #if os(iOS)
   extension MultiFactorInfo: NSSecureCoding {}
 

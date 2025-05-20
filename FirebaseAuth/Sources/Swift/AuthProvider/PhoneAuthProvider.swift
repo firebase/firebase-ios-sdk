@@ -15,6 +15,8 @@
 import FirebaseCore
 import Foundation
 
+// TODO(Swift 6 Breaking): Make checked Sendable.
+
 /// A concrete implementation of `AuthProvider` for phone auth providers.
 ///
 /// This class is available on iOS only.
