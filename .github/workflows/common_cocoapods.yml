@@ -1,0 +1,72 @@
+name: common_cocoapods
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      # The product to test be tested (e.g. `FirebaseABTesting`).
+      product:
+        type: string
+        required: true
+
+//      # The platforms to build on. Defaults to all.
+//      # To target specific platforms, pass a comma or space separated string of
+//      # platforms.
+//      #
+//      # Examples:
+//      # - build/test only for macOS: `macOS`
+//      # - build/test only for macOS and tvOS: `macOS, tvOS`
+//      platforms:
+//        type: string
+//        required: false
+//        default: "iOS, tvOS, macOS, watchOS, catalyst, visionOS"
+
+//      # By default, all platforms will be tested (see matrix in `spm` job).
+//      # To build instead of test, pass a comma or space separated string of
+//      # platforms.
+//      #
+//      # Platform options: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+//      #
+//      # Note: Build-only platforms must be represented in the `platforms` input
+//      # (which defaults to all platforms) in order to take effect.
+//      #
+//      # Examples:
+//      # - build only for macOS: `macOS`
+//      # - build only for macOS and tvOS: `macOS, tvOS`
+//      # - build only for all platforms: `all`
+//      buildonly_platforms:
+//       type: string
+//       required: false
+//       default: ""
+
+jobs:
+  pod-lib-lint:
+    # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    strategy:
+      matrix:
+        os: macos-15
+        xcode: Xcode_16.3
+        platform: [iOS, tvOS, macOS, watchOS]
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+            platform: iOS
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      if: contains(join(inputs.platforms), matrix.platform) || matrix.os == 'macos-14'
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+            command: scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }}
