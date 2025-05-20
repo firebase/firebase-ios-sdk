@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseVertexAI'
-  s.version          = '11.13.0'
+  s.version          = '11.14.0'
   s.summary          = 'Vertex AI in Firebase SDK'
 
   s.description      = <<-DESC

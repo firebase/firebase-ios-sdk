@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '11.13.0'
+  s.version          = '11.14.0'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -46,7 +46,7 @@ Pod::Spec.new do |s|
 
   s.dependency 'AppCheckCore', '~> 11.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.13.0'
+  s.dependency 'FirebaseCore', '~> 11.14.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
 
