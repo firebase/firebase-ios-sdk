@@ -27,7 +27,7 @@ NO_HEADING = 'PRODUCT HAS NO HEADING'
 
 PRODUCTS = {
     'FirebaseABTesting/CHANGELOG.md': '{{ab_testing}}',
-    'FirebaseAI/CHANGELOG.md': 'Firebase AI Logic',  # update with var
+    'FirebaseAI/CHANGELOG.md': '{{firebase_ai_logic}}',
     'FirebaseAppCheck/CHANGELOG.md': 'App Check',
     'FirebaseAppDistribution/CHANGELOG.md': 'App Distribution',
     'FirebaseAuth/CHANGELOG.md': '{{auth}}',
@@ -43,7 +43,7 @@ PRODUCTS = {
     'FirebaseFunctions/CHANGELOG.md': '{{cloud_functions}}',
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
     'FirebasePerformance/CHANGELOG.md': '{{perfmon}}',
-    'FirebaseVertexAI/CHANGELOG.md': '{{firebase_vertexai}}',
+    'FirebaseVertexAI/CHANGELOG.md': '{{vertex_ai_in_firebase}}',
 
     # Assumes firebase-ios-sdk and data-connect-ios-sdk are cloned to the same
     # directory.
