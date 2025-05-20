@@ -44,7 +44,7 @@ Firebase SDK.
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAI', '~> 11.13.0'
+  s.dependency 'FirebaseAI', '~> 11.14.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseVertexAI/Tests/Unit/'
