@@ -35,7 +35,7 @@ jobs:
       product: FirebaseAuth
       target: FirebaseAuth-Unit-unit
       buildonly: true
-        
+
   pod_lib_lint:
     strategy:
       matrix:
