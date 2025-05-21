@@ -47,6 +47,18 @@ on:
         required: false
         default: false
 
+      # Whether to additionally build with Swift 6. Defaults to false.
+      supports_swift6:
+        type: boolean
+        required: false
+        default: false
+                                
+      # TODO
+      prereq_command:
+        type: string
+        required: false
+        default: ""
+
 jobs:
   pod-lib-lint:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
@@ -68,6 +80,12 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Set podspec Swift version to 6.0, if supported.
+      if: inputs.supports_swift6 == true && matrix.os != 'macos-14'
+      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '${{ matrix.swift_version }}'/" ${{ inputs.product }}.podspec
+    - name: Run prereq command, if needed.
+      if: inputs.prereq_command != ""
+      run: ${{ inputs.prereq_command }}
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       if: contains(join(inputs.platforms), matrix.platform) || matrix.os == 'macos-14'
       with:
