@@ -21,7 +21,7 @@ on:
       platforms:
         type: string
         required: false
-        default: "iOS, tvOS, macOS, watchOS, catalyst, visionOS"
+        default: "iOS, tvOS, macOS, watchOS"
 
       # By default, all platforms will be tested (see matrix in `spm` job).
       # To build instead of test, pass a comma or space separated string of
@@ -69,4 +69,6 @@ jobs:
         max_attempts: 3
         retry_on: error
         retry_wait_seconds: 120
-        command: scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }}
+        command: |
+          scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }} \
+            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && '--skip-tests' || '' }}
