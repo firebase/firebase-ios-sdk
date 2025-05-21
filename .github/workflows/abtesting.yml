@@ -19,21 +19,21 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  spm:
-    uses: ./.github/workflows/common.yml
-    with:
-      target: ABTestingUnit
-
+#  spm:
+#    uses: ./.github/workflows/common.yml
+#    with:
+#      target: ABTestingUnit
+#
 #  catalyst:
 #    uses: ./.github/workflows/common_catalyst.yml
 #    with:
 #      product: FirebaseABTesting
 #      target: FirebaseABTesting-Unit-unit
 #
-#  pod-lib-lint:
-#    uses: ./.github/workflows/common_cocoapods.yml
-#    with:
-#      product: FirebaseABTesting
+  pod-lib-lint:
+    uses: ./.github/workflows/common_cocoapods.yml
+    with:
+      product: FirebaseABTesting
 #
 #  quickstart:
 #    # Don't run on private repo unless it is a PR.
