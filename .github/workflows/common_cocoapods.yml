@@ -47,8 +47,8 @@ jobs:
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     strategy:
       matrix:
-        os: macos-15
-        xcode: Xcode_16.3
+        os: [macos-15]
+        xcode: [Xcode_16.3]
         platform: [iOS, tvOS, macOS, watchOS]
         include:
           - os: macos-14
@@ -69,4 +69,4 @@ jobs:
         max_attempts: 3
         retry_on: error
         retry_wait_seconds: 120
-        command: echo "${{ inputs.product }}"
+        command: scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }}
