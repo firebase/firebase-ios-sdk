@@ -23,14 +23,11 @@ set -xeuo pipefail
 SAMPLE=$1
 XCODEPROJ=${SAMPLE}/${SAMPLE}Example.xcodeproj/project.pbxproj
 
-if grep -q "branch = main;" "$XCODEPROJ"; then
-  sed -i "" "s#branch = main;#branch = $BRANCH_NAME;#" "$XCODEPROJ"
+REQUIREMENT_REGEX='({\s*isa = XCRemoteSwiftPackageReference;\s*repositoryURL = "https://github\.com/firebase/firebase-ios-sdk\.git";\s*requirement = {\s*)kind = upToNextMajorVersion;\s*minimumVersion = 11.13.0;(\s*};\s*};)'
+REPLACEMENT_REGEX="\1branch = $BRANCH_NAME;\n\t\t\t\tkind = branch;\2"
+perl -0777 -pe "s#$REQUIREMENT_REGEX#$REPLACEMENT_REGEX#s" "$XCODEPROJ"
 
-  # Point SPM CI to the tip of `main` of
-  # https://github.com/google/GoogleAppMeasurement so that the release process
-  # can defer publishing the `GoogleAppMeasurement` tag until after testing.
-  export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
-else
-  echo "Failed to update quickstart's Xcode project to the current branch"
-  exit 1
-fi
+# Point SPM CI to the tip of `main` of
+# https://github.com/google/GoogleAppMeasurement so that the release process
+# can defer publishing the `GoogleAppMeasurement` tag until after testing.
+export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
