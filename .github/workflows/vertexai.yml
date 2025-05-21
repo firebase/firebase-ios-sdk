@@ -1,5 +1,8 @@
 name: vertexai
 
+permissions:
+  contents: read
+
 on:
   pull_request:
     paths:
