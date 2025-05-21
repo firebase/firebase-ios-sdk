@@ -31,11 +31,13 @@ XCODEPROJ=${SAMPLE}/${SAMPLE}Example.xcodeproj/project.pbxproj
 #	    minimumVersion = xx.yy.zz;
 #	  };
 # };
-REQUIREMENT_REGEX='({\s*isa = XCRemoteSwiftPackageReference;\
-\s*repositoryURL = "https://github\.com/firebase/firebase-ios-sdk\.git";\
-\s*requirement = {\s*)kind = upToNextMajorVersion;\
-\s*minimumVersion = \d+\.\d+\.\d+;(\s*};\
-(\s*};\s*};)'
+REQUIREMENT_REGEX='({'\
+'\s*isa = XCRemoteSwiftPackageReference;'\
+'\s*repositoryURL = "https://github\.com/firebase/firebase-ios-sdk\.git";'\
+'\s*requirement = {\s*)kind = upToNextMajorVersion;'\
+'\s*minimumVersion = \d+\.\d+\.\d+;'\
+'(\s*};'\
+'\s*};)'
 
 # Replaces the minimumVersion requirement with a branch requirement.
 REPLACEMENT_REGEX="\1branch = $BRANCH_NAME;\n\t\t\t\tkind = branch;\2"
