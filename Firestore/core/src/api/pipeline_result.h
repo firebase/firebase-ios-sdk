@@ -53,6 +53,14 @@ class PipelineResult {
   std::shared_ptr<model::ObjectValue> internal_value() const;
   absl::optional<absl::string_view> document_id() const;
 
+  absl::optional<model::SnapshotVersion> create_time() const {
+    return create_time_;
+  }
+
+  absl::optional<model::SnapshotVersion> update_time() const {
+    return update_time_;
+  }
+
   const absl::optional<model::DocumentKey>& internal_key() const {
     return internal_key_;
   }

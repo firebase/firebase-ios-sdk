@@ -47,6 +47,8 @@ class Pipeline {
 
   void execute(util::StatusOrCallback<PipelineSnapshot> callback);
 
+  google_firestore_v1_Value to_proto() const;
+
  private:
   std::vector<std::shared_ptr<Stage>> stages_;
   std::shared_ptr<Firestore> firestore_;

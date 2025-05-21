@@ -41,6 +41,10 @@ class PipelineSnapshot {
     return results_;
   }
 
+  model::SnapshotVersion execution_time() const {
+    return execution_time_;
+  }
+
   const std::shared_ptr<Firestore> firestore() const {
     return firestore_;
   }
