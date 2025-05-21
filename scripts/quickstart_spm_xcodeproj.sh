@@ -25,7 +25,7 @@ XCODEPROJ=${SAMPLE}/${SAMPLE}Example.xcodeproj/project.pbxproj
 
 REQUIREMENT_REGEX='({\s*isa = XCRemoteSwiftPackageReference;\s*repositoryURL = "https://github\.com/firebase/firebase-ios-sdk\.git";\s*requirement = {\s*)kind = upToNextMajorVersion;\s*minimumVersion = 11.13.0;(\s*};\s*};)'
 REPLACEMENT_REGEX="\1branch = $BRANCH_NAME;\n\t\t\t\tkind = branch;\2"
-perl -0777 -pe "s#$REQUIREMENT_REGEX#$REPLACEMENT_REGEX#s" "$XCODEPROJ"
+perl -i -0777 -pe "s#$REQUIREMENT_REGEX#$REPLACEMENT_REGEX#g" "$XCODEPROJ"
 
 # Point SPM CI to the tip of `main` of
 # https://github.com/google/GoogleAppMeasurement so that the release process
