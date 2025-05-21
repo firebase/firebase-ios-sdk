@@ -36,12 +36,11 @@ jobs:
     strategy:
       matrix:
         product: [FirebaseAppCheckInterop, FirebaseAppCheck]
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@v4
-    - name: Configure test keychain
-      run: scripts/configure_test_keychain.sh
-    - uses: ./.github/workflows/common_cocoapods.yml
+#    steps:
+#    - uses: actions/checkout@v4
+#    - name: Configure test keychain
+#      run: scripts/configure_test_keychain.sh
+    uses: ./.github/workflows/common_cocoapods.yml
       with:
         product: ${{  matrix.product }}
         buildonly_platforms: macOS
