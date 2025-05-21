@@ -52,7 +52,7 @@ on:
         type: boolean
         required: false
         default: false
-                                
+
       # TODO
       prereq_command:
         type: string
