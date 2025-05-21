@@ -41,6 +41,12 @@ on:
        required: false
        default: ""
 
+      # Whether to lint with `--allow-warnings`. Defaults to false.
+      allow_warnings:
+        type: boolean
+        required: false
+        default: false
+
 jobs:
   pod-lib-lint:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
@@ -71,4 +77,5 @@ jobs:
         retry_wait_seconds: 120
         command: |
           scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }} \
+            ${{ inputs.allow_warnings == true && '--allow-warnings' || '' }} \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && '--skip-tests' || '' }}

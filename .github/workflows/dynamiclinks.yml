@@ -32,7 +32,8 @@ jobs:
   pod_lib_lint:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
-      product: '--allow-warnings FirebaseDynamicLinks'
+      product: FirebaseDynamicLinks
+      allows_warnings: true
 
   dynamiclinks-cron-only:
     # Don't run on private repo.
