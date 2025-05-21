@@ -15,7 +15,7 @@ on:
     - cron:  '0 10 * * *'
 
 jobs:
-  # Since `FirebaseCoreExtension` only contains headers, linting is sufficient for testing.      
+  # Since `FirebaseCoreExtension` only contains headers, linting is sufficient for testing.
   pod_lib_lint:
     uses: ./.github/workflows/common_cocoapods.yml
     with:

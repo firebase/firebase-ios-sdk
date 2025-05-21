@@ -40,7 +40,7 @@ on:
        type: string
        required: false
        default: ""
-       
+
       # TODO
       prereq_command:
         type: string
