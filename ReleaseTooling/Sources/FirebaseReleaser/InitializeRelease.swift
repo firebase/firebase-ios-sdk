@@ -56,7 +56,8 @@ enum InitializeRelease {
           pod.name == "FirebaseCore" ||
           pod.name == "FirebaseCoreExtension" ||
           pod.name == "FirebaseCoreInternal" ||
-          pod.name == "FirebaseFirestoreInternal" {
+          pod.name == "FirebaseFirestoreInternal" ||
+          pod.name == "FirebaseAI" {
           updateDependenciesToLatest(
             dependency: pod.name,
             pods: manifest.pods,
