@@ -36,6 +36,7 @@ jobs:
     strategy:
       matrix:
         product: [FirebaseAppCheckInterop, FirebaseAppCheck]
+    runs-on: macos-15
     steps:
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
