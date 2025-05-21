@@ -20,7 +20,8 @@
 set -xeuo pipefail
 
 SAMPLE=$1
-XCODEPROJ=${SAMPLE}/${SAMPLE}Example.xcodeproj/project.pbxproj
+SAMPLE_DIR=$(echo "$SAMPLE" | perl -ne 'print lc')
+XCODEPROJ=${SAMPLE_DIR}/${SAMPLE}Example.xcodeproj/project.pbxproj
 
 # Regex matches SemVer `firebase-ios-sdk` dependency in project.pbxproj:
 # {
@@ -48,7 +49,7 @@ REPLACEMENT_REGEX="\1branch = $BRANCH_NAME;\n\t\t\t\tkind = branch;\2"
 # -p Causes Perl to loop through the input line by line.
 # -i Edits the file in place.
 # -e Provides the expression to execute.
-perl -0777 -pie "s#$REQUIREMENT_REGEX#$REPLACEMENT_REGEX#g" "$XCODEPROJ" || {
+perl -0777 -i -pe "s#$REQUIREMENT_REGEX#$REPLACEMENT_REGEX#g" "$XCODEPROJ" || {
   echo "Failed to update quickstart's Xcode project to the branch: $BRANCH_NAME"
   exit 1
 }
