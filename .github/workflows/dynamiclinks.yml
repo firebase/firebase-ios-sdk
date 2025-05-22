@@ -33,7 +33,7 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseDynamicLinks
-      allows_warnings: true
+      allow_warnings: true
 
   dynamiclinks-cron-only:
     # Don't run on private repo.

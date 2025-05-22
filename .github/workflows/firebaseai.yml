@@ -41,7 +41,7 @@ jobs:
           - os: macos-15
             xcode: Xcode_16.3
     runs-on: ${{ matrix.os }}
-    needs: spm-package-resolved
+    needs: spm
     env:
       TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
       TEST_RUNNER_VTXIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
