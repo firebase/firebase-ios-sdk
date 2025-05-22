@@ -33,6 +33,7 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseDynamicLinks
+      platforms: iOS # Dynamic Links only supports iOS.
       allow_warnings: true
 
   dynamiclinks-cron-only:
