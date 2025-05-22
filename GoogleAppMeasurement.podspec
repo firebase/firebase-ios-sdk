@@ -34,15 +34,31 @@ Pod::Spec.new do |s|
     s.dependency 'GoogleUtilities/Network', '~> 8.1'
     s.dependency 'nanopb', '~> 3.30910.0'
 
-    s.default_subspecs = 'AdIdSupport'
+    s.default_subspecs = 'Default'
 
-    s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '11.14.0'
-        ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
+    s.subspec 'Default' do |ss|
+        ss.dependency 'GoogleAppMeasurement/Core', '11.14.0'
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '11.14.0'
+        # TODO Update to 2.0.0
+        ss.ios.dependency 'GoogleAdsOnDeviceConversion', '1.3.0'
     end
 
-    s.subspec 'WithoutAdIdSupport' do |ss|
+    s.subspec 'Core' do |ss|
         ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurement.xcframework'
     end
 
+    s.subspec 'IdentitySupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement/Core', '11.14.0'
+        ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
+    end
+
+    # Deprecated. Use IdentitySupport subspec instead.
+    s.subspec 'AdIdSupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '11.14.0'
+    end
+
+    # Deprecated. Use Core subspec instead.
+    s.subspec 'WithoutAdIdSupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement/Core', '11.14.0'
+    end
 end
