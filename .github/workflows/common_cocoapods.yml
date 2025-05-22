@@ -3,6 +3,9 @@ name: common_cocoapods
 permissions:
   contents: read
 
+env:
+  FIREBASE_CI: true
+
 on:
   workflow_call:
     inputs:
