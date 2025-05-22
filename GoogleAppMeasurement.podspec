@@ -34,17 +34,13 @@ Pod::Spec.new do |s|
     s.dependency 'GoogleUtilities/Network', '~> 8.1'
     s.dependency 'nanopb', '~> 3.30910.0'
 
-    s.default_subspecs = ['Default', 'GoogleAdsOnDeviceConversion']
+    s.default_subspecs = 'Default'
 
     s.subspec 'Default' do |ss|
         ss.dependency 'GoogleAppMeasurement/Core', '11.14.0'
         ss.dependency 'GoogleAppMeasurement/IdentitySupport', '11.14.0'
-    end
-
-    s.subspec 'GoogleAdsOnDeviceConversion' do |ss|
-        ss.ios.deployment_target  = '12.0'
         # TODO Update to 2.0.0
-        ss.dependency 'GoogleAdsOnDeviceConversion', '1.3.0'
+        ss.ios.dependency 'GoogleAdsOnDeviceConversion', '1.3.0'
     end
 
     s.subspec 'Core' do |ss|
