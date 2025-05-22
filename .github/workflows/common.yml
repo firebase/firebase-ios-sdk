@@ -41,7 +41,12 @@ on:
        required: false
        default: ""
 
-      # TODO
+      # A command to execute before testing.
+      #
+      # This is useful for additional set up, like starting an emulator or
+      # downloading test data.
+      #
+      # Example: `FirebaseFunctions/Backend/start.sh synchronous`
       prereq_command:
         type: string
         required: false
