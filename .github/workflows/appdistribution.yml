@@ -33,7 +33,8 @@ jobs:
   pod_lib_lint:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
-      product: FirebaseAppDistribution # --platforms=ios
+      product: FirebaseAppDistribution
+      platforms: iOS # App Distro only supports iOS.
 
   appdistribution-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
