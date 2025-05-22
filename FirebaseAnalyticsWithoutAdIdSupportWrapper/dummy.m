@@ -16,4 +16,4 @@
 
 // Swift Package Manager needs at least one source file.
 
-#warning "FirebaseAnalyticsWithoutAdIdSupport is deprecated. Use FirebaseAnalyticsCore instead."
+// #warning "FirebaseAnalyticsWithoutAdIdSupport is deprecated. Use FirebaseAnalyticsCore instead."
