@@ -32,7 +32,7 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseInAppMessaging
-      buildonly_platforms: macOS
+      platforms: iOS, tvOS
 
   tests:
     # Don't run on private repo unless it is a PR.
