@@ -60,7 +60,7 @@ let package = Package(
       name: "FirebaseAnalyticsWithoutAdIdSupport",
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
-    // Deprecated. Use GoogleAdsOnDeviceConversion instead.
+    // Deprecated. Use GoogleAdsOnDeviceConversion from https://github.com/googleads/google-ads-on-device-conversion-ios-sdk/ instead.
     // Adding this library to your project is enough for it to take effect. The module
     // does not need to be imported into any source files.
     .library(
