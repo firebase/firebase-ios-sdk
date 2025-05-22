@@ -16,4 +16,5 @@
 
 // Swift Package Manager needs at least one source file.
 
-// #warning "FirebaseAnalyticsOnDeviceConversion is deprecated. Use GoogleAdsOnDeviceConversion from https://github.com/googleads/google-ads-on-device-conversion-ios-sdk/ instead."
+// #warning "FirebaseAnalyticsOnDeviceConversion is deprecated. Use GoogleAdsOnDeviceConversion from
+// https://github.com/googleads/google-ads-on-device-conversion-ios-sdk/ instead."
