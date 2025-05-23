@@ -699,7 +699,7 @@ public struct Pipeline: @unchecked Sendable {
   /// ```swift
   /// // let pipeline: Pipeline = ...
   /// // Example: Assuming a hypothetical backend stage "customFilterV2".
-  /// let genericPipeline = pipeline.genericStage(
+  /// let genericPipeline = pipeline.addStage(
   ///   name: "customFilterV2",
   ///   params: [Field("userScore"), 80], // Ordered parameters.
   ///   options: ["mode": "strict", "logLevel": 2]  // Optional named parameters.
@@ -712,10 +712,10 @@ public struct Pipeline: @unchecked Sendable {
   ///   - params: An array of ordered, `Sendable` parameters for the stage.
   ///   - options: Optional dictionary of named, `Sendable` parameters.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func genericStage(name: String, params: [Sendable],
-                           options: [String: Sendable]? = nil) -> Pipeline {
+  public func addStage(name: String, params: [Sendable],
+                       options: [String: Sendable]? = nil) -> Pipeline {
     return Pipeline(
-      stages: stages + [GenericStage(name: name, params: params, options: options)],
+      stages: stages + [AddStage(name: name, params: params, options: options)],
       db: db
     )
   }
