@@ -1,3 +1,50 @@
+# 11.13.0
+- [changed] **Renamed:** Vertex AI in Firebase (`FirebaseVertexAI`) has been
+  renamed and replaced by the new Firebase AI SDK (`FirebaseAI`). Please migrate
+  to the new `FirebaseAI` module. See the Firebase AI release notes for
+  migration details and new changes.
+  <br /><br />
+  Note: Existing Vertex AI in Firebase users may continue to use
+  `import FirebaseVertexAI` and the `VertexAI` top-level class, though these
+  will be removed in a future release.
+- [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
+  omitted; this occurs when the count is 0. (#14745)
+
+# 11.12.0
+- [added] **Public Preview**: Added support for specifying response modalities
+  in `GenerationConfig`. This includes **public experimental** support for image
+  generation using Gemini 2.0 Flash (`gemini-2.0-flash-exp`). (#14658)
+  <br /><br />
+  Note: This feature is in Public Preview and relies on experimental models,
+  which means that it is not subject to any SLA or deprecation policy and could
+  change in backwards-incompatible ways.
+- [added] Added support for more `Schema` fields: `minItems`/`maxItems` (array
+  size limits), `title` (schema name), `minimum`/`maximum` (numeric ranges),
+  `anyOf` (select from sub-schemas), and `propertyOrdering` (JSON key order). (#14647)
+- [fixed] Fixed an issue where network requests would fail in the iOS 18.4
+  simulator due to a `URLSession` bug introduced in Xcode 16.3. (#14677)
+
+# 11.11.0
+- [added] Emits a warning when attempting to use an incompatible model with
+  `GenerativeModel` or `ImagenModel`. (#14610)
+
+# 11.10.0
+- [feature] The Vertex AI SDK no longer requires `@preconcurrency` when imported in Swift 6.
+- [feature] The Vertex AI Sample App now includes an image generation example.
+- [changed] The Vertex AI Sample App is now part of the
+  [quickstart-ios repo](https://github.com/firebase/quickstart-ios/tree/main/vertexai).
+- [changed] The `role` in system instructions is now ignored; no code changes
+  are required. (#14558)
+
+# 11.9.0
+- [feature] **Public Preview**: Added support for
+  [generating images](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
+  using the Imagen 3 models.
+  <br /><br />
+  Note: This feature is in Public Preview, which means that it is not subject to
+  any SLA or deprecation policy and could change in backwards-incompatible ways.
+- [feature] Added support for modality-based token count. (#14406)
+
 # 11.6.0
 - [changed] The token counts from `GenerativeModel.countTokens(...)` now include
   tokens from the schema for JSON output and function calling; reported token
@@ -128,7 +175,7 @@
   instead of the `Any` type. (#13575)
 - [added] Added support for specifying a JSON `responseSchema` in
   `GenerationConfig`; see
-  [control generated output](https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output)
+  [control generated output](https://firebase.google.com/docs/vertex-ai/structured-output?platform=ios)
   for more details. (#13576)
 
 # 10.29.0

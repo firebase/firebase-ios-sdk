@@ -83,12 +83,28 @@ void FIRCLSSDKFileLog(FIRCLSInternalLogLevel level, const char* format, ...) {
         if (!string) {
           string = "(null)";
         }
-
         write(fd, string, strlen(string));
       } break;
       case 'x': {
         unsigned int value = va_arg(args, unsigned int);
         FIRCLSFileFDWriteUInt64(fd, value, true);
+      } break;
+      case 'l': {
+        // llx, llu, lld
+        if (idx + 1 < formatLength && format[idx + 1] == 'l') {
+          idx ++;
+        }
+
+        //lx, lu, ld
+        if (idx + 1 < formatLength) {
+          uint64_t value = va_arg(args, uint64_t);
+          if (format[idx + 1] == 'x') {
+            FIRCLSFileFDWriteUInt64(fd, value, true);
+          } else if (format[idx + 1] == 'd' ||  format[idx + 1] == 'u') {
+            FIRCLSFileFDWriteUInt64(fd, value, false);
+          }
+          idx ++;
+        }
       } break;
       default:
         // unhandled, back up to write out the percent + the format char

@@ -1081,7 +1081,8 @@ extension User: NSSecureCoding {}
                           anonymous: Bool) async throws -> User {
     guard let accessToken = accessToken,
           let refreshToken = refreshToken else {
-      fatalError("Internal FirebaseAuth Error: nil token")
+      throw AuthErrorUtils
+        .invalidUserTokenError(message: "Invalid user token: accessToken or refreshToken is nil")
     }
     let tokenService = SecureTokenService(withRequestConfiguration: auth.requestConfiguration,
                                           accessToken: accessToken,
@@ -1764,7 +1765,7 @@ extension User: NSSecureCoding {}
     requestConfiguration = AuthRequestConfiguration(apiKey: apiKey ?? "", appID: appID ?? "")
 
     // This property will be overwritten later via the `user.auth` property update. For now, a
-    // placeholder is set as the property update should happen right after this intializer.
+    // placeholder is set as the property update should happen right after this initializer.
     backend = AuthBackend(rpcIssuer: AuthBackendRPCIssuer())
 
     userProfileUpdate = UserProfileUpdate()

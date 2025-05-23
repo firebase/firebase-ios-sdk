@@ -54,16 +54,18 @@ class EmailLinkSignInTests: RPCBaseTests {
       @brief Tests the email link sign-in request with mandatory parameters.
    */
   func testEmailLinkRequest() async throws {
-    rpcIssuer?.respondBlock = {
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
+
+    rpcIssuer.respondBlock = {
       XCTAssertEqual(self.rpcIssuer?.requestURL?.absoluteString, self.kExpectedAPIURL)
       guard let requestDictionary = self.rpcIssuer?.decodedRequest as? [AnyHashable: String] else {
         XCTFail("decodedRequest is not a dictionary")
-        return
+        return (nil, nil)
       }
       XCTAssertEqual(requestDictionary[self.kEmailKey], self.kTestEmail)
       XCTAssertEqual(requestDictionary[self.kOOBCodeKey], self.kTestOOBCode)
       XCTAssertNil(requestDictionary[self.kIDTokenKey])
-      try self.rpcIssuer?.respond(withJSON: [:]) // unblock the await
+      return try self.rpcIssuer.respond(withJSON: [:]) // unblock the await
     }
     let _ = try await authBackend.call(with: makeEmailLinkSignInRequest())
   }
@@ -75,17 +77,18 @@ class EmailLinkSignInTests: RPCBaseTests {
     let kTestIDToken = "testIDToken"
     let request = makeEmailLinkSignInRequest()
     request.idToken = kTestIDToken
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
 
-    rpcIssuer?.respondBlock = {
+    rpcIssuer.respondBlock = {
       XCTAssertEqual(self.rpcIssuer?.requestURL?.absoluteString, self.kExpectedAPIURL)
       guard let requestDictionary = self.rpcIssuer?.decodedRequest as? [AnyHashable: String] else {
         XCTFail("decodedRequest is not a dictionary")
-        return
+        return (nil, nil)
       }
       XCTAssertEqual(requestDictionary[self.kEmailKey], self.kTestEmail)
       XCTAssertEqual(requestDictionary[self.kOOBCodeKey], self.kTestOOBCode)
       XCTAssertEqual(requestDictionary[self.kIDTokenKey], kTestIDToken)
-      try self.rpcIssuer?.respond(withJSON: [:]) // unblock the await
+      return try self.rpcIssuer.respond(withJSON: [:]) // unblock the await
     }
     let _ = try await authBackend.call(with: request)
   }
@@ -108,12 +111,14 @@ class EmailLinkSignInTests: RPCBaseTests {
     let kTestTokenExpirationTimeInterval: Double = 55 * 60
     let kTestRefreshToken = "testRefreshToken"
 
-    rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: ["idToken": kTestIDTokenResponse,
-                                             "email": kTestEmailResponse,
-                                             "isNewUser": true,
-                                             "expiresIn": "\(kTestTokenExpirationTimeInterval)",
-                                             "refreshToken": kTestRefreshToken])
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
+
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: ["idToken": kTestIDTokenResponse,
+                                            "email": kTestEmailResponse,
+                                            "isNewUser": true,
+                                            "expiresIn": "\(kTestTokenExpirationTimeInterval)",
+                                            "refreshToken": kTestRefreshToken])
     }
     let response = try await authBackend.call(with: makeEmailLinkSignInRequest())
 

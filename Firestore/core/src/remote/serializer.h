@@ -28,6 +28,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/Protos/nanopb/google/type/latlng.nanopb.h"
+#include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/field_filter.h"
@@ -204,6 +205,9 @@ class Serializer {
       pb_bytes_array_t* parent,
       google_firestore_v1_StructuredQuery& query) const;
 
+  google_firestore_v1_StructuredPipeline EncodePipeline(
+      const api::Pipeline& pipeline) const;
+
   /**
    * Decodes the watch change. Modifies the provided proto to release
    * ownership of any Value messages.
@@ -240,6 +244,11 @@ class Serializer {
   const model::DatabaseId& database_id() const {
     return database_id_;
   }
+
+  api::PipelineSnapshot DecodePipelineResponse(
+      util::ReadContext* context,
+      const nanopb::Message<google_firestore_v1_ExecutePipelineResponse>&
+          message) const;
 
  private:
   friend class SerializerTest;

@@ -55,10 +55,10 @@ class GetProjectConfigTests: RPCBaseTests {
     let kTestProjectID = "21141651616"
     let kTestDomain1 = "localhost"
     let kTestDomain2 = "example.firebaseapp.com"
-
-    rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: ["projectId": kTestProjectID,
-                                             "authorizedDomains": [kTestDomain1, kTestDomain2]])
+    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: ["projectId": kTestProjectID,
+                                            "authorizedDomains": [kTestDomain1, kTestDomain2]])
     }
     let rpcResponse = try await authBackend.call(with: makeGetProjectConfigRequest())
     XCTAssertEqual(rpcResponse.projectID, kTestProjectID)

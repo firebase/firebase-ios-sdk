@@ -51,6 +51,8 @@ extern "C" {
 /** Returns the default Firestore database ID for testing. */
 + (NSString *)databaseID;
 
++ (void)switchToEnterpriseMode;
+
 + (bool)isRunningAgainstEmulator;
 
 /** Returns a FirestoreSettings configured to use either hexa or the emulator. */
@@ -130,7 +132,9 @@ extern "C" {
 
 - (void)enableNetwork;
 
-- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs;
+- (void)checkOnlineAndOfflineCollection:(FIRQuery *)collection
+                                  query:(FIRQuery *)query
+                          matchesResult:(NSArray *)expectedDocs;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.

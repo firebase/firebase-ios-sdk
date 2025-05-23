@@ -22,7 +22,7 @@ class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = SignInWithGameCenterResponse
 
   /// The playerID to verify.
-  var playerID: String
+  var playerID: String?
 
   /// The team player ID of the Game Center local player.
   var teamPlayerID: String?
@@ -40,7 +40,7 @@ class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest {
   var salt: Data
 
   /// The date and time that the signature was created.
-  var timestamp: UInt64
+  var timestamp: UInt64?
 
   /// The STS Access Token for the authenticated user, only needed for linking the user.
   var accessToken: String?
@@ -57,10 +57,10 @@ class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// - Parameter salt: A random string used to compute the hash and keep it randomized.
   /// - Parameter timestamp: The date and time that the signature was created.
   /// - Parameter displayName: The display name of the Game Center player.
-  init(playerID: String, teamPlayerID: String?, gamePlayerID: String?,
+  init(playerID: String?, teamPlayerID: String?, gamePlayerID: String?,
        publicKeyURL: URL,
        signature: Data, salt: Data,
-       timestamp: UInt64, displayName: String?,
+       timestamp: UInt64?, displayName: String?,
        requestConfiguration: AuthRequestConfiguration) {
     self.playerID = playerID
     self.teamPlayerID = teamPlayerID

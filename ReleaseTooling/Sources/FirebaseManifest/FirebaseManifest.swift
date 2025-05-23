@@ -21,7 +21,7 @@ import Foundation
 /// The version and releasing fields of the non-Firebase pods should be reviewed every release.
 /// The array should be ordered so that any pod's dependencies precede it in the list.
 public let shared = Manifest(
-  version: "11.6.0",
+  version: "11.13.0",
   pods: [
     Pod("FirebaseSharedSwift"),
     Pod("FirebaseCoreInternal"),
@@ -40,6 +40,7 @@ public let shared = Manifest(
     Pod("FirebaseABTesting", zip: true),
     Pod("FirebaseAppCheck", zip: true),
     Pod("FirebaseRemoteConfig", zip: true),
+    Pod("FirebaseAI", zip: true),
     Pod("FirebaseAppDistribution", isBeta: true, platforms: ["ios"], zip: true),
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),

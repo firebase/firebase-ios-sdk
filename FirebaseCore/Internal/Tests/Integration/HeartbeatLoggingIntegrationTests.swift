@@ -16,9 +16,6 @@
 import XCTest
 
 class HeartbeatLoggingIntegrationTests: XCTestCase {
-  // 2021-11-01 @ 00:00:00 (EST)
-  let date = Date(timeIntervalSince1970: 1_635_739_200)
-
   override func setUpWithError() throws {
     try HeartbeatLoggingTestUtils.removeUnderlyingHeartbeatStorageContainers()
   }
@@ -52,7 +49,7 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     )
   }
 
-  func testLogAndFlushAsync() throws {
+  @MainActor func testLogAndFlushAsync() throws {
     // Given
     let heartbeatController = HeartbeatController(id: #function)
     let expectedDate = HeartbeatsPayload.dateFormatter.string(from: Date())
@@ -123,8 +120,9 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testMultipleControllersWithTheSameIDUseTheSameStorageInstance() throws {
     // Given
-    let heartbeatController1 = HeartbeatController(id: #function, dateProvider: { self.date })
-    let heartbeatController2 = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController1 = HeartbeatController(id: #function, dateProvider: { date })
+    let heartbeatController2 = HeartbeatController(id: #function, dateProvider: { date })
     // When
     heartbeatController1.log("dummy_agent")
     // Then
@@ -146,92 +144,85 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
     assertHeartbeatControllerFlushesEmptyPayload(heartbeatController1)
   }
 
-  func testLogAndFlushConcurrencyStressTest() throws {
+  @MainActor func testLogAndFlushConcurrencyStressTest() throws {
     // Given
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
 
     // When
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
       heartbeatController.log("dummy_agent")
     }
 
-    var payloads: [HeartbeatsPayload] = []
+    let expectation = self.expectation(description: #function)
 
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
       let payload = heartbeatController.flush()
-      payloads.append(payload)
+      if !payload.userAgentPayloads.isEmpty {
+        try! HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+          payload.headerValue(),
+          """
+          {
+            "version": 2,
+            "heartbeats": [
+              {
+                "agent": "dummy_agent",
+                "dates": ["2021-11-01"]
+              }
+            ]
+          }
+          """
+        )
+        expectation.fulfill()
+      }
     }
 
     // Then
-    let nonEmptyPayloads = payloads.filter { payload in
-      // Filter out non-empty payloads.
-      !payload.userAgentPayloads.isEmpty
-    }
-
-    XCTAssertEqual(nonEmptyPayloads.count, 1)
-
-    let payload = try XCTUnwrap(nonEmptyPayloads.first)
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
-      payload.headerValue(),
-      """
-      {
-        "version": 2,
-        "heartbeats": [
-          {
-            "agent": "dummy_agent",
-            "dates": ["2021-11-01"]
-          }
-        ]
-      }
-      """
-    )
+    wait(for: [expectation])
   }
 
-  func testLogAndFlushHeartbeatFromTodayConcurrencyStressTest() throws {
+  @MainActor func testLogAndFlushHeartbeatFromTodayConcurrencyStressTest() throws {
     // Given
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
 
     // When
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
       heartbeatController.log("dummy_agent")
     }
 
-    var payloads: [HeartbeatsPayload] = []
+    let expectation = self.expectation(description: #function)
 
     DispatchQueue.concurrentPerform(iterations: 100) { _ in
       let payload = heartbeatController.flushHeartbeatFromToday()
-      payloads.append(payload)
+      if !payload.userAgentPayloads.isEmpty {
+        try! HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+          payload.headerValue(),
+          """
+          {
+            "version": 2,
+            "heartbeats": [
+              {
+                "agent": "dummy_agent",
+                "dates": ["2021-11-01"],
+              }
+            ]
+          }
+          """
+        )
+        expectation.fulfill()
+      }
     }
 
     // Then
-    let nonEmptyPayloads = payloads.filter { payload in
-      // Filter out non-empty payloads.
-      !payload.userAgentPayloads.isEmpty
-    }
-
-    XCTAssertEqual(nonEmptyPayloads.count, 1)
-
-    let payload = try XCTUnwrap(nonEmptyPayloads.first)
-    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
-      payload.headerValue(),
-      """
-      {
-        "version": 2,
-        "heartbeats": [
-          {
-            "agent": "dummy_agent",
-            "dates": ["2021-11-01"],
-          }
-        ]
-      }
-      """
-    )
+    wait(for: [expectation])
 
     assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
   }
 
   func testLogRepeatedly_WithoutFlushing_LimitsOnWrite() throws {
     // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
     let testDate = AdjustableDate(date: date)
     let heartbeatController = HeartbeatController(id: #function, dateProvider: { testDate.date })
 
@@ -313,7 +304,8 @@ class HeartbeatLoggingIntegrationTests: XCTestCase {
 
   func testLogAndFlush_AfterUnderlyingStorageIsDeleted_CreatesNewStorage() throws {
     // Given
-    let heartbeatController = HeartbeatController(id: #function, dateProvider: { self.date })
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let heartbeatController = HeartbeatController(id: #function, dateProvider: { date })
     heartbeatController.log("dummy_agent")
     _ = XCTWaiter.wait(for: [expectation(description: "Wait for async log.")], timeout: 0.1)
 

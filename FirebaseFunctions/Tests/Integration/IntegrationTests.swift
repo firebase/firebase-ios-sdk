@@ -65,6 +65,7 @@ struct DataTestResponse: Decodable, Equatable {
   var code: Int32
 }
 
+/// - Important: These tests require the emulator. Run `./FirebaseFunctions/Backend/start.sh`
 class IntegrationTests: XCTestCase {
   let functions = Functions(projectID: "functions-integration-test",
                             region: "us-central1",
@@ -866,7 +867,460 @@ class IntegrationTests: XCTestCase {
       XCTAssertEqual(response, expected)
     }
   }
+
+  func testFunctionsReturnsOnMainThread() {
+    let expectation = expectation(description: #function)
+    functions.httpsCallable(
+      "scalarTest",
+      requestAs: Int16.self,
+      responseAs: Int.self
+    ).call(17) { result in
+      guard case .success = result else {
+        return XCTFail("Unexpected failure.")
+      }
+      XCTAssert(Thread.isMainThread)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  func testFunctionsThrowsOnMainThread() {
+    let expectation = expectation(description: #function)
+    functions.httpsCallable(
+      "httpErrorTest",
+      requestAs: [Int].self,
+      responseAs: Int.self
+    ).call([]) { result in
+      guard case .failure = result else {
+        return XCTFail("Unexpected failure.")
+      }
+      XCTAssert(Thread.isMainThread)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
 }
+
+// MARK: - Streaming
+
+/// A convenience type used to represent that a callable function does not
+/// accept parameters.
+///
+/// This can be used as the generic `Request` parameter to ``Callable`` to
+/// indicate the callable function does not accept parameters.
+private struct EmptyRequest: Encodable {}
+
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+extension IntegrationTests {
+  func testStream_NoArgs() async throws {
+    // 1. Custom `EmptyRequest` struct is passed as a placeholder generic arg.
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
+    // 2. No request data is passed when creating stream.
+    let stream = try callable.stream()
+    var streamContents: [String] = []
+    for try await response in stream {
+      streamContents.append(response)
+    }
+    XCTAssertEqual(
+      streamContents,
+      ["hello", "world", "this", "is", "cool"]
+    )
+  }
+
+  @available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+  func testStream_NoArgs_UeeNever() async throws {
+    let callable: Callable<Never, String> = functions.httpsCallable("genStream")
+    let stream = try callable.stream()
+    var streamContents: [String] = []
+    for try await response in stream {
+      streamContents.append(response)
+    }
+    XCTAssertEqual(
+      streamContents,
+      ["hello", "world", "this", "is", "cool"]
+    )
+  }
+
+  func testStream_SimpleStreamResponse() async throws {
+    let callable: Callable<EmptyRequest, StreamResponse<String, String>> = functions
+      .httpsCallable("genStream")
+    let stream = try callable.stream()
+    var streamContents: [String] = []
+    for try await response in stream {
+      switch response {
+      case let .message(message):
+        streamContents.append(message)
+      case let .result(result):
+        streamContents.append(result)
+      }
+    }
+    XCTAssertEqual(
+      streamContents,
+      ["hello", "world", "this", "is", "cool", "hello world this is cool"]
+    )
+  }
+
+  func testStream_CodableString() async throws {
+    let byName: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
+    let stream = try byName.stream()
+    let result: [String] = try await stream.reduce([]) { $0 + [$1] }
+    XCTAssertEqual(result, ["hello", "world", "this", "is", "cool"])
+  }
+
+  private struct Location: Codable, Equatable {
+    let name: String
+  }
+
+  private struct WeatherForecast: Decodable, Equatable {
+    enum Conditions: String, Decodable {
+      case sunny
+      case rainy
+      case snowy
+    }
+
+    let location: Location
+    let temperature: Int
+    let conditions: Conditions
+  }
+
+  private struct WeatherForecastReport: Decodable, Equatable {
+    let forecasts: [WeatherForecast]
+  }
+
+  func testStream_CodableObject() async throws {
+    let callable: Callable<[Location], WeatherForecast> = functions
+      .httpsCallable("genStreamWeather")
+    let stream = try callable.stream([
+      Location(name: "Toronto"),
+      Location(name: "London"),
+      Location(name: "Dubai"),
+    ])
+    let result: [WeatherForecast] = try await stream.reduce([]) { $0 + [$1] }
+    XCTAssertEqual(
+      result,
+      [
+        WeatherForecast(location: Location(name: "Toronto"), temperature: 25, conditions: .snowy),
+        WeatherForecast(location: Location(name: "London"), temperature: 50, conditions: .rainy),
+        WeatherForecast(location: Location(name: "Dubai"), temperature: 75, conditions: .sunny),
+      ]
+    )
+  }
+
+  func testStream_ResponseMessageDecodingFailure() async throws {
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, WeatherForecastReport>> =
+      functions
+        .httpsCallable("genStreamWeatherError")
+    let stream = try callable.stream([Location(name: "Toronto")])
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
+    }
+  }
+
+  func testStream_ResponseResultDecodingFailure() async throws {
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, String>> = functions
+      .httpsCallable("genStreamWeather")
+    let stream = try callable.stream([Location(name: "Toronto")])
+    do {
+      for try await response in stream {
+        if case .result = response {
+          XCTFail("Expected error to be thrown from stream.")
+        }
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
+    }
+  }
+
+  func testStream_ComplexStreamResponse() async throws {
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, WeatherForecastReport>> =
+      functions
+        .httpsCallable("genStreamWeather")
+    let stream = try callable.stream([
+      Location(name: "Toronto"),
+      Location(name: "London"),
+      Location(name: "Dubai"),
+    ])
+    var streamContents: [WeatherForecast] = []
+    var streamResult: WeatherForecastReport?
+    for try await response in stream {
+      switch response {
+      case let .message(message):
+        streamContents.append(message)
+      case let .result(result):
+        streamResult = result
+      }
+    }
+    XCTAssertEqual(
+      streamContents,
+      [
+        WeatherForecast(location: Location(name: "Toronto"), temperature: 25, conditions: .snowy),
+        WeatherForecast(location: Location(name: "London"), temperature: 50, conditions: .rainy),
+        WeatherForecast(location: Location(name: "Dubai"), temperature: 75, conditions: .sunny),
+      ]
+    )
+
+    try XCTAssertEqual(
+      XCTUnwrap(streamResult), WeatherForecastReport(forecasts: streamContents)
+    )
+  }
+
+  func testStream_ComplexStreamResponse_Functional() async throws {
+    let callable: Callable<[Location], StreamResponse<WeatherForecast, WeatherForecastReport>> =
+      functions
+        .httpsCallable("genStreamWeather")
+    let stream = try callable.stream([
+      Location(name: "Toronto"),
+      Location(name: "London"),
+      Location(name: "Dubai"),
+    ])
+    let result: (accumulatedMessages: [WeatherForecast], result: WeatherForecastReport?) =
+      try await stream.reduce(([], nil)) { partialResult, streamResponse in
+        switch streamResponse {
+        case let .message(message):
+          (partialResult.accumulatedMessages + [message], partialResult.result)
+        case let .result(result):
+          (partialResult.accumulatedMessages, result)
+        }
+      }
+    XCTAssertEqual(
+      result.accumulatedMessages,
+      [
+        WeatherForecast(location: Location(name: "Toronto"), temperature: 25, conditions: .snowy),
+        WeatherForecast(location: Location(name: "London"), temperature: 50, conditions: .rainy),
+        WeatherForecast(location: Location(name: "Dubai"), temperature: 75, conditions: .sunny),
+      ]
+    )
+
+    try XCTAssertEqual(
+      XCTUnwrap(result.result), WeatherForecastReport(forecasts: result.accumulatedMessages)
+    )
+  }
+
+  func testStream_Canceled() async throws {
+    let task = Task.detached { [self] in
+      let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
+      let stream = try callable.stream()
+      // Since we cancel the call we are expecting an empty array.
+      return try await stream.reduce([]) { $0 + [$1] } as [String]
+    }
+    // We cancel the task and we expect a null response even if the stream was initiated.
+    task.cancel()
+    let respone = try await task.value
+    XCTAssertEqual(respone, [])
+  }
+
+  func testStream_NonexistentFunction() async throws {
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
+      "nonexistentFunction"
+    )
+    let stream = try callable.stream()
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .notFound {
+      XCTAssertEqual(error.localizedDescription, "NOT FOUND")
+    }
+  }
+
+  func testStream_StreamError() async throws {
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStreamError")
+    let stream = try callable.stream()
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .internal {
+      XCTAssertEqual(error.localizedDescription, "INTERNAL")
+    }
+  }
+
+  func testStream_RequestEncodingFailure() async throws {
+    struct Foo: Encodable {
+      enum CodingKeys: CodingKey {}
+
+      func encode(to encoder: any Encoder) throws {
+        throw EncodingError
+          .invalidValue("", EncodingError.Context(codingPath: [], debugDescription: ""))
+      }
+    }
+    let callable: Callable<Foo, String> = functions
+      .httpsCallable("genStream")
+    do {
+      _ = try callable.stream(Foo())
+    } catch let error as FunctionsError where error.code == .invalidArgument {
+      _ = try XCTUnwrap(error.errorUserInfo[NSUnderlyingErrorKey] as? EncodingError)
+    }
+  }
+
+  /// This tests an edge case to assert that if a custom `Response` is used
+  /// that matches the decoding logic of `StreamResponse`, the custom
+  /// `Response` does not decode successfully.
+  func testStream_ResultIsOnlyExposedInStreamResponse() async throws {
+    // The implementation is copied from `StreamResponse`. The only difference is the do-catch is
+    // removed from the decoding initializer.
+    enum MyStreamResponse<Message: Decodable, Result: Decodable>: Decodable {
+      /// The message yielded by the callable function.
+      case message(Message)
+      /// The final result returned by the callable function.
+      case result(Result)
+
+      private enum CodingKeys: String, CodingKey {
+        case message
+        case result
+      }
+
+      public init(from decoder: any Decoder) throws {
+        let container = try decoder
+          .container(keyedBy: Self<Message, Result>.CodingKeys.self)
+        var allKeys = ArraySlice(container.allKeys)
+        guard let onlyKey = allKeys.popFirst(), allKeys.isEmpty else {
+          throw DecodingError
+            .typeMismatch(
+              Self<Message,
+                Result>.self,
+              DecodingError.Context(
+                codingPath: container.codingPath,
+                debugDescription: "Invalid number of keys found, expected one.",
+                underlyingError: nil
+              )
+            )
+        }
+
+        switch onlyKey {
+        case .message:
+          self = try Self
+            .message(container.decode(Message.self, forKey: .message))
+        case .result:
+          self = try Self
+            .result(container.decode(Result.self, forKey: .result))
+        }
+      }
+    }
+
+    let callable: Callable<[Location], MyStreamResponse<WeatherForecast, WeatherForecastReport>> =
+      functions
+        .httpsCallable("genStreamWeather")
+    let stream = try callable.stream([Location(name: "Toronto")])
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
+    }
+  }
+
+  func testStream_ForNonStreamingCF3() async throws {
+    let callable: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
+    let stream = try callable.stream(17)
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      XCTAssertEqual(error.localizedDescription, "Unexpected format for streamed response.")
+    }
+  }
+
+  func testStream_EmptyStream() async throws {
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStreamEmpty")
+    var streamContents: [String] = []
+    for try await response in try callable.stream() {
+      streamContents.append(response)
+    }
+    XCTAssertEqual(streamContents, [])
+  }
+
+  func testStream_ResultOnly() async throws {
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStreamResultOnly")
+    let stream = try callable.stream()
+    for try await _ in stream {
+      // The stream should not yield anything, so this should not be reached.
+      XCTFail("Stream should not yield any messages")
+    }
+    // Because StreamResponse was not used, the result is not accessible,
+    // but the message should not throw.
+  }
+
+  func testStream_ResultOnly_StreamResponse() async throws {
+    struct EmptyResponse: Decodable {}
+    let callable: Callable<EmptyRequest, StreamResponse<EmptyResponse, String>> = functions
+      .httpsCallable(
+        "genStreamResultOnly"
+      )
+    let stream = try callable.stream()
+    var streamResult = ""
+    for try await response in stream {
+      switch response {
+      case .message:
+        XCTFail("Stream should not yield any messages")
+      case let .result(result):
+        streamResult = result
+      }
+    }
+    // The hardcoded string matches the CF3's return value.
+    XCTAssertEqual(streamResult, "Only a result")
+  }
+
+  func testStream_UnexpectedType() async throws {
+    // This function yields strings, not integers.
+    let callable: Callable<EmptyRequest, Int> = functions.httpsCallable("genStream")
+    let stream = try callable.stream()
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .dataLoss {
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? DecodingError)
+    }
+  }
+
+  func testStream_Timeout() async throws {
+    var callable: Callable<EmptyRequest, String> = functions.httpsCallable("timeoutTest")
+    // Set a short timeout
+    callable.timeoutInterval = 0.01 // 10 milliseconds
+
+    let stream = try callable.stream()
+
+    do {
+      for try await _ in stream {
+        XCTFail("Expected error to be thrown from stream.")
+      }
+    } catch let error as FunctionsError where error.code == .unavailable {
+      // This should be a timeout error.
+      XCTAssertEqual(
+        error.localizedDescription,
+        "The operation couldn’t be completed. (com.firebase.functions error 14.)"
+      )
+      XCTAssertNotNil(error.errorUserInfo[NSUnderlyingErrorKey] as? URLError)
+    }
+  }
+
+  func testStream_LargeData() async throws {
+    func generateLargeString() -> String {
+      var largeString = ""
+      for _ in 0 ..< 10000 {
+        largeString += "A"
+      }
+      return largeString
+    }
+    let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStreamLargeData")
+    let stream = try callable.stream()
+    var concatenatedData = ""
+    for try await response in stream {
+      concatenatedData += response
+    }
+    // Assert that the concatenated data matches the expected large data.
+    XCTAssertEqual(concatenatedData, generateLargeString())
+  }
+}
+
+// MARK: - Helpers
 
 private class AuthTokenProvider: AuthInterop {
   func getUserID() -> String? {

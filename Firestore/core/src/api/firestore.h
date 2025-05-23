@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_API_FIRESTORE_H_
 
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <string>
 
 #include "Firestore/core/src/api/api_fwd.h"
@@ -102,6 +102,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionResultCallback result_callback,
                       int max_attempts);
+  void RunPipeline(const api::Pipeline& pipeline,
+                   util::StatusOrCallback<PipelineSnapshot> callback);
 
   void Terminate(util::StatusCallback callback);
   void ClearPersistence(util::StatusCallback callback);

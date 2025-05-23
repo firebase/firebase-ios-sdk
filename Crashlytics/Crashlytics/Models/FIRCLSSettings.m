@@ -357,4 +357,13 @@ NSString *const AppVersion = @"app_version";
   return 6;  // step duration for exponential backoff
 }
 
+- (BOOL)onDemandThreadSuspensionEnabled {
+  NSNumber *value = self.settingsDictionary[@"on_demand_thread_recording_suspension_enabled"];
+
+  if (value != nil) {
+    return value.boolValue;
+  }
+
+  return YES;
+}
 @end

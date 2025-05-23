@@ -45,7 +45,7 @@ class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     do {
       let configValue: RemoteConfigValue = remoteConfig[key]
       if configValue.source == .remote || configValue.source == .default {
-        self.configValue = try remoteConfig[key].decoded()
+        self.configValue = try configValue.decoded()
       } else {
         self.configValue = fallbackValue
       }
@@ -66,7 +66,7 @@ class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     do {
       let configValue: RemoteConfigValue = remoteConfig[key]
       if configValue.source == .remote {
-        self.configValue = try remoteConfig[key].decoded()
+        self.configValue = try configValue.decoded()
       }
     } catch {
       // Suppresses a hard failure if decoding failed.

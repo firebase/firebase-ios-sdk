@@ -23,9 +23,9 @@
   @testable import FirebaseMLModelDownloader
   import XCTest
   #if SWIFT_PACKAGE
-    @_implementationOnly import GoogleUtilities_UserDefaults
+    internal import GoogleUtilities_UserDefaults
   #else
-    @_implementationOnly import GoogleUtilities
+    internal import GoogleUtilities
   #endif // SWIFT_PACKAGE
 
   /// Mock options to configure default Firebase app.

@@ -17,9 +17,9 @@
   import UIKit
 
   #if COCOAPODS
-    @_implementationOnly import GoogleUtilities
+    internal import GoogleUtilities
   #else
-    @_implementationOnly import GoogleUtilities_Environment
+    internal import GoogleUtilities_Environment
   #endif // COCOAPODS
 
   // Protocol to help with unit tests.
@@ -74,7 +74,7 @@
     }
 
     func getToken() async throws -> AuthAPNSToken {
-      return try await withCheckedThrowingContinuation { continuation in
+      return try await withUnsafeThrowingContinuation { continuation in
         self.getTokenInternal { result in
           switch result {
           case let .success(token):

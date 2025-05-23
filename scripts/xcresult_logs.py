@@ -281,7 +281,8 @@ def xcresulttool(*args):
 
 def xcresulttool_json(*args):
   """Runs xcresulttool and its output as parsed JSON."""
-  args = list(args) + ['--format', 'json']
+  # Note: --legacy is required for Xcode 16.
+  args = list(args) + ['--format', 'json', '--legacy']
   contents = xcresulttool(*args)
   return json.loads(contents)
 

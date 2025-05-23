@@ -1,3 +1,16 @@
+# 11.12.0
+- [fixed] Fix regression from 11.6.0 where `HTTPSCallable` did not invoke
+  completion block on main thread (#14653).
+
+# 11.10.0
+- [added] Streaming callable functions are now supported.
+
+# 11.9.0
+- [fixed] Fixed App Check token reporting to enable differentiating outdated
+  (`MISSING`) and inauthentic (`INVALID`) clients; see [Monitor App Check
+  request metrics for Cloud Functions](https://firebase.google.com/docs/app-check/monitor-functions-metrics)
+  for more details.
+
 # 10.10.0
 - [fixed] Fixed potential memory leak of Functions instances. (#11248)
 - [added] Callable functions can now opt in to using limited-use App Check

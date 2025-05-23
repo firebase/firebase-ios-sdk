@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '11.6.0'
+  s.version          = '11.13.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -39,10 +39,10 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
   s.dependency 'FirebaseAuthInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.6.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.6.0'
+  s.dependency 'FirebaseCore', '~> 11.13.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.13.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 5.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
 
   s.test_spec 'ObjCIntegration' do |objc_tests|
     objc_tests.scheme = { :code_coverage => true }

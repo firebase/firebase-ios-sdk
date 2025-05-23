@@ -17,7 +17,7 @@
 #include "Firestore/core/src/core/firestore_client.h"
 
 #include <functional>
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
 #include <string>
 #include <utility>
@@ -573,6 +573,25 @@ void FirestoreClient::RunAggregateQuery(
     sync_engine_->RunAggregateQuery(query, aggregates,
                                     std::move(async_callback));
   });
+}
+
+void FirestoreClient::RunPipeline(
+    const api::Pipeline& pipeline,
+    util::StatusOrCallback<api::PipelineSnapshot> callback) {
+  VerifyNotTerminated();
+
+  // Dispatch the result back onto the user dispatch queue.
+  auto async_callback =
+      [this, callback](const StatusOr<api::PipelineSnapshot>& status) {
+        if (callback) {
+          user_executor_->Execute([=] { callback(std::move(status)); });
+        }
+      };
+
+  worker_queue_->Enqueue(
+      [this, pipeline, async_callback = std::move(async_callback)] {
+        remote_store_->RunPipeline(pipeline, async_callback);
+      });
 }
 
 void FirestoreClient::AddSnapshotsInSyncListener(

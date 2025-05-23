@@ -537,6 +537,38 @@
                         (@[ testDocs[@"ab"], testDocs[@"ba"], testDocs[@"bb"] ]));
 }
 
+- (void)testSDKUsesNotEqualFiltersSameAsServer {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"zip" : @(NAN)},
+    @"b" : @{@"zip" : @91102},
+    @"c" : @{@"zip" : @98101},
+    @"d" : @{@"zip" : @"98101"},
+    @"e" : @{@"zip" : @[ @98101 ]},
+    @"f" : @{@"zip" : @[ @98101, @98102 ]},
+    @"g" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
+    @"h" : @{@"zip" : @{@"code" : @500}},
+    @"i" : @{@"zip" : [NSNull null]},
+    @"j" : @{@"code" : @500},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // populate cache with all documents first to ensure getDocsFromCache() scans all docs
+  [self readDocumentSetForRef:collection];
+
+  [self checkOnlineAndOfflineCollection:collection
+                                  query:[collection queryWhereField:@"zip" isNotEqualTo:@98101]
+                          matchesResult:@[ @"a", @"b", @"d", @"e", @"f", @"g", @"h" ]];
+
+  [self checkOnlineAndOfflineCollection:collection
+                                  query:[collection queryWhereField:@"zip" isNotEqualTo:@(NAN)]
+                          matchesResult:@[ @"b", @"c", @"d", @"e", @"f", @"g", @"h" ]];
+
+  [self checkOnlineAndOfflineCollection:collection
+                                  query:[collection queryWhereField:@"zip"
+                                                       isNotEqualTo:@[ [NSNull null] ]]
+                          matchesResult:@[ @"a", @"b", @"c", @"d", @"e", @"f", @"g", @"h" ]];
+}
+
 - (void)testQueriesCanUseArrayContainsFilters {
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
@@ -694,6 +726,36 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"ba"], testDocs[@"bb"] ]));
 }
 
+- (void)testSDKUsesNotInFiltersSameAsServer {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"zip" : @(NAN)},
+    @"b" : @{@"zip" : @91102},
+    @"c" : @{@"zip" : @98101},
+    @"d" : @{@"zip" : @"98101"},
+    @"e" : @{@"zip" : @[ @98101 ]},
+    @"f" : @{@"zip" : @[ @98101, @98102 ]},
+    @"g" : @{@"zip" : @[ @"98101", @{@"zip" : @98101} ]},
+    @"h" : @{@"zip" : @{@"code" : @500}},
+    @"i" : @{@"zip" : [NSNull null]},
+    @"j" : @{@"code" : @500},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // populate cache with all documents first to ensure getDocsFromCache() scans all docs
+  [self readDocumentSetForRef:collection];
+
+  [self
+      checkOnlineAndOfflineCollection:collection
+                                query:[collection
+                                          queryWhereField:@"zip"
+                                                    notIn:@[ @98101, @98103, @[ @98101, @98102 ] ]]
+                        matchesResult:@[ @"a", @"b", @"d", @"e", @"g", @"h" ]];
+
+  [self checkOnlineAndOfflineCollection:collection
+                                  query:[collection queryWhereField:@"zip" notIn:@[ [NSNull null] ]]
+                          matchesResult:@[]];
+}
+
 - (void)testQueriesCanUseArrayContainsAnyFilters {
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
@@ -804,6 +866,235 @@
   XCTAssertEqualObjects(ids, (@[ @"cg-doc2" ]));
 }
 
+- (void)testSnapshotListenerSortsQueryByDocumentIdInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"A" : @{@"a" : @1},
+    @"a" : @{@"a" : @1},
+    @"Aa" : @{@"a" : @1},
+    @"7" : @{@"a" : @1},
+    @"12" : @{@"a" : @1},
+    @"__id7__" : @{@"a" : @1},
+    @"__id12__" : @{@"a" : @1},
+    @"__id-2__" : @{@"a" : @1},
+    @"__id1_" : @{@"a" : @1},
+    @"_id1__" : @{@"a" : @1},
+    @"__id" : @{@"a" : @1},
+    @"__id9223372036854775807__" : @{@"a" : @1},
+    @"__id-9223372036854775808__" : @{@"a" : @1},
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  NSArray<NSString *> *expectedDocs = @[
+    @"__id-9223372036854775808__", @"__id-2__", @"__id7__", @"__id12__",
+    @"__id9223372036854775807__", @"12", @"7", @"A", @"Aa", @"__id", @"__id1_", @"_id1__", @"a"
+  ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+}
+
+- (void)testSnapshotListenerSortsFilteredQueryByDocumentIdInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"A" : @{@"a" : @1},
+    @"a" : @{@"a" : @1},
+    @"Aa" : @{@"a" : @1},
+    @"7" : @{@"a" : @1},
+    @"12" : @{@"a" : @1},
+    @"__id7__" : @{@"a" : @1},
+    @"__id12__" : @{@"a" : @1},
+    @"__id-2__" : @{@"a" : @1},
+    @"__id1_" : @{@"a" : @1},
+    @"_id1__" : @{@"a" : @1},
+    @"__id" : @{@"a" : @1},
+    @"__id9223372036854775807__" : @{@"a" : @1},
+    @"__id-9223372036854775808__" : @{@"a" : @1},
+  }];
+
+  FIRQuery *query = [[[collRef queryWhereFieldPath:[FIRFieldPath documentID]
+                                     isGreaterThan:@"__id7__"]
+      queryWhereFieldPath:[FIRFieldPath documentID]
+      isLessThanOrEqualTo:@"A"] queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  NSArray<NSString *> *expectedDocs =
+      @[ @"__id12__", @"__id9223372036854775807__", @"12", @"7", @"A" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+}
+
+- (void)testSdkOrdersQueryByDocumentIdTheSameWayOnlineAndOffline {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"A" : @{@"a" : @1},
+    @"a" : @{@"a" : @1},
+    @"Aa" : @{@"a" : @1},
+    @"7" : @{@"a" : @1},
+    @"12" : @{@"a" : @1},
+    @"__id7__" : @{@"a" : @1},
+    @"__id12__" : @{@"a" : @1},
+    @"__id-2__" : @{@"a" : @1},
+    @"__id1_" : @{@"a" : @1},
+    @"_id1__" : @{@"a" : @1},
+    @"__id" : @{@"a" : @1},
+    @"__id9223372036854775807__" : @{@"a" : @1},
+    @"__id-9223372036854775808__" : @{@"a" : @1},
+  }];
+
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryOrderedByFieldPath:[FIRFieldPath documentID]]
+                          matchesResult:@[
+                            @"__id-9223372036854775808__", @"__id-2__", @"__id7__", @"__id12__",
+                            @"__id9223372036854775807__", @"12", @"7", @"A", @"Aa", @"__id",
+                            @"__id1_", @"_id1__", @"a"
+                          ]];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"value" : @"Łukasiewicz"},
+    @"b" : @{@"value" : @"Sierpiński"},
+    @"c" : @{@"value" : @"岩澤"},
+    @"d" : @{@"value" : @"🄟"},
+    @"e" : @{@"value" : @"Ｐ"},
+    @"f" : @{@"value" : @"︒"},
+    @"g" : @{@"value" : @"🐵"}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  NSArray<NSString *> *expectedDocs = @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineCollection:collRef query:query matchesResult:expectedDocs];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsInArrayInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"value" : @[ @"Łukasiewicz" ]},
+    @"b" : @{@"value" : @[ @"Sierpiński" ]},
+    @"c" : @{@"value" : @[ @"岩澤" ]},
+    @"d" : @{@"value" : @[ @"🄟" ]},
+    @"e" : @{@"value" : @[ @"Ｐ" ]},
+    @"f" : @{@"value" : @[ @"︒" ]},
+    @"g" : @{@"value" : @[ @"🐵" ]}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  NSArray<NSString *> *expectedDocs = @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineCollection:collRef query:query matchesResult:expectedDocs];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsInMapInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"value" : @{@"foo" : @"Łukasiewicz"}},
+    @"b" : @{@"value" : @{@"foo" : @"Sierpiński"}},
+    @"c" : @{@"value" : @{@"foo" : @"岩澤"}},
+    @"d" : @{@"value" : @{@"foo" : @"🄟"}},
+    @"e" : @{@"value" : @{@"foo" : @"Ｐ"}},
+    @"f" : @{@"value" : @{@"foo" : @"︒"}},
+    @"g" : @{@"value" : @{@"foo" : @"🐵"}}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  NSArray<NSString *> *expectedDocs = @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineCollection:collRef query:query matchesResult:expectedDocs];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsInMapKeyInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"a" : @{@"value" : @{@"Łukasiewicz" : @"foo"}},
+    @"b" : @{@"value" : @{@"Sierpiński" : @"foo"}},
+    @"c" : @{@"value" : @{@"岩澤" : @"foo"}},
+    @"d" : @{@"value" : @{@"🄟" : @"foo"}},
+    @"e" : @{@"value" : @{@"Ｐ" : @"foo"}},
+    @"f" : @{@"value" : @{@"︒" : @"foo"}},
+    @"g" : @{@"value" : @{@"🐵" : @"foo"}}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  NSArray<NSString *> *expectedDocs = @[ @"b", @"a", @"c", @"f", @"e", @"d", @"g" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineCollection:collRef query:query matchesResult:expectedDocs];
+}
+
+- (void)testSnapshotListenerSortsUnicodeStringsInDocumentKeyInTheSameOrderAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"Łukasiewicz" : @{@"value" : @"foo"},
+    @"Sierpiński" : @{@"value" : @"foo"},
+    @"岩澤" : @{@"value" : @"foo"},
+    @"🄟" : @{@"value" : @"foo"},
+    @"Ｐ" : @{@"value" : @"foo"},
+    @"︒" : @{@"value" : @"foo"},
+    @"🐵" : @{@"value" : @"foo"}
+
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByFieldPath:[FIRFieldPath documentID]];
+  NSArray<NSString *> *expectedDocs =
+      @[ @"Sierpiński", @"Łukasiewicz", @"岩澤", @"︒", @"Ｐ", @"🄟", @"🐵" ];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(getSnapshot), expectedDocs);
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), expectedDocs);
+
+  [registration remove];
+
+  [self checkOnlineAndOfflineCollection:collRef query:query matchesResult:expectedDocs];
+}
+
 - (void)testCollectionGroupQueriesWithWhereFiltersOnArbitraryDocumentIDs {
   // Use .document() to get a random collection group name to use but ensure it starts with 'b'
   // for predictable ordering.
@@ -849,8 +1140,9 @@
   FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
-                     matchesResult:@[ @"doc1", @"doc2", @"doc4", @"doc5" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter1]
+                          matchesResult:@[ @"doc1", @"doc2", @"doc4", @"doc5" ]];
 
   // (a==1 && b==0) || (a==3 && b==2)
   FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
@@ -861,8 +1153,9 @@
       [FIRFilter filterWhereField:@"a" isEqualTo:@3], [FIRFilter filterWhereField:@"b" isEqualTo:@2]
     ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
-                     matchesResult:@[ @"doc1", @"doc3" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter2]
+                          matchesResult:@[ @"doc1", @"doc3" ]];
 
   // a==1 && (b==0 || b==3).
   FIRFilter *filter3 = [FIRFilter andFilterWithFilters:@[
@@ -870,8 +1163,9 @@
       [FIRFilter filterWhereField:@"b" isEqualTo:@0], [FIRFilter filterWhereField:@"b" isEqualTo:@3]
     ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
-                     matchesResult:@[ @"doc1", @"doc4" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter3]
+                          matchesResult:@[ @"doc1", @"doc4" ]];
 
   // (a==2 || b==2) && (a==3 || b==3)
   FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
@@ -882,14 +1176,17 @@
       [FIRFilter filterWhereField:@"a" isEqualTo:@3], [FIRFilter filterWhereField:@"b" isEqualTo:@3]
     ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4] matchesResult:@[ @"doc3" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter4]
+                          matchesResult:@[ @"doc3" ]];
 
   // Test with limits without orderBy (the __name__ ordering is the tie breaker).
   FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
   ]];
-  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter5] queryLimitedTo:1]
-                     matchesResult:@[ @"doc2" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[[collRef queryWhereFilter:filter5] queryLimitedTo:1]
+                          matchesResult:@[ @"doc2" ]];
 }
 
 - (void)testOrQueriesWithIn {
@@ -906,8 +1203,9 @@
   FIRFilter *filter = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" in:@[ @2, @3 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter]
-                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter]
+                          matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
 }
 
 - (void)testOrQueriesWithArrayMembership {
@@ -925,16 +1223,18 @@
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
                                                                   arrayContains:@7]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
-                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter1]
+                          matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
 
   // a==2 || b array-contains-any [0, 3]
   FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
                                                                arrayContainsAny:@[ @0, @3 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
-                     matchesResult:@[ @"doc1", @"doc4", @"doc6" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter2]
+                          matchesResult:@[ @"doc1", @"doc4", @"doc6" ]];
 }
 
 - (void)testMultipleInOps {
@@ -952,8 +1252,9 @@
     [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
                                                                                in:@[ @0, @2 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
-                     matchesResult:@[ @"doc1", @"doc3", @"doc6" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter1]
+                          matchesResult:@[ @"doc1", @"doc3", @"doc6" ]];
 
   // Two IN operations on the same field with disjunction.
   // a IN [0,3] || a IN [0,2] should union them (similar to: a IN [0,2,3]).
@@ -961,8 +1262,9 @@
     [FIRFilter filterWhereField:@"a" in:@[ @0, @3 ]], [FIRFilter filterWhereField:@"a"
                                                                                in:@[ @0, @2 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
-                     matchesResult:@[ @"doc3", @"doc6" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter2]
+                          matchesResult:@[ @"doc3", @"doc6" ]];
 }
 
 - (void)testUsingInWithArrayContainsAny {
@@ -979,8 +1281,9 @@
     [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
                                                                  arrayContainsAny:@[ @0, @7 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
-                     matchesResult:@[ @"doc1", @"doc3", @"doc4", @"doc6" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter1]
+                          matchesResult:@[ @"doc1", @"doc3", @"doc4", @"doc6" ]];
 
   FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter andFilterWithFilters:@[
@@ -989,8 +1292,9 @@
     ]],
     [FIRFilter filterWhereField:@"b" arrayContainsAny:@[ @0, @7 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
-                     matchesResult:@[ @"doc1", @"doc3", @"doc4" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter2]
+                          matchesResult:@[ @"doc1", @"doc3", @"doc4" ]];
 }
 
 - (void)testUseInWithArrayContains {
@@ -1007,14 +1311,17 @@
     [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
                                                                  arrayContainsAny:@[ @3 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
-                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter1]
+                          matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
 
   FIRFilter *filter2 = [FIRFilter andFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
                                                                     arrayContains:@7]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2] matchesResult:@[ @"doc3" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter2]
+                          matchesResult:@[ @"doc3" ]];
 
   FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter andFilterWithFilters:@[
@@ -1022,8 +1329,9 @@
                                                                             isEqualTo:@1]
     ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
-                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter3]
+                          matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
 
   FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter orFilterWithFilters:@[
@@ -1031,7 +1339,9 @@
                                                                             isEqualTo:@1]
     ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4] matchesResult:@[ @"doc3" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[collRef queryWhereFilter:filter4]
+                          matchesResult:@[ @"doc3" ]];
 }
 
 - (void)testOrderByEquality {
@@ -1049,16 +1359,19 @@
     @"doc6" : @{@"a" : @2, @"c" : @20}
   }];
 
-  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:[FIRFilter filterWhereField:@"a"
-                                                                                isEqualTo:@1]]
-                                       queryOrderedByField:@"a"]
-                     matchesResult:@[ @"doc1", @"doc4", @"doc5" ]];
+  [self checkOnlineAndOfflineCollection:collRef
+                                  query:[[collRef queryWhereFilter:[FIRFilter filterWhereField:@"a"
+                                                                                     isEqualTo:@1]]
+                                            queryOrderedByField:@"a"]
+                          matchesResult:@[ @"doc1", @"doc4", @"doc5" ]];
 
-  [self checkOnlineAndOfflineQuery:[[collRef
-                                       queryWhereFilter:[FIRFilter filterWhereField:@"a"
-                                                                                 in:@[ @2, @3 ]]]
-                                       queryOrderedByField:@"a"]
-                     matchesResult:@[ @"doc6", @"doc3" ]];
+  [self
+      checkOnlineAndOfflineCollection:collRef
+                                query:[[collRef
+                                          queryWhereFilter:[FIRFilter filterWhereField:@"a"
+                                                                                    in:@[ @2, @3 ]]]
+                                          queryOrderedByField:@"a"]
+                        matchesResult:@[ @"doc6", @"doc3" ]];
 }
 
 - (void)testResumingAQueryShouldUseBloomFilterToAvoidFullRequery {

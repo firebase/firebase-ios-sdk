@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,17 @@
 
 #include "google/api/annotations.nanopb.h"
 
+#include "google/api/field_behavior.nanopb.h"
+
 #include "google/firestore/v1/aggregation_result.nanopb.h"
 
 #include "google/firestore/v1/common.nanopb.h"
 
 #include "google/firestore/v1/document.nanopb.h"
+
+#include "google/firestore/v1/explain_stats.nanopb.h"
+
+#include "google/firestore/v1/pipeline.nanopb.h"
 
 #include "google/firestore/v1/query.nanopb.h"
 
@@ -209,6 +215,34 @@ typedef struct _google_firestore_v1_DeleteDocumentRequest {
     std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DeleteDocumentRequest) */
 } google_firestore_v1_DeleteDocumentRequest;
+
+typedef struct _google_firestore_v1_ExecutePipelineRequest {
+    pb_bytes_array_t *database;
+    pb_size_t which_pipeline_type;
+    union {
+        google_firestore_v1_StructuredPipeline structured_pipeline;
+    } pipeline_type;
+    pb_size_t which_consistency_selector;
+    union {
+        pb_bytes_array_t *transaction;
+        google_firestore_v1_TransactionOptions new_transaction;
+        google_protobuf_Timestamp read_time;
+    } consistency_selector;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_ExecutePipelineRequest) */
+} google_firestore_v1_ExecutePipelineRequest;
+
+typedef struct _google_firestore_v1_ExecutePipelineResponse {
+    pb_bytes_array_t *transaction;
+    pb_size_t results_count;
+    struct _google_firestore_v1_Document *results;
+    google_protobuf_Timestamp execution_time;
+    google_firestore_v1_ExplainStats explain_stats;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_ExecutePipelineResponse) */
+} google_firestore_v1_ExecutePipelineResponse;
 
 typedef struct _google_firestore_v1_GetDocumentRequest {
     pb_bytes_array_t *name;
@@ -414,6 +448,8 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_RollbackRequest_init_default {NULL, NULL}
 #define google_firestore_v1_RunQueryRequest_init_default {NULL, 0, {google_firestore_v1_StructuredQuery_init_default}, 0, {NULL}}
 #define google_firestore_v1_RunQueryResponse_init_default {google_firestore_v1_Document_init_default, NULL, google_protobuf_Timestamp_init_default, 0}
+#define google_firestore_v1_ExecutePipelineRequest_init_default {NULL, 0, {google_firestore_v1_StructuredPipeline_init_default}, 0, {NULL}}
+#define google_firestore_v1_ExecutePipelineResponse_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default, google_firestore_v1_ExplainStats_init_default}
 #define google_firestore_v1_RunAggregationQueryRequest_init_default {NULL, 0, {google_firestore_v1_StructuredAggregationQuery_init_default}, 0, {NULL}}
 #define google_firestore_v1_RunAggregationQueryResponse_init_default {google_firestore_v1_AggregationResult_init_default, NULL, google_protobuf_Timestamp_init_default}
 #define google_firestore_v1_WriteRequest_init_default {NULL, NULL, 0, NULL, NULL, 0, NULL}
@@ -443,6 +479,8 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_RollbackRequest_init_zero {NULL, NULL}
 #define google_firestore_v1_RunQueryRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredQuery_init_zero}, 0, {NULL}}
 #define google_firestore_v1_RunQueryResponse_init_zero {google_firestore_v1_Document_init_zero, NULL, google_protobuf_Timestamp_init_zero, 0}
+#define google_firestore_v1_ExecutePipelineRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredPipeline_init_zero}, 0, {NULL}}
+#define google_firestore_v1_ExecutePipelineResponse_init_zero {NULL, 0, NULL, google_protobuf_Timestamp_init_zero, google_firestore_v1_ExplainStats_init_zero}
 #define google_firestore_v1_RunAggregationQueryRequest_init_zero {NULL, 0, {google_firestore_v1_StructuredAggregationQuery_init_zero}, 0, {NULL}}
 #define google_firestore_v1_RunAggregationQueryResponse_init_zero {google_firestore_v1_AggregationResult_init_zero, NULL, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1_WriteRequest_init_zero {NULL, NULL, 0, NULL, NULL, 0, NULL}
@@ -500,6 +538,15 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_CreateDocumentRequest_mask_tag 5
 #define google_firestore_v1_DeleteDocumentRequest_name_tag 1
 #define google_firestore_v1_DeleteDocumentRequest_current_document_tag 2
+#define google_firestore_v1_ExecutePipelineRequest_structured_pipeline_tag 2
+#define google_firestore_v1_ExecutePipelineRequest_transaction_tag 5
+#define google_firestore_v1_ExecutePipelineRequest_new_transaction_tag 6
+#define google_firestore_v1_ExecutePipelineRequest_read_time_tag 7
+#define google_firestore_v1_ExecutePipelineRequest_database_tag 1
+#define google_firestore_v1_ExecutePipelineResponse_transaction_tag 1
+#define google_firestore_v1_ExecutePipelineResponse_results_tag 2
+#define google_firestore_v1_ExecutePipelineResponse_execution_time_tag 3
+#define google_firestore_v1_ExecutePipelineResponse_explain_stats_tag 4
 #define google_firestore_v1_GetDocumentRequest_transaction_tag 3
 #define google_firestore_v1_GetDocumentRequest_read_time_tag 5
 #define google_firestore_v1_GetDocumentRequest_name_tag 1
@@ -581,6 +628,8 @@ extern const pb_field_t google_firestore_v1_CommitResponse_fields[3];
 extern const pb_field_t google_firestore_v1_RollbackRequest_fields[3];
 extern const pb_field_t google_firestore_v1_RunQueryRequest_fields[6];
 extern const pb_field_t google_firestore_v1_RunQueryResponse_fields[5];
+extern const pb_field_t google_firestore_v1_ExecutePipelineRequest_fields[6];
+extern const pb_field_t google_firestore_v1_ExecutePipelineResponse_fields[5];
 extern const pb_field_t google_firestore_v1_RunAggregationQueryRequest_fields[6];
 extern const pb_field_t google_firestore_v1_RunAggregationQueryResponse_fields[4];
 extern const pb_field_t google_firestore_v1_WriteRequest_fields[6];
@@ -612,6 +661,8 @@ extern const pb_field_t google_firestore_v1_ListCollectionIdsResponse_fields[3];
 /* google_firestore_v1_RollbackRequest_size depends on runtime parameters */
 /* google_firestore_v1_RunQueryRequest_size depends on runtime parameters */
 /* google_firestore_v1_RunQueryResponse_size depends on runtime parameters */
+/* google_firestore_v1_ExecutePipelineRequest_size depends on runtime parameters */
+/* google_firestore_v1_ExecutePipelineResponse_size depends on runtime parameters */
 /* google_firestore_v1_RunAggregationQueryRequest_size depends on runtime parameters */
 /* google_firestore_v1_RunAggregationQueryResponse_size depends on runtime parameters */
 /* google_firestore_v1_WriteRequest_size depends on runtime parameters */

@@ -1,3 +1,9 @@
+# 11.9.0
+- [fixed] Migrate FCM codebase to new NSKeyedUnarchiver APIs. (#14424).
+
+# 11.8.0
+- [fixed] Don't cache FCM registration token operations. (#14352).
+
 # 11.5.0
 - [fixed] Improve token-fetch failure logging with detailed error info. (#13997).
 

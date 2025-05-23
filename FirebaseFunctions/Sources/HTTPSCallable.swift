@@ -76,15 +76,16 @@ open class HTTPSCallable: NSObject {
   ///   - data: Parameters to pass to the trigger.
   ///   - completion: The block to call when the HTTPS request has completed.
   @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
-                                                   completion: @escaping (HTTPSCallableResult?,
-                                                                          Error?) -> Void) {
+                                                   completion: @escaping @MainActor (HTTPSCallableResult?,
+                                                                                     Error?)
+                                                     -> Void) {
     if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
       Task {
         do {
           let result = try await call(data)
-          completion(result, nil)
+          await completion(result, nil)
         } catch {
-          completion(nil, error)
+          await completion(nil, error)
         }
       }
     } else {
@@ -98,9 +99,13 @@ open class HTTPSCallable: NSObject {
       ) { result in
         switch result {
         case let .success(callableResult):
-          completion(callableResult, nil)
+          DispatchQueue.main.async {
+            completion(callableResult, nil)
+          }
         case let .failure(error):
-          completion(nil, error)
+          DispatchQueue.main.async {
+            completion(nil, error)
+          }
         }
       }
     }
@@ -142,5 +147,10 @@ open class HTTPSCallable: NSObject {
   open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
     try await functions
       .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
+  }
+
+  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  func stream(_ data: Any? = nil) -> AsyncThrowingStream<JSONStreamResponse, Error> {
+    functions.stream(at: url, data: data, options: options, timeout: timeoutInterval)
   }
 }

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseSharedSwift'
-  s.version                 = '11.6.0'
+  s.version                 = '11.13.0'
   s.summary                 = 'Shared Swift Extensions for Firebase'
 
   s.description      = <<-DESC

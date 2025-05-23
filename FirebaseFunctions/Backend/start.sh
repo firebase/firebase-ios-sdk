@@ -55,6 +55,13 @@ FUNCTIONS_BIN="./node_modules/.bin/functions"
 "${FUNCTIONS_BIN}" deploy httpErrorTest --trigger-http
 "${FUNCTIONS_BIN}" deploy throwTest --trigger-http
 "${FUNCTIONS_BIN}" deploy timeoutTest --trigger-http
+"${FUNCTIONS_BIN}" deploy genStream --trigger-http
+"${FUNCTIONS_BIN}" deploy genStreamError --trigger-http
+"${FUNCTIONS_BIN}" deploy genStreamWeather --trigger-http
+"${FUNCTIONS_BIN}" deploy genStreamWeatherError --trigger-http
+"${FUNCTIONS_BIN}" deploy genStreamEmpty --trigger-http
+"${FUNCTIONS_BIN}" deploy genStreamResultOnly --trigger-http
+"${FUNCTIONS_BIN}" deploy genStreamLargeData --trigger-http
 
 if [ "$1" != "synchronous" ]; then
   # Wait for the user to tell us to stop the server.

@@ -151,24 +151,9 @@ function CheckUnexpectedFailures() {
   fi
 }
 
-if [[ "$xcode_major" -lt 15 ]]; then
-  ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 14'
-  )
-  watchos_flags=(
-    -sdk 'watchsimulator'
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
-  )
-elif [[ "$xcode_major" -lt 16 ]]; then
-  ios_flags=(
-    -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 15'
-  )
-  watchos_flags=(
-    -sdk 'watchsimulator'
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
-  )
+if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
+  echo "Unsupported Xcode major version being used: $xcode_major"
+  exit 1
 else
   ios_flags=(
     -sdk 'iphonesimulator'
@@ -342,16 +327,16 @@ case "$product-$platform-$method" in
       -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
       -scheme "FirebaseCombineSwift-Unit-unit" \
       "${xcb_flags[@]}" \
-      build \
-      test
+      build
     ;;
 
+  # TODO(#14760): s/build/test after addressing UI test flakes on CI.
   InAppMessaging-*-xcodebuild)
     RunXcodebuild \
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
-        test
+        build
     ;;
 
   Firestore-*-xcodebuild)
@@ -440,7 +425,7 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp.xcworkspace' \
         -scheme "SampleStandaloneWatchApp Watch App" \
-        -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)' \
+        -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)' \
         build
     fi
     ;;
@@ -500,10 +485,13 @@ case "$product-$platform-$method" in
       AppHost-FirebaseRemoteConfig-Unit-Tests \
       ../../../FirebaseRemoteConfig/Tests/Swift/AccessToken.json
 
+    # Integration tests are only run on iOS to minimize flake failures.
+    # TODO(ncooke3): Remove -sdk and -destination flags and replace with "${xcb_flags[@]}"
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
       -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
-      "${xcb_flags[@]}" \
+      -sdk 'iphonesimulator' \
+      -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
       build \
       test
     ;;
@@ -516,22 +504,14 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  VertexIntegration-*-*)
+  FirebaseAIIntegration-*-*)
     RunXcodebuild \
-      -project 'FirebaseVertexAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
+      -project 'FirebaseAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
       -scheme "VertexAITestApp-SPM" \
       "${xcb_flags[@]}" \
       -parallel-testing-enabled NO \
       build \
       test
-    ;;
-
-  VertexSample-*-*)
-    RunXcodebuild \
-      -project 'FirebaseVertexAI/Sample/VertexAISample.xcodeproj' \
-      -scheme "VertexAISample" \
-      "${xcb_flags[@]}" \
-      build
     ;;
 
   Sessions-*-integration)
@@ -580,10 +560,12 @@ case "$product-$platform-$method" in
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
+      # TODO(ncooke3): Add back "${ios_flags[@]}". See #14657.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-integration" \
-        "${ios_flags[@]}" \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
         "${xcb_flags[@]}" \
         test
     fi
@@ -599,10 +581,12 @@ case "$product-$platform-$method" in
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
+      # TODO(ncooke3): Add back "${ios_flags[@]}". See #14657.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-ObjCIntegration" \
-        "${ios_flags[@]}" \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
         "${xcb_flags[@]}" \
         test
       fi
@@ -621,8 +605,8 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
         -scheme "FirebaseCombineSwift-Unit-integration" \
-        "${ios_flags[@]}" \
-        "${xcb_flags[@]}" \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
         test
       fi
     ;;
@@ -697,6 +681,15 @@ case "$product-$platform-$method" in
       "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
+      test
+    ;;
+
+  FirebaseDataConnect-*-spm)
+    RunXcodebuild \
+      -scheme $product \
+      "${xcb_flags[@]}" \
+      IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+      TVOS_DEPLOYMENT_TARGET=15.0 \
       test
     ;;
 

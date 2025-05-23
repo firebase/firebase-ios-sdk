@@ -66,7 +66,7 @@ class VerifyClientTests: RPCBaseTests {
     let kFakeSuggestedTimeout = "1234"
 
     rpcIssuer?.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
+      try self.rpcIssuer.respond(withJSON: [
         kReceiptKey: kFakeReceipt,
         kSuggestedTimeOutKey: kFakeSuggestedTimeout,
       ])

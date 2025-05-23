@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseMessagingInterop
+@preconcurrency import FirebaseAppCheckInterop
+@preconcurrency import FirebaseAuthInterop
+@preconcurrency import FirebaseMessagingInterop
 import Foundation
 
 /// `FunctionsContext` is a helper object that holds metadata for a function call.
@@ -25,7 +25,7 @@ struct FunctionsContext {
   let limitedUseAppCheckToken: String?
 }
 
-struct FunctionsContextProvider {
+struct FunctionsContextProvider: Sendable {
   private let auth: AuthInterop?
   private let messaging: MessagingInterop?
   private let appCheck: AppCheckInterop?
@@ -56,9 +56,9 @@ struct FunctionsContextProvider {
   private func getAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
     guard
       options?.requireLimitedUseAppCheckTokens != true,
-      let tokenResult = await appCheck?.getToken(forcingRefresh: false),
-      tokenResult.error == nil
+      let tokenResult = await appCheck?.getToken(forcingRefresh: false)
     else { return nil }
+    // The placeholder token should be used in the case of App Check error.
     return tokenResult.token
   }
 
@@ -77,8 +77,7 @@ struct FunctionsContextProvider {
       }
 
       limitedUseTokenClosure { tokenResult in
-        // Make sure there’s no error and the token is valid:
-        guard tokenResult.error == nil else { return continuation.resume(returning: nil) }
+        // The placeholder token should be used in the case of App Check error.
         continuation.resume(returning: tokenResult.token)
       }
     }
@@ -111,10 +110,8 @@ struct FunctionsContextProvider {
         // If it’s not implemented, we still need to leave the dispatch group.
         if let limitedUseTokenClosure = appCheck.getLimitedUseToken {
           limitedUseTokenClosure { tokenResult in
-            // Send only valid token to functions.
-            if tokenResult.error == nil {
-              limitedUseAppCheckToken = tokenResult.token
-            }
+            // In the case of an error, the token will be the placeholder token.
+            limitedUseAppCheckToken = tokenResult.token
             dispatchGroup.leave()
           }
         } else {
@@ -122,10 +119,8 @@ struct FunctionsContextProvider {
         }
       } else {
         appCheck.getToken(forcingRefresh: false) { tokenResult in
-          // Send only valid token to functions.
-          if tokenResult.error == nil {
-            appCheckToken = tokenResult.token
-          }
+          // In the case of an error, the token will be the placeholder token.
+          appCheckToken = tokenResult.token
           dispatchGroup.leave()
         }
       }

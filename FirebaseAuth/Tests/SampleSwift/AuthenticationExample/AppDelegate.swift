@@ -20,8 +20,8 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication
-                     .LaunchOptionsKey: Any]?) -> Bool {
+                   didFinishLaunchingWithOptions launchOptions:
+                   [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     configureApplicationAppearance()
 
     // [START firebase_configure]
@@ -71,5 +71,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   private func configureApplicationAppearance() {
     UINavigationBar.appearance().tintColor = .systemOrange
     UITabBar.appearance().tintColor = .systemOrange
+    // Handles iOS 15 behavior change where tab bar become translucent during transitions.
+    let appearance = UITabBarAppearance()
+    appearance.configureWithOpaqueBackground()
+    UITabBar.appearance().scrollEdgeAppearance = appearance
   }
 }

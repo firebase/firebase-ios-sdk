@@ -44,15 +44,18 @@ class MockFunctions: Functions {
                              withObject data: Any?,
                              options: HTTPSCallableOptions?,
                              timeout: TimeInterval,
-                             completion: @escaping (
-                               (Result<HTTPSCallableResult, any Error>) -> Void
-                             )) {
+                             completion: @escaping @MainActor
+                             (Result<HTTPSCallableResult, any Error>) -> Void) {
     do {
       try verifyParameters?(url, data, timeout)
       let result = try mockCallFunction()
-      completion(.success(result))
+      DispatchQueue.main.async {
+        completion(.success(result))
+      }
     } catch {
-      completion(.failure(error))
+      DispatchQueue.main.async {
+        completion(.failure(error))
+      }
     }
   }
 

@@ -4419,9 +4419,7 @@
   }
 }
 
-// TODO: On arm hardware Macs, the following test hangs with the emulator, but passes with a real
-// project.
-- (void)SKIPtestGetSkipsPersistenceCacheWhenOnline {
+- (void)testGetSkipsPersistenceCacheWhenOnline {
   FIRDatabase* db = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
   FIRDatabase* db2 = [self databaseForURL:self.databaseURL name:[[NSUUID UUID] UUIDString]];
 

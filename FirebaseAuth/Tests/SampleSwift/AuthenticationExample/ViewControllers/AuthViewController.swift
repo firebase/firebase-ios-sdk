@@ -16,6 +16,8 @@
 // [START auth_import]
 import FirebaseCore
 
+import SwiftUI
+
 // For Sign in with Facebook
 import FBSDKLoginKit
 
@@ -41,6 +43,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   var authStateDidChangeListeners: [AuthStateDidChangeListenerHandle] = []
   var IDTokenDidChangeListeners: [IDTokenDidChangeListenerHandle] = []
   var actionCodeContinueURL: URL?
+  var actionCodeLinkDomain: String?
   var actionCodeRequestType: ActionCodeRequestType = .inApp
 
   let spinner = UIActivityIndicatorView(style: .medium)
@@ -71,6 +74,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     let settings = ActionCodeSettings()
     settings.url = actionCodeContinueURL
     settings.handleCodeInApp = (actionCodeRequestType == .inApp)
+    settings.linkDomain = actionCodeLinkDomain
     return settings
   }
 
@@ -158,6 +162,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     case .continueURL:
       changeActionCodeContinueURL(at: indexPath)
 
+    case .linkDomain:
+      changeActionCodeLinkDomain(at: indexPath)
+
     case .requestVerifyEmail:
       requestVerifyEmail()
 
@@ -180,7 +187,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       phoneEnroll()
 
     case .totpEnroll:
-      totpEnroll()
+      Task { await totpEnroll() }
 
     case .multifactorUnenroll:
       mfaUnenroll()
@@ -336,9 +343,10 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func performDemoEmailPasswordLoginFlow() {
-    let loginController = LoginController()
-    loginController.delegate = self
-    navigationController?.pushViewController(loginController, animated: true)
+    let loginView = LoginView(delegate: self)
+    let hostingController = UIHostingController(rootView: loginView)
+    hostingController.title = "Email/Password Auth"
+    navigationController?.pushViewController(hostingController, animated: true)
   }
 
   private func performPasswordlessLoginFlow() {
@@ -558,12 +566,28 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   private func changeActionCodeContinueURL(at indexPath: IndexPath) {
     showTextInputPrompt(with: "Continue URL:", completion: { newContinueURL in
       self.actionCodeContinueURL = URL(string: newContinueURL)
-      print("Successfully set Continue URL  to: \(newContinueURL)")
+      print("Successfully set Continue URL to: \(newContinueURL)")
       self.dataSourceProvider.updateItem(
         at: indexPath,
         item: Item(
           title: AuthMenu.continueURL.name,
           detailTitle: self.actionCodeContinueURL?.absoluteString,
+          isEditable: true
+        )
+      )
+      self.tableView.reloadData()
+    })
+  }
+
+  private func changeActionCodeLinkDomain(at indexPath: IndexPath) {
+    showTextInputPrompt(with: "Link Domain:", completion: { newLinkDomain in
+      self.actionCodeLinkDomain = newLinkDomain
+      print("Successfully set Link Domain to: \(newLinkDomain)")
+      self.dataSourceProvider.updateItem(
+        at: indexPath,
+        item: Item(
+          title: AuthMenu.linkDomain.name,
+          detailTitle: self.actionCodeLinkDomain,
           isEditable: true
         )
       )
@@ -786,89 +810,53 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
   }
 
-  private func totpEnroll() {
-    guard let user = AppManager.shared.auth().currentUser else {
-      print("Error: User must be logged in first.")
+  private func totpEnroll() async {
+    guard
+      let user = AppManager.shared.auth().currentUser,
+      let accountName = user.email
+    else {
+      showAlert(for: "Enrollment failed: User must be logged and have email address.")
       return
     }
 
-    user.multiFactor.getSessionWithCompletion { session, error in
-      guard let session = session, error == nil else {
-        if let error = error {
-          self.showAlert(for: "Enrollment failed")
-          print("Multi factor start enroll failed. Error: \(error.localizedDescription)")
-        } else {
-          self.showAlert(for: "Enrollment failed")
-          print("Multi factor start enroll failed with unknown error.")
-        }
+    guard let issuer = AppManager.shared.auth().app?.name else {
+      showAlert(for: "Enrollment failed: Firebase app is missing name.")
+      return
+    }
+
+    do {
+      let session = try await user.multiFactor.session()
+      let secret = try await TOTPMultiFactorGenerator.generateSecret(with: session)
+      print("Secret: " + secret.sharedSecretKey())
+
+      let url = secret.generateQRCodeURL(withAccountName: accountName, issuer: issuer)
+      guard !url.isEmpty else {
+        showAlert(for: "Enrollment failed")
+        print("Multi factor finalize enroll failed. Could not generate URL.")
+        return
+      }
+      secret.openInOTPApp(withQRCodeURL: url)
+
+      guard
+        let oneTimePassword = await showTextInputPrompt(with: "Enter the one time passcode.")
+      else {
+        showAlert(for: "Enrollment failed: one time passcode not entered.")
         return
       }
 
-      TOTPMultiFactorGenerator.generateSecret(with: session) { secret, error in
-        guard let secret = secret, error == nil else {
-          if let error = error {
-            self.showAlert(for: "Enrollment failed")
-            print("Error generating TOTP secret. Error: \(error.localizedDescription)")
-          } else {
-            self.showAlert(for: "Enrollment failed")
-            print("Error generating TOTP secret.")
-          }
-          return
-        }
+      let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(
+        with: secret,
+        oneTimePassword: oneTimePassword
+      )
 
-        guard let accountName = user.email, let issuer = Auth.auth().app?.name else {
-          self.showAlert(for: "Enrollment failed")
-          print("Multi factor finalize enroll failed. Could not get account details.")
-          return
-        }
+      // TODO(nickcooke): Provide option to enter display name.
+      try await user.multiFactor.enroll(with: assertion, displayName: "TOTP")
 
-        DispatchQueue.main.async {
-          let url = secret.generateQRCodeURL(withAccountName: accountName, issuer: issuer)
-
-          guard !url.isEmpty else {
-            self.showAlert(for: "Enrollment failed")
-            print("Multi factor finalize enroll failed. Could not generate URL.")
-            return
-          }
-
-          secret.openInOTPApp(withQRCodeURL: url)
-
-          self
-            .showQRCodePromptWithTextInput(with: "Scan this QR code and enter OTP:",
-                                           url: url) { oneTimePassword in
-              guard !oneTimePassword.isEmpty else {
-                self.showAlert(for: "Display name must not be empty")
-                print("OTP not entered.")
-                return
-              }
-
-              let assertion = TOTPMultiFactorGenerator.assertionForEnrollment(
-                with: secret,
-                oneTimePassword: oneTimePassword
-              )
-
-              self.showTextInputPrompt(with: "Display Name") { displayName in
-                guard !displayName.isEmpty else {
-                  self.showAlert(for: "Display name must not be empty")
-                  print("Display name not entered.")
-                  return
-                }
-
-                user.multiFactor.enroll(with: assertion, displayName: displayName) { error in
-                  if let error = error {
-                    self.showAlert(for: "Enrollment failed")
-                    print(
-                      "Multi factor finalize enroll failed. Error: \(error.localizedDescription)"
-                    )
-                  } else {
-                    self.showAlert(for: "Successfully enrolled: \(displayName)")
-                    print("Multi factor finalize enroll succeeded.")
-                  }
-                }
-              }
-            }
-        }
-      }
+      showAlert(for: "Successfully enrolled: TOTP")
+      print("Multi factor finalize enroll succeeded.")
+    } catch {
+      print(error)
+      showAlert(for: "Enrollment failed: \(error.localizedDescription)")
     }
   }
 
@@ -964,60 +952,12 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     present(editController, animated: true, completion: nil)
   }
 
-  private func showQRCodePromptWithTextInput(with message: String, url: String,
-                                             completion: ((String) -> Void)? = nil) {
-    // Create a UIAlertController
-    let alertController = UIAlertController(
-      title: "QR Code Prompt",
-      message: message,
-      preferredStyle: .alert
-    )
-
-    // Add a text field for input
-    alertController.addTextField { textField in
-      textField.placeholder = "Enter text"
-    }
-
-    // Create a UIImage from the URL
-    guard let image = generateQRCode(from: url) else {
-      print("Failed to generate QR code")
-      return
-    }
-
-    // Create an image view to display the QR code
-    let imageView = UIImageView(image: image)
-    imageView.contentMode = .scaleAspectFit
-    imageView.translatesAutoresizingMaskIntoConstraints = false
-
-    // Add the image view to the alert controller
-    alertController.view.addSubview(imageView)
-
-    // Add constraints to position the image view
-    NSLayoutConstraint.activate([
-      imageView.topAnchor.constraint(equalTo: alertController.view.topAnchor, constant: 20),
-      imageView.centerXAnchor.constraint(equalTo: alertController.view.centerXAnchor),
-      imageView.widthAnchor.constraint(equalToConstant: 200),
-      imageView.heightAnchor.constraint(equalToConstant: 200),
-    ])
-
-    // Add actions
-    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-    let submitAction = UIAlertAction(title: "Submit", style: .default) { _ in
-      if let completion,
-         let text = alertController.textFields?.first?.text {
-        completion(text)
+  private func showTextInputPrompt(with message: String) async -> String? {
+    await withCheckedContinuation { continuation in
+      showTextInputPrompt(with: message) { inputText in
+        continuation.resume(returning: inputText.isEmpty ? nil : inputText)
       }
     }
-
-    alertController.addAction(cancelAction)
-    alertController.addAction(submitAction)
-
-    // Present the alert controller
-    UIApplication.shared.windows.first?.rootViewController?.present(
-      alertController,
-      animated: true,
-      completion: nil
-    )
   }
 
   // Function to generate QR code from a string

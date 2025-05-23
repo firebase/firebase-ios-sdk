@@ -43,6 +43,10 @@ PRODUCTS = {
     'FirebaseRemoteConfig/CHANGELOG.md': '{{remote_config}}',
     'FirebasePerformance/CHANGELOG.md': '{{perfmon}}',
     'FirebaseVertexAI/CHANGELOG.md': '{{firebase_vertexai}}',
+
+    # Assumes firebase-ios-sdk and data-connect-ios-sdk are cloned to the same
+    # directory.
+    '../data-connect-ios-sdk/CHANGELOG.md': '{{data_connect_short}}',
 }
 
 

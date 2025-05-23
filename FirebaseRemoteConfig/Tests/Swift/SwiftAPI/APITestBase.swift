@@ -57,6 +57,7 @@ class APITestBase: XCTestCase {
     let settings = RemoteConfigSettings()
     settings.minimumFetchInterval = 0
     config.configSettings = settings
+    config.settings.customSignals = [:]
 
     let jsonData = try JSONSerialization.data(
       withJSONObject: Constants.jsonValue
@@ -87,7 +88,24 @@ class APITestBase: XCTestCase {
         config.configRealtime = RealtimeMocks.mockRealtime(config.configRealtime)
       }
       fakeConsole = FakeConsole()
-      config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
+      let configuration = URLSessionConfiguration.default
+      configuration.protocolClasses = [MockURLProtocol.self]
+      config.configFetch.fetchSession = URLSession(configuration: configuration)
+
+      var etag = ""
+      MockURLProtocol.requestHandler = { request in
+        let consoleValues = self.fakeConsole.get()
+        if etag == "" || consoleValues["state"] as! String == RCNFetchResponseKeyStateUpdate {
+          // Time string in microseconds to insure a different string from previous change.
+          etag = String(NSDate().timeIntervalSince1970)
+        }
+        let jsonData = try! JSONSerialization.data(withJSONObject: consoleValues)
+        let response = HTTPURLResponse(url: URL(fileURLWithPath: "fakeURL"),
+                                       statusCode: 200,
+                                       httpVersion: nil,
+                                       headerFields: ["etag": etag])
+        return (jsonData, response!)
+      }
 
       fakeConsole.config = [Constants.key1: Constants.value1,
                             Constants.jsonKey: jsonValue,

@@ -203,6 +203,21 @@ import Foundation
       }
 
       let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: auth)
+
+      if let settings = auth.settings,
+         settings.isAppVerificationDisabledForTesting {
+        // If app verification is disabled for testing
+        // do not fetch recaptcha config, as this is not implemented in emulator
+        // Treat this same as RCE enable status off
+
+        return try await verifyClAndSendVerificationCode(
+          toPhoneNumber: phoneNumber,
+          retryOnInvalidAppCredential: true,
+          multiFactorSession: multiFactorSession,
+          uiDelegate: uiDelegate
+        )
+      }
+
       try await recaptchaVerifier.retrieveRecaptchaConfig(forceRefresh: true)
 
       switch recaptchaVerifier.enablementStatus(forProvider: .phone) {
@@ -265,10 +280,10 @@ import Foundation
     /// - Parameter phoneNumber: The phone number to be verified.
     /// - Parameter callback: The callback to be invoked on the global work queue when the flow is
     /// finished.
-    func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
-                                         retryOnInvalidAppCredential: Bool,
-                                         uiDelegate: AuthUIDelegate?,
-                                         auditFallback: Bool = false) async throws
+    private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
+                                                 retryOnInvalidAppCredential: Bool,
+                                                 uiDelegate: AuthUIDelegate?,
+                                                 auditFallback: Bool = false) async throws
       -> String? {
       let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
       let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
@@ -350,7 +365,7 @@ import Foundation
             action: .mfaSmsSignIn
           )
           let response = try await auth.backend.call(with: request)
-          return response.responseInfo?.sessionInfo
+          return response.responseInfo.sessionInfo
         }
       } catch {
         // For Audit fallback only after rCE check failed
@@ -419,9 +434,8 @@ import Foundation
                                               MFAEnrollmentID: session.multiFactorInfo?.uid,
                                               signInInfo: startMFARequestInfo,
                                               requestConfiguration: auth.requestConfiguration)
-
           let response = try await auth.backend.call(with: request)
-          return response.responseInfo?.sessionInfo
+          return response.responseInfo.sessionInfo
         }
       } catch {
         return try await handleVerifyErrorWithRetry(
@@ -526,7 +540,7 @@ import Foundation
         )
       }
 
-      return try await withCheckedThrowingContinuation { continuation in
+      return try await withUnsafeThrowingContinuation { continuation in
         self.auth.authURLPresenter.present(url,
                                            uiDelegate: uiDelegate,
                                            callbackMatcher: callbackMatcher) { callbackURL, error in

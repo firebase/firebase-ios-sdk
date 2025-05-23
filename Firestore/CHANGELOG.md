@@ -1,3 +1,19 @@
+# Unreleased
+- [feature] Add `Pipeline` support.
+
+# 11.12.0
+- [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
+
+# 11.11.0
+- [fixed] Fixed the customized priority queue compare function used cache index manager. (#14496)
+
+# 11.9.0
+- [fixed] Fixed memory leak in `Query.whereField()`. (#13978)
+
+# 11.8.0
+- [fixed] Fixed use-after-free bug when internally formatting strings. (#14306)
+- [changed] Update gRPC dependency to 1.69.
+
 # 11.6.0
 - [fixed] Add conditional `Sendable` conformance so `ServerTimestamp<T>` is
   `Sendable` if `T` is `Sendable`. (#14042)

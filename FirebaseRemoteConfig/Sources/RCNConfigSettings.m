@@ -404,6 +404,25 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       }
     }
   }
+
+  NSDictionary<NSString *, NSString *> *customSignals = [self customSignals];
+  if (customSignals.count > 0) {
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:customSignals
+                                                       options:0
+                                                         error:&error];
+    if (!error) {
+      ret = [ret
+          stringByAppendingString:[NSString
+                                      stringWithFormat:@", custom_signals:%@",
+                                                       [[NSString alloc]
+                                                           initWithData:jsonData
+                                                               encoding:NSUTF8StringEncoding]]];
+      // Log the keys of the custom signals sent during fetch.
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000078",
+                  @"Keys of custom signals during fetch: %@", [customSignals allKeys]);
+    }
+  }
   ret = [ret stringByAppendingString:@"}"];
   return ret;
 }
@@ -471,6 +490,14 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                              namespace:_FIRNamespace
                                 values:@[ @(lastSetDefaultsTimestamp) ]
                      completionHandler:nil];
+}
+
+- (NSDictionary<NSString *, NSString *> *)customSignals {
+  return [_userDefaultsManager customSignals];
+}
+
+- (void)setCustomSignals:(NSDictionary<NSString *, NSString *> *)customSignals {
+  [_userDefaultsManager setCustomSignals:customSignals];
 }
 
 #pragma mark Throttling

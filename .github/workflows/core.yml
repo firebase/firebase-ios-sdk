@@ -1,6 +1,7 @@
 name: core
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseCore**'
@@ -15,6 +16,17 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  spm:
+    uses: ./.github/workflows/common.yml
+    with:
+      target: CoreUnit
+
+  catalyst:
+    uses: ./.github/workflows/common_catalyst.yml
+    with:
+      product: FirebaseCore
+      target: FirebaseCore-Unit-unit
+
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -24,13 +36,16 @@ jobs:
         target: [ios, tvos, macos --skip-tests, watchos]
         build-env:
           - os: macos-14
-            xcode: Xcode_15.2
+            xcode: Xcode_16.2
           - os: macos-15
-            xcode: Xcode_16.1
+            xcode: Xcode_16.2
+          # TODO: Add Xcode matrix when Xcode 16 is ubiquitous on CI runners.
+#          - os: macos-15
+#            xcode: Xcode_16.3
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
@@ -41,11 +56,13 @@ jobs:
   spm-package-resolved:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
+    runs-on: macos-15
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
@@ -61,72 +78,11 @@ jobs:
           path: .build
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
 
-  spm:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    needs: [spm-package-resolved]
-    strategy:
-      matrix:
-        include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
-          - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
-          - os: macos-15
-            xcode: Xcode_16.1
-            target: iOS
-          - os: macos-15
-            xcode: Xcode_16.1
-            target: tvOS
-          - os: macos-15
-            xcode: Xcode_16.1
-            target: macOS
-          - os: macos-15
-            xcode: Xcode_16.1
-            target: watchOS
-          - os: macos-15
-            xcode: Xcode_16.1
-            target: catalyst
-          - os: macos-15
-            xcode: Xcode_16.1
-            target: visionOS
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
-      with:
-        path: .build
-        key: ${{needs.spm-package-resolved.outputs.cache_key}}
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh CoreUnit ${{ matrix.target }} spm
-
-  catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-    runs-on: macos-13
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build Catalyst
-      run: scripts/test_catalyst.sh FirebaseCore test FirebaseCore-Unit-unit
-
   core-cron-only:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       matrix:
         target: [ios, tvos, macos]
@@ -136,7 +92,9 @@ jobs:
     needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint Core Cron

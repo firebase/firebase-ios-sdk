@@ -20,7 +20,12 @@ endif()
 
 # Note: googletest lives at head and encourages to just point to a head commit.
 # https://github.com/google/googletest/blob/bf66935e07/README.md?plain=1#L5-L10
-set(version main)
+
+# Commit 4a00a24fff was chosen because it is the _last_ commit before googletest
+# dropped c++14 support, setting the floor to c++17. Once Firebase sets _its_
+# floor to c++17, this pinned commit can be moved to a new one.
+# See https://github.com/firebase/firebase-ios-sdk/pull/14474.
+set(version 4a00a24fff)
 
 ExternalProject_Add(
   googletest

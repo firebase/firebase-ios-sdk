@@ -17,7 +17,7 @@ import FirebaseSessions
 import Foundation
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
-@_implementationOnly import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 
 @objc(FIRMockSubscriberSDKProtocol)
 protocol MockSubscriberSDKProtocol {
