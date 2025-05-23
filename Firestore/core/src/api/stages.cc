@@ -393,7 +393,7 @@ google_firestore_v1_Pipeline_Stage Unnest::to_proto() const {
   return result;
 }
 
-GenericStage::GenericStage(
+AddStage::AddStage(
     std::string name,
     std::vector<std::shared_ptr<Expr>> params,
     std::unordered_map<std::string, std::shared_ptr<Expr>> options)
@@ -402,7 +402,7 @@ GenericStage::GenericStage(
       options_(std::move(options)) {
 }
 
-google_firestore_v1_Pipeline_Stage GenericStage::to_proto() const {
+google_firestore_v1_Pipeline_Stage AddStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray(name_);
 

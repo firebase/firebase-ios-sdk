@@ -25,7 +25,7 @@ namespace api {
 google_firestore_v1_Value AggregateFunction::to_proto() const {
   google_firestore_v1_Value result;
   result.which_value_type = google_firestore_v1_Value_function_value_tag;
-
+  result.function_value = google_firestore_v1_Function{};
   result.function_value.name = nanopb::MakeBytesArray(name_);
   result.function_value.args_count = static_cast<pb_size_t>(params_.size());
   result.function_value.args = nanopb::MakeArray<google_firestore_v1_Value>(

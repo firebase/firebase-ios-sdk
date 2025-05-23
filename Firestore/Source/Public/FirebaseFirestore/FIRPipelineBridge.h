@@ -70,7 +70,7 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(CollectionSourceStageBridge)
 @interface FIRCollectionSourceStageBridge : FIRStageBridge
 
-- (id)initWithPath:(NSString *)path;
+- (id)initWithRef:(FIRCollectionReference *)ref firestore:(FIRFirestore *)db;
 
 @end
 
@@ -94,7 +94,7 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(DocumentsSourceStageBridge)
 @interface FIRDocumentsSourceStageBridge : FIRStageBridge
 
-- (id)initWithDocuments:(NSArray<NSString *> *)documents;
+- (id)initWithDocuments:(NSArray<FIRDocumentReference *> *)documents firestore:(FIRFirestore *)db;
 
 @end
 
@@ -195,8 +195,8 @@ NS_SWIFT_NAME(UnnestStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(GenericStageBridge)
-@interface FIRGenericStageBridge : FIRStageBridge
+NS_SWIFT_NAME(AddStageBridge)
+@interface FIRAddStageBridge : FIRStageBridge
 - (id)initWithName:(NSString *)name
             params:(NSArray<FIRExprBridge *> *)params
            options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;

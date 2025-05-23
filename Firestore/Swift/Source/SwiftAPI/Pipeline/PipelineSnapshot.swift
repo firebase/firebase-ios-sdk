@@ -25,7 +25,7 @@ public struct PipelineSnapshot: Sendable {
   public let pipeline: Pipeline
 
   /// An array of all the results in the `PipelineSnapshot`.
-  let results_cache: [PipelineResult]
+  public let results: [PipelineResult]
 
   /// The time at which the pipeline producing this result was executed.
   public let executionTime: Timestamp
@@ -36,10 +36,6 @@ public struct PipelineSnapshot: Sendable {
     self.bridge = bridge
     self.pipeline = pipeline
     executionTime = self.bridge.execution_time
-    results_cache = self.bridge.results.map { PipelineResult($0) }
-  }
-
-  public func results() -> [PipelineResult] {
-    return results_cache
+    results = self.bridge.results.map { PipelineResult($0) }
   }
 }
