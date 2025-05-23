@@ -84,7 +84,7 @@ google_firestore_v1_Pipeline_Stage DocumentsSource::to_proto() const {
 
   result.name = nanopb::MakeBytesArray("documents");
 
-  result.args_count = documents_.size();
+  result.args_count = static_cast<pb_size_t>(documents_.size());
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
 
   for (size_t i = 0; i < documents_.size(); ++i) {
