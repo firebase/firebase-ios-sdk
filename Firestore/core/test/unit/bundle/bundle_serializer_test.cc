@@ -50,6 +50,7 @@ using ProtoDocument = ::google::firestore::v1::Document;
 using ProtoMaybeDocument = ::firestore::client::MaybeDocument;
 using ProtoNamedQuery = ::firestore::NamedQuery;
 using ProtoValue = ::google::firestore::v1::Value;
+using MapValue = ::google::firestore::v1::MapValue;
 using core::Query;
 using core::Target;
 using local::LocalSerializer;
@@ -618,6 +619,93 @@ TEST_F(BundleSerializerTest, DecodesArrayValues) {
   value.mutable_array_value()->mutable_values()->Add(std::move(elem1));
   value.mutable_array_value()->mutable_values()->Add(std::move(elem2));
   value.mutable_array_value()->mutable_values()->Add(std::move(elem3));
+
+  VerifyFieldValueRoundtrip(value);
+}
+
+TEST_F(BundleSerializerTest, DecodesMinKey) {
+  ProtoValue null_value;
+  null_value.set_null_value(google::protobuf::NULL_VALUE);
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawMinKeyTypeFieldValue, null_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesMaxKey) {
+  ProtoValue null_value;
+  null_value.set_null_value(google::protobuf::NULL_VALUE);
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawMaxKeyTypeFieldValue, null_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesInt32Value) {
+  ProtoValue int_value;
+  int_value.set_integer_value(1234L);
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawInt32TypeFieldValue, int_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesRegexValue) {
+  ProtoValue pattern_value;
+  ProtoValue options_value;
+  ProtoValue inner_map_value;
+  ProtoValue value;
+
+  pattern_value.set_string_value("^foo");
+  options_value.set_string_value("i");
+  inner_map_value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawRegexTypePatternFieldValue, pattern_value});
+  inner_map_value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawRegexTypeOptionsFieldValue, options_value});
+  value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawRegexTypeFieldValue, inner_map_value});
+
+  VerifyFieldValueRoundtrip(value);
+}
+
+TEST_F(BundleSerializerTest, DecodesBsonObjectId) {
+  ProtoValue oid_value;
+  oid_value.set_string_value("foo");
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonObjectIdTypeFieldValue, oid_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
+TEST_F(BundleSerializerTest, DecodesBsonTimestamp) {
+  ProtoValue seconds_value;
+  ProtoValue increment_value;
+  ProtoValue inner_map_value;
+  ProtoValue value;
+
+  seconds_value.set_integer_value(1234L);
+  increment_value.set_integer_value(5678L);
+  inner_map_value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonTimestampTypeSecondsFieldValue, seconds_value});
+  inner_map_value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonTimestampTypeIncrementFieldValue, increment_value});
+  value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonTimestampTypeFieldValue, inner_map_value});
+
+  VerifyFieldValueRoundtrip(value);
+}
+
+TEST_F(BundleSerializerTest, DecodesBsonBinaryData) {
+  ProtoValue binary_value;
+  uint8_t array[]{0, 1, 2, 3};
+  binary_value.set_bytes_value(array, 4);
+  ProtoValue value;
+  value.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawBsonBinaryDataTypeFieldValue, binary_value});
 
   VerifyFieldValueRoundtrip(value);
 }
