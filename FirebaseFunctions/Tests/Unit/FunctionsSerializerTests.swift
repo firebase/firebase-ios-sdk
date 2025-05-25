@@ -98,9 +98,9 @@ class FunctionsSerializerTests: XCTestCase {
     let dictLowLong = ["@type": typeString, "value": badVal]
     do {
       _ = try serializer.decode(dictLowLong) as? NSNumber
-    } catch let FunctionsSerializer.Error.invalidValueForType(value, type) {
-      XCTAssertEqual(value, badVal)
-      XCTAssertEqual(type, typeString)
+    } catch let FunctionsSerializer.Error.failedToParseWrappedNumber(wrapped) {
+      XCTAssertEqual(wrapped.value, badVal)
+      XCTAssertEqual(wrapped.type.rawValue, typeString)
       return
     }
     XCTFail()
@@ -136,9 +136,9 @@ class FunctionsSerializerTests: XCTestCase {
     let coded = ["@type": typeString, "value": tooHighVal]
     do {
       _ = try serializer.decode(coded) as? NSNumber
-    } catch let FunctionsSerializer.Error.invalidValueForType(value, type) {
-      XCTAssertEqual(value, tooHighVal)
-      XCTAssertEqual(type, typeString)
+    } catch let FunctionsSerializer.Error.failedToParseWrappedNumber(wrapped) {
+      XCTAssertEqual(wrapped.value, tooHighVal)
+      XCTAssertEqual(wrapped.type.rawValue, typeString)
       return
     }
     XCTFail()
