@@ -189,25 +189,25 @@ extension Auth: AuthInterop {
     }
 
     /// Holds configuration for a R-GCIP tenant.
-    public struct TenantConfig {
-      public let location: String /// The location of the tenant.
+  public struct TenantConfig: Sendable {
       public let tenantId: String /// The ID of the tenant.
+      public let location: String /// The location of the tenant.
 
       /// Initializes a `TenantConfig` instance.
       /// - Parameters:
       ///   - location: The location of the tenant, defaults to "prod-global".
       ///   - tenantId: The ID of the tenant.
-      public init(location: String = "prod-global", tenantId: String) {
+      public init(tenantId: String, location: String = "prod-global") {
         self.location = location
         self.tenantId = tenantId
       }
     }
 
     /// Holds a Firebase ID token and its expiration.
-    public struct AuthExchangeToken {
+  public struct AuthExchangeToken: Sendable {
       public let token: String
       public let expirationDate: Date?
-      init(token: String, expirationDate: Date?) {
+      init(token: String, expirationDate: Date) {
         self.token = token
         self.expirationDate = expirationDate
       }
@@ -2471,37 +2471,91 @@ extension Auth: AuthInterop {
 
 @available(iOS 13, *)
 public extension Auth {
-  /// Exchanges a third-party OIDC token for a Firebase STS token.
+  
+  /// Exchanges a third-party OIDC token for a Firebase STS token using a completion handler.
   ///
-  /// Requires the `Auth` instance to be configured with a `TenantConfig` for R-GCIP.
+  /// This method is used in R-GCIP (multi-tenant) environments where the `Auth` instance must
+  /// be configured with a `TenantConfig`, including `location` and `tenantId`.
+  ///
   /// - Parameters:
-  ///   - idpConfigID: The ID of the OIDC provider configuration.
-  ///   - ciamOidcToken: The OIDC token to exchange.
-  ///   - completion: Called with the Firebase ID token or an error.
-  @objc func exchangeToken(_ idpConfigID: String,
-                           _ ciamOidcToken: String,
-                           completion: @escaping (String?, Error?) -> Void) {
-    // Check if R-GCIP (location and tenantId) is configured.
-    guard let location = requestConfiguration.location,
-          let tenantId = requestConfiguration.tenantId
-    else {
-      completion(nil, AuthErrorUtils.operationNotAllowedError(
-        message: "Set location & tenantId first"
-      ))
-      return
-    }
-    let request = ExchangeTokenRequest(
-      idpConfigID: idpConfigID,
-      idToken: ciamOidcToken,
-      config: requestConfiguration
-    )
-    Task {
-      do {
-        let resp = try await backend.call(with: request)
-        DispatchQueue.main.async { completion(resp.firebaseToken, nil) }
-      } catch {
-        DispatchQueue.main.async { completion(nil, error) }
+  ///   - idToken: The OIDC token received from the third-party Identity Provider (IdP).
+  ///   - idpConfigId: The identifier of the OIDC provider configuration defined in Firebase.
+  ///   - completion: A closure that gets called with either an `AuthTokenResult` or an `Error`.
+  public func exchangeToken(
+      idToken: String,
+      idpConfigId: String,
+      completion: @escaping (AuthTokenResult?, Error?) -> Void
+  ) {
+      // Ensure R-GCIP is configured with location and tenant ID
+      guard let location = requestConfiguration.location,
+            let tenantId = requestConfiguration.tenantId
+      else {
+          completion(nil, AuthErrorCode.operationNotAllowed)
+          return
       }
-    }
+
+      // Build the exchange token request
+      let request = ExchangeTokenRequest(
+          idToken: idToken,
+          idpConfigID: idpConfigId,
+          config: requestConfiguration
+      )
+
+      // Perform the token exchange asynchronously
+      Task {
+          do {
+              let response = try await backend.call(with: request)
+              do {
+                  // Try to parse the Firebase token response
+                  let authTokenResult = try AuthTokenResult.tokenResult(token: response.firebaseToken)
+                  DispatchQueue.main.async {
+                      completion(authTokenResult, nil)
+                  }
+              } catch {
+                  // Failed to parse JWT
+                  DispatchQueue.main.async {
+                      completion(nil, AuthErrorCode.malformedJWT)
+                  }
+              }
+          } catch {
+              // Backend call failed
+              DispatchQueue.main.async {
+                  completion(nil, error)
+              }
+          }
+      }
+  }
+  
+  /// Exchanges a third-party OIDC token for a Firebase STS token using Swift concurrency.
+  ///
+  /// This async variant performs the same operation as the completion-based method but returns
+  /// the result directly and throws on failure.
+  ///
+  /// The `Auth` instance must be configured with `TenantConfig` containing `location` and `tenantId`.
+  ///
+  /// - Parameters:
+  ///   - idToken: The OIDC token received from the third-party Identity Provider (IdP).
+  ///   - idpConfigId: The identifier of the OIDC provider configuration defined in Firebase.
+  /// - Returns: An `AuthTokenResult` containing the Firebase ID token and its expiration details.
+  /// - Throws: An error if R-GCIP is not configured, if the network call fails,
+  ///           or if the token parsing fails.
+  public func exchangeToken(idToken: String, idpConfigId: String) async throws -> AuthTokenResult {
+      // Ensure R-GCIP is configured with location and tenant ID
+      guard let location = requestConfiguration.location,
+            let tenantId = requestConfiguration.tenantId
+      else {
+          throw AuthErrorCode.operationNotAllowed
+      }
+
+      // Build the exchange token request
+      let request = ExchangeTokenRequest(
+          idToken: idToken,
+          idpConfigID: idpConfigId,
+          config: requestConfiguration
+      )
+
+      // Perform the backend call and return parsed token
+      let response = try await backend.call(with: request)
+      return try AuthTokenResult.tokenResult(token: response.firebaseToken)
   }
 }

@@ -25,11 +25,11 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   /// The type of the expected response.
   typealias Response = ExchangeTokenResponse
 
-  /// The identifier of the OIDC provider configuration.
-  private let idpConfigID: String
-
   /// The third-party OIDC token to exchange.
   private let idToken: String
+  
+  /// The identifier of the OIDC provider configuration.
+  private let idpConfigID: String
 
   /// The configuration for the request, holding API key, tenant, etc.
   private let config: AuthRequestConfiguration
@@ -40,8 +40,8 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   ///   - idpConfigID: The identifier of the OIDC provider configuration.
   ///   - idToken: The third-party OIDC token to exchange.
   ///   - config: The configuration for the request.
-  init(idpConfigID: String,
-       idToken: String,
+  init(idToken: String,
+       idpConfigID: String,
        config: AuthRequestConfiguration) {
     self.idpConfigID = idpConfigID
     self.idToken = idToken
