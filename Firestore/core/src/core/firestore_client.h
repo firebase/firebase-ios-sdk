@@ -36,6 +36,7 @@
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/nullability.h"
 #include "Firestore/core/src/util/status_fwd.h"
+#include "pipeline_util.h"
 
 namespace firebase {
 namespace firestore {
@@ -117,7 +118,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   /** Starts listening to a query. */
   std::shared_ptr<QueryListener> ListenToQuery(
-      Query query,
+      QueryOrPipeline query,
       ListenOptions options,
       ViewSnapshotSharedListener&& listener);
 

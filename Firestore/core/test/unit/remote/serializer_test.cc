@@ -526,7 +526,7 @@ class SerializerTest : public ::testing::Test {
           std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
     }
 
-    EXPECT_EQ(model.target(), actual_model);
+    EXPECT_EQ(model.target_or_pipeline(), actual_model);
   }
 
   void ExpectSerializationRoundTrip(const Mutation& model,
