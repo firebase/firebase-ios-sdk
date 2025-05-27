@@ -52,7 +52,7 @@ jobs:
     - uses: actions/cache/restore@v4
       with:
         path: .build
-        key: ${{needs.spm-package-resolved.outputs.cache_key}}
+        key: ${{ needs.spm.outputs.cache_key }}
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info.plist.gpg \
         FirebaseAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"

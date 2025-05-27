@@ -52,6 +52,11 @@ on:
         required: false
         default: ""
 
+    outputs:
+      cache_key:
+        description: "The cache key for the Swift package resolution."
+        value: ${{ jobs.spm-package-resolved.outputs.cache_key }}
+
 jobs:
   spm-package-resolved:
     env:
