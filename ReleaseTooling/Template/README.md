@@ -19,7 +19,7 @@ Each Firebase component requires several xcframeworks in order to function
 properly. Each section below lists the xcframeworks you'll need to include
 in your project in order to use that Firebase SDK in your application.
 
-Xcode 15.2 or newer is required.
+Xcode 16.2 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
@@ -43,7 +43,7 @@ To integrate a Firebase SDK with your app:
    box that appears, make sure the target you want this framework to be added to
    has a checkmark next to it, and that you've selected "Copy items if needed."
 
-7. If using Xcode 15, embed each framework that was dragged in. Navigate to the
+7. Embed each framework that was dragged in. Navigate to the
    target's _General_ settings and find _Frameworks, Libraries, & Embedded
    Content_. For each framework dragged in from the `Firebase.zip`, select
    **Embed & Sign**. This step will enable privacy manifests to be picked up by
