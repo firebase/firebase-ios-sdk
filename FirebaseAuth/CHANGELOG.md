@@ -1,4 +1,4 @@
-# Unreleased
+# 11.14.0
 - [fixed] Synchronize internal `AuthKeychainServices` class to prevent
   crashes from concurrent access. (#14835)
 
