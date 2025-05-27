@@ -87,7 +87,7 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Set conditional environment variable, if needed.
       if: inputs.product == 'FirebaseAuth'
-      run: echo "FIREBASE_CI=true >> $GITHUB_ENV
+      run: echo "FIREBASE_CI=true" >> $GITHUB_ENV
     - name: Set podspec Swift version to 6.0, if supported.
       if: inputs.supports_swift6 == true && matrix.os != 'macos-14'
       run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '6.0'/" ${{ inputs.product }}.podspec
