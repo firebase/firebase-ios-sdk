@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/core/expressions_eval.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
@@ -26,18 +27,31 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+Field::Field(std::string name) {
+  field_path_ = model::FieldPath::FromDotSeparatedString(name);
+}
+
 google_firestore_v1_Value Field::to_proto() const {
   google_firestore_v1_Value result;
 
   result.which_value_type = google_firestore_v1_Value_field_reference_value_tag;
-  result.field_reference_value = nanopb::MakeBytesArray(this->name_);
+  result.field_reference_value = nanopb::MakeBytesArray(this->alias());
 
   return result;
+}
+
+std::unique_ptr<core::EvaluableExpr> Field::ToEvaluable() const {
+  return std::make_unique<core::CoreField>(std::make_unique<Field>(*this));
 }
 
 google_firestore_v1_Value Constant::to_proto() const {
   // Return a copy of the value proto to avoid double delete.
   return *model::DeepClone(*value_).release();
+}
+
+std::unique_ptr<core::EvaluableExpr> Constant::ToEvaluable() const {
+  return std::make_unique<core::CoreConstant>(
+      std::make_unique<Constant>(*this));
 }
 
 google_firestore_v1_Value FunctionExpr::to_proto() const {
@@ -47,10 +61,14 @@ google_firestore_v1_Value FunctionExpr::to_proto() const {
   result.function_value = google_firestore_v1_Function{};
   result.function_value.name = nanopb::MakeBytesArray(name_);
   nanopb::SetRepeatedField(
-      &result.function_value.args, &result.function_value.args_count, args_,
+      &result.function_value.args, &result.function_value.args_count, params_,
       [](const std::shared_ptr<Expr>& arg) { return arg->to_proto(); });
 
   return result;
+}
+
+std::unique_ptr<core::EvaluableExpr> FunctionExpr::ToEvaluable() const {
+  return core::FunctionToEvaluable(*this);
 }
 
 }  // namespace api
