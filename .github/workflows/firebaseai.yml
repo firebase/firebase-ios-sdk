@@ -82,11 +82,9 @@ jobs:
       prereq_command: scripts/update_vertexai_responses.sh
 
   quickstart:
-    # Verifies the quickstart builds with this PR. Only run on pulls where branch is available.
-    if: github.event_name == 'pull_request'
     runs-on: macos-15
     env:
-      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}
     steps:
     - uses: actions/checkout@v4
     - name: Build Quickstart
