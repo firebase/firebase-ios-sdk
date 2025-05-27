@@ -33,12 +33,13 @@ on:
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile'
 
-    # Dependencies (Disabled to avoid building Firestore in presubmits)
-    # - 'FirebaseCore/**'
-    # - 'FirebaseAuth/**'
-    # - 'FirebaseFunctions/**'
-    # - 'Firestore/**'
-    # - 'FirebaseStorage/**'
+    # Dependencies
+    - 'FirebaseCore/**'
+    - 'FirebaseTestingSupport/**'
+    - 'FirebaseAuth/**'
+    - 'FirebaseFunctions/**'
+    - 'FirebaseStorage/**'
+    # - 'Firestore/**' # (Disabled to avoid building Firestore in presubmits)
 
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
