@@ -293,12 +293,12 @@ class Unnest : public Stage {
   absl::optional<std::string> index_field_;
 };
 
-class GenericStage : public Stage {
+class AddStage : public Stage {
  public:
-  GenericStage(std::string name,
-               std::vector<std::shared_ptr<Expr>> params,
-               std::unordered_map<std::string, std::shared_ptr<Expr>> options);
-  ~GenericStage() override = default;
+  AddStage(std::string name,
+           std::vector<std::shared_ptr<Expr>> params,
+           std::unordered_map<std::string, std::shared_ptr<Expr>> options);
+  ~AddStage() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:

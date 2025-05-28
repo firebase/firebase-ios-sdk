@@ -20,6 +20,7 @@
 
 #include <memory>
 
+#import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -39,11 +40,13 @@
 #include "Firestore/core/src/api/pipeline_result.h"
 #include "Firestore/core/src/api/pipeline_snapshot.h"
 #include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_apple.h"
 
 using firebase::firestore::api::AddFields;
+using firebase::firestore::api::AddStage;
 using firebase::firestore::api::AggregateFunction;
 using firebase::firestore::api::AggregateStage;
 using firebase::firestore::api::CollectionGroupSource;
@@ -57,7 +60,6 @@ using firebase::firestore::api::Expr;
 using firebase::firestore::api::Field;
 using firebase::firestore::api::FindNearestStage;
 using firebase::firestore::api::FunctionExpr;
-using firebase::firestore::api::GenericStage;
 using firebase::firestore::api::LimitStage;
 using firebase::firestore::api::MakeFIRTimestamp;
 using firebase::firestore::api::OffsetStage;
@@ -73,12 +75,20 @@ using firebase::firestore::api::Unnest;
 using firebase::firestore::api::Where;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::nanopb::SharedMessage;
+using firebase::firestore::util::ComparisonResult;
 using firebase::firestore::util::MakeCallback;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
+
+inline std::string EnsureLeadingSlash(const std::string &path) {
+  if (!path.empty() && path[0] == '/') {
+    return path;
+  }
+  return "/" + path;
+}
 
 @implementation FIRExprBridge
 @end
@@ -216,10 +226,19 @@ NS_ASSUME_NONNULL_BEGIN
   std::shared_ptr<CollectionSource> collection_source;
 }
 
-- (id)initWithPath:(NSString *)path {
+- (id)initWithRef:(FIRCollectionReference *)ref firestore:(FIRFirestore *)db {
   self = [super init];
   if (self) {
-    collection_source = std::make_shared<CollectionSource>(MakeString(path));
+    if (ref.firestore.databaseID.CompareTo(db.databaseID) != ComparisonResult::Same) {
+      ThrowInvalidArgument(
+          "Invalid CollectionReference. The project ID (\"%s\") or the database (\"%s\") does not "
+          "match "
+          "the project ID (\"%s\") and database (\"%s\") of the target database of this Pipeline.",
+          ref.firestore.databaseID.project_id(), ref.firestore.databaseID.database_id(),
+          db.databaseID.project_id(), db.databaseID.project_id());
+    }
+    collection_source =
+        std::make_shared<CollectionSource>(EnsureLeadingSlash(MakeString(ref.path)));
   }
   return self;
 }
@@ -270,12 +289,21 @@ NS_ASSUME_NONNULL_BEGIN
   std::shared_ptr<DocumentsSource> cpp_document_source;
 }
 
-- (id)initWithDocuments:(NSArray<NSString *> *)documents {
+- (id)initWithDocuments:(NSArray<FIRDocumentReference *> *)documents firestore:(FIRFirestore *)db {
   self = [super init];
   if (self) {
     std::vector<std::string> cpp_documents;
-    for (NSString *doc in documents) {
-      cpp_documents.push_back(MakeString(doc));
+    for (FIRDocumentReference *doc in documents) {
+      if (doc.firestore.databaseID.CompareTo(db.databaseID) != ComparisonResult::Same) {
+        ThrowInvalidArgument("Invalid DocumentReference. The project ID (\"%s\") or the database "
+                             "(\"%s\") does not match "
+                             "the project ID (\"%s\") and database (\"%s\") of the target database "
+                             "of this Pipeline.",
+                             doc.firestore.databaseID.project_id(),
+                             doc.firestore.databaseID.database_id(), db.databaseID.project_id(),
+                             db.databaseID.project_id());
+      }
+      cpp_documents.push_back(EnsureLeadingSlash(MakeString(doc.path)));
     }
     cpp_document_source = std::make_shared<DocumentsSource>(std::move(cpp_documents));
   }
@@ -754,12 +782,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FIRGenericStageBridge {
+@implementation FIRAddStageBridge {
   NSString *_name;
   NSArray<FIRExprBridge *> *_params;
   NSDictionary<NSString *, FIRExprBridge *> *_Nullable _options;
   Boolean isUserDataRead;
-  std::shared_ptr<GenericStage> cpp_generic_stage;
+  std::shared_ptr<AddStage> cpp_generic_stage;
 }
 
 - (id)initWithName:(NSString *)name
@@ -787,8 +815,8 @@ NS_ASSUME_NONNULL_BEGIN
         cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
       }
     }
-    cpp_generic_stage = std::make_shared<GenericStage>(MakeString(_name), std::move(cpp_params),
-                                                       std::move(cpp_options));
+    cpp_generic_stage = std::make_shared<AddStage>(MakeString(_name), std::move(cpp_params),
+                                                   std::move(cpp_options));
   }
 
   isUserDataRead = YES;
