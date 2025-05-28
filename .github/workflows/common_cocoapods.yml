@@ -1,4 +1,4 @@
-name: common
+name: common_cocoapods
 
 permissions:
   contents: read
@@ -6,8 +6,8 @@ permissions:
 on:
   workflow_call:
     inputs:
-      # The target scheme to be tested.
-      target:
+      # The product to test be tested (e.g. `FirebaseABTesting`).
+      product:
         type: string
         required: true
 
@@ -21,7 +21,7 @@ on:
       platforms:
         type: string
         required: false
-        default: "iOS, tvOS, macOS, watchOS, catalyst, visionOS"
+        default: "iOS, tvOS, macOS, watchOS"
 
       # By default, all platforms will be tested (see matrix in `spm` job).
       # To build instead of test, pass a comma or space separated string of
@@ -41,6 +41,26 @@ on:
        required: false
        default: ""
 
+      # Whether to lint with `--allow-warnings`. Defaults to false.
+      allow_warnings:
+        type: boolean
+        required: false
+        default: false
+
+      # Whether to additionally build with Swift 6. Defaults to false.
+      supports_swift6:
+        type: boolean
+        required: false
+        default: false
+
+      # A comma separated (no spaces) string that will be passed to
+      # pod lib lint's `--test-specs=` argument. By default, all
+      # test specs will be tested.
+      test_specs:
+       type: string
+       required: false
+       default: ""
+
       # A command to execute before testing.
       #
       # This is useful for additional set up, like starting an emulator or
@@ -52,45 +72,15 @@ on:
         required: false
         default: ""
 
-    outputs:
-      cache_key:
-        description: "The cache key for the Swift package resolution."
-        value: ${{ jobs.spm-package-resolved.outputs.cache_key }}
-
 jobs:
-  spm-package-resolved:
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-15
-    outputs:
-      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-      - name: Generate Swift Package.resolved
-        id: swift_package_resolve
-        run: swift package resolve
-      - name: Generate cache key
-        id: generate_cache_key
-        run: |
-          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
-          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/save@v4
-        id: cache
-        with:
-          path: .build
-          key: ${{ steps.generate_cache_key.outputs.cache_key }}
-
-  spm:
+  pod-lib-lint:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
-    needs: [spm-package-resolved]
     strategy:
       matrix:
         os: [macos-15]
         xcode: [Xcode_16.3]
-        platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+        platform: [iOS, tvOS, macOS, watchOS]
         include:
           - os: macos-14
             xcode: Xcode_16.2
@@ -98,20 +88,20 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
-      with:
-        path: .build
-        key: ${{needs.spm-package-resolved.outputs.cache_key}}
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install visionOS, if needed.
-      if: matrix.platform == 'visionOS'
-      run: xcodebuild -downloadPlatform visionOS
+    - name: Set conditional environment variable, if needed.
+      if: inputs.product == 'FirebaseAuth'
+      run: echo "FIREBASE_CI=true" >> $GITHUB_ENV
+    - name: Set podspec Swift version to 6.0, if supported.
+      if: inputs.supports_swift6 == true && matrix.os != 'macos-14'
+      run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '6.0'/" ${{ inputs.product }}.podspec
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
       run: ${{ inputs.setup_command }}
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       if: contains(join(inputs.platforms), matrix.platform) || matrix.os == 'macos-14'
       with:
@@ -120,7 +110,7 @@ jobs:
         retry_on: error
         retry_wait_seconds: 120
         command: |
-          ./scripts/build.sh \
-            ${{ inputs.target }} \
-            ${{ matrix.platform }} \
-            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
+          scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }} \
+            ${{ inputs.allow_warnings == true && '--allow-warnings' || '' }} \
+            ${{ inputs.test_specs != '' && format('--test-specs={0}', inputs.test_specs) || '' }} \
+            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && '--skip-tests' || '' }}

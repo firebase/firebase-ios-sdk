@@ -1,11 +1,16 @@
 name: core
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseCore**'
     - '.github/workflows/core.yml'
+    - '.github/workflows/common.yml'
+    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 2am (PST) - cron uses UTC times
@@ -27,31 +32,10 @@ jobs:
       product: FirebaseCore
       target: FirebaseCore-Unit-unit
 
-  pod-lib-lint:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-        target: [ios, tvos, macos --skip-tests, watchos]
-        build-env:
-          - os: macos-14
-            xcode: Xcode_16.2
-          - os: macos-15
-            xcode: Xcode_16.2
-          # TODO: Add Xcode matrix when Xcode 16 is ubiquitous on CI runners.
-#          - os: macos-15
-#            xcode: Xcode_16.3
-    runs-on: ${{ matrix.build-env.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
-    - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCore.podspec --platforms=${{ matrix.target }}
+  pod_lib_lint:
+    uses: ./.github/workflows/common_cocoapods.yml
+    with:
+      product: FirebaseCore
 
   spm-package-resolved:
     env:
@@ -89,7 +73,7 @@ jobs:
         flags: [
           '--use-static-frameworks'
         ]
-    needs: pod-lib-lint
+    needs: pod_lib_lint
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
