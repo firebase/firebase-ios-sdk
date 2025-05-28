@@ -112,5 +112,5 @@ jobs:
         command: |
           scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }} \
             ${{ inputs.allow_warnings == true && '--allow-warnings' || '' }} \
-            ${{ inputs.test_specs != '' && "--test-specs=${{ inputs.test_specs }}" || '' }} \
+            ${{ inputs.test_specs != '' && format('--test-specs={0}', inputs.test_specs) || '' }} \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && '--skip-tests' || '' }}
