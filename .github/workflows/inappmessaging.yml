@@ -27,8 +27,6 @@ jobs:
       buildonly_platforms: iOS
 
   pod_lib_lint:
-#    - name: FirebaseInAppMessaging
-#      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec}}
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseInAppMessaging
