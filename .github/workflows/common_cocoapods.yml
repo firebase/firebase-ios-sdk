@@ -53,6 +53,14 @@ on:
         required: false
         default: false
 
+      # A comma separated (no spaces) string that will be passed to
+      # pod lib lint's `--test-specs=` argument. By default, all
+      # test specs will be tested.
+      test_specs:
+       type: string
+       required: false
+       default: ""
+
       # A command to execute before testing.
       #
       # This is useful for additional set up, like starting an emulator or
@@ -104,4 +112,5 @@ jobs:
         command: |
           scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }} \
             ${{ inputs.allow_warnings == true && '--allow-warnings' || '' }} \
+            ${{ inputs.test_specs != '' && '--test-specs=${{ inputs.test_specs }}' || '' }} \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && '--skip-tests' || '' }}
