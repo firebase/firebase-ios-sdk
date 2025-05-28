@@ -36,5 +36,5 @@ jobs:
   pod_lib_lint:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
-      product: FirebaseSessions # --skip-tests was used on macos-15
+      product: FirebaseSessions
       supports_swift6: true

@@ -81,8 +81,6 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseRemoteConfig
-      # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-      # buildonly_platforms: macOS
 
   quickstart:
     # Don't run on private repo unless it is a PR.
