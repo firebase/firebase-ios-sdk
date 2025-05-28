@@ -45,7 +45,6 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: ${{  matrix.product }}
-#      buildonly_platforms: macOS # skip tests on macos and watchos. only test unit spec
 
   # TODO(#12205) Update the build.sh script for this job from "test" instead of "build"
   messaging-integration-tests:
