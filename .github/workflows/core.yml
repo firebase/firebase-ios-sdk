@@ -36,8 +36,6 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseCore
-      # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-#      buildonly_platforms: macOS
 
   spm-package-resolved:
     env:
