@@ -27,7 +27,7 @@ struct ExchangeTokenRequest: AuthRPCRequest {
 
   /// The third-party OIDC token to exchange.
   private let idToken: String
-  
+
   /// The identifier of the OIDC provider configuration.
   private let idpConfigID: String
 
