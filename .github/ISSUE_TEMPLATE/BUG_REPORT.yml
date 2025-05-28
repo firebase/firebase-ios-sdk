@@ -68,6 +68,7 @@ body:
       multiple: true
       options:
         - AB Testing
+        - AI Logic
         - Analytics
         - App Check
         - App Distribution
@@ -85,7 +86,6 @@ body:
         - Performance
         - Remote Config
         - Storage
-        - VertexAI
         - All
         - Infrastructure
     validations:
