@@ -2,6 +2,9 @@
 # Reference: https://github.community/t/on-schedule-per-branch/17525
 name: performance
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   pull_request:
