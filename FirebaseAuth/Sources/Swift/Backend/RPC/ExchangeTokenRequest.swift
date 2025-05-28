@@ -14,6 +14,8 @@
 
 import Foundation
 
+private let kCustomTokenKey = "customToken"
+
 /// A request to exchange a third-party OIDC token for a Firebase STS token.
 ///
 /// This structure encapsulates the parameters required to make an API request
@@ -26,7 +28,7 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   typealias Response = ExchangeTokenResponse
 
   /// The OIDC provider's Authorization code or Id Token to exchange.
-  private let idToken: String
+  private let customToken: String
 
   /// The ExternalUserDirectoryId corresponding to the OIDC custom Token.
   private let idpConfigID: String
@@ -40,17 +42,17 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   ///   - idpConfigID: The identifier of the OIDC provider configuration.
   ///   - idToken: The third-party OIDC token to exchange.
   ///   - config: The configuration for the request.
-  init(idToken: String,
+  init(customToken: String,
        idpConfigID: String,
        config: AuthRequestConfiguration) {
     self.idpConfigID = idpConfigID
-    self.idToken = idToken
+    self.customToken = customToken
     self.config = config
   }
 
   /// The unencoded HTTP request body for the API.
   var unencodedHTTPRequestBody: [String: AnyHashable]? {
-    return ["id_token": idToken]
+    return ["custom_token": customToken]
   }
 
   /// Constructs the URL for the API request.

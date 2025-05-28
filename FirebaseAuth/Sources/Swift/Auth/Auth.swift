@@ -2480,7 +2480,7 @@ public extension Auth {
   ///   - idToken: The OIDC token received from the third-party Identity Provider (IdP).
   ///   - idpConfigId: The identifier of the OIDC provider configuration defined in Firebase.
   ///   - completion: A closure that gets called with either an `AuthTokenResult` or an `Error`.
-  func exchangeToken(idToken: String,
+  func exchangeToken(customToken: String,
                      idpConfigId: String,
                      completion: @escaping (AuthTokenResult?, Error?) -> Void) {
     // Ensure R-GCIP is configured with location and tenant ID
@@ -2493,7 +2493,7 @@ public extension Auth {
 
     // Build the exchange token request
     let request = ExchangeTokenRequest(
-      idToken: idToken,
+      customToken: customToken,
       idpConfigID: idpConfigId,
       config: requestConfiguration
     )
@@ -2511,9 +2511,6 @@ public extension Auth {
           }
         } catch {
           completion(nil, AuthErrorCode.malformedJWT)
-        } catch {
-          // 5. Handle other errors (network, server errors, etc.).
-          completion(nil, error)
         }
       }
     }
@@ -2533,7 +2530,7 @@ public extension Auth {
   /// - Returns: An `AuthTokenResult` containing the Firebase ID token and its expiration details.
   /// - Throws: An error if R-GCIP is not configured, if the network call fails,
   ///           or if the token parsing fails.
-  func exchangeToken(idToken: String, idpConfigId: String) async throws -> AuthTokenResult {
+  func exchangeToken(customToken: String, idpConfigId: String) async throws -> AuthTokenResult {
     // Ensure R-GCIP is configured with location and tenant ID
     guard let _ = requestConfiguration.location,
           let _ = requestConfiguration.tenantId
@@ -2543,7 +2540,7 @@ public extension Auth {
 
     // Build the exchange token request
     let request = ExchangeTokenRequest(
-      idToken: idToken,
+      customToken: customToken,
       idpConfigID: idpConfigId,
       config: requestConfiguration
     )
