@@ -40,7 +40,8 @@ jobs:
   pod_lib_lint:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
-      product: FirebaseDatabase # --test-specs=unit
+      product: FirebaseDatabase
+      test_specs: unit
       buildonly_platforms: macOS
 
   integration:
