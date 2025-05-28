@@ -2484,8 +2484,8 @@ public extension Auth {
                      idpConfigId: String,
                      completion: @escaping (AuthTokenResult?, Error?) -> Void) {
     // Ensure R-GCIP is configured with location and tenant ID
-    guard let location = requestConfiguration.location,
-          let tenantId = requestConfiguration.tenantId
+    guard let _ = requestConfiguration.location,
+          let _ = requestConfiguration.tenantId
     else {
       completion(nil, AuthErrorCode.operationNotAllowed)
       return
@@ -2504,19 +2504,15 @@ public extension Auth {
         let response = try await backend.call(with: request)
         do {
           // Try to parse the Firebase token response
-          let authTokenResult = try AuthTokenResult.tokenResult(token: response.firebaseToken)
-          DispatchQueue.main.async {
+          do {
+            let authTokenResult = try AuthTokenResult.tokenResult(token: response.firebaseToken)
+            completion(authTokenResult, nil)
             completion(authTokenResult, nil)
           }
         } catch {
-          // Failed to parse JWT
-          DispatchQueue.main.async {
-            completion(nil, AuthErrorCode.malformedJWT)
-          }
-        }
-      } catch {
-        // Backend call failed
-        DispatchQueue.main.async {
+          completion(nil, AuthErrorCode.malformedJWT)
+        } catch {
+          // 5. Handle other errors (network, server errors, etc.).
           completion(nil, error)
         }
       }
@@ -2539,8 +2535,8 @@ public extension Auth {
   ///           or if the token parsing fails.
   func exchangeToken(idToken: String, idpConfigId: String) async throws -> AuthTokenResult {
     // Ensure R-GCIP is configured with location and tenant ID
-    guard let location = requestConfiguration.location,
-          let tenantId = requestConfiguration.tenantId
+    guard let _ = requestConfiguration.location,
+          let _ = requestConfiguration.tenantId
     else {
       throw AuthErrorCode.operationNotAllowed
     }
@@ -2553,7 +2549,11 @@ public extension Auth {
     )
 
     // Perform the backend call and return parsed token
-    let response = try await backend.call(with: request)
-    return try AuthTokenResult.tokenResult(token: response.firebaseToken)
+    do {
+      let response = try await backend.call(with: request)
+      return try AuthTokenResult.tokenResult(token: response.firebaseToken)
+    } catch {
+      throw error
+    }
   }
 }
