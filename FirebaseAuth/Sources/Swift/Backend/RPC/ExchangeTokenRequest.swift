@@ -25,10 +25,10 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   /// The type of the expected response.
   typealias Response = ExchangeTokenResponse
 
-  /// The third-party OIDC token to exchange.
+  /// The OIDC provider's Authorization code or Id Token to exchange.
   private let idToken: String
 
-  /// The identifier of the OIDC provider configuration.
+  /// The ExternalUserDirectoryId corresponding to the OIDC custom Token.
   private let idpConfigID: String
 
   /// The configuration for the request, holding API key, tenant, etc.
@@ -67,8 +67,8 @@ struct ExchangeTokenRequest: AuthRPCRequest {
       )
     }
     let host = "\(region)-identityplatform.googleapis.com"
-    let path = "/v2/projects/\(project)/locations/\(region)" +
-      "/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
+    let path = "/v2/projects/$\(project)/locations/$\(region)" +
+      "/tenants/$\(tenant)/idpConfigs/$\(idpConfigID):exchangeOidcToken"
     guard let url = URL(string: "https://\(host)\(path)?key=\(config.apiKey)") else {
       fatalError("Failed to create URL for exchangeOidcToken")
     }

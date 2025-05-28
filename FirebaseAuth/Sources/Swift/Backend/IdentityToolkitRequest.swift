@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAuth // Import FirebaseAuth for AuthErrorCode
+import FirebaseCore
 import Foundation
 
 private let kHttpsProtocol = "https:"
@@ -80,8 +82,11 @@ class IdentityToolkitRequest {
     let hostPrefix: String
     let urlString: String
     // R-GCIP v2 if location is non-nil
-    let tenant = _requestConfiguration.tenantId
-    if let region = _requestConfiguration.location {
+
+    if let region = _requestConfiguration.location,
+       let tenant = _requestConfiguration.tenantId,
+       !region.isEmpty,
+       !tenant.isEmpty {
       // Project identifier
       guard let project = auth.app?.options.projectID else {
         fatalError("Internal Auth error: missing projectID")
