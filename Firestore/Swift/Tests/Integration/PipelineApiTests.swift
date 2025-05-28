@@ -401,4 +401,24 @@ final class PipelineTests: FSTIntegrationTestCase {
     // Create a generic AggregateFunction for use where AggregateFunction is required
     let mySum = AggregateFunction("sum", [Field("price")])
   }
+
+  func testOption() async throws {
+    let _: PipelineSnapshot = try await db.pipeline().database().execute(
+      explainOptions:
+      ExplainOptions(
+        mode: .analyze,
+        outputFormat: .json,
+        verbosity: .executionTree,
+        indexRecommendation: true,
+        profiles: .bytesThroughput,
+        redact: false
+      ),
+      indexMode: .recommended,
+      customOptions: CustomOptions(
+        ["option_not_known_to_sdk": true,
+         "explain_options.new_explain_option": "any value here",
+         "explain_options.mode": "newServerKnownMode"]
+      )
+    )
+  }
 }

@@ -109,7 +109,9 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `PipelineSnapshot` containing the result of the pipeline execution.
-  public func execute() async throws -> PipelineSnapshot {
+  public func execute(explainOptions: ExplainOptions? = nil,
+                      indexMode: IndexMode? = nil,
+                      customOptions: CustomOptions? = nil) async throws -> PipelineSnapshot {
     return try await withCheckedThrowingContinuation { continuation in
       self.bridge.execute { result, error in
         if let error {
