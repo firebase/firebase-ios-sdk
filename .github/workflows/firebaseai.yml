@@ -30,7 +30,7 @@ jobs:
     uses: ./.github/workflows/common.yml
     with:
       target: FirebaseAIUnit
-      prereq_command: scripts/update_vertexai_responses.sh
+      setup_command: scripts/update_vertexai_responses.sh
 
   testapp-integration:
     strategy:
@@ -79,7 +79,7 @@ jobs:
     with:
       product: FirebaseAI
       supports_swift6: true
-      prereq_command: scripts/update_vertexai_responses.sh
+      setup_command: scripts/update_vertexai_responses.sh
 
   quickstart:
     runs-on: macos-15

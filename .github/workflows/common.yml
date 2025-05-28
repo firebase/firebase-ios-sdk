@@ -47,7 +47,7 @@ on:
       # downloading test data.
       #
       # Example: `FirebaseFunctions/Backend/start.sh synchronous`
-      prereq_command:
+      setup_command:
         type: string
         required: false
         default: ""
@@ -107,9 +107,9 @@ jobs:
     - name: Install visionOS, if needed.
       if: matrix.platform == 'visionOS'
       run: xcodebuild -downloadPlatform visionOS
-    - name: Run prereq command, if needed.
-      if: inputs.prereq_command != ''
-      run: ${{ inputs.prereq_command }}
+    - name: Run setup command, if needed.
+      if: inputs.setup_command != ''
+      run: ${{ inputs.setup_command }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3

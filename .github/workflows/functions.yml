@@ -33,7 +33,7 @@ jobs:
     with:
       product: FirebaseFunctions
       supports_swift6: true
-      prereq_command: FirebaseFunctions/Backend/start.sh synchronous
+      setup_command: FirebaseFunctions/Backend/start.sh synchronous
 
   spm-package-resolved:
     runs-on: macos-14
