@@ -45,8 +45,7 @@ jobs:
         echo "$MY_SECRET_14904"
         ls FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
     secrets:
-      MY_SECRET_14904: ${{ secrets.MY_SECRET_14904 }}
-        
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   # mlmodeldownloader-cron-only:
   #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
