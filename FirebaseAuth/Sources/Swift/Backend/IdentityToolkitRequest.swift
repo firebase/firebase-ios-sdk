@@ -99,7 +99,7 @@ class IdentityToolkitRequest {
 
       // Regionalized v2 path
       urlString =
-      "\(protocolScheme)//\(hostPrefix)/v2/projects/\(projectID ?? "projectID")"
+        "\(protocolScheme)//\(hostPrefix)/v2/projects/\(projectID ?? "projectID")"
           + "/locations/\(region)/tenants/\(tenant)/idpConfigs/\(endpoint)?key=\(apiKey)"
 
     } else {
