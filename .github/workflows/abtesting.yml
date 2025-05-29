@@ -9,7 +9,7 @@ on:
     paths:
     - 'FirebaseABTesting**'
     - 'Interop/Analytics/Public/*.h'
-    - '.github/workflows/abtesting.yml'
+    # - '.github/workflows/abtesting.yml'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'

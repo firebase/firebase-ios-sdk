@@ -9,7 +9,7 @@ on:
     paths:
     - 'FirebaseCoreInternal.podspec'
     - 'FirebaseCore/Internal/**'
-    - '.github/workflows/core_internal.yml'
+    # - '.github/workflows/core_internal.yml'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'

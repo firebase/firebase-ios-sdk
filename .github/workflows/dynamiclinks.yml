@@ -8,7 +8,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseDynamicLinks**'
-    - '.github/workflows/dynamiclinks.yml'
+    # - '.github/workflows/dynamiclinks.yml'
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'

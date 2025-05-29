@@ -9,7 +9,7 @@ on:
     paths:
     - 'FirebaseInAppMessaging**'
     - 'Interop/Analytics/Public/*.h'
-    - '.github/workflows/inappmessaging.yml'
+    # - '.github/workflows/inappmessaging.yml'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'

@@ -8,7 +8,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseAppDistribution**'
-    - '.github/workflows/appdistribution.yml'
+    # - '.github/workflows/appdistribution.yml'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'

@@ -12,7 +12,7 @@ on:
     - 'FirebaseSharedSwift**'
     - 'Example/Database/**'
     - 'FirebaseAuth/Interop/*.h'
-    - '.github/workflows/database.yml'
+    # - '.github/workflows/database.yml'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'

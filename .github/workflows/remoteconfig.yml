@@ -9,7 +9,7 @@ on:
     paths:
     - 'FirebaseRemoteConfig**'
     - 'Interop/Analytics/Public/*.h'
-    - '.github/workflows/remoteconfig.yml'
+    # - '.github/workflows/remoteconfig.yml'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'

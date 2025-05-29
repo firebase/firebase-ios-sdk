@@ -8,7 +8,7 @@ on:
     paths:
     - 'FirebaseAI**'
     - 'FirebaseVertexAI**'
-    - '.github/workflows/vertexai.yml'
+    # - '.github/workflows/vertexai.yml'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'

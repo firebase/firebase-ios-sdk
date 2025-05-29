@@ -14,7 +14,7 @@ on:
     # Podspec
     - 'FirebaseMessaging.podspec'
     # This file
-    - '.github/workflows/messaging.yml'
+    # - '.github/workflows/messaging.yml'
     # Re-usable workflows being used by this file.
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'

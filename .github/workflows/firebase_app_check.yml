@@ -8,7 +8,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseAppCheck**'
-    - '.github/workflows/firebase_app_check.yml'
+    # - '.github/workflows/firebase_app_check.yml'
     - '.github/workflows/common.yml'
 #    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
