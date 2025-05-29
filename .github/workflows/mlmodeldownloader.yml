@@ -36,7 +36,7 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseMLModelDownloader
-      platforms: iOS
+      platforms: macOS
       setup_command: |
         scripts/configure_test_keychain.sh
         mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
