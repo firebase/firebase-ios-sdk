@@ -51,6 +51,8 @@ public struct GenerationConfig: Sendable {
   /// Supported modalities of the response.
   let responseModalities: [ResponseModality]?
 
+  let thinkingConfig: ThinkingConfig?
+
   /// Creates a new `GenerationConfig` value.
   ///
   /// See the
@@ -156,7 +158,8 @@ public struct GenerationConfig: Sendable {
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
-              responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil) {
+              responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,
+              thinkingConfig: ThinkingConfig? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -170,6 +173,7 @@ public struct GenerationConfig: Sendable {
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
     self.responseModalities = responseModalities
+    self.thinkingConfig = thinkingConfig
   }
 }
 
