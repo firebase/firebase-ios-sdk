@@ -11,7 +11,7 @@ on:
     - 'FirebaseCrashlytics.podspec'
     - '.github/workflows/crashlytics.yml'
     - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
+#    - '.github/workflows/common_cocoapods.yml'
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile*'
   schedule:
