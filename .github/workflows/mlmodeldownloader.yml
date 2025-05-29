@@ -1,11 +1,16 @@
 name: mlmodeldownloader
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
     - 'FirebaseMLModelDownloader**'
     - '.github/workflows/mlmodeldownloader.yml'
+    - '.github/workflows/common.yml'
+    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -27,35 +32,16 @@ jobs:
       product: FirebaseMLModelDownloader
       target: FirebaseMLModelDownloader-Unit-unit
 
-  pod-lib-lint:
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    strategy:
-      matrix:
-        target: [ios, tvos, macos, watchos]
-        build-env:
-          - os: macos-14
-            xcode: Xcode_16.2
-          - os: macos-15
-            xcode: Xcode_16.2
-    runs-on: ${{ matrix.build-env.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Configure test keychain
-      run: scripts/configure_test_keychain.sh
-    - name: Install GoogleService-Info.plist
-      run: |
+  pod_lib_lint:
+    uses: ./.github/workflows/common_cocoapods.yml
+    with:
+      product: FirebaseMLModelDownloader
+      setup_command: |
         mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
           FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
-    - name: Build and test
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMLModelDownloader.podspec --platforms=${{ matrix.target }})
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   mlmodeldownloader-cron-only:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
@@ -65,7 +51,7 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
-    needs: pod-lib-lint
+    needs: pod_lib_lint
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
