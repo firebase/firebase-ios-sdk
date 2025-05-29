@@ -8,10 +8,10 @@ on:
   pull_request:
     paths:
     - 'FirebaseDynamicLinks**'
-    # - '.github/workflows/dynamiclinks.yml'
+    - '.github/workflows/dynamiclinks.yml'
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/common.yml'
-#    - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 1am (PST) - cron uses UTC times

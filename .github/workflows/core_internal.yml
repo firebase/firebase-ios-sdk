@@ -9,9 +9,9 @@ on:
     paths:
     - 'FirebaseCoreInternal.podspec'
     - 'FirebaseCore/Internal/**'
-    # - '.github/workflows/core_internal.yml'
+    - '.github/workflows/core_internal.yml'
     - '.github/workflows/common.yml'
-#    - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 2am (PST) - cron uses UTC times

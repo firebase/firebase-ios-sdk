@@ -8,9 +8,9 @@ on:
     paths:
     - 'FirebaseAI**'
     - 'FirebaseVertexAI**'
-    # - '.github/workflows/vertexai.yml'
+    - '.github/workflows/vertexai.yml'
     - '.github/workflows/common.yml'
-#    - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
