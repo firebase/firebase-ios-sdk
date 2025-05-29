@@ -28,13 +28,27 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   typealias Response = ExchangeTokenResponse
 
   /// The OIDC provider's Authorization code or Id Token to exchange.
-  private let customToken: String
+  let customToken: String
 
   /// The ExternalUserDirectoryId corresponding to the OIDC custom Token.
-  private let idpConfigID: String
+  let idpConfigID: String
 
   /// The configuration for the request, holding API key, tenant, etc.
-  private let config: AuthRequestConfiguration
+  let config: AuthRequestConfiguration
+
+  var path: String {
+    guard let region = config.location,
+          let tenant = config.tenantId,
+          let project = config.auth?.app?.options.projectID
+    else {
+      fatalError(
+        "exchangeOidcToken requires `auth.location` & `auth.tenantID`"
+      )
+    }
+    _ = "\(region)-identityplatform.googleapis.com"
+    return "/v2alpha/projects/\(project)/locations/\(region)" +
+      "/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
+  }
 
   /// Initializes a new `ExchangeTokenRequest` instance.
   ///

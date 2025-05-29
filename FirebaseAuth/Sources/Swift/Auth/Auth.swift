@@ -140,6 +140,31 @@ extension Auth: AuthInterop {
   }
 }
 
+/// Holds configuration for a R-GCIP tenant.
+public struct TenantConfig: Sendable {
+  public let tenantId: String /// The ID of the tenant.
+  public let location: String /// The location of the tenant.
+
+  /// Initializes a `TenantConfig` instance.
+  /// - Parameters:
+  ///   - location: The location of the tenant, defaults to "prod-global".
+  ///   - tenantId: The ID of the tenant.
+  public init(tenantId: String, location: String = "prod-global") {
+    self.location = location
+    self.tenantId = tenantId
+  }
+}
+
+/// Holds a Firebase ID token and its expiration.
+public struct AuthExchangeToken: Sendable {
+  public let token: String
+  public let expirationDate: Date?
+  init(token: String, expirationDate: Date) {
+    self.token = token
+    self.expirationDate = expirationDate
+  }
+}
+
 /// Manages authentication for Firebase apps.
 ///
 /// This class is thread-safe.
@@ -170,47 +195,18 @@ extension Auth: AuthInterop {
   /// Gets the `FirebaseApp` object that this auth object is connected to.
   @objc public internal(set) weak var app: FirebaseApp?
 
-  /// New R-GCIP v2 + BYO-CIAM initializer.
-  ///
-  /// This initializer allows to create an `Auth` instance with a specific `tenantConfig` for
-  /// R-GCIP.
+  /// Gets the auth object for a `FirebaseApp` with an optional `TenantConfig`.
   /// - Parameters:
-  ///   - app: The `FirebaseApp` for which to initialize the `Auth` instance.
-  ///   - tenantConfig: The configuration for the tenant, including location and tenant ID.
-  /// - Returns: An `Auth` instance configured for the specified tenant.
+  ///   - app: The Firebase app instance.
+  ///   - tenantConfig: The optional configuration for the RGCIP.
+  /// - Returns: The `Auth` instance associated with the given app and tenant config.
   public static func auth(app: FirebaseApp, tenantConfig: TenantConfig) -> Auth {
-    // start from the legacy initializer so we get a fully-formed Auth object
     let auth = auth(app: app)
     kAuthGlobalWorkQueue.sync {
       auth.requestConfiguration.location = tenantConfig.location
       auth.requestConfiguration.tenantId = tenantConfig.tenantId
     }
     return auth
-  }
-
-  /// Holds configuration for a R-GCIP tenant.
-  public struct TenantConfig: Sendable {
-    public let tenantId: String /// The ID of the tenant.
-    public let location: String /// The location of the tenant.
-
-    /// Initializes a `TenantConfig` instance.
-    /// - Parameters:
-    ///   - location: The location of the tenant, defaults to "prod-global".
-    ///   - tenantId: The ID of the tenant.
-    public init(tenantId: String, location: String = "prod-global") {
-      self.location = location
-      self.tenantId = tenantId
-    }
-  }
-
-  /// Holds a Firebase ID token and its expiration.
-  public struct AuthExchangeToken: Sendable {
-    public let token: String
-    public let expirationDate: Date?
-    init(token: String, expirationDate: Date) {
-      self.token = token
-      self.expirationDate = expirationDate
-    }
   }
 
   /// Synchronously gets the cached current user, or null if there is none.
@@ -2471,47 +2467,44 @@ extension Auth: AuthInterop {
 
 @available(iOS 13, *)
 public extension Auth {
-  /// Exchanges a third-party OIDC token for a Firebase STS token using a completion handler.
+  /// Exchanges a third-party OIDC token for a Firebase STS token.
   ///
   /// This method is used in R-GCIP (multi-tenant) environments where the `Auth` instance must
   /// be configured with a `TenantConfig`, including `location` and `tenantId`.
+  /// Unlike other sign-in methods, this flow *does not* create or update a `User` object.
   ///
   /// - Parameters:
-  ///   - idToken: The OIDC token received from the third-party Identity Provider (IdP).
-  ///   - idpConfigId: The identifier of the OIDC provider configuration defined in Firebase.
+  ///   - request: The ExchangeTokenRequest containing the OIDC token and other parameters.
   ///   - completion: A closure that gets called with either an `AuthTokenResult` or an `Error`.
   func exchangeToken(customToken: String,
                      idpConfigId: String,
-                     completion: @escaping (AuthTokenResult?, Error?) -> Void) {
+                     completion: @escaping (AuthExchangeToken?, Error?) -> Void) {
     // Ensure R-GCIP is configured with location and tenant ID
     guard let _ = requestConfiguration.location,
           let _ = requestConfiguration.tenantId
     else {
-      completion(nil, AuthErrorCode.operationNotAllowed)
+      Auth.wrapMainAsync(
+        callback: completion,
+        with: .failure(AuthErrorUtils
+          .operationNotAllowedError(message: "R-GCIP is not configured."))
+      )
       return
     }
-
-    // Build the exchange token request
     let request = ExchangeTokenRequest(
       customToken: customToken,
       idpConfigID: idpConfigId,
       config: requestConfiguration
     )
-
-    // Perform the token exchange asynchronously
     Task {
       do {
         let response = try await backend.call(with: request)
-        do {
-          // Try to parse the Firebase token response
-          do {
-            let authTokenResult = try AuthTokenResult.tokenResult(token: response.firebaseToken)
-            completion(authTokenResult, nil)
-            completion(authTokenResult, nil)
-          }
-        } catch {
-          completion(nil, AuthErrorCode.malformedJWT)
-        }
+        let authExchangeToken = AuthExchangeToken(
+          token: response.firebaseToken,
+          expirationDate: response.expirationDate
+        )
+        Auth.wrapMainAsync(callback: completion, with: .success(authExchangeToken))
+      } catch {
+        Auth.wrapMainAsync(callback: completion, with: .failure(error))
       }
     }
   }
@@ -2523,32 +2516,31 @@ public extension Auth {
   ///
   /// The `Auth` instance must be configured with `TenantConfig` containing `location` and
   /// `tenantId`.
+  /// Unlike other sign-in methods, this flow *does not* create or update a `User` object.
   ///
   /// - Parameters:
-  ///   - idToken: The OIDC token received from the third-party Identity Provider (IdP).
-  ///   - idpConfigId: The identifier of the OIDC provider configuration defined in Firebase.
+  ///   - request: The ExchangeTokenRequest containing the OIDC token and other parameters.
   /// - Returns: An `AuthTokenResult` containing the Firebase ID token and its expiration details.
   /// - Throws: An error if R-GCIP is not configured, if the network call fails,
   ///           or if the token parsing fails.
-  func exchangeToken(customToken: String, idpConfigId: String) async throws -> AuthTokenResult {
+  func exchangeToken(customToken: String, idpConfigId: String) async throws -> AuthExchangeToken {
     // Ensure R-GCIP is configured with location and tenant ID
     guard let _ = requestConfiguration.location,
           let _ = requestConfiguration.tenantId
     else {
-      throw AuthErrorCode.operationNotAllowed
+      throw AuthErrorUtils.operationNotAllowedError(message: "R-GCIP is not configured.")
     }
-
-    // Build the exchange token request
     let request = ExchangeTokenRequest(
       customToken: customToken,
       idpConfigID: idpConfigId,
       config: requestConfiguration
     )
-
-    // Perform the backend call and return parsed token
     do {
       let response = try await backend.call(with: request)
-      return try AuthTokenResult.tokenResult(token: response.firebaseToken)
+      return AuthExchangeToken(
+        token: response.firebaseToken,
+        expirationDate: response.expirationDate
+      )
     } catch {
       throw error
     }

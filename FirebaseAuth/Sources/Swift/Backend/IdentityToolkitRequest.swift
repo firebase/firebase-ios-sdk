@@ -28,6 +28,7 @@ private let kRegionalGCIPStagingAPIHost = "staging-identityplatform.sandbox.goog
 #else
   private var gAPIHost = "www.googleapis.com"
 #endif
+
 /// Represents a request to an Identity Toolkit endpoint, routing either to
 /// legacy GCIP v1 or regionalized R-GCIP v2 based on presence of tenantID.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -74,22 +75,16 @@ class IdentityToolkitRequest {
 
   /// Build the full URL, branching on whether tenantID is set.
   func requestURL() -> URL {
-    guard let auth = _requestConfiguration.auth else {
-      fatalError("Internal Auth error: missing Auth on requestConfiguration")
-    }
     let protocolScheme: String
     let hostPrefix: String
     let urlString: String
-    // R-GCIP v2 if location is non-nil
 
+    // R-GCIP v2 if location AND tenantID from requestConfiguration are non-nil.
     if let region = _requestConfiguration.location,
-       let tenant = _requestConfiguration.tenantId,
+       let tenant = _requestConfiguration.tenantId, // Use tenantId from requestConfiguration
        !region.isEmpty,
        !tenant.isEmpty {
-      // Project identifier
-      guard let project = auth.app?.options.projectID else {
-        fatalError("Internal Auth error: missing projectID")
-      }
+      let projectID = _requestConfiguration.auth?.app?.options.projectID
       // Choose emulator, staging, or prod host
       if let emu = emulatorHostAndPort {
         protocolScheme = kHttpProtocol
@@ -101,10 +96,12 @@ class IdentityToolkitRequest {
         protocolScheme = kHttpsProtocol
         hostPrefix = kRegionalGCIPAPIHost
       }
+
       // Regionalized v2 path
       urlString =
-        "\(protocolScheme)//\(hostPrefix)/v2/projects/\(project)"
+        "\(protocolScheme)//\(hostPrefix)/v2/projects/\(projectID)"
           + "/locations/\(region)/tenants/\(tenant)/idpConfigs/\(endpoint)?key=\(apiKey)"
+
     } else {
       // Legacy GCIP v1 branch
       if let emu = emulatorHostAndPort {
