@@ -36,9 +36,9 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseMLModelDownloader
-      platforms: iOS
+      platforms: macOS
+#        scripts/configure_test_keychain.sh
       setup_command: |
-        scripts/configure_test_keychain.sh
         mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
           FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
