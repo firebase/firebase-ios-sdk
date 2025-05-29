@@ -1,5 +1,8 @@
 name: mlmodeldownloader
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   pull_request:
@@ -39,8 +42,7 @@ jobs:
         mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
           FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
-        ls
-        ls FirebaseMLModelDownloader/Tests/Integration/Resources
+        ls FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
         pwd
         
 
