@@ -42,8 +42,6 @@ jobs:
         mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
           FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
-        echo "$MY_SECRET_14904"
-        ls FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
