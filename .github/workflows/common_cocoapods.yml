@@ -5,6 +5,10 @@ permissions:
 
 on:
   workflow_call:
+    secrets:
+      MY_SECRET_14904:
+        required: false
+
     inputs:
       # The product to test be tested (e.g. `FirebaseABTesting`).
       product:

@@ -44,6 +44,7 @@ jobs:
           FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
         echo "$MY_SECRET_14904"
         ls FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
+      secrets: ${{ secrets.MY_SECRET_14904 }}
         
 
   # mlmodeldownloader-cron-only:
