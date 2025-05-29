@@ -88,8 +88,9 @@ on:
       # This is useful for additional set up, like starting an emulator or
       # downloading test data.
       #
-      # Note, this step has env var set to decrypt plists. Use "$plist_secret"
-      # in the given command.
+      # Note, this step has an env var set to decrypt plists. Use
+      # "$plist_secret" in the given command. See `secrets` documentation
+      # at top of this file.
       #
       # Example: `FirebaseFunctions/Backend/start.sh synchronous`
       setup_command:
