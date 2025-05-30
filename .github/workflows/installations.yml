@@ -43,9 +43,6 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
         export FIS_INTEGRATION_TESTS_REQUIRED=1
-#      test_specs: unit
-        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-#      buildonly_platforms: macOS
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
