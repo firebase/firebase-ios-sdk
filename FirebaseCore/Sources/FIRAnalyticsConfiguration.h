@@ -33,10 +33,6 @@ static NSString *const kFIRAPersistedConfigMeasurementEnabledStateKey =
 
 static NSString *const kFIRAnalyticsConfigurationSetEnabledNotification =
     @"FIRAnalyticsConfigurationSetEnabledNotification";
-static NSString *const kFIRAnalyticsConfigurationSetMinimumSessionIntervalNotification =
-    @"FIRAnalyticsConfigurationSetMinimumSessionIntervalNotification";
-static NSString *const kFIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification =
-    @"FIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification";
 
 @interface FIRAnalyticsConfiguration : NSObject
 
