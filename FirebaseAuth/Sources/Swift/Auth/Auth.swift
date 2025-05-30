@@ -209,6 +209,11 @@ public struct AuthExchangeToken: Sendable {
     return auth
   }
 
+//  public static func auth(app: FirebaseApp, tenantConfig: nil) -> Auth {
+//    let auth = auth(app: app)
+//    return auth
+//  }
+
   /// Synchronously gets the cached current user, or null if there is none.
   @objc public var currentUser: User? {
     kAuthGlobalWorkQueue.sync {
