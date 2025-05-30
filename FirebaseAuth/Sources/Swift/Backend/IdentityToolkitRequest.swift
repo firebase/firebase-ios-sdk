@@ -25,12 +25,16 @@ private nonisolated(unsafe) var gAPIHost = "www.googleapis.com"
 
 private let kFirebaseAuthAPIHost = "www.googleapis.com"
 private let kIdentityPlatformAPIHost = "identitytoolkit.googleapis.com"
+private let kRegionalGCIPAPIHost = "identityplatform.googleapis.com" // Regional R-GCIP v2 hosts
 
 private let kFirebaseAuthStagingAPIHost = "staging-www.sandbox.googleapis.com"
 private let kIdentityPlatformStagingAPIHost =
   "staging-identitytoolkit.sandbox.googleapis.com"
+private let kRegionalGCIPStagingAPIHost =
+  "staging-identityplatform.sandbox.googleapis.com" // Regional R-GCIP v2 hosts
 
-/// Represents a request to an identity toolkit endpoint.
+/// Represents a request to an identity toolkit endpoint  routing either to  legacy GCIP or
+/// regionalized R-GCIP
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class IdentityToolkitRequest {
   /// Gets the RPC's endpoint.
@@ -39,7 +43,7 @@ class IdentityToolkitRequest {
   /// Gets the client's API key used for the request.
   var apiKey: String
 
-  /// The tenant ID of the request. nil if none is available.
+  /// The tenant ID of the request. nil if none is available (not for r-gcip).
   let tenantID: String?
 
   /// The toggle of using Identity Platform endpoints.
@@ -74,7 +78,29 @@ class IdentityToolkitRequest {
     let apiHostAndPathPrefix: String
     let urlString: String
     let emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort
-    if useIdentityPlatform {
+    /// R-GCIP
+    if let region = _requestConfiguration.location,
+       let tenant = _requestConfiguration.tenantId, // Use tenantId from requestConfiguration
+       !region.isEmpty,
+       !tenant.isEmpty {
+      let projectID = _requestConfiguration.auth?.app?.options.projectID
+      // Choose emulator, staging, or prod host
+      if let emulatorHostAndPort = emulatorHostAndPort {
+        apiProtocol = kHttpProtocol
+        apiHostAndPathPrefix = "\(emulatorHostAndPort)/\(kRegionalGCIPAPIHost)"
+      } else if useStaging {
+        apiProtocol = kHttpsProtocol
+        apiHostAndPathPrefix = kRegionalGCIPStagingAPIHost
+      } else {
+        apiProtocol = kHttpsProtocol
+        apiHostAndPathPrefix = kRegionalGCIPAPIHost
+      }
+      urlString =
+        "\(apiProtocol)//\(apiHostAndPathPrefix)/v2/projects/\(projectID ?? "projectID")"
+          + "/locations/\(region)/tenants/\(tenant)/idpConfigs/\(endpoint)?key=\(apiKey)"
+    }
+    // legacy gcip existing logic
+    else if useIdentityPlatform {
       if let emulatorHostAndPort = emulatorHostAndPort {
         apiProtocol = kHttpProtocol
         apiHostAndPathPrefix = "\(emulatorHostAndPort)/\(kIdentityPlatformAPIHost)"
