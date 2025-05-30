@@ -11,6 +11,7 @@ on:
     - '.github/workflows/appdistribution.yml'
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_catalyst.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 1am (PST) - cron uses UTC times
