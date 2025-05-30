@@ -67,6 +67,7 @@ using model::Document;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::DocumentMap;
+using model::DocumentSet;
 using model::ListenSequenceNumber;
 using model::MutableDocument;
 using model::MutableDocumentMap;
@@ -104,6 +105,16 @@ using testutil::UpdateRemoteEvent;
 using testutil::UpdateRemoteEventWithLimboTargets;
 using testutil::Value;
 using testutil::Vector;
+
+std::vector<Document> DocSetToVector(const absl::optional<DocumentSet>& docs) {
+  std::vector<Document> result;
+  if (docs.has_value()) {
+    for (const auto& doc : *docs) {
+      result.push_back(doc);
+    }
+  }
+  return result;
+}
 
 std::vector<Document> DocMapToVector(const DocumentMap& docs) {
   std::vector<Document> result;
@@ -273,10 +284,19 @@ TargetData LocalStoreTestBase::GetTargetData(const core::Query& query) {
   });
 }
 
-QueryResult LocalStoreTestBase::ExecuteQuery(const core::Query& query) {
+absl::optional<DocumentSet> LocalStoreTestBase::ExecuteQuery(
+    const core::Query& query) {
   ResetPersistenceStats();
-  last_query_result_ =
+  local::QueryResult query_result =
       local_store_.ExecuteQuery(query, /* use_previous_results= */ true);
+
+  // Start from an empty set. Use the query's comparator which is what
+  // ultimately gets used to order documents.
+  last_query_result_ = DocumentSet(query.Comparator());
+  for (const auto& document : query_result.documents()) {
+    last_query_result_ = last_query_result_->insert(document.second);
+  }
+
   return last_query_result_;
 }
 
@@ -880,8 +900,8 @@ TEST_P(LocalStoreTest, CanExecuteDocumentQueries) {
        testutil::SetMutation("foo/baz", Map("foo", "baz")),
        testutil::SetMutation("foo/bar/Foo/Bar", Map("Foo", "Bar"))});
   core::Query query = Query("foo/bar");
-  QueryResult query_result = ExecuteQuery(query);
-  ASSERT_EQ(DocMapToVector(query_result.documents()),
+  auto query_result = ExecuteQuery(query);
+  ASSERT_EQ(DocSetToVector(query_result),
             Vector(Document{
                 Doc("foo/bar", 0, Map("foo", "bar")).SetHasLocalMutations()}));
 }
@@ -894,9 +914,9 @@ TEST_P(LocalStoreTest, CanExecuteCollectionQueries) {
        testutil::SetMutation("foo/bar/Foo/Bar", Map("Foo", "Bar")),
        testutil::SetMutation("fooo/blah", Map("fooo", "blah"))});
   core::Query query = Query("foo");
-  QueryResult query_result = ExecuteQuery(query);
+  auto query_result = ExecuteQuery(query);
   ASSERT_EQ(
-      DocMapToVector(query_result.documents()),
+      DocSetToVector(query_result),
       Vector(
           Document{Doc("foo/bar", 0, Map("foo", "bar")).SetHasLocalMutations()},
           Document{
@@ -915,9 +935,9 @@ TEST_P(LocalStoreTest, CanExecuteMixedCollectionQueries) {
 
   local_store_.WriteLocally({testutil::SetMutation("foo/bonk", Map("a", "b"))});
 
-  QueryResult query_result = ExecuteQuery(query);
+  auto query_result = ExecuteQuery(query);
   ASSERT_EQ(
-      DocMapToVector(query_result.documents()),
+      DocSetToVector(query_result),
       Vector(
           Document{Doc("foo/bar", 20, Map("a", "b"))},
           Document{Doc("foo/baz", 10, Map("a", "b"))},

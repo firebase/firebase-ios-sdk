@@ -294,6 +294,17 @@ nanopb::Message<google_firestore_v1_Value> VectorType(Args&&... values) {
              details::MakeArray(std::move(values)...));
 }
 
+nanopb::Message<google_firestore_v1_Value> MinKey();
+nanopb::Message<google_firestore_v1_Value> MaxKey();
+nanopb::Message<google_firestore_v1_Value> Regex(std::string pattern,
+                                                 std::string options);
+nanopb::Message<google_firestore_v1_Value> Int32(int32_t value);
+nanopb::Message<google_firestore_v1_Value> BsonObjectId(std::string oid);
+nanopb::Message<google_firestore_v1_Value> BsonTimestamp(uint32_t seconds,
+                                                         uint32_t increment);
+nanopb::Message<google_firestore_v1_Value> BsonBinaryData(
+    uint8_t subtype, std::initializer_list<uint8_t> data);
+
 model::DocumentKey Key(absl::string_view path);
 
 model::FieldPath Field(absl::string_view field);
