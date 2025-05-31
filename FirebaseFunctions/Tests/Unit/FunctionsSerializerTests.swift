@@ -283,6 +283,38 @@ class FunctionsSerializerTests: XCTestCase {
 
     try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }
+
+  // If the object can be decoded as a wrapped number, all other properties are ignored:
+  func testDecodeValidWrappedNumberWithUnsupportedExtra() throws {
+    let input = [
+      "@type": "type.googleapis.com/google.protobuf.Int64Value",
+      "value": "1234567890",
+      "extra": CustomObject(),
+    ] as NSDictionary
+
+    XCTAssertEqual(NSNumber(1_234_567_890), try serializer.decode(input) as? NSNumber)
+  }
+
+  // If the object is not a valid wrapped number, it’s processed as a generic array:
+  func testDecodeWrappedNumberWithUnsupportedValue() throws {
+    let input = [
+      "@type": "type.googleapis.com/google.protobuf.Int64Value",
+      "value": CustomObject(),
+    ] as NSDictionary
+
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+
+  // If the object is not a valid wrapped number, it’s processed as a generic array:
+  func testDecodeInvalidWrappedNumberWithUnsupportedExtra() throws {
+    let input = [
+      "@type": "CUSTOM_TYPE",
+      "value": "1234567890",
+      "extra": CustomObject(),
+    ] as NSDictionary
+
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
 }
 
 // MARK: - Utilities
