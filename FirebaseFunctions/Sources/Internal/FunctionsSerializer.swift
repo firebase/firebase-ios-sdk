@@ -17,7 +17,7 @@ import Foundation
 extension FunctionsSerializer {
   enum Error: Swift.Error {
     case unsupportedType(typeName: String)
-    case failedToParseWrappedNumber(WrappedNumber)
+    case failedToParseWrappedNumber(value: String, type: String)
   }
 }
 
@@ -109,12 +109,18 @@ final class FunctionsSerializer: Sendable {
     switch wrapped.type {
     case .long:
       guard let n = Int(wrapped.value) else {
-        throw .failedToParseWrappedNumber(wrapped)
+        throw .failedToParseWrappedNumber(
+          value: wrapped.value,
+          type: wrapped.type.rawValue
+        )
       }
       return n
     case .unsignedLong:
       guard let n = UInt(wrapped.value) else {
-        throw .failedToParseWrappedNumber(wrapped)
+        throw .failedToParseWrappedNumber(
+          value: wrapped.value,
+          type: wrapped.type.rawValue
+        )
       }
       return n
     }
@@ -124,7 +130,7 @@ final class FunctionsSerializer: Sendable {
 // MARK: - WrappedNumber
 
 extension FunctionsSerializer {
-  struct WrappedNumber {
+  private struct WrappedNumber {
     let type: NumberType
     let value: String
 
