@@ -275,6 +275,7 @@
 #endif  // !SWIFT_PACKAGE
 
 - (void)testListeningForDelegateChangesOnInvalidUserNotificationCenter {
+  XCTSkip(@"https://github.com/firebase/firebase-ios-sdk/issues/14922");
   if (@available(macOS 10.14, iOS 10.0, *)) {
     RandomObject *invalidNotificationCenter = [[RandomObject alloc] init];
     OCMStub([self.mockUserNotificationCenter currentNotificationCenter])
