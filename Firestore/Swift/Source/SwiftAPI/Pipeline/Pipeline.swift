@@ -107,9 +107,19 @@ public struct Pipeline: @unchecked Sendable {
   /// }
   /// ```
   ///
+  /// - Parameters:
+  ///   - explainOptions: Configures the execution plan report for debugging and optimization. Use
+  /// it to analyze performance, get index recommendations, and control the verbosity and format of
+  /// the output.
+  ///   - indexMode: Specifies which indexes to use for the pipeline, such as the `.recommended`
+  /// set.
+  ///   - customOptions: A dictionary for passing any other backend-specific or advanced options to
+  /// the pipeline execution.
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `PipelineSnapshot` containing the result of the pipeline execution.
-  public func execute() async throws -> PipelineSnapshot {
+  public func execute(explainOptions: ExplainOptions? = nil,
+                      indexMode: IndexMode? = nil,
+                      customOptions: CustomOptions? = nil) async throws -> PipelineSnapshot {
     return try await withCheckedThrowingContinuation { continuation in
       self.bridge.execute { result, error in
         if let error {
@@ -147,7 +157,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter field: The first field to add to the documents, specified as a `Selectable`.
   /// - Parameter additionalFields: Optional additional fields to add, specified as `Selectable`s.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func addFields(_ field: Selectable, _ additionalFields: Selectable...) -> Pipeline {
+  public func addFields(_ field: Selectable, _ additionalFields: Selectable...,
+                        customOptions: [String: Sendable]? = nil) -> Pipeline {
     let fields = [field] + additionalFields
     return Pipeline(stages: stages + [AddFields(fields: fields)], db: db)
   }
@@ -699,7 +710,7 @@ public struct Pipeline: @unchecked Sendable {
   /// ```swift
   /// // let pipeline: Pipeline = ...
   /// // Example: Assuming a hypothetical backend stage "customFilterV2".
-  /// let genericPipeline = pipeline.genericStage(
+  /// let genericPipeline = pipeline.addStage(
   ///   name: "customFilterV2",
   ///   params: [Field("userScore"), 80], // Ordered parameters.
   ///   options: ["mode": "strict", "logLevel": 2]  // Optional named parameters.
@@ -712,10 +723,10 @@ public struct Pipeline: @unchecked Sendable {
   ///   - params: An array of ordered, `Sendable` parameters for the stage.
   ///   - options: Optional dictionary of named, `Sendable` parameters.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func genericStage(name: String, params: [Sendable],
-                           options: [String: Sendable]? = nil) -> Pipeline {
+  public func addStage(name: String, params: [Sendable],
+                       options: [String: Sendable]? = nil) -> Pipeline {
     return Pipeline(
-      stages: stages + [GenericStage(name: name, params: params, options: options)],
+      stages: stages + [AddStage(name: name, params: params, options: options)],
       db: db
     )
   }

@@ -21,8 +21,12 @@ public struct PipelineSource: @unchecked Sendable {
   }
 
   public func collection(_ path: String) -> Pipeline {
-    let normalizedPath = path.hasPrefix("/") ? path : "/" + path
-    return Pipeline(stages: [CollectionSource(collection: normalizedPath)], db: db)
+    return Pipeline(stages: [CollectionSource(collection: db.collection(path), db: db)], db: db)
+  }
+
+  public func collection(_ ref: CollectionReference) -> Pipeline {
+    let collectionStage = CollectionSource(collection: ref, db: db)
+    return Pipeline(stages: [collectionStage], db: db)
   }
 
   public func collectionGroup(_ collectionId: String) -> Pipeline {
@@ -37,13 +41,13 @@ public struct PipelineSource: @unchecked Sendable {
   }
 
   public func documents(_ docs: [DocumentReference]) -> Pipeline {
-    let paths = docs.map { $0.path.hasPrefix("/") ? $0.path : "/" + $0.path }
-    return Pipeline(stages: [DocumentsSource(paths: paths)], db: db)
+    return Pipeline(stages: [DocumentsSource(docs: docs, db: db)], db: db)
   }
 
   public func documents(_ paths: [String]) -> Pipeline {
-    let normalizedPaths = paths.map { $0.hasPrefix("/") ? $0 : "/" + $0 }
-    return Pipeline(stages: [DocumentsSource(paths: normalizedPaths)], db: db)
+    let docs = paths.map { db.document($0) }
+    let documentsStage = DocumentsSource(docs: docs, db: db)
+    return Pipeline(stages: [documentsStage], db: db)
   }
 
   public func create(from query: Query) -> Pipeline {
