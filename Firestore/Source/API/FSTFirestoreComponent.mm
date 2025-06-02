@@ -22,13 +22,13 @@
 #include <string>
 #include <utility>
 
+#import <FirebaseCore/FIROptions.h>
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponent.h"
 #import "FirebaseCore/Extension/FIRComponentContainer.h"
 #import "FirebaseCore/Extension/FIRComponentType.h"
 #import "FirebaseCore/Extension/FIRLibrary.h"
-#import <FirebaseCore/FIROptions.h>
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"

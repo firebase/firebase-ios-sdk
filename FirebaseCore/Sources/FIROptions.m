@@ -414,8 +414,8 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
 /**
  * Whether or not Measurement was enabled. Measurement is enabled unless explicitly disabled in
- * GoogleService-Info.plist. This uses the old plist flag `IS_MEASUREMENT_ENABLED`, which should still
- * be supported.
+ * GoogleService-Info.plist. This uses the old plist flag `IS_MEASUREMENT_ENABLED`, which should
+ * still be supported.
  */
 - (BOOL)isMeasurementEnabled {
   if (self.isAnalyticsCollectionDeactivated) {
