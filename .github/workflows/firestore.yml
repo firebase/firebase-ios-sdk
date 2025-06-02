@@ -390,7 +390,7 @@ jobs:
         product: ['FirebaseFirestoreInternal', 'FirebaseFirestore']
     uses: ./.github/workflows/common_cocoapods.yml
     with:
-      product: FirebaseFunctions
+      product: ${{ matrix.product }}
       platforms: iOS
       allow_warnings: true
       # --no-analyze # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
