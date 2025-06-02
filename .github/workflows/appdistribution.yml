@@ -10,7 +10,7 @@ on:
     - 'FirebaseAppDistribution**'
     - '.github/workflows/appdistribution.yml'
     - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
+    # - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 1am (PST) - cron uses UTC times

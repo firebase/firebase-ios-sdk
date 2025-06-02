@@ -14,7 +14,7 @@ on:
     - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/database.yml'
     - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
+    # - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
     - 'scripts/run_database_emulator.sh'
   schedule:
