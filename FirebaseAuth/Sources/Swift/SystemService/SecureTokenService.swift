@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseCoreInternal
+import Foundation
 
 private let kFiveMinutes = 5 * 60.0
 

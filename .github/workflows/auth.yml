@@ -12,6 +12,7 @@ on:
     - '.github/workflows/auth.yml'
     - '.github/workflows/common.yml'
     # - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_catalyst.yml'
     - 'scripts/gha-encrypted/AuthSample/SwiftApplication.plist.gpg'
     - 'Gemfile*'
   schedule:

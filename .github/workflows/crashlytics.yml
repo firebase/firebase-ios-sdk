@@ -12,6 +12,7 @@ on:
     - '.github/workflows/crashlytics.yml'
     - '.github/workflows/common.yml'
     # - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_catalyst.yml'
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile*'
   schedule:
