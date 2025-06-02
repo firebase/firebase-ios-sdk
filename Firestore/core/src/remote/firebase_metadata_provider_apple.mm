@@ -18,7 +18,7 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
-#import "FirebaseCore/Sources/FIROptionsInternal.h"
+#import <FirebaseCore/FIROptions.h>
 
 #include "Firestore/core/src/util/string_apple.h"
 
