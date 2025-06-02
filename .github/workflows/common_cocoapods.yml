@@ -69,6 +69,12 @@ on:
         required: false
         default: false
 
+      # Whether to lint with `--analyze`. Defaults to true.
+      analyze:
+        type: boolean
+        required: false
+        default: true
+
       # Whether to additionally build with Swift 6. Defaults to false.
       supports_swift6:
         type: boolean

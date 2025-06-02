@@ -393,7 +393,7 @@ jobs:
       product: ${{ matrix.product }}
       platforms: iOS
       allow_warnings: true
-      # --no-analyze # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
+      analyze: false # TODO(#9565, b/227461966): Remove when absl is fixed.
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
