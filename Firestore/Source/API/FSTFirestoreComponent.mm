@@ -17,12 +17,12 @@
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+#import <FirebaseCore/FIROptions.h>
 
 #include <memory>
 #include <string>
 #include <utility>
 
-#import <FirebaseCore/FIROptions.h>
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponent.h"

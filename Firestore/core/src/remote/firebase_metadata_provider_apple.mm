@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#import <FirebaseCore/FIROptions.h>
+
 #include "Firestore/core/src/remote/firebase_metadata_provider_apple.h"
 
-#import <FirebaseCore/FIROptions.h>
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 
