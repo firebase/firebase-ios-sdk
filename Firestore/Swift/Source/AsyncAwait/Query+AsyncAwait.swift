@@ -23,7 +23,7 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Query {
-  func snapshots() -> AsyncThrowingStream<QuerySnapshot, Error> {
+  func asyncThrowingStream() -> AsyncThrowingStream<QuerySnapshot, Error> {
     AsyncThrowingStream { continuation in
       let listener = self.addSnapshotListener { snapshot, error in
         if let snapshot = snapshot {
@@ -39,7 +39,7 @@ public extension Query {
     }
   }
 
-  func snapshots(options: SnapshotListenOptions) -> AsyncThrowingStream<QuerySnapshot, Error> {
+  func asyncThrowingStream(options: SnapshotListenOptions) -> AsyncThrowingStream<QuerySnapshot, Error> {
     AsyncThrowingStream { continuation in
       let listener = self.addSnapshotListener(options: options) { snapshot, error in
         if let snapshot = snapshot {

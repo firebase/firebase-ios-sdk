@@ -168,7 +168,7 @@ let emptyBundle = """
       //    The Task will write to it after receiving the first snapshot.
       let (signalStream, signalContinuation) = AsyncStream.makeStream(of: Void.self)
 
-      let stream = query.snapshots()
+      let stream = query.asyncThrowingStream()
       var iterator = stream.makeAsyncIterator()
 
       let task = Task {
