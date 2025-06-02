@@ -39,10 +39,6 @@ static NSString *const kFIRAnalyticsConfigurationSetEnabledNotification =
 /// Returns the shared instance of FIRAnalyticsConfiguration.
 + (FIRAnalyticsConfiguration *)sharedInstance;
 
-// Sets whether analytics collection is enabled for this app on this device. This setting is
-// persisted across app sessions. By default it is enabled.
-- (void)setAnalyticsCollectionEnabled:(BOOL)analyticsCollectionEnabled;
-
 /// Sets whether analytics collection is enabled for this app on this device, and a flag to persist
 /// the value or not. The setting should not be persisted if being set by the global data collection
 /// flag.
