@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// A container for providing arbitrary, backend-specific options to a pipeline.
+///
+/// Use this to pass options that are not explicitly defined in the other option structs.
 public struct CustomOptions: OptionProtocol {
   var values: [String: Sendable]
+  /// Creates a set of custom options from a dictionary.
+  /// - Parameter values: A dictionary containing the custom options.
   public init(_ values: [String: Sendable] = [:]) {
     self.values = values
   }

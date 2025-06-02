@@ -12,4 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// A protocol that all pipeline option types must conform to.
 public protocol OptionProtocol: Sendable {}

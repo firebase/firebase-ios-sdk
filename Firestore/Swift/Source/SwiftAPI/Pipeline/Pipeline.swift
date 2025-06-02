@@ -107,6 +107,14 @@ public struct Pipeline: @unchecked Sendable {
   /// }
   /// ```
   ///
+  /// - Parameters:
+  ///   - explainOptions: Configures the execution plan report for debugging and optimization. Use
+  /// it to analyze performance, get index recommendations, and control the verbosity and format of
+  /// the output.
+  ///   - indexMode: Specifies which indexes to use for the pipeline, such as the `.recommended`
+  /// set.
+  ///   - customOptions: A dictionary for passing any other backend-specific or advanced options to
+  /// the pipeline execution.
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `PipelineSnapshot` containing the result of the pipeline execution.
   public func execute(explainOptions: ExplainOptions? = nil,
@@ -149,7 +157,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter field: The first field to add to the documents, specified as a `Selectable`.
   /// - Parameter additionalFields: Optional additional fields to add, specified as `Selectable`s.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func addFields(_ field: Selectable, _ additionalFields: Selectable...) -> Pipeline {
+  public func addFields(_ field: Selectable, _ additionalFields: Selectable...,
+                        customOptions: [String: Sendable]? = nil) -> Pipeline {
     let fields = [field] + additionalFields
     return Pipeline(stages: stages + [AddFields(fields: fields)], db: db)
   }

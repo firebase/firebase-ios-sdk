@@ -77,7 +77,8 @@ final class PipelineTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books")
       .addFields(
         Field("msrp").multiply(Field("discount")).as("salePrice"),
-        Field("author")
+        Field("author"),
+        customOptions: ["option_not_known_to_sdk": true]
       )
 
     // Output

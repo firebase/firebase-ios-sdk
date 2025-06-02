@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// Specifies which indexes the pipeline should use for execution.
 public struct IndexMode: Sendable, Equatable, Hashable {
   let rawValue: String
 
+  /// Use the set of indexes recommended by the backend.
   public static let recommended = IndexMode(rawValue: "recommended")
 
   init(rawValue: String) {
