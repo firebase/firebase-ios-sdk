@@ -17,7 +17,7 @@ on:
     - '.github/workflows/messaging.yml'
     # Re-usable workflows being used by this file.
     - '.github/workflows/common.yml'
-    # - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     # Rebuild on Ruby infrastructure changes
     - 'Gemfile*'

@@ -11,7 +11,7 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/remoteconfig.yml'
     - '.github/workflows/common.yml'
-    # - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - 'Gemfile*'
     - 'scripts/generate_access_token.sh'

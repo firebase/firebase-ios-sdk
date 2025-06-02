@@ -10,7 +10,7 @@ on:
     - 'FirebaseAppCheck**'
     - '.github/workflows/firebase_app_check.yml'
     - '.github/workflows/common.yml'
-    # - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - 'Gemfile*'
   schedule:
