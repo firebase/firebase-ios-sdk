@@ -33,19 +33,21 @@ using model::TargetId;
 using util::Status;
 
 std::shared_ptr<QueryListener> QueryListener::Create(
-    Query query, ListenOptions options, ViewSnapshotSharedListener&& listener) {
+    QueryOrPipeline query,
+    ListenOptions options,
+    ViewSnapshotSharedListener&& listener) {
   return std::make_shared<QueryListener>(std::move(query), std::move(options),
                                          std::move(listener));
 }
 
 std::shared_ptr<QueryListener> QueryListener::Create(
-    Query query, ViewSnapshotSharedListener&& listener) {
+    QueryOrPipeline query, ViewSnapshotSharedListener&& listener) {
   return Create(std::move(query), ListenOptions::DefaultOptions(),
                 std::move(listener));
 }
 
 std::shared_ptr<QueryListener> QueryListener::Create(
-    Query query,
+    QueryOrPipeline query,
     ListenOptions options,
     util::StatusOrCallback<ViewSnapshot>&& listener) {
   auto event_listener =
@@ -55,12 +57,12 @@ std::shared_ptr<QueryListener> QueryListener::Create(
 }
 
 std::shared_ptr<QueryListener> QueryListener::Create(
-    Query query, util::StatusOrCallback<ViewSnapshot>&& listener) {
+    QueryOrPipeline query, util::StatusOrCallback<ViewSnapshot>&& listener) {
   return Create(std::move(query), ListenOptions::DefaultOptions(),
                 std::move(listener));
 }
 
-QueryListener::QueryListener(Query query,
+QueryListener::QueryListener(QueryOrPipeline query,
                              ListenOptions options,
                              ViewSnapshotSharedListener&& listener)
     : query_(std::move(query)),
@@ -82,7 +84,7 @@ bool QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
       }
     }
 
-    snapshot = ViewSnapshot{snapshot.query(),
+    snapshot = ViewSnapshot{snapshot.query_or_pipeline(),
                             snapshot.documents(),
                             snapshot.old_documents(),
                             std::move(changes),
@@ -185,9 +187,9 @@ void QueryListener::RaiseInitialEvent(const ViewSnapshot& snapshot) {
               "Trying to raise initial events for second time");
 
   ViewSnapshot modified_snapshot = ViewSnapshot::FromInitialDocuments(
-      snapshot.query(), snapshot.documents(), snapshot.mutated_keys(),
-      snapshot.from_cache(), snapshot.excludes_metadata_changes(),
-      snapshot.has_cached_results());
+      snapshot.query_or_pipeline(), snapshot.documents(),
+      snapshot.mutated_keys(), snapshot.from_cache(),
+      snapshot.excludes_metadata_changes(), snapshot.has_cached_results());
   raised_initial_event_ = true;
   listener_->OnEvent(std::move(modified_snapshot));
 }

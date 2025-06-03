@@ -113,7 +113,7 @@ TEST_P(TargetCacheTest, SetAndReadAQuery) {
 
     auto result = cache_->GetTarget(query_rooms_.ToTarget());
     ASSERT_NE(result, absl::nullopt);
-    ASSERT_EQ(result->target(), target_data.target());
+    ASSERT_EQ(result->target_or_pipeline(), target_data.target_or_pipeline());
     ASSERT_EQ(result->target_id(), target_data.target_id());
     ASSERT_EQ(result->resume_token(), target_data.resume_token());
   });
@@ -239,9 +239,9 @@ TEST_P(TargetCacheTest, RemoveTargets) {
 
     cache_->RemoveTargets(target_data2.sequence_number(), {});
 
-    auto result = cache_->GetTarget(target_data1.target());
+    auto result = cache_->GetTarget(target_data1.target_or_pipeline());
     ASSERT_EQ(result, absl::nullopt);
-    result = cache_->GetTarget(target_data2.target());
+    result = cache_->GetTarget(target_data2.target_or_pipeline());
     ASSERT_EQ(result, absl::nullopt);
   });
 }
