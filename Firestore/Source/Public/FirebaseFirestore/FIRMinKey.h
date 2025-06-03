@@ -26,11 +26,13 @@ NS_SWIFT_NAME(MinKey)
 __attribute__((objc_subclassing_restricted))
 @interface FIRMinKey : NSObject
 
-/** The only instance of MinKey. */
+/** The shared singleton `MinKey` instance. */
 @property(class, readonly) FIRMinKey *shared;
 
 /** Returns true if the given object is equal to this, and false otherwise. */
 - (BOOL)isEqual:(nullable id)object;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

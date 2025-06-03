@@ -26,11 +26,13 @@ NS_SWIFT_NAME(MaxKey)
 __attribute__((objc_subclassing_restricted))
 @interface FIRMaxKey : NSObject
 
-/** Returns the only instance of MaxKey. */
+/** The shared singleton `MaxKey` instance. */
 @property(class, readonly) FIRMaxKey *shared;
 
 /** Returns true if the given object is equal to this, and false otherwise. */
 - (BOOL)isEqual:(nullable id)object;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
