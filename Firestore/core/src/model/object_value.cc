@@ -50,40 +50,6 @@ using nanopb::Message;
 using nanopb::ReleaseFieldOwnership;
 using nanopb::SetRepeatedField;
 
-struct MapEntryKeyCompare {
-  bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
-                  absl::string_view segment) const {
-    return nanopb::MakeStringView(entry.key) < segment;
-  }
-  bool operator()(absl::string_view segment,
-                  const google_firestore_v1_MapValue_FieldsEntry& entry) const {
-    return segment < nanopb::MakeStringView(entry.key);
-  }
-};
-
-/**
- * Finds an entry by key in the provided map value. Returns `nullptr` if the
- * entry does not exist.
- */
-google_firestore_v1_MapValue_FieldsEntry* FindEntry(
-    const google_firestore_v1_Value& value, absl::string_view segment) {
-  if (!IsMap(value)) {
-    return nullptr;
-  }
-  const google_firestore_v1_MapValue& map_value = value.map_value;
-
-  // MapValues in iOS are always stored in sorted order.
-  auto found = std::equal_range(map_value.fields,
-                                map_value.fields + map_value.fields_count,
-                                segment, MapEntryKeyCompare());
-
-  if (found.first == found.second) {
-    return nullptr;
-  }
-
-  return found.first;
-}
-
 size_t CalculateSizeOfUnion(
     const google_firestore_v1_MapValue& map_value,
     const std::map<std::string, Message<google_firestore_v1_Value>>& upserts,
