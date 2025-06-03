@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIROrderingBridge (Internal)
 
-- (std::shared_ptr<api::Ordering>)cppOrderingWithReader:(FSTUserDataReader *)reader;
+- (api::Ordering)cppOrderingWithReader:(FSTUserDataReader *)reader;
 
 @end
 
