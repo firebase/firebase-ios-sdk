@@ -19,6 +19,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRDocumentSnapshot.h"
+#import "FIRSnapshotListenOptions.h"
 
 @class FIRTimestamp;
 @class FIRVectorValue;
@@ -242,6 +243,30 @@ NS_SWIFT_NAME(PipelineBridge)
 
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion;
+
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__RealtimePipelineSnapshotBridge)
+@interface __FIRRealtimePipelineSnapshotBridge : NSObject
+
+@property(nonatomic, strong, readonly) NSArray<__FIRPipelineResultBridge *> *results;
+
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(RealtimePipelineBridge)
+@interface FIRRealtimePipelineBridge : NSObject
+
+/** :nodoc: */
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db;
+
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
+                          listener:
+                              (void (^)(__FIRRealtimePipelineSnapshotBridge *_Nullable snapshot,
+                                        NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
 
 @end
 

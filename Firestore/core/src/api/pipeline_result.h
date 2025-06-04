@@ -50,6 +50,15 @@ class PipelineResult {
 
   PipelineResult() = default;
 
+  PipelineResult(model::Document document)
+      : internal_key_{document->key()},
+        value_{document->shared_data()},
+        // TODO(pipeline): add create time support
+        create_time_{document->version()},
+        update_time_{document->version()},
+        execution_time_{document.read_time()} {
+  }
+
   std::shared_ptr<model::ObjectValue> internal_value() const;
   absl::optional<absl::string_view> document_id() const;
 
