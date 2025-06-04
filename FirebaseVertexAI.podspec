@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseVertexAI'
-  s.version          = '11.14.0'
+  s.version          = '11.15.0'
   s.summary          = 'Vertex AI in Firebase SDK'
 
   s.description      = <<-DESC
@@ -44,7 +44,7 @@ Firebase SDK.
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAI', '~> 11.14.0'
+  s.dependency 'FirebaseAI', '~> 11.15.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseVertexAI/Tests/Unit/'

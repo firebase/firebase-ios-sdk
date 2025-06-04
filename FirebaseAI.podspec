@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAI'
-  s.version          = '11.14.0'
+  s.version          = '11.15.0'
   s.summary          = 'Firebase AI SDK'
 
   s.description      = <<-DESC
@@ -45,8 +45,8 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
 
   s.dependency 'FirebaseAppCheckInterop', '~> 11.4'
   s.dependency 'FirebaseAuthInterop', '~> 11.4'
-  s.dependency 'FirebaseCore', '~> 11.14.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.14.0'
+  s.dependency 'FirebaseCore', '~> 11.15.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.15.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseAI/Tests/Unit/'
