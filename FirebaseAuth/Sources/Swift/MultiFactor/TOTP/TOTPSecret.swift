@@ -54,7 +54,7 @@ import Foundation
     ///
     /// See more details
     /// [here](https://developer.apple.com/documentation/authenticationservices/securing_logins_with_icloud_keychain_verification_codes)
-    @objc(openInOTPAppWithQRCodeURL:)
+    @MainActor @objc(openInOTPAppWithQRCodeURL:)
     open func openInOTPApp(withQRCodeURL qrCodeURL: String) {
       if GULAppEnvironmentUtil.isAppExtension() {
         // iOS App extensions should not call [UIApplication sharedApplication], even if
@@ -70,9 +70,7 @@ import Foundation
         return
       }
       if let url = URL(string: qrCodeURL), application.canOpenURL(url) {
-        DispatchQueue.main.async {
-          application.open(url, options: [:], completionHandler: nil)
-        }
+        application.open(url, options: [:], completionHandler: nil)
       } else {
         AuthLog.logError(code: "I-AUT000019",
                          message: "URL: \(qrCodeURL) cannot be opened")
