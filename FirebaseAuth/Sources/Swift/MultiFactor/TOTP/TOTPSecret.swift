@@ -63,6 +63,8 @@ import Foundation
       }
 
       // Using reflection here to avoid build errors in extensions.
+      // The `UIApplication.sharedApplication` requires main actor
+      // synchronization.
       let sel = NSSelectorFromString("sharedApplication")
       guard UIApplication.responds(to: sel),
             let rawApplication = UIApplication.perform(sel),
