@@ -23,23 +23,8 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Query {
-  func asyncThrowingStream() -> AsyncThrowingStream<QuerySnapshot, Error> {
-    AsyncThrowingStream { continuation in
-      let listener = self.addSnapshotListener { snapshot, error in
-        if let snapshot = snapshot {
-          continuation.yield(snapshot)
-        } else if let error = error {
-          continuation.finish(throwing: error)
-        }
-      }
-
-      continuation.onTermination = { _ in
-        listener.remove()
-      }
-    }
-  }
-
-  func asyncThrowingStream(options: SnapshotListenOptions) -> AsyncThrowingStream<QuerySnapshot, Error> {
+  func snapshotStream(options: SnapshotListenOptions = SnapshotListenOptions())
+    -> AsyncThrowingStream<QuerySnapshot, Error> {
     AsyncThrowingStream { continuation in
       let listener = self.addSnapshotListener(options: options) { snapshot, error in
         if let snapshot = snapshot {

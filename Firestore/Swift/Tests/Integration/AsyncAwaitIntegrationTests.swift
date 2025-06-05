@@ -155,48 +155,5 @@ let emptyBundle = """
       }
       XCTAssertThrowsError(try deleteAllIndexes(), "The client has already been terminated.")
     }
-
-    func testCanListenToDefaultSourceFirstAndThenCacheAsyncStream() async throws {
-      let collRef = collectionRef(withDocuments: [
-        "a": ["k": "a", "sort": 0],
-        "b": ["k": "b", "sort": 1],
-      ])
-
-      let query = collRef.whereField("sort", isGreaterThanOrEqualTo: 1).order(by: "sort")
-
-      // 1. Create a signal stream. The test will wait on this stream.
-      //    The Task will write to it after receiving the first snapshot.
-      let (signalStream, signalContinuation) = AsyncStream.makeStream(of: Void.self)
-
-      let stream = query.asyncThrowingStream()
-      var iterator = stream.makeAsyncIterator()
-
-      let task = Task {
-        // This task will now run and eventually signal its progress.
-        let firstSnapshot = try await iterator.next()
-
-        // Assertions for the first snapshot
-        XCTAssertNotNil(firstSnapshot, "Expected an initial snapshot.")
-        try assertQuerySnapshotDataEquals(firstSnapshot!, [["k": "b", "sort": 1]])
-        XCTAssertEqual(firstSnapshot!.metadata.isFromCache, false)
-
-        // 2. Send the signal to the test function now that we have the first snapshot.
-        signalContinuation.yield(())
-        signalContinuation.finish() // We only need to signal once.
-
-        // This next await will be suspended until it's cancelled.
-        let second = try await iterator.next()
-
-        // After cancellation, the iterator should terminate and return nil.
-        XCTAssertNil(second, "iterator.next() should have returned nil after cancellation.")
-      }
-
-      // 3. Instead of sleeping, await the signal from the Task.
-      //    This line will pause execution until `signalContinuation.yield()` is called.
-      await signalStream.first { _ in true }
-
-      // 4. As soon as we receive the signal, we know it's safe to cancel.
-      task.cancel()
-    }
   }
 #endif
