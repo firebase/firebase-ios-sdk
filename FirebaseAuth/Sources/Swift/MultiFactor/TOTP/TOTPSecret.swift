@@ -70,7 +70,9 @@ import Foundation
         return
       }
       if let url = URL(string: qrCodeURL), application.canOpenURL(url) {
-        application.open(url, options: [:], completionHandler: nil)
+        DispatchQueue.main.async {
+          application.open(url, options: [:], completionHandler: nil)
+        }
       } else {
         AuthLog.logError(code: "I-AUT000019",
                          message: "URL: \(qrCodeURL) cannot be opened")
