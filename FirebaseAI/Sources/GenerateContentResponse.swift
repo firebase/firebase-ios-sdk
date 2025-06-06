@@ -26,6 +26,8 @@ public struct GenerateContentResponse: Sendable {
     /// The total number of tokens across the generated response candidates.
     public let candidatesTokenCount: Int
 
+    public let thoughtsTokenCount: Int
+
     /// The total number of tokens in both the request and response.
     public let totalTokenCount: Int
 
@@ -330,6 +332,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
     case candidatesTokenCount
+    case thoughtsTokenCount
     case totalTokenCount
     case promptTokensDetails
     case candidatesTokensDetails
@@ -340,6 +343,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
     candidatesTokenCount =
       try container.decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
+    thoughtsTokenCount = try container.decodeIfPresent(Int.self, forKey: .thoughtsTokenCount) ?? 0
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
     promptTokensDetails =
       try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
