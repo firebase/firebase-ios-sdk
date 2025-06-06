@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseCore
 import Testing
-import VertexAITestApp
 
 @testable import struct FirebaseAI.APIConfig
 
