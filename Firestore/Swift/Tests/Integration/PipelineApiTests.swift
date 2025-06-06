@@ -263,12 +263,12 @@ final class PipelineTests: FSTIntegrationTestCase {
     // ... }
   }
 
-  func testAddStage() async throws {
+  func testRawStage() async throws {
     // Assume we don't have a built-in "where" stage, the customer could still
-    // add this stage by calling addStage, passing the name of the stage "where",
+    // add this stage by calling rawStage, passing the name of the stage "where",
     // and providing positional argument values.
     _ = db.pipeline().collection("books")
-      .addStage(name: "where",
+      .rawStage(name: "where",
                 params: [Field("published").lt(1900)])
       .select("title", "author")
 
@@ -276,7 +276,7 @@ final class PipelineTests: FSTIntegrationTestCase {
     // provided with a third argument that maps the argument name to value.
     // Note that these named arguments are always optional in the stage definition.
     _ = db.pipeline().collection("books")
-      .addStage(name: "where",
+      .rawStage(name: "where",
                 params: [Field("published").lt(1900)],
                 options: ["someOptionalParamName": "the argument value for this param"])
       .select("title", "author")

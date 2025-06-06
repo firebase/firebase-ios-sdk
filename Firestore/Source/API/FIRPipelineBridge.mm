@@ -46,7 +46,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 
 using firebase::firestore::api::AddFields;
-using firebase::firestore::api::AddStage;
 using firebase::firestore::api::AggregateFunction;
 using firebase::firestore::api::AggregateStage;
 using firebase::firestore::api::CollectionGroupSource;
@@ -65,6 +64,7 @@ using firebase::firestore::api::MakeFIRTimestamp;
 using firebase::firestore::api::OffsetStage;
 using firebase::firestore::api::Ordering;
 using firebase::firestore::api::Pipeline;
+using firebase::firestore::api::RawStage;
 using firebase::firestore::api::RemoveFieldsStage;
 using firebase::firestore::api::ReplaceWith;
 using firebase::firestore::api::Sample;
@@ -782,12 +782,12 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @end
 
-@implementation FIRAddStageBridge {
+@implementation FIRRawStageBridge {
   NSString *_name;
   NSArray<FIRExprBridge *> *_params;
   NSDictionary<NSString *, FIRExprBridge *> *_Nullable _options;
   Boolean isUserDataRead;
-  std::shared_ptr<AddStage> cpp_generic_stage;
+  std::shared_ptr<RawStage> cpp_generic_stage;
 }
 
 - (id)initWithName:(NSString *)name
@@ -815,7 +815,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
         cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
       }
     }
-    cpp_generic_stage = std::make_shared<AddStage>(MakeString(_name), std::move(cpp_params),
+    cpp_generic_stage = std::make_shared<RawStage>(MakeString(_name), std::move(cpp_params),
                                                    std::move(cpp_options));
   }
 

@@ -195,8 +195,8 @@ NS_SWIFT_NAME(UnnestStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(AddStageBridge)
-@interface FIRAddStageBridge : FIRStageBridge
+NS_SWIFT_NAME(RawStageBridge)
+@interface FIRRawStageBridge : FIRStageBridge
 - (id)initWithName:(NSString *)name
             params:(NSArray<FIRExprBridge *> *)params
            options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;

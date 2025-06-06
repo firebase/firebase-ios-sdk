@@ -341,7 +341,7 @@ class Unnest: Stage {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AddStage: Stage {
+class RawStage: Stage {
   let name: String
   let bridge: StageBridge
   private var params: [Sendable]
@@ -353,6 +353,6 @@ class AddStage: Stage {
     self.options = options
     let bridgeParams = params.map { Helper.sendableToExpr($0).toBridge() }
     let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).toBridge() }
-    bridge = AddStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
+    bridge = RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
 }
