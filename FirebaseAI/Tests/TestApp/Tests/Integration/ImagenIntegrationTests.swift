@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import Testing
-import FirebaseAITestApp
 
 #if canImport(UIKit)
   import UIKit

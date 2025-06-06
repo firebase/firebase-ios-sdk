@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import FirebaseAITestApp
 import XCTest
 
 // TODO(#14405): Migrate to Swift Testing and parameterize tests to run on both `v1` and `v1beta`.
