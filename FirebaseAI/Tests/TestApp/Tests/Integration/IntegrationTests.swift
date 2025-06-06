@@ -16,7 +16,7 @@ import FirebaseAI
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import VertexAITestApp
+import FirebaseAITestApp
 import XCTest
 
 // TODO(#14405): Migrate to Swift Testing and parameterize tests to run on both `v1` and `v1beta`.

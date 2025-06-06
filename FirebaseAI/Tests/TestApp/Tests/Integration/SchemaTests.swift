@@ -17,7 +17,7 @@ import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import Testing
-import VertexAITestApp
+import FirebaseAITestApp
 
 #if canImport(UIKit)
   import UIKit

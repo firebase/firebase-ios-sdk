@@ -15,7 +15,7 @@
 import FirebaseAI
 import FirebaseCore
 import Testing
-import VertexAITestApp
+import FirebaseAITestApp
 
 @testable import struct FirebaseAI.APIConfig
 

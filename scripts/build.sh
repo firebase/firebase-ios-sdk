@@ -510,15 +510,15 @@ case "$product-$platform-$method" in
   FirebaseAIIntegration-*-*)
     # Build
     RunXcodebuild \
-      -project 'FirebaseAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
-      -scheme "VertexAITestApp-SPM" \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
       "${xcb_flags[@]}" \
       build
 
     # Run tests
     RunXcodebuild \
-      -project 'FirebaseAI/Tests/TestApp/VertexAITestApp.xcodeproj' \
-      -scheme "VertexAITestApp-SPM" \
+      -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
+      -scheme "FirebaseAITestApp-SPM" \
       "${xcb_flags[@]}" \
       -parallel-testing-enabled NO \
       test
