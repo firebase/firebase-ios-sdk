@@ -27,6 +27,18 @@ extern NSString *const kFIRLibraryVersionID;
 
 @interface FIROptions (Test)
 
+/**
+ * The flag indicating whether this object was constructed with the values in the default plist
+ * file.
+ */
+@property(nonatomic) BOOL usingOptionsFromDefaultPlist;
+
+/**
+ * Whether or not Measurement was enabled. Measurement is enabled unless explicitly disabled in
+ * GoogleService-Info.plist.
+ */
+@property(nonatomic, readonly) BOOL isMeasurementEnabled;
+
 - (nullable NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:
     (nullable NSDictionary *)infoDictionary;
 
