@@ -23,6 +23,9 @@ public struct GenerateContentResponse: Sendable {
     /// The number of tokens in the request prompt.
     public let promptTokenCount: Int
 
+    /// Number of tokens in the cached part of the prompt (the cached content)
+    public let cachedContentTokenCount: Int
+
     /// The total number of tokens across the generated response candidates.
     public let candidatesTokenCount: Int
 
@@ -44,6 +47,9 @@ public struct GenerateContentResponse: Sendable {
 
     /// The breakdown, by modality, of how many tokens are consumed by the prompt.
     public let promptTokensDetails: [ModalityTokenCount]
+
+    /// The breakdown, by modality, of how many tokens are consumed by the cachedContent
+    public let cacheTokensDetails: [ModalityTokenCount]
 
     /// The breakdown, by modality, of how many tokens are consumed by the candidates
     public let candidatesTokensDetails: [ModalityTokenCount]
@@ -481,11 +487,13 @@ extension GenerateContentResponse: Decodable {
 extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
+    case cacheContentTokenCount
     case candidatesTokenCount
     case toolUsePromptTokenCount
     case thoughtsTokenCount
     case totalTokenCount
     case promptTokensDetails
+    case cacheTokensDetails
     case candidatesTokensDetails
     case toolUsePromptTokensDetails
   }
@@ -493,6 +501,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
+    cachedContentTokenCount = try container.decodeIfPresent(Int.self, forKey: .cacheContentTokenCount) ?? 0
     candidatesTokenCount =
       try container.decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
     toolUsePromptTokenCount =
@@ -501,6 +510,8 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
     promptTokensDetails =
       try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
+    cacheTokensDetails =
+      try container.decodeIfPresent([ModalityTokenCount].self, forKey: .cacheTokensDetails) ?? []
     candidatesTokensDetails = try container.decodeIfPresent(
       [ModalityTokenCount].self,
       forKey: .candidatesTokensDetails
