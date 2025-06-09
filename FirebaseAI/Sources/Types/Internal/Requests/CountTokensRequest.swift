@@ -38,7 +38,7 @@ extension CountTokensRequest: GenerativeAIRequest {
 
 /// The model's response to a count tokens request.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct CountTokensResponse {
+public struct CountTokensResponse: Sendable {
   /// The total number of tokens in the input given to the model as a prompt.
   public let totalTokens: Int
 
