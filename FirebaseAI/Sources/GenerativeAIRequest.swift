@@ -16,7 +16,7 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 protocol GenerativeAIRequest: Sendable, Encodable {
-  associatedtype Response: Decodable
+  associatedtype Response: Sendable, Decodable
 
   var url: URL { get }
 
