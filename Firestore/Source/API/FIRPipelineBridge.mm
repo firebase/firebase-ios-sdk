@@ -928,7 +928,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   FSTUserDataWriter *dataWriter =
       [[FSTUserDataWriter alloc] initWithFirestore:_db
                            serverTimestampBehavior:serverTimestampBehavior];
-  return [dataWriter convertedValue:*data];
+  NSDictionary<NSString *, id> *dictionary = [dataWriter convertedValue:*data];
+  NSLog(@"Dictionary contents: %@", dictionary);
+  return dictionary;
 }
 
 - (nullable id)get:(id)field {

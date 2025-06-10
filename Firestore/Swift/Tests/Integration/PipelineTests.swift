@@ -19,7 +19,7 @@ import FirebaseFirestore
 import Foundation
 import XCTest // For XCTFail, XCTAssertEqual etc.
 
-private let bookDocs: [String: [String: Any]] = [
+private let bookDocs: [String: [String: Sendable]] = [
   "book1": [
     "title": "The Hitchhiker's Guide to the Galaxy",
     "author": "Douglas Adams",
@@ -125,6 +125,76 @@ private let bookDocs: [String: [String: Any]] = [
   ],
 ]
 
+// A custom function to compare two values of type 'Sendable'
+private func areEqual(_ value1: Sendable?, _ value2: Sendable?) -> Bool {
+  if value1 == nil || value2 == nil {
+    return (value1 == nil || value1 as! NSObject == NSNull()) &&
+      (value2 == nil || value2 as! NSObject == NSNull())
+  }
+  switch (value1!, value2!) {
+  case let (v1 as [String: Sendable?], v2 as [String: Sendable?]):
+    return areDictionariesEqual(v1, v2)
+  case let (v1 as [Sendable?], v2 as [Sendable?]):
+    return areArraysEqual(v1, v2)
+  case let (v1 as Timestamp, v2 as Timestamp):
+    return v1 == v2
+  case let (v1 as Date, v2 as Timestamp):
+    // Firestore converts Dates to Timestamps
+    return Timestamp(date: v1) == v2
+  case let (v1 as GeoPoint, v2 as GeoPoint):
+    return v1.latitude == v2.latitude && v1.longitude == v2.longitude
+  case let (v1 as DocumentReference, v2 as DocumentReference):
+    return v1.path == v2.path
+  case let (v1 as VectorValue, v2 as VectorValue):
+    return v1.array == v2.array
+  case let (v1 as Data, v2 as Data):
+    return v1 == v2
+  case let (v1 as Int, v2 as Int):
+    return v1 == v2
+  case let (v1 as String, v2 as String):
+    return v1 == v2
+  case let (v1 as Bool, v2 as Bool):
+    return v1 == v2
+  case let (v1 as UInt8, v2 as UInt8):
+    return v1 == v2
+  default:
+    // Fallback for any other types, might need more specific checks
+    return false
+  }
+}
+
+// A function to compare two dictionaries
+private func areDictionariesEqual(_ dict1: [String: Sendable?],
+                                  _ dict2: [String: Sendable?]) -> Bool {
+  guard dict1.count == dict2.count else { return false }
+
+  for (key, value1) in dict1 {
+    print("key1: \(key)")
+    print("value1: \(String(describing: value1))")
+    print("value2: \(String(describing: dict2[key]))")
+    guard let value2 = dict2[key], areEqual(value1, value2) else {
+      return false
+    }
+  }
+  return true
+}
+
+// A function to compare two arrays
+private func areArraysEqual(_ array1: [Sendable?], _ array2: [Sendable?]) -> Bool {
+  guard array1.count == array2.count else { return false }
+
+  for (index, value1) in array1.enumerated() {
+    print("value1: \(String(describing: value1))")
+
+    let value2 = array2[index]
+    print("value2: \(String(describing: value2))")
+    if !areEqual(value1, value2) {
+      return false
+    }
+  }
+  return true
+}
+
 func expectResults(_ snapshot: PipelineSnapshot,
                    expectedCount: Int,
                    file: StaticString = #file,
@@ -159,6 +229,13 @@ func expectResults(_ snapshot: PipelineSnapshot,
     file: file,
     line: line
   )
+}
+
+func expectResults(result: PipelineResult,
+                   expected: [String: Sendable],
+                   file: StaticString = #file,
+                   line: UInt = #line) {
+  XCTAssertTrue(areDictionariesEqual(result.data, expected))
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -488,5 +565,156 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       snapshot,
       expectedIDs: [subSubCollDocRef.documentID, collADocRef.documentID, collBDocRef.documentID]
     )
+  }
+
+  func testAcceptsAndReturnsAllSupportedDataTypes() async throws {
+    let db = firestore()
+    let randomCol = collectionRef() // Ensure a unique collection for the test
+
+    // Add a dummy document to the collection.
+    // A pipeline query with .select against an empty collection might not behave as expected.
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let refDate = Date(timeIntervalSince1970: 1_678_886_400)
+    let refTimestamp = Timestamp(date: refDate)
+
+    let constantsFirst: [Selectable] = [
+      Constant(1).as("number"),
+      Constant("a string").as("string"),
+      Constant(true).as("boolean"),
+      Constant.nil.as("nil"),
+      Constant(GeoPoint(latitude: 0.1, longitude: 0.2)).as("geoPoint"),
+      Constant(refTimestamp).as("timestamp"),
+      Constant(refDate).as("date"), // Firestore will convert this to a Timestamp
+      Constant([1, 2, 3, 4, 5, 6, 7, 0] as [UInt8]).as("bytes"),
+      Constant(db.document("foo/bar")).as("documentReference"),
+      Constant(VectorValue([1, 2, 3])).as("vectorValue"),
+      Constant([1, 2, 3]).as("arrayValue"), // Treated as an array of numbers
+    ]
+
+    let constantsSecond: [Selectable] = [
+      MapExpression([
+        "number": 1,
+        "string": "a string",
+        "boolean": true,
+        "nil": Constant.nil,
+        "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
+        "timestamp": refTimestamp,
+        "date": refDate,
+        "uint8Array": Data([1, 2, 3, 4, 5, 6, 7, 0]),
+        "documentReference": Constant(db.document("foo/bar")),
+        "vectorValue": VectorValue([1, 2, 3]),
+        "map": [
+          "number": 2,
+          "string": "b string",
+        ],
+        "array": [1, "c string"],
+      ]).as("map"),
+      ArrayExpression([
+        1000,
+        "another string",
+        false,
+        Constant.nil,
+        GeoPoint(latitude: 10.1, longitude: 20.2),
+        Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)), // Different timestamp
+        Date(timeIntervalSince1970: 1_700_000_000), // Different date
+        [11, 22, 33] as [UInt8],
+        db.document("another/doc"),
+        VectorValue([7, 8, 9]),
+        [
+          "nestedInArrayMapKey": "value",
+          "anotherNestedKey": refTimestamp,
+        ],
+        [2000, "deep nested array string"],
+      ]).as("array"),
+    ]
+
+    let expectedResultsMap: [String: Sendable?] = [
+      "number": 1,
+      "string": "a string",
+      "boolean": true,
+      "nil": nil,
+      "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
+      "timestamp": refTimestamp,
+      "date": refTimestamp, // Dates are converted to Timestamps
+      "bytes": [1, 2, 3, 4, 5, 6, 7, 0] as [UInt8],
+      "documentReference": db.document("foo/bar"),
+      "vectorValue": VectorValue([1, 2, 3]),
+      "arrayValue": [1, 2, 3],
+      "map": [
+        "number": 1,
+        "string": "a string",
+        "boolean": true,
+        "nil": nil,
+        "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
+        "timestamp": refTimestamp,
+        "date": refTimestamp,
+        "uint8Array": Data([1, 2, 3, 4, 5, 6, 7, 0]),
+        "documentReference": db.document("foo/bar"),
+        "vectorValue": VectorValue([1, 2, 3]),
+        "map": [
+          "number": 2,
+          "string": "b string",
+        ],
+        "array": [1, "c string"],
+      ],
+      "array": [
+        1000,
+        "another string",
+        false,
+        nil,
+        GeoPoint(latitude: 10.1, longitude: 20.2),
+        Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)),
+        Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)), // Dates are converted
+        [11, 22, 33] as [UInt8],
+        db.document("another/doc"),
+        VectorValue([7, 8, 9]),
+        [
+          "nestedInArrayMapKey": "value",
+          "anotherNestedKey": refTimestamp,
+        ],
+        [2000, "deep nested array string"],
+      ],
+    ]
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        constantsFirst + constantsSecond
+      )
+    let snapshot = try await pipeline.execute()
+
+    expectResults(result: snapshot.results[0], expected: expectedResultsMap)
+  }
+
+  func testAcceptsAndReturnsNil() async throws {
+    let db = firestore()
+    let randomCol = collectionRef() // Ensure a unique collection for the test
+
+    // Add a dummy document to the collection.
+    // A pipeline query with .select against an empty collection might not behave as expected.
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let refDate = Date(timeIntervalSince1970: 1_678_886_400)
+    let refTimestamp = Timestamp(date: refDate)
+
+    let constantsFirst: [Selectable] = [
+      Constant.nil.as("nil"),
+    ]
+
+    let expectedResultsMap: [String: Sendable?] = [
+      "nil": nil,
+    ]
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        constantsFirst
+      )
+    let snapshot = try await pipeline.execute()
+
+    expectResults(result: snapshot.results[0], expected: expectedResultsMap)
   }
 }

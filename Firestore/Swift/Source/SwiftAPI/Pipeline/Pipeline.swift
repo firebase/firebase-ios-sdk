@@ -246,6 +246,13 @@ public struct Pipeline: @unchecked Sendable {
     )
   }
 
+  public func select(_ selections: [Selectable]) -> Pipeline {
+    return Pipeline(
+      stages: stages + [Select(selections: selections)],
+      db: db
+    )
+  }
+
   /// Filters documents from previous stages, including only those matching the specified
   /// `BooleanExpr`.
   ///
