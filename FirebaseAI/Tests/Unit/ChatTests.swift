@@ -94,4 +94,162 @@ final class ChatTests: XCTestCase {
       XCTAssertEqual(chat.history[1], assembledExpectation)
     #endif // os(watchOS)
   }
+
+  func testChatHistory() async throws {
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    #if os(watchOS)
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    #else // os(watchOS)
+      let app = FirebaseApp(instanceWithName: "testAppHistory", // Use a unique name
+                            options: FirebaseOptions(googleAppID: "ignore",
+                                                     gcmSenderID: "ignore"))
+      let model = GenerativeModel(
+        modelName: modelName, // Assuming modelName is available from the class
+        modelResourceName: modelResourceName, // Assuming modelResourceName is available
+        firebaseInfo: FirebaseInfo(
+          projectID: "my-project-id",
+          apiKey: "API_KEY",
+          firebaseAppID: "My app ID",
+          firebaseApp: app
+        ),
+        apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+        tools: nil,
+        requestOptions: RequestOptions(),
+        urlSession: urlSession // Assuming urlSession is available from the class
+      )
+
+      // Initial chat history
+      let initialHistory: [ModelContent] = [
+        ModelContent(role: "user", parts: "Hello"),
+        ModelContent(role: "model", parts: "Hi there! How can I help you today?")
+      ]
+
+      let chat = Chat(model: model, history: initialHistory)
+      XCTAssertEqual(chat.history.count, 2, "Initial history count should be 2.")
+
+      // Mock the network response
+      let mockResponseText = "This is a mocked response."
+      // Construct a data object that mimics the streaming format.
+      // Each line should be a ServerSentEvent. Note the double newlines for SSE.
+      let mockResponseString = "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\(mockResponseText)\"}]}}]}"
+
+      // Convert the string to Data
+      let mockResponseData = mockResponseString.data(using: .utf8)!
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: ["Content-Type": "application/json"] // Appropriate content type
+        )!
+        // Simulate streaming: send the data as a single chunk followed by an empty line to signify end.
+        // Actual streaming might involve multiple data chunks. For this test, one is sufficient.
+        // The key is that `MockURLProtocol` expects an array of Data objects, where each represents a "line" or chunk.
+        let responseChunks = [mockResponseData, Data()] // Send data then an empty line
+        return (response, responseChunks)
+      }
+
+      // Send a new message
+      let newMessageText = "How about now?"
+      let stream = try chat.sendMessageStream(newMessageText)
+
+      // Consume the stream to ensure the message is processed
+      for try await _ in stream {}
+
+      // Verify history
+      XCTAssertEqual(chat.history.count, 4, "History count should be 4 after sending a new message.")
+
+      // Check initial history (already present)
+      XCTAssertEqual(chat.history[0].role, "user")
+      var part = try XCTUnwrap(chat.history[0].parts.first)
+      var textPart = try XCTUnwrap(part as? TextPart)
+      XCTAssertEqual(textPart.text, "Hello")
+
+      XCTAssertEqual(chat.history[1].role, "model")
+      part = try XCTUnwrap(chat.history[1].parts.first)
+      textPart = try XCTUnwrap(part as? TextPart)
+      XCTAssertEqual(textPart.text, "Hi there! How can I help you today?")
+
+      // Check the new user message
+      XCTAssertEqual(chat.history[2].role, "user")
+      part = try XCTUnwrap(chat.history[2].parts.first)
+      textPart = try XCTUnwrap(part as? TextPart)
+      XCTAssertEqual(textPart.text, newMessageText)
+
+      // Check the mocked model response
+      XCTAssertEqual(chat.history[3].role, "model")
+      part = try XCTUnwrap(chat.history[3].parts.first)
+      textPart = try XCTUnwrap(part as? TextPart)
+      XCTAssertEqual(textPart.text, mockResponseText) // mockResponseText was defined in the previous step
+    #endif // os(watchOS)
+  }
+
+  func testChatHistoryWithEmptyInitialHistory() async throws {
+    // Skip tests using MockURLProtocol on watchOS...
+    #if os(watchOS)
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    #else // os(watchOS)
+      // Setup FirebaseApp & GenerativeModel (unique app name)
+      let app = FirebaseApp(instanceWithName: "testAppEmptyHistory",
+                            options: FirebaseOptions(googleAppID: "ignore", gcmSenderID: "ignore"))
+      let model = GenerativeModel(
+        modelName: modelName,
+        modelResourceName: modelResourceName,
+        firebaseInfo: FirebaseInfo(
+          projectID: "my-project-id",
+          apiKey: "API_KEY",
+          firebaseAppID: "My app ID",
+          firebaseApp: app
+        ),
+        apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+        tools: nil,
+        requestOptions: RequestOptions(),
+        urlSession: urlSession
+      )
+
+      // Initialize Chat with empty history
+      let initialHistory: [ModelContent] = []
+      let chat = Chat(model: model, history: initialHistory)
+      XCTAssertEqual(chat.history.count, 0, "Initial history count should be 0.")
+
+      // Mock network response
+      let mockResponseText = "Mocked response for empty history test."
+      let mockResponseString = "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\(mockResponseText)\"}]}}]}"
+      let mockResponseData = mockResponseString.data(using: .utf8)!
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: ["Content-Type": "application/json"]
+        )!
+        let responseChunks = [mockResponseData, Data()]
+        return (response, responseChunks)
+      }
+
+      // Send a new message
+      let newMessageText = "First message here"
+      let stream = try chat.sendMessageStream(newMessageText)
+
+      // Consume the stream
+      for try await _ in stream {}
+
+      // Verify history
+      XCTAssertEqual(chat.history.count, 2, "History count should be 2 after sending the first message.")
+
+      // Check the new user message
+      let userMessagePart = try XCTUnwrap(chat.history[0].parts.first)
+      let userMessageText = try XCTUnwrap(userMessagePart as? TextPart)
+      XCTAssertEqual(chat.history[0].role, "user")
+      XCTAssertEqual(userMessageText.text, newMessageText)
+
+      // Check the mocked model response
+      let modelMessagePart = try XCTUnwrap(chat.history[1].parts.first)
+      let modelMessageText = try XCTUnwrap(modelMessagePart as? TextPart)
+      XCTAssertEqual(chat.history[1].role, "model")
+      XCTAssertEqual(modelMessageText.text, mockResponseText)
+    #endif // os(watchOS)
+  }
 }
