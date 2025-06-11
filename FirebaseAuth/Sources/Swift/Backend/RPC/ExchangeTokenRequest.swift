@@ -43,7 +43,13 @@ struct ExchangeTokenRequest: AuthRPCRequest {
         "exchangeOidcToken requires `auth.location` & `auth.tenantID`"
       )
     }
-    _ = "\(location)-identityplatform.googleapis.com"
+    let _: String
+    if location == "prod-global" {
+      _ = "identityplatform.googleapis.com"
+    } else {
+      _ = "\(location)-identityplatform.googleapis.com"
+    }
+
     return "/v2alpha/projects/\(project)/locations/\(location)" +
       "/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
   }
@@ -80,7 +86,12 @@ struct ExchangeTokenRequest: AuthRPCRequest {
         "exchangeOidcToken requires `auth.useIdentityPlatform`, `auth.location`, `auth.tenantID` & `projectID`"
       )
     }
-    let host = "\(location)-identityplatform.googleapis.com"
+    let host: String
+    if location == "prod-global" {
+      host = "identityplatform.googleapis.com"
+    } else {
+      host = "\(location)-identityplatform.googleapis.com"
+    }
     let path = "/v2/projects/$\(project)/locations/$\(location)" +
       "/tenants/$\(tenant)/idpConfigs/$\(idpConfigID):exchangeOidcToken"
     guard let url = URL(string: "https://\(host)\(path)?key=\(config.apiKey)") else {
