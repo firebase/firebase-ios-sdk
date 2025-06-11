@@ -79,9 +79,9 @@ class IdentityToolkitRequest {
     let urlString: String
     let emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort
     /// R-GCIP
-    if let region = _requestConfiguration.location,
+    if let location = _requestConfiguration.location,
        let tenant = _requestConfiguration.tenantId, // Use tenantId from requestConfiguration
-       !region.isEmpty,
+       !location.isEmpty,
        !tenant.isEmpty {
       let projectID = _requestConfiguration.auth?.app?.options.projectID
       // Choose emulator, staging, or prod host
@@ -97,7 +97,7 @@ class IdentityToolkitRequest {
       }
       urlString =
         "\(apiProtocol)//\(apiHostAndPathPrefix)/v2/projects/\(projectID ?? "projectID")"
-          + "/locations/\(region)/tenants/\(tenant)/idpConfigs/\(endpoint)?key=\(apiKey)"
+          + "/locations/\(location)/tenants/\(tenant)/idpConfigs/\(endpoint)?key=\(apiKey)"
     }
     // legacy gcip existing logic
     else if useIdentityPlatform {

@@ -44,7 +44,7 @@ final class AuthRequestConfiguration {
   /// If set, the local emulator host and port to point to instead of the remote backend.
   var emulatorHostAndPort: String?
 
-  /// R-GCIP region, set once during Auth init.
+  /// R-GCIP location, set once during Auth init.
   var location: String?
 
   /// R-GCIP tenantId, set once during Auth init.

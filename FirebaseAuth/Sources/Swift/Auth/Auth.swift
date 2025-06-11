@@ -156,9 +156,9 @@ public struct TenantConfig: Sendable {
 }
 
 /// Holds a Firebase ID token and its expiration.
-public struct AuthExchangeToken: Sendable {
+public struct FirebaseToken: Sendable {
   public let token: String
-  public let expirationDate: Date?
+  public let expirationDate: Date
   init(token: String, expirationDate: Date) {
     self.token = token
     self.expirationDate = expirationDate
@@ -2483,7 +2483,7 @@ public extension Auth {
   ///   - completion: A closure that gets called with either an `AuthTokenResult` or an `Error`.
   func exchangeToken(customToken: String,
                      idpConfigId: String,
-                     completion: @escaping (AuthExchangeToken?, Error?) -> Void) {
+                     completion: @escaping (FirebaseToken?, Error?) -> Void) {
     // Ensure R-GCIP is configured with location and tenant ID
     guard let _ = requestConfiguration.location,
           let _ = requestConfiguration.tenantId
@@ -2503,11 +2503,11 @@ public extension Auth {
     Task {
       do {
         let response = try await backend.call(with: request)
-        let authExchangeToken = AuthExchangeToken(
+        let firebaseToken = FirebaseToken(
           token: response.firebaseToken,
           expirationDate: response.expirationDate
         )
-        Auth.wrapMainAsync(callback: completion, with: .success(authExchangeToken))
+        Auth.wrapMainAsync(callback: completion, with: .success(firebaseToken))
       } catch {
         Auth.wrapMainAsync(callback: completion, with: .failure(error))
       }
@@ -2528,7 +2528,7 @@ public extension Auth {
   /// - Returns: An `AuthTokenResult` containing the Firebase ID token and its expiration details.
   /// - Throws: An error if R-GCIP is not configured, if the network call fails,
   ///           or if the token parsing fails.
-  func exchangeToken(customToken: String, idpConfigId: String) async throws -> AuthExchangeToken {
+  func exchangeToken(customToken: String, idpConfigId: String) async throws -> FirebaseToken {
     // Ensure R-GCIP is configured with location and tenant ID
     guard let _ = requestConfiguration.location,
           let _ = requestConfiguration.tenantId
@@ -2542,7 +2542,7 @@ public extension Auth {
     )
     do {
       let response = try await backend.call(with: request)
-      return AuthExchangeToken(
+      return FirebaseToken(
         token: response.firebaseToken,
         expirationDate: response.expirationDate
       )

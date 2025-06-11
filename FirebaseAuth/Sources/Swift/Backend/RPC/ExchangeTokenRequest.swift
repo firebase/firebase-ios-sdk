@@ -14,7 +14,6 @@
 
 import Foundation
 
-private let kCustomTokenKey = "customToken"
 
 /// A request to exchange a third-party OIDC token for a Firebase STS token.
 ///
@@ -37,7 +36,7 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   let config: AuthRequestConfiguration
 
   var path: String {
-    guard let region = config.location,
+    guard let location = config.location,
           let tenant = config.tenantId,
           let project = config.auth?.app?.options.projectID
     else {
@@ -45,8 +44,8 @@ struct ExchangeTokenRequest: AuthRPCRequest {
         "exchangeOidcToken requires `auth.location` & `auth.tenantID`"
       )
     }
-    _ = "\(region)-identityplatform.googleapis.com"
-    return "/v2alpha/projects/\(project)/locations/\(region)" +
+    _ = "\(location)-identityplatform.googleapis.com"
+    return "/v2alpha/projects/\(project)/locations/\(location)" +
       "/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
   }
 
@@ -74,7 +73,7 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   /// - Returns: The URL for the token exchange endpoint.
   /// - FatalError: if location, tenantID, projectID or apiKey are missing.
   func requestURL() -> URL {
-    guard let region = config.location,
+    guard let location = config.location,
           let tenant = config.tenantId,
           let project = config.auth?.app?.options.projectID
     else {
@@ -82,8 +81,8 @@ struct ExchangeTokenRequest: AuthRPCRequest {
         "exchangeOidcToken requires `auth.useIdentityPlatform`, `auth.location`, `auth.tenantID` & `projectID`"
       )
     }
-    let host = "\(region)-identityplatform.googleapis.com"
-    let path = "/v2/projects/$\(project)/locations/$\(region)" +
+    let host = "\(location)-identityplatform.googleapis.com"
+    let path = "/v2/projects/$\(project)/locations/$\(location)" +
       "/tenants/$\(tenant)/idpConfigs/$\(idpConfigID):exchangeOidcToken"
     guard let url = URL(string: "https://\(host)\(path)?key=\(config.apiKey)") else {
       fatalError("Failed to create URL for exchangeOidcToken")
