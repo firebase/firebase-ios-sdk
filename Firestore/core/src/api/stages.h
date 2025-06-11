@@ -252,12 +252,31 @@ class RemoveFieldsStage : public Stage {
 
 class ReplaceWith : public Stage {
  public:
-  explicit ReplaceWith(std::shared_ptr<Expr> expr);
+  class ReplaceMode {
+   public:
+    enum Mode {
+      FULL_REPLACE,
+      MERGE_PREFER_NEST,
+      MERGE_PREFER_PARENT = FULL_REPLACE
+    };
+
+    explicit ReplaceMode(Mode mode) : mode_(mode) {
+    }
+    google_firestore_v1_Value to_proto() const;
+
+   private:
+    Mode mode_;
+  };
+
+  explicit ReplaceWith(
+      std::shared_ptr<Expr> expr,
+      ReplaceMode mode = ReplaceMode(ReplaceMode::Mode::FULL_REPLACE));
   ~ReplaceWith() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
   std::shared_ptr<Expr> expr_;
+  ReplaceMode mode_;
 };
 
 class Sample : public Stage {

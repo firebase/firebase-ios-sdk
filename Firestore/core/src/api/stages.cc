@@ -306,20 +306,37 @@ google_firestore_v1_Pipeline_Stage RemoveFieldsStage::to_proto() const {
   return result;
 }
 
+google_firestore_v1_Value ReplaceWith::ReplaceMode::to_proto() const {
+  google_firestore_v1_Value result;
+  result.which_value_type = google_firestore_v1_Value_string_value_tag;
+  switch (mode_) {
+    case FULL_REPLACE:
+      result.string_value = nanopb::MakeBytesArray("full_replace");
+      break;
+    case MERGE_PREFER_NEST:
+      result.string_value = nanopb::MakeBytesArray("merge_prefer_nest");
+      break;
+  }
+  return result;
+}
+
 google_firestore_v1_Pipeline_Stage ReplaceWith::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray("replace_with");
 
-  result.args_count = 1;
-  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  result.args_count = 2;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
   result.args[0] = expr_->to_proto();
+
+  result.args[1] = mode_.to_proto();
 
   result.options_count = 0;
   result.options = nullptr;
   return result;
 }
 
-ReplaceWith::ReplaceWith(std::shared_ptr<Expr> expr) : expr_(std::move(expr)) {
+ReplaceWith::ReplaceWith(std::shared_ptr<Expr> expr, ReplaceMode mode)
+    : expr_(std::move(expr)), mode_(mode) {
 }
 
 Sample::Sample(std::string type, int64_t count, double percentage)

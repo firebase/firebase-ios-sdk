@@ -1266,7 +1266,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     // Need to use nullable Sendable for comparison because 'others' is nested
     // and the areEqual function handles Sendable?
-    expectSnapshots(snapshot: snapshot, expected: [expectedBook1Transformed as [String: Sendable]])
+    expectSnapshots(snapshot: snapshot, expected: [expectedBook1Transformed])
   }
 
   // MARK: - Sample Stage Tests
