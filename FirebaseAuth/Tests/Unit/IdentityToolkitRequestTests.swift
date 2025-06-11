@@ -25,9 +25,11 @@ class IdentityToolkitRequestTests: XCTestCase {
   let kEndpoint = "endpoint"
   let kAPIKey = "APIKey"
   let kEmulatorHostAndPort = "emulatorhost:12345"
-  let kRegion = "us-central1"
+  let kLocation = "us-central1"
   let kTenantID = "tenant-id"
   let kProjectID = "my-project-id"
+  let kCustomToken = "custom-token"
+  let kIdpConfigId = "idpConfigId"
 
   /** @fn testInitWithEndpointExpectedRequestURL
       @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
@@ -137,7 +139,7 @@ class IdentityToolkitRequestTests: XCTestCase {
   // MARK: - R-GCIP specific tests
 
   /** @fn testInitWithRGCIPIExpectedRequestURL
-      @brief Tests the @c requestURL method for R-GCIP with region and tenant ID.
+      @brief Tests the @c requestURL method for R-GCIP with location and tenant ID.
    */
   func testInitWithRGCIPIExpectedRequestURL() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -150,18 +152,18 @@ class IdentityToolkitRequestTests: XCTestCase {
     auth
       .tenantID = kTenantID // Tenant ID is also needed in Auth for the request logic to pick it up
 
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kRegion)
+    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration)
     let expectedURL = "https://identityplatform.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kRegion)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
   /** @fn testInitWithRGCIPIUseStagingExpectedRequestURL
-      @brief Tests the @c requestURL method for R-GCIP with region, tenant ID, and staging.
+      @brief Tests the @c requestURL method for R-GCIP with location, tenant ID, and staging.
    */
   func testInitWithRGCIPIUseStagingExpectedRequestURL() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -173,7 +175,7 @@ class IdentityToolkitRequestTests: XCTestCase {
     let auth = Auth(app: app)
     auth.tenantID = kTenantID
 
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kRegion)
+    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
@@ -181,12 +183,12 @@ class IdentityToolkitRequestTests: XCTestCase {
                                          useStaging: true)
     let expectedURL =
       "https://staging-identityplatform.sandbox.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kRegion)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
   /** @fn testInitWithRGCIPIUseEmulatorExpectedRequestURL
-      @brief Tests the @c requestURL method for R-GCIP with region, tenant ID, and emulator.
+      @brief Tests the @c requestURL method for R-GCIP with location, tenant ID, and emulator.
    */
   func testInitWithRGCIPIUseEmulatorExpectedRequestURL() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -198,7 +200,7 @@ class IdentityToolkitRequestTests: XCTestCase {
     let auth = Auth(app: app)
     auth.tenantID = kTenantID
 
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kRegion)
+    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort
@@ -206,7 +208,7 @@ class IdentityToolkitRequestTests: XCTestCase {
                                          requestConfiguration: requestConfiguration)
     let expectedURL =
       "http://\(kEmulatorHostAndPort)/identityplatform.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kRegion)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
@@ -224,36 +226,36 @@ class IdentityToolkitRequestTests: XCTestCase {
     let auth = Auth(app: app)
     auth.tenantID = kTenantID
 
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kRegion)
+    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration)
     // The expected URL should use "projectID" as a placeholder
     let expectedURL = "https://identityplatform.googleapis.com/v2/projects/projectID" +
-      "/locations/\(kRegion)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
-  /** @fn testInitWithRGCIPIWithEmptyRegion
-   @brief Tests that the request falls back to the non-R-GCIP logic if the region is empty.
+  /** @fn testInitWithRGCIPIWithEmptyLocation
+   @brief Tests that the request falls back to the non-R-GCIP logic if the location is empty.
    */
-  func testInitWithRGCIPIWithEmptyRegion() {
+  func testInitWithRGCIPIWithEmptyLocation() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.apiKey = kAPIKey
     options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppEmptyRegion", options: options)
+    let app = FirebaseApp(instanceWithName: "rGCIPAppEmptyLocation", options: options)
     // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
     let auth = Auth(app: app)
     auth.tenantID = kTenantID
 
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: "") // Empty region
+    let tenantConfig = TenantConfig(tenantId: kTenantID, location: "") // Empty location
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration) // R-GCIP logic
-    // will fail due to empty region
+    // will fail due to empty location
     // Expecting fallback to the default Firebase Auth endpoint logic
     let expectedURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"
@@ -274,7 +276,7 @@ class IdentityToolkitRequestTests: XCTestCase {
     auth.tenantID = kTenantID // Tenant ID is set in Auth but R-GCIP logic uses tenantConfig
 
     let tenantConfig = TenantConfig(tenantId: "",
-                                    location: kRegion) // Empty tenantId in tenant config
+                                    location: kLocation) // Empty tenantId in tenant config
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
@@ -300,7 +302,7 @@ class IdentityToolkitRequestTests: XCTestCase {
     auth.tenantID = kTenantID // Tenant ID is set in Auth but R-GCIP logic uses tenantConfig
 
     let tenantConfig = TenantConfig(tenantId: "",
-                                    location: kRegion) // Nil tenantId in tenant config
+                                    location: kLocation) // Nil tenantId in tenant config
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
@@ -350,7 +352,7 @@ class IdentityToolkitRequestTests: XCTestCase {
     let auth = Auth(app: app)
     auth.tenantID = kTenantID
 
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kRegion)
+    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
@@ -358,7 +360,7 @@ class IdentityToolkitRequestTests: XCTestCase {
                                          useIdentityPlatform: true) // useIdentityPlatform is true
 
     let expectedURL = "https://identityplatform.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kRegion)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
@@ -376,14 +378,14 @@ class IdentityToolkitRequestTests: XCTestCase {
     auth.tenantID = "legacy-tenant-id" // Tenant ID in Auth
 
     let tenantConfig = TenantConfig(tenantId: kTenantID,
-                                    location: kRegion) // Tenant ID in tenantConfig
+                                    location: kLocation) // Tenant ID in tenantConfig
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration)
 
     let expectedURL = "https://identityplatform.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kRegion)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
@@ -400,13 +402,14 @@ class IdentityToolkitRequestTests: XCTestCase {
     let auth = Auth(app: app)
     auth.tenantID = kTenantID // Tenant ID in Auth
 
-    let tenantConfig = TenantConfig(tenantId: "", location: kRegion) // Nil tenantId in tenantConfig
+    let tenantConfig = TenantConfig(tenantId: "",
+                                    location: kLocation) // Nil tenantId in tenantConfig
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration)
 
-    // Even though region is present, since tenantId in tenantConfig is nil,
+    // Even though location is present, since tenantId in tenantConfig is nil,
     // it should not use the R-GCIP path and fall back to default Auth endpoint.
     let expectedURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"
@@ -427,13 +430,13 @@ class IdentityToolkitRequestTests: XCTestCase {
     auth.tenantID = kTenantID // Tenant ID in Auth
 
     let tenantConfig = TenantConfig(tenantId: "",
-                                    location: kRegion) // Empty tenantId in tenantConfig
+                                    location: kLocation) // Empty tenantId in tenantConfig
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration)
 
-    // Even though region is present, since tenantId in tenantConfig is empty,
+    // Even though location is present, since tenantId in tenantConfig is empty,
     // it should not use the R-GCIP path and fall back to default Auth endpoint.
     let expectedURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"

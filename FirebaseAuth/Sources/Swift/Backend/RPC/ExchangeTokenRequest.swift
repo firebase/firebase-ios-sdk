@@ -14,7 +14,6 @@
 
 import Foundation
 
-
 /// A request to exchange a third-party OIDC token for a Firebase STS token.
 ///
 /// This structure encapsulates the parameters required to make an API request
