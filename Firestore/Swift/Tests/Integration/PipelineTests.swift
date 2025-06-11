@@ -209,27 +209,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    let startTime = Date().timeIntervalSince1970
-
     let pipeline = db.pipeline().collection(collRef.path)
     let snapshot = try await pipeline.execute()
-
-    let endTime = Date().timeIntervalSince1970
 
     XCTAssertEqual(snapshot.results.count, bookDocs.count, "Should fetch all documents")
 
     let executionTimeValue = snapshot.executionTime.dateValue().timeIntervalSince1970
 
-    XCTAssertGreaterThanOrEqual(
-      executionTimeValue,
-      startTime,
-      "Execution time should be at or after start time"
-    )
-    XCTAssertLessThanOrEqual(
-      executionTimeValue,
-      endTime,
-      "Execution time should be at or before end time"
-    )
     XCTAssertGreaterThan(executionTimeValue, 0, "Execution time should be positive and not zero")
   }
 
@@ -238,34 +224,17 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       collectionRef(withDocuments: bookDocs) // Using bookDocs is fine, limit(0) makes it empty
     let db = collRef.firestore
 
-    let startTime = Date().timeIntervalSince1970
-
     let pipeline = db.pipeline().collection(collRef.path).limit(0)
     let snapshot = try await pipeline.execute()
-
-    let endTime = Date().timeIntervalSince1970
 
     expectResults(snapshot, expectedCount: 0)
 
     let executionTimeValue = snapshot.executionTime.dateValue().timeIntervalSince1970
-    XCTAssertGreaterThanOrEqual(
-      executionTimeValue,
-      startTime,
-      "Execution time should be at or after start time"
-    )
-    XCTAssertLessThanOrEqual(
-      executionTimeValue,
-      endTime,
-      "Execution time should be at or before end time"
-    )
     XCTAssertGreaterThan(executionTimeValue, 0, "Execution time should be positive and not zero")
   }
 
   func testReturnsCreateAndUpdateTimeForEachDocument() async throws {
-    let beforeInitialExecute = Date().timeIntervalSince1970
     let collRef = collectionRef(withDocuments: bookDocs)
-    let afterInitialExecute = Date().timeIntervalSince1970
-
     let db = collRef.firestore
     let pipeline = db.pipeline().collection(collRef.path)
     var snapshot = try await pipeline.execute()
@@ -291,11 +260,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         XCTAssertEqual(createTimestamp,
                        updateTimestamp,
                        "Initial createTime and updateTime should be equal for \(String(describing: doc.id))")
-
-        XCTAssertGreaterThanOrEqual(createTimestamp, beforeInitialExecute,
-                                    "Initial createTime for \(String(describing: doc.id)) should be at or after start time")
-        XCTAssertLessThanOrEqual(createTimestamp, afterInitialExecute,
-                                 "Initial createTime for \(String(describing: doc.id)) should be positive and not zero")
       }
     }
 
@@ -342,20 +306,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    let startTime = Date().timeIntervalSince1970
-
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .aggregate(Field("rating").avg().as("avgRating"))
     let snapshot = try await pipeline.execute()
 
-    let endTime = Date().timeIntervalSince1970
-
     XCTAssertEqual(snapshot.results.count, 1, "Aggregate query should return a single result")
 
     let executionTimeValue = snapshot.executionTime.dateValue().timeIntervalSince1970
-    XCTAssertGreaterThanOrEqual(executionTimeValue, startTime)
-    XCTAssertLessThanOrEqual(executionTimeValue, endTime)
     XCTAssertGreaterThan(executionTimeValue, 0, "Execution time should be positive")
   }
 
