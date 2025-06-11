@@ -1186,4 +1186,167 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
     expectSnapshots(snapshot: snapshot, expected: expectedResults)
   }
+
+  func testSortOffsetAndLimitStages() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("author").ascending())
+      .offset(5)
+      .limit(3)
+      .select("title", "author")
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "1984", "author": "George Orwell"],
+      ["title": "To Kill a Mockingbird", "author": "Harper Lee"],
+      ["title": "The Lord of the Rings", "author": "J.R.R. Tolkien"],
+    ]
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+  }
+
+  // MARK: - Generic Stage Tests
+
+  func testRawStageSelectFields() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    // Expected book: book2 (Pride and Prejudice, Jane Austen, 1813)
+    // It's the earliest published book.
+    let expectedSelectedData: [String: Sendable] = [
+      "title": "Pride and Prejudice",
+      // "metadata": ["author": "Douglas Adams"]
+    ]
+
+    // The parameters for rawStage("select", ...) are an array containing a single dictionary.
+    // The keys of this dictionary are the output field names, and the values are Field objects.
+    let selectParameters: [[String: Sendable]] =
+      [
+        // Field("title").as("title")
+        ["title": Field("author")],
+      ]
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("published").ascending())
+      .limit(1)
+      .rawStage(name: "select", params: selectParameters) // Using rawStage for selection
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    expectSnapshots(snapshot: snapshot, expected: [expectedSelectedData])
+  }
+
+  // TODO:
+
+  // MARK: - Replace Stage Test
+
+  func testReplaceStagePromoteAwardsAndAddFlag() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .replace(with: "awards")
+
+    let snapshot = try await pipeline.execute()
+
+    expectResults(snapshot, expectedCount: 1)
+
+    let expectedBook1Transformed: [String: Sendable?] = [
+      "hugo": true,
+      "nebula": false,
+      "others": ["unknown": ["year": 1980]],
+    ]
+
+    // Need to use nullable Sendable for comparison because 'others' is nested
+    // and the areEqual function handles Sendable?
+    expectSnapshots(snapshot: snapshot, expected: [expectedBook1Transformed as [String: Sendable]])
+  }
+
+  // MARK: - Sample Stage Tests
+
+  func testSampleStageLimit3() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(DocumentId().ascending()) // Sort for predictable results
+      .limit(3) // Simulate sampling 3 documents
+
+    let snapshot = try await pipeline.execute()
+
+    expectResults(snapshot, expectedCount: 3)
+
+    // Based on documentID ascending sort of bookDocs keys:
+    // book1, book10, book2, book3, ...
+    let expectedIDs = ["book1", "book10", "book2"]
+    expectResults(snapshot, expectedIDs: expectedIDs)
+  }
+
+  func testSampleStageLimitDocuments3() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(DocumentId().ascending()) // Sort for predictable results
+      .limit(3) // Simulate sampling {documents: 3}
+
+    let snapshot = try await pipeline.execute()
+
+    expectResults(snapshot, expectedCount: 3)
+
+    // Based on documentID ascending sort of bookDocs keys:
+    // book1, book10, book2, book3, ...
+    let expectedIDs = ["book1", "book10", "book2"]
+    expectResults(snapshot, expectedIDs: expectedIDs)
+  }
+
+  func testSampleStageLimitPercentage60() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let totalDocs = bookDocs.count
+    let percentage = 0.6
+    let limitCount = Int(Double(totalDocs) * percentage) // 10 * 0.6 = 6
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(DocumentId().ascending()) // Sort for predictable results
+      .limit(Int32(limitCount)) // Simulate sampling {percentage: 0.6}
+
+    let snapshot = try await pipeline.execute()
+
+    expectResults(snapshot, expectedCount: limitCount) // Should be 6
+
+    // Based on documentID ascending sort of bookDocs keys:
+    // book1, book10, book2, book3, book4, book5, book6, book7, book8, book9
+    let expectedIDs = ["book1", "book10", "book2", "book3", "book4", "book5"]
+    expectResults(snapshot, expectedIDs: expectedIDs)
+  }
+
+  // MARK: - Union Stage Test
+
+  func testUnionStageCombineAuthors() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .union(db.pipeline()
+        .collection(collRef.path))
+
+    let snapshot = try await pipeline.execute()
+
+    let bookSequence = (1 ... 10).map { "book\($0)" }
+    let repeatedIDs = bookSequence + bookSequence
+    expectResults(snapshot, expectedIDs: repeatedIDs)
+  }
 }
