@@ -122,7 +122,7 @@ final class ChatTests: XCTestCase {
       // Initial chat history
       let initialHistory: [ModelContent] = [
         ModelContent(role: "user", parts: "Hello"),
-        ModelContent(role: "model", parts: "Hi there! How can I help you today?")
+        ModelContent(role: "model", parts: "Hi there! How can I help you today?"),
       ]
 
       let chat = Chat(model: model, history: initialHistory)
@@ -132,7 +132,8 @@ final class ChatTests: XCTestCase {
       let mockResponseText = "This is a mocked response."
       // Construct a data object that mimics the streaming format.
       // Each line should be a ServerSentEvent. Note the double newlines for SSE.
-      let mockResponseString = "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\(mockResponseText)\"}]}}]}"
+      let mockResponseString =
+        "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\(mockResponseText)\"}]}}]}"
 
       // Convert the string to Data
       let mockResponseData = mockResponseString.data(using: .utf8)!
@@ -144,9 +145,11 @@ final class ChatTests: XCTestCase {
           httpVersion: nil,
           headerFields: ["Content-Type": "application/json"] // Appropriate content type
         )!
-        // Simulate streaming: send the data as a single chunk followed by an empty line to signify end.
+        // Simulate streaming: send the data as a single chunk followed by an empty line to signify
+        // end.
         // Actual streaming might involve multiple data chunks. For this test, one is sufficient.
-        // The key is that `MockURLProtocol` expects an array of Data objects, where each represents a "line" or chunk.
+        // The key is that `MockURLProtocol` expects an array of Data objects, where each represents
+        // a "line" or chunk.
         let responseChunks = [mockResponseData, Data()] // Send data then an empty line
         return (response, responseChunks)
       }
@@ -159,7 +162,11 @@ final class ChatTests: XCTestCase {
       for try await _ in stream {}
 
       // Verify history
-      XCTAssertEqual(chat.history.count, 4, "History count should be 4 after sending a new message.")
+      XCTAssertEqual(
+        chat.history.count,
+        4,
+        "History count should be 4 after sending a new message."
+      )
 
       // Check initial history (already present)
       XCTAssertEqual(chat.history[0].role, "user")
@@ -182,7 +189,8 @@ final class ChatTests: XCTestCase {
       XCTAssertEqual(chat.history[3].role, "model")
       part = try XCTUnwrap(chat.history[3].parts.first)
       textPart = try XCTUnwrap(part as? TextPart)
-      XCTAssertEqual(textPart.text, mockResponseText) // mockResponseText was defined in the previous step
+      XCTAssertEqual(textPart.text,
+                     mockResponseText) // mockResponseText was defined in the previous step
     #endif // os(watchOS)
   }
 
@@ -216,7 +224,8 @@ final class ChatTests: XCTestCase {
 
       // Mock network response
       let mockResponseText = "Mocked response for empty history test."
-      let mockResponseString = "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\(mockResponseText)\"}]}}]}"
+      let mockResponseString =
+        "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\(mockResponseText)\"}]}}]}"
       let mockResponseData = mockResponseString.data(using: .utf8)!
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
@@ -237,7 +246,11 @@ final class ChatTests: XCTestCase {
       for try await _ in stream {}
 
       // Verify history
-      XCTAssertEqual(chat.history.count, 2, "History count should be 2 after sending the first message.")
+      XCTAssertEqual(
+        chat.history.count,
+        2,
+        "History count should be 2 after sending the first message."
+      )
 
       // Check the new user message
       let userMessagePart = try XCTUnwrap(chat.history[0].parts.first)
