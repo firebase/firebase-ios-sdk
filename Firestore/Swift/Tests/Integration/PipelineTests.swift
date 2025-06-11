@@ -151,6 +151,10 @@ private func areEqual(_ value1: Sendable?, _ value2: Sendable?) -> Bool {
     return v1 == v2
   case let (v1 as Int, v2 as Int):
     return v1 == v2
+  case let (v1 as Double, v2 as Double):
+    return v1 == v2
+  case let (v1 as Float, v2 as Float):
+    return v1 == v2
   case let (v1 as String, v2 as String):
     return v1 == v2
   case let (v1 as Bool, v2 as Bool):
@@ -169,10 +173,11 @@ private func areDictionariesEqual(_ dict1: [String: Sendable?],
   guard dict1.count == dict2.count else { return false }
 
   for (key, value1) in dict1 {
-    print("key1: \(key)")
-    print("value1: \(String(describing: value1))")
-    print("value2: \(String(describing: dict2[key]))")
     guard let value2 = dict2[key], areEqual(value1, value2) else {
+      print("The Dictionary value is not equal.")
+      print("key1: \(key)")
+      print("value1: \(String(describing: value1))")
+      print("value2: \(String(describing: dict2[key]))")
       return false
     }
   }
@@ -184,11 +189,11 @@ private func areArraysEqual(_ array1: [Sendable?], _ array2: [Sendable?]) -> Boo
   guard array1.count == array2.count else { return false }
 
   for (index, value1) in array1.enumerated() {
-    print("value1: \(String(describing: value1))")
-
     let value2 = array2[index]
-    print("value2: \(String(describing: value2))")
     if !areEqual(value1, value2) {
+      print("The Array value is not equal.")
+      print("value1: \(String(describing: value1))")
+      print("value2: \(String(describing: value2))")
       return false
     }
   }
@@ -715,6 +720,246 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       )
     let snapshot = try await pipeline.execute()
 
-    expectResults(result: snapshot.results[0], expected: expectedResultsMap)
+    XCTAssertEqual(snapshot.results.count, 1)
+    expectResults(result: snapshot.results.first!, expected: expectedResultsMap)
+  }
+
+  func testConvertsArraysAndPlainObjectsToFunctionValues() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs) // Uses existing bookDocs
+    let db = collRef.firestore
+
+    // Expected data for "The Lord of the Rings"
+    let expectedTitle = "The Lord of the Rings"
+    let expectedAuthor = "J.R.R. Tolkien"
+    let expectedGenre = "Fantasy"
+    let expectedPublished = 1954
+    let expectedRating = 4.7
+    let expectedTags = ["adventure", "magic", "epic"]
+    let expectedAwards: [String: Sendable] = ["hugo": false, "nebula": false]
+
+    let metadataArrayElements: [Sendable] = [
+      1,
+      2,
+      expectedGenre,
+      expectedRating * 10,
+      [expectedTitle],
+      ["published": expectedPublished],
+    ]
+
+    let metadataMapElements: [String: Sendable] = [
+      "genre": expectedGenre,
+      "rating": expectedRating * 10,
+      "nestedArray": [expectedTitle],
+      "nestedMap": ["published": expectedPublished],
+    ]
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1) // This should pick "The Lord of the Rings" (rating 4.7)
+      .select(
+        Field("title"),
+        Field("author"),
+        Field("genre"),
+        Field("rating"),
+        Field("published"),
+        Field("tags"),
+        Field("awards")
+      )
+      .addFields(
+        ArrayExpression([
+          1,
+          2,
+          Field("genre"),
+          Field("rating").multiply(10),
+          ArrayExpression([Field("title")]),
+          MapExpression(["published": Field("published")]),
+        ]).as("metadataArray"),
+        MapExpression([
+          "genre": Field("genre"),
+          "rating": Field("rating").multiply(10),
+          "nestedArray": ArrayExpression([Field("title")]),
+          "nestedMap": MapExpression(["published": Field("published")]),
+        ]).as("metadata")
+      )
+      .where(
+        Field("metadataArray").eq(metadataArrayElements) &&
+          Field("metadata").eq(metadataMapElements)
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    if let resultDoc = snapshot.results.first {
+      let expectedFullDoc: [String: Sendable?] = [
+        "title": expectedTitle,
+        "author": expectedAuthor,
+        "genre": expectedGenre,
+        "published": expectedPublished,
+        "rating": expectedRating,
+        "tags": expectedTags,
+        "awards": expectedAwards,
+        "metadataArray": metadataArrayElements,
+        "metadata": metadataMapElements,
+      ]
+      XCTAssertTrue(
+        areDictionariesEqual(resultDoc.data, expectedFullDoc as [String: Sendable]),
+        "Document data does not match expected."
+      )
+    } else {
+      XCTFail("No document retrieved")
+    }
+  }
+
+  func testSupportsAggregate() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate(CountAll().as("count"))
+    var snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Count all should return a single aggregate document")
+    if let result = snapshot.results.first {
+      expectResults(result: result, expected: ["count": bookDocs.count])
+    } else {
+      XCTFail("No result for count all aggregation")
+    }
+
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("genre").eq("Science Fiction"))
+      .aggregate(
+        CountAll().as("count"),
+        Field("rating").avg().as("avgRating"),
+        Field("rating").maximum().as("maxRating")
+      )
+    snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Filtered aggregate should return a single document")
+    if let result = snapshot.results.first {
+      let expectedAggValues: [String: Sendable] = [
+        "count": 2,
+        "avgRating": 4.4,
+        "maxRating": 4.6,
+      ]
+      expectResults(result: result, expected: expectedAggValues)
+    } else {
+      XCTFail("No result for filtered aggregation")
+    }
+  }
+
+  func testRejectsGroupsWithoutAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let dummyDocRef = collRef.document("dummyDocForRejectTest")
+    try await dummyDocRef.setData(["field": "value"])
+
+    do {
+      _ = try await db.pipeline()
+        .collection(collRef.path)
+        .where(Field("published").lt(1900))
+        .aggregate([], groups: ["genre"])
+        .execute()
+
+      XCTFail(
+        "The pipeline should have thrown an error for groups without accumulators, but it did not."
+      )
+
+    } catch {
+      XCTAssert(true, "Successfully caught expected error for groups without accumulators.")
+    }
+  }
+
+  func testReturnsGroupAndAccumulateResults() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").lt(1984))
+      .aggregate(
+        [Field("rating").avg().as("avgRating")],
+        groups: ["genre"]
+      )
+      .where(Field("avgRating").gt(4.3))
+      .sort(Field("avgRating").descending())
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(
+      snapshot.results.count,
+      3,
+      "Should return 3 documents after grouping and filtering."
+    )
+
+    let expectedResultsArray: [[String: Sendable]] = [
+      ["avgRating": 4.7, "genre": "Fantasy"],
+      ["avgRating": 4.5, "genre": "Romance"],
+      ["avgRating": 4.4, "genre": "Science Fiction"],
+    ]
+
+    for i in 0 ..< expectedResultsArray.count {
+      guard i < snapshot.results.count else {
+        XCTFail("Mismatch in expected results count and actual results count.")
+        return
+      }
+      expectResults(result: snapshot.results[i], expected: expectedResultsArray[i])
+    }
+  }
+
+  func testReturnsMinMaxCountAndCountAllAccumulations() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate(
+        Field("cost").count().as("booksWithCost"),
+        CountAll().as("count"),
+        Field("rating").maximum().as("maxRating"),
+        Field("published").minimum().as("minPublished")
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Aggregate should return a single document")
+
+    let expectedValues: [String: Sendable] = [
+      "booksWithCost": 1,
+      "count": bookDocs.count,
+      "maxRating": 4.7,
+      "minPublished": 1813,
+    ]
+
+    if let result = snapshot.results.first {
+      expectResults(result: result, expected: expectedValues)
+    } else {
+      XCTFail("No result for min/max/count/countAll aggregation")
+    }
+  }
+
+  func testReturnsCountIfAccumulation() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let expectedCount = 3
+    let expectedResults: [String: Sendable] = ["count": expectedCount]
+    let condition = Field("rating").gt(4.3)
+
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate(condition.countIf().as("count"))
+    var snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "countIf aggregate should return a single document")
+    if let result = snapshot.results.first {
+      expectResults(result: result, expected: expectedResults)
+    } else {
+      XCTFail("No result for countIf aggregation")
+    }
   }
 }
