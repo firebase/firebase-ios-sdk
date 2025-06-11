@@ -237,10 +237,24 @@ func expectResults(_ snapshot: PipelineSnapshot,
 }
 
 func expectResults(result: PipelineResult,
-                   expected: [String: Sendable],
+                   expected: [String: Sendable?],
                    file: StaticString = #file,
                    line: UInt = #line) {
-  XCTAssertTrue(areDictionariesEqual(result.data, expected))
+  XCTAssertTrue(areDictionariesEqual(result.data, expected),
+                "Document data mismatch. Expected \(expected), got \(result.data)")
+}
+
+func expectSnapshots(snapshot: PipelineSnapshot,
+                     expected: [[String: Sendable?]],
+                     file: StaticString = #file,
+                     line: UInt = #line) {
+  for i in 0 ..< expected.count {
+    guard i < snapshot.results.count else {
+      XCTFail("Mismatch in expected results count and actual results count.")
+      return
+    }
+    expectResults(result: snapshot.results[i], expected: expected[i])
+  }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -902,13 +916,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["avgRating": 4.4, "genre": "Science Fiction"],
     ]
 
-    for i in 0 ..< expectedResultsArray.count {
-      guard i < snapshot.results.count else {
-        XCTFail("Mismatch in expected results count and actual results count.")
-        return
-      }
-      expectResults(result: snapshot.results[i], expected: expectedResultsArray[i])
-    }
+    expectSnapshots(snapshot: snapshot, expected: expectedResultsArray)
   }
 
   func testReturnsMinMaxCountAndCountAllAccumulations() async throws {
@@ -961,5 +969,221 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     } else {
       XCTFail("No result for countIf aggregation")
     }
+  }
+
+  func testDistinctStage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .distinct(Field("genre"), Field("author"))
+      .sort(Field("genre").ascending(), Field("author").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["genre": "Dystopian", "author": "George Orwell"],
+      ["genre": "Dystopian", "author": "Margaret Atwood"],
+      ["genre": "Fantasy", "author": "J.R.R. Tolkien"],
+      ["genre": "Magical Realism", "author": "Gabriel García Márquez"],
+      ["genre": "Modernist", "author": "F. Scott Fitzgerald"],
+      ["genre": "Psychological Thriller", "author": "Fyodor Dostoevsky"],
+      ["genre": "Romance", "author": "Jane Austen"],
+      ["genre": "Science Fiction", "author": "Douglas Adams"],
+      ["genre": "Science Fiction", "author": "Frank Herbert"],
+      ["genre": "Southern Gothic", "author": "Harper Lee"],
+    ]
+
+    XCTAssertEqual(snapshot.results.count, expectedResults.count, "Snapshot results count mismatch")
+
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+  }
+
+  func testSelectStage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(Field("title"), Field("author"))
+      .sort(Field("author").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy", "author": "Douglas Adams"],
+      ["title": "The Great Gatsby", "author": "F. Scott Fitzgerald"],
+      ["title": "Dune", "author": "Frank Herbert"],
+      ["title": "Crime and Punishment", "author": "Fyodor Dostoevsky"],
+      ["title": "One Hundred Years of Solitude", "author": "Gabriel García Márquez"],
+      ["title": "1984", "author": "George Orwell"],
+      ["title": "To Kill a Mockingbird", "author": "Harper Lee"],
+      ["title": "The Lord of the Rings", "author": "J.R.R. Tolkien"],
+      ["title": "Pride and Prejudice", "author": "Jane Austen"],
+      ["title": "The Handmaid's Tale", "author": "Margaret Atwood"],
+    ]
+
+    XCTAssertEqual(
+      snapshot.results.count,
+      expectedResults.count,
+      "Snapshot results count mismatch for select stage."
+    )
+
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+  }
+
+  func testAddFieldStage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(Field("title"), Field("author"))
+      .addFields(Constant("bar").as("foo"))
+      .sort(Field("author").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy", "author": "Douglas Adams", "foo": "bar"],
+      ["title": "The Great Gatsby", "author": "F. Scott Fitzgerald", "foo": "bar"],
+      ["title": "Dune", "author": "Frank Herbert", "foo": "bar"],
+      ["title": "Crime and Punishment", "author": "Fyodor Dostoevsky", "foo": "bar"],
+      ["title": "One Hundred Years of Solitude", "author": "Gabriel García Márquez", "foo": "bar"],
+      ["title": "1984", "author": "George Orwell", "foo": "bar"],
+      ["title": "To Kill a Mockingbird", "author": "Harper Lee", "foo": "bar"],
+      ["title": "The Lord of the Rings", "author": "J.R.R. Tolkien", "foo": "bar"],
+      ["title": "Pride and Prejudice", "author": "Jane Austen", "foo": "bar"],
+      ["title": "The Handmaid's Tale", "author": "Margaret Atwood", "foo": "bar"],
+    ]
+
+    XCTAssertEqual(
+      snapshot.results.count,
+      expectedResults.count,
+      "Snapshot results count mismatch for addField stage."
+    )
+
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+  }
+
+  func testRemoveFieldsStage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(Field("title"), Field("author"))
+      .sort(Field("author").ascending()) // Sort before removing the 'author' field
+      .removeFields(Field("author"))
+
+    let snapshot = try await pipeline.execute()
+
+    // Expected results are sorted by author, but only contain the title
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy"], // Douglas Adams
+      ["title": "The Great Gatsby"], // F. Scott Fitzgerald
+      ["title": "Dune"], // Frank Herbert
+      ["title": "Crime and Punishment"], // Fyodor Dostoevsky
+      ["title": "One Hundred Years of Solitude"], // Gabriel García Márquez
+      ["title": "1984"], // George Orwell
+      ["title": "To Kill a Mockingbird"], // Harper Lee
+      ["title": "The Lord of the Rings"], // J.R.R. Tolkien
+      ["title": "Pride and Prejudice"], // Jane Austen
+      ["title": "The Handmaid's Tale"], // Margaret Atwood
+    ]
+
+    XCTAssertEqual(
+      snapshot.results.count,
+      expectedResults.count,
+      "Snapshot results count mismatch for removeFields stage."
+    )
+
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+  }
+
+  func testWhereStageWithAndConditions() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    // Test Case 1: Two AND conditions
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("rating").gt(4.5)
+        && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"]))
+    var snapshot = try await pipeline.execute()
+    var expectedIDs = ["book10", "book4"] // Dune (SF, 4.6), LOTR (Fantasy, 4.7)
+    expectResults(snapshot, expectedIDs: expectedIDs)
+
+    // Test Case 2: Three AND conditions
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        Field("rating").gt(4.5)
+          && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"])
+          && Field("published").lt(1965)
+      )
+    snapshot = try await pipeline.execute()
+    expectedIDs = ["book4"] // LOTR (Fantasy, 4.7, published 1954)
+    expectResults(snapshot, expectedIDs: expectedIDs)
+  }
+
+  func testWhereStageWithOrAndXorConditions() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    // Test Case 1: OR conditions
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        Field("genre").eq("Romance")
+          || Field("genre").eq("Dystopian")
+          || Field("genre").eq("Fantasy")
+      )
+      .select(Field("title"))
+      .sort(Field("title").ascending())
+
+    var snapshot = try await pipeline.execute()
+    var expectedResults: [[String: Sendable]] = [
+      ["title": "1984"], // Dystopian
+      ["title": "Pride and Prejudice"], // Romance
+      ["title": "The Handmaid's Tale"], // Dystopian
+      ["title": "The Lord of the Rings"], // Fantasy
+    ]
+
+    XCTAssertEqual(
+      snapshot.results.count,
+      expectedResults.count,
+      "Snapshot results count mismatch for OR conditions."
+    )
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+
+    // Test Case 2: XOR conditions
+    // XOR is true if an odd number of its arguments are true.
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        Field("genre").eq("Romance") // Book2 (T), Book5 (F), Book4 (F), Book8 (F)
+          ^ Field("genre").eq("Dystopian") // Book2 (F), Book5 (T), Book4 (F), Book8 (T)
+          ^ Field("genre").eq("Fantasy") // Book2 (F), Book5 (F), Book4 (T), Book8 (F)
+          ^ Field("published").eq(1949) // Book2 (F), Book5 (F), Book4 (F), Book8 (T)
+      )
+      .select(Field("title"))
+      .sort(Field("title").ascending())
+
+    snapshot = try await pipeline.execute()
+
+    expectedResults = [
+      ["title": "Pride and Prejudice"],
+      ["title": "The Handmaid's Tale"],
+      ["title": "The Lord of the Rings"],
+    ]
+
+    XCTAssertEqual(
+      snapshot.results.count,
+      expectedResults.count,
+      "Snapshot results count mismatch for XOR conditions."
+    )
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
   }
 }

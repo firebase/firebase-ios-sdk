@@ -31,6 +31,11 @@ public class BooleanExpr: FunctionExpr, @unchecked Sendable {
     try BooleanExpr("or", [lhs, rhs()])
   }
 
+  public static func ^ (lhs: BooleanExpr,
+                        rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
+    try BooleanExpr("xor", [lhs, rhs()])
+  }
+
   public static prefix func ! (lhs: BooleanExpr) -> BooleanExpr {
     return BooleanExpr("not", [lhs])
   }
