@@ -84,11 +84,7 @@ class IdentityToolkitRequest {
        !location.isEmpty,
        !tenant.isEmpty {
       let projectID = _requestConfiguration.auth?.app?.options.projectID
-      // Choose emulator, staging, or prod host
-      if let emulatorHostAndPort = emulatorHostAndPort {
-        apiProtocol = kHttpProtocol
-        apiHostAndPathPrefix = "\(emulatorHostAndPort)/\(kRegionalGCIPAPIHost)"
-      } else if useStaging {
+      if useStaging {
         apiProtocol = kHttpsProtocol
         apiHostAndPathPrefix = kRegionalGCIPStagingAPIHost
       } else {
@@ -96,8 +92,8 @@ class IdentityToolkitRequest {
         apiHostAndPathPrefix = kRegionalGCIPAPIHost
       }
       urlString =
-        "\(apiProtocol)//\(apiHostAndPathPrefix)/v2/projects/\(projectID ?? "projectID")"
-          + "/locations/\(location)/tenants/\(tenant)/idpConfigs/\(endpoint)?key=\(apiKey)"
+        "\(apiProtocol)//\(apiHostAndPathPrefix)/v2alpha/projects/\(projectID ?? "projectID")"
+          + "/locations/\(location)/tenants/\(tenant)/idpConfigs:\(endpoint)?key=\(apiKey)"
     }
     // legacy gcip existing logic
     else if useIdentityPlatform {

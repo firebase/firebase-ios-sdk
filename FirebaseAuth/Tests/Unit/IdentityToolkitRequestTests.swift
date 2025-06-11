@@ -157,8 +157,8 @@ class IdentityToolkitRequestTests: XCTestCase {
                                                         auth: auth, tenantConfig: tenantConfig)
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration)
-    let expectedURL = "https://identityplatform.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+    let expectedURL = "https://identityplatform.googleapis.com/v2alpha/projects/\(kProjectID)" +
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
@@ -182,33 +182,8 @@ class IdentityToolkitRequestTests: XCTestCase {
                                          requestConfiguration: requestConfiguration,
                                          useStaging: true)
     let expectedURL =
-      "https://staging-identityplatform.sandbox.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIUseEmulatorExpectedRequestURL
-      @brief Tests the @c requestURL method for R-GCIP with location, tenant ID, and emulator.
-   */
-  func testInitWithRGCIPIUseEmulatorExpectedRequestURL() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppEmulator", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID
-
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration)
-    let expectedURL =
-      "http://\(kEmulatorHostAndPort)/identityplatform.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+      "https://staging-identityplatform.sandbox.googleapis.com/v2alpha/projects/\(kProjectID)" +
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
@@ -232,8 +207,8 @@ class IdentityToolkitRequestTests: XCTestCase {
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration)
     // The expected URL should use "projectID" as a placeholder
-    let expectedURL = "https://identityplatform.googleapis.com/v2/projects/projectID" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+    let expectedURL = "https://identityplatform.googleapis.com/v2alpha/projects/projectID" +
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
@@ -359,8 +334,8 @@ class IdentityToolkitRequestTests: XCTestCase {
                                          requestConfiguration: requestConfiguration,
                                          useIdentityPlatform: true) // useIdentityPlatform is true
 
-    let expectedURL = "https://identityplatform.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+    let expectedURL = "https://identityplatform.googleapis.com/v2alpha/projects/\(kProjectID)" +
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
@@ -384,8 +359,8 @@ class IdentityToolkitRequestTests: XCTestCase {
     let request = IdentityToolkitRequest(endpoint: kEndpoint,
                                          requestConfiguration: requestConfiguration)
 
-    let expectedURL = "https://identityplatform.googleapis.com/v2/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs/\(kEndpoint)?key=\(kAPIKey)"
+    let expectedURL = "https://identityplatform.googleapis.com/v2alpha/projects/\(kProjectID)" +
+      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
     XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 
