@@ -119,7 +119,7 @@ the preferred workflow for Firebase development.
 
 To develop Firebase software, **install**:
 
-* [Xcode] (v12.2 or later) (for Googlers, visit [go/xcode](go/xcode)) to
+* [Xcode] (v16.2 or later) (for Googlers, visit [go/xcode](go/xcode)) to
   download.
 * <details>
   <summary>Code styling tools: <b>clang-format</b>, <b>swiftformat</b> and
