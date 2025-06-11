@@ -84,7 +84,7 @@ google_firestore_v1_Pipeline_Stage DocumentsSource::to_proto() const {
 
   result.name = nanopb::MakeBytesArray("documents");
 
-  result.args_count = documents_.size();
+  result.args_count = static_cast<pb_size_t>(documents_.size());
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
 
   for (size_t i = 0; i < documents_.size(); ++i) {
@@ -393,7 +393,7 @@ google_firestore_v1_Pipeline_Stage Unnest::to_proto() const {
   return result;
 }
 
-GenericStage::GenericStage(
+RawStage::RawStage(
     std::string name,
     std::vector<std::shared_ptr<Expr>> params,
     std::unordered_map<std::string, std::shared_ptr<Expr>> options)
@@ -402,7 +402,7 @@ GenericStage::GenericStage(
       options_(std::move(options)) {
 }
 
-google_firestore_v1_Pipeline_Stage GenericStage::to_proto() const {
+google_firestore_v1_Pipeline_Stage RawStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray(name_);
 
