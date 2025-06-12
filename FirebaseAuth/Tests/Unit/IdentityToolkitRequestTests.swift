@@ -32,8 +32,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   let kIdpConfigId = "idpConfigId"
 
   /** @fn testInitWithEndpointExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs.
    */
   func testInitWithEndpointExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -45,8 +45,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseStagingExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the staging endpoint is specified.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the staging endpoint is specified.
    */
   func testInitWithEndpointUseStagingExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -59,8 +59,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseIdentityPlatformExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the Identity Platform endpoint is specified.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the Identity Platform endpoint is specified.
    */
   func testInitWithEndpointUseIdentityPlatformExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -72,8 +72,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseIdentityPlatformUseStagingExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the Identity Platform and staging endpoint is specified.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the Identity Platform and staging endpoint is specified.
    */
   func testInitWithEndpointUseIdentityPlatformUseStagingExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -87,8 +87,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseEmulatorExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the emulator is used.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the emulator is used.
    */
   func testInitWithEndpointUseEmulatorExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -101,8 +101,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseIdentityPlatformUseEmulatorExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the emulator is used with the Identity Platform endpoint.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the emulator is used with the Identity Platform endpoint.
    */
   func testInitWithEndpointUseIdentityPlatformUseEmulatorExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -116,7 +116,7 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testExpectedTenantIDWithNonDefaultFIRApp
-      @brief Tests the request correctly populated the tenant ID from a non default app.
+   @brief Tests the request correctly populated the tenant ID from a non default app.
    */
   func testExpectedTenantIDWithNonDefaultFIRApp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -134,287 +134,5 @@ class IdentityToolkitRequestTests: XCTestCase {
                                          requestConfiguration: requestConfiguration,
                                          useIdentityPlatform: true)
     XCTAssertEqual("tenant-id", request.tenantID)
-  }
-
-  // MARK: - R-GCIP specific tests
-
-  /** @fn testInitWithRGCIPIExpectedRequestURL
-      @brief Tests the @c requestURL method for R-GCIP with location and tenant ID.
-   */
-  func testInitWithRGCIPIExpectedRequestURL() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPApp", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth
-      .tenantID = kTenantID // Tenant ID is also needed in Auth for the request logic to pick it up
-
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration)
-    let expectedURL = "https://identityplatform.googleapis.com/v2alpha/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIUseStagingExpectedRequestURL
-      @brief Tests the @c requestURL method for R-GCIP with location, tenant ID, and staging.
-   */
-  func testInitWithRGCIPIUseStagingExpectedRequestURL() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppStaging", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID
-
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration,
-                                         useStaging: true)
-    let expectedURL =
-      "https://staging-identityplatform.sandbox.googleapis.com/v2alpha/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIWithoutProjectID
-      @brief Tests the @c requestURL method for R-GCIP when the project ID is not available in options.
-   */
-  func testInitWithRGCIPIWithoutProjectID() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    // Project ID is not set in options
-
-    let app = FirebaseApp(instanceWithName: "rGCIPAppWithoutProjectID", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID
-
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration)
-    // The expected URL should use "projectID" as a placeholder
-    let expectedURL = "https://identityplatform.googleapis.com/v2alpha/projects/projectID" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIWithEmptyLocation
-   @brief Tests that the request falls back to the non-R-GCIP logic if the location is empty.
-   */
-  func testInitWithRGCIPIWithEmptyLocation() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppEmptyLocation", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID
-
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: "") // Empty location
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration) // R-GCIP logic
-    // will fail due to empty location
-    // Expecting fallback to the default Firebase Auth endpoint logic
-    let expectedURL =
-      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIWithEmptyTenantIDInTenantConfig
-   @brief Tests that the request falls back to the non-R-GCIP logic if the tenant ID in tenant config is empty.
-   */
-  func testInitWithRGCIPIWithEmptyTenantIDInTenantConfig() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppEmptyTenantIDTC", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID // Tenant ID is set in Auth but R-GCIP logic uses tenantConfig
-
-    let tenantConfig = TenantConfig(tenantId: "",
-                                    location: kLocation) // Empty tenantId in tenant config
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration) // R-GCIP logic
-    // will fail due to empty tenantId
-    // Expecting fallback to the default Firebase Auth endpoint logic
-    let expectedURL =
-      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIWithNilTenantIDInTenantConfig
-   @brief Tests that the request falls back to the non-R-GCIP logic if the tenant ID in tenant config is nil.
-   */
-  func testInitWithRGCIPIWithNilTenantIDInTenantConfig() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppNilTenantIDTC", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID // Tenant ID is set in Auth but R-GCIP logic uses tenantConfig
-
-    let tenantConfig = TenantConfig(tenantId: "",
-                                    location: kLocation) // Nil tenantId in tenant config
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration) // R-GCIP logic
-    // will fail due to nil tenantId
-    // Expecting fallback to the default Firebase Auth endpoint logic
-    let expectedURL =
-      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIWithNilTenantConfig
-   @brief Tests that the request falls back to the non-R-GCIP logic if the tenant config is nil.
-   */
-  func testInitWithRGCIPIWithNilTenantConfig() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppNilTenantConfig", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID // Tenant ID is set in Auth but R-GCIP logic requires tenantConfig
-
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth,
-                                                        tenantConfig: nil) // Nil tenant config
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration) // R-GCIP logic
-    // will fail due to nil tenant config
-    // Expecting fallback to the default Firebase Auth endpoint logic
-    let expectedURL =
-      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIUseIdentityPlatform
-   @brief Tests that using `useIdentityPlatform` does not affect R-GCIP endpoint selection when R-GCIP configuration is present.
-   */
-  func testInitWithRGCIPIUseIdentityPlatform() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppUseIP", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID
-
-    let tenantConfig = TenantConfig(tenantId: kTenantID, location: kLocation)
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration,
-                                         useIdentityPlatform: true) // useIdentityPlatform is true
-
-    let expectedURL = "https://identityplatform.googleapis.com/v2alpha/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIAndLegacyTenantID
-   @brief Tests that R-GCIP logic prioritizes tenantId from `tenantConfig` over the one in `Auth`.
-   */
-  func testInitWithRGCIPIAndLegacyTenantID() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppLegacyTenant", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = "legacy-tenant-id" // Tenant ID in Auth
-
-    let tenantConfig = TenantConfig(tenantId: kTenantID,
-                                    location: kLocation) // Tenant ID in tenantConfig
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration)
-
-    let expectedURL = "https://identityplatform.googleapis.com/v2alpha/projects/\(kProjectID)" +
-      "/locations/\(kLocation)/tenants/\(kTenantID)/idpConfigs:\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIAndLegacyTenantIDAndNoTenantIDInTenantConfig
-   @brief Tests that R-GCIP logic falls back to legacy tenant ID if tenantId is nil in `tenantConfig` but present in `Auth`.
-   */
-  func testInitWithRGCIPIAndLegacyTenantIDAndNoTenantIDInTenantConfig() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppLegacyTenantFallback", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID // Tenant ID in Auth
-
-    let tenantConfig = TenantConfig(tenantId: "",
-                                    location: kLocation) // Nil tenantId in tenantConfig
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration)
-
-    // Even though location is present, since tenantId in tenantConfig is nil,
-    // it should not use the R-GCIP path and fall back to default Auth endpoint.
-    let expectedURL =
-      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
-  }
-
-  /** @fn testInitWithRGCIPIAndLegacyTenantIDAndEmptyTenantIDInTenantConfig
-   @brief Tests that R-GCIP logic falls back to legacy tenant ID if tenantId is empty in `tenantConfig` but present in `Auth`.
-   */
-  func testInitWithRGCIPIAndLegacyTenantIDAndEmptyTenantIDInTenantConfig() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kAPIKey
-    options.projectID = kProjectID
-    let app = FirebaseApp(instanceWithName: "rGCIPAppLegacyTenantFallbackEmpty", options: options)
-    // Force initialize Auth for the app to set the weak reference in AuthRequestConfiguration
-    let auth = Auth(app: app)
-    auth.tenantID = kTenantID // Tenant ID in Auth
-
-    let tenantConfig = TenantConfig(tenantId: "",
-                                    location: kLocation) // Empty tenantId in tenantConfig
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
-                                                        auth: auth, tenantConfig: tenantConfig)
-    let request = IdentityToolkitRequest(endpoint: kEndpoint,
-                                         requestConfiguration: requestConfiguration)
-
-    // Even though location is present, since tenantId in tenantConfig is empty,
-    // it should not use the R-GCIP path and fall back to default Auth endpoint.
-    let expectedURL =
-      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/\(kEndpoint)?key=\(kAPIKey)"
-    XCTAssertEqual(expectedURL, request.requestURL().absoluteString)
   }
 }
