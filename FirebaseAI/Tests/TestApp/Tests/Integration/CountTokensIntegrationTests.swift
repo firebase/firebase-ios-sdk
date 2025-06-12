@@ -69,16 +69,13 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(
-    /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigs
-  )
+  @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
-      systemInstruction: systemInstruction // Not supported on the v1 Developer API
+      systemInstruction: systemInstruction
     )
 
     let response = try await model.countTokens("What is your favourite colour?")
@@ -96,10 +93,7 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(
-    /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigs
-  )
+  @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,

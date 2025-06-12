@@ -95,19 +95,18 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "Generate an enum and provide a system instruction",
-    /* System instructions are not supported on the v1 Developer API. */
     arguments: InstanceConfig.allConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
-        responseMIMEType: "text/x.enum", // Not supported on the v1 Developer API
+        responseMIMEType: "text/x.enum",
         responseSchema: .enumeration(values: ["Red", "Green", "Blue"])
       ),
       safetySettings: safetySettings,
-      tools: [], // Not supported on the v1 Developer API
-      toolConfig: .init(functionCallingConfig: .none()), // Not supported on the v1 Developer API
+      tools: [],
+      toolConfig: .init(functionCallingConfig: .none()),
       systemInstruction: ModelContent(role: "system", parts: "Always pick blue.")
     )
     let prompt = "What is your favourite colour?"
