@@ -118,7 +118,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
     'CLANG_CXX_LIBRARY' => 'libc++',
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       "FIRFirestore_VERSION=#{s.version} " +
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit

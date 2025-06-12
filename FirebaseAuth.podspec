@@ -49,7 +49,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'FirebaseAuth/CHANGELOG.md'
   ]
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     # The second path is to find FirebaseAuth-Swift.h from a pod gen project
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"',
     'OTHER_SWIFT_FLAGS' => "$(inherited) #{ENV.key?('FIREBASE_CI') ? '-D FIREBASE_CI -warnings-as-errors' : ''}"

@@ -1430,7 +1430,6 @@ let package = Package(
       ]
     ),
   ] + firestoreTargets(),
-  cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
 

@@ -52,7 +52,6 @@ Pod::Spec.new do |s|
 
   preprocessor_definitions = ''
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
