@@ -49,7 +49,6 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.requires_arc = base_dir + '*.m'
   s.public_header_files = base_dir + 'Public/FirebaseABTesting/*.h'
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.dependency 'FirebaseCore', '~> 11.15.0'

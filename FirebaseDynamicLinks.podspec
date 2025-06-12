@@ -40,7 +40,6 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   s.dependency 'FirebaseCore', '~> 11.15.0'
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRDynamicLinks3P GIN_SCION_LOGGING',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }

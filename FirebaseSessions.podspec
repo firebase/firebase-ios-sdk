@@ -49,7 +49,6 @@ Pod::Spec.new do |s|
   s.dependency 'PromisesSwift', '~> 2.1'
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # For nanopb:

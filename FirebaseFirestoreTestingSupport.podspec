@@ -45,7 +45,6 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseFirestore', '~> 11.0'
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'OTHER_CFLAGS' => '-fno-autolink',
     'HEADER_SEARCH_PATHS' =>
       '"${PODS_TARGET_SRCROOT}" '
