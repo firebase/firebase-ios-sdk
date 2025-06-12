@@ -14,10 +14,10 @@ device, and it is completely free.
   s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  s.source           = {
-    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => 'CocoaPods-' + s.version.to_s
-  }
+ s.source = {
+  :git => 'https://github.com/banerwin202/firebase-ios-sdk.git',
+  :branch => 'firebase-10.29.0'
+}
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '11.0'
