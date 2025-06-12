@@ -29,7 +29,7 @@ final class FunctionsSerializer: Sendable {
   // - NSNull (note: `nil` collection values from a Swift caller will be treated as NSNull)
   // - NSNumber
   // - NSString
-  // - NSDicionary
+  // - NSDictionary
   // - NSArray
   func encode(_ object: Any) throws -> Any {
     if object is NSNull {
@@ -58,7 +58,7 @@ final class FunctionsSerializer: Sendable {
   // - NSNull (note: `nil` collection values from a Swift caller will be treated as NSNull)
   // - NSNumber
   // - NSString
-  // - NSDicionary
+  // - NSDictionary
   // - NSArray
   func decode(_ object: Any) throws -> Any {
     // Return these types as is. PORTING NOTE: Moved from the bottom of the func for readability.
