@@ -96,7 +96,7 @@ struct GenerateContentIntegrationTests {
   @Test(
     "Generate an enum and provide a system instruction",
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigs // System instructions are supported by all remaining configs
+    arguments: InstanceConfig.allConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
