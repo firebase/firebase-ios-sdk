@@ -75,7 +75,6 @@ Pod::Spec.new do |s|
   s.watchos.frameworks = 'Security'
 
   s.ios.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics iOS SDK" ' +
       # For nanopb:
@@ -84,7 +83,6 @@ Pod::Spec.new do |s|
   }
 
   s.osx.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics Mac SDK" ' +
       # For nanopb:
@@ -93,7 +91,6 @@ Pod::Spec.new do |s|
   }
 
   s.tvos.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics tvOS SDK" ' +
       # For nanopb:
@@ -102,7 +99,6 @@ Pod::Spec.new do |s|
   }
 
   s.watchos.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics watchOS SDK" ' +
       # For nanopb:

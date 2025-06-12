@@ -56,7 +56,6 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.dependency 'FirebaseCoreInternal', '~> 11.15.0'
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'Firebase_VERSION=' + s.version.to_s,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_CFLAGS' => '-fno-autolink'
