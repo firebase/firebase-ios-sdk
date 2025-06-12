@@ -37,9 +37,13 @@ class ExchangeTokenRequestTests: XCTestCase {
   // MARK: - Test Cases
 
   func testProductionURLIsCorrectlyConstructed() {
-    let (auth, app) = createTestAuthInstance(projectID: kProjectID, location: kLocation, tenantId: kTenantID)
+    let (auth, app) = createTestAuthInstance(
+      projectID: kProjectID,
+      location: kLocation,
+      tenantId: kTenantID
+    )
     _ = app
-    
+
     let request = ExchangeTokenRequest(
       customToken: kCustomToken,
       idpConfigID: kIdpConfigId,
@@ -55,7 +59,11 @@ class ExchangeTokenRequestTests: XCTestCase {
   }
 
   func testProductionURLIsCorrectlyConstructedForGlobalLocation() {
-    let (auth, app) = createTestAuthInstance(projectID: kProjectID, location: "prod-global", tenantId: kTenantID)
+    let (auth, app) = createTestAuthInstance(
+      projectID: kProjectID,
+      location: "prod-global",
+      tenantId: kTenantID
+    )
     _ = app
 
     let request = ExchangeTokenRequest(
@@ -73,7 +81,11 @@ class ExchangeTokenRequestTests: XCTestCase {
   }
 
   func testStagingURLIsCorrectlyConstructed() {
-    let (auth, app) = createTestAuthInstance(projectID: kProjectID, location: kLocation, tenantId: kTenantID)
+    let (auth, app) = createTestAuthInstance(
+      projectID: kProjectID,
+      location: kLocation,
+      tenantId: kTenantID
+    )
     _ = app
 
     let request = ExchangeTokenRequest(
@@ -91,13 +103,17 @@ class ExchangeTokenRequestTests: XCTestCase {
   }
 
   func testUnencodedHTTPBodyIsCorrect() {
-    let (auth, app) = createTestAuthInstance(projectID: kProjectID, location: kLocation, tenantId: kTenantID)
+    let (auth, app) = createTestAuthInstance(
+      projectID: kProjectID,
+      location: kLocation,
+      tenantId: kTenantID
+    )
     _ = app
 
     let request = ExchangeTokenRequest(
-        customToken: kCustomToken,
-        idpConfigID: kIdpConfigId,
-        config: auth.requestConfiguration
+      customToken: kCustomToken,
+      idpConfigID: kIdpConfigId,
+      config: auth.requestConfiguration
     )
 
     let body = request.unencodedHTTPRequestBody
@@ -108,9 +124,13 @@ class ExchangeTokenRequestTests: XCTestCase {
 
   // MARK: - Helper Function
 
-  private func createTestAuthInstance(projectID: String?, location: String?, tenantId: String?) -> (auth: Auth, app: FirebaseApp) {
+  private func createTestAuthInstance(projectID: String?, location: String?,
+                                      tenantId: String?) -> (auth: Auth, app: FirebaseApp) {
     let appName = "TestApp-\(UUID().uuidString)"
-    let options = FirebaseOptions(googleAppID: "1:1234567890:ios:abcdef123456", gcmSenderID: "1234567890")
+    let options = FirebaseOptions(
+      googleAppID: "1:1234567890:ios:abcdef123456",
+      gcmSenderID: "1234567890"
+    )
     options.apiKey = kAPIKey
     if let projectID = projectID {
       options.projectID = projectID
@@ -120,7 +140,7 @@ class ExchangeTokenRequestTests: XCTestCase {
       FirebaseApp.app(name: appName)?.delete { _ in }
     }
     let app = FirebaseApp(instanceWithName: appName, options: options)
-    
+
     let auth = Auth(app: app)
     auth.app = app
     auth.requestConfiguration.location = location
