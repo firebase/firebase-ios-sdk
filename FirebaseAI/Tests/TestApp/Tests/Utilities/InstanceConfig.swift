@@ -44,10 +44,6 @@ struct InstanceConfig: Equatable, Encodable {
     googleAI_v1beta_staging,
     googleAI_v1beta_freeTier_bypassProxy,
   ]
-  // Renaming for clarity as googleAI_v1_freeTier_bypassProxy is removed.
-  static let allConfigsExceptGoogleAIFreeTier = allConfigs.filter {
-    $0 != googleAI_v1beta_freeTier_bypassProxy // Or any other specific GoogleAI config if needed for exclusion
-  }
 
   static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
