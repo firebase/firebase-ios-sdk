@@ -129,7 +129,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
       let oldHeartbeatsBundle = try? load(from: storage)
       let newHeartbeatsBundle = transform(oldHeartbeatsBundle as? HeartbeatsBundle)
       try save(newHeartbeatsBundle, to: storage)
-      return oldHeartbeatsBundle
+      return oldHeartbeatsBundle!
     }
     return heartbeatsBundle
   }
