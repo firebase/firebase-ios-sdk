@@ -48,6 +48,11 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
     self.init(value as Any)
   }
 
+  // Initializer for Bytes
+  public init(_ value: [UInt8]) {
+    self.init(value as Any)
+  }
+
   // Initializer for GeoPoint values
   public init(_ value: GeoPoint) {
     self.init(value as Any)

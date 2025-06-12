@@ -17,6 +17,10 @@ public class BooleanExpr: FunctionExpr, @unchecked Sendable {
     super.init(functionName, agrs)
   }
 
+  public func countIf() -> AggregateFunction {
+    return AggregateFunction("count_if", [self])
+  }
+
   public static func && (lhs: BooleanExpr,
                          rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
     try BooleanExpr("and", [lhs, rhs()])
@@ -25,6 +29,11 @@ public class BooleanExpr: FunctionExpr, @unchecked Sendable {
   public static func || (lhs: BooleanExpr,
                          rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
     try BooleanExpr("or", [lhs, rhs()])
+  }
+
+  public static func ^ (lhs: BooleanExpr,
+                        rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
+    try BooleanExpr("xor", [lhs, rhs()])
   }
 
   public static prefix func ! (lhs: BooleanExpr) -> BooleanExpr {

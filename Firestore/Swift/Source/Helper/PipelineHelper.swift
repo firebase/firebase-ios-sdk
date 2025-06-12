@@ -13,15 +13,19 @@
 // limitations under the License.
 
 enum Helper {
-  static func sendableToExpr(_ value: Sendable) -> Expr {
-    if value is Expr {
-      return value as! Expr
-    } else if value is [String: Sendable] {
-      return map(value as! [String: Sendable])
-    } else if value is [Sendable] {
-      return array(value as! [Sendable])
+  static func sendableToExpr(_ value: Sendable?) -> Expr {
+    if value == nil {
+      return Constant.nil
+    }
+
+    if value! is Expr {
+      return value! as! Expr
+    } else if value! is [String: Sendable?] {
+      return map(value! as! [String: Sendable?])
+    } else if value! is [Sendable?] {
+      return array(value! as! [Sendable?])
     } else {
-      return Constant(value)
+      return Constant(value!)
     }
   }
 
@@ -33,7 +37,7 @@ enum Helper {
     return exprMap
   }
 
-  static func map(_ elements: [String: Sendable]) -> FunctionExpr {
+  static func map(_ elements: [String: Sendable?]) -> FunctionExpr {
     var result: [Expr] = []
     for (key, value) in elements {
       result.append(Constant(key))
@@ -42,7 +46,7 @@ enum Helper {
     return FunctionExpr("map", result)
   }
 
-  static func array(_ elements: [Sendable]) -> FunctionExpr {
+  static func array(_ elements: [Sendable?]) -> FunctionExpr {
     let transformedElements = elements.map { element in
       sendableToExpr(element)
     }
