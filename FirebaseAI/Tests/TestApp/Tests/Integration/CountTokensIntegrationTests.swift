@@ -71,7 +71,7 @@ struct CountTokensIntegrationTests {
 
   @Test(
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
+    arguments: InstanceConfig.allConfigs // System instructions are supported by all remaining configs
   )
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -96,31 +96,13 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(arguments: [
-    /* System instructions are not supported on the v1 Developer API. */
-    InstanceConfig.googleAI_v1_freeTier_bypassProxy,
-  ])
-  func countTokens_text_systemInstruction_unsupported(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
-      systemInstruction: systemInstruction // Not supported on the v1 Developer API
-    )
-
-    try await #require(
-      throws: BackendError.self,
-      """
-      If this test fails (i.e., `countTokens` succeeds), remove \(config) from this test and add it
-      to `countTokens_text_systemInstruction`.
-      """,
-      performing: {
-        try await model.countTokens("What is your favourite colour?")
-      }
-    )
-  }
-
+  // Removed `countTokens_text_systemInstruction_unsupported` as the
+  // `InstanceConfig.googleAI_v1_freeTier_bypassProxy` config it tested against
+  // has been removed. The remaining configurations in `countTokens_text_systemInstruction`
+  // all support system instructions.
   @Test(
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
+    arguments: InstanceConfig.allConfigs // JSON schema is supported by all remaining configs
   )
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(

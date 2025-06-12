@@ -48,15 +48,12 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])
@@ -99,7 +96,7 @@ struct GenerateContentIntegrationTests {
   @Test(
     "Generate an enum and provide a system instruction",
     /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
+    arguments: InstanceConfig.allConfigs // System instructions are supported by all remaining configs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -136,7 +133,6 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    InstanceConfig.vertexAI_v1,
     InstanceConfig.vertexAI_v1beta,
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.googleAI_v1beta_staging,
@@ -190,15 +186,12 @@ struct GenerateContentIntegrationTests {
   // MARK: Streaming Tests
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])
