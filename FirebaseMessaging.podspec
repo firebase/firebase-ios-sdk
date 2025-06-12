@@ -14,9 +14,9 @@ device, and it is completely free.
   s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
- s.source = {
+s.source = {
   :git => 'https://github.com/banerwin202/firebase-ios-sdk.git',
-  :branch => 'firebase-10.29.0'
+  :commit => 'eca84fd638116dd6adb633b5a3f31cc7befcbb7d'
 }
   s.social_media_url = 'https://twitter.com/Firebase'
 
