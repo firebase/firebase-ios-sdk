@@ -961,35 +961,41 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 @implementation FIRPipelineBridge {
   NSArray<FIRStageBridge *> *_stages;
   FIRFirestore *firestore;
+  Boolean isUserDataRead;
   std::shared_ptr<Pipeline> cpp_pipeline;
 }
 
 - (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db {
   _stages = stages;
   firestore = db;
+  isUserDataRead = NO;
   return [super init];
 }
 
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion {
-  std::vector<std::shared_ptr<firebase::firestore::api::Stage>> cpp_stages;
-  for (FIRStageBridge *stage in _stages) {
-    cpp_stages.push_back([stage cppStageWithReader:firestore.dataReader]);
-  }
-  cpp_pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped);
-
-  cpp_pipeline->execute([completion](StatusOr<api::PipelineSnapshot> maybe_value) {
-    if (maybe_value.ok()) {
-      __FIRPipelineSnapshotBridge *bridge = [[__FIRPipelineSnapshotBridge alloc]
-          initWithCppSnapshot:std::move(maybe_value).ValueOrDie()];
-      completion(bridge, nil);
-    } else {
-      completion(nil, MakeNSError(std::move(maybe_value).status()));
-    }
-  });
+  [self cppPipelineWithReader:firestore.dataReader]->execute(
+      [completion](StatusOr<api::PipelineSnapshot> maybe_value) {
+        if (maybe_value.ok()) {
+          __FIRPipelineSnapshotBridge *bridge = [[__FIRPipelineSnapshotBridge alloc]
+              initWithCppSnapshot:std::move(maybe_value).ValueOrDie()];
+          completion(bridge, nil);
+        } else {
+          completion(nil, MakeNSError(std::move(maybe_value).status()));
+        }
+      });
 }
 
 - (std::shared_ptr<api::Pipeline>)cppPipelineWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::vector<std::shared_ptr<firebase::firestore::api::Stage>> cpp_stages;
+    for (FIRStageBridge *stage in _stages) {
+      cpp_stages.push_back([stage cppStageWithReader:firestore.dataReader]);
+    }
+    cpp_pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped);
+  }
+
+  isUserDataRead = YES;
   return cpp_pipeline;
 }
 
