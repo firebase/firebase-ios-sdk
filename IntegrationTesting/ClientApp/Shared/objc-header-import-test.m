@@ -31,12 +31,12 @@
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 #import <FirebaseDatabase/FirebaseDatabase.h>
-#import "FirebaseCore/FirebaseCore.h"
-#import "FirebaseCrashlytics/FirebaseCrashlytics.h"
-#import "FirebaseDatabase/FirebaseDatabase.h"
 #import <FirebaseFirestore/FirebaseFirestore.h>
 #import <FirebaseInstallations/FirebaseInstallations.h>
 #import <FirebaseMessaging/FirebaseMessaging.h>
+#import "FirebaseCore/FirebaseCore.h"
+#import "FirebaseCrashlytics/FirebaseCrashlytics.h"
+#import "FirebaseDatabase/FirebaseDatabase.h"
 #import "FirebaseFirestore/FirebaseFirestore.h"
 #import "FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseMessaging/FirebaseMessaging.h"
