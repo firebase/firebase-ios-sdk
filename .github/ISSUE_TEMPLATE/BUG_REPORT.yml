@@ -76,6 +76,7 @@ body:
         - Crashlytics
         - Database
         - Data Connect
+        - DynamicLinks
         - Firestore
         - Functions
         - In-App Messaging
