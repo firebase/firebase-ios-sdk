@@ -60,7 +60,7 @@ final class SchemaTests: XCTestCase {
       "description" : "\(description)",
       "format" : "date-time",
       "nullable" : true,
-      "title": "\(title)",
+      "title" : "\(title)",
       "type" : "STRING"
     }
     """)
@@ -114,7 +114,7 @@ final class SchemaTests: XCTestCase {
       ],
       "format" : "enum",
       "nullable" : true,
-      "title": "\(title)",
+      "title" : "\(title)",
       "type" : "STRING"
     }
     """)
@@ -160,7 +160,7 @@ final class SchemaTests: XCTestCase {
       "maximum" : \(maximum),
       "minimum" : \(minimum),
       "nullable" : true,
-      "title": "\(title)",
+      "title" : "\(title)",
       "type" : "NUMBER"
     }
     """)
@@ -204,7 +204,7 @@ final class SchemaTests: XCTestCase {
       "maximum" : \(maximum),
       "minimum" : \(minimum),
       "nullable" : true,
-      "title": "\(title)",
+      "title" : "\(title)",
       "type" : "NUMBER"
     }
     """)
@@ -251,7 +251,7 @@ final class SchemaTests: XCTestCase {
       "maximum" : \(maximum),
       "minimum" : \(minimum),
       "nullable" : true,
-      "title": "\(title)",
+      "title" : "\(title)",
       "type" : "INTEGER"
     }
     """)
@@ -285,7 +285,7 @@ final class SchemaTests: XCTestCase {
     {
       "description" : "\(description)",
       "nullable" : true,
-      "title": "\(title)",
+      "title" : "\(title)",
       "type" : "BOOLEAN"
     }
     """)
@@ -341,7 +341,7 @@ final class SchemaTests: XCTestCase {
       "maxItems" : \(maxItems),
       "minItems" : \(minItems),
       "nullable" : true,
-      "title": "\(title)",
+      "title" : "\(title)",
       "type" : "ARRAY"
     }
     """)
