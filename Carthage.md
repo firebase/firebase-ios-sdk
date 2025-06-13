@@ -39,7 +39,6 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAppDistributionBi
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAuthBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseCrashlyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFunctionsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseGoogleSignInBinary.json"
