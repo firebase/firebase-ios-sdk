@@ -1,5 +1,5 @@
 name: ➕ Feature Request
-description: File a file request if you have a suggestion for a new feature.
+description: File a feature request if you have a suggestion for a new feature.
 title: "[FR]: "
 labels: ["type: feature request"]
 body:
