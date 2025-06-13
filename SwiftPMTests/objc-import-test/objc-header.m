@@ -21,7 +21,6 @@
 #import "FirebaseCore/FirebaseCore.h"
 #import "FirebaseCrashlytics/FirebaseCrashlytics.h"
 #import "FirebaseDatabase/FirebaseDatabase.h"
-#import "FirebaseDynamicLinks/FirebaseDynamicLinks.h"
 #import "FirebaseFirestore/FirebaseFirestore.h"
 #import "FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseMessaging/FirebaseMessaging.h"
@@ -40,7 +39,6 @@
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 #import <FirebaseDatabase/FirebaseDatabase.h>
-#import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <FirebaseInAppMessaging/FirebaseInAppMessaging.h>

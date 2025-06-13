@@ -55,7 +55,6 @@ def labelsForModifiedFiles()
   labels.push("api: core") if @has_core_changes
   labels.push("api: crashlytics") if @has_crashlytics_changes
   labels.push("api: database") if @has_database_changes
-  labels.push("api: dynamiclinks") if @has_dynamiclinks_changes
   labels.push("api: firebaseai") if @has_firebaseai_changes
   labels.push("api: firestore") if @has_firestore_changes
   labels.push("api: functions") if @has_functions_changes
@@ -93,7 +92,6 @@ has_license_changes = didModify(["LICENSE"])
   "Core",
   "Crashlytics",
   "Database",
-  "DynamicLinks",
   "FirebaseAI",
   "Firestore",
   "Functions",
@@ -132,8 +130,6 @@ has_license_changes = didModify(["LICENSE"])
 @has_crashlytics_api_changes = hasChangesIn("Crashlytics/Crashlytics/Public/")
 @has_database_changes = hasChangesIn("FirebaseDatabase")
 @has_database_api_changes = hasChangesIn("FirebaseDatabase/Sources/Public/")
-@has_dynamiclinks_changes = hasChangesIn("FirebaseDynamicLinks")
-@has_dynamiclinks_api_changes = hasChangesIn("FirebaseDynamicLinks/Sources/Public/")
 @has_firebaseai_changes = hasChangesIn([
   "FirebaseAI",
   "FirebaseVertexAI"
@@ -168,7 +164,6 @@ has_license_changes = didModify(["LICENSE"])
                      @has_core_api_changes ||
                      @has_crashlytics_api_changes ||
                      @has_database_api_changes ||
-                     @has_dynamiclinks_api_changes ||
                      @has_firestore_api_changes ||
                      @has_functions_api_changes ||
                      @has_inappmessaging_api_changes ||

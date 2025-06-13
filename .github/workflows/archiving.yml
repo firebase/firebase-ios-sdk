@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         # These need to be on a single line or else the formatting won't validate.
-        pod: ["FirebaseAppDistribution", "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebasePerformance"]
+        pod: ["FirebaseAppDistribution", "FirebaseInAppMessaging", "FirebasePerformance"]
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126

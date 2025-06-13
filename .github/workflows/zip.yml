@@ -196,7 +196,6 @@ jobs:
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
                                                "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
@@ -508,7 +507,6 @@ jobs:
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Xcode

@@ -1,3 +1,7 @@
+# 12.0.0
+- [removed] **Breaking change**: FirebaseDynamicLinks has been removed. See
+  https://firebase.google.com/support/dynamic-links-faq for more info.
+
 # 11.8.0
 - [deprecated] The `FirebaseDynamicLinks` CocoaPod is deprecated. For information about timelines and alternatives, see the [Dynamic Links deprecation FAQ](https://firebase.google.com/support/dynamic-links-faq).
 

@@ -31,7 +31,6 @@ MODULE_LIST = [
     'FirebaseCore',
     'FirebaseCrashlytics',
     'FirebaseDatabase',
-    'FirebaseDynamicLinks',
     'FirebaseFirestoreInternal',
     'FirebaseFirestore',
     'FirebaseFunctions',

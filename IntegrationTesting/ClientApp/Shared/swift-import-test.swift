@@ -32,9 +32,6 @@ import FirebaseAuth
 import FirebaseCore
 import FirebaseCrashlytics
 import FirebaseDatabase
-#if os(iOS) && !targetEnvironment(macCatalyst)
-  import FirebaseDynamicLinks
-#endif
 import FirebaseFirestore
 #if SWIFT_PACKAGE
   import FirebaseFirestoreCombineSwift

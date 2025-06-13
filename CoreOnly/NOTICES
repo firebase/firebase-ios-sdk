@@ -10,7 +10,6 @@ FirebaseAuthInterop
 FirebaseCore
 FirebaseCoreExtension
 FirebaseCoreInternal
-FirebaseDynamicLinks
 FirebaseFunctions
 FirebaseInAppMessaging
 FirebaseInstallations

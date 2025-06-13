@@ -1,4 +1,8 @@
 # Unreleased
+- [removed] **Breaking change**: FirebaseDynamicLinks has been removed. See
+  https://firebase.google.com/support/dynamic-links-faq for more info.
+
+# Firebase 11.15.0
 - [fixed] Remove c99 as the required C language standard. (#14950)
 
 # Firebase 11.12.0

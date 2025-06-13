@@ -109,10 +109,6 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
-      name: "FirebaseDynamicLinks",
-      targets: ["FirebaseDynamicLinksTarget"]
-    ),
-    .library(
       name: "FirebaseFirestore",
       targets: ["FirebaseFirestoreTarget"]
     ),
@@ -777,28 +773,6 @@ let package = Package(
       dependencies: ["FirebaseSharedSwift"],
       path: "FirebaseSharedSwift/Tests/"
     ),
-    .target(
-      name: "FirebaseDynamicLinksTarget",
-      dependencies: [.target(name: "FirebaseDynamicLinks",
-                             condition: .when(platforms: [.iOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseDynamicLinksWrap"
-    ),
-
-    .target(
-      name: "FirebaseDynamicLinks",
-      dependencies: ["FirebaseCore"],
-      path: "FirebaseDynamicLinks/Sources",
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-        .define("FIRDynamicLinks3P", to: "1"),
-        .define("GIN_SCION_LOGGING", to: "1"),
-      ],
-      linkerSettings: [
-        .linkedFramework("QuartzCore"),
-      ]
-    ),
 
     firestoreWrapperTarget(),
 
@@ -1292,7 +1266,6 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
-        "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
@@ -1328,7 +1301,6 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
-        "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",

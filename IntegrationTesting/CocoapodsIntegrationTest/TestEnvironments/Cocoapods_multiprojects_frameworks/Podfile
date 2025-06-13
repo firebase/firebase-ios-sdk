@@ -18,7 +18,6 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseDatabase', :path => '../../'
-  pod 'FirebaseDynamicLinks', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
   pod 'FirebaseFunctions', :path => '../../'
   pod 'FirebaseInAppMessaging', :path => '../../'

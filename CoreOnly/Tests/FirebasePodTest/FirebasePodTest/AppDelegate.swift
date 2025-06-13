@@ -25,7 +25,6 @@ class AuthExists: Auth {}
 // Uncomment next line if ABTesting gets added to Firebase.h.
 // class ABTestingExists : LifecycleEvents {}
 class DatabaseExists: Database {}
-class DynamicLinksExists: DynamicLinks {}
 class FirestoreExists: Firestore {}
 class FunctionsExists: Functions {}
 class InAppMessagingExists: InAppMessaging {}
