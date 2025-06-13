@@ -1,5 +1,7 @@
 # Unreleased
 - [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14947)
+- [added] Added support for setting `title` in string, number and array `Schema`
+  types. (#14971)
 
 # 11.13.0
 - [feature] Initial release of the Firebase AI Logic SDK (`FirebaseAI`). This
