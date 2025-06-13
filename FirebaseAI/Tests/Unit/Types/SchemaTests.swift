@@ -43,14 +43,16 @@ final class SchemaTests: XCTestCase {
 
   func testEncodeSchema_string_allOptions() throws {
     let description = "Timestamp of the event."
+    let title = "Event Timestamp"
     let format = Schema.StringFormat.custom("date-time")
-    let schema = Schema.string(description: description, nullable: true, format: format)
+    let schema = Schema.string(description: description, title: title, nullable: true, format: format)
 
     let jsonData = try encoder.encode(schema)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
+      "title": "\(title)",
       "description" : "\(description)",
       "format" : "date-time",
       "nullable" : true,
@@ -85,13 +87,15 @@ final class SchemaTests: XCTestCase {
   func testEncodeSchema_enumeration_allOptions() throws {
     let values = ["NORTH", "SOUTH", "EAST", "WEST"]
     let description = "Compass directions."
-    let schema = Schema.enumeration(values: values, description: description, nullable: true)
+    let title = "Directions"
+    let schema = Schema.enumeration(values: values, description: description, title: title, nullable: true)
 
     let jsonData = try encoder.encode(schema)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
+      "title": "\(title)",
       "description" : "\(description)",
       "enum" : [
         "NORTH",
@@ -125,10 +129,12 @@ final class SchemaTests: XCTestCase {
 
   func testEncodeSchema_float_allOptions() throws {
     let description = "Temperature in Celsius."
+    let title = "Temperature (°C)"
     let minimum: Float = -40.25
     let maximum: Float = 50.5
     let schema = Schema.float(
       description: description,
+      title: title,
       nullable: true,
       minimum: minimum,
       maximum: maximum
@@ -139,6 +145,7 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
+      "title": "\(title)",
       "description" : "\(description)",
       "format" : "float",
       "maximum" : \(maximum),
@@ -167,10 +174,12 @@ final class SchemaTests: XCTestCase {
 
   func testEncodeSchema_double_allOptions() throws {
     let description = "Account balance."
+    let title = "Balance"
     let minimum = 0.01
     let maximum = 1_000_000.99
     let schema = Schema.double(
       description: description,
+      title: title,
       nullable: true,
       minimum: minimum,
       maximum: maximum
@@ -181,6 +190,7 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
+      "title": "\(title)",
       "description" : "\(description)",
       "maximum" : \(maximum),
       "minimum" : \(minimum),
@@ -208,11 +218,13 @@ final class SchemaTests: XCTestCase {
 
   func testEncodeSchema_integer_allOptions() throws {
     let description = "User age."
+    let title = "Age"
     let minimum = 0
     let maximum = 120
     let format = Schema.IntegerFormat.int32
     let schema = Schema.integer(
       description: description,
+      title: title,
       nullable: true,
       format: format,
       minimum: minimum,
@@ -224,6 +236,7 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
+      "title": "\(title)",
       "description" : "\(description)",
       "format" : "int32",
       "maximum" : \(maximum),
@@ -252,13 +265,15 @@ final class SchemaTests: XCTestCase {
 
   func testEncodeSchema_boolean_allOptions() throws {
     let description = "Is the user an administrator?"
-    let schema = Schema.boolean(description: description, nullable: true)
+    let title = "Administrator Check"
+    let schema = Schema.boolean(description: description, title: title, nullable: true)
 
     let jsonData = try encoder.encode(schema)
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
+      "title": "\(title)",
       "description" : "\(description)",
       "nullable" : true,
       "type" : "BOOLEAN"
@@ -290,11 +305,13 @@ final class SchemaTests: XCTestCase {
   func testEncodeSchema_array_allOptions() throws {
     let itemsSchema = Schema.integer(format: .int64)
     let description = "List of product IDs."
+    let title = "Product IDs"
     let minItems = 1
     let maxItems = 10
     let schema = Schema.array(
       items: itemsSchema,
       description: description,
+      title: title,
       nullable: true,
       minItems: minItems,
       maxItems: maxItems
@@ -305,6 +322,7 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
+      "title": "\(title)",
       "description" : "\(description)",
       "items" : {
         "format" : "int64",
