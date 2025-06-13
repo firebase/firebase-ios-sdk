@@ -2478,6 +2478,7 @@ public extension Auth {
   ///   - completion: A closure that gets called with either an `AuthTokenResult` or an `Error`.
   func exchangeToken(customToken: String,
                      idpConfigId: String,
+                     useStaging: Bool = false,
                      completion: @escaping (FirebaseToken?, Error?) -> Void) {
     // Ensure R-GCIP is configured with location and tenant ID
     guard let _ = requestConfiguration.location,
@@ -2493,7 +2494,8 @@ public extension Auth {
     let request = ExchangeTokenRequest(
       customToken: customToken,
       idpConfigID: idpConfigId,
-      config: requestConfiguration
+      config: requestConfiguration,
+      useStaging: true
     )
     Task {
       do {
@@ -2523,7 +2525,8 @@ public extension Auth {
   /// - Returns: An `AuthTokenResult` containing the Firebase ID token and its expiration details.
   /// - Throws: An error if R-GCIP is not configured, if the network call fails,
   ///           or if the token parsing fails.
-  func exchangeToken(customToken: String, idpConfigId: String) async throws -> FirebaseToken {
+  func exchangeToken(customToken: String, idpConfigId: String,
+                     useStaging: Bool = false) async throws -> FirebaseToken {
     // Ensure R-GCIP is configured with location and tenant ID
     guard let _ = requestConfiguration.location,
           let _ = requestConfiguration.tenantId
@@ -2533,7 +2536,8 @@ public extension Auth {
     let request = ExchangeTokenRequest(
       customToken: customToken,
       idpConfigID: idpConfigId,
-      config: requestConfiguration
+      config: requestConfiguration,
+      useStaging: true
     )
     do {
       let response = try await backend.call(with: request)

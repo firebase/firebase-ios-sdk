@@ -14,6 +14,9 @@
 
 import Foundation
 
+private let kRegionalGCIPAPIHost = "identityplatform.googleapis.com"
+private let kRegionalGCIPStagingAPIHost = "staging-identityplatform.sandbox.googleapis.com"
+
 /// A request to exchange a third-party OIDC token for a Firebase STS token.
 ///
 /// This structure encapsulates the parameters required to make an API request
@@ -34,38 +37,16 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   /// The configuration for the request, holding API key, tenant, etc.
   let config: AuthRequestConfiguration
 
-  var path: String {
-    guard let location = config.location,
-          let tenant = config.tenantId,
-          let project = config.auth?.app?.options.projectID
-    else {
-      fatalError(
-        "exchangeOidcToken requires `auth.location` & `auth.tenantID`"
-      )
-    }
-    let _: String
-    if location == "prod-global" {
-      _ = "identityplatform.googleapis.com"
-    } else {
-      _ = "\(location)-identityplatform.googleapis.com"
-    }
+  let useStaging: Bool
 
-    return "/v2alpha/projects/\(project)/locations/\(location)" +
-      "/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
-  }
-
-  /// Initializes a new `ExchangeTokenRequest` instance.
-  ///
-  /// - Parameters:
-  ///   - idpConfigID: The identifier of the OIDC provider configuration.
-  ///   - idToken: The third-party OIDC token to exchange.
-  ///   - config: The configuration for the request.
   init(customToken: String,
        idpConfigID: String,
-       config: AuthRequestConfiguration) {
+       config: AuthRequestConfiguration,
+       useStaging: Bool = false) {
     self.idpConfigID = idpConfigID
     self.customToken = customToken
     self.config = config
+    self.useStaging = useStaging
   }
 
   /// The unencoded HTTP request body for the API.
@@ -80,20 +61,30 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   func requestURL() -> URL {
     guard let location = config.location,
           let tenant = config.tenantId,
-          let project = config.auth?.app?.options.projectID
+          let projectId = config.auth?.app?.options.projectID
     else {
       fatalError(
-        "exchangeOidcToken requires `auth.useIdentityPlatform`, `auth.location`, `auth.tenantID` & `projectID`"
+        "exchangeOidcToken requires `location`, `tenantID` & `projectID` to be configured."
       )
     }
     let host: String
-    if location == "prod-global" {
-      host = "identityplatform.googleapis.com"
+    if useStaging {
+      if location == "prod-global" {
+        host = kRegionalGCIPStagingAPIHost
+      } else {
+        host = "\(location)-\(kRegionalGCIPStagingAPIHost)"
+      }
     } else {
-      host = "\(location)-identityplatform.googleapis.com"
+      if location == "prod-global" {
+        host = kRegionalGCIPAPIHost
+      } else {
+        host = "\(location)-\(kRegionalGCIPAPIHost)"
+      }
     }
-    let path = "/v2/projects/$\(project)/locations/$\(location)" +
-      "/tenants/$\(tenant)/idpConfigs/$\(idpConfigID):exchangeOidcToken"
+
+    let path = "/v2alpha/projects/\(projectId)/locations/\(location)" +
+      "/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
+
     guard let url = URL(string: "https://\(host)\(path)?key=\(config.apiKey)") else {
       fatalError("Failed to create URL for exchangeOidcToken")
     }
