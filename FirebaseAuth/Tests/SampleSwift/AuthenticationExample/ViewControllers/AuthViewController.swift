@@ -191,6 +191,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .multifactorUnenroll:
       mfaUnenroll()
+
+    case .exchangeToken:
+      callExchangeToken()
     }
   }
 
@@ -1084,5 +1087,43 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
 
   func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
     return view.window!
+  }
+
+  func callExchangeToken() {
+    Task {
+      do {
+        // 1. Prompt for the first piece of input and wait for the result.
+        guard let customToken = await showTextInputPrompt(with: "Enter Custom Token:") else {
+          // If the user cancels or enters nothing, stop the process.
+          print("Token exchange cancelled: Custom Token was not provided.")
+          return
+        }
+
+        // 2. Prompt for the second piece of input and wait for the result.
+        guard let idpConfigId = await showTextInputPrompt(with: "Enter IDP Config ID:") else {
+          // If the user cancels or enters nothing, stop the process.
+          print("Token exchange cancelled: IDP Config ID was not provided.")
+          return
+        }
+
+        // 3. Both inputs were provided, so now we can make the API call.
+        let result = try await AppManager.shared.auth().exchangeToken(
+          customToken: customToken,
+          idpConfigId: idpConfigId,
+          useStaging: true
+        )
+        print("Token exchange successful")
+        print("Firebase Token: \(result.token)")
+
+        // Let the user know it succeeded.
+        showAlert(for: "Token Exchange Succeeded",
+                  message: "Review the console logs for the new Firebase Token.")
+
+      } catch {
+        print("Failed to exchange token: \(error)")
+        showAlert(for: "Token Exchange Error",
+                  message: error.localizedDescription)
+      }
+    }
   }
 }
