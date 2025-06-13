@@ -45,7 +45,12 @@ final class SchemaTests: XCTestCase {
     let description = "Timestamp of the event."
     let title = "Event Timestamp"
     let format = Schema.StringFormat.custom("date-time")
-    let schema = Schema.string(description: description, title: title, nullable: true, format: format)
+    let schema = Schema.string(
+      description: description,
+      title: title,
+      nullable: true,
+      format: format
+    )
 
     let jsonData = try encoder.encode(schema)
 
@@ -88,7 +93,12 @@ final class SchemaTests: XCTestCase {
     let values = ["NORTH", "SOUTH", "EAST", "WEST"]
     let description = "Compass directions."
     let title = "Directions"
-    let schema = Schema.enumeration(values: values, description: description, title: title, nullable: true)
+    let schema = Schema.enumeration(
+      values: values,
+      description: description,
+      title: title,
+      nullable: true
+    )
 
     let jsonData = try encoder.encode(schema)
 
