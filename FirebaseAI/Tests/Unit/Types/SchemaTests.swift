@@ -57,10 +57,10 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "title": "\(title)",
       "description" : "\(description)",
       "format" : "date-time",
       "nullable" : true,
+      "title": "\(title)",
       "type" : "STRING"
     }
     """)
@@ -105,7 +105,6 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "title": "\(title)",
       "description" : "\(description)",
       "enum" : [
         "NORTH",
@@ -115,6 +114,7 @@ final class SchemaTests: XCTestCase {
       ],
       "format" : "enum",
       "nullable" : true,
+      "title": "\(title)",
       "type" : "STRING"
     }
     """)
@@ -155,12 +155,12 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "title": "\(title)",
       "description" : "\(description)",
       "format" : "float",
       "maximum" : \(maximum),
       "minimum" : \(minimum),
       "nullable" : true,
+      "title": "\(title)",
       "type" : "NUMBER"
     }
     """)
@@ -200,11 +200,11 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "title": "\(title)",
       "description" : "\(description)",
       "maximum" : \(maximum),
       "minimum" : \(minimum),
       "nullable" : true,
+      "title": "\(title)",
       "type" : "NUMBER"
     }
     """)
@@ -246,12 +246,12 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "title": "\(title)",
       "description" : "\(description)",
       "format" : "int32",
       "maximum" : \(maximum),
       "minimum" : \(minimum),
       "nullable" : true,
+      "title": "\(title)",
       "type" : "INTEGER"
     }
     """)
@@ -283,9 +283,9 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "title": "\(title)",
       "description" : "\(description)",
       "nullable" : true,
+      "title": "\(title)",
       "type" : "BOOLEAN"
     }
     """)
@@ -332,7 +332,6 @@ final class SchemaTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "title": "\(title)",
       "description" : "\(description)",
       "items" : {
         "format" : "int64",
@@ -342,6 +341,7 @@ final class SchemaTests: XCTestCase {
       "maxItems" : \(maxItems),
       "minItems" : \(minItems),
       "nullable" : true,
+      "title": "\(title)",
       "type" : "ARRAY"
     }
     """)
