@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_CORE_EXPRESSIONS_EVAL_H_
 
 #include <memory>
+#include <string>
 
 #include <utility>  // For std::move
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
