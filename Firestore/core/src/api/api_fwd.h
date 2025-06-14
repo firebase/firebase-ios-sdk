@@ -44,6 +44,8 @@ class DocumentReference;
 class DocumentSnapshot;
 class Firestore;
 class ListenerRegistration;
+class Pipeline;
+class PipelineSnapshot;
 class Query;
 class QuerySnapshot;
 class Settings;
