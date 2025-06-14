@@ -18,8 +18,7 @@ import XCTest
 @testable import FirebaseAuth
 import FirebaseCore
 
-/// @class ExchangeTokenRequestTests
-///    @brief Tests for the @c ExchangeTokenRequest struct.
+/// Tests for `ExchangeTokenRequest`
 @available(iOS 13, *)
 class ExchangeTokenRequestTests: XCTestCase {
   // MARK: - Constants for Testing
@@ -36,6 +35,7 @@ class ExchangeTokenRequestTests: XCTestCase {
 
   // MARK: - Test Cases
 
+  /// Tests that the production URL is correctly formed for a specific region.
   func testProductionURLIsCorrectlyConstructed() {
     let (auth, app) = createTestAuthInstance(
       projectID: kProjectID,
@@ -58,6 +58,7 @@ class ExchangeTokenRequestTests: XCTestCase {
     XCTAssertEqual(request.requestURL().absoluteString, expectedURL)
   }
 
+  /// Tests that the production URL is correctly formed for the "prod-global" location.
   func testProductionURLIsCorrectlyConstructedForGlobalLocation() {
     let (auth, app) = createTestAuthInstance(
       projectID: kProjectID,
@@ -80,6 +81,7 @@ class ExchangeTokenRequestTests: XCTestCase {
     XCTAssertEqual(request.requestURL().absoluteString, expectedURL)
   }
 
+  /// Tests that the staging URL is correctly formed.
   func testStagingURLIsCorrectlyConstructed() {
     let (auth, app) = createTestAuthInstance(
       projectID: kProjectID,
@@ -102,6 +104,7 @@ class ExchangeTokenRequestTests: XCTestCase {
     XCTAssertEqual(request.requestURL().absoluteString, expectedURL)
   }
 
+  /// Tests that the unencoded HTTP body contains the correct id_token.
   func testUnencodedHTTPBodyIsCorrect() {
     let (auth, app) = createTestAuthInstance(
       projectID: kProjectID,
@@ -124,6 +127,7 @@ class ExchangeTokenRequestTests: XCTestCase {
 
   // MARK: - Helper Function
 
+  /// Creates a test FirebaseApp and Auth instance with specified configurations.
   private func createTestAuthInstance(projectID: String?, location: String?,
                                       tenantId: String?) -> (auth: Auth, app: FirebaseApp) {
     let appName = "TestApp-\(UUID().uuidString)"
