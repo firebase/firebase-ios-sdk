@@ -333,9 +333,9 @@ static FIRApp *sDefaultApp;
     return NO;
   }
 
-  // Initialize the Analytics once there is a valid options under default app. Analytics should
-  // always initialize first by itself before the other SDKs.
-  if ([self.name isEqualToString:kFIRDefaultAppName]) {
+  static dispatch_once_t analyticsSetupOnceToken;
+  dispatch_once(&analyticsSetupOnceToken, ^{
+    // Analytics is initialized only once and for the first app configured.
     Class firAnalyticsClass = NSClassFromString(@"FIRAnalytics");
     if (firAnalyticsClass) {
 #pragma clang diagnostic push
@@ -352,7 +352,7 @@ static FIRApp *sDefaultApp;
 #pragma clang diagnostic pop
       }
     }
-  }
+  });
 
   [self subscribeForAppDidBecomeActiveNotifications];
 
@@ -446,26 +446,6 @@ static FIRApp *sDefaultApp;
   [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppReadyToConfigureSDKNotification
                                                       object:self
                                                     userInfo:appInfoDict];
-}
-
-+ (NSError *)errorForMissingOptions {
-  NSDictionary *errorDict = @{
-    NSLocalizedDescriptionKey :
-        @"Unable to parse GoogleService-Info.plist in order to configure services.",
-    NSLocalizedRecoverySuggestionErrorKey :
-        @"Check formatting and location of GoogleService-Info.plist."
-  };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-100 userInfo:errorDict];
-}
-
-+ (NSError *)errorForInvalidAppID {
-  NSDictionary *errorDict = @{
-    NSLocalizedDescriptionKey : @"Unable to validate Google App ID",
-    NSLocalizedRecoverySuggestionErrorKey :
-        @"Check formatting and location of GoogleService-Info.plist or GoogleAppID set in the "
-        @"customized options."
-  };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-101 userInfo:errorDict];
 }
 
 + (BOOL)isDefaultAppConfigured {
