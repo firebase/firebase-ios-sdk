@@ -25,11 +25,18 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+using testutil::BsonBinaryData;
+using testutil::BsonObjectId;
+using testutil::BsonTimestamp;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Field;
+using testutil::Int32;
 using testutil::Key;
 using testutil::Map;
+using testutil::MaxKey;
+using testutil::MinKey;
+using testutil::Regex;
 using testutil::UnknownDoc;
 using testutil::Value;
 using testutil::Version;
@@ -69,6 +76,25 @@ TEST(DocumentTest, ExtractsFields) {
   EXPECT_EQ(doc.field(Field("desc")),
             *Value("Discuss all the project related stuff"));
   EXPECT_EQ(doc.field(Field("owner.title")), *Value("scallywag"));
+}
+
+TEST(DocumentTest, CanContainBsonTypes) {
+  auto data = WrapObject(
+      Map("minKey", MinKey(), "maxKey", MaxKey(), "regex", Regex("^foo", "i"),
+          "int32", Int32(1234), "objectId", BsonObjectId("foo"), "timestamp",
+          BsonTimestamp(123, 456), "binary", BsonBinaryData(128, {7, 8, 9})));
+
+  auto doc = MutableDocument::FoundDocument(Key("col/doc"), Version(1), data);
+
+  EXPECT_EQ(doc.data(), data);
+  EXPECT_EQ(doc.has_local_mutations(), false);
+  EXPECT_EQ(doc.field(Field("minKey")), *MinKey());
+  EXPECT_EQ(doc.field(Field("maxKey")), *MaxKey());
+  EXPECT_EQ(doc.field(Field("regex")), *Regex("^foo", "i"));
+  EXPECT_EQ(doc.field(Field("int32")), *Int32(1234));
+  EXPECT_EQ(doc.field(Field("objectId")), *BsonObjectId("foo"));
+  EXPECT_EQ(doc.field(Field("timestamp")), *BsonTimestamp(123, 456));
+  EXPECT_EQ(doc.field(Field("binary")), *BsonBinaryData(128, {7, 8, 9}));
 }
 
 TEST(DocumentTest, Equality) {
