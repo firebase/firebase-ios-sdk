@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,15 +37,14 @@ struct ExchangeTokenResponse: AuthRPCResponse {
   ///
   /// - Parameter dictionary: The dictionary representing the JSON response from server.
   /// - Throws: `AuthErrorUtils.unexpectedResponse` if the required fields
-  ///           (like "idToken") are missing or have unexpected types.
+  ///           (like "accessToken") are missing or have unexpected types.
   init(dictionary: [String: AnyHashable]) throws {
-    guard let token = dictionary["idToken"] as? String else {
+    guard let token = dictionary["accessToken"] as? String else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }
     firebaseToken = token
-    /// Default to 1 hour (3600 seconds) if the field is missing.
+    // Default to 1 hour (3600 seconds) if the field is missing.
     expiresIn = dictionary["expiresIn"] as? TimeInterval ?? 3600
-
     expirationDate = Date().addingTimeInterval(expiresIn)
   }
 }

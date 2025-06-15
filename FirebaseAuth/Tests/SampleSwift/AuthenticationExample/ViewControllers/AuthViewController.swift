@@ -191,6 +191,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .multifactorUnenroll:
       mfaUnenroll()
+
+    case .exchangeToken:
+      callExchangeToken()
     }
   }
 
@@ -1084,5 +1087,79 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
 
   func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
     return view.window!
+  }
+
+  /// Orchestrates the UI flow to demonstrate the OIDC token exchange feature.
+  ///
+  /// This function sequentially prompts the user for the necessary inputs (custom token and
+  /// IDP config ID) using `async/await` with UIAlerts. If both inputs are provided,
+  /// it calls the `Auth.exchangeToken` API and displays the result to the user.
+  private func callExchangeToken() {
+    Task {
+      do {
+        // 1. Prompt for the custom OIDC token and await user input.
+        guard let idToken = await showTextInputPrompt(with: "Enter OIDC Token:") else {
+          print("Token exchange cancelled: OIDC Token was not provided.")
+          // Present an alert on the main thread to indicate cancellation.
+          DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Cancelled",
+                                          message: "An OIDC Token is required to proceed.",
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+          }
+          return
+        }
+
+        // 2. Prompt for the IDP Config ID and await user input.
+        guard let idpConfigId = await showTextInputPrompt(with: "Enter IDP Config ID:") else {
+          print("Token exchange cancelled: IDP Config ID was not provided.")
+          // Present an alert on the main thread to indicate cancellation.
+          DispatchQueue.main.async {
+            let alert = UIAlertController(title: "Cancelled",
+                                          message: "An IDP Config ID is required to proceed.",
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true)
+          }
+          return
+        }
+
+        // 3. With both inputs, call the exchangeToken API.
+        //    The `auth()` instance is pre-configured with a regional tenant in AppManager.
+        print("Attempting to exchange token...")
+        let result = try await AppManager.shared.auth().exchangeToken(
+          idToken: idToken,
+          idpConfigId: idpConfigId,
+          useStaging: true
+        )
+
+        // 4. Handle the success case by presenting an alert on the main thread.
+        print("Token exchange successful. See console for token details.")
+        print("result: \(result)")
+        DispatchQueue.main.async {
+          let alert = UIAlertController(
+            title: "Token Exchange Succeeded",
+            message: "Review the console logs for the new Firebase Token.",
+            preferredStyle: .alert
+          )
+          alert.addAction(UIAlertAction(title: "OK", style: .default))
+          self.present(alert, animated: true)
+        }
+
+      } catch {
+        // 5. Handle any errors during the process by presenting an alert on the main thread.
+        print("Failed to exchange token: \(error)")
+        DispatchQueue.main.async {
+          let alert = UIAlertController(
+            title: "Token Exchange Error",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+          )
+          alert.addAction(UIAlertAction(title: "OK", style: .default))
+          self.present(alert, animated: true)
+        }
+      }
+    }
   }
 }
