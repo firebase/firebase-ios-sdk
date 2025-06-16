@@ -32,6 +32,10 @@ struct InstanceConfig: Equatable, Encodable {
   static let googleAI_v1beta_staging = InstanceConfig(
     apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyStaging), version: .v1beta)
   )
+  static let googleAI_v1beta_freeTier = InstanceConfig(
+    appName: FirebaseAppNames.spark,
+    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+  )
   static let googleAI_v1beta_freeTier_bypassProxy = InstanceConfig(
     appName: FirebaseAppNames.spark,
     apiConfig: APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)

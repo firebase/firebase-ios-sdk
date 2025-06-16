@@ -76,6 +76,7 @@ struct GenerateContentIntegrationTests {
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
+    #expect(usageMetadata.thoughtsTokenCount == 0)
     // The fields `candidatesTokenCount` and `candidatesTokensDetails` are not included when using
     // Gemma models.
     if modelName.hasPrefix("gemma") {
@@ -119,6 +120,7 @@ struct GenerateContentIntegrationTests {
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
     #expect(usageMetadata.candidatesTokenCount.isEqual(to: 1, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.thoughtsTokenCount == 0)
     #expect(usageMetadata.totalTokenCount
       == usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount)
     #expect(usageMetadata.promptTokensDetails.count == 1)
@@ -129,6 +131,68 @@ struct GenerateContentIntegrationTests {
     let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
     #expect(candidatesTokensDetails.modality == .text)
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+  }
+
+  @Test(arguments: [
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashPreview, 0),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashPreview, 24576),
+    // TODO: Add Vertex AI Gemini 2.5 Pro tests when available.
+    // (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_ProPreview, 128),
+    // (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_ProPreview, 32768),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashPreview, 0),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashPreview, 24576),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_ProPreview, 128),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_ProPreview, 32768),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashPreview, 0),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashPreview, 24576),
+  ])
+  func generateContentThinking(_ config: InstanceConfig, modelName: String,
+                               thinkingBudget: Int) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: GenerationConfig(
+        temperature: 0.0,
+        topP: 0.0,
+        topK: 1,
+        thinkingConfig: ThinkingConfig(thinkingBudget: thinkingBudget)
+      ),
+      safetySettings: safetySettings
+    )
+    let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(text == "Mountain View")
+
+    let usageMetadata = try #require(response.usageMetadata)
+    #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.promptTokensDetails.count == 1)
+    let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
+    #expect(promptTokensDetails.modality == .text)
+    #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
+    if thinkingBudget == 0 {
+      #expect(usageMetadata.thoughtsTokenCount == 0)
+    } else {
+      #expect(usageMetadata.thoughtsTokenCount <= thinkingBudget)
+    }
+    #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
+    // The `candidatesTokensDetails` field is erroneously omitted when using the Google AI (Gemini
+    // Developer API) backend.
+    if case .googleAI = config.apiConfig.service {
+      #expect(usageMetadata.candidatesTokensDetails.isEmpty)
+    } else {
+      #expect(usageMetadata.candidatesTokensDetails.count == 1)
+      let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+      #expect(candidatesTokensDetails.modality == .text)
+      #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+    }
+    #expect(usageMetadata.totalTokenCount > 0)
+    #expect(usageMetadata.totalTokenCount == (
+      usageMetadata.promptTokenCount
+        + usageMetadata.thoughtsTokenCount
+        + usageMetadata.candidatesTokenCount
+    ))
   }
 
   @Test(arguments: [

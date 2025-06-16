@@ -26,6 +26,16 @@ public struct GenerateContentResponse: Sendable {
     /// The total number of tokens across the generated response candidates.
     public let candidatesTokenCount: Int
 
+    /// The number of tokens used by the model's internal "thinking" process.
+    ///
+    /// For models that support thinking (like Gemini 2.5 Pro and Flash), this represents the actual
+    /// number of tokens consumed for reasoning before the model generated a response. For models
+    /// that do not support thinking, this value will be `0`.
+    ///
+    /// When thinking is used, this count will be less than or equal to the `thinkingBudget` set in
+    /// the ``ThinkingConfig``.
+    public let thoughtsTokenCount: Int
+
     /// The total number of tokens in both the request and response.
     public let totalTokenCount: Int
 
@@ -330,6 +340,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
     case candidatesTokenCount
+    case thoughtsTokenCount
     case totalTokenCount
     case promptTokensDetails
     case candidatesTokensDetails
@@ -340,6 +351,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
     candidatesTokenCount =
       try container.decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
+    thoughtsTokenCount = try container.decodeIfPresent(Int.self, forKey: .thoughtsTokenCount) ?? 0
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
     promptTokensDetails =
       try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
