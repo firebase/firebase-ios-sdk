@@ -14,18 +14,18 @@
 
 enum Helper {
   static func sendableToExpr(_ value: Sendable?) -> Expr {
-    if value == nil {
+    guard let value = value else {
       return Constant.nil
     }
 
-    if value! is Expr {
-      return value! as! Expr
-    } else if value! is [String: Sendable?] {
-      return map(value! as! [String: Sendable?])
-    } else if value! is [Sendable?] {
-      return array(value! as! [Sendable?])
+    if value is Expr {
+      return value as! Expr
+    } else if value is [String: Sendable?] {
+      return map(value as! [String: Sendable?])
+    } else if value is [Sendable?] {
+      return array(value as! [Sendable?])
     } else {
-      return Constant(value!)
+      return Constant(value)
     }
   }
 
@@ -51,5 +51,28 @@ enum Helper {
       sendableToExpr(element)
     }
     return FunctionExpr("array", transformedElements)
+  }
+
+  // This function is used to convert Swift type into Objective-C type.
+  static func sendableToAnyObjectForRawStage(_ value: Sendable?) -> AnyObject {
+    guard let value = value else {
+      return Constant.nil.bridge
+    }
+
+    // Step 2: Check for NSNull.
+    guard !(value is NSNull) else {
+      return Constant.nil.bridge
+    }
+
+    if value is Expr {
+      return (value as! Expr).toBridge()
+    } else if value is AggregateFunction {
+      return (value as! AggregateFunction).toBridge()
+    } else if value is [String: Sendable?] {
+      let mappedValue = (value as! [String: Sendable?]).mapValues { sendableToExpr($0).toBridge() }
+      return mappedValue as NSDictionary
+    } else {
+      return Constant(value).bridge
+    }
   }
 }

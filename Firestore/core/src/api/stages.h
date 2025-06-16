@@ -281,12 +281,29 @@ class ReplaceWith : public Stage {
 
 class Sample : public Stage {
  public:
-  Sample(std::string type, int64_t count, double percentage);
+  class SampleMode {
+   public:
+    enum Mode { DOCUMENTS = 0, PERCENT };
+
+    explicit SampleMode(Mode mode) : mode_(mode) {
+    }
+
+    Mode mode() const {
+      return mode_;
+    }
+
+    google_firestore_v1_Value to_proto() const;
+
+   private:
+    Mode mode_;
+  };
+
+  Sample(SampleMode mode, int64_t count, double percentage);
   ~Sample() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
-  std::string type_;
+  SampleMode mode_;
   int64_t count_;
   double percentage_;
 };
@@ -303,26 +320,29 @@ class Union : public Stage {
 
 class Unnest : public Stage {
  public:
-  Unnest(std::shared_ptr<Expr> field, absl::optional<std::string> index_field);
+  Unnest(std::shared_ptr<Expr> field,
+         std::shared_ptr<Expr> alias,
+         absl::optional<std::shared_ptr<Expr>> index_field);
   ~Unnest() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
   std::shared_ptr<Expr> field_;
-  absl::optional<std::string> index_field_;
+  std::shared_ptr<Expr> alias_;
+  absl::optional<std::shared_ptr<Expr>> index_field_;
 };
 
 class RawStage : public Stage {
  public:
   RawStage(std::string name,
-           std::vector<std::shared_ptr<Expr>> params,
+           std::vector<google_firestore_v1_Value> params,
            std::unordered_map<std::string, std::shared_ptr<Expr>> options);
   ~RawStage() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
  private:
   std::string name_;
-  std::vector<std::shared_ptr<Expr>> params_;
+  std::vector<google_firestore_v1_Value> params_;
   std::unordered_map<std::string, std::shared_ptr<Expr>> options_;
 };
 

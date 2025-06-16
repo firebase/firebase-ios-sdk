@@ -125,12 +125,23 @@ private let bookDocs: [String: [String: Sendable]] = [
   ],
 ]
 
+private func isNilOrNSNull(_ value: Sendable?) -> Bool {
+  // First, use a `guard` to safely unwrap the optional.
+  // If it's nil, we can immediately return true.
+  guard let unwrappedValue = value else {
+    return true
+  }
+
+  // If it wasn't nil, we now check if the unwrapped value is the NSNull object.
+  return unwrappedValue is NSNull
+}
+
 // A custom function to compare two values of type 'Sendable'
 private func areEqual(_ value1: Sendable?, _ value2: Sendable?) -> Bool {
-  if value1 == nil || value2 == nil {
-    return (value1 == nil || value1 as! NSObject == NSNull()) &&
-      (value2 == nil || value2 as! NSObject == NSNull())
+  if isNilOrNSNull(value1) || isNilOrNSNull(value2) {
+    return isNilOrNSNull(value1) && isNilOrNSNull(value2)
   }
+
   switch (value1!, value2!) {
   case let (v1 as [String: Sendable?], v2 as [String: Sendable?]):
     return areDictionariesEqual(v1, v2)
@@ -231,6 +242,29 @@ func expectResults(_ snapshot: PipelineSnapshot,
     actualIDs,
     expectedIDs.sorted(),
     "Snapshot document IDs mismatch. Expected (sorted): \(expectedIDs.sorted()), got (sorted): \(actualIDs)",
+    file: file,
+    line: line
+  )
+}
+
+func expectResultsMatchOrder(_ snapshot: PipelineSnapshot,
+                             expectedIDs: [String],
+                             file: StaticString = #file,
+                             line: UInt = #line) {
+  let results = snapshot.results
+  XCTAssertEqual(
+    results.count,
+    expectedIDs.count,
+    "Snapshot document IDs count mismatch. Expected \(expectedIDs.count), got \(results.count). Actual IDs: \(results.map { $0.id })",
+    file: file,
+    line: line
+  )
+
+  let actualIDs = results.map { $0.id! }
+  XCTAssertEqual(
+    actualIDs,
+    expectedIDs,
+    "Snapshot document IDs mismatch. Expected: \(expectedIDs), got: \(actualIDs)",
     file: file,
     line: line
   )
@@ -528,7 +562,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     // Assert that only the two documents from the targeted subCollectionId are fetched, in the
     // correct order.
-    expectResults(snapshot, expectedIDs: [doc1Ref.documentID, doc2Ref.documentID])
+    expectResultsMatchOrder(snapshot, expectedIDs: [doc1Ref.documentID, doc2Ref.documentID])
   }
 
   func testSupportsDatabaseAsSource() async throws {
@@ -580,7 +614,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "Should fetch the three documents with the correct randomId"
     )
     // Order should be docE (order 0), docA (order 1), docB (order 2)
-    expectResults(
+    expectResultsMatchOrder(
       snapshot,
       expectedIDs: [subSubCollDocRef.documentID, collADocRef.documentID, collBDocRef.documentID]
     )
@@ -1214,26 +1248,24 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    // Expected book: book2 (Pride and Prejudice, Jane Austen, 1813)
-    // It's the earliest published book.
     let expectedSelectedData: [String: Sendable] = [
-      "title": "Pride and Prejudice",
-      // "metadata": ["author": "Douglas Adams"]
+      "title": "The Hitchhiker's Guide to the Galaxy",
+      "metadata": ["author": "Douglas Adams"],
     ]
 
-    // The parameters for rawStage("select", ...) are an array containing a single dictionary.
-    // The keys of this dictionary are the output field names, and the values are Field objects.
-    let selectParameters: [[String: Sendable]] =
+    let selectParameters: [Sendable] =
       [
-        // Field("title").as("title")
-        ["title": Field("author")],
+        [
+          "title": Field("title"),
+          "metadata": ["author": Field("author")],
+        ],
       ]
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("published").ascending())
+      .rawStage(name: "select", params: selectParameters)
+      .sort(Field("author").ascending())
       .limit(1)
-      .rawStage(name: "select", params: selectParameters) // Using rawStage for selection
 
     let snapshot = try await pipeline.execute()
 
@@ -1277,59 +1309,29 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(DocumentId().ascending()) // Sort for predictable results
-      .limit(3) // Simulate sampling 3 documents
+      .sample(count: 3)
 
     let snapshot = try await pipeline.execute()
 
     expectResults(snapshot, expectedCount: 3)
-
-    // Based on documentID ascending sort of bookDocs keys:
-    // book1, book10, book2, book3, ...
-    let expectedIDs = ["book1", "book10", "book2"]
-    expectResults(snapshot, expectedIDs: expectedIDs)
   }
 
-  func testSampleStageLimitDocuments3() async throws {
+  func testSampleStageLimitPercentage60Average() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .sort(DocumentId().ascending()) // Sort for predictable results
-      .limit(3) // Simulate sampling {documents: 3}
-
-    let snapshot = try await pipeline.execute()
-
-    expectResults(snapshot, expectedCount: 3)
-
-    // Based on documentID ascending sort of bookDocs keys:
-    // book1, book10, book2, book3, ...
-    let expectedIDs = ["book1", "book10", "book2"]
-    expectResults(snapshot, expectedIDs: expectedIDs)
-  }
-
-  func testSampleStageLimitPercentage60() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
-
-    let totalDocs = bookDocs.count
-    let percentage = 0.6
-    let limitCount = Int(Double(totalDocs) * percentage) // 10 * 0.6 = 6
-
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .sort(DocumentId().ascending()) // Sort for predictable results
-      .limit(Int32(limitCount)) // Simulate sampling {percentage: 0.6}
-
-    let snapshot = try await pipeline.execute()
-
-    expectResults(snapshot, expectedCount: limitCount) // Should be 6
-
-    // Based on documentID ascending sort of bookDocs keys:
-    // book1, book10, book2, book3, book4, book5, book6, book7, book8, book9
-    let expectedIDs = ["book1", "book10", "book2", "book3", "book4", "book5"]
-    expectResults(snapshot, expectedIDs: expectedIDs)
+    var avgSize = 0.0
+    let numIterations = 20
+    for _ in 0 ..< numIterations {
+      let snapshot = try await db
+        .pipeline()
+        .collection(collRef.path)
+        .sample(percentage: 0.6)
+        .execute()
+      avgSize += Double(snapshot.results.count)
+    }
+    avgSize /= Double(numIterations)
+    XCTAssertEqual(avgSize, 6.0, accuracy: 1.0, "Average size should be close to 6")
   }
 
   // MARK: - Union Stage Test
@@ -1348,5 +1350,127 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let bookSequence = (1 ... 10).map { "book\($0)" }
     let repeatedIDs = bookSequence + bookSequence
     expectResults(snapshot, expectedIDs: repeatedIDs)
+  }
+
+  func testUnnestStage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .unnest(Field("tags").as("tag"))
+      .select(
+        "title",
+        "author",
+        "genre",
+        "published",
+        "rating",
+        "tags",
+        "tag",
+        "awards",
+        "nestedField"
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "author": "Douglas Adams",
+        "genre": "Science Fiction",
+        "published": 1979,
+        "rating": 4.2,
+        "tags": ["comedy", "space", "adventure"],
+        "tag": "comedy",
+        "awards": ["hugo": true, "nebula": false, "others": ["unknown": ["year": 1980]]],
+        "nestedField": ["level.1": ["level.2": true]],
+      ],
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "author": "Douglas Adams",
+        "genre": "Science Fiction",
+        "published": 1979,
+        "rating": 4.2,
+        "tags": ["comedy", "space", "adventure"],
+        "tag": "space",
+        "awards": ["hugo": true, "nebula": false, "others": ["unknown": ["year": 1980]]],
+        "nestedField": ["level.1": ["level.2": true]],
+      ],
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "author": "Douglas Adams",
+        "genre": "Science Fiction",
+        "published": 1979,
+        "rating": 4.2,
+        "tags": ["comedy", "space", "adventure"],
+        "tag": "adventure",
+        "awards": ["hugo": true, "nebula": false, "others": ["unknown": ["year": 1980]]],
+        "nestedField": ["level.1": ["level.2": true]],
+      ],
+    ]
+
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+  }
+
+  func testUnnestExpr() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .unnest(ArrayExpression([1, 2, 3]).as("copy"))
+      .select(
+        "title",
+        "author",
+        "genre",
+        "published",
+        "rating",
+        "tags",
+        "copy",
+        "awards",
+        "nestedField"
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "author": "Douglas Adams",
+        "genre": "Science Fiction",
+        "published": 1979,
+        "rating": 4.2,
+        "tags": ["comedy", "space", "adventure"],
+        "copy": 1,
+        "awards": ["hugo": true, "nebula": false, "others": ["unknown": ["year": 1980]]],
+        "nestedField": ["level.1": ["level.2": true]],
+      ],
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "author": "Douglas Adams",
+        "genre": "Science Fiction",
+        "published": 1979,
+        "rating": 4.2,
+        "tags": ["comedy", "space", "adventure"],
+        "copy": 2,
+        "awards": ["hugo": true, "nebula": false, "others": ["unknown": ["year": 1980]]],
+        "nestedField": ["level.1": ["level.2": true]],
+      ],
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "author": "Douglas Adams",
+        "genre": "Science Fiction",
+        "published": 1979,
+        "rating": 4.2,
+        "tags": ["comedy", "space", "adventure"],
+        "copy": 3,
+        "awards": ["hugo": true, "nebula": false, "others": ["unknown": ["year": 1980]]],
+        "nestedField": ["level.1": ["level.2": true]],
+      ],
+    ]
+
+    expectSnapshots(snapshot: snapshot, expected: expectedResults)
   }
 }
