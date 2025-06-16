@@ -42,6 +42,8 @@
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/test/unit/core/pipeline/utils.h"
+#include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
 namespace firebase {
@@ -106,6 +108,11 @@ const PatchMutation kDocAEmptyPatch = PatchMutation(
 
 const SnapshotVersion kLastLimboFreeSnapshot = Version(10);
 const SnapshotVersion kMissingLastLimboFreeSnapshot = SnapshotVersion::None();
+
+std::unique_ptr<firestore::remote::Serializer> TestSerializer() {
+  return std::make_unique<firestore::remote::Serializer>(
+      model::DatabaseId("test-project"));
+}
 
 }  // namespace
 
@@ -213,6 +220,21 @@ DocumentSet QueryEngineTestBase::RunQuery(
   // The View is always constructed based on the original query's intent,
   // regardless of whether it was executed as a query or pipeline.
   View view(core::QueryOrPipeline{query}, DocumentKeySet());
+  ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(docs, {});
+  return view.ApplyChanges(view_doc_changes).snapshot()->documents();
+}
+
+DocumentSet QueryEngineTestBase::RunPipeline(
+    const api::RealtimePipeline& pipeline,
+    const SnapshotVersion& last_limbo_free_snapshot_version) {
+  DocumentKeySet remote_keys = target_cache_->GetMatchingKeys(kTestTargetId);
+  auto core_pipeline = core::QueryOrPipeline(pipeline);
+  const auto docs = query_engine_.GetDocumentsMatchingQuery(
+      core_pipeline, last_limbo_free_snapshot_version, remote_keys);
+
+  // The View is always constructed based on the original query's intent,
+  // regardless of whether it was executed as a query or pipeline.
+  View view(core_pipeline, DocumentKeySet());
   ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(docs, {});
   return view.ApplyChanges(view_doc_changes).snapshot()->documents();
 }
@@ -1003,6 +1025,118 @@ TEST_P(QueryEngineTest, InAndNotInFiltersWithObjectValues) {
     DocumentSet result4 = ExpectFullCollectionScan<DocumentSet>(
         [&] { return RunQuery(query4, kMissingLastLimboFreeSnapshot); });
     EXPECT_EQ(result4, DocSet(query4.Comparator(), {doc1, doc3, doc4}));
+  });
+}
+
+TEST_P(QueryEngineTest, HandlesServerTimestampNone) {
+  persistence_->Run("HandlesServerTimestampNone", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    AddDocuments({kMatchingDocA, kMatchingDocB});
+    AddMutation(testutil::PatchMutation(
+        "coll/a", Map(),
+        std::vector<std::pair<std::string, model::TransformOperation>>{
+            {"timestamp", model::ServerTimestampTransform()}}));
+
+    auto pipeline = api::RealtimePipeline(
+        {std::make_shared<api::CollectionSource>("coll")}, TestSerializer());
+    pipeline = pipeline.AddingStage(std::make_shared<api::Where>(
+        testutil::IsNullExpr({std::make_shared<api::Field>("timestamp")})));
+
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunPipeline(pipeline, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1.size(), 1);
+    // NOTE: we cannot directly compare the contents of the document because the
+    // resulting document has the server timestamp sentinel (a special map) as
+    // the field.
+    EXPECT_EQ(result1.GetFirstDocument().value().get().key(),
+              testutil::Key("coll/a"));
+
+    pipeline = pipeline.WithListenOptions(core::ListenOptions(
+        false, false, false, api::ListenSource::Default,
+        core::ListenOptions::ServerTimestampBehavior::kNone));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunPipeline(pipeline, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2.size(), 1);
+    // NOTE: we cannot directly compare the contents of the document because the
+    // resulting document has the server timestamp sentinel (a special map) as
+    // the field.
+    EXPECT_EQ(result2.GetFirstDocument().value().get().key(),
+              testutil::Key("coll/a"));
+  });
+}
+
+TEST_P(QueryEngineTest, HandlesServerTimestampEstimate) {
+  persistence_->Run("HandlesServerTimestampEstimate", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    AddDocuments({kMatchingDocA /*, kMatchingDocB*/});
+    AddMutation(testutil::PatchMutation(
+        "coll/a", Map(),
+        std::vector<std::pair<std::string, model::TransformOperation>>{
+            {"timestamp", model::ServerTimestampTransform()}}));
+
+    auto pipeline = api::RealtimePipeline(
+        {std::make_shared<api::CollectionSource>("coll")}, TestSerializer());
+    pipeline = pipeline.AddingStage(std::make_shared<api::Where>(
+        testutil::GtExpr({testutil::TimestampToUnixMillisExpr(
+                              {std::make_shared<api::Field>("timestamp")}),
+                          testutil::SharedConstant(testutil::Value(1000))})));
+
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunPipeline(pipeline, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1.size(), 0);
+
+    auto pipeline2 = pipeline.WithListenOptions(core::ListenOptions(
+        false, false, false, api::ListenSource::Default,
+        core::ListenOptions::ServerTimestampBehavior::kEstimate));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunPipeline(pipeline2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2.size(), 1);
+    // NOTE: we cannot directly compare the contents of the document because the
+    // resulting document has the server timestamp sentinel (a special map) as
+    // the field.
+    EXPECT_EQ(result2.GetFirstDocument().value().get().key(),
+              testutil::Key("coll/a"));
+  });
+}
+
+TEST_P(QueryEngineTest, HandlesServerTimestampPrevious) {
+  persistence_->Run("HandlesServerTimestampPrevious", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    AddDocuments({kMatchingDocA, kMatchingDocB});
+    AddMutation(testutil::PatchMutation(
+        "coll/a", Map(),
+        std::vector<std::pair<std::string, model::TransformOperation>>{
+            {"matches", model::ServerTimestampTransform()}}));
+
+    auto pipeline = api::RealtimePipeline(
+        {std::make_shared<api::CollectionSource>("coll")}, TestSerializer());
+    pipeline = pipeline.AddingStage(std::make_shared<api::Where>(
+        testutil::EqExpr({std::make_shared<api::Field>("matches"),
+                          testutil::SharedConstant(testutil::Value(true))})));
+
+    DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunPipeline(pipeline, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result1.size(), 1);
+    EXPECT_EQ(result1.GetFirstDocument().value().get().key(),
+              testutil::Key("coll/b"));
+
+    auto pipeline2 = pipeline.WithListenOptions(core::ListenOptions(
+        false, false, false, api::ListenSource::Default,
+        core::ListenOptions::ServerTimestampBehavior::kPrevious));
+    DocumentSet result2 = ExpectFullCollectionScan<DocumentSet>(
+        [&] { return RunPipeline(pipeline2, kMissingLastLimboFreeSnapshot); });
+    EXPECT_EQ(result2.size(), 2);
+    // NOTE: we cannot directly compare the contents of the document because the
+    // resulting document has the server timestamp sentinel (a special map) as
+    // the field.
+    EXPECT_EQ(result2.GetFirstDocument().value().get().key(),
+              testutil::Key("coll/a"));
   });
 }
 

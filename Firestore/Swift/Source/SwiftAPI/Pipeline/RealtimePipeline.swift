@@ -21,30 +21,6 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineListenOptions: Sendable, Equatable, Hashable {
-  /// Defines how to handle server-generated timestamps that are not yet known locally
-  /// during latency compensation.
-  public struct ServerTimestampBehavior: Sendable, Equatable, Hashable {
-    /// The raw string value for the behavior, used for implementation and hashability.
-    let rawValue: String
-
-    /// Creates a new behavior with a private raw value.
-    private init(rawValue: String) {
-      self.rawValue = rawValue
-    }
-
-    /// Fields dependent on server timestamps will be `nil` until the value is
-    /// confirmed by the server.
-    public static let none = ServerTimestampBehavior(rawValue: "none")
-
-    /// Fields dependent on server timestamps will receive a local, client-generated
-    /// time estimate until the value is confirmed by the server.
-    public static let estimate = ServerTimestampBehavior(rawValue: "estimate")
-
-    /// Fields dependent on server timestamps will hold the value from the last
-    /// server-confirmed write until the new value is confirmed.
-    public static let previous = ServerTimestampBehavior(rawValue: "previous")
-  }
-
   // MARK: - Stored Properties
 
   /// The desired behavior for handling pending server timestamps.
@@ -70,16 +46,31 @@ public struct PipelineListenOptions: Sendable, Equatable, Hashable {
     self.includeMetadataChanges = includeMetadataChanges
     self.source = source
     bridge = __PipelineListenOptionsBridge(
-      serverTimestampBehavior: (self.serverTimestamps ?? .none).rawValue,
+      serverTimestampBehavior: PipelineListenOptions
+        .toRawValue(servertimestamp: self.serverTimestamps ?? .none),
       includeMetadata: self.includeMetadataChanges ?? false,
       source: self.source ?? ListenSource.default
     )
+  }
+
+  private static func toRawValue(servertimestamp: ServerTimestampBehavior) -> String {
+    switch servertimestamp {
+    case .none:
+      return "none"
+    case .estimate:
+      return "estimate"
+    case .previous:
+      return "previous"
+    @unknown default:
+      fatalError("Unknown server timestamp behavior")
+    }
   }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct RealtimePipeline: @unchecked Sendable {
   private var stages: [Stage]
+
   let bridge: RealtimePipelineBridge
   let db: Firestore
 
@@ -93,14 +84,18 @@ public struct RealtimePipeline: @unchecked Sendable {
                                    listener: @escaping (RealtimePipelineSnapshot?, Error?) -> Void)
     -> ListenerRegistration {
     return bridge.addSnapshotListener(options: options.bridge) { snapshotBridge, error in
-      listener(
-        RealtimePipelineSnapshot(
-          // TODO(pipeline): this needs to be fixed
-          snapshotBridge!,
-          pipeline: self
-        ),
-        error
-      )
+      if snapshotBridge != nil {
+        listener(
+          RealtimePipelineSnapshot(
+            snapshotBridge!,
+            pipeline: self,
+            options: options
+          ),
+          error
+        )
+      } else {
+        listener(nil, error)
+      }
     }
   }
 
