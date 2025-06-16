@@ -23,6 +23,10 @@ struct InstanceConfig: Equatable, Encodable {
   static let vertexAI_v1beta = InstanceConfig(
     apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
   )
+  static let vertexAI_v1beta_global = InstanceConfig(
+    location: "global",
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
+  )
   static let vertexAI_v1beta_staging = InstanceConfig(
     apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyStaging), version: .v1beta)
   )
@@ -43,6 +47,7 @@ struct InstanceConfig: Equatable, Encodable {
 
   static let allConfigs = [
     vertexAI_v1beta,
+    vertexAI_v1beta_global,
     vertexAI_v1beta_staging,
     googleAI_v1beta,
     googleAI_v1beta_staging,
