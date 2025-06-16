@@ -23,6 +23,7 @@
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/core/listen_options.h"
 
 namespace firebase {
 namespace firestore {
@@ -47,14 +48,21 @@ class RealtimePipeline {
 
   EvaluateContext evaluate_context() const;
 
-  std::unique_ptr<api::ListenerRegistration> AddSnapshotListener(
-      core::ListenOptions options,
-      api::RealtimePipelineSnapshotListener&& listener);
+  RealtimePipeline WithListenOptions(const core::ListenOptions& options) const {
+    RealtimePipeline result(*this);
+    result.listen_options_ = options;
+    return result;
+  }
+
+  const core::ListenOptions& listen_options() const {
+    return listen_options_;
+  }
 
  private:
   std::vector<std::shared_ptr<EvaluableStage>> stages_;
   std::vector<std::shared_ptr<EvaluableStage>> rewritten_stages_;
   std::unique_ptr<remote::Serializer> serializer_;
+  core::ListenOptions listen_options_;
 };
 
 }  // namespace api
