@@ -49,6 +49,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
@@ -136,9 +137,8 @@ struct GenerateContentIntegrationTests {
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashPreview, 0),
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashPreview, 24576),
-    // TODO: Add Vertex AI Gemini 2.5 Pro tests when available.
-    // (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_ProPreview, 128),
-    // (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_ProPreview, 32768),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_ProPreview, 128),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_ProPreview, 32768),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashPreview, 0),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashPreview, 24576),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_ProPreview, 128),
@@ -197,6 +197,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.vertexAI_v1beta,
+    InstanceConfig.vertexAI_v1beta_global,
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.googleAI_v1beta_staging,
     InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
@@ -250,6 +251,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
