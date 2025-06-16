@@ -22,12 +22,24 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineResult: @unchecked Sendable {
   let bridge: __PipelineResultBridge
+  private let serverTimestamp: ServerTimestampBehavior
 
   init(_ bridge: __PipelineResultBridge) {
     self.bridge = bridge
+    serverTimestamp = .none
     ref = self.bridge.reference
     id = self.bridge.documentID
     data = self.bridge.data()
+    createTime = self.bridge.create_time
+    updateTime = self.bridge.update_time
+  }
+
+  init(_ bridge: __PipelineResultBridge, _ behavior: ServerTimestampBehavior) {
+    self.bridge = bridge
+    serverTimestamp = behavior
+    ref = self.bridge.reference
+    id = self.bridge.documentID
+    data = self.bridge.data(with: serverTimestamp)
     createTime = self.bridge.create_time
     updateTime = self.bridge.update_time
   }
@@ -51,20 +63,20 @@ public struct PipelineResult: @unchecked Sendable {
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldName: String) -> Sendable? {
-    return bridge.get(fieldName)
+    return bridge.get(fieldName, serverTimestampBehavior: serverTimestamp)
   }
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldPath: FieldPath) -> Sendable? {
-    return bridge.get(fieldPath)
+    return bridge.get(fieldPath, serverTimestampBehavior: serverTimestamp)
   }
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ field: Field) -> Sendable? {
-    return bridge.get(field.fieldName)
+    return bridge.get(field.fieldName, serverTimestampBehavior: serverTimestamp)
   }
 }
