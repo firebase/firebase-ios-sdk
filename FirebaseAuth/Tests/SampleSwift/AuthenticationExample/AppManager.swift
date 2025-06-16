@@ -25,8 +25,10 @@ class AppManager {
   private var otherApp: FirebaseApp
   var app: FirebaseApp
 
+  let tenantConfig = TenantConfig(tenantId: "tenantId", location: "us-east1")
+
   func auth() -> Auth {
-    return Auth.auth(app: app)
+    return Auth.auth(app: app, tenantConfig: tenantConfig)
   }
 
   private init() {

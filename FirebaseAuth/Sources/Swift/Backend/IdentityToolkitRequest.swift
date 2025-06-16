@@ -30,7 +30,8 @@ private let kFirebaseAuthStagingAPIHost = "staging-www.sandbox.googleapis.com"
 private let kIdentityPlatformStagingAPIHost =
   "staging-identitytoolkit.sandbox.googleapis.com"
 
-/// Represents a request to an identity toolkit endpoint.
+/// Represents a request to an identity toolkit endpoint  routing either to  legacy GCIP or
+/// regionalized R-GCIP
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class IdentityToolkitRequest {
   /// Gets the RPC's endpoint.
@@ -39,7 +40,7 @@ class IdentityToolkitRequest {
   /// Gets the client's API key used for the request.
   var apiKey: String
 
-  /// The tenant ID of the request. nil if none is available.
+  /// The tenant ID of the request. nil if none is available (not for r-gcip).
   let tenantID: String?
 
   /// The toggle of using Identity Platform endpoints.
@@ -74,6 +75,7 @@ class IdentityToolkitRequest {
     let apiHostAndPathPrefix: String
     let urlString: String
     let emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort
+    //  legacy gcip logic
     if useIdentityPlatform {
       if let emulatorHostAndPort = emulatorHostAndPort {
         apiProtocol = kHttpProtocol

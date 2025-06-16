@@ -53,6 +53,7 @@ enum AuthMenu: String {
   case phoneEnroll
   case totpEnroll
   case multifactorUnenroll
+  case exchangeToken
 
   // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
@@ -139,6 +140,9 @@ enum AuthMenu: String {
       return "TOTP Enroll"
     case .multifactorUnenroll:
       return "Multifactor unenroll"
+    // R-GCIP Exchange Token
+    case .exchangeToken:
+      return "Exchange Token"
     }
   }
 
@@ -220,6 +224,8 @@ enum AuthMenu: String {
       self = .totpEnroll
     case "Multifactor unenroll":
       self = .multifactorUnenroll
+    case "Exchange Token":
+      self = .exchangeToken
     default:
       return nil
     }
@@ -354,9 +360,17 @@ class AuthMenuData: DataSourceProvidable {
     return Section(headerDescription: header, items: items)
   }
 
+  static var exchangeTokenSection: Section {
+    let header = "Exchange Token [Regionalized]"
+    let items: [Item] = [
+      Item(title: AuthMenu.exchangeToken.name),
+    ]
+    return Section(headerDescription: header, items: items)
+  }
+
   static let sections: [Section] =
     [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
-     customAuthDomainSection, appSection, oobSection, multifactorSection]
+     customAuthDomainSection, appSection, oobSection, multifactorSection, exchangeTokenSection]
 
   static var authLinkSections: [Section] {
     let allItems = [providerSection, emailPasswordSection, otherSection].flatMap { $0.items }

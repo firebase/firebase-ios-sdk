@@ -44,15 +44,24 @@ final class AuthRequestConfiguration {
   /// If set, the local emulator host and port to point to instead of the remote backend.
   var emulatorHostAndPort: String?
 
+  /// R-GCIP location, set once during Auth init.
+  var location: String?
+
+  /// R-GCIP tenantId, set once during Auth init.
+  var tenantId: String?
+
   init(apiKey: String,
        appID: String,
        auth: Auth? = nil,
        heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
-       appCheck: AppCheckInterop? = nil) {
+       appCheck: AppCheckInterop? = nil,
+       tenantConfig: TenantConfig? = nil) {
     self.apiKey = apiKey
     self.appID = appID
     self.auth = auth
     self.heartbeatLogger = heartbeatLogger
     self.appCheck = appCheck
+    location = tenantConfig?.location
+    tenantId = tenantConfig?.tenantId
   }
 }

@@ -25,10 +25,15 @@ class IdentityToolkitRequestTests: XCTestCase {
   let kEndpoint = "endpoint"
   let kAPIKey = "APIKey"
   let kEmulatorHostAndPort = "emulatorhost:12345"
+  let kLocation = "us-central1"
+  let kTenantID = "tenant-id"
+  let kProjectID = "my-project-id"
+  let kCustomToken = "custom-token"
+  let kIdpConfigId = "idpConfigId"
 
   /** @fn testInitWithEndpointExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs.
    */
   func testInitWithEndpointExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -40,8 +45,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseStagingExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the staging endpoint is specified.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the staging endpoint is specified.
    */
   func testInitWithEndpointUseStagingExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -54,8 +59,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseIdentityPlatformExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the Identity Platform endpoint is specified.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the Identity Platform endpoint is specified.
    */
   func testInitWithEndpointUseIdentityPlatformExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -67,8 +72,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseIdentityPlatformUseStagingExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the Identity Platform and staging endpoint is specified.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the Identity Platform and staging endpoint is specified.
    */
   func testInitWithEndpointUseIdentityPlatformUseStagingExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -82,8 +87,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseEmulatorExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the emulator is used.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the emulator is used.
    */
   func testInitWithEndpointUseEmulatorExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -96,8 +101,8 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testInitWithEndpointUseIdentityPlatformUseEmulatorExpectedRequestURL
-      @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
-     request inputs when the emulator is used with the Identity Platform endpoint.
+   @brief Tests the @c requestURL method to make sure the URL it produces corresponds to the
+   request inputs when the emulator is used with the Identity Platform endpoint.
    */
   func testInitWithEndpointUseIdentityPlatformUseEmulatorExpectedRequestURL() {
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID")
@@ -111,13 +116,15 @@ class IdentityToolkitRequestTests: XCTestCase {
   }
 
   /** @fn testExpectedTenantIDWithNonDefaultFIRApp
-      @brief Tests the request correctly populated the tenant ID from a non default app.
+   @brief Tests the request correctly populated the tenant ID from a non default app.
    */
   func testExpectedTenantIDWithNonDefaultFIRApp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.apiKey = kAPIKey
     let nonDefaultApp = FirebaseApp(instanceWithName: "nonDefaultApp", options: options)
+    // Force initialize Auth for the non-default app to set the weak reference in
+    // AuthRequestConfiguration
     let nonDefaultAuth = Auth(app: nonDefaultApp)
     nonDefaultAuth.tenantID = "tenant-id"
     let requestConfiguration = AuthRequestConfiguration(apiKey: kAPIKey, appID: "appID",
