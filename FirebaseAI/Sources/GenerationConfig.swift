@@ -193,5 +193,6 @@ extension GenerationConfig: Encodable {
     case responseMIMEType = "responseMimeType"
     case responseSchema
     case responseModalities
+    case thinkingConfig
   }
 }
