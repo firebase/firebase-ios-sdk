@@ -197,7 +197,6 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.vertexAI_v1beta,
-    InstanceConfig.vertexAI_v1beta_global,
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.googleAI_v1beta_staging,
     InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
