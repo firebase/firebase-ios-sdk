@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import Testing
-import VertexAITestApp
 
 #if canImport(UIKit)
   import UIKit
@@ -48,15 +48,12 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])
@@ -98,19 +95,18 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "Generate an enum and provide a system instruction",
-    /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
+    arguments: InstanceConfig.allConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
-        responseMIMEType: "text/x.enum", // Not supported on the v1 Developer API
+        responseMIMEType: "text/x.enum",
         responseSchema: .enumeration(values: ["Red", "Green", "Blue"])
       ),
       safetySettings: safetySettings,
-      tools: [], // Not supported on the v1 Developer API
-      toolConfig: .init(functionCallingConfig: .none()), // Not supported on the v1 Developer API
+      tools: [],
+      toolConfig: .init(functionCallingConfig: .none()),
       systemInstruction: ModelContent(role: "system", parts: "Always pick blue.")
     )
     let prompt = "What is your favourite colour?"
@@ -136,7 +132,6 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    InstanceConfig.vertexAI_v1,
     InstanceConfig.vertexAI_v1beta,
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.googleAI_v1beta_staging,
@@ -190,15 +185,12 @@ struct GenerateContentIntegrationTests {
   // MARK: Streaming Tests
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])

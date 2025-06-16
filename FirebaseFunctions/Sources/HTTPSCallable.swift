@@ -35,7 +35,7 @@ open class HTTPSCallable: NSObject, @unchecked Sendable {
   // MARK: - Private Properties
 
   /// Until this class can be marked *checked* `Sendable`, it's implementation
-  /// is delegated to an auxialiary class that is checked Sendable.
+  /// is delegated to an auxiliary class that is checked Sendable.
   private let sendableCallable: SendableHTTPSCallable
 
   // MARK: - Public Properties

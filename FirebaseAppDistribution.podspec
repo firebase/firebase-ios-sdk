@@ -36,7 +36,6 @@ iOS SDK for App Distribution for Firebase.
   s.dependency 'FirebaseInstallations', '~> 11.0'
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 

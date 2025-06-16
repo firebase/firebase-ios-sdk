@@ -1,5 +1,5 @@
 name: ➕ Feature Request
-description: File a file request if you have a suggestion for a new feature.
+description: File a feature request if you have a suggestion for a new feature.
 title: "[FR]: "
 labels: ["type: feature request"]
 body:
@@ -48,6 +48,7 @@ body:
       multiple: true
       options:
         - AB Testing
+        - AI Logic
         - Analytics
         - App Check
         - App Distribution
@@ -65,6 +66,5 @@ body:
         - Performance
         - Remote Config
         - Storage
-        - Vertex AI
     validations:
       required: true

@@ -16,15 +16,16 @@
 import Foundation
 
 internal import FirebaseInstallations
+internal import FirebaseCoreInternal
 
 protocol InstallationsProtocol: Sendable {
   var installationsWaitTimeInSecond: Int { get }
 
   /// Override Installation function for testing
-  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
+  func authToken(completion: @escaping @Sendable (InstallationsAuthTokenResult?, Error?) -> Void)
 
   /// Override Installation function for testing
-  func installationID(completion: @escaping (String?, Error?) -> Void)
+  func installationID(completion: @escaping @Sendable (String?, Error?) -> Void)
 
   /// Return a tuple: (installationID, authenticationToken) for success result
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void)
@@ -35,25 +36,27 @@ extension InstallationsProtocol {
     return 10
   }
 
+  // TODO(ncooke3): Convert o async await ahead of Firebase 12.
+
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
-    var authTokenComplete = ""
-    var installationComplete: String?
-    var errorComplete: Error?
+    let authTokenComplete = FIRAllocatedUnfairLock<String>(initialState: "")
+    let installationComplete = FIRAllocatedUnfairLock<String?>(initialState: nil)
+    let errorComplete = FIRAllocatedUnfairLock<Error?>(initialState: nil)
 
     let workingGroup = DispatchGroup()
 
     workingGroup.enter()
     authToken { (authTokenResult: InstallationsAuthTokenResult?, error: Error?) in
-      authTokenComplete = authTokenResult?.authToken ?? ""
+      authTokenComplete.withLock { $0 = authTokenResult?.authToken ?? "" }
       workingGroup.leave()
     }
 
     workingGroup.enter()
     installationID { (installationID: String?, error: Error?) in
       if let installationID {
-        installationComplete = installationID
-      } else if let error = error {
-        errorComplete = error
+        installationComplete.withLock { $0 = installationID }
+      } else if let error {
+        errorComplete.withLock { $0 = error }
       }
       workingGroup.leave()
     }
@@ -67,9 +70,9 @@ extension InstallationsProtocol {
       completion(.failure(FirebaseSessionsError.SessionInstallationsTimeOutError))
       return
     default:
-      if let installationComplete {
-        completion(.success((installationComplete, authTokenComplete)))
-      } else if let errorComplete {
+      if let installationComplete = installationComplete.value() {
+        completion(.success((installationComplete, authTokenComplete.value())))
+      } else if let errorComplete = errorComplete.value() {
         completion(.failure(errorComplete))
       }
     }

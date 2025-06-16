@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import VertexAITestApp
 import XCTest
 
-// TODO(#14405): Migrate to Swift Testing and parameterize tests to run on both `v1` and `v1beta`.
+// TODO(#14405): Migrate to Swift Testing and parameterize tests.
 final class IntegrationTests: XCTestCase {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
   let generationConfig = GenerationConfig(
@@ -67,7 +67,7 @@ final class IntegrationTests: XCTestCase {
   func testCountTokens_text() async throws {
     let prompt = "Why is the sky blue?"
     model = vertex.generativeModel(
-      modelName: "gemini-1.5-pro",
+      modelName: ModelNames.gemini2Flash,
       generationConfig: generationConfig,
       safetySettings: [
         SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .severity),

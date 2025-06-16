@@ -37,14 +37,14 @@
 			containerPortal = 866138502CC943DD00F4B78E /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 866138572CC943DD00F4B78E;
-			remoteInfo = VertexAITestApp;
+			remoteInfo = FirebaseAITestApp;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTestUtils.swift; sourceTree = "<group>"; };
 		864F8F702D4980D60002EA7E /* ImagenIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagenIntegrationTests.swift; sourceTree = "<group>"; };
-		866138582CC943DD00F4B78E /* VertexAITestApp-SPM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "VertexAITestApp-SPM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		866138582CC943DD00F4B78E /* FirebaseAITestApp-SPM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FirebaseAITestApp-SPM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8661385B2CC943DD00F4B78E /* TestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestApp.swift; sourceTree = "<group>"; };
 		8661385D2CC943DD00F4B78E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		866138692CC943DE00F4B78E /* IntegrationTests-SPM.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "IntegrationTests-SPM.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -100,7 +100,7 @@
 		866138592CC943DD00F4B78E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				866138582CC943DD00F4B78E /* VertexAITestApp-SPM.app */,
+				866138582CC943DD00F4B78E /* FirebaseAITestApp-SPM.app */,
 				866138692CC943DE00F4B78E /* IntegrationTests-SPM.xctest */,
 			);
 			name = Products;
@@ -173,9 +173,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		866138572CC943DD00F4B78E /* VertexAITestApp-SPM */ = {
+		866138572CC943DD00F4B78E /* FirebaseAITestApp-SPM */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8661387D2CC943DE00F4B78E /* Build configuration list for PBXNativeTarget "VertexAITestApp-SPM" */;
+			buildConfigurationList = 8661387D2CC943DE00F4B78E /* Build configuration list for PBXNativeTarget "FirebaseAITestApp-SPM" */;
 			buildPhases = (
 				866138542CC943DD00F4B78E /* Sources */,
 				866138552CC943DD00F4B78E /* Frameworks */,
@@ -185,15 +185,15 @@
 			);
 			dependencies = (
 			);
-			name = "VertexAITestApp-SPM";
+			name = "FirebaseAITestApp-SPM";
 			packageProductDependencies = (
 				86E8505A2DBAFBC3002E8D94 /* FirebaseAI */,
 				86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */,
 				86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */,
 				86E850602DBAFBC3002E8D94 /* FirebaseStorage */,
 			);
-			productName = VertexAITestApp;
-			productReference = 866138582CC943DD00F4B78E /* VertexAITestApp-SPM.app */;
+			productName = FirebaseAITestApp;
+			productReference = 866138582CC943DD00F4B78E /* FirebaseAITestApp-SPM.app */;
 			productType = "com.apple.product-type.application";
 		};
 		866138682CC943DE00F4B78E /* IntegrationTests-SPM */ = {
@@ -210,7 +210,7 @@
 				8661386B2CC943DE00F4B78E /* PBXTargetDependency */,
 			);
 			name = "IntegrationTests-SPM";
-			productName = VertexAITestAppTests;
+			productName = FirebaseAITestAppTests;
 			productReference = 866138692CC943DE00F4B78E /* IntegrationTests-SPM.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
@@ -233,7 +233,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 866138532CC943DD00F4B78E /* Build configuration list for PBXProject "VertexAITestApp" */;
+			buildConfigurationList = 866138532CC943DD00F4B78E /* Build configuration list for PBXProject "FirebaseAITestApp" */;
 			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -249,7 +249,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				866138572CC943DD00F4B78E /* VertexAITestApp-SPM */,
+				866138572CC943DD00F4B78E /* FirebaseAITestApp-SPM */,
 				866138682CC943DE00F4B78E /* IntegrationTests-SPM */,
 			);
 		};
@@ -310,7 +310,7 @@
 /* Begin PBXTargetDependency section */
 		8661386B2CC943DE00F4B78E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 866138572CC943DD00F4B78E /* VertexAITestApp-SPM */;
+			target = 866138572CC943DD00F4B78E /* FirebaseAITestApp-SPM */;
 			targetProxy = 8661386A2CC943DE00F4B78E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -459,8 +459,8 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.VertexAITestApp;
-				PRODUCT_MODULE_NAME = VertexAITestApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseAITestApp;
+				PRODUCT_MODULE_NAME = FirebaseAITestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -497,8 +497,8 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.VertexAITestApp;
-				PRODUCT_MODULE_NAME = VertexAITestApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseAITestApp;
+				PRODUCT_MODULE_NAME = FirebaseAITestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -519,14 +519,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.VertexAITestAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseAITestAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VertexAITestApp-SPM.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VertexAITestApp-SPM";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FirebaseAITestApp-SPM.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FirebaseAITestApp-SPM";
 			};
 			name = Debug;
 		};
@@ -541,21 +541,21 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.VertexAITestAppTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseAITestAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VertexAITestApp-SPM.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VertexAITestApp-SPM";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FirebaseAITestApp-SPM.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FirebaseAITestApp-SPM";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		866138532CC943DD00F4B78E /* Build configuration list for PBXProject "VertexAITestApp" */ = {
+		866138532CC943DD00F4B78E /* Build configuration list for PBXProject "FirebaseAITestApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8661387B2CC943DE00F4B78E /* Debug */,
@@ -564,7 +564,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8661387D2CC943DE00F4B78E /* Build configuration list for PBXNativeTarget "VertexAITestApp-SPM" */ = {
+		8661387D2CC943DE00F4B78E /* Build configuration list for PBXNativeTarget "FirebaseAITestApp-SPM" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8661387E2CC943DE00F4B78E /* Debug */,
@@ -587,7 +587,7 @@
 /* Begin XCLocalSwiftPackageReference section */
 		86E850592DBAFBC3002E8D94 /* XCLocalSwiftPackageReference "../../.." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../..";
+			relativePath = ../../..;
 		};
 /* End XCLocalSwiftPackageReference section */
 

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import Testing
-import VertexAITestApp
 
 @testable import struct FirebaseAI.APIConfig
 
@@ -69,16 +69,13 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(
-    /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
-  )
+  @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
-      systemInstruction: systemInstruction // Not supported on the v1 Developer API
+      systemInstruction: systemInstruction
     )
 
     let response = try await model.countTokens("What is your favourite colour?")
@@ -96,32 +93,7 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(arguments: [
-    /* System instructions are not supported on the v1 Developer API. */
-    InstanceConfig.googleAI_v1_freeTier_bypassProxy,
-  ])
-  func countTokens_text_systemInstruction_unsupported(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
-      systemInstruction: systemInstruction // Not supported on the v1 Developer API
-    )
-
-    try await #require(
-      throws: BackendError.self,
-      """
-      If this test fails (i.e., `countTokens` succeeds), remove \(config) from this test and add it
-      to `countTokens_text_systemInstruction`.
-      """,
-      performing: {
-        try await model.countTokens("What is your favourite colour?")
-      }
-    )
-  }
-
-  @Test(
-    /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
-  )
+  @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
