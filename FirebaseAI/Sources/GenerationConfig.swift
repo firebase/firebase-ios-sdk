@@ -51,6 +51,7 @@ public struct GenerationConfig: Sendable {
   /// Supported modalities of the response.
   let responseModalities: [ResponseModality]?
 
+  /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
   let thinkingConfig: ThinkingConfig?
 
   /// Creates a new `GenerationConfig` value.
@@ -154,6 +155,8 @@ public struct GenerationConfig: Sendable {
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
   ///     > backwards-incompatible ways.
+  ///   - thinkingConfig: Configuration for controlling the "thinking" behavior of compatible Gemini
+  ///     models; see ``ThinkingConfig`` for more details.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
