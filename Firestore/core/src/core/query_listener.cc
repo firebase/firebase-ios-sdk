@@ -68,6 +68,9 @@ QueryListener::QueryListener(QueryOrPipeline query,
     : query_(std::move(query)),
       options_(std::move(options)),
       listener_(std::move(listener)) {
+  if (query_.IsPipeline()) {
+    query_ = QueryOrPipeline(query_.pipeline().WithListenOptions(options_));
+  }
 }
 
 bool QueryListener::OnViewSnapshot(ViewSnapshot snapshot) {
