@@ -12,6 +12,7 @@ on:
     - '.github/workflows/sessions.yml'
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_catalyst.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 9am (PST) - cron uses UTC times

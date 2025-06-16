@@ -31,6 +31,7 @@ Firebase components that you want to include in your app. Note that
 
 ```
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAIBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAppCheckBinary.json"
@@ -48,6 +49,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.j
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseVertexAIBinary.json"
 ```
 - Run `carthage update`
 - Use Finder to open `Carthage/Build`.
