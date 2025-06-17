@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/947bee486051ffca/GoogleAppMeasurement-11.14.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/922d99823e10f4a0/GoogleAppMeasurement-11.15.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
     s.subspec 'Default' do |ss|
         ss.dependency 'GoogleAppMeasurement/Core', '11.15.0'
         ss.dependency 'GoogleAppMeasurement/IdentitySupport', '11.15.0'
-        ss.ios.dependency 'GoogleAdsOnDeviceConversion', '2.0.0'
+        ss.ios.dependency 'GoogleAdsOnDeviceConversion', '2.1.0'
     end
 
     s.subspec 'Core' do |ss|
