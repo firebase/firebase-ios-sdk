@@ -33,11 +33,13 @@ class CollectionSource: Stage {
   let name: String = "collection"
 
   let bridge: StageBridge
-  private var collection: String
+  private var collection: CollectionReference
+  private let db: Firestore
 
-  init(collection: String) {
+  init(collection: CollectionReference, db: Firestore) {
     self.collection = collection
-    bridge = CollectionSourceStageBridge(path: collection)
+    self.db = db
+    bridge = CollectionSourceStageBridge(ref: collection, firestore: db)
   }
 }
 
@@ -70,12 +72,14 @@ class DatabaseSource: Stage {
 class DocumentsSource: Stage {
   let name: String = "documents"
   let bridge: StageBridge
-  private var references: [String]
+  private var docs: [DocumentReference]
+  private let db: Firestore
 
   // Initialize with an array of String paths
-  init(paths: [String]) {
-    references = paths
-    bridge = DocumentsSourceStageBridge(documents: paths)
+  init(docs: [DocumentReference], db: Firestore) {
+    self.docs = docs
+    self.db = db
+    bridge = DocumentsSourceStageBridge(documents: docs, firestore: db)
   }
 }
 
@@ -337,7 +341,7 @@ class Unnest: Stage {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class GenericStage: Stage {
+class RawStage: Stage {
   let name: String
   let bridge: StageBridge
   private var params: [Sendable]
@@ -349,6 +353,6 @@ class GenericStage: Stage {
     self.options = options
     let bridgeParams = params.map { Helper.sendableToExpr($0).toBridge() }
     let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).toBridge() }
-    bridge = GenericStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
+    bridge = RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
 }

@@ -25,6 +25,8 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+using nanopb::CheckedSize;
+
 Pipeline Pipeline::AddingStage(std::shared_ptr<Stage> stage) {
   auto copy = std::vector<std::shared_ptr<Stage>>(this->stages_);
   copy.push_back(stage);
@@ -45,7 +47,7 @@ google_firestore_v1_Value Pipeline::to_proto() const {
 
   result.which_value_type = google_firestore_v1_Value_pipeline_value_tag;
   result.pipeline_value = google_firestore_v1_Pipeline{};
-  result.pipeline_value.stages_count = this->stages_.size();
+  result.pipeline_value.stages_count = CheckedSize(this->stages_.size());
   nanopb::SetRepeatedField(
       &result.pipeline_value.stages, &result.pipeline_value.stages_count,
       stages_,
