@@ -54,11 +54,8 @@ public struct CountTokensResponse: Sendable {
   ///
   /// > Important: This does not include billable image, video or other non-text input. See
   /// [Vertex AI pricing](https://firebase.google.com/docs/vertex-ai/pricing) for details.
-  @available(*, renamed: "totalTokens", message: """
-  Replaced with `totalTokens`. The concept of 'billable characters' does not apply to Gemini 2.0 \
-  series models and newer. Billing is based on the token count returned in `totalTokens`. This \
-  property will always be `nil` for the Gemini Developer API backend. While it may be present for \
-  the Vertex AI backend, it should not be used for billing calculations.
+  @available(*, deprecated, message: """
+  Use `totalTokens` instead; Gemini 2.0 series models and newer are always billed by token count.
   """)
   public var totalBillableCharacters: Int? { deprecated.totalBillableCharacters }
 
