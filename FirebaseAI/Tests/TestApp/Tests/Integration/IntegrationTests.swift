@@ -19,6 +19,8 @@ import FirebaseCore
 import FirebaseStorage
 import XCTest
 
+@testable import struct FirebaseAI.CountTokensRequest
+
 // TODO(#14405): Migrate to Swift Testing and parameterize tests.
 final class IntegrationTests: XCTestCase {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
@@ -83,7 +85,7 @@ final class IntegrationTests: XCTestCase {
     let response = try await model.countTokens(prompt)
 
     XCTAssertEqual(response.totalTokens, 14)
-    XCTAssertEqual(response.totalBillableCharacters, 51)
+    XCTAssertEqual(response.deprecated.totalBillableCharacters, 51)
     XCTAssertEqual(response.promptTokensDetails.count, 1)
     let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
     XCTAssertEqual(promptTokensDetails.modality, .text)
@@ -100,7 +102,7 @@ final class IntegrationTests: XCTestCase {
       let response = try await model.countTokens(image)
 
       XCTAssertEqual(response.totalTokens, 266)
-      XCTAssertEqual(response.totalBillableCharacters, 35)
+      XCTAssertEqual(response.deprecated.totalBillableCharacters, 35)
       XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
       let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
         $0.modality == .text
@@ -120,7 +122,7 @@ final class IntegrationTests: XCTestCase {
     let response = try await model.countTokens(fileData)
 
     XCTAssertEqual(response.totalTokens, 266)
-    XCTAssertEqual(response.totalBillableCharacters, 35)
+    XCTAssertEqual(response.deprecated.totalBillableCharacters, 35)
     XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
     let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
       $0.modality == .text
@@ -139,7 +141,7 @@ final class IntegrationTests: XCTestCase {
     let response = try await model.countTokens(fileData)
 
     XCTAssertEqual(response.totalTokens, 266)
-    XCTAssertEqual(response.totalBillableCharacters, 35)
+    XCTAssertEqual(response.deprecated.totalBillableCharacters, 35)
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_userSignedIn() async throws {
@@ -150,7 +152,7 @@ final class IntegrationTests: XCTestCase {
     let response = try await model.countTokens(fileData)
 
     XCTAssertEqual(response.totalTokens, 266)
-    XCTAssertEqual(response.totalBillableCharacters, 35)
+    XCTAssertEqual(response.deprecated.totalBillableCharacters, 35)
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
@@ -191,7 +193,7 @@ final class IntegrationTests: XCTestCase {
     ])
 
     XCTAssertGreaterThan(response.totalTokens, 0)
-    XCTAssertEqual(response.totalBillableCharacters, 71)
+    XCTAssertEqual(response.deprecated.totalBillableCharacters, 71)
     XCTAssertEqual(response.promptTokensDetails.count, 1)
     let promptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first)
     XCTAssertEqual(promptTokensDetails.modality, .text)
