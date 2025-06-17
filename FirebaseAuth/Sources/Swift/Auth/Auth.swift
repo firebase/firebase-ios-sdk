@@ -863,29 +863,42 @@ extension Auth: AuthInterop {
                                          displayName: nil,
                                          idToken: nil,
                                          requestConfiguration: self.requestConfiguration)
-
       #if os(iOS)
-        self.wrapInjectRecaptcha(request: request,
-                                 action: AuthRecaptchaAction.signUpPassword) { response, error in
-          if let error {
+        Task {
+          do {
+            let response = try await self.injectRecaptcha(
+              request: request,
+              action: AuthRecaptchaAction.signUpPassword
+            )
+            self.internalCreateUserWithEmail(
+              request: request,
+              inResponse: response,
+              decoratedCallback: decoratedCallback
+            )
+          } catch {
             DispatchQueue.main.async {
               decoratedCallback(.failure(error))
             }
             return
           }
-          self.internalCreateUserWithEmail(request: request, inResponse: response,
-                                           decoratedCallback: decoratedCallback)
         }
       #else
-        self.internalCreateUserWithEmail(request: request, decoratedCallback: decoratedCallback)
+        self.internalCreateUserWithEmail(
+          request: request,
+          inResponse: response,
+          decoratedCallback: decoratedCallback
+        )
       #endif
     }
   }
 
-  func internalCreateUserWithEmail(request: SignUpNewUserRequest,
-                                   inResponse: SignUpNewUserResponse? = nil,
-                                   decoratedCallback: @escaping (Result<AuthDataResult, Error>)
-                                     -> Void) {
+  private func internalCreateUserWithEmail(request: SignUpNewUserRequest,
+                                           inResponse: SignUpNewUserResponse? = nil,
+                                           decoratedCallback: @escaping (Result<
+                                             AuthDataResult,
+                                             Error
+                                           >)
+                                             -> Void) {
     Task {
       do {
         var response: SignUpNewUserResponse
@@ -1161,11 +1174,17 @@ extension Auth: AuthInterop {
         requestConfiguration: self.requestConfiguration
       )
       #if os(iOS)
-        self.wrapInjectRecaptcha(request: request,
-                                 action: AuthRecaptchaAction.getOobCode) { result, error in
-          if let completion {
-            DispatchQueue.main.async {
-              completion(error)
+        Task {
+          do {
+            _ = try await self.injectRecaptcha(
+              request: request,
+              action: AuthRecaptchaAction.getOobCode
+            )
+          } catch {
+            if let completion {
+              DispatchQueue.main.async {
+                completion(error)
+              }
             }
           }
         }
@@ -1234,11 +1253,17 @@ extension Auth: AuthInterop {
         requestConfiguration: self.requestConfiguration
       )
       #if os(iOS)
-        self.wrapInjectRecaptcha(request: request,
-                                 action: AuthRecaptchaAction.getOobCode) { result, error in
-          if let completion {
-            DispatchQueue.main.async {
-              completion(error)
+        Task {
+          do {
+            _ = try await self.injectRecaptcha(
+              request: request,
+              action: AuthRecaptchaAction.getOobCode
+            )
+          } catch {
+            if let completion {
+              DispatchQueue.main.async {
+                completion(error)
+              }
             }
           }
         }
@@ -2289,21 +2314,6 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS)
-    private func wrapInjectRecaptcha<T: AuthRPCRequest>(request: T,
-                                                        action: AuthRecaptchaAction,
-                                                        _ callback: @escaping (
-                                                          (T.Response?, Error?) -> Void
-                                                        )) {
-      Task {
-        do {
-          let response = try await injectRecaptcha(request: request, action: action)
-          callback(response, nil)
-        } catch {
-          callback(nil, error)
-        }
-      }
-    }
-
     func injectRecaptcha<T: AuthRPCRequest>(request: T,
                                             action: AuthRecaptchaAction) async throws -> T
       .Response {
