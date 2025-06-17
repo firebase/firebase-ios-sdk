@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import FirebaseCore // For FirebaseApp management
+import FirebaseCore
 import FirebaseFirestore
 import Foundation
-import XCTest // For XCTFail, XCTAssertEqual etc.
+import XCTest
 
 private let bookDocs: [String: [String: Sendable]] = [
   "book1": [
@@ -125,172 +125,6 @@ private let bookDocs: [String: [String: Sendable]] = [
   ],
 ]
 
-private func isNilOrNSNull(_ value: Sendable?) -> Bool {
-  // First, use a `guard` to safely unwrap the optional.
-  // If it's nil, we can immediately return true.
-  guard let unwrappedValue = value else {
-    return true
-  }
-
-  // If it wasn't nil, we now check if the unwrapped value is the NSNull object.
-  return unwrappedValue is NSNull
-}
-
-// A custom function to compare two values of type 'Sendable'
-private func areEqual(_ value1: Sendable?, _ value2: Sendable?) -> Bool {
-  if isNilOrNSNull(value1) || isNilOrNSNull(value2) {
-    return isNilOrNSNull(value1) && isNilOrNSNull(value2)
-  }
-
-  switch (value1!, value2!) {
-  case let (v1 as [String: Sendable?], v2 as [String: Sendable?]):
-    return areDictionariesEqual(v1, v2)
-  case let (v1 as [Sendable?], v2 as [Sendable?]):
-    return areArraysEqual(v1, v2)
-  case let (v1 as Timestamp, v2 as Timestamp):
-    return v1 == v2
-  case let (v1 as Date, v2 as Timestamp):
-    // Firestore converts Dates to Timestamps
-    return Timestamp(date: v1) == v2
-  case let (v1 as GeoPoint, v2 as GeoPoint):
-    return v1.latitude == v2.latitude && v1.longitude == v2.longitude
-  case let (v1 as DocumentReference, v2 as DocumentReference):
-    return v1.path == v2.path
-  case let (v1 as VectorValue, v2 as VectorValue):
-    return v1.array == v2.array
-  case let (v1 as Data, v2 as Data):
-    return v1 == v2
-  case let (v1 as Int, v2 as Int):
-    return v1 == v2
-  case let (v1 as Double, v2 as Double):
-    return v1 == v2
-  case let (v1 as Float, v2 as Float):
-    return v1 == v2
-  case let (v1 as String, v2 as String):
-    return v1 == v2
-  case let (v1 as Bool, v2 as Bool):
-    return v1 == v2
-  case let (v1 as UInt8, v2 as UInt8):
-    return v1 == v2
-  default:
-    // Fallback for any other types, might need more specific checks
-    return false
-  }
-}
-
-// A function to compare two dictionaries
-private func areDictionariesEqual(_ dict1: [String: Sendable?],
-                                  _ dict2: [String: Sendable?]) -> Bool {
-  guard dict1.count == dict2.count else { return false }
-
-  for (key, value1) in dict1 {
-    guard let value2 = dict2[key], areEqual(value1, value2) else {
-      print("The Dictionary value is not equal.")
-      print("key1: \(key)")
-      print("value1: \(String(describing: value1))")
-      print("value2: \(String(describing: dict2[key]))")
-      return false
-    }
-  }
-  return true
-}
-
-// A function to compare two arrays
-private func areArraysEqual(_ array1: [Sendable?], _ array2: [Sendable?]) -> Bool {
-  guard array1.count == array2.count else { return false }
-
-  for (index, value1) in array1.enumerated() {
-    let value2 = array2[index]
-    if !areEqual(value1, value2) {
-      print("The Array value is not equal.")
-      print("value1: \(String(describing: value1))")
-      print("value2: \(String(describing: value2))")
-      return false
-    }
-  }
-  return true
-}
-
-func expectResults(_ snapshot: PipelineSnapshot,
-                   expectedCount: Int,
-                   file: StaticString = #file,
-                   line: UInt = #line) {
-  XCTAssertEqual(
-    snapshot.results.count,
-    expectedCount,
-    "Snapshot results count mismatch",
-    file: file,
-    line: line
-  )
-}
-
-func expectResults(_ snapshot: PipelineSnapshot,
-                   expectedIDs: [String],
-                   file: StaticString = #file,
-                   line: UInt = #line) {
-  let results = snapshot.results
-  XCTAssertEqual(
-    results.count,
-    expectedIDs.count,
-    "Snapshot document IDs count mismatch. Expected \(expectedIDs.count), got \(results.count). Actual IDs: \(results.map { $0.id })",
-    file: file,
-    line: line
-  )
-
-  let actualIDs = results.map { $0.id! }.sorted()
-  XCTAssertEqual(
-    actualIDs,
-    expectedIDs.sorted(),
-    "Snapshot document IDs mismatch. Expected (sorted): \(expectedIDs.sorted()), got (sorted): \(actualIDs)",
-    file: file,
-    line: line
-  )
-}
-
-func expectResultsMatchOrder(_ snapshot: PipelineSnapshot,
-                             expectedIDs: [String],
-                             file: StaticString = #file,
-                             line: UInt = #line) {
-  let results = snapshot.results
-  XCTAssertEqual(
-    results.count,
-    expectedIDs.count,
-    "Snapshot document IDs count mismatch. Expected \(expectedIDs.count), got \(results.count). Actual IDs: \(results.map { $0.id })",
-    file: file,
-    line: line
-  )
-
-  let actualIDs = results.map { $0.id! }
-  XCTAssertEqual(
-    actualIDs,
-    expectedIDs,
-    "Snapshot document IDs mismatch. Expected: \(expectedIDs), got: \(actualIDs)",
-    file: file,
-    line: line
-  )
-}
-
-func expectResults(result: PipelineResult,
-                   expected: [String: Sendable?],
-                   file: StaticString = #file,
-                   line: UInt = #line) {
-  XCTAssertTrue(areDictionariesEqual(result.data, expected),
-                "Document data mismatch. Expected \(expected), got \(result.data)")
-}
-
-func expectSnapshots(snapshot: PipelineSnapshot,
-                     expected: [[String: Sendable?]],
-                     file: StaticString = #file,
-                     line: UInt = #line) {
-  for i in 0 ..< expected.count {
-    guard i < snapshot.results.count else {
-      XCTFail("Mismatch in expected results count and actual results count.")
-      return
-    }
-    expectResults(result: snapshot.results[i], expected: expected[i])
-  }
-}
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineIntegrationTests: FSTIntegrationTestCase {
   override func setUp() {
@@ -310,7 +144,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(0)
       .execute()
 
-    expectResults(snapshot, expectedCount: 0)
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedCount: 0)
   }
 
   func testFullResults() async throws {
@@ -324,15 +158,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .execute()
 
-    // expectResults(snapshot, expectedCount: 10) // This is implicitly checked by expectedIDs
-    // version
-    expectResults(
-      snapshot,
-      expectedIDs: [
-        "book1", "book10", "book2", "book3", "book4",
-        "book5", "book6", "book7", "book8", "book9",
-      ]
-    )
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: [
+      "book1", "book10", "book2", "book3", "book4",
+      "book5", "book6", "book7", "book8", "book9",
+    ], enforceOrder: false)
   }
 
   func testReturnsExecutionTime() async throws {
@@ -351,13 +180,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testReturnsExecutionTimeForEmptyQuery() async throws {
     let collRef =
-      collectionRef(withDocuments: bookDocs) // Using bookDocs is fine, limit(0) makes it empty
+      collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline().collection(collRef.path).limit(0)
     let snapshot = try await pipeline.execute()
 
-    expectResults(snapshot, expectedCount: 0)
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedCount: 0)
 
     let executionTimeValue = snapshot.executionTime.dateValue().timeIntervalSince1970
     XCTAssertGreaterThan(executionTimeValue, 0, "Execution time should be positive and not zero")
@@ -481,7 +310,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline().collection(collRef)
     let snapshot = try await pipeline.execute()
 
-    expectResults(snapshot, expectedCount: bookDocs.count)
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedCount: bookDocs.count)
   }
 
   func testSupportsListOfDocumentReferencesAsSource() async throws {
@@ -496,7 +325,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline().documents(docRefs)
     let snapshot = try await pipeline.execute()
 
-    expectResults(snapshot, expectedIDs: ["book1", "book2", "book3"])
+    TestHelper
+      .compare(
+        pipelineSnapshot: snapshot,
+        expectedIDs: ["book1", "book2", "book3"],
+        enforceOrder: false
+      )
   }
 
   func testSupportsListOfDocumentPathsAsSource() async throws {
@@ -511,11 +345,16 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline().documents(docPaths)
     let snapshot = try await pipeline.execute()
 
-    expectResults(snapshot, expectedIDs: ["book1", "book2", "book3"])
+    TestHelper
+      .compare(
+        pipelineSnapshot: snapshot,
+        expectedIDs: ["book1", "book2", "book3"],
+        enforceOrder: false
+      )
   }
 
   func testRejectsCollectionReferenceFromAnotherDB() async throws {
-    let db1 = firestore() // Primary DB
+    let db1 = firestore()
 
     let db2 = Firestore.firestore(app: db1.app, database: "db2")
 
@@ -527,7 +366,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRejectsDocumentReferenceFromAnotherDB() async throws {
-    let db1 = firestore() // Primary DB
+    let db1 = firestore()
 
     let db2 = Firestore.firestore(app: db1.app, database: "db2")
 
@@ -562,7 +401,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     // Assert that only the two documents from the targeted subCollectionId are fetched, in the
     // correct order.
-    expectResultsMatchOrder(snapshot, expectedIDs: [doc1Ref.documentID, doc2Ref.documentID])
+    TestHelper
+      .compare(
+        pipelineSnapshot: snapshot,
+        expectedIDs: [doc1Ref.documentID, doc2Ref.documentID],
+        enforceOrder: true
+      )
   }
 
   func testSupportsDatabaseAsSource() async throws {
@@ -614,10 +458,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "Should fetch the three documents with the correct randomId"
     )
     // Order should be docE (order 0), docA (order 1), docB (order 2)
-    expectResultsMatchOrder(
-      snapshot,
-      expectedIDs: [subSubCollDocRef.documentID, collADocRef.documentID, collBDocRef.documentID]
-    )
+    TestHelper
+      .compare(
+        pipelineSnapshot: snapshot,
+        expectedIDs: [subSubCollDocRef.documentID, collADocRef.documentID, collBDocRef.documentID],
+        enforceOrder: true
+      )
   }
 
   func testAcceptsAndReturnsAllSupportedDataTypes() async throws {
@@ -738,7 +584,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       )
     let snapshot = try await pipeline.execute()
 
-    expectResults(result: snapshot.results[0], expected: expectedResultsMap)
+    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: expectedResultsMap)
   }
 
   func testAcceptsAndReturnsNil() async throws {
@@ -769,7 +615,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
-    expectResults(result: snapshot.results.first!, expected: expectedResultsMap)
+    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: expectedResultsMap)
   }
 
   func testConvertsArraysAndPlainObjectsToFunctionValues() async throws {
@@ -851,10 +697,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "metadataArray": metadataArrayElements,
         "metadata": metadataMapElements,
       ]
-      XCTAssertTrue(
-        areDictionariesEqual(resultDoc.data, expectedFullDoc as [String: Sendable]),
-        "Document data does not match expected."
-      )
+
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedFullDoc)
     } else {
       XCTFail("No document retrieved")
     }
@@ -871,7 +715,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 1, "Count all should return a single aggregate document")
     if let result = snapshot.results.first {
-      expectResults(result: result, expected: ["count": bookDocs.count])
+      TestHelper.compare(pipelineResult: result, expected: ["count": bookDocs.count])
     } else {
       XCTFail("No result for count all aggregation")
     }
@@ -893,7 +737,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "avgRating": 4.4,
         "maxRating": 4.6,
       ]
-      expectResults(result: result, expected: expectedAggValues)
+      TestHelper.compare(pipelineResult: result, expected: expectedAggValues)
     } else {
       XCTFail("No result for filtered aggregation")
     }
@@ -950,7 +794,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["avgRating": 4.4, "genre": "Science Fiction"],
     ]
 
-    expectSnapshots(snapshot: snapshot, expected: expectedResultsArray)
+    TestHelper
+      .compare(pipelineSnapshot: snapshot, expected: expectedResultsArray, enforceOrder: true)
   }
 
   func testReturnsMinMaxCountAndCountAllAccumulations() async throws {
@@ -978,7 +823,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ]
 
     if let result = snapshot.results.first {
-      expectResults(result: result, expected: expectedValues)
+      TestHelper.compare(pipelineResult: result, expected: expectedValues)
     } else {
       XCTFail("No result for min/max/count/countAll aggregation")
     }
@@ -999,7 +844,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 1, "countIf aggregate should return a single document")
     if let result = snapshot.results.first {
-      expectResults(result: result, expected: expectedResults)
+      TestHelper.compare(pipelineResult: result, expected: expectedResults)
     } else {
       XCTFail("No result for countIf aggregation")
     }
@@ -1031,7 +876,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, expectedResults.count, "Snapshot results count mismatch")
 
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testSelectStage() async throws {
@@ -1064,7 +909,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "Snapshot results count mismatch for select stage."
     )
 
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testAddFieldStage() async throws {
@@ -1098,7 +943,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "Snapshot results count mismatch for addField stage."
     )
 
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testRemoveFieldsStage() async throws {
@@ -1133,7 +978,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "Snapshot results count mismatch for removeFields stage."
     )
 
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testWhereStageWithAndConditions() async throws {
@@ -1147,7 +992,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"]))
     var snapshot = try await pipeline.execute()
     var expectedIDs = ["book10", "book4"] // Dune (SF, 4.6), LOTR (Fantasy, 4.7)
-    expectResults(snapshot, expectedIDs: expectedIDs)
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: expectedIDs, enforceOrder: false)
 
     // Test Case 2: Three AND conditions
     pipeline = db.pipeline()
@@ -1159,7 +1004,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       )
     snapshot = try await pipeline.execute()
     expectedIDs = ["book4"] // LOTR (Fantasy, 4.7, published 1954)
-    expectResults(snapshot, expectedIDs: expectedIDs)
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: expectedIDs, enforceOrder: false)
   }
 
   func testWhereStageWithOrAndXorConditions() async throws {
@@ -1190,7 +1035,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       expectedResults.count,
       "Snapshot results count mismatch for OR conditions."
     )
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
 
     // Test Case 2: XOR conditions
     // XOR is true if an odd number of its arguments are true.
@@ -1218,7 +1063,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       expectedResults.count,
       "Snapshot results count mismatch for XOR conditions."
     )
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testSortOffsetAndLimitStages() async throws {
@@ -1239,7 +1084,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "To Kill a Mockingbird", "author": "Harper Lee"],
       ["title": "The Lord of the Rings", "author": "J.R.R. Tolkien"],
     ]
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   // MARK: - Generic Stage Tests
@@ -1249,8 +1094,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let db = collRef.firestore
 
     let expectedSelectedData: [String: Sendable] = [
-      "title": "The Hitchhiker's Guide to the Galaxy",
-      "metadata": ["author": "Douglas Adams"],
+      "title": "1984",
+      "metadata": ["author": "George Orwell"],
     ]
 
     let selectParameters: [Sendable] =
@@ -1264,13 +1109,17 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .rawStage(name: "select", params: selectParameters)
-      .sort(Field("author").ascending())
+      .sort(Field("title").ascending())
       .limit(1)
 
     let snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
-    expectSnapshots(snapshot: snapshot, expected: [expectedSelectedData])
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [expectedSelectedData],
+      enforceOrder: true
+    )
   }
 
   // TODO:
@@ -1288,7 +1137,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await pipeline.execute()
 
-    expectResults(snapshot, expectedCount: 1)
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedCount: 1)
 
     let expectedBook1Transformed: [String: Sendable?] = [
       "hugo": true,
@@ -1296,9 +1145,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "others": ["unknown": ["year": 1980]],
     ]
 
-    // Need to use nullable Sendable for comparison because 'others' is nested
-    // and the areEqual function handles Sendable?
-    expectSnapshots(snapshot: snapshot, expected: [expectedBook1Transformed])
+    TestHelper
+      .compare(
+        pipelineSnapshot: snapshot,
+        expected: [expectedBook1Transformed],
+        enforceOrder: false
+      )
   }
 
   // MARK: - Sample Stage Tests
@@ -1313,7 +1165,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await pipeline.execute()
 
-    expectResults(snapshot, expectedCount: 3)
+    TestHelper
+      .compare(pipelineSnapshot: snapshot, expectedCount: 3)
   }
 
   func testSampleStageLimitPercentage60Average() async throws {
@@ -1349,7 +1202,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let bookSequence = (1 ... 10).map { "book\($0)" }
     let repeatedIDs = bookSequence + bookSequence
-    expectResults(snapshot, expectedIDs: repeatedIDs)
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: repeatedIDs, enforceOrder: false)
   }
 
   func testUnnestStage() async throws {
@@ -1410,7 +1263,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
     ]
 
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testUnnestExpr() async throws {
@@ -1471,6 +1324,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
     ]
 
-    expectSnapshots(snapshot: snapshot, expected: expectedResults)
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 }
