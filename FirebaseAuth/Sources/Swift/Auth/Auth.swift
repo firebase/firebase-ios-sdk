@@ -1179,17 +1179,9 @@ extension Auth: AuthInterop {
               request: request,
               action: AuthRecaptchaAction.getOobCode
             )
-            if let completion {
-              DispatchQueue.main.async {
-                completion(nil)
-              }
-            }
+            Auth.wrapMainAsync(completion, nil)
           } catch {
-            if let completion {
-              DispatchQueue.main.async {
-                completion(error)
-              }
-            }
+            Auth.wrapMainAsync(completion, error)
           }
         }
       #else
@@ -1263,17 +1255,9 @@ extension Auth: AuthInterop {
               request: request,
               action: AuthRecaptchaAction.getOobCode
             )
-            if let completion {
-              DispatchQueue.main.async {
-                completion(nil)
-              }
-            }
+            Auth.wrapMainAsync(completion, nil)
           } catch {
-            if let completion {
-              DispatchQueue.main.async {
-                completion(error)
-              }
-            }
+            Auth.wrapMainAsync(completion, error)
           }
         }
       #else
