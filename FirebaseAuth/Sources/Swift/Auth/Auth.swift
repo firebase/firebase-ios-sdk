@@ -885,7 +885,6 @@ extension Auth: AuthInterop {
       #else
         self.internalCreateUserWithEmail(
           request: request,
-          inResponse: response,
           decoratedCallback: decoratedCallback
         )
       #endif
