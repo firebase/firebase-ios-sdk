@@ -59,9 +59,9 @@ struct CountTokensIntegrationTests {
     #expect(response.totalTokens == 6)
     switch config.apiConfig.service {
     case .vertexAI:
-      #expect(response.totalBillableCharacters == 16)
+      #expect(response.deprecated.totalBillableCharacters == 16)
     case .googleAI:
-      #expect(response.totalBillableCharacters == nil)
+      #expect(response.deprecated.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)
@@ -83,9 +83,9 @@ struct CountTokensIntegrationTests {
     #expect(response.totalTokens == 14)
     switch config.apiConfig.service {
     case .vertexAI:
-      #expect(response.totalBillableCharacters == 61)
+      #expect(response.deprecated.totalBillableCharacters == 61)
     case .googleAI:
-      #expect(response.totalBillableCharacters == nil)
+      #expect(response.deprecated.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)
@@ -115,12 +115,12 @@ struct CountTokensIntegrationTests {
     switch config.apiConfig.service {
     case .vertexAI:
       #expect(response.totalTokens == 65)
-      #expect(response.totalBillableCharacters == 170)
+      #expect(response.deprecated.totalBillableCharacters == 170)
     case .googleAI:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting
       // in a lower total count than Vertex AI.
       #expect(response.totalTokens == 34)
-      #expect(response.totalBillableCharacters == nil)
+      #expect(response.deprecated.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)

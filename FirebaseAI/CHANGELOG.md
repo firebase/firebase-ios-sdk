@@ -4,6 +4,9 @@
   types. (#14971)
 - [added] Added support for configuring the "thinking" budget when using Gemini
   2.5 series models. (#14909)
+- [changed] Deprecated `CountTokensResponse.totalBillableCharacters`; use
+  `totalTokens` instead. Gemini 2.0 series models and newer are always billed by
+  token count. (#14934)
 
 # 11.13.0
 - [feature] Initial release of the Firebase AI Logic SDK (`FirebaseAI`). This
