@@ -1,5 +1,5 @@
 # 11.15.0
-- [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta.
+- [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14996)
 
 # 11.14.0
 - [fixed] Synchronize internal `AuthKeychainServices` class to prevent
