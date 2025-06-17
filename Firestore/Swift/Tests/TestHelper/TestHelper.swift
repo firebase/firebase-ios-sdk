@@ -98,7 +98,7 @@ public enum TestHelper {
   }
 
   // MARK: - Internal helper
-  
+
   private static func isNilOrNSNull(_ value: Sendable?) -> Bool {
     // First, use a `guard` to safely unwrap the optional.
     // If it's nil, we can immediately return true.
@@ -137,9 +137,11 @@ public enum TestHelper {
     case let (v1 as Int, v2 as Int):
       return v1 == v2
     case let (v1 as Double, v2 as Double):
-      return v1 == v2
+      let doubleEpsilon = 0.000001
+      return abs(v1 - v2) <= doubleEpsilon
     case let (v1 as Float, v2 as Float):
-      return v1 == v2
+      let floatEpsilon: Float = 0.00001
+      return abs(v1 - v2) <= floatEpsilon
     case let (v1 as String, v2 as String):
       return v1 == v2
     case let (v1 as Bool, v2 as Bool):
@@ -159,10 +161,13 @@ public enum TestHelper {
 
     for (key, value1) in dict1 {
       guard let value2 = dict2[key], areEqual(value1, value2) else {
-        print("The Dictionary value is not equal.")
-        print("key1: \(key)")
-        print("value1: \(String(describing: value1))")
-        print("value2: \(String(describing: dict2[key]))")
+        XCTFail("""
+        Dictionary value mismatch for key: '\(key)'
+        Expected value: '\(String(describing: value1))' (from dict1)
+        Actual value:   '\(String(describing: dict2[key]))' (from dict2)
+        Full dict1: \(String(describing: dict1))
+        Full dict2: \(String(describing: dict2))
+        """)
         return false
       }
     }
@@ -175,9 +180,11 @@ public enum TestHelper {
     for (index, value1) in array1.enumerated() {
       let value2 = array2[index]
       if !areEqual(value1, value2) {
-        print("The Array value is not equal.")
-        print("value1: \(String(describing: value1))")
-        print("value2: \(String(describing: value2))")
+        XCTFail("""
+        Array value mismatch.
+        Expected array value: '\(String(describing: value1))'
+        Actual array value:   '\(String(describing: value2))'
+        """)
         return false
       }
     }
@@ -192,32 +199,29 @@ public enum TestHelper {
       return false
     }
 
-    // 2. Sort both arrays based on a canonical representation of the dictionaries.
-    let sortedArray1 = array1.sorted { dict1, dict2 -> Bool in
-      // Create a comparable representation of the dictionaries.
-      // Here, we sort by keys and create a descriptive string.
-      let dict1String = dict1.keys.sorted().map { "\($0):\(String(describing: dict1[$0]!))" }
-        .joined(separator: ",")
-      let dict2String = dict2.keys.sorted().map { "\($0):\(String(describing: dict2[$0]!))" }
-        .joined(separator: ",")
-      return dict1String < dict2String
-    }
+    // Create a mutable copy of array2 to remove matched dictionaries
+    var mutableArray2 = array2
 
-    let sortedArray2 = array2.sorted { dict1, dict2 -> Bool in
-      let dict1String = dict1.keys.sorted().map { "\($0):\(String(describing: dict1[$0]!))" }
-        .joined(separator: ",")
-      let dict2String = dict2.keys.sorted().map { "\($0):\(String(describing: dict2[$0]!))" }
-        .joined(separator: ",")
-      return dict1String < dict2String
-    }
+    // Iterate through each dictionary in array1
+    for dict1 in array1 {
+      var foundMatch = false
+      // Try to find an equivalent dictionary in mutableArray2
+      if let index = mutableArray2.firstIndex(where: { dict2 in
+        areDictionariesEqual(dict1, dict2) // Use our deep comparison function
+      }) {
+        // If a match is found, remove it from mutableArray2 to handle duplicates
+        mutableArray2.remove(at: index)
+        foundMatch = true
+      }
 
-    // 3. Compare the sorted arrays element by element using our dictionary comparison function.
-    for (dict1, dict2) in zip(sortedArray1, sortedArray2) {
-      if !areDictionariesEqual(dict1, dict2) {
+      // If no match was found for the current dictionary from array1, arrays are not equal
+      if !foundMatch {
         return false
       }
     }
 
-    return true
+    // If we've iterated through all of array1 and mutableArray2 is empty,
+    // it means all dictionaries found a unique match.
+    return mutableArray2.isEmpty
   }
 }

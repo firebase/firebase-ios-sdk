@@ -817,12 +817,20 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   } else if ([value isKindOfClass:[FIRAggregateFunctionBridge class]]) {
     return [((FIRAggregateFunctionBridge *)value) cppExprWithReader:reader]->to_proto();
   } else if ([value isKindOfClass:[NSDictionary class]]) {
-    NSDictionary<NSString *, FIRExprBridge *> *dictionary =
-        (NSDictionary<NSString *, FIRExprBridge *> *)value;
+    NSDictionary<NSString *, id> *dictionary = (NSDictionary<NSString *, id> *)value;
 
     std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value> cpp_dictionary;
     for (NSString *key in dictionary) {
-      cpp_dictionary[MakeString(key)] = [dictionary[key] cppExprWithReader:reader]->to_proto();
+      if ([dictionary[key] isKindOfClass:[FIRExprBridge class]]) {
+        cpp_dictionary[MakeString(key)] =
+            [((FIRExprBridge *)dictionary[key]) cppExprWithReader:reader]->to_proto();
+      } else if ([dictionary[key] isKindOfClass:[FIRAggregateFunctionBridge class]]) {
+        cpp_dictionary[MakeString(key)] =
+            [((FIRAggregateFunctionBridge *)dictionary[key]) cppExprWithReader:reader]->to_proto();
+      } else {
+        ThrowInvalidArgument(
+            "Dictionary value must be an FIRExprBridge or FIRAggregateFunctionBridge.");
+      }
     }
 
     firebase::firestore::google_firestore_v1_Value result;
@@ -836,7 +844,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
         });
     return result;
   } else {
-    ThrowInvalidArgument("Subscript key must be an NSString or FIRFieldPath.");
+    ThrowInvalidArgument("Invalid value to convert to google_firestore_v1_Value.");
   }
 }
 

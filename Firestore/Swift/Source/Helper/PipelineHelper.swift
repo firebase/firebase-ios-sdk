@@ -59,7 +59,6 @@ enum Helper {
       return Constant.nil.bridge
     }
 
-    // Step 2: Check for NSNull.
     guard !(value is NSNull) else {
       return Constant.nil.bridge
     }
@@ -69,7 +68,12 @@ enum Helper {
     } else if value is AggregateFunction {
       return (value as! AggregateFunction).toBridge()
     } else if value is [String: Sendable?] {
-      let mappedValue = (value as! [String: Sendable?]).mapValues { sendableToExpr($0).toBridge() }
+      let mappedValue: [String: Sendable?] = (value as! [String: Sendable?]).mapValues {
+        if $0 is AggregateFunction {
+          return ($0 as! AggregateFunction).toBridge()
+        }
+        return sendableToExpr($0).toBridge()
+      }
       return mappedValue as NSDictionary
     } else {
       return Constant(value).bridge

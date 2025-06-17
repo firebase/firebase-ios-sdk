@@ -340,7 +340,7 @@ class Unnest: Stage {
     bridge = UnnestStageBridge(
       field: self.field.toBridge(),
       alias: alias.toBridge(),
-      indexField: indexField.map { Field($0) } ?? nil
+      indexField: indexField.map { Field($0).toBridge() } ?? nil
     )
   }
 }

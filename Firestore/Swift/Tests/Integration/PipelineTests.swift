@@ -1122,7 +1122,164 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  // TODO:
+  func testCanAddFields() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("author").ascending())
+      .limit(1)
+      .select("title", "author")
+      .rawStage(
+        name: "add_fields",
+        params: [
+          [
+            "display": Field("title").strConcat(
+              Constant(" - "),
+              Field("author")
+            ),
+          ],
+        ]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        [
+          "title": "The Hitchhiker's Guide to the Galaxy",
+          "author": "Douglas Adams",
+          "display": "The Hitchhiker's Guide to the Galaxy - Douglas Adams",
+        ],
+      ],
+      enforceOrder: false
+    )
+  }
+
+  func testCanPerformDistinctQuery() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select("title", "author", "rating")
+      .rawStage(
+        name: "distinct",
+        params: [
+          ["rating": Field("rating")],
+        ]
+      )
+      .sort(Field("rating").descending())
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["rating": 4.7],
+        ["rating": 4.6],
+        ["rating": 4.5],
+        ["rating": 4.3],
+        ["rating": 4.2],
+        ["rating": 4.1],
+        ["rating": 4.0],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testCanPerformAggregateQuery() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let emptySendableDictionary: [String: Sendable?] = [:]
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select("title", "author", "rating")
+      .rawStage(
+        name: "aggregate",
+        params: [
+          [
+            "averageRating": Field("rating").avg(),
+          ],
+          emptySendableDictionary,
+        ]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        [
+          "averageRating": 4.3100000000000005,
+        ],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testCanFilterWithWhere() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select("title", "author")
+      .rawStage(
+        name: "where",
+        params: [Field("author").eq("Douglas Adams")]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        [
+          "title": "The Hitchhiker's Guide to the Galaxy",
+          "author": "Douglas Adams",
+        ],
+      ],
+      enforceOrder: false
+    )
+  }
+
+  func testCanLimitOffsetAndSort() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select("title", "author")
+      .rawStage(
+        name: "sort",
+        params: [
+          [
+            "direction": "ascending",
+            "expression": Field("author"),
+          ],
+        ]
+      )
+      .rawStage(name: "offset", params: [3])
+      .rawStage(name: "limit", params: [1])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        [
+          "author": "Fyodor Dostoevsky",
+          "title": "Crime and Punishment",
+        ],
+      ],
+      enforceOrder: false
+    )
+  }
 
   // MARK: - Replace Stage Test
 
@@ -1151,6 +1308,31 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         expected: [expectedBook1Transformed],
         enforceOrder: false
       )
+  }
+
+  func testReplaceWithExprResult() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .replace(with:
+        MapExpression([
+          "foo": "bar",
+          "baz": MapExpression([
+            "title": Field("title"),
+          ]),
+        ]))
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [String: Sendable?] = [
+      "foo": "bar",
+      "baz": ["title": "The Hitchhiker's Guide to the Galaxy"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [expectedResults], enforceOrder: false)
   }
 
   // MARK: - Sample Stage Tests
@@ -1212,7 +1394,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
-      .unnest(Field("tags").as("tag"))
+      .unnest(Field("tags").as("tag"), indexField: "tagsIndex")
       .select(
         "title",
         "author",
