@@ -384,7 +384,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   // Note: `self.analyticsOptionsDictionary` was left out here since it solely relies on the
   // contents of the main bundle's `Info.plist`. We should avoid reading that file and the contents
   // should be identical.
-  return self->_deepLinkURLScheme.hash ^ self->_deepLinkURLScheme.hash ^ self.appGroupID.hash;
+  return self.optionsDictionary.hash ^ self->_deepLinkURLScheme.hash ^ self.appGroupID.hash;
 }
 
 #pragma mark - Internal instance methods
