@@ -239,13 +239,13 @@ public protocol Expr: Sendable {
   /// ```swift
   /// // Check if 'candidateSkills' contains all skills from 'requiredSkill1' and 'requiredSkill2'
   /// fields
-  /// Field("candidateSkills").arrayContainsAll(Field("requiredSkill1"), Field("requiredSkill2"))
+  /// Field("candidateSkills").arrayContainsAll([Field("requiredSkill1"), Field("requiredSkill2")])
   /// ```
   ///
-  /// - Parameter values: A variadic list of `Expr` elements to check for in the array represented
+  /// - Parameter values: A list of `Expr` elements to check for in the array represented
   /// by `self`.
   /// - Returns: A new `BooleanExpr` representing the 'array_contains_all' comparison.
-  func arrayContainsAll(_ values: Expr...) -> BooleanExpr
+  func arrayContainsAll(_ values: [Expr]) -> BooleanExpr
 
   /// Creates an expression that checks if an array (from `self`) contains all the specified literal
   /// elements.
@@ -253,13 +253,13 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Check if 'tags' contains both "urgent" and "review"
-  /// Field("tags").arrayContainsAll("urgent", "review")
+  /// Field("tags").arrayContainsAll(["urgent", "review"])
   /// ```
   ///
-  /// - Parameter values: A variadic list of `Sendable` literal elements to check for in the array
+  /// - Parameter values: A list of `Sendable` literal elements to check for in the array
   /// represented by `self`.
   /// - Returns: A new `BooleanExpr` representing the 'array_contains_all' comparison.
-  func arrayContainsAll(_ values: Sendable...) -> BooleanExpr
+  func arrayContainsAll(_ values: [Sendable]) -> BooleanExpr
 
   /// Creates an expression that checks if an array (from `self`) contains any of the specified
   /// element expressions.
@@ -267,13 +267,13 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Check if 'userGroups' contains any group from 'allowedGroup1' or 'allowedGroup2' fields
-  /// Field("userGroups").arrayContainsAny(Field("allowedGroup1"), Field("allowedGroup2"))
+  /// Field("userGroups").arrayContainsAny([Field("allowedGroup1"), Field("allowedGroup2")])
   /// ```
   ///
-  /// - Parameter values: A variadic list of `Expr` elements to check for in the array represented
+  /// - Parameter values: A list of `Expr` elements to check for in the array represented
   /// by `self`.
   /// - Returns: A new `BooleanExpr` representing the 'array_contains_any' comparison.
-  func arrayContainsAny(_ values: Expr...) -> BooleanExpr
+  func arrayContainsAny(_ values: [Expr]) -> BooleanExpr
 
   /// Creates an expression that checks if an array (from `self`) contains any of the specified
   /// literal elements.
@@ -281,13 +281,13 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Check if 'categories' contains either "electronics" or "books"
-  /// Field("categories").arrayContainsAny("electronics", "books")
+  /// Field("categories").arrayContainsAny(["electronics", "books"])
   /// ```
   ///
-  /// - Parameter values: A variadic list of `Sendable` literal elements to check for in the array
+  /// - Parameter values: A list of `Sendable` literal elements to check for in the array
   /// represented by `self`.
   /// - Returns: A new `BooleanExpr` representing the 'array_contains_any' comparison.
-  func arrayContainsAny(_ values: Sendable...) -> BooleanExpr
+  func arrayContainsAny(_ values: [Sendable]) -> BooleanExpr
 
   /// Creates an expression that calculates the length of an array.
   /// Assumes `self` evaluates to an array.
@@ -341,12 +341,12 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Check if 'categoryID' field is equal to 'featuredCategory' or 'popularCategory' fields
-  /// Field("categoryID").eqAny(Field("featuredCategory"), Field("popularCategory"))
+  /// Field("categoryID").eqAny([Field("featuredCategory"), Field("popularCategory")])
   /// ```
   ///
-  /// - Parameter others: A variadic list of `Expr` values to check against.
+  /// - Parameter others: A list of `Expr` values to check against.
   /// - Returns: A new `BooleanExpr` representing the 'IN' comparison (eq_any).
-  func eqAny(_ others: Expr...) -> BooleanExpr
+  func eqAny(_ others: [Expr]) -> BooleanExpr
 
   /// Creates an expression that checks if this expression is equal to any of the provided literal
   /// values.
@@ -354,12 +354,12 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Check if 'category' is "Electronics", "Books", or "Home Goods"
-  /// Field("category").eqAny("Electronics", "Books", "Home Goods")
+  /// Field("category").eqAny(["Electronics", "Books", "Home Goods"])
   /// ```
   ///
-  /// - Parameter others: A variadic list of `Sendable` literal values to check against.
+  /// - Parameter others: A list of `Sendable` literal values to check against.
   /// - Returns: A new `BooleanExpr` representing the 'IN' comparison (eq_any).
-  func eqAny(_ others: Sendable...) -> BooleanExpr
+  func eqAny(_ others: [Sendable]) -> BooleanExpr
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// expression values.
@@ -367,12 +367,12 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Check if 'statusValue' is not equal to 'archivedStatus' or 'deletedStatus' fields
-  /// Field("statusValue").notEqAny(Field("archivedStatus"), Field("deletedStatus"))
+  /// Field("statusValue").notEqAny([Field("archivedStatus"), Field("deletedStatus")])
   /// ```
   ///
-  /// - Parameter others: A variadic list of `Expr` values to check against.
+  /// - Parameter others: A list of `Expr` values to check against.
   /// - Returns: A new `BooleanExpr` representing the 'NOT IN' comparison (not_eq_any).
-  func notEqAny(_ others: Expr...) -> BooleanExpr
+  func notEqAny(_ others: [Expr]) -> BooleanExpr
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// literal values.
@@ -380,12 +380,12 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Check if 'status' is neither "pending" nor "archived"
-  /// Field("status").notEqAny("pending", "archived")
+  /// Field("status").notEqAny(["pending", "archived"])
   /// ```
   ///
-  /// - Parameter others: A variadic list of `Sendable` literal values to check against.
+  /// - Parameter others: A list of `Sendable` literal values to check against.
   /// - Returns: A new `BooleanExpr` representing the 'NOT IN' comparison (not_eq_any).
-  func notEqAny(_ others: Sendable...) -> BooleanExpr
+  func notEqAny(_ others: [Sendable]) -> BooleanExpr
 
   // MARK: Checks
 
@@ -495,7 +495,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter pattern: The literal string pattern to search for. Use "%" as a wildcard.
   /// - Returns: A new `FunctionExpr` representing the 'like' comparison.
-  func like(_ pattern: String) -> FunctionExpr
+  func like(_ pattern: String) -> BooleanExpr
 
   /// Creates an expression that performs a case-sensitive string comparison using wildcards against
   /// an expression pattern.
@@ -509,7 +509,7 @@ public protocol Expr: Sendable {
   /// - Parameter pattern: An `Expr` (evaluating to a string) representing the pattern to search
   /// for.
   /// - Returns: A new `FunctionExpr` representing the 'like' comparison.
-  func like(_ pattern: Expr) -> FunctionExpr
+  func like(_ pattern: Expr) -> BooleanExpr
 
   /// Creates an expression that checks if a string (from `self`) contains a specified regular
   /// expression literal as a substring.
