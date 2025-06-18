@@ -21,7 +21,6 @@
 #import <FirebaseInAppMessaging/NSString+FIRInterlaceStrings.h>
 
 #import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
 
 @interface FIRInAppMessaging (Testing)
 + (void)disableAutoBootstrapWithFIRApp;
@@ -63,23 +62,6 @@
 
   [FIRInAppMessaging bootstrapIAMWithSettings:sdkSetting];
   return YES;
-}
-
-- (BOOL)application:(UIApplication *)application
-    continueUserActivity:(NSUserActivity *)userActivity
-      restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *))restorationHandler {
-  NSLog(@"handle page url %@", userActivity.webpageURL);
-  BOOL handled = [[FIRDynamicLinks dynamicLinks]
-      handleUniversalLink:userActivity.webpageURL
-               completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
-                 if (dynamicLink) {
-                   NSLog(@"dynamic link recognized with url as %@", dynamicLink.url.absoluteString);
-                   [self showDeepLink:dynamicLink.url.absoluteString forUrlType:@"universal link"];
-                 } else {
-                   NSLog(@"error happened %@", error);
-                 }
-               }];
-  return handled;
 }
 
 - (void)showDeepLink:(NSString *)url forUrlType:(NSString *)urlType {

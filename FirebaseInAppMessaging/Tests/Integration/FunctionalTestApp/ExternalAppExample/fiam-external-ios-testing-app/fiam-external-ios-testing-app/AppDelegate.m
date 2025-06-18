@@ -48,23 +48,23 @@
               openURL:(NSURL *)url
     sourceApplication:(NSString *)sourceApplication
            annotation:(id)annotation {
-  FIRDynamicLink *dynamicLink = [[FIRDynamicLinks dynamicLinks] dynamicLinkFromCustomSchemeURL:url];
-
-  NSLog(@"called here with %@", dynamicLink);
-  if (dynamicLink) {
-    if (dynamicLink.url) {
-      // Handle the deep link. For example, show the deep-linked content,
-      // apply a promotional offer to the user's account or show customized onboarding view.
-      // ...
-
-    } else {
-      // Dynamic link has empty deep link. This situation will happens if
-      // Firebase Dynamic Links iOS SDK tried to retrieve pending dynamic link,
-      // but pending link is not available for this device/App combination.
-      // At this point you may display default onboarding view.
-    }
-    return YES;
-  }
+  // FIRDynamicLink *dynamicLink = [[FIRDynamicLinks dynamicLinks] dynamicLinkFromCustomSchemeURL:url];
+  //
+  // NSLog(@"called here with %@", dynamicLink);
+  // if (dynamicLink) {
+  //   if (dynamicLink.url) {
+  //     // Handle the deep link. For example, show the deep-linked content,
+  //     // apply a promotional offer to the user's account or show customized onboarding view.
+  //     // ...
+  //
+  //   } else {
+  //     // Dynamic link has empty deep link. This situation will happens if
+  //     // Firebase Dynamic Links iOS SDK tried to retrieve pending dynamic link,
+  //     // but pending link is not available for this device/App combination.
+  //     // At this point you may display default onboarding view.
+  //   }
+  //   return YES;
+  // }
   return NO;
 }
 @end
