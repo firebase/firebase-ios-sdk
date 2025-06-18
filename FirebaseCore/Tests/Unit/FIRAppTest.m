@@ -222,8 +222,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 - (void)testConfigureWithMultipleApps {
   FIROptions *options1 = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
                                                      GCMSenderID:kGCMSenderID];
-  options1.deepLinkURLScheme = kDeepLinkURLScheme;
-
   NSDictionary *expectedUserInfo1 = [self expectedUserInfoWithAppName:kFIRTestAppName1
                                                          isDefaultApp:NO];
   XCTestExpectation *configExpectation1 =

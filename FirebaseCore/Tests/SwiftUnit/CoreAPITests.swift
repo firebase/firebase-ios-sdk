@@ -129,10 +129,6 @@ final class CoreAPITests {
         // ...
       }
 
-      if let _ /* deepLinkURLScheme */ = options.deepLinkURLScheme {
-        // ...
-      }
-
       if let _ /* storageBucket */ = options.storageBucket {
         // ...
       }
