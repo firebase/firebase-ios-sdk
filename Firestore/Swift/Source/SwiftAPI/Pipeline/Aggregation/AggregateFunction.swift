@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+extension AggregateFunction {
+  func toBridge() -> AggregateFunctionBridge {
+    return (self as AggregateBridgeWrapper).bridge
+  }
+}
+
 public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   let bridge: AggregateFunctionBridge
 

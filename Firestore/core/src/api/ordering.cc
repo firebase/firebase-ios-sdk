@@ -30,14 +30,16 @@ google_firestore_v1_Value Ordering::to_proto() const {
   result.map_value.fields_count = 2;
   result.map_value.fields =
       nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
-  result.map_value.fields[0].key = nanopb::MakeBytesArray("expression");
-  result.map_value.fields[0].value = expr_->to_proto();
-  result.map_value.fields[1].key = nanopb::MakeBytesArray("direction");
+
+  result.map_value.fields[0].key = nanopb::MakeBytesArray("direction");
   google_firestore_v1_Value direction;
   direction.which_value_type = google_firestore_v1_Value_string_value_tag;
   direction.string_value = nanopb::MakeBytesArray(
       this->direction_ == ASCENDING ? "ascending" : "descending");
-  result.map_value.fields[1].value = direction;
+  result.map_value.fields[0].value = direction;
+
+  result.map_value.fields[1].key = nanopb::MakeBytesArray("expression");
+  result.map_value.fields[1].value = expr_->to_proto();
 
   return result;
 }

@@ -327,15 +327,20 @@ class Union: Stage {
 class Unnest: Stage {
   let name: String = "unnest"
   let bridge: StageBridge
-  private var field: Selectable
+  private var alias: Expr
+  private var field: Expr
   private var indexField: String?
 
   init(field: Selectable, indexField: String? = nil) {
-    self.field = field
+    let seletable = field as! SelectableWrapper
+    self.field = seletable.expr
+    alias = Field(seletable.alias)
     self.indexField = indexField
+
     bridge = UnnestStageBridge(
-      field: Helper.sendableToExpr(field).toBridge(),
-      indexField: indexField
+      field: self.field.toBridge(),
+      alias: alias.toBridge(),
+      indexField: indexField.map { Field($0).toBridge() } ?? nil
     )
   }
 }
@@ -344,14 +349,14 @@ class Unnest: Stage {
 class RawStage: Stage {
   let name: String
   let bridge: StageBridge
-  private var params: [Sendable]
+  private var params: [Sendable?]
   private var options: [String: Sendable]?
 
-  init(name: String, params: [Sendable], options: [String: Sendable]? = nil) {
+  init(name: String, params: [Sendable?], options: [String: Sendable]? = nil) {
     self.name = name
     self.params = params
     self.options = options
-    let bridgeParams = params.map { Helper.sendableToExpr($0).toBridge() }
+    let bridgeParams = params.map { Helper.sendableToAnyObjectForRawStage($0) }
     let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).toBridge() }
     bridge = RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
