@@ -1892,4 +1892,254 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 5)
   }
+
+  func testArithmeticOperations() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("To Kill a Mockingbird"))
+      .select(
+        Field("rating").add(1).as("ratingPlusOne"),
+        Field("published").subtract(1900).as("yearsSince1900"),
+        Field("rating").multiply(10).as("ratingTimesTen"),
+        Field("rating").divide(2).as("ratingDividedByTwo"),
+        Field("rating").multiply([10, 2]).as("ratingTimes20"),
+        Field("rating").add([1, 2]).as("ratingPlus3"),
+        Field("rating").mod(2).as("ratingMod2")
+      )
+      .limit(1)
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    if let resultDoc = snapshot.results.first {
+      let expectedResults: [String: Sendable?] = [
+        "ratingPlusOne": 5.2,
+        "yearsSince1900": 60,
+        "ratingTimesTen": 42.0,
+        "ratingDividedByTwo": 2.1,
+        "ratingTimes20": 84.0,
+        "ratingPlus3": 7.2,
+        "ratingMod2": 0.20000000000000018,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for arithmetic operations test")
+    }
+  }
+
+  func testComparisonOperators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        Field("rating").gt(4.2) &&
+          Field("rating").lte(4.5) &&
+          Field("genre").neq("Science Fiction")
+      )
+      .select("rating", "title")
+      .sort(Field("title").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["rating": 4.3, "title": "Crime and Punishment"],
+      ["rating": 4.3, "title": "One Hundred Years of Solitude"],
+      ["rating": 4.5, "title": "Pride and Prejudice"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testLogicalOperators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        (Field("rating").gt(4.5) && Field("genre").eq("Science Fiction")) ||
+          Field("published").lt(1900)
+      )
+      .select("title")
+      .sort(Field("title").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "Crime and Punishment"],
+      ["title": "Dune"],
+      ["title": "Pride and Prejudice"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testChecks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    // Part 1
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(
+        Field("rating").isNull().as("ratingIsNull"),
+        Field("rating").isNan().as("ratingIsNaN"),
+        Field("title").arrayOffset(0).isError().as("isError"),
+        Field("title").arrayOffset(0).ifError(Constant("was error")).as("ifError"),
+        Field("foo").isAbsent().as("isAbsent"),
+        Field("title").isNotNull().as("titleIsNotNull"),
+        Field("cost").isNotNan().as("costIsNotNan"),
+        Field("fooBarBaz").exists().as("fooBarBazExists"),
+        Field("title").exists().as("titleExists")
+      )
+
+    var snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for checks part 1")
+
+    if let resultDoc = snapshot.results.first {
+      let expectedResults: [String: Sendable?] = [
+        "ratingIsNull": false,
+        "ratingIsNaN": false,
+        "isError": true,
+        "ifError": "was error",
+        "isAbsent": true,
+        "titleIsNotNull": true,
+        "costIsNotNan": false,
+        "fooBarBazExists": false,
+        "titleExists": true,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for checks part 1")
+    }
+
+    // Part 2
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(
+        Field("rating").isNull().as("ratingIsNull"),
+        Field("rating").isNan().as("ratingIsNaN"),
+        Field("title").arrayOffset(0).isError().as("isError"),
+        Field("title").arrayOffset(0).ifError(Constant("was error")).as("ifError"),
+        Field("foo").isAbsent().as("isAbsent"),
+        Field("title").isNotNull().as("titleIsNotNull"),
+        Field("cost").isNotNan().as("costIsNotNan")
+      )
+
+    snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for checks part 2")
+
+    if let resultDoc = snapshot.results.first {
+      let expectedResults: [String: Sendable?] = [
+        "ratingIsNull": false,
+        "ratingIsNaN": false,
+        "isError": true,
+        "ifError": "was error",
+        "isAbsent": true,
+        "titleIsNotNull": true,
+        "costIsNotNan": false,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for checks part 2")
+    }
+  }
+
+  func testMapGet() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("published").descending())
+      .select(
+        Field("awards").mapGet("hugo").as("hugoAward"),
+        Field("awards").mapGet("others").as("others"),
+        Field("title")
+      )
+      .where(Field("hugoAward").eq(true))
+
+    let snapshot = try await pipeline.execute()
+
+    // Expected results are ordered by "published" descending for those with hugoAward == true
+    // 1. The Hitchhiker's Guide to the Galaxy (1979)
+    // 2. Dune (1965)
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "hugoAward": true,
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "others": ["unknown": ["year": 1980]],
+      ],
+      [
+        "hugoAward": true,
+        "title": "Dune",
+        "others": nil,
+      ],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testDistanceFunctions() async throws {
+    let db = firestore()
+    let randomCol = collectionRef() // Ensure a unique collection for the test
+    // Add a dummy document to the collection for the select stage to operate on.
+    try await randomCol.document("dummyDocForDistanceTest").setData(["field": "value"])
+
+    let sourceVector: [Double] = [0.1, 0.1]
+    let targetVector: [Double] = [0.5, 0.8]
+    let targetVectorValue = VectorValue(targetVector)
+
+    let expectedCosineDistance = 0.02560880430538015
+    let expectedDotProductDistance = 0.13
+    let expectedEuclideanDistance = 0.806225774829855
+    let accuracy = 0.000000000000001 // Define a suitable accuracy for floating-point comparisons
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .select(
+        Constant(VectorValue(sourceVector)).cosineDistance(targetVectorValue).as("cosineDistance"),
+        Constant(VectorValue(sourceVector)).dotProduct(targetVectorValue).as("dotProductDistance"),
+        Constant(VectorValue(sourceVector)).euclideanDistance(targetVectorValue)
+          .as("euclideanDistance")
+      )
+      .limit(1)
+
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(
+      snapshot.results.count,
+      1,
+      "Should retrieve one document for distance functions part 1"
+    )
+
+    if let resultDoc = snapshot.results.first {
+      XCTAssertEqual(
+        resultDoc.get("cosineDistance")! as! Double,
+        expectedCosineDistance,
+        accuracy: accuracy
+      )
+      XCTAssertEqual(
+        resultDoc.get("dotProductDistance")! as! Double,
+        expectedDotProductDistance,
+        accuracy: accuracy
+      )
+      XCTAssertEqual(
+        resultDoc.get("euclideanDistance")! as! Double,
+        expectedEuclideanDistance,
+        accuracy: accuracy
+      )
+    } else {
+      XCTFail("No document retrieved for distance functions part 1")
+    }
+  }
 }

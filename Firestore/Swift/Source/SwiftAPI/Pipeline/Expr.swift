@@ -49,10 +49,9 @@ public protocol Expr: Sendable {
   /// Field("subtotal").add(Field("tax"), Field("shipping"))
   /// ```
   ///
-  /// - Parameter second: An `Expr` to add to this expression.
-  /// - Parameter others: Optional additional `Expr` values to add.
+  /// - Parameter value: Expr` values to add.
   /// - Returns: A new `FunctionExpr` representing the addition operation.
-  func add(_ second: Expr, _ others: Expr...) -> FunctionExpr
+  func add(_ value: Expr) -> FunctionExpr
 
   /// Creates an expression that adds this expression to one or more literal values.
   /// Assumes `self` and all parameters evaluate to compatible types for addition.
@@ -65,10 +64,40 @@ public protocol Expr: Sendable {
   /// Field("score").add(10, 20, -5)
   /// ```
   ///
-  /// - Parameter second: A `Sendable` literal value to add to this expression.
-  /// - Parameter others: Optional additional `Sendable` literal values to add.
+  /// - Parameter value: Expr` value to add.
   /// - Returns: A new `FunctionExpr` representing the addition operation.
-  func add(_ second: Sendable, _ others: Sendable...) -> FunctionExpr
+  func add(_ value: Sendable) -> FunctionExpr
+
+  /// Creates an expression that adds this expression to one or more other expressions.
+  /// Assumes `self` and all parameters evaluate to compatible types for addition (e.g., numbers, or
+  /// string/array concatenation if supported by the specific "add" implementation).
+  ///
+  /// ```swift
+  /// // Add the value of the 'quantity' field and the 'reserve' field.
+  /// Field("quantity").add(Field("reserve"))
+  ///
+  /// // Add multiple numeric fields
+  /// Field("subtotal").add(Field("tax"), Field("shipping"))
+  /// ```
+  ///
+  /// - Parameter values: Expr` values to add.
+  /// - Returns: A new `FunctionExpr` representing the addition operation.
+  func add(_ values: [Expr]) -> FunctionExpr
+
+  /// Creates an expression that adds this expression to one or more literal values.
+  /// Assumes `self` and all parameters evaluate to compatible types for addition.
+  ///
+  /// ```swift
+  /// // Add 5 to the 'count' field
+  /// Field("count").add(5)
+  ///
+  /// // Add multiple literal numbers
+  /// Field("score").add(10, 20, -5)
+  /// ```
+  ///
+  /// - Parameter values: Expr` values to add.
+  /// - Returns: A new `FunctionExpr` representing the addition operation.
+  func add(_ values: [Sendable]) -> FunctionExpr
 
   /// Creates an expression that subtracts another expression from this expression.
   /// Assumes `self` and `other` evaluate to numeric types.
@@ -105,10 +134,9 @@ public protocol Expr: Sendable {
   /// Field("rate").multiply(Field("time"), Field("conversionFactor"))
   /// ```
   ///
-  /// - Parameter second: An `Expr` to multiply by.
-  /// - Parameter others: Optional additional `Expr` values to multiply by.
+  /// - Parameter value: `Expr` value to multiply by.
   /// - Returns: A new `FunctionExpr` representing the multiplication operation.
-  func multiply(_ second: Expr, _ others: Expr...) -> FunctionExpr
+  func multiply(_ value: Expr) -> FunctionExpr
 
   /// Creates an expression that multiplies this expression by one or more literal values.
   /// Assumes `self` evaluates to a numeric type.
@@ -121,10 +149,39 @@ public protocol Expr: Sendable {
   /// Field("base").multiply(2, 3.0)
   /// ```
   ///
-  /// - Parameter second: A `Sendable` literal value to multiply by.
-  /// - Parameter others: Optional additional `Sendable` literal values to multiply by.
+  /// - Parameter value: `Sendable` literal value to multiply by.
   /// - Returns: A new `FunctionExpr` representing the multiplication operation.
-  func multiply(_ second: Sendable, _ others: Sendable...) -> FunctionExpr
+  func multiply(_ value: Sendable) -> FunctionExpr
+
+  /// Creates an expression that multiplies this expression by one or more other expressions.
+  /// Assumes `self` and all parameters evaluate to numeric types.
+  ///
+  /// ```swift
+  /// // Multiply the 'quantity' field by the 'price' field
+  /// Field("quantity").multiply(Field("price"))
+  ///
+  /// // Multiply 'rate' by 'time' and 'conversionFactor' fields
+  /// Field("rate").multiply(Field("time"), Field("conversionFactor"))
+  /// ```
+  ///
+  /// - Parameter values: `Expr` values to multiply by.
+  /// - Returns: A new `FunctionExpr` representing the multiplication operation.
+  func multiply(_ values: [Expr]) -> FunctionExpr
+
+  /// Creates an expression that multiplies this expression by one or more literal values.
+  /// Assumes `self` evaluates to a numeric type.
+  ///
+  /// ```swift
+  /// // Multiply the 'score' by 1.1
+  /// Field("score").multiply(1.1)
+  ///
+  /// // Multiply 'base' by 2 and then by 3.0
+  /// Field("base").multiply(2, 3.0)
+  /// ```
+  ///
+  /// - Parameter values: `Sendable` literal values to multiply by.
+  /// - Returns: A new `FunctionExpr` representing the multiplication operation.
+  func multiply(_ values: [Sendable]) -> FunctionExpr
 
   /// Creates an expression that divides this expression by another expression.
   /// Assumes `self` and `other` evaluate to numeric types.

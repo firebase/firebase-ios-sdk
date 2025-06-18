@@ -25,14 +25,20 @@ public extension Expr {
 
   // MARK: Arithmetic Operators
 
-  func add(_ second: Expr, _ others: Expr...) -> FunctionExpr {
-    return FunctionExpr("add", [self, second] + others)
+  func add(_ values: Expr) -> FunctionExpr {
+    return FunctionExpr("add", [self, Helper.array([values])])
   }
 
-  func add(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
-    let exprs = [self] + [Helper.sendableToExpr(second)] + others
-      .map { Helper.sendableToExpr($0) }
-    return FunctionExpr("add", exprs)
+  func add(_ values: Sendable) -> FunctionExpr {
+    return FunctionExpr("add", [self, Helper.array([values])])
+  }
+
+  func add(_ values: [Expr]) -> FunctionExpr {
+    return FunctionExpr("add", [self, Helper.array(values)])
+  }
+
+  func add(_ values: [Sendable]) -> FunctionExpr {
+    return FunctionExpr("add", [self, Helper.array(values)])
   }
 
   func subtract(_ other: Expr) -> FunctionExpr {
@@ -43,14 +49,20 @@ public extension Expr {
     return FunctionExpr("subtract", [self, Helper.sendableToExpr(other)])
   }
 
-  func multiply(_ second: Expr, _ others: Expr...) -> FunctionExpr {
-    return FunctionExpr("multiply", [self, second] + others)
+  func multiply(_ values: Expr) -> FunctionExpr {
+    return FunctionExpr("multiply", [self, Helper.array([values])])
   }
 
-  func multiply(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
-    let exprs = [self] + [Helper.sendableToExpr(second)] + others
-      .map { Helper.sendableToExpr($0) }
-    return FunctionExpr("multiply", exprs)
+  func multiply(_ values: Sendable) -> FunctionExpr {
+    return FunctionExpr("multiply", [self, Helper.array([values])])
+  }
+
+  func multiply(_ values: [Expr]) -> FunctionExpr {
+    return FunctionExpr("multiply", [self, Helper.array(values)])
+  }
+
+  func multiply(_ values: [Sendable]) -> FunctionExpr {
+    return FunctionExpr("multiply", [self, Helper.array(values)])
   }
 
   func divide(_ other: Expr) -> FunctionExpr {
@@ -170,12 +182,12 @@ public extension Expr {
     return BooleanExpr("eq", [self, exprOther])
   }
 
-  func neq(_ others: [Expr]) -> BooleanExpr {
-    return BooleanExpr("neq", [self, Helper.array(others)])
+  func neq(_ other: Expr) -> BooleanExpr {
+    return BooleanExpr("neq", [self, other])
   }
 
-  func neq(_ others: [Sendable]) -> BooleanExpr {
-    return BooleanExpr("neq", [self, Helper.array(others)])
+  func neq(_ other: Sendable) -> BooleanExpr {
+    return BooleanExpr("neq", [self, Helper.sendableToExpr(other)])
   }
 
   func eqAny(_ others: [Expr]) -> BooleanExpr {
