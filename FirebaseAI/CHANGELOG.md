@@ -1,5 +1,12 @@
-# Unreleased
+# 11.15.0
 - [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14947)
+- [added] Added support for setting `title` in string, number and array `Schema`
+  types. (#14971)
+- [added] Added support for configuring the "thinking" budget when using Gemini
+  2.5 series models. (#14909)
+- [changed] Deprecated `CountTokensResponse.totalBillableCharacters`; use
+  `totalTokens` instead. Gemini 2.0 series models and newer are always billed by
+  token count. (#14934)
 
 # 11.13.0
 - [feature] Initial release of the Firebase AI Logic SDK (`FirebaseAI`). This

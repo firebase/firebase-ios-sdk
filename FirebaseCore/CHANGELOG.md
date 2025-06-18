@@ -4,6 +4,10 @@
 
 # Firebase 11.15.0
 - [fixed] Remove c99 as the required C language standard. (#14950)
+- [deprecated] Deprecated the `Options.deepLinkURLScheme` property. This
+  property will be removed in a future release. This is related to the
+  overall Firebase Dynamic Links deprecation. For more details, see
+  the [Dynamic Links deprecation FAQ](https://firebase.google.com/support/dynamic-links-faq).
 
 # Firebase 11.12.0
 - [changed] Firebase now requires at least Xcode 16.2. See

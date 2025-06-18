@@ -83,7 +83,7 @@ NS_SWIFT_NAME(FirebaseOptions)
 /**
  * The URL scheme used to set up Durable Deep Link service.
  */
-@property(nonatomic, copy, nullable) NSString *deepLinkURLScheme;
+@property(nonatomic, copy, nullable) NSString *deepLinkURLScheme DEPRECATED_ATTRIBUTE;
 
 /**
  * The Google Cloud Storage bucket name, e.g. @"abc-xyz-123.storage.firebase.com".

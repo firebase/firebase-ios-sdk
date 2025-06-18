@@ -13,6 +13,5 @@ target 'InAppMessaging_Example_iOS' do
   platform :ios, '13.0'
 
   pod 'FirebaseInAppMessaging', :path => '../../../..'
-  pod 'FirebaseDynamicLinks',  :path => '../../../..'
 
 end
