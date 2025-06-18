@@ -144,7 +144,6 @@ class FirebaseAppTests: XCTestCase {
   func testConfigureMultipleApps() throws {
     let options1 = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
                                    gcmSenderID: Constants.Options.gcmSenderID)
-    options1.deepLinkURLScheme = Constants.Options.deepLinkURLScheme
 
     expectAppConfigurationNotification(appName: Constants.testAppName1, isDefaultApp: false)
 
@@ -154,7 +153,6 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertEqual(app1.name, Constants.testAppName1)
     XCTAssertEqual(app1.options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(app1.options.gcmSenderID, Constants.Options.gcmSenderID)
-    XCTAssertEqual(app1.options.deepLinkURLScheme, Constants.Options.deepLinkURLScheme)
     XCTAssertTrue(FirebaseApp.allApps?.count == 1)
 
     // Configure a different app with valid customized options.
@@ -288,8 +286,6 @@ class FirebaseAppTests: XCTestCase {
 
     let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
                                   gcmSenderID: Constants.Options.gcmSenderID)
-    let superSecretURLScheme = "com.supersecret.googledeeplinkurl"
-    options.deepLinkURLScheme = superSecretURLScheme
     FirebaseApp.configure(name: Constants.testAppName1, options: options)
 
     let app = try XCTUnwrap(
@@ -299,7 +295,6 @@ class FirebaseAppTests: XCTestCase {
     XCTAssertEqual(app.name, Constants.testAppName1)
     XCTAssertEqual(app.options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(app.options.gcmSenderID, Constants.Options.gcmSenderID)
-    XCTAssertEqual(app.options.deepLinkURLScheme, superSecretURLScheme)
   }
 
   func testFirebaseDataCollectionDefaultEnabled() throws {
