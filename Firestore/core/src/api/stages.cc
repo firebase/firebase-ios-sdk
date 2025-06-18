@@ -28,6 +28,8 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+using model::DeepClone;
+
 google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 
@@ -191,7 +193,7 @@ google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
   result.args_count = 3;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(3);
   result.args[0] = property_->to_proto();
-  result.args[1] = *vector_;
+  result.args[1] = *DeepClone(*vector_).release();
   result.args[2] = distance_measure_.proto();
 
   nanopb::SetRepeatedField(
@@ -200,7 +202,7 @@ google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
                          nanopb::SharedMessage<google_firestore_v1_Value>>&
              entry) {
         return _google_firestore_v1_Pipeline_Stage_OptionsEntry{
-            nanopb::MakeBytesArray(entry.first), *entry.second};
+            nanopb::MakeBytesArray(entry.first), *DeepClone(*entry.second).release()};
       });
 
   return result;

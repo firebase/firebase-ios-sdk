@@ -1508,4 +1508,57 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
+  
+  func testFindNearest() async throws {
+      let collRef = collectionRef(withDocuments: bookDocs)
+      let db = collRef.firestore
+
+      let measures: [DistanceMeasure] = [.euclidean, .dotProduct, .cosine]
+      let expectedResults: [[String: Sendable]] = [
+        ["title": "The Hitchhiker's Guide to the Galaxy"],
+        ["title": "One Hundred Years of Solitude"],
+        ["title": "The Handmaid's Tale"],
+      ]
+
+      for measure in measures {
+        let pipeline = db.pipeline()
+          .collection(collRef.path)
+          .findNearest(
+            field: Field("embedding"),
+            vectorValue: [10, 1, 3, 1, 2, 1, 1, 1, 1, 1],
+            distanceMeasure: measure, limit: 3
+          )
+          .select("title")
+        let snapshot = try await pipeline.execute()
+        TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+      }
+    }
+
+    func testFindNearestWithDistance() async throws {
+      let collRef = collectionRef(withDocuments: bookDocs)
+      let db = collRef.firestore
+
+      let expectedResults: [[String: Sendable]] = [
+        [
+          "title": "The Hitchhiker's Guide to the Galaxy",
+          "computedDistance": 1.0,
+        ],
+        [
+          "title": "One Hundred Years of Solitude",
+          "computedDistance": 12.041594578792296,
+        ],
+      ]
+
+      let pipeline = db.pipeline()
+        .collection(collRef.path)
+        .findNearest(
+          field: Field("embedding"),
+          vectorValue: [10, 1, 2, 1, 1, 1, 1, 1, 1, 1],
+          distanceMeasure: .euclidean, limit: 2,
+          distanceField: "computedDistance"
+        )
+        .select("title", "computedDistance")
+      let snapshot = try await pipeline.execute()
+      TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+    }
 }
