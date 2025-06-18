@@ -198,11 +198,9 @@ google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
 
   nanopb::SetRepeatedField(
       &result.options, &result.options_count, options_,
-      [](const std::pair<std::string,
-                         nanopb::SharedMessage<google_firestore_v1_Value>>&
-             entry) {
+      [](const std::pair<std::string, google_firestore_v1_Value>& entry) {
         return _google_firestore_v1_Pipeline_Stage_OptionsEntry{
-            nanopb::MakeBytesArray(entry.first), *DeepClone(*entry.second).release()};
+            nanopb::MakeBytesArray(entry.first), entry.second};
       });
 
   return result;

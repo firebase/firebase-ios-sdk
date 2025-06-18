@@ -73,7 +73,9 @@ using firebase::firestore::api::SortStage;
 using firebase::firestore::api::Union;
 using firebase::firestore::api::Unnest;
 using firebase::firestore::api::Where;
+using firebase::firestore::model::DeepClone;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::nanopb::MakeSharedMessage;
 using firebase::firestore::nanopb::SharedMessage;
 using firebase::firestore::util::ComparisonResult;
 using firebase::firestore::util::MakeCallback;
@@ -560,7 +562,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   FIRVectorValue *_vectorValue;
   NSString *_distanceMeasure;
   NSNumber *_limit;
-  NSString *_Nullable _distanceField;
+  FIRExprBridge *_Nullable _distanceField;
   Boolean isUserDataRead;
   std::shared_ptr<FindNearestStage> cpp_find_nearest;
 }
@@ -569,7 +571,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
         vectorValue:(FIRVectorValue *)vectorValue
     distanceMeasure:(NSString *)distanceMeasure
               limit:(NSNumber *_Nullable)limit
-      distanceField:(NSString *_Nullable)distanceField {
+      distanceField:(FIRExprBridge *_Nullable)distanceField {
   self = [super init];
   if (self) {
     _field = field;
@@ -584,21 +586,16 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    std::unordered_map<std::string,
-                       nanopb::SharedMessage<firebase::firestore::google_firestore_v1_Value>>
-        optional_value;
+    std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value> optional_value;
     if (_limit) {
-      optional_value.emplace(
-          std::make_pair(std::string("limit"),
-                         nanopb::SharedMessage<firebase::firestore::google_firestore_v1_Value>(
-                             [reader parsedQueryValue:_limit])));
+      optional_value.emplace(std::make_pair(
+          std::string("limit"), *DeepClone(*[reader parsedQueryValue:_limit]).release()));
     }
 
     if (_distanceField) {
+      std::shared_ptr<Expr> cpp_distance_field = [_distanceField cppExprWithReader:reader];
       optional_value.emplace(
-          std::make_pair(std::string("distance_field"),
-                         nanopb::SharedMessage<firebase::firestore::google_firestore_v1_Value>(
-                             [reader parsedQueryValue:_distanceField])));
+          std::make_pair(std::string("distance_field"), cpp_distance_field->to_proto()));
     }
 
     FindNearestStage::DistanceMeasure::Measure measure_enum;

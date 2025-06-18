@@ -262,7 +262,7 @@ class FindNearest: Stage {
       vectorValue: VectorValue(vectorValue),
       distanceMeasure: distanceMeasure.kind.rawValue,
       limit: limit as NSNumber?,
-      distanceField: distanceField
+      distanceField: distanceField.map { Field($0).toBridge() } ?? nil
     )
   }
 }

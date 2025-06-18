@@ -160,7 +160,7 @@ NS_SWIFT_NAME(FindNearestStageBridge)
         vectorValue:(FIRVectorValue *)vectorValue
     distanceMeasure:(NSString *)distanceMeasure
               limit:(NSNumber *_Nullable)limit
-      distanceField:(NSString *_Nullable)distanceField;
+      distanceField:(FIRExprBridge *_Nullable)distanceField;
 @end
 
 NS_SWIFT_SENDABLE
