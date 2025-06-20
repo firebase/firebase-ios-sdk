@@ -125,6 +125,10 @@ class QueryEngineTestBase : public testing::Test {
 
   api::RealtimePipeline ConvertQueryToPipeline(const core::Query& query);
 
+  model::DocumentSet RunPipeline(
+      const api::RealtimePipeline& pipeline,
+      const model::SnapshotVersion& last_limbo_free_snapshot_version);
+
   std::unique_ptr<local::Persistence> persistence_;
   bool should_use_pipeline_ =
       false;  // Flag to indicate if pipeline conversion should be attempted.
