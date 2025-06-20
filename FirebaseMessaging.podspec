@@ -20,7 +20,7 @@ device, and it is completely free.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios.deployment_target = '15.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
   tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
