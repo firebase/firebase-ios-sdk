@@ -1,4 +1,12 @@
 # Unreleased
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 12 |
+      | ------------- | ------------- |
+      | iOS  | **15.0**  |
+      | tvOS  | **15.0**  |
+      | macOS  | 10.15  |
+      | watchOS  | 7.0  |
 - [removed] **Breaking change**: FirebaseDynamicLinks has been removed. See
   https://firebase.google.com/support/dynamic-links-faq for more info.
 - [removed] **Breaking change**: Removed the `Options.deepLinkURLScheme`
