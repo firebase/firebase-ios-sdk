@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.social_media_url = 'https://twitter.com/Firebase'
   s.swift_version = '5.9'
 
-  ios.deployment_target = '15.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
   tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
