@@ -157,7 +157,8 @@ bool FieldFilter::Rep::Matches(const model::Document& doc) const {
 
   // Types do not have to match in NotEqual filters.
   if (op_ == Operator::NotEqual) {
-    return MatchesComparison(Compare(lhs, *value_rhs_));
+    return lhs.which_value_type != google_firestore_v1_Value_null_value_tag &&
+           MatchesComparison(Compare(lhs, *value_rhs_));
   }
 
   // Only compare types with matching backend order (such as double and int).

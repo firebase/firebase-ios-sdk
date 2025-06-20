@@ -1,6 +1,7 @@
 AppCheckCore
 Firebase
 FirebaseABTesting
+FirebaseAI
 FirebaseAppCheck
 FirebaseAppCheckInterop
 FirebaseAppDistribution
@@ -9,7 +10,6 @@ FirebaseAuthInterop
 FirebaseCore
 FirebaseCoreExtension
 FirebaseCoreInternal
-FirebaseDynamicLinks
 FirebaseFunctions
 FirebaseInAppMessaging
 FirebaseInstallations
@@ -1928,6 +1928,9 @@ FirebaseSharedSwift
    See the License for the specific language governing permissions and
    limitations under the License.
 
+
+GoogleAdsOnDeviceConversion
+Copyright 2024 Google
 
 GoogleUtilities
 

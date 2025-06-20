@@ -25,7 +25,6 @@ import Foundation
 // Skip these directories. Imports should only be repo-relative in libraries
 // and unit tests.
 let skipDirPatterns = ["/Sample/", "/Pods/",
-                       "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "FirebaseAuth/",
                        // TODO: Turn Combine back on without Auth includes.
@@ -88,7 +87,7 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
       .forEach { lineNum, line in
         logger
           .importLog(
-            "Use `@_implementationOnly import FirebaseCoreExtension` when importing `FirebaseCoreExtension`.",
+            "Use `internal import FirebaseCoreExtension` when importing `FirebaseCoreExtension`.",
             file, lineNum
           )
       }

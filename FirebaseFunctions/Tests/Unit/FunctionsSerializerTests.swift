@@ -98,7 +98,7 @@ class FunctionsSerializerTests: XCTestCase {
     let dictLowLong = ["@type": typeString, "value": badVal]
     do {
       _ = try serializer.decode(dictLowLong) as? NSNumber
-    } catch let FunctionsSerializer.Error.invalidValueForType(value, type) {
+    } catch let FunctionsSerializer.Error.failedToParseWrappedNumber(value, type) {
       XCTAssertEqual(value, badVal)
       XCTAssertEqual(type, typeString)
       return
@@ -136,7 +136,7 @@ class FunctionsSerializerTests: XCTestCase {
     let coded = ["@type": typeString, "value": tooHighVal]
     do {
       _ = try serializer.decode(coded) as? NSNumber
-    } catch let FunctionsSerializer.Error.invalidValueForType(value, type) {
+    } catch let FunctionsSerializer.Error.failedToParseWrappedNumber(value, type) {
       XCTAssertEqual(value, tooHighVal)
       XCTAssertEqual(type, typeString)
       return
@@ -280,6 +280,38 @@ class FunctionsSerializerTests: XCTestCase {
 
   func testDecodeUnsupportedType() {
     let input = CustomObject()
+
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+
+  // If the object can be decoded as a wrapped number, all other properties are ignored:
+  func testDecodeValidWrappedNumberWithUnsupportedExtra() throws {
+    let input = [
+      "@type": "type.googleapis.com/google.protobuf.Int64Value",
+      "value": "1234567890",
+      "extra": CustomObject(),
+    ] as NSDictionary
+
+    XCTAssertEqual(NSNumber(1_234_567_890), try serializer.decode(input) as? NSNumber)
+  }
+
+  // If the object is not a valid wrapped number, it’s processed as a generic array:
+  func testDecodeWrappedNumberWithUnsupportedValue() throws {
+    let input = [
+      "@type": "type.googleapis.com/google.protobuf.Int64Value",
+      "value": CustomObject(),
+    ] as NSDictionary
+
+    try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
+  }
+
+  // If the object is not a valid wrapped number, it’s processed as a generic array:
+  func testDecodeInvalidWrappedNumberWithUnsupportedExtra() throws {
+    let input = [
+      "@type": "CUSTOM_TYPE",
+      "value": "1234567890",
+      "extra": CustomObject(),
+    ] as NSDictionary
 
     try assert(serializer.decode(input), throwsUnsupportedTypeErrorWithName: "CustomObject")
   }

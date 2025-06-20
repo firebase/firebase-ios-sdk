@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseRemoteConfig'
-  s.version          = '11.11.0'
+  s.version          = '11.15.0'
   s.summary          = 'Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -47,15 +47,14 @@ app update.
     "#{s.module_name}_Privacy" => 'FirebaseRemoteConfig/Swift/Resources/PrivacyInfo.xcprivacy'
   }
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.dependency 'FirebaseABTesting', '~> 11.0'
   s.dependency 'FirebaseSharedSwift', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.11.0'
+  s.dependency 'FirebaseCore', '~> 11.15.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
   s.dependency 'FirebaseRemoteConfigInterop', '~> 11.0'
 
   s.test_spec 'unit' do |unit_tests|

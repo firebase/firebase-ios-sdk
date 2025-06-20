@@ -209,7 +209,7 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   timer1.Cancel();
 }
 
-TEST_P(AsyncQueueTest, CanScheduleOprationsWithRespectsToShutdownState) {
+TEST_P(AsyncQueueTest, CanScheduleOperationsWithRespectsToShutdownState) {
   Expectation ran;
   std::string steps;
 

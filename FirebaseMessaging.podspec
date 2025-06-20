@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '11.11.0'
+  s.version          = '11.15.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -50,7 +50,6 @@ device, and it is completely free.
   }
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       # for nanopb:
       'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
@@ -62,11 +61,11 @@ device, and it is completely free.
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseInstallations', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.11.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.0'
-  s.dependency 'GoogleUtilities/Reachability', '~> 8.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 11.15.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
+  s.dependency 'GoogleUtilities/Reachability', '~> 8.1'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
   s.dependency 'GoogleDataTransport', '~> 10.0'
   s.dependency 'nanopb', '~> 3.30910.0'
 

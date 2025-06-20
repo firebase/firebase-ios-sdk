@@ -48,11 +48,7 @@ extern NSString *const kFIRLibraryVersionID;
   NSDictionary *optionsDictionary = [FIROptions defaultOptionsDictionary];
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertTrue(options.usingOptionsFromDefaultPlist);
-
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
 }
 
 - (void)testDefaultOptionsDictionaryWithNilFilePath {
@@ -77,11 +73,7 @@ extern NSString *const kFIRLibraryVersionID;
   [FIROptionsMock mockFIROptions];
   FIROptions *options = [FIROptions defaultOptions];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertTrue(options.usingOptionsFromDefaultPlist);
-
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
 }
 
 #ifndef SWIFT_PACKAGE
@@ -124,7 +116,6 @@ extern NSString *const kFIRLibraryVersionID;
   NSString *filePath = [self validGoogleServicesInfoPlistPath];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
   [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertNil(options.deepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 
 #pragma clang diagnostic push
@@ -145,11 +136,9 @@ extern NSString *const kFIRLibraryVersionID;
   options.bundleID = kBundleID;
   options.clientID = kClientID;
   options.databaseURL = kDatabaseURL;
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
   options.projectID = kProjectID;
   options.storageBucket = kStorageBucket;
   [self assertOptionsMatchDefaults:options andProjectID:YES];
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
 }
 
@@ -210,11 +199,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.databaseURL, @"1");
 
   mutableString = [[NSMutableString alloc] initWithString:@"1"];
-  options.deepLinkURLScheme = mutableString;
-  [mutableString appendString:@"2"];
-  XCTAssertEqualObjects(options.deepLinkURLScheme, @"1");
-
-  mutableString = [[NSMutableString alloc] initWithString:@"1"];
   options.storageBucket = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.storageBucket, @"1");
@@ -223,30 +207,6 @@ extern NSString *const kFIRLibraryVersionID;
   options.appGroupID = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.appGroupID, @"1");
-}
-
-- (void)testCopyWithZone {
-  [FIROptionsMock mockFIROptions];
-  // default options
-  FIROptions *options = [FIROptions defaultOptions];
-  options.deepLinkURLScheme = kDeepLinkURLScheme;
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
-
-  FIROptions *newOptions = [options copy];
-  XCTAssertEqualObjects(newOptions.deepLinkURLScheme, kDeepLinkURLScheme);
-
-  [options setDeepLinkURLScheme:kNewDeepLinkURLScheme];
-  XCTAssertEqualObjects(options.deepLinkURLScheme, kNewDeepLinkURLScheme);
-  XCTAssertEqualObjects(newOptions.deepLinkURLScheme, kDeepLinkURLScheme);
-
-  // customized options
-  FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                              GCMSenderID:kGCMSenderID];
-  customizedOptions.deepLinkURLScheme = kDeepLinkURLScheme;
-  FIROptions *copyCustomizedOptions = [customizedOptions copy];
-  [copyCustomizedOptions setDeepLinkURLScheme:kNewDeepLinkURLScheme];
-  XCTAssertEqualObjects(customizedOptions.deepLinkURLScheme, kDeepLinkURLScheme);
-  XCTAssertEqualObjects(copyCustomizedOptions.deepLinkURLScheme, kNewDeepLinkURLScheme);
 }
 
 - (void)testAnalyticsConstants {
@@ -588,7 +548,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertThrows(options.bundleID = @"should_throw");
   XCTAssertThrows(options.clientID = @"should_throw");
   XCTAssertThrows(options.databaseURL = @"should_throw");
-  XCTAssertThrows(options.deepLinkURLScheme = @"should_throw");
   XCTAssertThrows(options.GCMSenderID = @"should_throw");
   XCTAssertThrows(options.googleAppID = @"should_throw");
   XCTAssertThrows(options.projectID = @"should_throw");

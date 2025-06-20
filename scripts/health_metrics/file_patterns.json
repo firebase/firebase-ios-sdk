@@ -67,15 +67,6 @@
     ]
   },
   {
-    "sdk": "dynamiclinks",
-    "podspecs": ["FirebaseDynamicLinks.podspec"],
-    "filePatterns": [
-      "^FirebaseDynamicLinks.*",
-      "\\.github/workflows/dynamiclinks\\.yml",
-      "Interop/Analytics/Public/[^/]+\\.h"
-    ]
-  },
-  {
     "sdk": "firebase",
     "podspecs": ["Firebase.podspec"],
     "filePatterns": [

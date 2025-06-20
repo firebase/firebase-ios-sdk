@@ -13,21 +13,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreInternal
 @testable import FirebaseSessions
 import Foundation
 
-final class MockSubscriber: SessionsSubscriber {
-  var sessionThatChanged: FirebaseSessions.SessionDetails?
+final class MockSubscriber: SessionsSubscriber, Sendable {
+  let sessionsSubscriberName: FirebaseSessions.SessionsSubscriberName
+
+  var sessionThatChanged: FirebaseSessions.SessionDetails? {
+    get { _sessionThatChanged.value() }
+    set { _sessionThatChanged.withLock { $0 = newValue } }
+  }
+
+  var isDataCollectionEnabled: Bool {
+    get { _isDataCollectionEnabled.value() }
+    set { _isDataCollectionEnabled.withLock { $0 = newValue } }
+  }
+
+  private let _sessionThatChanged = FIRAllocatedUnfairLock<FirebaseSessions.SessionDetails?>(
+    initialState: nil
+  )
+  private let _isDataCollectionEnabled = FIRAllocatedUnfairLock<Bool>(initialState: true)
 
   init(name: SessionsSubscriberName) {
     sessionsSubscriberName = name
   }
 
   func onSessionChanged(_ session: FirebaseSessions.SessionDetails) {
-    sessionThatChanged = session
+    _sessionThatChanged.withLock { $0 = session }
   }
-
-  var isDataCollectionEnabled: Bool = true
-
-  var sessionsSubscriberName: FirebaseSessions.SessionsSubscriberName
 }

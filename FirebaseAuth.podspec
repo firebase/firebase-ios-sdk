@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '11.11.0'
+  s.version          = '11.15.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -49,7 +49,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'FirebaseAuth/CHANGELOG.md'
   ]
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     # The second path is to find FirebaseAuth-Swift.h from a pod gen project
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"',
     'OTHER_SWIFT_FLAGS' => "$(inherited) #{ENV.key?('FIREBASE_CI') ? '-D FIREBASE_CI -warnings-as-errors' : ''}"
@@ -58,10 +57,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.ios.framework = 'SafariServices'
   s.dependency 'FirebaseAuthInterop', '~> 11.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.11.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.11.0'
-  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
+  s.dependency 'FirebaseCore', '~> 11.15.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.15.0'
+  s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 5.0'
   s.ios.dependency 'RecaptchaInterop', '~> 101.0'
   s.test_spec 'unit' do |unit_tests|

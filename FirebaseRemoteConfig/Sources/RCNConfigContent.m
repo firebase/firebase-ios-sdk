@@ -198,7 +198,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   toDict[FIRNamespace] = [[NSMutableDictionary alloc] init];
   NSDictionary *config = fromDict[FIRNamespace];
   for (NSString *key in config) {
-    if (DBSource == FIRRemoteConfigSourceDefault) {
+    if (DBSource == RCNDBSourceDefault) {
       NSObject *value = config[key];
       NSData *valueData;
       if ([value isKindOfClass:[NSData class]]) {

@@ -365,7 +365,10 @@ enum CocoaPodUtils {
     repeat {
       var foundDeps = Set<String>()
       for dep in newDeps {
-        let childDeps = installedPods[dep]?.dependencies ?? []
+        // The `dep` may be a subspec, so get root spec name to lookup it's
+        // dependencies in the `installedPods` dictionary.
+        let rootDep = dep.components(separatedBy: "/")[0]
+        let childDeps = installedPods[rootDep]?.dependencies ?? []
         foundDeps.formUnion(Set(childDeps))
       }
       newDeps = foundDeps.subtracting(returnDeps)

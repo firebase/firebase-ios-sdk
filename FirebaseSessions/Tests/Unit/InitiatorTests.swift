@@ -58,7 +58,7 @@ class InitiatorTests: XCTestCase {
     XCTAssert(initiateCalled)
   }
 
-  func test_appForegrounded_initiatesNewSession() throws {
+  func test_appForegrounded_initiatesNewSession() async throws {
     // Given
     var pausedClock = date
     let initiator = SessionInitiator(
@@ -73,18 +73,18 @@ class InitiatorTests: XCTestCase {
 
     // When
     // Background, advance time by 30 minutes + 1 second, then foreground
-    postBackgroundedNotification()
+    await postBackgroundedNotification()
     pausedClock.addTimeInterval(30 * 60 + 1)
-    postForegroundedNotification()
+    await postForegroundedNotification()
     // Then
     // Session count increases because time spent in background > 30 minutes
     XCTAssert(sessionCount == 2)
 
     // When
     // Background, advance time by exactly 30 minutes, then foreground
-    postBackgroundedNotification()
+    await postBackgroundedNotification()
     pausedClock.addTimeInterval(30 * 60)
-    postForegroundedNotification()
+    await postForegroundedNotification()
     // Then
     // Session count doesn't increase because time spent in background <= 30 minutes
     XCTAssert(sessionCount == 2)

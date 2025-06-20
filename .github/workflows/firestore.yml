@@ -33,7 +33,7 @@ jobs:
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
-      - uses: dorny/paths-filter@v3.0.2
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: firestore_src_changes
         with:
           predicate-quantifier: 'every'
@@ -42,7 +42,7 @@ jobs:
               # Firestore sources
               - 'Firestore/**'
               - '!Firestore/**/*.md'
-      - uses: dorny/paths-filter@v3.0.2
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: related_changes
         with:
           filters: |
@@ -83,6 +83,10 @@ jobs:
               # This workflow
               - '.github/workflows/firestore.yml'
 
+              # Workflows this one depends on.
+              - '.github/workflows/common.yml'
+              - '.github/workflows/common_cocoapods.yml'
+
               # Rebuild on Ruby infrastructure changes.
               - 'Gemfile*'
 
@@ -118,6 +122,7 @@ jobs:
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
+      USE_LATEST_CMAKE: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -141,6 +146,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -168,6 +178,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       MINT_PATH: ${{ github.workspace }}/mint
       TARGET_DATABASE_ID: ${{ matrix.databaseId }}
+      USE_LATEST_CMAKE: false
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -205,7 +216,7 @@ jobs:
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
+      uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # v2
     - name: Terraform Init
       run: |
         cd Firestore
@@ -229,6 +240,11 @@ jobs:
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ../google-service-account.json
       continue-on-error: true
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -255,6 +271,7 @@ jobs:
 
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
+      USE_LATEST_CMAKE: false
 
     steps:
     - uses: actions/checkout@v4
@@ -270,6 +287,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -301,6 +323,7 @@ jobs:
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
       ASAN_OPTIONS: detect_leaks=0
+      USE_LATEST_CMAKE: false
 
     steps:
     - uses: actions/checkout@v3
@@ -316,6 +339,11 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.31.1'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -333,7 +361,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request')
-    runs-on: macos-14
+    runs-on: macos-15
 
     strategy:
       matrix:
@@ -345,7 +373,7 @@ jobs:
       with:
         cache_key: ${{ matrix.target }}
 
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
@@ -355,37 +383,17 @@ jobs:
         export EXPERIMENTAL_MODE=true
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
-
-  pod-lib-lint:
+  pod_lib_lint:
     needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request')
-    runs-on: macos-14
     strategy:
       matrix:
-        podspec: [
-          'FirebaseFirestoreInternal.podspec',
-          'FirebaseFirestore.podspec',
-        ]
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: ./scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
-
-    - name: Pod lib lint
-      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
-            --platforms=ios \
-            --allow-warnings \
-            --no-analyze
+        product: ['FirebaseFirestoreInternal', 'FirebaseFirestore']
+    uses: ./.github/workflows/common_cocoapods.yml
+    with:
+      product: ${{ matrix.product }}
+      platforms: iOS
+      allow_warnings: true
+      analyze: false # TODO(#9565, b/227461966): Remove when absl is fixed.
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
@@ -406,25 +414,17 @@ jobs:
           '--use-static-frameworks',
           '',
         ]
-        os: [macos-14, macos-13]
-        # TODO: grpc and its dependencies don't build on Xcode 15 for macos because their minimum macos is lower than 10.11.
-        exclude:
-          - os: macos-13
-            platforms: 'macos'
+        os: [macos-15, macos-14]
         # Skip matrix cells covered by pod-lib-lint job.
-          - os: macos-13
-            platforms: 'ios'
-        include:
+        exclude:
           - os: macos-15
-            xcode: Xcode_16.2
-          - os: macos-13
-            xcode: Xcode_15.2
+            platforms: 'ios'
     runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
 
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
@@ -448,6 +448,8 @@ jobs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
       - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: |
@@ -472,26 +474,23 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-13
-            xcode: Xcode_15.2
-            target: iOS
           - os: macos-14
-            xcode: Xcode_15.4
-            target: iOS
-          - os: macos-15
             xcode: Xcode_16.2
             target: iOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
+            target: iOS
+          - os: macos-15
+            xcode: Xcode_16.3
             target: tvOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: macOS
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: catalyst
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.3
             target: visionOS
     runs-on: ${{ matrix.os }}
     env:
@@ -509,21 +508,11 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
-    needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-14
-    steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: spm-binary
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: iOS Build Test
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
+    uses: ./.github/workflows/common.yml
+    with:
+      target: FirebaseFirestore
+      platforms: iOS
+      buildonly_platforms: iOS
 
   check-firestore-internal-public-headers:
     needs: check
@@ -579,7 +568,7 @@ jobs:
   spm-binary-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       matrix:
         target: [tvOS, macOS, catalyst]
@@ -588,6 +577,8 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.target }}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary

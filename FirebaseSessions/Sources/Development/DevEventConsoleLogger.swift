@@ -19,7 +19,7 @@ import Foundation
   import FirebaseSessionsObjC
 #endif // SWIFT_PACKAGE
 
-class DevEventConsoleLogger: EventGDTLoggerProtocol {
+final class DevEventConsoleLogger: EventGDTLoggerProtocol {
   private let commandLineArgument = "-FIRSessionsDebugEvents"
 
   func logEvent(event: SessionStartEvent, completion: @escaping (Result<Void, Error>) -> Void) {

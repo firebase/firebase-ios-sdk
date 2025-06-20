@@ -1,3 +1,29 @@
+# 11.13.0
+- [changed] **Renamed:** Vertex AI in Firebase (`FirebaseVertexAI`) has been
+  renamed and replaced by the new Firebase AI SDK (`FirebaseAI`). Please migrate
+  to the new `FirebaseAI` module. See the Firebase AI release notes for
+  migration details and new changes.
+  <br /><br />
+  Note: Existing Vertex AI in Firebase users may continue to use
+  `import FirebaseVertexAI` and the `VertexAI` top-level class, though these
+  will be removed in a future release.
+- [fixed] Fixed `ModalityTokenCount` decoding when the `tokenCount` field is
+  omitted; this occurs when the count is 0. (#14745)
+
+# 11.12.0
+- [added] **Public Preview**: Added support for specifying response modalities
+  in `GenerationConfig`. This includes **public experimental** support for image
+  generation using Gemini 2.0 Flash (`gemini-2.0-flash-exp`). (#14658)
+  <br /><br />
+  Note: This feature is in Public Preview and relies on experimental models,
+  which means that it is not subject to any SLA or deprecation policy and could
+  change in backwards-incompatible ways.
+- [added] Added support for more `Schema` fields: `minItems`/`maxItems` (array
+  size limits), `title` (schema name), `minimum`/`maximum` (numeric ranges),
+  `anyOf` (select from sub-schemas), and `propertyOrdering` (JSON key order). (#14647)
+- [fixed] Fixed an issue where network requests would fail in the iOS 18.4
+  simulator due to a `URLSession` bug introduced in Xcode 16.3. (#14677)
+
 # 11.11.0
 - [added] Emits a warning when attempting to use an incompatible model with
   `GenerativeModel` or `ImagenModel`. (#14610)

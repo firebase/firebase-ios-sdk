@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '11.11.0'
+  s.version          = '11.15.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -50,7 +50,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   end
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
     # Unit tests do library imports using repo-root relative paths.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
@@ -59,14 +58,14 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
-  s.dependency 'FirebaseCore', '~> 11.11.0'
+  s.dependency 'FirebaseCore', '~> 11.15.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'FirebaseRemoteConfig', '~> 11.0'
   s.dependency 'FirebaseSessions', '~> 11.0'
   s.dependency 'GoogleDataTransport', '~> 10.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.0'
-  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
+  s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
   s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|

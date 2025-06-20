@@ -286,7 +286,7 @@ public class FirebaseDataEncoder {
   /// - returns: A new `Data` value containing the encoded JSON data.
   /// - throws: `EncodingError.invalidValue` if a non-conforming floating-point value is encountered during encoding, and the encoding strategy is `.throw`.
   /// - throws: An error if any value throws an error during encoding.
-  open func encode<T : Encodable>(_ value: T) throws -> Any {
+  open func encode<T : Encodable>(_ value: T) throws -> sending Any {
     let encoder = __JSONEncoder(options: self.options)
 
     guard let topLevel = try encoder.box_(value) else {
@@ -2611,19 +2611,11 @@ fileprivate struct _JSONKey : CodingKey {
 //===----------------------------------------------------------------------===//
 
 // NOTE: This value is implicitly lazy and _must_ be lazy. We're compiled against the latest SDK (w/ ISO8601DateFormatter), but linked against whichever Foundation the user has. ISO8601DateFormatter might not exist, so we better not hit this code path on an older OS.
-#if compiler(>=6)
 nonisolated(unsafe) fileprivate var _iso8601Formatter: ISO8601DateFormatter = {
   let formatter = ISO8601DateFormatter()
   formatter.formatOptions = .withInternetDateTime
   return formatter
 }()
-#else
-fileprivate var _iso8601Formatter: ISO8601DateFormatter = {
-  let formatter = ISO8601DateFormatter()
-  formatter.formatOptions = .withInternetDateTime
-  return formatter
-}()
-#endif
 
 //===----------------------------------------------------------------------===//
 // Error Utilities

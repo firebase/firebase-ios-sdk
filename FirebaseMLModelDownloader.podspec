@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMLModelDownloader'
-  s.version          = '11.11.0-beta'
+  s.version          = '11.15.0-beta'
   s.summary          = 'Firebase ML Model Downloader'
 
   s.description      = <<-DESC
@@ -36,15 +36,14 @@ Pod::Spec.new do |s|
   ]
 
   s.framework = 'Foundation'
-  s.dependency 'FirebaseCore', '~> 11.11.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.11.0'
+  s.dependency 'FirebaseCore', '~> 11.15.0'
+  s.dependency 'FirebaseCoreExtension', '~> 11.15.0'
   s.dependency 'FirebaseInstallations', '~> 11.0'
   s.dependency 'GoogleDataTransport', '~> 10.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
   s.dependency 'SwiftProtobuf', '~> 1.19'
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRMLModelDownloader_VERSION=' + s.version.to_s,
     'OTHER_CFLAGS' => '-fno-autolink',
   }

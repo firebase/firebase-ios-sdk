@@ -55,7 +55,7 @@ def labelsForModifiedFiles()
   labels.push("api: core") if @has_core_changes
   labels.push("api: crashlytics") if @has_crashlytics_changes
   labels.push("api: database") if @has_database_changes
-  labels.push("api: dynamiclinks") if @has_dynamiclinks_changes
+  labels.push("api: firebaseai") if @has_firebaseai_changes
   labels.push("api: firestore") if @has_firestore_changes
   labels.push("api: functions") if @has_functions_changes
   labels.push("api: inappmessaging") if @has_inappmessaging_changes
@@ -64,7 +64,6 @@ def labelsForModifiedFiles()
   labels.push("api: performance") if @has_performance_changes
   labels.push("api: remoteconfig") if @has_remoteconfig_changes
   labels.push("api: storage") if @has_storage_changes
-  labels.push("api: vertexai") if @has_vertexai_changes
   labels.push("release-tooling") if @has_releasetooling_changes
   labels.push("public-api-change") if @has_api_changes
   return labels
@@ -93,7 +92,7 @@ has_license_changes = didModify(["LICENSE"])
   "Core",
   "Crashlytics",
   "Database",
-  "DynamicLinks",
+  "FirebaseAI",
   "Firestore",
   "Functions",
   "InAppMessaging",
@@ -101,8 +100,7 @@ has_license_changes = didModify(["LICENSE"])
   "Messaging",
   "Performance",
   "RemoteConfig",
-  "Storage",
-  "VertexAI"
+  "Storage"
 ]
 
 ## Product directories
@@ -132,8 +130,10 @@ has_license_changes = didModify(["LICENSE"])
 @has_crashlytics_api_changes = hasChangesIn("Crashlytics/Crashlytics/Public/")
 @has_database_changes = hasChangesIn("FirebaseDatabase")
 @has_database_api_changes = hasChangesIn("FirebaseDatabase/Sources/Public/")
-@has_dynamiclinks_changes = hasChangesIn("FirebaseDynamicLinks")
-@has_dynamiclinks_api_changes = hasChangesIn("FirebaseDynamicLinks/Sources/Public/")
+@has_firebaseai_changes = hasChangesIn([
+  "FirebaseAI",
+  "FirebaseVertexAI"
+])
 @has_firestore_changes = hasChangesIn(["Firestore/", "FirebaseFirestore.podspec"])
 @has_firestore_api_changes = hasChangesIn("Firestore/Source/Public/")
 @has_functions_changes = hasChangesIn(["FirebaseFunctions"])
@@ -149,7 +149,6 @@ has_license_changes = didModify(["LICENSE"])
 @has_remoteconfig_changes = hasChangesIn("FirebaseRemoteConfig")
 @has_remoteconfig_api_changes = hasChangesIn("FirebaseRemoteConfig/Sources/Public/")
 @has_storage_changes = hasChangesIn("FirebaseStorage")
-@has_vertexai_changes = hasChangesIn("FirebaseVertexAI")
 
 @has_releasetooling_changes = hasChangesIn("ReleaseTooling/")
 @has_public_additions = hasAdditionsIn("Public/")
@@ -165,7 +164,6 @@ has_license_changes = didModify(["LICENSE"])
                      @has_core_api_changes ||
                      @has_crashlytics_api_changes ||
                      @has_database_api_changes ||
-                     @has_dynamiclinks_api_changes ||
                      @has_firestore_api_changes ||
                      @has_functions_api_changes ||
                      @has_inappmessaging_api_changes ||

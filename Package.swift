@@ -19,12 +19,24 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.11.0"
+let firebaseVersion = "11.15.0"
 
 let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
   products: [
+    .library(
+      name: "FirebaseAI",
+      targets: ["FirebaseAI"]
+    ),
+    // Backwards-compatibility library for existing "Vertex AI in Firebase" users.
+    .library(
+      name: "FirebaseVertexAI",
+      targets: [
+        "FirebaseAI",
+        "FirebaseVertexAI",
+      ]
+    ),
     .library(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
@@ -32,9 +44,24 @@ let package = Package(
     // Adding this library to your project is enough for it to take effect. The module
     // does not need to be imported into any source files.
     .library(
+      name: "FirebaseAnalyticsCore",
+      targets: ["FirebaseAnalyticsCoreTarget"]
+    ),
+    // Adding this library to your project is enough for it to take effect. The module
+    // does not need to be imported into any source files.
+    .library(
+      name: "FirebaseAnalyticsIdentitySupport",
+      targets: ["FirebaseAnalyticsIdentitySupportTarget"]
+    ),
+    // Deprecated. Use FirebaseAnalyticsCore instead.
+    // Adding this library to your project is enough for it to take effect. The module
+    // does not need to be imported into any source files.
+    .library(
       name: "FirebaseAnalyticsWithoutAdIdSupport",
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
+    // Deprecated. Use GoogleAdsOnDeviceConversion from
+    // https://github.com/googleads/google-ads-on-device-conversion-ios-sdk/ instead.
     // Adding this library to your project is enough for it to take effect. The module
     // does not need to be imported into any source files.
     .library(
@@ -82,10 +109,6 @@ let package = Package(
       targets: ["FirebaseDatabase"]
     ),
     .library(
-      name: "FirebaseDynamicLinks",
-      targets: ["FirebaseDynamicLinksTarget"]
-    ),
-    .library(
       name: "FirebaseFirestore",
       targets: ["FirebaseFirestoreTarget"]
     ),
@@ -121,10 +144,6 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
-    .library(
-      name: "FirebaseVertexAI",
-      targets: ["FirebaseVertexAI"]
-    ),
   ],
   dependencies: [
     .package(
@@ -142,7 +161,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "8.0.0" ..< "9.0.0"
+      "8.1.0" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -179,6 +198,55 @@ let package = Package(
       path: "CoreOnly/Sources",
       publicHeadersPath: "./"
     ),
+
+    // MARK: - Firebase AI
+
+    .target(
+      name: "FirebaseAI",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+      ],
+      path: "FirebaseAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseAIUnit",
+      dependencies: [
+        "FirebaseAI",
+        "FirebaseStorage",
+      ],
+      path: "FirebaseAI/Tests/Unit",
+      resources: [
+        .copy("vertexai-sdk-test-data/mock-responses"),
+        .process("Resources"),
+      ],
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+    // Backwards-compatibility targets for existing "Vertex AI in Firebase" users.
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAI",
+      ],
+      path: "FirebaseVertexAI/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseVertexAIUnit",
+      dependencies: [
+        "FirebaseVertexAI",
+      ],
+      path: "FirebaseVertexAI/Tests/Unit",
+      resources: [
+        .process("Resources"),
+      ]
+    ),
+
+    // MARK: - Firebase Core
+
     .target(
       name: "FirebaseCore",
       dependencies: [
@@ -303,8 +371,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/11.11.0/FirebaseAnalytics.zip",
-      checksum: "a9c3b86fa4a6fe8e85b1235cea135ea147c733108f95d6aee80616dd18dde856"
+      url: "https://dl.google.com/firebase/ios/swiftpm/11.15.0/FirebaseAnalytics.zip",
+      checksum: "b535a4eb74ddb2786b0e65bbd14e08d11a925c525f9d3e73c1e4fa37963e6b85"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -315,6 +383,66 @@ let package = Package(
       name: "AnalyticsObjCAPI",
       dependencies: ["FirebaseAnalyticsTarget"],
       path: "FirebaseAnalytics/Tests/ObjCAPI"
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsCoreTarget",
+      dependencies: [.target(name: "FirebaseAnalyticsCoreWrapper",
+                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
+      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsCoreWrap"
+    ),
+    .target(
+      name: "FirebaseAnalyticsCoreWrapper",
+      dependencies: [
+        .target(
+          name: "FirebaseAnalytics",
+          condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+        ),
+        .product(name: "GoogleAppMeasurementCore",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
+        "FirebaseCore",
+        "FirebaseInstallations",
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULNSData", package: "GoogleUtilities"),
+        .product(name: "GULNetwork", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseAnalyticsCoreWrapper",
+      linkerSettings: [
+        .linkedLibrary("sqlite3"),
+        .linkedLibrary("c++"),
+        .linkedLibrary("z"),
+        .linkedFramework("StoreKit"),
+      ]
+    ),
+
+    .target(
+      name: "FirebaseAnalyticsIdentitySupportTarget",
+      dependencies: [
+        .target(
+          name: "FirebaseAnalytics",
+          condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+        ),
+        .product(name: "GoogleAppMeasurementIdentitySupport",
+                 package: "GoogleAppMeasurement",
+                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
+        "FirebaseCore",
+        "FirebaseInstallations",
+        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
+        .product(name: "GULNSData", package: "GoogleUtilities"),
+        .product(name: "GULNetwork", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseAnalyticsIdentitySupportWrapper",
+      linkerSettings: [
+        .linkedLibrary("sqlite3"),
+        .linkedLibrary("c++"),
+        .linkedLibrary("z"),
+        .linkedFramework("StoreKit"),
+      ]
     ),
 
     .target(
@@ -644,28 +772,6 @@ let package = Package(
       name: "FirebaseSharedSwiftTests",
       dependencies: ["FirebaseSharedSwift"],
       path: "FirebaseSharedSwift/Tests/"
-    ),
-    .target(
-      name: "FirebaseDynamicLinksTarget",
-      dependencies: [.target(name: "FirebaseDynamicLinks",
-                             condition: .when(platforms: [.iOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseDynamicLinksWrap"
-    ),
-
-    .target(
-      name: "FirebaseDynamicLinks",
-      dependencies: ["FirebaseCore"],
-      path: "FirebaseDynamicLinks/Sources",
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-        .define("FIRDynamicLinks3P", to: "1"),
-        .define("GIN_SCION_LOGGING", to: "1"),
-      ],
-      linkerSettings: [
-        .linkedFramework("QuartzCore"),
-      ]
     ),
 
     firestoreWrapperTarget(),
@@ -1160,7 +1266,6 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
-        "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
@@ -1196,7 +1301,6 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
-        "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
@@ -1297,36 +1401,7 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
-
-    // MARK: - Firebase Vertex AI
-
-    .target(
-      name: "FirebaseVertexAI",
-      dependencies: [
-        "FirebaseAppCheckInterop",
-        "FirebaseAuthInterop",
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-      ],
-      path: "FirebaseVertexAI/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseVertexAIUnit",
-      dependencies: [
-        "FirebaseVertexAI",
-        "FirebaseStorage",
-      ],
-      path: "FirebaseVertexAI/Tests/Unit",
-      resources: [
-        .copy("vertexai-sdk-test-data/mock-responses/vertexai"),
-        .process("Resources"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ]
-    ),
   ] + firestoreTargets(),
-  cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
 
@@ -1341,7 +1416,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.11.0")
+  return .package(url: appMeasurementURL, exact: "11.15.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1510,8 +1585,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.11.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "7f4c24cee332af39d2a93987788ea50212c55d06b1c06794587e7068f96e70c8"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/11.14.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "c653dfa7f51fc54629bf38ef743831fedeaed251d1b02c0bbb6ecf86dad03929"
       )
     }
   }()

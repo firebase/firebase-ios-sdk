@@ -14,6 +14,7 @@
 // limitations under the License.
 
 import Foundation
+internal import FirebaseCoreInternal
 
 /// Extends ApplicationInfoProtocol to string-format a combined appDisplayVersion and
 /// appBuildVersion
@@ -21,56 +22,57 @@ extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
-class RemoteSettings: SettingsProvider {
-  private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
+final class RemoteSettings: SettingsProvider, Sendable {
   private static let flagSessionsEnabled = "sessions_enabled"
   private static let flagSamplingRate = "sampling_rate"
   private static let flagSessionTimeout = "session_timeout_seconds"
-  private static let flagCacheDuration = "cache_duration"
   private static let flagSessionsCache = "app_quality"
   private let appInfo: ApplicationInfoProtocol
   private let downloader: SettingsDownloadClient
-  private var cache: SettingsCacheClient
-
-  private var cacheDurationSeconds: TimeInterval {
-    guard let duration = cache.cacheContent[RemoteSettings.flagCacheDuration] as? Double else {
-      return RemoteSettings.cacheDurationSecondsDefault
-    }
-    return duration
-  }
+  private let cache: FIRAllocatedUnfairLock<SettingsCacheClient>
 
   private var sessionsCache: [String: Any] {
-    return cache.cacheContent[RemoteSettings.flagSessionsCache] as? [String: Any] ?? [:]
+    cache.withLock { cache in
+      cache.cacheContent[RemoteSettings.flagSessionsCache] as? [String: Any] ?? [:]
+    }
   }
 
   init(appInfo: ApplicationInfoProtocol,
        downloader: SettingsDownloadClient,
        cache: SettingsCacheClient = SettingsCache()) {
     self.appInfo = appInfo
-    self.cache = cache
+    self.cache = FIRAllocatedUnfairLock(initialState: cache)
     self.downloader = downloader
   }
 
   private func fetchAndCacheSettings(currentTime: Date) {
-    // Only fetch if cache is expired, otherwise do nothing
-    guard isCacheExpired(time: currentTime) else {
-      Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
-      return
+    let shouldFetch = cache.withLock { cache in
+      // Only fetch if cache is expired, otherwise do nothing
+      guard cache.isExpired(for: appInfo, time: currentTime) else {
+        Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
+        return false
+      }
+      return true
     }
 
-    downloader.fetch { result in
-      switch result {
-      case let .success(dictionary):
-        // Saves all newly fetched Settings to cache
-        self.cache.cacheContent = dictionary
-        // Saves a "cache-key" which carries TTL metadata about current cache
-        self.cache.cacheKey = CacheKey(
-          createdAt: currentTime,
-          googleAppID: self.appInfo.appID,
-          appVersion: self.appInfo.synthesizedVersion
-        )
-      case let .failure(error):
-        Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
+    if shouldFetch {
+      downloader.fetch { result in
+
+        switch result {
+        case let .success(dictionary):
+          self.cache.withLock { cache in
+            // Saves all newly fetched Settings to cache
+            cache.cacheContent = dictionary
+            // Saves a "cache-key" which carries TTL metadata about current cache
+            cache.cacheKey = CacheKey(
+              createdAt: currentTime,
+              googleAppID: self.appInfo.appID,
+              appVersion: self.appInfo.synthesizedVersion
+            )
+          }
+        case let .failure(error):
+          Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
+        }
       }
     }
   }
@@ -102,33 +104,8 @@ extension RemoteSettingsConfigurations {
   }
 
   func isSettingsStale() -> Bool {
-    return isCacheExpired(time: Date())
-  }
-
-  private func isCacheExpired(time: Date) -> Bool {
-    guard !cache.cacheContent.isEmpty else {
-      cache.removeCache()
-      return true
+    cache.withLock { cache in
+      cache.isExpired(for: appInfo, time: Date())
     }
-    guard let cacheKey = cache.cacheKey else {
-      Logger.logError("[Settings] Could not load settings cache key")
-      cache.removeCache()
-      return true
-    }
-    guard cacheKey.googleAppID == appInfo.appID else {
-      Logger
-        .logDebug("[Settings] Cache expired because Google App ID changed")
-      cache.removeCache()
-      return true
-    }
-    if time.timeIntervalSince(cacheKey.createdAt) > cacheDurationSeconds {
-      Logger.logDebug("[Settings] Cache TTL expired")
-      return true
-    }
-    if appInfo.synthesizedVersion != cacheKey.appVersion {
-      Logger.logDebug("[Settings] Cache expired because app version changed")
-      return true
-    }
-    return false
   }
 }

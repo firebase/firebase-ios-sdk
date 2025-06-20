@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
   import UIKit
 #elseif os(macOS)
   import AppKit
@@ -22,17 +22,6 @@ import Foundation
   import WatchKit
 #endif // os(iOS) || os(tvOS)
 
-// swift(>=5.9) implies Xcode 15+
-// Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
-// TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
-// when Xcode 15 is the minimum supported by Firebase.
-#if swift(>=5.9)
-  #if os(visionOS)
-    import UIKit
-  #endif // os(visionOS)
-#endif // swift(>=5.9)
-
-///
 /// The SessionInitiator is responsible for:
 ///   1) Running the initiate callback whenever a Session Start Event should
 ///      begin sending. This can happen at a cold start of the app, and when it
@@ -41,9 +30,9 @@ import Foundation
 ///
 class SessionInitiator {
   let currentTime: () -> Date
-  var settings: SettingsProtocol
-  var backgroundTime = Date.distantFuture
-  var initiateSessionStart: () -> Void = {}
+  let settings: SettingsProtocol
+  private var backgroundTime = Date.distantFuture
+  private var initiateSessionStart: () -> Void = {}
 
   init(settings: SettingsProtocol, currentTimeProvider: @escaping () -> Date = Date.init) {
     currentTime = currentTimeProvider
@@ -55,7 +44,7 @@ class SessionInitiator {
     self.initiateSessionStart()
 
     let notificationCenter = NotificationCenter.default
-    #if os(iOS) || os(tvOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
       notificationCenter.addObserver(
         self,
         selector: #selector(appBackgrounded),
@@ -98,27 +87,6 @@ class SessionInitiator {
         )
       }
     #endif // os(iOS) || os(tvOS)
-
-    // swift(>=5.9) implies Xcode 15+
-    // Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
-    // TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
-    // when Xcode 15 is the minimum supported by Firebase.
-    #if swift(>=5.9)
-      #if os(visionOS)
-        notificationCenter.addObserver(
-          self,
-          selector: #selector(appBackgrounded),
-          name: UIApplication.didEnterBackgroundNotification,
-          object: nil
-        )
-        notificationCenter.addObserver(
-          self,
-          selector: #selector(appForegrounded),
-          name: UIApplication.didBecomeActiveNotification,
-          object: nil
-        )
-      #endif // os(visionOS)
-    #endif // swift(>=5.9)
   }
 
   @objc private func appBackgrounded() {

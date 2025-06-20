@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestoreInternal'
-  s.version          = '11.11.0'
+  s.version          = '11.15.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -93,7 +93,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   }
 
   s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.11.0'
+  s.dependency 'FirebaseCore', '~> 11.15.0'
 
   abseil_version = '~> 1.20240722.0'
   s.dependency 'abseil/algorithm', abseil_version
@@ -118,7 +118,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
     'CLANG_CXX_LIBRARY' => 'libc++',
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       "FIRFirestore_VERSION=#{s.version} " +
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit

@@ -1,0 +1,91 @@
+name: firebaseai
+
+on:
+  pull_request:
+    paths:
+    - 'FirebaseAI**'
+    - '.github/workflows/firebaseai.yml'
+    - '.github/workflows/common.yml'
+    - '.github/workflows/common_cocoapods.yml'
+    - 'scripts/quickstart_build_spm.sh'
+    - 'scripts/quickstart_spm_xcodeproj.sh'
+    - 'Gemfile*'
+    # Do not run for documentation-only PRs.
+    - '!**.md'
+  schedule:
+    # Run every day at 11pm (PST) - cron uses UTC times
+    - cron:  '0 7 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read  # Needed for actions/checkout
+  actions: write # Needed for actions/cache (save and restore)
+
+jobs:
+  spm:
+    uses: ./.github/workflows/common.yml
+    with:
+      target: FirebaseAIUnit
+      setup_command: scripts/update_vertexai_responses.sh
+
+  testapp-integration:
+    strategy:
+      matrix:
+        target: [iOS]
+        os: [macos-15]
+        include:
+          - os: macos-15
+            xcode: Xcode_16.3
+    runs-on: ${{ matrix.os }}
+    needs: spm
+    env:
+      TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      TEST_RUNNER_VTXIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{ needs.spm.outputs.cache_key }}
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info.plist.gpg \
+        FirebaseAI/Tests/TestApp/Resources/GoogleService-Info.plist "$secrets_passphrase"
+    - name: Install Secret GoogleService-Info-Spark.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info-Spark.plist.gpg \
+        FirebaseAI/Tests/TestApp/Resources/GoogleService-Info-Spark.plist "$secrets_passphrase"
+    - name: Install Secret Credentials.swift
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-Credentials.swift.gpg \
+        FirebaseAI/Tests/TestApp/Tests/Integration/Credentials.swift "$secrets_passphrase"
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Run IntegrationTests
+      run: scripts/build.sh FirebaseAIIntegration ${{ matrix.target }}
+    - name: Upload xcodebuild logs
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: xcodebuild-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
+        path: xcodebuild-*.log
+        retention-days: 2
+
+  pod_lib_lint:
+    uses: ./.github/workflows/common_cocoapods.yml
+    with:
+      product: FirebaseAI
+      supports_swift6: true
+      setup_command: scripts/update_vertexai_responses.sh
+
+  quickstart:
+    runs-on: macos-15
+    env:
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build Quickstart
+      run: scripts/quickstart_build_spm.sh FirebaseAI

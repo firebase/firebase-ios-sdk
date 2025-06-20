@@ -21,7 +21,6 @@
 #import <FirebaseInAppMessaging/NSString+FIRInterlaceStrings.h>
 
 #import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseDynamicLinks/FirebaseDynamicLinks.h>
 
 @interface FIRInAppMessaging (Testing)
 + (void)disableAutoBootstrapWithFIRApp;
@@ -35,7 +34,6 @@
   NSLog(@"application started");
 
   [FIRInAppMessaging disableAutoBootstrapWithFIRApp];
-  [FIROptions defaultOptions].deepLinkURLScheme = @"fiam-testing";
   [FIRApp configure];
 
   FIRIAMSDKSettings *sdkSetting = [[FIRIAMSDKSettings alloc] init];
@@ -65,53 +63,4 @@
   return YES;
 }
 
-- (BOOL)application:(UIApplication *)application
-    continueUserActivity:(NSUserActivity *)userActivity
-      restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> *))restorationHandler {
-  NSLog(@"handle page url %@", userActivity.webpageURL);
-  BOOL handled = [[FIRDynamicLinks dynamicLinks]
-      handleUniversalLink:userActivity.webpageURL
-               completion:^(FIRDynamicLink *_Nullable dynamicLink, NSError *_Nullable error) {
-                 if (dynamicLink) {
-                   NSLog(@"dynamic link recognized with url as %@", dynamicLink.url.absoluteString);
-                   [self showDeepLink:dynamicLink.url.absoluteString forUrlType:@"universal link"];
-                 } else {
-                   NSLog(@"error happened %@", error);
-                 }
-               }];
-  return handled;
-}
-
-- (void)showDeepLink:(NSString *)url forUrlType:(NSString *)urlType {
-  NSString *message = [NSString stringWithFormat:@"App wants to open a %@ : %@", urlType, url];
-  UIAlertController *alert =
-      [UIAlertController alertControllerWithTitle:@"Deep link recognized"
-                                          message:message
-                                   preferredStyle:UIAlertControllerStyleAlert];
-
-  UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
-                                                          style:UIAlertActionStyleDefault
-                                                        handler:^(UIAlertAction *action){
-                                                        }];
-
-  [alert addAction:defaultAction];
-  [UIApplication.sharedApplication.keyWindow.rootViewController presentViewController:alert
-                                                                             animated:YES
-                                                                           completion:nil];
-}
-
-- (BOOL)application:(UIApplication *)app
-            openURL:(NSURL *)url
-            options:(NSDictionary<NSString *, id> *)options {
-  return [self application:app openURL:url sourceApplication:@"source app" annotation:@{}];
-}
-
-- (BOOL)application:(UIApplication *)application
-              openURL:(NSURL *)url
-    sourceApplication:(NSString *)sourceApplication
-           annotation:(id)annotation {
-  NSLog(@"handle link with custom scheme: %@", url.absoluteString);
-  [self showDeepLink:url.absoluteString forUrlType:@"custom scheme url"];
-  return YES;
-}
 @end

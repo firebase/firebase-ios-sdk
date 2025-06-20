@@ -83,7 +83,7 @@ class IntegrationTests: XCTestCase {
     return URL(string: "http://localhost:5005/functions-integration-test/us-central1/\(funcName)")!
   }
 
-  func testData() {
+  @MainActor func testData() {
     let data = DataTestRequest(
       bool: true,
       int: 2,
@@ -148,7 +148,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testScalar() {
+  @MainActor func testScalar() {
     let byName = functions.httpsCallable(
       "scalarTest",
       requestAs: Int16.self,
@@ -203,7 +203,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testToken() {
+  @MainActor func testToken() {
     // Recreate functions with a token.
     let functions = Functions(
       projectID: "functions-integration-test",
@@ -271,7 +271,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testFCMToken() {
+  @MainActor func testFCMToken() {
     let byName = functions.httpsCallable(
       "FCMTokenTest",
       requestAs: [String: Int].self,
@@ -316,7 +316,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testNull() {
+  @MainActor func testNull() {
     let byName = functions.httpsCallable(
       "nullTest",
       requestAs: Int?.self,
@@ -361,7 +361,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testMissingResult() {
+  @MainActor func testMissingResult() {
     let byName = functions.httpsCallable(
       "missingResultTest",
       requestAs: Int?.self,
@@ -415,7 +415,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testUnhandledError() {
+  @MainActor func testUnhandledError() {
     let byName = functions.httpsCallable(
       "unhandledErrorTest",
       requestAs: [Int].self,
@@ -469,7 +469,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testUnknownError() {
+  @MainActor func testUnknownError() {
     let byName = functions.httpsCallable(
       "unknownErrorTest",
       requestAs: [Int].self,
@@ -522,7 +522,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testExplicitError() {
+  @MainActor func testExplicitError() {
     let byName = functions.httpsCallable(
       "explicitErrorTest",
       requestAs: [Int].self,
@@ -579,7 +579,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testHttpError() {
+  @MainActor func testHttpError() {
     let byName = functions.httpsCallable(
       "httpErrorTest",
       requestAs: [Int].self,
@@ -631,7 +631,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testThrowError() {
+  @MainActor func testThrowError() {
     let byName = functions.httpsCallable(
       "throwTest",
       requestAs: [Int].self,
@@ -685,7 +685,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testTimeout() {
+  @MainActor func testTimeout() {
     let byName = functions.httpsCallable(
       "timeoutTest",
       requestAs: [Int].self,
@@ -743,7 +743,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testCallAsFunction() {
+  @MainActor func testCallAsFunction() {
     let data = DataTestRequest(
       bool: true,
       int: 2,
@@ -808,7 +808,7 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  func testInferredTypes() {
+  @MainActor func testInferredTypes() {
     let data = DataTestRequest(
       bool: true,
       int: 2,
@@ -867,6 +867,38 @@ class IntegrationTests: XCTestCase {
       XCTAssertEqual(response, expected)
     }
   }
+
+  @MainActor func testFunctionsReturnsOnMainThread() {
+    let expectation = expectation(description: #function)
+    functions.httpsCallable(
+      "scalarTest",
+      requestAs: Int16.self,
+      responseAs: Int.self
+    ).call(17) { result in
+      guard case .success = result else {
+        return XCTFail("Unexpected failure.")
+      }
+      XCTAssert(Thread.isMainThread)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  @MainActor func testFunctionsThrowsOnMainThread() {
+    let expectation = expectation(description: #function)
+    functions.httpsCallable(
+      "httpErrorTest",
+      requestAs: [Int].self,
+      responseAs: Int.self
+    ).call([]) { result in
+      guard case .failure = result else {
+        return XCTFail("Unexpected failure.")
+      }
+      XCTAssert(Thread.isMainThread)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
 }
 
 // MARK: - Streaming
@@ -876,7 +908,7 @@ class IntegrationTests: XCTestCase {
 ///
 /// This can be used as the generic `Request` parameter to ``Callable`` to
 /// indicate the callable function does not accept parameters.
-private struct EmptyRequest: Encodable {}
+private struct EmptyRequest: Encodable, Sendable {}
 
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 extension IntegrationTests {
@@ -1068,18 +1100,21 @@ extension IntegrationTests {
     )
   }
 
-  func testStream_Canceled() async throws {
-    let task = Task.detached { [self] in
-      let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
-      let stream = try callable.stream()
-      // Since we cancel the call we are expecting an empty array.
-      return try await stream.reduce([]) { $0 + [$1] } as [String]
+  // Concurrency rules prevent easily testing this feature.
+  #if swift(<6)
+    func testStream_Canceled() async throws {
+      let task = Task.detached { [self] in
+        let callable: Callable<EmptyRequest, String> = functions.httpsCallable("genStream")
+        let stream = try callable.stream()
+        // Since we cancel the call we are expecting an empty array.
+        return try await stream.reduce([]) { $0 + [$1] } as [String]
+      }
+      // We cancel the task and we expect a null response even if the stream was initiated.
+      task.cancel()
+      let respone = try await task.value
+      XCTAssertEqual(respone, [])
     }
-    // We cancel the task and we expect a null response even if the stream was initiated.
-    task.cancel()
-    let respone = try await task.value
-    XCTAssertEqual(respone, [])
-  }
+  #endif
 
   func testStream_NonexistentFunction() async throws {
     let callable: Callable<EmptyRequest, String> = functions.httpsCallable(
@@ -1131,7 +1166,8 @@ extension IntegrationTests {
   func testStream_ResultIsOnlyExposedInStreamResponse() async throws {
     // The implementation is copied from `StreamResponse`. The only difference is the do-catch is
     // removed from the decoding initializer.
-    enum MyStreamResponse<Message: Decodable, Result: Decodable>: Decodable {
+    enum MyStreamResponse<Message: Decodable & Sendable, Result: Decodable & Sendable>: Decodable,
+      Sendable {
       /// The message yielded by the callable function.
       case message(Message)
       /// The final result returned by the callable function.
@@ -1216,7 +1252,7 @@ extension IntegrationTests {
   }
 
   func testStream_ResultOnly_StreamResponse() async throws {
-    struct EmptyResponse: Decodable {}
+    struct EmptyResponse: Decodable, Sendable {}
     let callable: Callable<EmptyRequest, StreamResponse<EmptyResponse, String>> = functions
       .httpsCallable(
         "genStreamResultOnly"

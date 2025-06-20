@@ -45,7 +45,7 @@ class UserTests: RPCBaseTests {
     #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
       let keychainStorageProvider = FakeAuthKeychainStorage()
     #else
-      let keychainStorageProvider = AuthKeychainStorageReal()
+      let keychainStorageProvider = AuthKeychainStorageReal.shared
     #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: "test-UserTests")!,
@@ -1553,6 +1553,23 @@ class UserTests: RPCBaseTests {
       waitForExpectations(timeout: 5)
     }
   #endif
+
+  func testRetrieveUserWithInvalidToken() async throws {
+    let auth = try XCTUnwrap(self.auth)
+    do {
+      _ = try await User.retrieveUser(
+        withAuth: auth,
+        accessToken: nil,
+        accessTokenExpirationDate: Date(),
+        refreshToken: nil,
+        anonymous: false
+      )
+      XCTFail("Expected an error to be thrown")
+    } catch let error as NSError {
+      XCTAssertEqual(error.domain, AuthErrors.domain)
+      XCTAssertEqual(error.code, AuthErrorCode.invalidUserToken.rawValue)
+    }
+  }
 
   // MARK: Private helper functions
 

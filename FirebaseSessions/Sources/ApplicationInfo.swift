@@ -15,16 +15,16 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseCore
+internal import FirebaseCore
 
 #if SWIFT_PACKAGE
   import FirebaseSessionsObjC
 #endif // SWIFT_PACKAGE
 
 #if SWIFT_PACKAGE
-  @_implementationOnly import GoogleUtilities_Environment
+  internal import GoogleUtilities_Environment
 #else
-  @_implementationOnly import GoogleUtilities
+  internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// Development environment for the application.
@@ -34,7 +34,7 @@ enum DevEnvironment: String {
   case autopush // Autopush environment
 }
 
-protocol ApplicationInfoProtocol {
+protocol ApplicationInfoProtocol: Sendable {
   /// Google App ID / GMP App ID
   var appID: String { get }
 
@@ -62,12 +62,15 @@ protocol ApplicationInfoProtocol {
   var osDisplayVersion: String { get }
 }
 
-class ApplicationInfo: ApplicationInfoProtocol {
+final class ApplicationInfo: ApplicationInfoProtocol {
   let appID: String
 
   private let networkInformation: NetworkInfoProtocol
   private let envParams: [String: String]
-  private let infoDict: [String: Any]?
+
+  // Used to hold bundle info, so the `Any` params should also
+  // be Sendable.
+  private nonisolated(unsafe) let infoDict: [String: Any]?
 
   init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(),
        envParams: [String: String] = ProcessInfo.processInfo.environment,

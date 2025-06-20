@@ -1,0 +1,126 @@
+name: common
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      # The target scheme to be tested.
+      target:
+        type: string
+        required: true
+
+      # The platforms to build on. Defaults to all.
+      # To target specific platforms, pass a comma or space separated string of
+      # platforms.
+      #
+      # Examples:
+      # - build/test only for macOS: `macOS`
+      # - build/test only for macOS and tvOS: `macOS, tvOS`
+      platforms:
+        type: string
+        required: false
+        default: "iOS, tvOS, macOS, watchOS, catalyst, visionOS"
+
+      # By default, all platforms will be tested (see matrix in `spm` job).
+      # To build instead of test, pass a comma or space separated string of
+      # platforms.
+      #
+      # Platform options: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+      #
+      # Note: Build-only platforms must be represented in the `platforms` input
+      # (which defaults to all platforms) in order to take effect.
+      #
+      # Examples:
+      # - build only for macOS: `macOS`
+      # - build only for macOS and tvOS: `macOS, tvOS`
+      # - build only for all platforms: `all`
+      buildonly_platforms:
+       type: string
+       required: false
+       default: ""
+
+      # A command to execute before testing.
+      #
+      # This is useful for additional set up, like starting an emulator or
+      # downloading test data.
+      #
+      # Example: `FirebaseFunctions/Backend/start.sh synchronous`
+      setup_command:
+        type: string
+        required: false
+        default: ""
+
+    outputs:
+      cache_key:
+        description: "The cache key for the Swift package resolution."
+        value: ${{ jobs.spm-package-resolved.outputs.cache_key }}
+
+jobs:
+  spm-package-resolved:
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    runs-on: macos-15
+    outputs:
+      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Generate Swift Package.resolved
+        id: swift_package_resolve
+        run: swift package resolve
+      - name: Generate cache key
+        id: generate_cache_key
+        run: |
+          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
+          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/save@v4
+        id: cache
+        with:
+          path: .build
+          key: ${{ steps.generate_cache_key.outputs.cache_key }}
+
+  spm:
+    # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    needs: [spm-package-resolved]
+    strategy:
+      matrix:
+        os: [macos-15]
+        xcode: [Xcode_16.3]
+        platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+            platform: iOS
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/cache/restore@v4
+      with:
+        path: .build
+        key: ${{needs.spm-package-resolved.outputs.cache_key}}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install visionOS, if needed.
+      if: matrix.platform == 'visionOS'
+      run: xcodebuild -downloadPlatform visionOS
+    - name: Run setup command, if needed.
+      if: inputs.setup_command != ''
+      run: ${{ inputs.setup_command }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      if: contains(join(inputs.platforms), matrix.platform) || matrix.os == 'macos-14'
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_on: error
+        retry_wait_seconds: 120
+        command: |
+          ./scripts/build.sh \
+            ${{ inputs.target }} \
+            ${{ matrix.platform }} \
+            ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
