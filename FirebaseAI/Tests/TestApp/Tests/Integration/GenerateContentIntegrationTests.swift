@@ -249,21 +249,11 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     "generateContent with Google Search returns grounding metadata",
-    arguments: [
-      (InstanceConfig.vertexAI_v1, ModelNames.gemini2FlashLite),
-      (InstanceConfig.vertexAI_v1_staging, ModelNames.gemini2FlashLite),
-      (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
-      (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
-      (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
-      (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
-      (InstanceConfig.googleAI_v1_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
-      (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
-    ]
+    arguments: InstanceConfig.allConfigs
   )
-  func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig,
-                                                 modelName: String) async throws {
+  func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: modelName,
+      modelName: ModelNames.gemini2FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: [.googleSearch()]

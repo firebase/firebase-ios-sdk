@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public struct FunctionDeclaration: Sendable {
 /// A tool that allows the generative model to connect to Google Search to access and incorporate
 /// up-to-date information from the web into its responses.
 ///
-/// When this tool is used, the model's responses may include "Grounded Results" which are subject
+/// > Important: When this tool is used, the model's responses may include "Grounded Results" which are subject
 /// to the Grounding with Google Search terms outlined in the
 /// [Service Specific Terms](https://cloud.google.com/terms/service-terms).
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
