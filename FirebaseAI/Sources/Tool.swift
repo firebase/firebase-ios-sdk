@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,6 +50,18 @@ public struct FunctionDeclaration: Sendable {
   }
 }
 
+/// A tool that allows the generative model to connect to Google Search to access and incorporate
+/// up-to-date information from the web into its responses.
+///
+/// > Important: When this tool is used, the model's responses may include "Grounded Results" which
+/// are subject
+/// to the Grounding with Google Search terms outlined in the
+/// [Service Specific Terms](https://cloud.google.com/terms/service-terms).
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GoogleSearch: Sendable {
+  public init() {}
+}
+
 /// A helper tool that the model may use when generating responses.
 ///
 /// A `Tool` is a piece of code that enables the system to interact with external systems to perform
@@ -58,9 +70,16 @@ public struct FunctionDeclaration: Sendable {
 public struct Tool: Sendable {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
+  let googleSearch: GoogleSearch?
 
   init(functionDeclarations: [FunctionDeclaration]?) {
     self.functionDeclarations = functionDeclarations
+    googleSearch = nil
+  }
+
+  init(googleSearch: GoogleSearch) {
+    self.googleSearch = googleSearch
+    functionDeclarations = nil
   }
 
   /// Creates a tool that allows the model to perform function calling.
@@ -84,6 +103,24 @@ public struct Tool: Sendable {
   ///   providing generation context for the model's next turn.
   public static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
     return self.init(functionDeclarations: functionDeclarations)
+  }
+
+  /// Creates a tool that allows the model to use Grounding with Google Search.
+  ///
+  /// Grounding with Google Search can be used to allow the model to connect to Google Search to
+  /// access and incorporate up-to-date information from the web into it's responses.
+  ///
+  /// When this tool is used, the model's responses may include "Grounded Results" which are subject
+  /// to the Grounding with Google Search terms outlined in the [Service Specific
+  /// Terms](https://cloud.google.com/terms/service-terms).
+  ///
+  /// - Parameters:
+  ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list
+  ///     of tools enables the model to use Google Search.
+  ///
+  /// - Returns: A `Tool` configured for Google Search.
+  public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
+    return self.init(googleSearch: googleSearch)
   }
 }
 
@@ -169,6 +206,9 @@ extension FunctionCallingConfig: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig.Mode: Encodable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GoogleSearch: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {}
