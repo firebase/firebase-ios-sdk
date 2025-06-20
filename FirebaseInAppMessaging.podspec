@@ -17,8 +17,8 @@ See more product details at https://firebase.google.com/products/in-app-messagin
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '13.0'
-  s.tvos.deployment_target = '13.0'
+  s.ios.deployment_target = '15.0'
+  s.ios.deployment_target = '15.0'
 
   s.swift_version = '5.9'
 
