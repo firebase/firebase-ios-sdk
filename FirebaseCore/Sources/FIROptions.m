@@ -20,11 +20,9 @@
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";
-NSString *const kFIRTrackingID = @"TRACKING_ID";
 NSString *const kFIRGoogleAppID = @"GOOGLE_APP_ID";
 NSString *const kFIRClientID = @"CLIENT_ID";
 NSString *const kFIRGCMSenderID = @"GCM_SENDER_ID";
-NSString *const kFIRAndroidClientID = @"ANDROID_CLIENT_ID";
 NSString *const kFIRDatabaseURL = @"DATABASE_URL";
 NSString *const kFIRStorageBucket = @"STORAGE_BUCKET";
 // The key to locate the expected bundle identifier in the plist file.
@@ -232,15 +230,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   _optionsDictionary[kFIRClientID] = [clientID copy];
 }
 
-- (NSString *)trackingID {
-  return self.optionsDictionary[kFIRTrackingID];
-}
-
-- (void)setTrackingID:(NSString *)trackingID {
-  [self checkEditingLocked];
-  _optionsDictionary[kFIRTrackingID] = [trackingID copy];
-}
-
 - (NSString *)GCMSenderID {
   return self.optionsDictionary[kFIRGCMSenderID];
 }
@@ -257,15 +246,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 - (void)setProjectID:(NSString *)projectID {
   [self checkEditingLocked];
   _optionsDictionary[kFIRProjectID] = [projectID copy];
-}
-
-- (NSString *)androidClientID {
-  return self.optionsDictionary[kFIRAndroidClientID];
-}
-
-- (void)setAndroidClientID:(NSString *)androidClientID {
-  [self checkEditingLocked];
-  _optionsDictionary[kFIRAndroidClientID] = [androidClientID copy];
 }
 
 - (NSString *)googleAppID {
