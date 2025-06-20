@@ -136,13 +136,16 @@ public struct Candidate: Sendable {
   /// Cited works in the model's response content, if it exists.
   public let citationMetadata: CitationMetadata?
 
+  public let groundingMetadata: GroundingMetadata?
+
   /// Initializer for SwiftUI previews or tests.
   public init(content: ModelContent, safetyRatings: [SafetyRating], finishReason: FinishReason?,
-              citationMetadata: CitationMetadata?) {
+              citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil) {
     self.content = content
     self.safetyRatings = safetyRatings
     self.finishReason = finishReason
     self.citationMetadata = citationMetadata
+    self.groundingMetadata = groundingMetadata
   }
 }
 
@@ -299,6 +302,123 @@ public struct PromptFeedback: Sendable {
   }
 }
 
+/// Metadata returned to the client when grounding is enabled.
+///
+/// > Important: If using Grounding with Google Search, you are required to comply with the [Service
+/// Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with Google
+/// Search*.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GroundingMetadata: Sendable {
+  /// A list of web search queries that the model performed to gather the grounding information.
+  /// These can be used to allow users to explore the search results themselves.
+  ///
+  /// > Important: If using Grounding with Google Search, you are required to comply with the
+  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
+  /// Google Search*.
+  public let webSearchQueries: [String]
+  /// A list of ``GroundingChunk`` structs. Each chunk represents a piece of retrieved content
+  /// (e.g., from a web page) that the model used to ground its response.
+  ///
+  /// > Important: If using Grounding with Google Search, you are required to comply with the
+  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
+  /// Google Search*.
+  public let groundingChunks: [GroundingChunk]
+  /// A list of ``GroundingSupport`` structs. Each object details how specific segments of the
+  /// model's response are supported by the `groundingChunks`.
+  ///
+  /// > Important: If using Grounding with Google Search, you are required to comply with the
+  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
+  /// Google Search*.
+  public let groundingSupports: [GroundingSupport]
+  /// Google search entry point for web searches.
+  /// This contains an HTML/CSS snippet that **must** be embedded in an app to display a Google
+  /// Search Entry point for follow-up web searches related to the model's "Grounded Response".
+  ///
+  /// > Important: If using Grounding with Google Search, you are required to comply with the
+  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
+  /// Google Search*.
+  public let searchEntryPoint: SearchEntryPoint?
+
+  /// A struct representing the Google Search entry point.
+  ///
+  /// > Important: If using Grounding with Google Search, you are required to comply with the
+  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
+  /// Google Search*.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public struct SearchEntryPoint: Sendable {
+    /// An HTML/CSS snippet that can be embedded in your app. The snippet is designed to avoid
+    /// undesired interaction with the rest of the page's CSS.
+    ///
+    /// To ensure proper rendering, it's recommended to display this content within a `WKWebView`.
+    public let renderedContent: String?
+  }
+
+  /// Represents a chunk of retrieved data that supports a claim in the model's response. This is
+  /// part
+  /// of the grounding information provided when grounding is enabled.
+  ///
+  /// > Important: If using Grounding with Google Search, you are required to comply with the
+  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
+  /// Google Search*.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public struct GroundingChunk: Sendable {
+    /// Contains details if the grounding chunk is from a web source.
+    public let web: WebGroundingChunk?
+  }
+
+  /// A grounding chunk sourced from the web.
+  ///
+  /// > Important: If using Grounding with Google Search, you are required to comply with the
+  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
+  /// Google Search*.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public struct WebGroundingChunk: Sendable {
+    /// The URI of the retrieved web page.
+    public let uri: String?
+    /// The title of the retrieved web page.
+    public let title: String?
+    /// The domain of the original URI from which the content was retrieved (e.g., `example.com`).
+    ///
+    /// This field is only populated when using the Vertex AI Gemini API.
+    public let domain: String?
+  }
+
+  /// Provides information about how a specific segment of the model's response is supported by the
+  /// retrieved grounding chunks.
+  ///
+  /// > Important: If using Grounding with Google Search, you are required to comply with the
+  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
+  /// Google Search*.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public struct GroundingSupport: Sendable {
+    /// Specifies the segment of the model's response content that this grounding support pertains
+    /// to.
+    public let segment: Segment?
+
+    /// A list of indices that refer to specific ``GroundingChunk`` structs within the
+    /// ``GroundingMetadata/groundingChunks`` array. These referenced chunks are the sources that
+    /// support the claim made in the associated `segment` of the response.
+    public let groundingChunkIndices: [Int]
+  }
+}
+
+/// Represents a specific segment within a ``ModelContent`` struct, often used to pinpoint the
+/// exact location of text or data that grounding information refers to.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct Segment: Sendable {
+  /// The zero-based index of the ``Part`` object within the `parts` array of its parent
+  /// ``ModelContent`` object. This identifies which part of the content the segment belongs to.
+  public let partIndex: Int
+  /// The zero-based start index of the segment within the specified ``Part``, measured in UTF-8
+  /// bytes. This offset is inclusive, starting from 0 at the beginning of the part's content.
+  public let startIndex: Int
+  /// The zero-based end index of the segment within the specified ``Part``, measured in UTF-8
+  /// bytes. This offset is exclusive.
+  public let endIndex: Int
+  /// The text content of the segment.
+  public let text: String
+}
+
 // MARK: - Codable Conformances
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -369,6 +489,7 @@ extension Candidate: Decodable {
     case safetyRatings
     case finishReason
     case citationMetadata
+    case groundingMetadata
   }
 
   /// Initializes a response from a decoder. Used for decoding server responses; not for public
@@ -413,6 +534,11 @@ extension Candidate: Decodable {
     citationMetadata = try container.decodeIfPresent(
       CitationMetadata.self,
       forKey: .citationMetadata
+    )
+
+    groundingMetadata = try container.decodeIfPresent(
+      GroundingMetadata.self,
+      forKey: .groundingMetadata
     )
   }
 }
@@ -511,5 +637,107 @@ extension PromptFeedback: Decodable {
     } else {
       safetyRatings = []
     }
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingMetadata: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case webSearchQueries
+    case groundingChunks
+    case groundingSupports
+    case searchEntryPoint
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    webSearchQueries = try container.decodeIfPresent([String].self, forKey: .webSearchQueries) ?? []
+    groundingChunks = try container.decodeIfPresent(
+      [GroundingChunk].self,
+      forKey: .groundingChunks
+    ) ?? []
+    groundingSupports = try container.decodeIfPresent(
+      [GroundingSupport].self,
+      forKey: .groundingSupports
+    ) ?? []
+    searchEntryPoint = try container.decodeIfPresent(
+      SearchEntryPoint.self,
+      forKey: .searchEntryPoint
+    )
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingMetadata.SearchEntryPoint: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case renderedContent
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    renderedContent = try container.decodeIfPresent(String.self, forKey: .renderedContent)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingMetadata.GroundingChunk: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case web
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    web = try container.decodeIfPresent(GroundingMetadata.WebGroundingChunk.self, forKey: .web)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingMetadata.WebGroundingChunk: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case uri
+    case title
+    case domain
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    uri = try container.decodeIfPresent(String.self, forKey: .uri)
+    title = try container.decodeIfPresent(String.self, forKey: .title)
+    domain = try container.decodeIfPresent(String.self, forKey: .domain)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingMetadata.GroundingSupport: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case segment
+    case groundingChunkIndices
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    segment = try container.decodeIfPresent(Segment.self, forKey: .segment)
+    groundingChunkIndices = try container.decodeIfPresent(
+      [Int].self,
+      forKey: .groundingChunkIndices
+    ) ?? []
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Segment: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case partIndex
+    case startIndex
+    case endIndex
+    case text
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    partIndex = try container.decodeIfPresent(Int.self, forKey: .partIndex) ?? 0
+    startIndex = try container.decodeIfPresent(Int.self, forKey: .startIndex) ?? 0
+    endIndex = try container.decodeIfPresent(Int.self, forKey: .endIndex) ?? 0
+    text = try container.decodeIfPresent(String.self, forKey: .text) ?? ""
   }
 }

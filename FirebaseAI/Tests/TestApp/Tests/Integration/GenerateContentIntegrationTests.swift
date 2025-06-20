@@ -247,6 +247,57 @@ struct GenerateContentIntegrationTests {
     #endif // canImport(UIKit)
   }
 
+  @Test(
+    "generateContent with Google Search returns grounding metadata",
+    arguments: [
+      (InstanceConfig.vertexAI_v1, ModelNames.gemini2FlashLite),
+      (InstanceConfig.vertexAI_v1_staging, ModelNames.gemini2FlashLite),
+      (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
+      (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+      (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
+      (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
+      (InstanceConfig.googleAI_v1_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
+      (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
+    ]
+  )
+  func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig,
+                                                 modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: [.googleSearch()]
+    )
+    let prompt = "What is the weather in Toronto today?"
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let groundingMetadata = try #require(candidate.groundingMetadata)
+    let searchEntrypoint = try #require(groundingMetadata.searchEntrypoint)
+
+    #expect(!groundingMetadata.webSearchQueries.isEmpty)
+    #expect(searchEntrypoint.renderedContent != nil)
+    #expect(!groundingMetadata.groundingChunks.isEmpty)
+    #expect(!groundingMetadata.groundingSupports.isEmpty)
+
+    for chunk in groundingMetadata.groundingChunks {
+      #expect(chunk.web != nil)
+    }
+
+    for support in groundingMetadata.groundingSupports {
+      let segment = try #require(support.segment)
+      #expect(segment.endIndex > segment.startIndex)
+      #expect(!segment.text.isEmpty)
+      #expect(!support.groundingChunkIndices.isEmpty)
+
+      // Ensure indices point to valid chunks
+      for index in support.groundingChunkIndices {
+        #expect(index < groundingMetadata.groundingChunks.count)
+      }
+    }
+  }
+
   // MARK: Streaming Tests
 
   @Test(arguments: [
