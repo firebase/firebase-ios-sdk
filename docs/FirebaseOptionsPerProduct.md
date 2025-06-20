@@ -38,10 +38,7 @@ to GoogleService-Info.plist attributes.
   and *storageBucket*.
 
 ## Unused FirebaseOptions
-Proposal: Deprecate these in the SDK and stop generating them for GoogleService-Info.plist.
-
-* *androidClientID*
-* *trackingID*
+Proposal: Remove these from the SDK and stop generating them for GoogleService-Info.plist.
 
 ## Unread GoogleService-Info.plist fields
 Proposal: Stop generating these for GoogleService-Info.plist.
