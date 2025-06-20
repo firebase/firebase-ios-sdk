@@ -4,6 +4,9 @@
 - [removed] **Breaking change**: Removed the `Options.deepLinkURLScheme`
   property. This API was exclusively used by the Dynamic Links SDK, which
   has been removed.
+- [removed] **Breaking change**: Removed the following unused API.
+  - `Options.androidClientID`
+  - `Options.trackingID`
 
 # Firebase 11.15.0
 - [fixed] Remove c99 as the required C language standard. (#14950)
