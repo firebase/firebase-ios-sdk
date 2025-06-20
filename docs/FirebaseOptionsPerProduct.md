@@ -37,9 +37,6 @@ to GoogleService-Info.plist attributes.
 * Is there a better way to manage the fields that are only used by one product? *clientID*, *databaseURL*,
   and *storageBucket*.
 
-## Unused FirebaseOptions
-Proposal: Remove these from the SDK and stop generating them for GoogleService-Info.plist.
-
 ## Unread GoogleService-Info.plist fields
 Proposal: Stop generating these for GoogleService-Info.plist.
 
