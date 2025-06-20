@@ -1,4 +1,6 @@
 # Unreleased
+- [removed] **Breaking change**: FirebaseDynamicLinks has been removed. See
+  https://firebase.google.com/support/dynamic-links-faq for more info.
 - [removed] **Breaking change**: Removed the `Options.deepLinkURLScheme`
   property. This API was exclusively used by the Dynamic Links SDK, which
   has been removed.

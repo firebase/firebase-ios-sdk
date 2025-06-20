@@ -23,7 +23,6 @@ import Foundation
 #endif
 import FirebaseCrashlytics
 import FirebaseDatabase
-import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFunctions
 import FirebaseInstallations
