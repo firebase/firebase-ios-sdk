@@ -11,7 +11,6 @@ Summarize which Firebase Options fields (and GoogleService-Info.plist attributes
 | **projectID**         |       |   ✅  |       |       |       |       |   ✅ |       |  ✅  |  ✅   |        |  ✅   |       |  ✅  |   ✅  |  ✅   |       |
 | **googleAppID**       |   ✅  |  ✅   |       |  ✅  |       |  ✅   |   ✅ |       |       |       |   ✅   |   ✅  | ✅   |       |  ✅   |   ✅ |   ✅ |
 | **databaseURL**       |       |       |       |       |       |       |   ✅  |       |       |       |       |       |       |       |       |       |       |
-| **deepLinkURLScheme** |       |       |       |       |       |       |       |    ✅ |       |       |       |       |       |       |       |       |       |
 | **storageBucket**     |       |       |       |       |       |       |       |       |       |       |       |       |       |       |       |       |   ✅   |
 
 
@@ -26,7 +25,6 @@ to GoogleService-Info.plist attributes.
 * *projectID*: The Project ID from the Firebase console
 * *googleAppID*: The Google App ID that is used to uniquely identify an instance of an app
 * *databaseURL*: The realtime database root URL
-* *deepLinkURLScheme*: The URL scheme used to set up Durable Deep Link service
 * *storageBucket*: The Google Cloud Storage bucket name
 
 ## Questions
@@ -36,10 +34,8 @@ to GoogleService-Info.plist attributes.
 * *gcmSenderID* is the second subfield of *googleAppID*. Can it be eliminated?
 * *bundleID* seems to have three purposes: Performance SDK uses it. Messaging back end uses it. Core
   will generate an error message if it doesn't match the actual bundleID. Anything else?
-* Why isn't *deepLinkURLScheme* set from the GoogleService-Info.plist field `REVERSED_CLIENT_ID` like
-  other Firebase Options? The client code is required to explicitly set it.
 * Is there a better way to manage the fields that are only used by one product? *clientID*, *databaseURL*,
-  *deepLinkURLScheme*, and *storageBucket*.
+  and *storageBucket*.
 
 ## Unused FirebaseOptions
 Proposal: Deprecate these in the SDK and stop generating them for GoogleService-Info.plist.

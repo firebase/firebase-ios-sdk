@@ -34,7 +34,6 @@
   NSLog(@"application started");
 
   [FIRInAppMessaging disableAutoBootstrapWithFIRApp];
-  [FIROptions defaultOptions].deepLinkURLScheme = @"fiam-testing";
   [FIRApp configure];
 
   FIRIAMSDKSettings *sdkSetting = [[FIRIAMSDKSettings alloc] init];

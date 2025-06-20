@@ -160,7 +160,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   FIROptions *newOptions = [(FIROptions *)[[self class] allocWithZone:zone]
       initInternalWithOptionsDictionary:self.optionsDictionary];
   if (newOptions) {
-    newOptions->_deepLinkURLScheme = self->_deepLinkURLScheme;
     newOptions.appGroupID = self.appGroupID;
     newOptions.editingLocked = self.isEditingLocked;
     newOptions.usingOptionsFromDefaultPlist = self.usingOptionsFromDefaultPlist;
@@ -315,11 +314,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   _optionsDictionary[kFIRStorageBucket] = [storageBucket copy];
 }
 
-- (void)setDeepLinkURLScheme:(NSString *)deepLinkURLScheme {
-  [self checkEditingLocked];
-  _deepLinkURLScheme = [deepLinkURLScheme copy];
-}
-
 - (NSString *)bundleID {
   return self.optionsDictionary[kFIRBundleID];
 }
@@ -357,11 +351,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
   // Validate extra properties not contained in the dictionary. Only validate it if one of the
   // objects has the property set.
-  if ((options->_deepLinkURLScheme != nil || self->_deepLinkURLScheme != nil) &&
-      ![options->_deepLinkURLScheme isEqualToString:self->_deepLinkURLScheme]) {
-    return NO;
-  }
-
   if ((options.appGroupID != nil || self.appGroupID != nil) &&
       ![options.appGroupID isEqualToString:self.appGroupID]) {
     return NO;
@@ -384,7 +373,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   // Note: `self.analyticsOptionsDictionary` was left out here since it solely relies on the
   // contents of the main bundle's `Info.plist`. We should avoid reading that file and the contents
   // should be identical.
-  return self.optionsDictionary.hash ^ self->_deepLinkURLScheme.hash ^ self.appGroupID.hash;
+  return self.optionsDictionary.hash ^ self.appGroupID.hash;
 }
 
 #pragma mark - Internal instance methods
