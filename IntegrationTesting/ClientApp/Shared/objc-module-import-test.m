@@ -27,9 +27,6 @@
 @import FirebaseAuth;
 @import FirebaseCore;
 @import FirebaseCrashlytics;
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-@import FirebaseDynamicLinks;
-#endif
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
 @import FirebasePerformance;
 @import FirebaseInAppMessaging;

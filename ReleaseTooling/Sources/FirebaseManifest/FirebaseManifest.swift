@@ -45,7 +45,6 @@ public let shared = Manifest(
     Pod("FirebaseAuth", zip: true),
     Pod("FirebaseCrashlytics", zip: true),
     Pod("FirebaseDatabase", platforms: ["ios", "macos", "tvos"], zip: true),
-    Pod("FirebaseDynamicLinks", allowWarnings: true, platforms: ["ios"], zip: true),
     Pod("FirebaseFirestoreInternal", allowWarnings: true, platforms: ["ios", "macos", "tvos"]),
     Pod("FirebaseFirestore", allowWarnings: true, platforms: ["ios", "macos", "tvos"], zip: true),
     Pod("FirebaseFunctions", zip: true),
