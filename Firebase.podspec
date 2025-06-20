@@ -138,12 +138,6 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.watchos.deployment_target = '7.0'
   end
 
-  s.subspec 'DynamicLinks' do |ss|
-    ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseDynamicLinks', '~> 11.15.0'
-    ss.ios.deployment_target = '15.0'
-  end
-
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.dependency 'FirebaseFirestore', '~> 11.15.0'

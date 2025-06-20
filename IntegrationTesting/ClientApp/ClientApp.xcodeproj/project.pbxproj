@@ -29,7 +29,6 @@
 		EA7DF58D29EF3326005664A7 /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = EA7DF58C29EF3326005664A7 /* FirebaseAppDistribution-Beta */; };
 		EA7DF59329EF3326005664A7 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59229EF3326005664A7 /* FirebaseCrashlytics */; };
 		EA7DF59529EF3326005664A7 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59429EF3326005664A7 /* FirebaseDatabase */; };
-		EA7DF59929EF3326005664A7 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */; };
 		EA7DF59B29EF3326005664A7 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59A29EF3326005664A7 /* FirebaseFirestore */; };
 		EA7DF59D29EF3326005664A7 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */; };
 		EA7DF5A129EF3327005664A7 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5A029EF3327005664A7 /* FirebaseFunctions */; };
@@ -81,7 +80,6 @@
 				EA7DF5A129EF3327005664A7 /* FirebaseFunctions in Frameworks */,
 				EA7DF58D29EF3326005664A7 /* FirebaseAppDistribution-Beta in Frameworks */,
 				EA7DF5AF29EF3328005664A7 /* FirebasePerformance in Frameworks */,
-				EA7DF59929EF3326005664A7 /* FirebaseDynamicLinks in Frameworks */,
 				EA7DF59D29EF3326005664A7 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				EA7DF5A929EF3327005664A7 /* FirebaseInstallations in Frameworks */,
 			);
@@ -203,7 +201,6 @@
 				EA7DF58C29EF3326005664A7 /* FirebaseAppDistribution-Beta */,
 				EA7DF59229EF3326005664A7 /* FirebaseCrashlytics */,
 				EA7DF59429EF3326005664A7 /* FirebaseDatabase */,
-				EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */,
 				EA7DF59A29EF3326005664A7 /* FirebaseFirestore */,
 				EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */,
 				EA7DF5A029EF3327005664A7 /* FirebaseFunctions */,
@@ -660,10 +657,6 @@
 		EA7DF59429EF3326005664A7 /* FirebaseDatabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseDatabase;
-		};
-		EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseDynamicLinks;
 		};
 		EA7DF59A29EF3326005664A7 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -50,11 +50,6 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *clientID;
 
 /**
- * Unused.
- */
-@property(nonatomic, copy, nullable) NSString *trackingID DEPRECATED_ATTRIBUTE;
-
-/**
  * The Project Number from the Google Developer's console, for example @"012345678901", used to
  * configure Firebase Cloud Messaging.
  */
@@ -66,11 +61,6 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *projectID;
 
 /**
- * Unused.
- */
-@property(nonatomic, copy, nullable) NSString *androidClientID DEPRECATED_ATTRIBUTE;
-
-/**
  * The Google App ID that is used to uniquely identify an instance of an app.
  */
 @property(nonatomic, copy) NSString *googleAppID;
@@ -79,11 +69,6 @@ NS_SWIFT_NAME(FirebaseOptions)
  * The database root URL, e.g. @"http://abc-xyz-123.firebaseio.com".
  */
 @property(nonatomic, copy, nullable) NSString *databaseURL;
-
-/**
- * The URL scheme used to set up Durable Deep Link service.
- */
-@property(nonatomic, copy, nullable) NSString *deepLinkURLScheme DEPRECATED_ATTRIBUTE;
 
 /**
  * The Google Cloud Storage bucket name, e.g. @"abc-xyz-123.storage.firebase.com".

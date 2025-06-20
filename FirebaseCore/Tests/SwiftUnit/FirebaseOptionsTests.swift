@@ -91,10 +91,6 @@ class FirebaseOptionsTests: XCTestCase {
     options.googleAppID = newGoogleAppID
     XCTAssertEqual(options.googleAppID, newGoogleAppID)
 
-    XCTAssertNil(options.deepLinkURLScheme)
-    options.deepLinkURLScheme = Constants.Options.deepLinkURLScheme
-    XCTAssertEqual(options.deepLinkURLScheme, Constants.Options.deepLinkURLScheme)
-
     XCTAssertNil(options.appGroupID)
     options.appGroupID = Constants.Options.appGroupID
     XCTAssertEqual(options.appGroupID, Constants.Options.appGroupID)
@@ -110,12 +106,6 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertEqual(options.apiKey, apiKey)
     apiKey = "000000000"
     XCTAssertNotEqual(options.apiKey, apiKey)
-
-    var deepLinkURLScheme = "comdeeplinkurl"
-    options.deepLinkURLScheme = deepLinkURLScheme
-    XCTAssertEqual(options.deepLinkURLScheme, deepLinkURLScheme)
-    deepLinkURLScheme = "comlinkurl"
-    XCTAssertNotEqual(options.deepLinkURLScheme, deepLinkURLScheme)
   }
 
   func testOptionsEquality() throws {
@@ -146,7 +136,6 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertEqual(options.projectID, Constants.Options.projectID)
     XCTAssertEqual(options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(options.databaseURL, Constants.Options.databaseURL)
-    XCTAssertNil(options.deepLinkURLScheme)
     XCTAssertEqual(options.storageBucket, Constants.Options.storageBucket)
     XCTAssertNil(options.appGroupID)
   }
@@ -156,7 +145,6 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertNil(options.clientID)
     XCTAssertNil(options.projectID)
     XCTAssertNil(options.databaseURL)
-    XCTAssertNil(options.deepLinkURLScheme)
     XCTAssertNil(options.storageBucket)
     XCTAssertNil(options.appGroupID)
   }

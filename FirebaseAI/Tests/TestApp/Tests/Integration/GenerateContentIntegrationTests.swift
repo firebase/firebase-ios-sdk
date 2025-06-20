@@ -135,16 +135,16 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashPreview, 0),
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashPreview, 24576),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_ProPreview, 128),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_ProPreview, 32768),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashPreview, 0),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashPreview, 24576),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_ProPreview, 128),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_ProPreview, 32768),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashPreview, 0),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashPreview, 24576),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash, 0),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash, 24576),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, 128),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, 32768),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash, 0),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash, 24576),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Pro, 128),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Pro, 32768),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, 0),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, 24576),
   ])
   func generateContentThinking(_ config: InstanceConfig, modelName: String,
                                thinkingBudget: Int) async throws {
@@ -197,6 +197,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     InstanceConfig.vertexAI_v1beta,
+    InstanceConfig.vertexAI_v1beta_global,
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.googleAI_v1beta_staging,
     InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
@@ -209,7 +210,7 @@ struct GenerateContentIntegrationTests {
       responseModalities: [.text, .image]
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2FlashExperimental,
+      modelName: ModelNames.gemini2FlashPreviewImageGeneration,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )

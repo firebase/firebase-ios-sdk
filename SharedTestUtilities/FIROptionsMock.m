@@ -25,9 +25,6 @@ NSString *const kGoogleAppID = @"1:123:ios:123abc";
 NSString *const kDatabaseURL = @"https://abc-xyz-123.firebaseio.com";
 NSString *const kStorageBucket = @"project-id-123.storage.firebase.com";
 
-NSString *const kDeepLinkURLScheme = @"comgoogledeeplinkurl";
-NSString *const kNewDeepLinkURLScheme = @"newdeeplinkurlfortest";
-
 NSString *const kBundleID = @"com.google.FirebaseSDKTests";
 NSString *const kProjectID = @"abc-xyz-123";
 
