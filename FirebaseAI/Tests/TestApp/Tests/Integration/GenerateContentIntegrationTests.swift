@@ -264,7 +264,7 @@ struct GenerateContentIntegrationTests {
 
     let candidate = try #require(response.candidates.first)
     let groundingMetadata = try #require(candidate.groundingMetadata)
-    let searchEntrypoint = try #require(groundingMetadata.searchEntrypoint)
+    let searchEntrypoint = try #require(groundingMetadata.searchEntryPoint)
 
     #expect(!groundingMetadata.webSearchQueries.isEmpty)
     #expect(searchEntrypoint.renderedContent != nil)
