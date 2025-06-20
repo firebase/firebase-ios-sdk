@@ -22,7 +22,7 @@ device, and it is completely free.
 
   ios.deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  ios.deployment_target = '15.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.swift_version = '5.9'

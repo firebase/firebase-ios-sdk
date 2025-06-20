@@ -35,7 +35,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'Core' do |ss|
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.ios.dependency 'FirebaseAnalytics', '~> 11.15.0'
     ss.osx.dependency 'FirebaseAnalytics', '~> 11.15.0'
     ss.tvos.dependency 'FirebaseAnalytics', '~> 11.15.0'
@@ -57,28 +57,28 @@ Simplify your app development, grow your user base, and monetize more effectivel
     end
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
   s.subspec 'Analytics' do |ss|
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'AnalyticsWithAdIdSupport' do |ss|
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.dependency 'Firebase/Core'
   end
 
   s.subspec 'AnalyticsWithoutAdIdSupport' do |ss|
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.dependency 'FirebaseAnalytics/WithoutAdIdSupport', '~> 11.15.0'
     ss.dependency 'Firebase/CoreOnly'
   end
@@ -89,7 +89,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -104,7 +104,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseAppCheck', '~> 11.15.0'
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -114,7 +114,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -124,7 +124,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -134,7 +134,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS 7.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -152,7 +152,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -161,7 +161,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.dependency 'FirebaseInAppMessaging', '~> 11.15.0-beta'
     ss.tvos.dependency 'FirebaseInAppMessaging', '~> 11.15.0-beta'
     ss.ios.deployment_target = '15.0'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
   end
 
   s.subspec 'Installations' do |ss|
@@ -175,7 +175,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -185,7 +185,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -194,7 +194,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.dependency 'FirebasePerformance', '~> 11.15.0'
     ss.tvos.dependency 'FirebasePerformance', '~> 11.15.0'
     ss.ios.deployment_target = '15.0'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
   end
 
   s.subspec 'RemoteConfig' do |ss|
@@ -203,7 +203,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 
@@ -213,7 +213,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
     ss.watchos.deployment_target = '7.0'
   end
 

@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
 
   ios.deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  ios.deployment_target = '15.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
