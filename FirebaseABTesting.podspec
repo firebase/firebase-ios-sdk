@@ -22,7 +22,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios.deployment_target = '15.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
   tvos.deployment_target = '15.0'
   watchos_deployment_target = '7.0'
