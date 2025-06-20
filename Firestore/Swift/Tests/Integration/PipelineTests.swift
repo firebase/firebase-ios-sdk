@@ -596,7 +596,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     try await randomCol.document("dummyDoc").setData(["field": "value"])
 
     let refDate = Date(timeIntervalSince1970: 1_678_886_400)
-    let refTimestamp = Timestamp(date: refDate)
 
     let constantsFirst: [Selectable] = [
       Constant.nil.as("nil"),
@@ -2141,5 +2140,211 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     } else {
       XCTFail("No document retrieved for distance functions part 1")
     }
+  }
+
+  func testVectorLength() async throws {
+    let collRef = collectionRef() // Using a new collection for this test
+    let db = collRef.firestore
+    let docRef = collRef.document("vectorDocForLengthTestFinal")
+
+    // Add a document with a known vector field
+    try await docRef.setData(["embedding": VectorValue([1.0, 2.0, 3.0])])
+
+    // Construct a pipeline query
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1) // Limit to the document we just added
+      .select(Field("embedding").vectorLength().as("vectorLength"))
+
+    // Execute the pipeline
+    let snapshot = try await pipeline.execute()
+
+    // Assert that the vectorLength in the result is 3
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      let expectedResult: [String: Sendable?] = ["vectorLength": 3]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for vectorLength test")
+    }
+  }
+
+  func testNestedFields() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("awards.hugo").eq(true))
+      .sort(Field("title").descending())
+      .select(Field("title"), Field("awards.hugo"))
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy", "awards.hugo": true],
+      ["title": "Dune", "awards.hugo": true],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testMapGetWithFieldNameIncludingDotNotation() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("awards.hugo").eq(true)) // Filters to book1 and book10
+      .select(
+        Field("title"),
+        Field("nestedField.level.1"),
+        Field("nestedField").mapGet("level.1").mapGet("level.2").as("nested")
+      )
+      .sort(Field("title").descending())
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 2, "Should retrieve two documents")
+
+    let expectedResultsArray: [[String: Sendable?]] = [
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "nestedField.level.`1`": nil,
+        "nested": true,
+      ],
+      [
+        "title": "Dune",
+        "nestedField.level.`1`": nil,
+        "nested": nil,
+      ],
+    ]
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: expectedResultsArray,
+      enforceOrder: true
+    )
+  }
+
+  func testGenericFunctionAddSelectable() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(
+        FunctionExpr("add", [Field("rating"), Constant(1)]).as(
+          "rating"
+        )
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResult: [String: Sendable?] = [
+      "rating": 5.7,
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testGenericFunctionAddSelectable")
+    }
+  }
+
+  func testGenericFunctionAndVariadicSelectable() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        BooleanExpr("and", [Field("rating").gt(0),
+                            Field("title").charLength().lt(5),
+                            Field("tags").arrayContains("propaganda")])
+      )
+      .select("title")
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResult: [[String: Sendable?]] = [
+      ["title": "1984"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResult, enforceOrder: false)
+  }
+
+  func testGenericFunctionArrayContainsAny() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(BooleanExpr("array_contains_any", [Field("tags"), ArrayExpression(["politics"])]))
+      .select(Field("title"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResult: [[String: Sendable?]] = [
+      ["title": "Dune"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResult, enforceOrder: false)
+  }
+
+  func testGenericFunctionCountIfAggregate() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate(AggregateFunction("count_if", [Field("rating").gte(4.5)]).as("countOfBest"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Aggregate should return a single document")
+
+    let expectedResult: [String: Sendable?] = [
+      "countOfBest": 3,
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testGenericFunctionCountIfAggregate")
+    }
+  }
+
+  func testGenericFunctionSortByCharLen() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(
+        FunctionExpr("char_length", [Field("title")]).ascending(),
+        Field("__name__").descending()
+      )
+      .limit(3)
+      .select(Field("title"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 3, "Should retrieve three documents")
+
+    let expectedResults: [[String: Sendable?]] = [
+      ["title": "1984"],
+      ["title": "Dune"],
+      ["title": "The Great Gatsby"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 }

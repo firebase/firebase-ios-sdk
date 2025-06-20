@@ -35,6 +35,7 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FieldBridge)
 @interface FIRFieldBridge : FIRExprBridge
 - (id)init:(NSString *)name;
+- (NSString *)field_name;
 @end
 
 NS_SWIFT_SENDABLE

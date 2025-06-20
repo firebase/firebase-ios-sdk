@@ -25,8 +25,9 @@ public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, SelectableWrapp
   public let fieldName: String
 
   public init(_ fieldName: String) {
-    self.fieldName = fieldName
-    alias = fieldName
-    bridge = FieldBridge(alias)
+    let fieldBridge = FieldBridge(fieldName)
+    bridge = fieldBridge
+    self.fieldName = fieldBridge.field_name()
+    alias = self.fieldName
   }
 }

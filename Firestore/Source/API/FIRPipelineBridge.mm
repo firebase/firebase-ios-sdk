@@ -96,19 +96,25 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 @end
 
 @implementation FIRFieldBridge {
+  FIRFieldPath *field_path;
   std::shared_ptr<Field> field;
 }
 
 - (id)init:(NSString *)name {
   self = [super init];
   if (self) {
-    field = std::make_shared<Field>(MakeString(name));
+    field_path = [FIRFieldPath pathWithDotSeparatedString:name];
+    field = std::make_shared<Field>([field_path internalValue].CanonicalString());
   }
   return self;
 }
 
 - (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
   return field;
+}
+
+- (NSString *)field_name {
+  return MakeNSString([field_path internalValue].CanonicalString());
 }
 
 @end

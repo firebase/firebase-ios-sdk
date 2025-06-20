@@ -25,12 +25,12 @@ public extension Expr {
 
   // MARK: Arithmetic Operators
 
-  func add(_ values: Expr) -> FunctionExpr {
-    return FunctionExpr("add", [self, Helper.array([values])])
+  func add(_ value: Expr) -> FunctionExpr {
+    return FunctionExpr("add", [self, value])
   }
 
-  func add(_ values: Sendable) -> FunctionExpr {
-    return FunctionExpr("add", [self, Helper.array([values])])
+  func add(_ value: Sendable) -> FunctionExpr {
+    return FunctionExpr("add", [self, Helper.sendableToExpr(value)])
   }
 
   func add(_ values: [Expr]) -> FunctionExpr {
@@ -49,12 +49,12 @@ public extension Expr {
     return FunctionExpr("subtract", [self, Helper.sendableToExpr(other)])
   }
 
-  func multiply(_ values: Expr) -> FunctionExpr {
-    return FunctionExpr("multiply", [self, Helper.array([values])])
+  func multiply(_ value: Expr) -> FunctionExpr {
+    return FunctionExpr("multiply", [self, value])
   }
 
-  func multiply(_ values: Sendable) -> FunctionExpr {
-    return FunctionExpr("multiply", [self, Helper.array([values])])
+  func multiply(_ value: Sendable) -> FunctionExpr {
+    return FunctionExpr("multiply", [self, Helper.sendableToExpr(value)])
   }
 
   func multiply(_ values: [Expr]) -> FunctionExpr {
