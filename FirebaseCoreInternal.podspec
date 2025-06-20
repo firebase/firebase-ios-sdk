@@ -43,9 +43,9 @@ Pod::Spec.new do |s|
   s.test_spec 'Unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
-      :ios => '13.0',
-      :osx => '10.15',
-      :tvos => '13.0'
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
     }
     unit_tests.source_files = [
       'FirebaseCore/Internal/Tests/Unit/**/*.swift',
