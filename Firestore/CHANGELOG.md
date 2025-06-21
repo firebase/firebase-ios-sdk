@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Add `Pipeline` support.
+
 # 11.12.0
 - [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
 
