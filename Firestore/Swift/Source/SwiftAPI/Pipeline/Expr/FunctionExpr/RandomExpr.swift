@@ -12,22 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, SelectableWrapper,
-  @unchecked Sendable {
-  let bridge: ExprBridge
-
-  var alias: String
-
-  var expr: Expr {
-    return self
-  }
-
-  public let fieldName: String
-
-  public init(_ fieldName: String) {
-    let fieldBridge = FieldBridge(fieldName)
-    bridge = fieldBridge
-    self.fieldName = fieldBridge.field_name()
-    alias = self.fieldName
+public class RandomExpr: FunctionExpr, @unchecked Sendable {
+  public init() {
+    super.init("rand", [])
   }
 }
