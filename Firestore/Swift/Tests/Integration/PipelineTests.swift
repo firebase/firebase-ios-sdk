@@ -2550,4 +2550,49 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTFail("No document retrieved for testSupportsMapMerge")
     }
   }
+
+  func testSupportsTimestampConversions() async throws {
+    let db = firestore()
+    let randomCol = collectionRef() // Unique collection for this test
+
+    // Add a dummy document to ensure the select stage has an input
+    try await randomCol.document("dummyTimeDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        Constant(1_741_380_235).unixSecondsToTimestamp().as("unixSecondsToTimestamp"),
+        Constant(1_741_380_235_123).unixMillisToTimestamp().as("unixMillisToTimestamp"),
+        Constant(1_741_380_235_123_456).unixMicrosToTimestamp().as("unixMicrosToTimestamp"),
+        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+          .timestampToUnixSeconds().as("timestampToUnixSeconds"),
+        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+          .timestampToUnixMillis().as("timestampToUnixMillis"),
+        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+          .timestampToUnixMicros().as("timestampToUnixMicros")
+      )
+
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(
+      snapshot.results.count,
+      1,
+      "Should retrieve one document for timestamp conversions"
+    )
+
+    let expectedResults: [String: Sendable?] = [
+      "unixSecondsToTimestamp": Timestamp(seconds: 1_741_380_235, nanoseconds: 0),
+      "unixMillisToTimestamp": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_000_000),
+      "unixMicrosToTimestamp": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000),
+      "timestampToUnixSeconds": 1_741_380_235,
+      "timestampToUnixMillis": 1_741_380_235_123,
+      "timestampToUnixMicros": 1_741_380_235_123_456,
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for testSupportsTimestampConversions")
+    }
+  }
 }
