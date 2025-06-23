@@ -42,7 +42,6 @@ class ExchangeTokenRequestTests: XCTestCase {
       location: kLocation,
       tenantId: kTenantID
     )
-    _ = app
 
     let request = ExchangeTokenRequest(
       idToken: kIdToken,
