@@ -50,11 +50,6 @@ NS_SWIFT_NAME(FirebaseOptions)
 @property(nonatomic, copy, nullable) NSString *clientID;
 
 /**
- * Unused.
- */
-@property(nonatomic, copy, nullable) NSString *trackingID DEPRECATED_ATTRIBUTE;
-
-/**
  * The Project Number from the Google Developer's console, for example @"012345678901", used to
  * configure Firebase Cloud Messaging.
  */
@@ -64,11 +59,6 @@ NS_SWIFT_NAME(FirebaseOptions)
  * The Project ID from the Firebase console, for example @"abc-xyz-123".
  */
 @property(nonatomic, copy, nullable) NSString *projectID;
-
-/**
- * Unused.
- */
-@property(nonatomic, copy, nullable) NSString *androidClientID DEPRECATED_ATTRIBUTE;
 
 /**
  * The Google App ID that is used to uniquely identify an instance of an app.
