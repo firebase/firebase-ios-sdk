@@ -1480,7 +1480,10 @@ static const size_t SRFrameHeaderOverhead = 32;
             if (secTrust) {
                 NSInteger numCerts = SecTrustGetCertificateCount(secTrust);
                 for (NSInteger i = 0; i < numCerts && !_pinnedCertFound; i++) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                     SecCertificateRef cert = SecTrustGetCertificateAtIndex(secTrust, i);
+#pragma clang diagnostic pop
                     NSData *certData = CFBridgingRelease(SecCertificateCopyData(cert));
 
                     for (id ref in sslCerts) {
