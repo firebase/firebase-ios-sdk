@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseAuthTestingSupport'
-  s.version                 = '2.0.0'
+  s.version                 = '3.0.0'
   s.summary                 = 'Firebase SDKs testing support types and utilities.'
 
   s.description      = <<-DESC
@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
     base_dir + 'Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseAuth', '~> 11.0'
+  s.dependency 'FirebaseAuth', '~> 12.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
