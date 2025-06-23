@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import Foundation
+private import UniformTypeIdentifiers
+
 #if os(iOS) || os(tvOS) || os(visionOS)
   import MobileCoreServices
 #elseif os(macOS) || os(watchOS)
@@ -71,21 +73,28 @@ class StorageUtils {
     return string.addingPercentEncoding(withAllowedCharacters: allowedSet)!
   }
 
-  class func MIMETypeForExtension(_ fileExtension: String?) -> String {
-    guard let fileExtension = fileExtension else {
+  static func MIMETypeForExtension(_ fileExtension: String?) -> String {
+    guard let fileExtension else {
       return "application/octet-stream"
     }
-
-    if let type = UTTypeCreatePreferredIdentifierForTag(
-      kUTTagClassFilenameExtension,
-      fileExtension as NSString,
-      nil
-    )?.takeRetainedValue() {
-      if let mimeType = UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType)?
-        .takeRetainedValue() {
-        return mimeType as String
+    // TODO: Remove `else` when min. supported macOS is 11.0+.
+    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
+      guard let mimeType = UTType(filenameExtension: fileExtension)?.preferredMIMEType else {
+        return "application/octet-stream"
       }
+      return mimeType
+    } else {
+      if let type = UTTypeCreatePreferredIdentifierForTag(
+        kUTTagClassFilenameExtension,
+        fileExtension as NSString,
+        nil
+      )?.takeRetainedValue() {
+        if let mimeType = UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType)?
+          .takeRetainedValue() {
+          return mimeType as String
+        }
+      }
+      return "application/octet-stream"
     }
-    return "application/octet-stream"
   }
 }
