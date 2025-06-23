@@ -62,7 +62,7 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.dependency 'FirebaseInstallations', '~> 12.0'
   s.dependency 'FirebaseRemoteConfig', '~> 12.0'
   s.dependency 'FirebaseSessions', '~> 12.0'
-  s.dependency 'GoogleDataTransport', '~> 10.0'
+  s.dependency 'GoogleDataTransport', '~> 10.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'

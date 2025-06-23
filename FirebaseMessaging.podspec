@@ -66,7 +66,7 @@ device, and it is completely free.
   s.dependency 'GoogleUtilities/Reachability', '~> 8.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
-  s.dependency 'GoogleDataTransport', '~> 10.0'
+  s.dependency 'GoogleDataTransport', '~> 10.1'
   s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|
