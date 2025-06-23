@@ -2431,6 +2431,7 @@ extension Auth: AuthInterop {
 }
 
 /// Regionalized auth
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Auth {
   /// Gets the Auth object for a `FirebaseApp` configured for a specific Regional Google Cloud
   /// Identity Platform (R-GCIP) tenant.
