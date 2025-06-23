@@ -78,7 +78,7 @@ class StorageUtils {
       return "application/octet-stream"
     }
     // TODO: Remove `else` when min. supported macOS is 11.0+.
-    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
+    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, *) {
       guard let mimeType = UTType(filenameExtension: fileExtension)?.preferredMIMEType else {
         return "application/octet-stream"
       }
