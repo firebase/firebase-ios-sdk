@@ -140,22 +140,6 @@ extension Auth: AuthInterop {
   }
 }
 
-/// Holds configuration for a Regional Google Cloud Identity Platform (R-GCIP) tenant.
-public struct TenantConfig: Sendable {
-  public let tenantId: String
-  public let location: String
-
-  /// Initializes a `TenantConfig` instance.
-  ///
-  /// - Parameters:
-  ///   - tenantId: The ID of the tenant.
-  ///   - location: The location of the tenant. Defaults to "prod-global".
-  public init(tenantId: String, location: String = "prod-global") {
-    self.location = location
-    self.tenantId = tenantId
-  }
-}
-
 /// Manages authentication for Firebase apps.
 ///
 /// This class is thread-safe.
@@ -185,26 +169,6 @@ public struct TenantConfig: Sendable {
 
   /// Gets the `FirebaseApp` object that this auth object is connected to.
   @objc public internal(set) weak var app: FirebaseApp?
-
-  /// Gets the Auth object for a `FirebaseApp` configured for a specific Regional Google Cloud
-  /// Identity Platform (R-GCIP) tenant.
-  ///
-  /// Use this method to create an `Auth` instance that interacts with a regionalized
-  /// authentication backend instead of the default endpoint.
-  ///
-  /// - Parameters:
-  ///   - app: The Firebase app instance.
-  ///   - tenantConfig: The configuration for the R-GCIP tenant, specifying the tenant ID and its
-  /// location.
-  /// - Returns: The `Auth` instance associated with the given app and tenant config.
-  public static func auth(app: FirebaseApp, tenantConfig: TenantConfig) -> Auth {
-    let auth = auth(app: app)
-    kAuthGlobalWorkQueue.sync {
-      auth.requestConfiguration.location = tenantConfig.location
-      auth.requestConfiguration.tenantId = tenantConfig.tenantId
-    }
-    return auth
-  }
 
   /// Synchronously gets the cached current user, or null if there is none.
   @objc public var currentUser: User? {
@@ -2463,4 +2427,43 @@ public struct TenantConfig: Sendable {
   ///
   /// Mutations should occur within a @synchronized(self) context.
   private var listenerHandles: NSMutableArray = []
+}
+
+/// Regionalized auth
+public extension Auth {
+  /// Gets the Auth object for a `FirebaseApp` configured for a specific Regional Google Cloud
+  /// Identity Platform (R-GCIP) tenant.
+  ///
+  /// Use this method to create an `Auth` instance that interacts with a regionalized
+  /// authentication backend instead of the default endpoint.
+  ///
+  /// - Parameters:
+  ///   - app: The Firebase app instance.
+  ///   - tenantConfig: The configuration for the R-GCIP tenant, specifying the tenant ID and its
+  /// location.
+  /// - Returns: The `Auth` instance associated with the given app and tenant config.
+  static func auth(app: FirebaseApp, tenantConfig: TenantConfig) -> Auth {
+    let auth = auth(app: app)
+    kAuthGlobalWorkQueue.sync {
+      auth.requestConfiguration.location = tenantConfig.location
+      auth.requestConfiguration.tenantId = tenantConfig.tenantId
+    }
+    return auth
+  }
+
+  /// Holds configuration for a Regional Google Cloud Identity Platform (R-GCIP) tenant.
+  struct TenantConfig: Sendable {
+    public let tenantId: String
+    public let location: String
+
+    /// Initializes a `TenantConfig` instance.
+    ///
+    /// - Parameters:
+    ///   - tenantId: The ID of the tenant.
+    ///   - location: The location of the tenant. Defaults to "prod-global".
+    public init(tenantId: String, location: String = "prod-global") {
+      self.location = location
+      self.tenantId = tenantId
+    }
+  }
 }
