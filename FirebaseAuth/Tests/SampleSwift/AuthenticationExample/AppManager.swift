@@ -26,9 +26,7 @@ class AppManager {
   var app: FirebaseApp
 
   // Initialise Auth with TenantConfig
-
-  let tenantConfig = TenantConfig(tenantId: "Foo-e2e-tenant-007", location: "prod-global")
-
+  let tenantConfig = TenantConfig(tenantId: "{{TENANT_ID}}", location: "{{LOCATION}}")
   func auth() -> Auth {
     return Auth.auth(app: app, tenantConfig: tenantConfig)
   }

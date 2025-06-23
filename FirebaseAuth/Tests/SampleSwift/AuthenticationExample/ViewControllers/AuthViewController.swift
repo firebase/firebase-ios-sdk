@@ -1091,9 +1091,9 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
 
   /// Orchestrates the UI flow to demonstrate the OIDC token exchange feature.
   ///
-  /// This function sequentially prompts the user for the necessary inputs (custom token and
-  /// IDP config ID) using `async/await` with UIAlerts. If both inputs are provided,
-  /// it calls the `Auth.exchangeToken` API and displays the result to the user.
+  /// This function sequentially prompts the user for the necessary inputs (idpConfigID and custom
+  /// token) using async/await with UIAlerts. If both inputs are provided,
+  /// it calls the Auth.exchangeToken API and displays the result to the user.
   private func callExchangeToken() {
     Task {
       do {
@@ -1135,14 +1135,23 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
         )
 
         // 4. Handle the success case by presenting an alert on the main thread.
-        print("Token exchange successful. See console for token details.")
-        print("result: \(result)")
+        print("Token exchange successful. Access Token: \(result.token)")
         DispatchQueue.main.async {
+          let fullToken = result.token
+          let truncatedToken = self.truncateString(fullToken, maxLength: 20)
+          let message = "Firebase Access Token:\n\(truncatedToken)"
           let alert = UIAlertController(
             title: "Token Exchange Succeeded",
-            message: "Review the console logs for the new Firebase Token.",
+            message: message,
             preferredStyle: .alert
           )
+          // Action to copy the token
+          let copyAction = UIAlertAction(title: "Copy Token", style: .default) { _ in
+            UIPasteboard.general.string = fullToken
+            // Show a brief confirmation
+            self.showCopyConfirmation()
+          }
+          alert.addAction(copyAction)
           alert.addAction(UIAlertAction(title: "OK", style: .default))
           self.present(alert, animated: true)
         }
@@ -1160,6 +1169,29 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
           self.present(alert, animated: true)
         }
       }
+    }
+  }
+
+  // Helper function to truncate strings
+  private func truncateString(_ string: String, maxLength: Int) -> String {
+    if string.count > maxLength {
+      return String(string.prefix(maxLength)) + "..."
+    } else {
+      return string
+    }
+  }
+
+  // Helper function to show copy confirmation
+  private func showCopyConfirmation() {
+    let confirmationAlert = UIAlertController(
+      title: "Copied!",
+      message: "Token copied to clipboard.",
+      preferredStyle: .alert
+    )
+    present(confirmationAlert, animated: true)
+    // Automatically dismiss the confirmation after a short delay
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+      confirmationAlert.dismiss(animated: true, completion: nil)
     }
   }
 }
