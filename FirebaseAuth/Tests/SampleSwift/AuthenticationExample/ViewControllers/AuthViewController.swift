@@ -1097,13 +1097,13 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
   private func callExchangeToken() {
     Task {
       do {
-        // 1. Prompt for the custom OIDC token and await user input.
-        guard let idToken = await showTextInputPrompt(with: "Enter OIDC Token:") else {
-          print("Token exchange cancelled: OIDC Token was not provided.")
+        // 1. Prompt for the IDP Config ID and await user input.
+        guard let idpConfigId = await showTextInputPrompt(with: "Enter IDP Config ID:") else {
+          print("Token exchange cancelled: IDP Config ID was not provided.")
           // Present an alert on the main thread to indicate cancellation.
           DispatchQueue.main.async {
             let alert = UIAlertController(title: "Cancelled",
-                                          message: "An OIDC Token is required to proceed.",
+                                          message: "An IDP Config ID is required to proceed.",
                                           preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true)
@@ -1111,13 +1111,13 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
           return
         }
 
-        // 2. Prompt for the IDP Config ID and await user input.
-        guard let idpConfigId = await showTextInputPrompt(with: "Enter IDP Config ID:") else {
-          print("Token exchange cancelled: IDP Config ID was not provided.")
+        // 2. Prompt for the custom OIDC token and await user input.
+        guard let idToken = await showTextInputPrompt(with: "Enter OIDC Token:") else {
+          print("Token exchange cancelled: OIDC Token was not provided.")
           // Present an alert on the main thread to indicate cancellation.
           DispatchQueue.main.async {
             let alert = UIAlertController(title: "Cancelled",
-                                          message: "An IDP Config ID is required to proceed.",
+                                          message: "An OIDC Token is required to proceed.",
                                           preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true)
