@@ -1645,7 +1645,7 @@ extension Auth: AuthInterop {
   init(app: FirebaseApp,
        keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal.shared,
        backend: AuthBackend = .init(rpcIssuer: AuthBackendRPCIssuer()),
-       authDispatcher: AuthDispatcher = .init()) {
+       authDispatcher: AuthDispatcher = .init(), tenantConfig: TenantConfig? = nil) {
     self.app = app
     mainBundleUrlTypes = Bundle.main
       .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
@@ -1668,7 +1668,8 @@ extension Auth: AuthInterop {
                                                     appID: app.options.googleAppID,
                                                     auth: nil,
                                                     heartbeatLogger: app.heartbeatLogger,
-                                                    appCheck: appCheck)
+                                                    appCheck: appCheck,
+                                                    tenantConfig: tenantConfig)
     self.backend = backend
     self.authDispatcher = authDispatcher
 
@@ -2443,12 +2444,7 @@ public extension Auth {
   /// location.
   /// - Returns: The `Auth` instance associated with the given app and tenant config.
   static func auth(app: FirebaseApp, tenantConfig: TenantConfig) -> Auth {
-    let auth = auth(app: app)
-    kAuthGlobalWorkQueue.sync {
-      auth.requestConfiguration.location = tenantConfig.location
-      auth.requestConfiguration.tenantId = tenantConfig.tenantId
-    }
-    return auth
+    return Auth(app: app, tenantConfig: tenantConfig)
   }
 
   /// Holds configuration for a Regional Google Cloud Identity Platform (R-GCIP) tenant.
