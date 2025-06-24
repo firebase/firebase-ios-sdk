@@ -538,7 +538,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "bytes": Data([1, 2, 3, 4, 5, 6, 7, 0]),
       "documentReference": db.document("foo/bar"),
       "vectorValue": VectorValue([1, 2, 3]),
-      "arrayValue": [1, 2, 3],
       "map": [
         "number": 1,
         "string": "a string",
