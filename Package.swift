@@ -599,7 +599,10 @@ let package = Package(
     .target(
       name: "FirebaseAuthCombineSwift",
       dependencies: ["FirebaseAuth"],
-      path: "FirebaseCombineSwift/Sources/Auth"
+      path: "FirebaseCombineSwift/Sources/Auth",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
     ),
     .target(
       name: "FirebaseFirestoreCombineSwift",
@@ -826,7 +829,10 @@ let package = Package(
     .target(
       name: "FirebaseFunctionsCombineSwift",
       dependencies: ["FirebaseFunctions"],
-      path: "FirebaseCombineSwift/Sources/Functions"
+      path: "FirebaseCombineSwift/Sources/Functions",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
     ),
     .testTarget(
       name: "FunctionsCombineUnit",
@@ -1107,7 +1113,10 @@ let package = Package(
         "FirebaseSharedSwift",
       ],
       path: "FirebaseRemoteConfig/Swift",
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")]
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
     ),
     .testTarget(
       name: "RemoteConfigFakeConsole",
