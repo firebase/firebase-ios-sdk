@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseFirestoreTestingSupport'
-  s.version                 = '1.0.0'
+  s.version                 = '2.0.0'
   s.summary                 = 'Firebase SDKs testing support types and utilities.'
 
   s.description      = <<-DESC
@@ -42,7 +42,7 @@ Pod::Spec.new do |s|
 
   s.public_header_files = base_dir + '**/*.h'
 
-  s.dependency 'FirebaseFirestore', '~> 11.0'
+  s.dependency 'FirebaseFirestore', '> 12.0'
 
   s.pod_target_xcconfig = {
     'OTHER_CFLAGS' => '-fno-autolink',
