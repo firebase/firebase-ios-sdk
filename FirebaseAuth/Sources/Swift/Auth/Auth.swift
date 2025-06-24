@@ -2478,61 +2478,7 @@ public extension Auth {
     }
   }
 
-  /// Exchanges a third-party OIDC token for a Firebase ID token.
-  ///
-  /// This method is used for Bring Your Own CIAM (BYO-CIAM) in Regionalized GCIP (R-GCIP),
-  /// where the `Auth` instance must be configured with a `TenantConfig`, including `location`
-  /// and `tenantId`,  typically by using `Auth.auth(app:tenantConfig:)`.
-  ///
-  /// Unlike standard sign-in methods, this flow *does not*  create or update a `User` object and
-  /// *does not* set `CurrentUser` on the `Auth` instance. It only returns a Firebase token.
-  ///
-  /// - Parameters:
-  ///   - oidcToken: The OIDC ID token obtained from the third-party identity provider.
-  ///   - idpConfigId: The ID of the Identity Provider configuration within your GCIP tenant
-  ///     (e.g., "oidc.my-provider").
-  ///   - useStaging: A Boolean value indicating whether to use the staging Identity Platform
-  ///     backend. Defaults to `false`.
-  ///   - completion: A closure that is called asynchronously on the main thread with either a
-  ///     `FirebaseToken` on success or an `Error` on failure.
-  func exchangeToken(idToken: String,
-                     idpConfigId: String,
-                     useStaging: Bool = false,
-                     completion: @escaping (FirebaseToken?, Error?) -> Void) {
-    /// Ensure R-GCIP is configured with location and tenant ID
-    guard let _ = requestConfiguration.tenantConfig?.location,
-          let _ = requestConfiguration.tenantConfig?.tenantId
-    else {
-      Auth.wrapMainAsync(
-        callback: completion,
-        with: .failure(AuthErrorUtils
-          .operationNotAllowedError(
-            message: "Auth instance must be configured with a TenantConfig, including location and tenantId, to use exchangeToken."
-          ))
-      )
-      return
-    }
-    let request = ExchangeTokenRequest(
-      idToken: idToken,
-      idpConfigID: idpConfigId,
-      config: requestConfiguration,
-      useStaging: true
-    )
-    Task {
-      do {
-        let response = try await backend.call(with: request)
-        let firebaseToken = FirebaseToken(
-          token: response.firebaseToken,
-          expirationDate: response.expirationDate
-        )
-        Auth.wrapMainAsync(callback: completion, with: .success(firebaseToken))
-      } catch {
-        Auth.wrapMainAsync(callback: completion, with: .failure(error))
-      }
-    }
-  }
-
-  /// Exchanges a third-party OIDC ID token for a Firebase ID token using Swift concurrency.
+  /// Exchanges a third-party OIDC ID token for a Firebase ID token.
   ///
   /// This method is used for Bring Your Own CIAM (BYO-CIAM) in Regionalized GCIP (R-GCIP),
   /// where the `Auth` instance must be configured with a `TenantConfig`, including `location`
@@ -2544,7 +2490,6 @@ public extension Auth {
   /// - Parameters:
   ///   - oidcToken: The OIDC ID token obtained from the third-party identity provider.
   ///   - idpConfigId: The ID of the Identity Provider configuration within your GCIP tenant
-  ///     (e.g., "oidc.my-provider").
   ///   - useStaging: A Boolean value indicating whether to use the staging Identity Platform
   ///     backend. Defaults to `false`.
   /// - Returns: A `FirebaseToken` containing the Firebase ID token and its expiration date.
@@ -2562,7 +2507,7 @@ public extension Auth {
       idToken: idToken,
       idpConfigID: idpConfigId,
       config: requestConfiguration,
-      useStaging: true
+      useStaging: useStaging
     )
     do {
       let response = try await backend.call(with: request)
