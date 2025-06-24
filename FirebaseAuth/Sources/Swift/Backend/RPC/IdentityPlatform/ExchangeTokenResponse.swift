@@ -42,12 +42,12 @@ struct ExchangeTokenResponse: AuthRPCResponse {
     guard let token = dictionary["accessToken"] as? String else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }
-    self.firebaseToken = token
+    firebaseToken = token
     guard let expiresInString = dictionary["expiresIn"] as? String,
           let expiresInInterval = TimeInterval(expiresInString) else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }
-    self.expiresIn = expiresInInterval
-    self.expirationDate = Date().addingTimeInterval(expiresIn)
+    expiresIn = expiresInInterval
+    expirationDate = Date().addingTimeInterval(expiresIn)
   }
 }
