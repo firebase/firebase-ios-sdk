@@ -84,7 +84,7 @@ extension Auth: AuthInterop {
   public func getToken(forcingRefresh forceRefresh: Bool,
                        completion callback: @escaping (String?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async { [weak self] in
-      guard let self = self else {
+      guard let self else {
         DispatchQueue.main.async { callback(nil, nil) }
         return
       }
@@ -2298,7 +2298,6 @@ extension Auth: AuthInterop {
         /// Clear any R-GCIP session state when a standard user signs in. This ensures we exit
         /// Token-Only Mode.
         self.rGCIPFirebaseTokenLock.withLock { $0 = nil }
-        /// ... rest of original function
         do {
           try self.updateCurrentUser(authResult.user, byForce: false, savingToDisk: true)
           Auth.wrapMainAsync(callback: callback, with: .success(authResult))
@@ -2471,10 +2470,10 @@ extension Auth: AuthInterop {
   /// GCIP, where no `User` object is created. It is mutually exclusive with `_currentUser`.
   /// If the wrapped value is non-nil, the `AuthInterop` layer will use it for token generation
   /// instead of relying on a `currentUser`.
-  private var rGCIPFirebaseTokenLock = FIRAllocatedUnfairLock<FirebaseToken?>(initialState: nil)
+  private let rGCIPFirebaseTokenLock = FIRAllocatedUnfairLock<FirebaseToken?>(initialState: nil)
 }
 
-// MARK: Regionalized auth
+// MARK: - Regionalized auth
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Auth {
