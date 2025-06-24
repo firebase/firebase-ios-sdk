@@ -2457,8 +2457,8 @@ public extension Auth {
     ///
     /// - Parameters:
     ///   - tenantId: The ID of the tenant.
-    ///   - location: The location of the tenant. Defaults to "prod-global".
-    public init(tenantId: String, location: String = "prod-global") {
+    ///   - location: The location of the tenant. Defaults to "global".
+    public init(tenantId: String, location: String = "global") {
       self.location = location
       self.tenantId = tenantId
     }
