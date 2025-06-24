@@ -89,7 +89,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-15]
-        xcode: [Xcode_16.3]
+        xcode: [Xcode_16.4]
         platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
         include:
           - os: macos-14
