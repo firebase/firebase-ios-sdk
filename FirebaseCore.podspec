@@ -18,9 +18,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '12.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  tvos_deployment_target = '13.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target

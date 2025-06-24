@@ -21,9 +21,9 @@ for internal testing only. It should not be published.
 
   s.swift_version       = '5.9'
 
-  ios_deployment_target = '13.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  tvos_deployment_target = '13.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
