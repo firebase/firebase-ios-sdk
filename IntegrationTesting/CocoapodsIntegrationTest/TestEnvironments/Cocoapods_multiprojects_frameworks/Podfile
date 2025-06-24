@@ -14,6 +14,7 @@ target 'CocoapodsIntegrationTest' do
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseCoreExtension', :path => '../../'
   pod 'FirebaseCoreInternal', :path => '../../'
+  pod 'FirebaseSessions', :path => '../../'
   pod 'FirebaseCrashlytics', :path => '../../'
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
