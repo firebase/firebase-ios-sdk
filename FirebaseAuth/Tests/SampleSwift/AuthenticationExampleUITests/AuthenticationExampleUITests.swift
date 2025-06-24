@@ -232,7 +232,7 @@ class AuthenticationExampleUITests: XCTestCase {
     let testEmail = "test@test.com"
     app.textFields["Enter Authentication Email"].tap()
     app.textFields["Enter Authentication Email"].typeText(testEmail)
-    app.buttons["return"].tap() // Dismiss keyboard
+
     app.buttons["Send Sign In Link"].tap()
 
     // Wait for the error message to appear (if there is an error)
