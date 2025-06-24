@@ -485,10 +485,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       Constant(GeoPoint(latitude: 0.1, longitude: 0.2)).as("geoPoint"),
       Constant(refTimestamp).as("timestamp"),
       Constant(refDate).as("date"), // Firestore will convert this to a Timestamp
-      Constant([1, 2, 3, 4, 5, 6, 7, 0] as [UInt8]).as("bytes"),
+      Constant(Data([1, 2, 3, 4, 5, 6, 7, 0])).as("bytes"),
       Constant(db.document("foo/bar")).as("documentReference"),
       Constant(VectorValue([1, 2, 3])).as("vectorValue"),
-      Constant([1, 2, 3]).as("arrayValue"), // Treated as an array of numbers
     ]
 
     let constantsSecond: [Selectable] = [
@@ -500,7 +499,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
         "timestamp": refTimestamp,
         "date": refDate,
-        "uint8Array": Data([1, 2, 3, 4, 5, 6, 7, 0]),
+        "bytesArray": Data([1, 2, 3, 4, 5, 6, 7, 0]),
         "documentReference": Constant(db.document("foo/bar")),
         "vectorValue": VectorValue([1, 2, 3]),
         "map": [
@@ -517,7 +516,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         GeoPoint(latitude: 10.1, longitude: 20.2),
         Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)), // Different timestamp
         Date(timeIntervalSince1970: 1_700_000_000), // Different date
-        [11, 22, 33] as [UInt8],
+        Data([11, 22, 33]),
         db.document("another/doc"),
         VectorValue([7, 8, 9]),
         [
@@ -536,7 +535,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
       "timestamp": refTimestamp,
       "date": refTimestamp, // Dates are converted to Timestamps
-      "bytes": [1, 2, 3, 4, 5, 6, 7, 0] as [UInt8],
+      "bytes": Data([1, 2, 3, 4, 5, 6, 7, 0]),
       "documentReference": db.document("foo/bar"),
       "vectorValue": VectorValue([1, 2, 3]),
       "arrayValue": [1, 2, 3],
@@ -548,7 +547,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
         "timestamp": refTimestamp,
         "date": refTimestamp,
-        "uint8Array": Data([1, 2, 3, 4, 5, 6, 7, 0]),
+        "bytesArray": Data([1, 2, 3, 4, 5, 6, 7, 0]),
         "documentReference": db.document("foo/bar"),
         "vectorValue": VectorValue([1, 2, 3]),
         "map": [
@@ -565,7 +564,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         GeoPoint(latitude: 10.1, longitude: 20.2),
         Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)),
         Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)), // Dates are converted
-        [11, 22, 33] as [UInt8],
+        Data([11, 22, 33]),
         db.document("another/doc"),
         VectorValue([7, 8, 9]),
         [
@@ -581,45 +580,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .select(
         constantsFirst + constantsSecond
-      )
-    let snapshot = try await pipeline.execute()
-
-    TestHelper.compare(pipelineResult: snapshot.results.first!, expected: expectedResultsMap)
-  }
-  
-  
-  func testFailed() async throws {
-    let db = firestore()
-    let randomCol = collectionRef() // Ensure a unique collection for the test
-
-    // Add a dummy document to the collection.
-    // A pipeline query with .select against an empty collection might not behave as expected.
-    try await randomCol.document("dummyDoc").setData(["field": "value"])
-
-    let constantsFirst: [Selectable] = [
-      //Constant([1, 2, 3, 4, 5, 6, 7, 0] as [UInt8]).as("bytes"),
-      Constant([1, 2, 3]).as("arrayValue"), // Treated as an array of numbers
-    ]
-
-//    let constantsSecond: [Selectable] = [
-//      ArrayExpression([
-//        [11, 22, 33] as [UInt8]
-//    ]).as("array")
-//    ]
-
-    let expectedResultsMap: [String: Sendable?] = [
-//      "bytes": [1, 2, 3, 4, 5, 6, 7, 0] as [UInt8],
-//      "array": [
-//        [11, 22, 33] as [UInt8]
-//      ],
-      "arrayValue": [1, 2, 3]
-    ]
-
-    let pipeline = db.pipeline()
-      .collection(randomCol.path)
-      .limit(1)
-      .select(
-        constantsFirst
       )
     let snapshot = try await pipeline.execute()
 
@@ -2632,117 +2592,120 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTFail("No document retrieved for testSupportsTimestampConversions")
     }
   }
-  
+
   func testSupportsTimestampMath() async throws {
-      let db = firestore()
-      let randomCol = collectionRef()
-      try await randomCol.document("dummyDoc").setData(["field": "value"])
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
 
-      let initialTimestamp = Timestamp(seconds: 1_741_380_235, nanoseconds: 0)
+    let initialTimestamp = Timestamp(seconds: 1_741_380_235, nanoseconds: 0)
 
-      let pipeline = db.pipeline()
-        .collection(randomCol.path)
-        .limit(1)
-        .select(
-          Constant(initialTimestamp).as("timestamp")
-        )
-        .select(
-          Field("timestamp").timestampAdd(.day, 10).as("plus10days"),
-          Field("timestamp").timestampAdd(.hour, 10).as("plus10hours"),
-          Field("timestamp").timestampAdd(.minute, 10).as("plus10minutes"),
-          Field("timestamp").timestampAdd(.second, 10).as("plus10seconds"),
-          Field("timestamp").timestampAdd(.microsecond, 10).as("plus10micros"),
-          Field("timestamp").timestampAdd(.millisecond, 10).as("plus10millis"),
-          Field("timestamp").timestampSub(.day, 10).as("minus10days"),
-          Field("timestamp").timestampSub(.hour, 10).as("minus10hours"),
-          Field("timestamp").timestampSub(.minute, 10).as("minus10minutes"),
-          Field("timestamp").timestampSub(.second, 10).as("minus10seconds"),
-          Field("timestamp").timestampSub(.microsecond, 10).as("minus10micros"),
-          Field("timestamp").timestampSub(.millisecond, 10).as("minus10millis")
-        )
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        Constant(initialTimestamp).as("timestamp")
+      )
+      .select(
+        Field("timestamp").timestampAdd(.day, 10).as("plus10days"),
+        Field("timestamp").timestampAdd(.hour, 10).as("plus10hours"),
+        Field("timestamp").timestampAdd(.minute, 10).as("plus10minutes"),
+        Field("timestamp").timestampAdd(.second, 10).as("plus10seconds"),
+        Field("timestamp").timestampAdd(.microsecond, 10).as("plus10micros"),
+        Field("timestamp").timestampAdd(.millisecond, 10).as("plus10millis"),
+        Field("timestamp").timestampSub(.day, 10).as("minus10days"),
+        Field("timestamp").timestampSub(.hour, 10).as("minus10hours"),
+        Field("timestamp").timestampSub(.minute, 10).as("minus10minutes"),
+        Field("timestamp").timestampSub(.second, 10).as("minus10seconds"),
+        Field("timestamp").timestampSub(.microsecond, 10).as("minus10micros"),
+        Field("timestamp").timestampSub(.millisecond, 10).as("minus10millis")
+      )
 
-      let snapshot = try await pipeline.execute()
+    let snapshot = try await pipeline.execute()
 
-      let expectedResults: [String: Timestamp] = [
-        "plus10days": Timestamp(seconds: 1_742_244_235, nanoseconds: 0),
-        "plus10hours": Timestamp(seconds: 1_741_416_235, nanoseconds: 0),
-        "plus10minutes": Timestamp(seconds: 1_741_380_835, nanoseconds: 0),
-        "plus10seconds": Timestamp(seconds: 1_741_380_245, nanoseconds: 0),
-        "plus10micros": Timestamp(seconds: 1_741_380_235, nanoseconds: 10_000),
-        "plus10millis": Timestamp(seconds: 1_741_380_235, nanoseconds: 10_000_000),
-        "minus10days": Timestamp(seconds: 1_740_516_235, nanoseconds: 0),
-        "minus10hours": Timestamp(seconds: 1_741_344_235, nanoseconds: 0),
-        "minus10minutes": Timestamp(seconds: 1_741_379_635, nanoseconds: 0),
-        "minus10seconds": Timestamp(seconds: 1_741_380_225, nanoseconds: 0),
-        "minus10micros": Timestamp(seconds: 1_741_380_234, nanoseconds: 999_990_000),
-        "minus10millis": Timestamp(seconds: 1_741_380_234, nanoseconds: 990_000_000)
-      ]
+    let expectedResults: [String: Timestamp] = [
+      "plus10days": Timestamp(seconds: 1_742_244_235, nanoseconds: 0),
+      "plus10hours": Timestamp(seconds: 1_741_416_235, nanoseconds: 0),
+      "plus10minutes": Timestamp(seconds: 1_741_380_835, nanoseconds: 0),
+      "plus10seconds": Timestamp(seconds: 1_741_380_245, nanoseconds: 0),
+      "plus10micros": Timestamp(seconds: 1_741_380_235, nanoseconds: 10000),
+      "plus10millis": Timestamp(seconds: 1_741_380_235, nanoseconds: 10_000_000),
+      "minus10days": Timestamp(seconds: 1_740_516_235, nanoseconds: 0),
+      "minus10hours": Timestamp(seconds: 1_741_344_235, nanoseconds: 0),
+      "minus10minutes": Timestamp(seconds: 1_741_379_635, nanoseconds: 0),
+      "minus10seconds": Timestamp(seconds: 1_741_380_225, nanoseconds: 0),
+      "minus10micros": Timestamp(seconds: 1_741_380_234, nanoseconds: 999_990_000),
+      "minus10millis": Timestamp(seconds: 1_741_380_234, nanoseconds: 990_000_000),
+    ]
 
-      XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
-      if let resultDoc = snapshot.results.first {
-        TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
-      } else {
-        XCTFail("No document retrieved for timestamp math test")
-      }
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for timestamp math test")
     }
-  
+  }
+
   func testSupportsByteLength() async throws {
-      let db = firestore()
-      let randomCol = collectionRef()
-      try await randomCol.document("dummyDoc").setData(["field": "value"])
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
 
-    let bytes : [UInt8] = [1, 2, 3, 4, 5, 6, 7, 0]
+    let bytes = Data([1, 2, 3, 4, 5, 6, 7, 0])
 
-      let pipeline = db.pipeline()
-        .collection(randomCol.path)
-        .limit(1)
-        .select(
-          Constant(bytes).as("bytes")
-        )
-        .select(
-          Field("bytes").byteLength().as("byteLength")
-        )
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        Constant(bytes).as("bytes")
+      )
+      .select(
+        Field("bytes").byteLength().as("byteLength")
+      )
 
-      let snapshot = try await pipeline.execute()
+    let snapshot = try await pipeline.execute()
 
     let expectedResults: [String: Sendable] = [
-        "byteLength": 8
-      ]
+      "byteLength": 8,
+    ]
 
-      XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
-      if let resultDoc = snapshot.results.first {
-        TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults.mapValues { $0 as Sendable })
-      } else {
-        XCTFail("No document retrieved for byte length test")
-      }
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(
+        pipelineResult: resultDoc,
+        expected: expectedResults.mapValues { $0 as Sendable }
+      )
+    } else {
+      XCTFail("No document retrieved for byte length test")
     }
+  }
 
-    func testSupportsNot() async throws {
-      let db = firestore()
-      let randomCol = collectionRef()
-      try await randomCol.document("dummyDoc").setData(["field": "value"])
+  func testSupportsNot() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
 
-      let pipeline = db.pipeline()
-        .collection(randomCol.path)
-        .limit(1)
-        .select(Constant(true).as("trueField"))
-        .select(
-          Field("trueField"),
-          (!(Field("trueField").eq(true))).as("falseField")
-        )
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(true).as("trueField"))
+      .select(
+        Field("trueField"),
+        (!(Field("trueField").eq(true))).as("falseField")
+      )
 
-      let snapshot = try await pipeline.execute()
+    let snapshot = try await pipeline.execute()
 
-      let expectedResults: [String: Bool] = [
-        "trueField": true,
-        "falseField": false
-      ]
+    let expectedResults: [String: Bool] = [
+      "trueField": true,
+      "falseField": false,
+    ]
 
-      XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
-      if let resultDoc = snapshot.results.first {
-        TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
-      } else {
-        XCTFail("No document retrieved for not operator test")
-      }
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for not operator test")
     }
+  }
 }

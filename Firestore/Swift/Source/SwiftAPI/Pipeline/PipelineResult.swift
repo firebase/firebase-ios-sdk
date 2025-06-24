@@ -27,7 +27,7 @@ public struct PipelineResult: @unchecked Sendable {
     self.bridge = bridge
     ref = self.bridge.reference
     id = self.bridge.documentID
-    data = self.bridge.data().mapValues{ Helper.convertObjCToSwift($0)}
+    data = self.bridge.data().mapValues { Helper.convertObjCToSwift($0) }
     createTime = self.bridge.create_time
     updateTime = self.bridge.update_time
   }

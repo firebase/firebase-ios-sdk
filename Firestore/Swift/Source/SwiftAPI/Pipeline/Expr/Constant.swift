@@ -54,7 +54,7 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
   }
 
   // Initializer for Bytes
-  public init(_ value: [UInt8]) {
+  public init(_ value: Data) {
     self.init(value as Any)
   }
 
