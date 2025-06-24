@@ -67,13 +67,25 @@ class ExchangeTokenRequestTests: XCTestCase {
   }
 
   /// Helper to add debugging assertions.
-  private func checkPreconditions(auth: Auth, app: FirebaseApp, expectedLocation: String, expectedTenantId: String, expectedProjectId: String) {
+  private func checkPreconditions(auth: Auth, app: FirebaseApp, expectedLocation: String,
+                                  expectedTenantId: String, expectedProjectId: String) {
     XCTAssertNotNil(auth.requestConfiguration.tenantConfig, "tenantConfig should not be nil")
-    XCTAssertEqual(auth.requestConfiguration.tenantConfig?.location, expectedLocation, "Location should match")
-    XCTAssertEqual(auth.requestConfiguration.tenantConfig?.tenantId, expectedTenantId, "Tenant ID should match")
+    XCTAssertEqual(
+      auth.requestConfiguration.tenantConfig?.location,
+      expectedLocation,
+      "Location should match"
+    )
+    XCTAssertEqual(
+      auth.requestConfiguration.tenantConfig?.tenantId,
+      expectedTenantId,
+      "Tenant ID should match"
+    )
 
     XCTAssertNotNil(auth.requestConfiguration.auth, "config.auth should not be nil")
-    XCTAssertTrue(auth.requestConfiguration.auth === auth, "config.auth should be the same instance")
+    XCTAssertTrue(
+      auth.requestConfiguration.auth === auth,
+      "config.auth should be the same instance"
+    )
 
     XCTAssertNotNil(auth.app, "Auth.app should not be nil")
     XCTAssertTrue(auth.app === app, "Auth.app should be the same instance")
@@ -91,7 +103,13 @@ class ExchangeTokenRequestTests: XCTestCase {
       location: kLocation,
       tenantId: kTenantID
     )
-    checkPreconditions(auth: auth, app: app, expectedLocation: kLocation, expectedTenantId: kTenantID, expectedProjectId: kProjectID)
+    checkPreconditions(
+      auth: auth,
+      app: app,
+      expectedLocation: kLocation,
+      expectedTenantId: kTenantID,
+      expectedProjectId: kProjectID
+    )
 
     let request = ExchangeTokenRequest(
       idToken: kIdToken,
@@ -115,7 +133,13 @@ class ExchangeTokenRequestTests: XCTestCase {
       location: globalLocation,
       tenantId: kTenantID
     )
-    checkPreconditions(auth: auth, app: app, expectedLocation: globalLocation, expectedTenantId: kTenantID, expectedProjectId: kProjectID)
+    checkPreconditions(
+      auth: auth,
+      app: app,
+      expectedLocation: globalLocation,
+      expectedTenantId: kTenantID,
+      expectedProjectId: kProjectID
+    )
 
     let request = ExchangeTokenRequest(
       idToken: kIdToken,
@@ -138,7 +162,13 @@ class ExchangeTokenRequestTests: XCTestCase {
       location: kLocation,
       tenantId: kTenantID
     )
-    checkPreconditions(auth: auth, app: app, expectedLocation: kLocation, expectedTenantId: kTenantID, expectedProjectId: kProjectID)
+    checkPreconditions(
+      auth: auth,
+      app: app,
+      expectedLocation: kLocation,
+      expectedTenantId: kTenantID,
+      expectedProjectId: kProjectID
+    )
 
     let request = ExchangeTokenRequest(
       idToken: kIdToken,
@@ -161,7 +191,13 @@ class ExchangeTokenRequestTests: XCTestCase {
       location: kLocation,
       tenantId: kTenantID
     )
-    checkPreconditions(auth: auth, app: app, expectedLocation: kLocation, expectedTenantId: kTenantID, expectedProjectId: kProjectID)
+    checkPreconditions(
+      auth: auth,
+      app: app,
+      expectedLocation: kLocation,
+      expectedTenantId: kTenantID,
+      expectedProjectId: kProjectID
+    )
 
     let request = ExchangeTokenRequest(
       idToken: kIdToken,
