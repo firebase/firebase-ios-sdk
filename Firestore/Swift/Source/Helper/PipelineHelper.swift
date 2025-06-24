@@ -24,6 +24,8 @@ enum Helper {
       return map(value as! [String: Sendable?])
     } else if value is [Sendable?] {
       return array(value as! [Sendable?])
+    } else if value is TimeUnit {
+      return Constant((value as! TimeUnit).rawValue)
     } else {
       return Constant(value)
     }
@@ -78,5 +80,31 @@ enum Helper {
     } else {
       return Constant(value).bridge
     }
+  }
+  
+  static func convertObjCToSwift(_ objValue: Sendable) -> Sendable? {
+    switch objValue {
+        case is NSNumber, is NSString:
+            return objValue
+
+        case is NSNull:
+            return nil
+
+        case let data as NSData:
+            return [UInt8](data)
+      
+    case let data as NSArray:
+      return data.map{ convertObjCToSwift($0) }
+      
+    case let data as NSDictionary:
+      var swiftDict = [String: Sendable?]()
+              for (key, value) in data {
+                swiftDict[key as! String] = convertObjCToSwift(value)
+              }
+              return swiftDict
+      
+        default:
+            return objValue
+        }
   }
 }

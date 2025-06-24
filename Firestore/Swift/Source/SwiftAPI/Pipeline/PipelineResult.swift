@@ -27,7 +27,7 @@ public struct PipelineResult: @unchecked Sendable {
     self.bridge = bridge
     ref = self.bridge.reference
     id = self.bridge.documentID
-    data = self.bridge.data()
+    data = self.bridge.data().mapValues{ Helper.convertObjCToSwift($0)}
     createTime = self.bridge.create_time
     updateTime = self.bridge.update_time
   }
@@ -51,20 +51,20 @@ public struct PipelineResult: @unchecked Sendable {
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldName: String) -> Sendable? {
-    return bridge.get(fieldName)
+    return Helper.convertObjCToSwift(bridge.get(fieldName))
   }
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldPath: FieldPath) -> Sendable? {
-    return bridge.get(fieldPath)
+    return Helper.convertObjCToSwift(bridge.get(fieldPath))
   }
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ field: Field) -> Sendable? {
-    return bridge.get(field.fieldName)
+    return Helper.convertObjCToSwift(bridge.get(field.fieldName))
   }
 }
