@@ -2463,7 +2463,7 @@ public extension Auth {
       self.tenantId = tenantId
     }
   }
-  
+
   /// Represents the result of a successful OIDC token exchange, containing a Firebase ID token
   /// and its expiration.
   struct FirebaseToken: Sendable {
@@ -2477,7 +2477,7 @@ public extension Auth {
       self.expirationDate = expirationDate
     }
   }
-  
+
   /// Exchanges a third-party OIDC token for a Firebase ID token.
   ///
   /// This method is used for Bring Your Own CIAM (BYO-CIAM) in Regionalized GCIP (R-GCIP),
