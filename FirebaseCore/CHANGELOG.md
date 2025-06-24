@@ -7,6 +7,13 @@
 - [removed] **Breaking change**: Removed the following unused API.
   - `Options.androidClientID`
   - `Options.trackingID`
+- [removed] **Breaking change**: Firebase's zip and Carthage distributions of
+  the Google Mobile Ads SDK has been removed. Instead, the Google
+  Mobile Ads SDK binary distribution should be accessed from
+  https://developers.google.com/admob/ios/download. Note that _any existing
+  versions of the Firebase zip or Carthage distributions will
+  continue to be available and functional_. Learn more about this change
+  in our FAQ: https://firebase.google.com/support/faq/#admob-which-sdk. (#14408)
 - [removed] The deprecated Vertex AI in Firebase SDK (`FirebaseVertexAI`) has
   been removed. It has been replaced by the Firebase AI Logic
   SDK (`FirebaseAI`) to
