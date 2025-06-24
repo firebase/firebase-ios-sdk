@@ -18,9 +18,9 @@ Pod::Spec.new do |s|
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '12.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  tvos_deployment_target = '13.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
@@ -43,9 +43,9 @@ Pod::Spec.new do |s|
   s.test_spec 'Unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
     unit_tests.platforms = {
-      :ios => '13.0',
-      :osx => '10.15',
-      :tvos => '13.0'
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
     }
     unit_tests.source_files = [
       'FirebaseCore/Internal/Tests/Unit/**/*.swift',

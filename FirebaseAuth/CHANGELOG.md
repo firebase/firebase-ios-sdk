@@ -1,4 +1,6 @@
 # Unreleased
+- [removed] **Breaking Change**: Removed
+  `ActionCodeSettings.dynamicLinkDomain`.
 - [removed] **Breaking Change**: Remove deprecated Swift APIs using
   `String`-typed `productID`s that were  in favor of API that leverages the
   `AuthProviderID` enum. Note, this only affects Swift clients.
