@@ -18,9 +18,9 @@ app update.
     :tag => 'CocoaPods-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  ios_deployment_target = '13.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  tvos_deployment_target = '13.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.swift_version = '5.9'

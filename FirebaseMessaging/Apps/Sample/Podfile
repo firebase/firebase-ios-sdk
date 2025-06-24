@@ -5,7 +5,7 @@ source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 target 'Sample' do
-  platform :ios, '13.0'
+  platform :ios, '15.0'
 
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
