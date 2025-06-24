@@ -29,14 +29,6 @@ let package = Package(
       name: "FirebaseAI",
       targets: ["FirebaseAI"]
     ),
-    // Backwards-compatibility library for existing "Vertex AI in Firebase" users.
-    .library(
-      name: "FirebaseVertexAI",
-      targets: [
-        "FirebaseAI",
-        "FirebaseVertexAI",
-      ]
-    ),
     .library(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
@@ -224,24 +216,6 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
-      ]
-    ),
-    // Backwards-compatibility targets for existing "Vertex AI in Firebase" users.
-    .target(
-      name: "FirebaseVertexAI",
-      dependencies: [
-        "FirebaseAI",
-      ],
-      path: "FirebaseVertexAI/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseVertexAIUnit",
-      dependencies: [
-        "FirebaseVertexAI",
-      ],
-      path: "FirebaseVertexAI/Tests/Unit",
-      resources: [
-        .process("Resources"),
       ]
     ),
 
