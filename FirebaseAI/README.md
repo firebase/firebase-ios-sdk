@@ -1,6 +1,6 @@
 # Firebase AI SDK
 
-- For developer documentation, please visit https://firebase.google.com/docs/vertex-ai.
+- For developer documentation, please visit https://firebase.google.com/docs/ai-logic.
 - Try out the [sample app](https://github.com/firebase/quickstart-ios/tree/main/firebaseai) to get started.
 
 ## Development
