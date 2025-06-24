@@ -32,7 +32,6 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseFunctions
-      supports_swift6: true
       setup_command: FirebaseFunctions/Backend/start.sh synchronous
 
   spm-integration:
