@@ -1,6 +1,9 @@
 # Unreleased
 - [removed] **Breaking Change**: Removed
   `ActionCodeSettings.dynamicLinkDomain`.
+- [removed] **Breaking Change**: Remove deprecated Swift APIs using
+  `String`-typed `productID`s that were  in favor of API that leverages the
+  `AuthProviderID` enum. Note, this only affects Swift clients.
 
 # 11.15.0
 - [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14996)
