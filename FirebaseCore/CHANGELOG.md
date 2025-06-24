@@ -14,6 +14,13 @@
   versions of the Firebase zip or Carthage distributions will
   continue to be available and functional_. Learn more about this change
   in our FAQ: https://firebase.google.com/support/faq/#admob-which-sdk. (#14408)
+- [removed] The deprecated Vertex AI in Firebase SDK (`FirebaseVertexAI`) has
+  been removed. It has been replaced by the Firebase AI Logic
+  SDK (`FirebaseAI`) to
+  accommodate the evolving set of supported features and services.
+  To start using the new SDK, import the `FirebaseAI` module and use the
+  top-level `FirebaseAI` class. See details in the [migration guide
+  ](https://firebase.google.com/docs/ai-logic/migrate-to-latest-sdk).
 
 # Firebase 11.15.0
 - [fixed] Remove c99 as the required C language standard. (#14950)
