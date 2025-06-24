@@ -546,7 +546,9 @@ let package = Package(
         "ObjC", "Public",
       ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
-      swiftSettings: [.swiftLanguageMode(SwiftLanguageMode.v5)],
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),
@@ -877,7 +879,10 @@ let package = Package(
     .target(
       name: "FirebaseInAppMessaging",
       dependencies: ["FirebaseInAppMessagingInternal"],
-      path: "FirebaseInAppMessaging/Swift/Source"
+      path: "FirebaseInAppMessaging/Swift/Source",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
     ),
 
     .target(
@@ -915,6 +920,9 @@ let package = Package(
       ],
       cSettings: [
         .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
+      ],
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1223,7 +1231,10 @@ let package = Package(
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],
-      path: "FirebaseStorage/Sources"
+      path: "FirebaseStorage/Sources",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
     ),
     .testTarget(
       name: "FirebaseStorageUnit",
@@ -1568,7 +1579,10 @@ func firestoreTargets() -> [Target] {
         sources: [
           "Swift/Source/",
         ],
-        resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")]
+        resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")],
+        swiftSettings: [
+          .swiftLanguageMode(SwiftLanguageMode.v5),
+        ]
       ),
     ]
   }
@@ -1617,6 +1631,9 @@ func firestoreTargets() -> [Target] {
       ],
       path: "Firestore/Swift/Source",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
