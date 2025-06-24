@@ -64,7 +64,6 @@
   NSString *s = [codeSettings iOSBundleID];
   s = [codeSettings androidPackageName];
   s = [codeSettings androidMinimumVersion];
-  s = [codeSettings dynamicLinkDomain];
   s = [codeSettings linkDomain];
 }
 

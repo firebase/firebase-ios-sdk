@@ -41,7 +41,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
        let _: String = codeSettings.iOSBundleID,
        let _: String = codeSettings.androidPackageName,
        let _: String = codeSettings.androidMinimumVersion,
-       let _: String = codeSettings.dynamicLinkDomain,
        let _: String = codeSettings.linkDomain {}
     codeSettings.linkDomain = nil
     codeSettings.linkDomain = ""
