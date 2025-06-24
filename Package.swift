@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.15.0"
+let firebaseVersion = "12.0.0"
 
 let package = Package(
   name: "Firebase",
@@ -28,14 +28,6 @@ let package = Package(
     .library(
       name: "FirebaseAI",
       targets: ["FirebaseAI"]
-    ),
-    // Backwards-compatibility library for existing "Vertex AI in Firebase" users.
-    .library(
-      name: "FirebaseVertexAI",
-      targets: [
-        "FirebaseAI",
-        "FirebaseVertexAI",
-      ]
     ),
     .library(
       name: "FirebaseAnalytics",
@@ -157,7 +149,7 @@ let package = Package(
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      "10.0.0" ..< "11.0.0"
+      "10.1.0" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
@@ -224,24 +216,6 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
-      ]
-    ),
-    // Backwards-compatibility targets for existing "Vertex AI in Firebase" users.
-    .target(
-      name: "FirebaseVertexAI",
-      dependencies: [
-        "FirebaseAI",
-      ],
-      path: "FirebaseVertexAI/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseVertexAIUnit",
-      dependencies: [
-        "FirebaseVertexAI",
-      ],
-      path: "FirebaseVertexAI/Tests/Unit",
-      resources: [
-        .process("Resources"),
       ]
     ),
 
