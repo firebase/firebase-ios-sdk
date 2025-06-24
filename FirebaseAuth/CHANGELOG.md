@@ -1,3 +1,7 @@
+# Unreleased
+- [removed] **Breaking Change**: Removed
+  `ActionCodeSettings.dynamicLinkDomain`.
+
 # 11.15.0
 - [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14996)
 
