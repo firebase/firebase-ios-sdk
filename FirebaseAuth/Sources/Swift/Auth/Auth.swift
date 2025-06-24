@@ -2430,7 +2430,7 @@ extension Auth: AuthInterop {
   private var listenerHandles: NSMutableArray = []
 }
 
-// MARK: Regionalized auth
+/// Regionalized auth
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Auth {
   /// Gets the Auth object for a `FirebaseApp` configured for a specific Regional Google Cloud
@@ -2457,8 +2457,8 @@ public extension Auth {
     ///
     /// - Parameters:
     ///   - tenantId: The ID of the tenant.
-    ///   - location: The location of the tenant. Defaults to "prod-global".
-    public init(tenantId: String, location: String = "prod-global") {
+    ///   - location: The location of the tenant. Defaults to "global".
+    public init(tenantId: String, location: String = "global") {
       self.location = location
       self.tenantId = tenantId
     }

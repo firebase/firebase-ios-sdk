@@ -14,8 +14,8 @@
 
 import Foundation
 
-private let kRegionalGCIPAPIHost = "identityplatform.googleapis.com"
-private let kRegionalGCIPStagingAPIHost = "staging-identityplatform.sandbox.googleapis.com"
+private let regionalGCIPAPIHost = "identityplatform.googleapis.com"
+private let regionalGCIPStagingAPIHost = "staging-identityplatform.sandbox.googleapis.com"
 
 // MARK: - ExchangeTokenRequest
 
@@ -43,6 +43,14 @@ struct ExchangeTokenRequest: AuthRPCRequest {
 
   /// Flag for whether to use the staging backend.
   let useStaging: Bool
+
+  /// The base URL components for the request, will be used to construct the final URL.
+  private var baseURLComponents: URLComponents {
+    var components = URLComponents()
+    components.scheme = "https"
+    components.host = useStaging ? regionalGCIPStagingAPIHost : regionalGCIPAPIHost
+    return components
+  }
 
   /// Initializes an `ExchangeTokenRequest`.
   ///
@@ -73,24 +81,24 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   ///              constructing a valid regional endpoint URL.
   /// - Returns: The fully constructed `URL` for the API request.
   func requestURL() -> URL {
-    guard let location = config.location,
-          let tenant = config.tenantId,
+    guard let location = config.tenantConfig?.location,
+          let tenant = config.tenantConfig?.tenantId,
           let project = config.auth?.app?.options.projectID
     else {
       fatalError(
         "Internal Error: ExchangeTokenRequest requires `location`, `tenantId`, and `projectID`."
       )
     }
-    let baseHost = useStaging ? kRegionalGCIPStagingAPIHost : kRegionalGCIPAPIHost
-    let host = (location == "prod-global" || location == "global") ? baseHost :
-      "\(location)-\(baseHost)"
-
-    let locationPath = (location == "prod-global") ? "global" : location
-
-    let path = "/v2beta/projects/\(project)/locations/\(locationPath)" +
-      "/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
-
-    guard let url = URL(string: "https://\(host)\(path)?key=\(config.apiKey)") else {
+    var components = baseURLComponents
+    if location != "global" {
+      components.host = "\(location)-\(components.host ?? "")"
+    }
+    let locationPath = location == "global" ? "global" : location
+    components
+      .path =
+      "/v2beta/projects/\(project)/locations/\(locationPath)/tenants/\(tenant)/idpConfigs/\(idpConfigID):exchangeOidcToken"
+    components.queryItems = [URLQueryItem(name: "key", value: config.apiKey)]
+    guard let url = components.url else {
       fatalError("Failed to create URL for ExchangeTokenRequest")
     }
     return url
