@@ -21,7 +21,6 @@ FirebaseRemoteConfig
 FirebaseRemoteConfigInterop
 FirebaseSessions
 FirebaseStorage
-FirebaseVertexAI
 GTMSessionFetcher
 GoogleDataTransport
 PromisesObjC

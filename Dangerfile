@@ -130,10 +130,7 @@ has_license_changes = didModify(["LICENSE"])
 @has_crashlytics_api_changes = hasChangesIn("Crashlytics/Crashlytics/Public/")
 @has_database_changes = hasChangesIn("FirebaseDatabase")
 @has_database_api_changes = hasChangesIn("FirebaseDatabase/Sources/Public/")
-@has_firebaseai_changes = hasChangesIn([
-  "FirebaseAI",
-  "FirebaseVertexAI"
-])
+@has_firebaseai_changes = hasChangesIn("FirebaseAI")
 @has_firestore_changes = hasChangesIn(["Firestore/", "FirebaseFirestore.podspec"])
 @has_firestore_api_changes = hasChangesIn("Firestore/Source/Public/")
 @has_functions_changes = hasChangesIn(["FirebaseFunctions"])

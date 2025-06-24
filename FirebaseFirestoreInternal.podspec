@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestoreInternal'
-  s.version          = '11.15.0'
+  s.version          = '12.0.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -16,9 +16,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.ios.deployment_target = '13.0'
+  s.ios.deployment_target = '15.0'
   s.osx.deployment_target = '10.15'
-  s.tvos.deployment_target = '13.0'
+  s.tvos.deployment_target = '15.0'
 
   s.swift_version = '5.9'
 
@@ -92,8 +92,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     "#{s.module_name}_Privacy" => 'Firestore/Source/Resources/PrivacyInfo.xcprivacy'
   }
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.15.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.0'
+  s.dependency 'FirebaseCore', '~> 12.0.0'
 
   abseil_version = '~> 1.20240722.0'
   s.dependency 'abseil/algorithm', abseil_version
