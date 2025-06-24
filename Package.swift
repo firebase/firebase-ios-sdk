@@ -16,7 +16,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import class Foundation.ProcessInfo
 import PackageDescription
 
 let firebaseVersion = "11.15.0"
@@ -1412,7 +1411,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
 
   // Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement so that the
   // release process can defer publishing the GoogleAppMeasurement tag until after testing.
-  if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
+  if Context.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
@@ -1424,7 +1423,7 @@ func abseilDependency() -> Package.Dependency {
 
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
-  if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
       "0.20240722.0" ..< "0.20240723.0"
@@ -1444,7 +1443,7 @@ func grpcDependency() -> Package.Dependency {
 
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
-  if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
@@ -1454,7 +1453,7 @@ func grpcDependency() -> Package.Dependency {
 }
 
 func firestoreWrapperTarget() -> Target {
-  if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     return .target(
       name: "FirebaseFirestoreTarget",
       dependencies: [.target(name: "FirebaseFirestore",
@@ -1473,7 +1472,7 @@ func firestoreWrapperTarget() -> Target {
 }
 
 func firestoreTargets() -> [Target] {
-  if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     return [
       .target(
         name: "FirebaseFirestoreInternalWrapper",
@@ -1575,7 +1574,7 @@ func firestoreTargets() -> [Target] {
   }
 
   let firestoreInternalTarget: Target = {
-    if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
+    if Context.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
       // This is set when running `scripts/check_firestore_symbols.sh`.
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
