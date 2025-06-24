@@ -367,7 +367,8 @@ class AuthErrorUtils {
   }
 
   static func invalidDynamicLinkDomainError(message: String?) -> Error {
-    error(code: .invalidDynamicLinkDomain, message: message)
+    // Use raw value to avoid deprecation warning.
+    error(code: AuthErrorCode(rawValue: 17074)!, message: message)
   }
 
   static func invalidHostingLinkDomainError(message: String?) -> Error {

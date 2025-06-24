@@ -241,6 +241,7 @@ import Foundation
   case nullUser = 17067
 
   /// Indicates that a Firebase Dynamic Link is not activated.
+  @available(*, deprecated)
   case dynamicLinkNotActivated = 17068
 
   /// Represents the error code for when the given provider id for a web operation is invalid.
@@ -256,6 +257,7 @@ import Foundation
 
   /// Indicates that the Firebase Dynamic Link domain used is either not configured or is
   /// unauthorized for the current project.
+  @available(*, deprecated)
   case invalidDynamicLinkDomain = 17074
 
   /// Indicates that the provided Firebase Hosting Link domain is not owned by the current project.
