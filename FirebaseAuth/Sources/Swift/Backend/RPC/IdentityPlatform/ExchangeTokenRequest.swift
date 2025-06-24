@@ -73,8 +73,8 @@ struct ExchangeTokenRequest: AuthRPCRequest {
   ///              constructing a valid regional endpoint URL.
   /// - Returns: The fully constructed `URL` for the API request.
   func requestURL() -> URL {
-    guard let location = config.location,
-          let tenant = config.tenantId,
+    guard let location = config.tenantConfig?.location,
+          let tenant = config.tenantConfig?.tenantId,
           let project = config.auth?.app?.options.projectID
     else {
       fatalError(
