@@ -369,8 +369,7 @@ class AuthMenuData: DataSourceProvidable {
   }
 
   static let sections: [Section] =
-    [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
-     customAuthDomainSection, appSection, oobSection, multifactorSection, exchangeTokenSection]
+    [exchangeTokenSection]
 
   static var authLinkSections: [Section] {
     let allItems = [providerSection, emailPasswordSection, otherSection].flatMap { $0.items }
