@@ -550,10 +550,10 @@ static NSInteger const gMaxRetries = 7;
         [self autoFetch:gFetchAttempts targetVersion:updateTemplateVersion];
       }
 
-      /// This field in the response indicates that the realtime request has exceeded the project's
-      /// quota. It will retry after the specified interval to establish a long-lived connection.
-      /// This interval extends the backoff duration without affecting the number of retries, so it
-      /// will not enter an exponential backoff state.
+      /// This field in the response indicates that the realtime request should retry after the
+      /// specified interval to establish a long-lived connection. This interval extends the backoff
+      /// duration without affecting the number of retries, so it will not enter an exponential
+      /// backoff state.
       if (realtimeRetryInterval > 0) {
         [self->_settings updateRealtimeBackoffTimeWithInterval:realtimeRetryInterval];
       }
