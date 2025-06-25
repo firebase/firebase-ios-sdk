@@ -1,6 +1,6 @@
 # Unreleased
 - [removed] **Breaking Change**: Removed the following Dynamic Links related
-  APIs:  
+  APIs:
   - `ActionCodeSettings.dynamicLinkDomain`
   - `AuthErrorCode.dynamicLinkNotActivated`
   - `AuthErrorCode.invalidDynamicLinkDomain`
