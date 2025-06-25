@@ -22,14 +22,20 @@ final class ToolTests: XCTestCase {
 
   override func setUp() {
     super.setUp()
-    encoder.outputFormatting = .sortedKeys
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
   }
 
   func testEncodeTool_googleSearch() throws {
     let tool = Tool.googleSearch()
     let jsonData = try encoder.encode(tool)
     let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
-    XCTAssertEqual(jsonString, "{\"googleSearch\":{}}")
+    XCTAssertEqual(jsonString, """
+    {
+      "googleSearch" : {
+
+      }
+    }
+    """)
   }
 
   func testEncodeTool_functionDeclarations() throws {
@@ -45,7 +51,27 @@ final class ToolTests: XCTestCase {
     let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
 
     XCTAssertEqual(jsonString, """
-    {"functionDeclarations":[{"description":"A test function.","name":"test_function","parameters":{"nullable":false,"properties":{"param1":{"nullable":false,"type":"STRING"}},"required":["param1"],"type":"OBJECT"}}]}
+    {
+      "functionDeclarations" : [
+        {
+          "description" : "A test function.",
+          "name" : "test_function",
+          "parameters" : {
+            "nullable" : false,
+            "properties" : {
+              "param1" : {
+                "nullable" : false,
+                "type" : "STRING"
+              }
+            },
+            "required" : [
+              "param1"
+            ],
+            "type" : "OBJECT"
+          }
+        }
+      ]
+    }
     """)
   }
 }
