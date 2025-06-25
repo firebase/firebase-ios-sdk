@@ -668,44 +668,13 @@ extension GroundingMetadata: Decodable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension GroundingMetadata.SearchEntryPoint: Decodable {
-  enum CodingKeys: String, CodingKey {
-    case renderedContent
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    renderedContent = try container.decodeIfPresent(String.self, forKey: .renderedContent)
-  }
-}
+extension GroundingMetadata.SearchEntryPoint: Decodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension GroundingMetadata.GroundingChunk: Decodable {
-  enum CodingKeys: String, CodingKey {
-    case web
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    web = try container.decodeIfPresent(GroundingMetadata.WebGroundingChunk.self, forKey: .web)
-  }
-}
+extension GroundingMetadata.GroundingChunk: Decodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension GroundingMetadata.WebGroundingChunk: Decodable {
-  enum CodingKeys: String, CodingKey {
-    case uri
-    case title
-    case domain
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    uri = try container.decodeIfPresent(String.self, forKey: .uri)
-    title = try container.decodeIfPresent(String.self, forKey: .title)
-    domain = try container.decodeIfPresent(String.self, forKey: .domain)
-  }
-}
+extension GroundingMetadata.WebGroundingChunk: Decodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.GroundingSupport: Decodable {
