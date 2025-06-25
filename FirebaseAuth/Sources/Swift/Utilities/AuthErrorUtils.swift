@@ -366,10 +366,6 @@ class AuthErrorUtils {
     error(code: .invalidProviderID, message: message)
   }
 
-  static func invalidDynamicLinkDomainError(message: String?) -> Error {
-    error(code: .invalidDynamicLinkDomain, message: message)
-  }
-
   static func invalidHostingLinkDomainError(message: String?) -> Error {
     error(code: .invalidHostingLinkDomain, message: message)
   }
