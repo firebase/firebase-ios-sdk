@@ -273,11 +273,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.webSignInUserInteractionFailure
     _ = AuthErrorCode.localPlayerNotAuthenticated
     _ = AuthErrorCode.nullUser
-    _ = AuthErrorCode.dynamicLinkNotActivated
     _ = AuthErrorCode.invalidProviderID
     _ = AuthErrorCode.tenantIDMismatch
     _ = AuthErrorCode.unsupportedTenantOperation
-    _ = AuthErrorCode.invalidDynamicLinkDomain
     _ = AuthErrorCode.invalidHostingLinkDomain
     _ = AuthErrorCode.rejectedCredential
     _ = AuthErrorCode.gameKitNotLinked
