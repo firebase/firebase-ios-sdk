@@ -37,7 +37,7 @@ struct ExchangeTokenResponse: AuthRPCResponse {
   ///
   /// - Parameter dictionary: The dictionary representing the JSON response from server.
   /// - Throws: `AuthErrorUtils.unexpectedResponse` if the required fields
-  ///           (like "idToken", "expiresIn") are missing, have unexpected types
+  ///           (like "accessToken", "expiresIn") are missing or have unexpected types.
   init(dictionary: [String: AnyHashable]) throws {
     guard let token = dictionary["accessToken"] as? String else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
