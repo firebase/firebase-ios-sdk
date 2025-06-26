@@ -116,7 +116,6 @@ extension Auth: AuthInterop {
         return
       }
       /// Fallback to standard `currentUser` logic if not in token-only mode.
-      /// ... (rest of the original function)
       if !self.autoRefreshTokens {
         AuthLog.logInfo(code: "I-AUT000002", message: "Token auto-refresh enabled.")
         self.autoRefreshTokens = true
