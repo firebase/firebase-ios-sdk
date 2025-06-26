@@ -33,14 +33,6 @@ public extension Expr {
     return FunctionExpr("add", [self, Helper.sendableToExpr(value)])
   }
 
-  func add(_ values: [Expr]) -> FunctionExpr {
-    return FunctionExpr("add", [self, Helper.array(values)])
-  }
-
-  func add(_ values: [Sendable]) -> FunctionExpr {
-    return FunctionExpr("add", [self, Helper.array(values)])
-  }
-
   func subtract(_ other: Expr) -> FunctionExpr {
     return FunctionExpr("subtract", [self, other])
   }
@@ -55,14 +47,6 @@ public extension Expr {
 
   func multiply(_ value: Sendable) -> FunctionExpr {
     return FunctionExpr("multiply", [self, Helper.sendableToExpr(value)])
-  }
-
-  func multiply(_ values: [Expr]) -> FunctionExpr {
-    return FunctionExpr("multiply", [self, Helper.array(values)])
-  }
-
-  func multiply(_ values: [Sendable]) -> FunctionExpr {
-    return FunctionExpr("multiply", [self, Helper.array(values)])
   }
 
   func divide(_ other: Expr) -> FunctionExpr {

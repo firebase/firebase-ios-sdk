@@ -1900,8 +1900,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         Field("published").subtract(1900).as("yearsSince1900"),
         Field("rating").multiply(10).as("ratingTimesTen"),
         Field("rating").divide(2).as("ratingDividedByTwo"),
-        Field("rating").multiply([10, 2]).as("ratingTimes20"),
-        Field("rating").add([1, 2]).as("ratingPlus3"),
+        Field("rating").multiply(20).as("ratingTimes20"),
+        Field("rating").add(3).as("ratingPlus3"),
         Field("rating").mod(2).as("ratingMod2")
       )
       .limit(1)

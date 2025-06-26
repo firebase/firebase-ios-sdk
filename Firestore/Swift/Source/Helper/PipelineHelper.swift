@@ -18,14 +18,14 @@ enum Helper {
       return Constant.nil
     }
 
-    if value is Expr {
-      return value as! Expr
-    } else if value is [String: Sendable?] {
-      return map(value as! [String: Sendable?])
-    } else if value is [Sendable?] {
-      return array(value as! [Sendable?])
-    } else if value is TimeUnit {
-      return Constant((value as! TimeUnit).rawValue)
+    if let exprValue = value as? Expr {
+      return exprValue
+    } else if let dictionaryValue = value as? [String: Sendable?] {
+      return map(dictionaryValue)
+    } else if let arrayValue = value as? [Sendable?] {
+      return array(arrayValue)
+    } else if let timeUnitValue = value as? TimeUnit {
+      return Constant(timeUnitValue.rawValue)
     } else {
       return Constant(value)
     }
@@ -33,7 +33,9 @@ enum Helper {
 
   static func selectablesToMap(selectables: [Selectable]) -> [String: Expr] {
     let exprMap = selectables.reduce(into: [String: Expr]()) { result, selectable in
-      let value = selectable as! SelectableWrapper
+      guard let value = selectable as? SelectableWrapper else {
+        fatalError("Selectable class must conform to SelectableWrapper.")
+      }
       result[value.alias] = value.expr
     }
     return exprMap
@@ -57,22 +59,18 @@ enum Helper {
 
   // This function is used to convert Swift type into Objective-C type.
   static func sendableToAnyObjectForRawStage(_ value: Sendable?) -> AnyObject {
-    guard let value = value else {
+    guard let value = value, !(value is NSNull) else {
       return Constant.nil.bridge
     }
 
-    guard !(value is NSNull) else {
-      return Constant.nil.bridge
-    }
-
-    if value is Expr {
-      return (value as! Expr).toBridge()
-    } else if value is AggregateFunction {
-      return (value as! AggregateFunction).toBridge()
-    } else if value is [String: Sendable?] {
-      let mappedValue: [String: Sendable?] = (value as! [String: Sendable?]).mapValues {
-        if $0 is AggregateFunction {
-          return ($0 as! AggregateFunction).toBridge()
+    if let exprValue = value as? Expr {
+      return exprValue.toBridge()
+    } else if let aggregateFunctionValue = value as? AggregateFunction {
+      return aggregateFunctionValue.toBridge()
+    } else if let dictionaryValue = value as? [String: Sendable?] {
+      let mappedValue: [String: Sendable] = dictionaryValue.mapValues {
+        if let aggFunc = $0 as? AggregateFunction {
+          return aggFunc.toBridge()
         }
         return sendableToExpr($0).toBridge()
       }
