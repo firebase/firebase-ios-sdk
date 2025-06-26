@@ -1374,12 +1374,33 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .union(db.pipeline()
         .collection(collRef.path))
+      .sort(Field(FieldPath.documentID()).ascending())
 
     let snapshot = try await pipeline.execute()
 
-    let bookSequence = (1 ... 10).map { "book\($0)" }
-    let repeatedIDs = bookSequence + bookSequence
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: repeatedIDs, enforceOrder: false)
+    let books = [
+      "book1",
+      "book1",
+      "book10",
+      "book10",
+      "book2",
+      "book2",
+      "book3",
+      "book3",
+      "book4",
+      "book4",
+      "book5",
+      "book5",
+      "book6",
+      "book6",
+      "book7",
+      "book7",
+      "book8",
+      "book8",
+      "book9",
+      "book9",
+    ]
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: books, enforceOrder: false)
   }
 
   func testUnnestStage() async throws {
@@ -2706,5 +2727,316 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     } else {
       XCTFail("No document retrieved for not operator test")
     }
+  }
+
+  func testReplaceFirst() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("The Lord of the Rings"))
+      .limit(1)
+      .select(Field("title").replaceFirst("o", "0").as("newName"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["newName": "The L0rd of the Rings"]],
+      enforceOrder: false
+    )
+  }
+
+  func testReplaceAll() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("The Lord of the Rings"))
+      .limit(1)
+      .select(Field("title").replaceAll("o", "0").as("newName"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["newName": "The L0rd 0f the Rings"]],
+      enforceOrder: false
+    )
+  }
+
+  func testBitAnd() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(5).bitAnd(12).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 4]], enforceOrder: false)
+  }
+
+  func testBitOr() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(5).bitOr(12).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 13]], enforceOrder: false)
+  }
+
+  func testBitXor() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(5).bitXor(12).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 9]], enforceOrder: false)
+  }
+
+  func testBitNot() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+    let bytesInput = Data([0xFD])
+    let expectedOutput = Data([0x02])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(bytesInput).bitNot().as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["result": expectedOutput]],
+      enforceOrder: false
+    )
+  }
+
+  func testBitLeftShift() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+    let bytesInput = Data([0x02])
+    let expectedOutput = Data([0x08])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(bytesInput).bitLeftShift(2).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["result": expectedOutput]],
+      enforceOrder: false
+    )
+  }
+
+  func testBitRightShift() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+    let bytesInput = Data([0x02])
+    let expectedOutput = Data([0x00])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(bytesInput).bitRightShift(2).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["result": expectedOutput]],
+      enforceOrder: false
+    )
+  }
+
+  func testDocumentId() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(Field("__path__").documentId().as("docId"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["docId": "book4"]],
+      enforceOrder: false
+    )
+  }
+
+  func testSubstr() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(Field("title").substr(9, 2).as("of"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["of": "of"]], enforceOrder: false)
+  }
+
+  func testSubstrWithoutLength() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(Field("title").substr(9).as("of"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["of": "of the Rings"]],
+      enforceOrder: false
+    )
+  }
+
+  func testArrayConcat() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1) // Assuming we operate on the first book (book1)
+      .select(
+        Field("tags").arrayConcat(
+          ["newTag1", "newTag2"],
+          [Field("tags")],
+          [Constant.nil]
+        ).as("modifiedTags")
+      )
+    var snapshot = try await pipeline.execute()
+
+    let expectedTags: [Sendable?] = [
+      "comedy", "space", "adventure",
+      "newTag1", "newTag2",
+      "comedy", "space", "adventure",
+      nil,
+    ]
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["modifiedTags": expectedTags]],
+      enforceOrder: false
+    )
+
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1) // Assuming we operate on the first book (book1)
+      .select(
+        Field("tags").arrayConcat(
+          Field("newTag1"), Field("newTag2"),
+          Field("tags"),
+          Constant.nil
+        ).as("modifiedTags")
+      )
+    snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["modifiedTags": expectedTags]],
+      enforceOrder: false
+    )
+  }
+
+  func testToLowercase() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select(Field("title").lowercased().as("lowercaseTitle"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["lowercaseTitle": "the hitchhiker's guide to the galaxy"]],
+      enforceOrder: false
+    )
+  }
+
+  func testToUppercase() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select(Field("author").uppercased().as("uppercaseAuthor"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["uppercaseAuthor": "DOUGLAS ADAMS"]],
+      enforceOrder: false
+    )
+  }
+
+  func testTrim() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .addFields(Constant(" The Hitchhiker's Guide to the Galaxy ").as("spacedTitle"))
+      .select(Field("spacedTitle").trim().as("trimmedTitle"), Field("spacedTitle"))
+      .limit(1)
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [[
+        "spacedTitle": " The Hitchhiker's Guide to the Galaxy ",
+        "trimmedTitle": "The Hitchhiker's Guide to the Galaxy",
+      ]],
+      enforceOrder: false
+    )
+  }
+
+  func testReverseString() async throws {
+    // Renamed from testReverse to avoid conflict if a generic reverse exists elsewhere
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("1984"))
+      .limit(1)
+      .select(Field("title").reverse().as("reverseTitle"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["reverseTitle": "4891"]],
+      enforceOrder: false
+    )
   }
 }

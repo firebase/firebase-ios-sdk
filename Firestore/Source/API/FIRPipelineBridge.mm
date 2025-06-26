@@ -100,10 +100,19 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   std::shared_ptr<Field> field;
 }
 
-- (id)init:(NSString *)name {
+- (id)initWithName:(NSString *)name {
   self = [super init];
   if (self) {
     field_path = [FIRFieldPath pathWithDotSeparatedString:name];
+    field = std::make_shared<Field>([field_path internalValue].CanonicalString());
+  }
+  return self;
+}
+
+- (id)initWithPath:(FIRFieldPath *)path {
+  self = [super init];
+  if (self) {
+    field_path = path;
     field = std::make_shared<Field>([field_path internalValue].CanonicalString());
   }
   return self;
