@@ -2496,7 +2496,7 @@ public struct FirebaseToken: Sendable {
   public let token: String
   /// The date at which the Firebase ID token expires.
   public let expirationDate: Date
-  
+
   init(token: String, expirationDate: Date) {
     self.token = token
     self.expirationDate = expirationDate
