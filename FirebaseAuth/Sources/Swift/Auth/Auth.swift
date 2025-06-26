@@ -2531,7 +2531,7 @@ public extension Auth {
           let _ = requestConfiguration.tenantConfig?.tenantId
     else {
       /// This should never happen in production code, as it indicates a misconfiguration.
-      throw fatalError(message: "R-GCIP is not configured correctly.")
+      throw fatalError("R-GCIP is not configured correctly.")
     }
     let request = ExchangeTokenRequest(
       idToken: idToken,
@@ -2561,7 +2561,7 @@ public extension Auth {
 
 /// Represents the result of a successful OIDC token exchange, containing a Firebase ID token
 /// and its expiration.
-struct FirebaseToken: Sendable {
+public struct FirebaseToken: Sendable {
   /// The Firebase ID token string.
   public let token: String
   /// The date at which the Firebase ID token expires.
