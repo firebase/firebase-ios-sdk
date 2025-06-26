@@ -2507,20 +2507,6 @@ public extension Auth {
     }
   }
 
-  /// Represents the result of a successful OIDC token exchange, containing a Firebase ID token
-  /// and its expiration.
-  struct FirebaseToken: Sendable {
-    /// The Firebase ID token string.
-    public let token: String
-    /// The date at which the Firebase ID token expires.
-    public let expirationDate: Date
-
-    init(token: String, expirationDate: Date) {
-      self.token = token
-      self.expirationDate = expirationDate
-    }
-  }
-
   /// Exchanges a third-party OIDC ID token for a Firebase ID token.
   ///
   /// This method is used for Bring Your Own CIAM (BYO-CIAM) in Regionalized GCIP (R-GCIP),
@@ -2544,7 +2530,8 @@ public extension Auth {
     guard let _ = requestConfiguration.tenantConfig?.location,
           let _ = requestConfiguration.tenantConfig?.tenantId
     else {
-      throw AuthErrorUtils.operationNotAllowedError(message: "R-GCIP is not configured.")
+      /// This should never happen in production code, as it indicates a misconfiguration.
+      throw fatalError(message: "R-GCIP is not configured correctly.")
     }
     let request = ExchangeTokenRequest(
       idToken: idToken,
@@ -2569,5 +2556,19 @@ public extension Auth {
     } catch {
       throw error
     }
+  }
+}
+
+/// Represents the result of a successful OIDC token exchange, containing a Firebase ID token
+/// and its expiration.
+struct FirebaseToken: Sendable {
+  /// The Firebase ID token string.
+  public let token: String
+  /// The date at which the Firebase ID token expires.
+  public let expirationDate: Date
+
+  init(token: String, expirationDate: Date) {
+    self.token = token
+    self.expirationDate = expirationDate
   }
 }
