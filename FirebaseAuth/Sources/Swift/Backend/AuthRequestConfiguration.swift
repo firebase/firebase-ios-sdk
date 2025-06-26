@@ -44,15 +44,22 @@ final class AuthRequestConfiguration {
   /// If set, the local emulator host and port to point to instead of the remote backend.
   var emulatorHostAndPort: String?
 
+  /// The regionalized GCIP tenant configuration, if provided.
+  /// This property contains tenant ID and location for regionalized GCIP services
+  /// It's non-`nil` only when the `Auth` instance is initialized with `TenantConfig`.
+  let tenantConfig: TenantConfig?
+
   init(apiKey: String,
        appID: String,
        auth: Auth? = nil,
        heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
-       appCheck: AppCheckInterop? = nil) {
+       appCheck: AppCheckInterop? = nil,
+       tenantConfig: TenantConfig? = nil) {
     self.apiKey = apiKey
     self.appID = appID
     self.auth = auth
     self.heartbeatLogger = heartbeatLogger
     self.appCheck = appCheck
+    self.tenantConfig = tenantConfig
   }
 }
