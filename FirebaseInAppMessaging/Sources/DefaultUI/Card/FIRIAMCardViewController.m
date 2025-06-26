@@ -1,20 +1,3 @@
-/*
- * Copyright 2019 Google
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-#import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Card/FIRIAMCardViewController.h"
@@ -39,16 +22,14 @@
 + (FIRIAMCardViewController *)
     instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
                                  displayMessage:(FIRInAppMessagingCardDisplay *)cardMessage
-                                displayDelegate:
-                                    (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
+                                displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate
                                     timeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher {
   UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard"
                                                        bundle:resourceBundle];
 
   if (!storyboard) {
     FIRLogError(kFIRLoggerInAppMessagingDisplay, @"I-FID300001",
-                @"Storyboard '"
-                 "FIRInAppMessageDisplayStoryboard' not found in bundle %@",
+                @"Storyboard 'FIRInAppMessageDisplayStoryboard' not found in bundle %@",
                 resourceBundle);
     return nil;
   }
@@ -115,22 +96,31 @@
 
   [self.primaryActionButton setTitle:self.cardDisplayMessage.primaryActionButton.buttonText
                             forState:UIControlStateNormal];
-  [self.primaryActionButton
-      setTitleColor:self.cardDisplayMessage.primaryActionButton.buttonTextColor
-           forState:UIControlStateNormal];
+  [self.primaryActionButton setTitleColor:self.cardDisplayMessage.primaryActionButton.buttonTextColor
+                                forState:UIControlStateNormal];
 
   if (self.cardDisplayMessage.secondaryActionButton) {
     self.secondaryActionButton.hidden = NO;
     [self.secondaryActionButton setTitle:self.cardDisplayMessage.secondaryActionButton.buttonText
                                 forState:UIControlStateNormal];
-    [self.secondaryActionButton
-        setTitleColor:self.cardDisplayMessage.secondaryActionButton.buttonTextColor
-             forState:UIControlStateNormal];
+    [self.secondaryActionButton setTitleColor:self.cardDisplayMessage.secondaryActionButton.buttonTextColor
+                                    forState:UIControlStateNormal];
   }
 }
 
 - (void)viewDidLayoutSubviews {
   [super viewDidLayoutSubviews];
+
+  // Dynamically round buttons to half their height
+  CGFloat primaryHeight = CGRectGetHeight(self.primaryActionButton.bounds);
+  self.primaryActionButton.layer.cornerRadius = primaryHeight / 2.0;
+  self.primaryActionButton.layer.masksToBounds = YES;
+
+  if (!self.secondaryActionButton.hidden) {
+    CGFloat secondaryHeight = CGRectGetHeight(self.secondaryActionButton.bounds);
+    self.secondaryActionButton.layer.cornerRadius = secondaryHeight / 2.0;
+    self.secondaryActionButton.layer.masksToBounds = YES;
+  }
 
   // The landscape image is optional and only displayed if:
   // 1. Landscape image exists.

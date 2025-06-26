@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina6_5" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -154,8 +154,8 @@
                                         </constraints>
                                         <variation key="default">
                                             <mask key="constraints">
-                                                <exclude reference="EeQ-n5-WE7"/>
                                                 <exclude reference="lJJ-PY-Yai"/>
+                                                <exclude reference="EeQ-n5-WE7"/>
                                             </mask>
                                         </variation>
                                         <variation key="heightClass=compact">
@@ -231,40 +231,40 @@
                                 </userDefinedRuntimeAttributes>
                                 <variation key="default">
                                     <mask key="constraints">
-                                        <exclude reference="8Yx-fI-jXG"/>
-                                        <exclude reference="8qu-C8-A9u"/>
                                         <exclude reference="Ln4-8U-D7V"/>
+                                        <exclude reference="8Yx-fI-jXG"/>
                                         <exclude reference="MCf-U1-0tP"/>
-                                        <exclude reference="7vK-9V-j5H"/>
-                                        <exclude reference="9La-QV-ftg"/>
+                                        <exclude reference="8qu-C8-A9u"/>
                                         <exclude reference="Ait-Na-aVF"/>
-                                        <exclude reference="FTB-yV-c00"/>
-                                        <exclude reference="JJo-tI-mvn"/>
                                         <exclude reference="RbZ-9Q-1S3"/>
-                                        <exclude reference="0Fp-k2-48a"/>
+                                        <exclude reference="JJo-tI-mvn"/>
+                                        <exclude reference="9La-QV-ftg"/>
+                                        <exclude reference="FTB-yV-c00"/>
+                                        <exclude reference="7vK-9V-j5H"/>
                                         <exclude reference="Hm8-0s-RTs"/>
-                                        <exclude reference="JUy-lx-oR6"/>
-                                        <exclude reference="Kec-yq-1Pz"/>
-                                        <exclude reference="bD7-OU-bEW"/>
-                                        <exclude reference="ivB-jb-LVl"/>
-                                        <exclude reference="pyI-1U-ujR"/>
                                         <exclude reference="ysk-iC-Hz4"/>
-                                        <exclude reference="RdS-Ao-GH0"/>
+                                        <exclude reference="ivB-jb-LVl"/>
+                                        <exclude reference="0Fp-k2-48a"/>
+                                        <exclude reference="pyI-1U-ujR"/>
+                                        <exclude reference="JUy-lx-oR6"/>
+                                        <exclude reference="bD7-OU-bEW"/>
+                                        <exclude reference="Kec-yq-1Pz"/>
                                         <exclude reference="qgb-13-uT4"/>
+                                        <exclude reference="RdS-Ao-GH0"/>
                                         <exclude reference="CSN-TG-E9H"/>
-                                        <exclude reference="YoE-KS-uWS"/>
                                         <exclude reference="xXr-od-zOM"/>
+                                        <exclude reference="YoE-KS-uWS"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=compact">
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
-                                        <include reference="7vK-9V-j5H"/>
-                                        <include reference="9La-QV-ftg"/>
                                         <include reference="Ait-Na-aVF"/>
+                                        <include reference="9La-QV-ftg"/>
+                                        <include reference="7vK-9V-j5H"/>
                                         <include reference="Hm8-0s-RTs"/>
-                                        <include reference="pyI-1U-ujR"/>
                                         <include reference="ysk-iC-Hz4"/>
+                                        <include reference="pyI-1U-ujR"/>
                                         <include reference="qgb-13-uT4"/>
                                         <include reference="xXr-od-zOM"/>
                                     </mask>
@@ -272,9 +272,9 @@
                                 <variation key="widthClass=regular">
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
-                                        <include reference="7vK-9V-j5H"/>
-                                        <include reference="9La-QV-ftg"/>
                                         <include reference="Ait-Na-aVF"/>
+                                        <include reference="9La-QV-ftg"/>
+                                        <include reference="7vK-9V-j5H"/>
                                         <include reference="Hm8-0s-RTs"/>
                                         <include reference="ysk-iC-Hz4"/>
                                         <include reference="qgb-13-uT4"/>
@@ -283,12 +283,12 @@
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=compact">
                                     <mask key="constraints">
-                                        <include reference="FTB-yV-c00"/>
-                                        <include reference="JJo-tI-mvn"/>
                                         <include reference="RbZ-9Q-1S3"/>
+                                        <include reference="JJo-tI-mvn"/>
+                                        <include reference="FTB-yV-c00"/>
                                         <include reference="JUy-lx-oR6"/>
-                                        <include reference="Kec-yq-1Pz"/>
                                         <include reference="bD7-OU-bEW"/>
+                                        <include reference="Kec-yq-1Pz"/>
                                         <include reference="RdS-Ao-GH0"/>
                                         <include reference="CSN-TG-E9H"/>
                                         <include reference="YoE-KS-uWS"/>
@@ -296,10 +296,10 @@
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=regular">
                                     <mask key="constraints">
-                                        <include reference="8qu-C8-A9u"/>
                                         <include reference="Ln4-8U-D7V"/>
-                                        <include reference="0Fp-k2-48a"/>
+                                        <include reference="8qu-C8-A9u"/>
                                         <include reference="ivB-jb-LVl"/>
+                                        <include reference="0Fp-k2-48a"/>
                                     </mask>
                                 </variation>
                             </view>
@@ -329,16 +329,16 @@
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="Yvr-Y4-aEK"/>
                                 <exclude reference="bX2-s2-74w"/>
-                                <exclude reference="fyU-hx-Wh1"/>
                                 <exclude reference="kj1-PP-7nG"/>
+                                <exclude reference="Yvr-Y4-aEK"/>
+                                <exclude reference="fyU-hx-Wh1"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
                             <mask key="constraints">
-                                <include reference="Yvr-Y4-aEK"/>
                                 <include reference="kj1-PP-7nG"/>
+                                <include reference="Yvr-Y4-aEK"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
@@ -387,8 +387,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view">
-                                <rect key="frame" x="87" y="87" width="240" height="240"/>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Aft-rr-icV" userLabel="Card view">
+                                <rect key="frame" x="87" y="84" width="240" height="728"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gB0-8W-G9z">
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="160"/>
@@ -455,19 +455,21 @@
                                             <constraint firstItem="elG-N9-aqH" firstAttribute="width" secondItem="Tmr-ar-k7h" secondAttribute="width" id="dXF-bM-hYF"/>
                                         </constraints>
                                     </scrollView>
-                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" verticalCompressionResistancePriority="1000" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
-                                        <rect key="frame" x="163" y="186" width="53" height="30"/>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="251" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aZE-3x-WHk" userLabel="Primary action button">
+                                        <rect key="frame" x="163" y="674" width="53" height="30"/>
+                                        <color key="backgroundColor" systemColor="systemPurpleColor"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-primary-action-button"/>
                                         <constraints>
                                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="pxm-yD-xhm"/>
                                         </constraints>
+                                        <color key="tintColor" systemColor="systemBackgroundColor"/>
                                         <state key="normal" title="Primary"/>
                                         <connections>
                                             <action selector="primaryActionButtonTapped:" destination="oTF-1C-LZP" eventType="touchUpInside" id="Jk0-dp-Qgj"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="1000" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
-                                        <rect key="frame" x="65" y="186" width="74" height="30"/>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Feg-VM-jUf" userLabel="Secondary action button">
+                                        <rect key="frame" x="65" y="674" width="74" height="30"/>
                                         <accessibility key="accessibilityConfiguration" identifier="card-secondary-action-button"/>
                                         <constraints>
                                             <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="44" id="bpF-9w-pDe"/>
@@ -511,14 +513,14 @@
                                 <variation key="default">
                                     <mask key="constraints">
                                         <exclude reference="nRl-yZ-E1M"/>
-                                        <exclude reference="Voc-mp-Yh8"/>
                                         <exclude reference="xX5-sm-qJG"/>
+                                        <exclude reference="Voc-mp-Yh8"/>
+                                        <exclude reference="RVJ-ts-fU5"/>
                                         <exclude reference="4aZ-wP-20V"/>
                                         <exclude reference="7IV-jj-DjU"/>
-                                        <exclude reference="RVJ-ts-fU5"/>
                                         <exclude reference="T6F-Mi-UaM"/>
-                                        <exclude reference="dN2-Ih-eEj"/>
                                         <exclude reference="jgB-Ie-frE"/>
+                                        <exclude reference="dN2-Ih-eEj"/>
                                         <exclude reference="6oY-Eb-2Mh"/>
                                         <exclude reference="Q0o-hu-ttH"/>
                                     </mask>
@@ -594,5 +596,11 @@
     </scenes>
     <resources>
         <image name="close-with-transparency.png" width="44" height="44"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemPurpleColor">
+            <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>
