@@ -21,6 +21,10 @@ public class BooleanExpr: FunctionExpr, @unchecked Sendable {
     return AggregateFunction("count_if", [self])
   }
 
+  public func then(_ thenExpr: Expr, else elseExpr: Expr) -> FunctionExpr {
+    return FunctionExpr("cond", [self, thenExpr, elseExpr])
+  }
+
   public static func && (lhs: BooleanExpr,
                          rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
     try BooleanExpr("and", [lhs, rhs()])

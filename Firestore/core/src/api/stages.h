@@ -150,13 +150,11 @@ class FindNearestStage : public Stage {
       std::shared_ptr<Expr> property,
       nanopb::SharedMessage<google_firestore_v1_Value> vector,
       DistanceMeasure distance_measure,
-      std::unordered_map<std::string,
-                         nanopb::SharedMessage<google_firestore_v1_Value>>
-          options)
+      std::unordered_map<std::string, google_firestore_v1_Value> options)
       : property_(std::move(property)),
         vector_(std::move(vector)),
         distance_measure_(distance_measure),
-        options_(options) {
+        options_(std::move(options)) {
   }
 
   ~FindNearestStage() override = default;
@@ -167,9 +165,7 @@ class FindNearestStage : public Stage {
   std::shared_ptr<Expr> property_;
   nanopb::SharedMessage<google_firestore_v1_Value> vector_;
   DistanceMeasure distance_measure_;
-  std::unordered_map<std::string,
-                     nanopb::SharedMessage<google_firestore_v1_Value>>
-      options_;
+  std::unordered_map<std::string, google_firestore_v1_Value> options_;
 };
 
 class LimitStage : public Stage {

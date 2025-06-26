@@ -23,6 +23,7 @@
 @class FIRTimestamp;
 @class FIRVectorValue;
 @class FIRPipelineBridge;
+@class FIRFieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,7 +35,9 @@ NS_SWIFT_NAME(ExprBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FieldBridge)
 @interface FIRFieldBridge : FIRExprBridge
-- (id)init:(NSString *)name;
+- (id)initWithName:(NSString *)name;
+- (id)initWithPath:(FIRFieldPath *)path;
+- (NSString *)field_name;
 @end
 
 NS_SWIFT_SENDABLE
@@ -160,7 +163,7 @@ NS_SWIFT_NAME(FindNearestStageBridge)
         vectorValue:(FIRVectorValue *)vectorValue
     distanceMeasure:(NSString *)distanceMeasure
               limit:(NSNumber *_Nullable)limit
-      distanceField:(NSString *_Nullable)distanceField;
+      distanceField:(FIRExprBridge *_Nullable)distanceField;
 @end
 
 NS_SWIFT_SENDABLE
