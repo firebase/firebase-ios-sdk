@@ -47,14 +47,14 @@ final class AuthRequestConfiguration {
   /// The regionalized GCIP tenant configuration, if provided.
   /// This property contains tenant ID and location for regionalized GCIP services
   /// It's non-`nil` only when the `Auth` instance is initialized with `TenantConfig`.
-  let tenantConfig: Auth.TenantConfig?
+  let tenantConfig: TenantConfig?
 
   init(apiKey: String,
        appID: String,
        auth: Auth? = nil,
        heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
        appCheck: AppCheckInterop? = nil,
-       tenantConfig: Auth.TenantConfig? = nil) {
+       tenantConfig: TenantConfig? = nil) {
     self.apiKey = apiKey
     self.appID = appID
     self.auth = auth

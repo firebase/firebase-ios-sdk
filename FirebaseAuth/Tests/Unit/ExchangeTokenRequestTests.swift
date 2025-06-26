@@ -56,7 +56,7 @@ class ExchangeTokenRequestTests: XCTestCase {
 
     let auth: Auth
     if let loc = location, let tid = tenantId {
-      let tenantConfig = Auth.TenantConfig(tenantId: tid, location: loc)
+      let tenantConfig = TenantConfig(tenantId: tid, location: loc)
       auth = Auth(app: app, tenantConfig: tenantConfig)
     } else {
       // This case should not be hit in these tests as all tests provide location and tenantId
