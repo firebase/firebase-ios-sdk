@@ -2531,7 +2531,7 @@ public extension Auth {
           let _ = requestConfiguration.tenantConfig?.tenantId
     else {
       /// This should never happen in production code, as it indicates a misconfiguration.
-      throw fatalError("R-GCIP is not configured correctly.")
+      fatalError("R-GCIP is not configured correctly.")
     }
     let request = ExchangeTokenRequest(
       idToken: idToken,
