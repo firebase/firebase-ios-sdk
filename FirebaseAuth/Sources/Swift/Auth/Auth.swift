@@ -2472,8 +2472,38 @@ extension Auth: AuthInterop {
   private let rGCIPFirebaseTokenLock = FIRAllocatedUnfairLock<FirebaseToken?>(initialState: nil)
 }
 
-// MARK: - Regionalized auth
+// MARK: - Regionalized Auth
 
+/// Holds configuration for a Regional Google Cloud Identity Platform (R-GCIP) tenant.
+public struct TenantConfig: Sendable {
+  public let tenantId: String
+  public let location: String
+  /// Initializes a `TenantConfig` instance.
+  ///
+  /// - Parameters:
+  ///   - tenantId: The ID of the tenant.
+  ///   - location: The location of the tenant. Defaults to "prod-global".
+  public init(tenantId: String, location: String = "prod-global") {
+    self.location = location
+    self.tenantId = tenantId
+  }
+}
+
+/// Represents the result of a successful OIDC token exchange, containing a Firebase ID token
+/// and its expiration.
+public struct FirebaseToken: Sendable {
+  /// The Firebase ID token string.
+  public let token: String
+  /// The date at which the Firebase ID token expires.
+  public let expirationDate: Date
+  
+  init(token: String, expirationDate: Date) {
+    self.token = token
+    self.expirationDate = expirationDate
+  }
+}
+
+/// Regionalized auth
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Auth {
   /// Gets the Auth object for a `FirebaseApp` configured for a specific Regional Google Cloud
@@ -2489,22 +2519,6 @@ public extension Auth {
   /// - Returns: The `Auth` instance associated with the given app and tenant config.
   static func auth(app: FirebaseApp, tenantConfig: TenantConfig) -> Auth {
     return Auth(app: app, tenantConfig: tenantConfig)
-  }
-
-  /// Holds configuration for a Regional Google Cloud Identity Platform (R-GCIP) tenant.
-  struct TenantConfig: Sendable {
-    public let tenantId: String
-    public let location: String
-
-    /// Initializes a `TenantConfig` instance.
-    ///
-    /// - Parameters:
-    ///   - tenantId: The ID of the tenant.
-    ///   - location: The location of the tenant. Defaults to "global".
-    public init(tenantId: String, location: String = "global") {
-      self.location = location
-      self.tenantId = tenantId
-    }
   }
 
   /// Exchanges a third-party OIDC ID token for a Firebase ID token.
@@ -2556,19 +2570,5 @@ public extension Auth {
     } catch {
       throw error
     }
-  }
-}
-
-/// Represents the result of a successful OIDC token exchange, containing a Firebase ID token
-/// and its expiration.
-public struct FirebaseToken: Sendable {
-  /// The Firebase ID token string.
-  public let token: String
-  /// The date at which the Firebase ID token expires.
-  public let expirationDate: Date
-
-  init(token: String, expirationDate: Date) {
-    self.token = token
-    self.expirationDate = expirationDate
   }
 }
