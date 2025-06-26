@@ -18,6 +18,7 @@ import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseCoreExtension
+import FirebaseCoreInternal
 #if COCOAPODS
   internal import GoogleUtilities
 #else
@@ -83,40 +84,66 @@ extension Auth: AuthInterop {
   public func getToken(forcingRefresh forceRefresh: Bool,
                        completion callback: @escaping (String?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async { [weak self] in
-      if let strongSelf = self {
-        // Enable token auto-refresh if not already enabled.
-        if !strongSelf.autoRefreshTokens {
-          AuthLog.logInfo(code: "I-AUT000002", message: "Token auto-refresh enabled.")
-          strongSelf.autoRefreshTokens = true
-          strongSelf.scheduleAutoTokenRefresh()
-
-          #if os(iOS) || os(tvOS) // TODO(ObjC): Is a similar mechanism needed on macOS?
-            strongSelf.applicationDidBecomeActiveObserver =
-              NotificationCenter.default.addObserver(
-                forName: UIApplication.didBecomeActiveNotification,
-                object: nil, queue: nil
-              ) { notification in
-                if let strongSelf = self {
-                  strongSelf.isAppInBackground = false
-                  if !strongSelf.autoRefreshScheduled {
-                    strongSelf.scheduleAutoTokenRefresh()
-                  }
-                }
-              }
-            strongSelf.applicationDidEnterBackgroundObserver =
-              NotificationCenter.default.addObserver(
-                forName: UIApplication.didEnterBackgroundNotification,
-                object: nil, queue: nil
-              ) { notification in
-                if let strongSelf = self {
-                  strongSelf.isAppInBackground = true
-                }
-              }
-          #endif
-        }
+      guard let self else {
+        DispatchQueue.main.async { callback(nil, nil) }
+        return
       }
-      // Call back with 'nil' if there is no current user.
-      guard let strongSelf = self, let currentUser = strongSelf._currentUser else {
+      /// Before checking for a standard user, check if we are in a token-only session established
+      /// by a successful exchangeToken call.
+      let rGCIPToken = self.rGCIPFirebaseTokenLock.withLock { $0 }
+
+      if let token = rGCIPToken {
+        /// Logic for tokens obtained via exchangeToken (R-GCIP mode)
+        if token.expirationDate < Date() {
+          /// Token expired
+          let error = AuthErrorUtils
+            .userTokenExpiredError(
+              message: "The firebase access token obtained via exchangeToken() has expired."
+            )
+          Auth.wrapMainAsync(callback: callback, with: .failure(error))
+        } else if forceRefresh {
+          /// Token is not expired, but forceRefresh was requested which is currently unsupported
+          let error = AuthErrorUtils
+            .operationNotAllowedError(
+              message: "forceRefresh is not supported for firebase access tokens obtained via exchangeToken()."
+            )
+          Auth.wrapMainAsync(callback: callback, with: .failure(error))
+        } else {
+          /// The token is valid and not expired.
+          Auth.wrapMainAsync(callback: callback, with: .success(token.token))
+        }
+        /// Exit here as this path is for rGCIPFirebaseToken only.
+        return
+      }
+      /// Fallback to standard `currentUser` logic if not in token-only mode.
+      if !self.autoRefreshTokens {
+        AuthLog.logInfo(code: "I-AUT000002", message: "Token auto-refresh enabled.")
+        self.autoRefreshTokens = true
+        self.scheduleAutoTokenRefresh()
+
+        #if os(iOS) || os(tvOS)
+          self.applicationDidBecomeActiveObserver =
+            NotificationCenter.default.addObserver(
+              forName: UIApplication.didBecomeActiveNotification,
+              object: nil,
+              queue: nil
+            ) { [weak self] _ in
+              guard let self = self, !self.isAppInBackground,
+                    !self.autoRefreshScheduled else { return }
+              self.scheduleAutoTokenRefresh()
+            }
+          self.applicationDidEnterBackgroundObserver =
+            NotificationCenter.default.addObserver(
+              forName: UIApplication.didEnterBackgroundNotification,
+              object: nil,
+              queue: nil
+            ) { [weak self] _ in
+              self?.isAppInBackground = true
+            }
+        #endif
+      }
+
+      guard let currentUser = self._currentUser else {
         DispatchQueue.main.async {
           callback(nil, nil)
         }
@@ -124,7 +151,7 @@ extension Auth: AuthInterop {
       }
       // Call back with current user token.
       currentUser
-        .internalGetToken(forceRefresh: forceRefresh, backend: strongSelf.backend) { token, error in
+        .internalGetToken(forceRefresh: forceRefresh, backend: self.backend) { token, error in
           DispatchQueue.main.async {
             callback(token, error)
           }
@@ -2265,6 +2292,11 @@ extension Auth: AuthInterop {
     return { result in
       switch result {
       case let .success(authResult):
+        /// When a standard user successfully signs in, any existing token-only session must be
+        /// invalidated to prevent a conflicting auth state.
+        /// Clear any R-GCIP session state when a standard user signs in. This ensures we exit
+        /// Token-Only Mode.
+        self.rGCIPFirebaseTokenLock.withLock { $0 = nil }
         do {
           try self.updateCurrentUser(authResult.user, byForce: false, savingToDisk: true)
           Auth.wrapMainAsync(callback: callback, with: .success(authResult))
@@ -2428,9 +2460,20 @@ extension Auth: AuthInterop {
   ///
   /// Mutations should occur within a @synchronized(self) context.
   private var listenerHandles: NSMutableArray = []
+
+  // R-GCIP Token-Only Session State
+
+  /// The session token obtained from a successful `exchangeToken` call, protected by a lock.
+  ///
+  /// This property is used to support a "token-only" authentication mode for Regionalized
+  /// GCIP, where no `User` object is created. It is mutually exclusive with `_currentUser`.
+  /// If the wrapped value is non-nil, the `AuthInterop` layer will use it for token generation
+  /// instead of relying on a `currentUser`.
+  private let rGCIPFirebaseTokenLock = FIRAllocatedUnfairLock<FirebaseToken?>(initialState: nil)
 }
 
-/// Regionalized auth
+// MARK: - Regionalized auth
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Auth {
   /// Gets the Auth object for a `FirebaseApp` configured for a specific Regional Google Cloud
@@ -2511,10 +2554,18 @@ public extension Auth {
     )
     do {
       let response = try await backend.call(with: request)
-      return FirebaseToken(
+      let newToken = FirebaseToken(
         token: response.firebaseToken,
         expirationDate: response.expirationDate
       )
+      // Lock and update the token, signing out any current user.
+      rGCIPFirebaseTokenLock.withLock { token in
+        if self._currentUser != nil {
+          try? self.signOut()
+        }
+        token = newToken
+      }
+      return newToken
     } catch {
       throw error
     }
