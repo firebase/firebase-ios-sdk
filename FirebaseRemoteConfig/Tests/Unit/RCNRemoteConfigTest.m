@@ -1785,6 +1785,37 @@ static NSString *UTCToLocal(NSString *utcTime) {
   }
 }
 
+- (void)testRealtimeUpdatesBackoffMetadataWhenRetryIntervalIsProvided {
+  NSMutableArray<XCTestExpectation *> *expectations =
+      [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    expectations[i] =
+        [self expectationWithDescription:
+                  [NSString stringWithFormat:@"Test backoff metadata updates with a provided retry "
+                                             @"interval in the stream response - instance %d",
+                                             i]];
+    NSTimeInterval realtimeRetryInterval = 240;
+    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
+    [dictionary setValue:@"1" forKey:@"latestTemplateVersionNumber"];
+    [dictionary setValue:@(realtimeRetryInterval) forKey:@"retryIntervalSeconds"];
+
+    NSTimeInterval expectedThrottleEndTime =
+        [[NSDate date] timeIntervalSince1970] + realtimeRetryInterval;
+
+    [_configRealtime[i] evaluateStreamResponse:dictionary error:nil];
+    dispatch_after(
+        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
+        dispatch_get_main_queue(), ^{
+          NSTimeInterval retrievedThrottleEndTime =
+              self->_configInstances[i].settings.realtimeExponentialBackoffThrottleEndTime;
+          XCTAssertEqualWithAccuracy(retrievedThrottleEndTime, expectedThrottleEndTime, 1.0);
+          [expectations[i] fulfill];
+        });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  }
+}
+
 - (void)testRealtimeStreamRequestBody {
   XCTestExpectation *requestBodyExpectation = [self expectationWithDescription:@"requestBody"];
   __block NSData *requestBody;
