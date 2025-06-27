@@ -51,11 +51,11 @@ for internal testing only. It should not be published.
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '12.0.0'
-  s.dependency 'FirebaseAuth', '12.0.0'
-  s.dependency 'FirebaseFunctions', '12.0.0'
-  s.dependency 'FirebaseFirestore', '12.0.0'
-  s.dependency 'FirebaseStorage', '12.0.0'
+  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseAuth', '~> 12.0.0'
+  s.dependency 'FirebaseFunctions', '~> 12.0.0'
+  s.dependency 'FirebaseFirestore', '~> 12.0.0'
+  s.dependency 'FirebaseStorage', '~> 12.0.0'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
@@ -104,6 +104,6 @@ for internal testing only. It should not be published.
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '12.0.0'
+    int_tests.dependency 'FirebaseAuth', '~> 12.0.0'
   end
 end

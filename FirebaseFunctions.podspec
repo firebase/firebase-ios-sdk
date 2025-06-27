@@ -35,12 +35,12 @@ Cloud Functions for Firebase.
     'FirebaseFunctions/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseCore', '12.0.0'
-  s.dependency 'FirebaseCoreExtension', '12.0.0'
-  s.dependency 'FirebaseAppCheckInterop', '12.0.0'
-  s.dependency 'FirebaseAuthInterop', '12.0.0'
-  s.dependency 'FirebaseMessagingInterop', '12.0.0'
-  s.dependency 'FirebaseSharedSwift', '12.0.0'
+  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.0.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.0.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.0.0'
+  s.dependency 'FirebaseMessagingInterop', '~> 12.0.0'
+  s.dependency 'FirebaseSharedSwift', '~> 12.0.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 5.0'
 
   s.test_spec 'objc' do |objc_tests|

@@ -49,13 +49,13 @@ app update.
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseABTesting', '12.0.0'
-  s.dependency 'FirebaseSharedSwift', '12.0.0'
-  s.dependency 'FirebaseCore', '12.0.0'
-  s.dependency 'FirebaseInstallations', '12.0.0'
+  s.dependency 'FirebaseABTesting', '~> 12.0.0'
+  s.dependency 'FirebaseSharedSwift', '~> 12.0.0'
+  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseInstallations', '~> 12.0.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
-  s.dependency 'FirebaseRemoteConfigInterop', '12.0.0'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 12.0.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
