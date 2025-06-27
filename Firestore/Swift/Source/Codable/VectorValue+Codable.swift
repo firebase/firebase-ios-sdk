@@ -29,7 +29,7 @@ private protocol CodableVectorValue: Codable {
   init(__array: [NSNumber])
 }
 
-/** The keys in a Timestamp. Must match the properties of CodableTimestamp. */
+/** The keys in a VectorValue. Must match the properties of CodableVectorValue. */
 private enum VectorValueKeys: String, CodingKey {
   case array
 }
