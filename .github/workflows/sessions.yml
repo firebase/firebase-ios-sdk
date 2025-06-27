@@ -38,4 +38,3 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseSessions
-      supports_swift6: true

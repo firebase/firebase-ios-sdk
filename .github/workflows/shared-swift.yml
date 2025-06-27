@@ -31,4 +31,3 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseSharedSwift
-      supports_swift6: true

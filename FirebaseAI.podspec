@@ -35,7 +35,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
     'FirebaseAI/Sources/**/*.swift',
   ]
 
-  s.swift_version = '5.9'
+  s.swift_version = '6.0'
 
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'
