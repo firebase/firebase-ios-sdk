@@ -26,6 +26,7 @@
 #include "Firestore/Source/Public/FirebaseFirestore/FIRBSONBinaryData.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRBSONObjectId.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRBSONTimestamp.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRDecimal128Value.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRInt32Value.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRMaxKey.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRMinKey.h"
@@ -58,6 +59,8 @@ using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::google_protobuf_Timestamp;
 using firebase::firestore::model::kRawBsonTimestampTypeIncrementFieldValue;
 using firebase::firestore::model::kRawBsonTimestampTypeSecondsFieldValue;
+using firebase::firestore::model::kRawDecimal128TypeFieldValue;
+using firebase::firestore::model::kRawInt32TypeFieldValue;
 using firebase::firestore::model::kRawRegexTypeOptionsFieldValue;
 using firebase::firestore::model::kRawRegexTypePatternFieldValue;
 using firebase::firestore::model::kRawVectorValueFieldKey;
@@ -109,7 +112,12 @@ NS_ASSUME_NONNULL_BEGIN
       return value.boolean_value ? @YES : @NO;
     case TypeOrder::kNumber:
       if (value.which_value_type == google_firestore_v1_Value_map_value_tag) {
-        return [self convertedInt32:value.map_value];
+        absl::string_view key = MakeStringView(value.map_value.fields[0].key);
+        if (key.compare(absl::string_view(kRawInt32TypeFieldValue)) == 0) {
+          return [self convertedInt32:value.map_value];
+        } else if (key.compare(absl::string_view(kRawDecimal128TypeFieldValue)) == 0) {
+          return [self convertedDecimal128Value:value.map_value];
+        }
       }
       return value.which_value_type == google_firestore_v1_Value_integer_value_tag
                  ? @(value.integer_value)
@@ -157,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (pb_size_t i = 0; i < mapValue.fields_count; ++i) {
     absl::string_view key = MakeStringView(mapValue.fields[i].key);
     const google_firestore_v1_Value &value = mapValue.fields[i].value;
-    if ((0 == key.compare(absl::string_view(kRawVectorValueFieldKey))) &&
+    if ((key.compare(absl::string_view(kRawVectorValueFieldKey)) == 0) &&
         value.which_value_type == google_firestore_v1_Value_array_value_tag) {
       return [FIRFieldValue vectorWithArray:[self convertedArray:value.array_value]];
     }
@@ -174,11 +182,11 @@ NS_ASSUME_NONNULL_BEGIN
       for (pb_size_t i = 0; i < innerValue.map_value.fields_count; ++i) {
         absl::string_view key = MakeStringView(innerValue.map_value.fields[i].key);
         const google_firestore_v1_Value &value = innerValue.map_value.fields[i].value;
-        if ((0 == key.compare(absl::string_view(kRawRegexTypePatternFieldValue))) &&
+        if ((key.compare(absl::string_view(kRawRegexTypePatternFieldValue)) == 0) &&
             value.which_value_type == google_firestore_v1_Value_string_value_tag) {
           pattern = MakeNSString(MakeStringView(value.string_value));
         }
-        if ((0 == key.compare(absl::string_view(kRawRegexTypeOptionsFieldValue))) &&
+        if ((key.compare(absl::string_view(kRawRegexTypeOptionsFieldValue)) == 0) &&
             value.which_value_type == google_firestore_v1_Value_string_value_tag) {
           options = MakeNSString(MakeStringView(value.string_value));
         }
@@ -196,6 +204,18 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   return [[FIRInt32Value alloc] initWithValue:value];
+}
+
+- (FIRDecimal128Value *)convertedDecimal128Value:(const google_firestore_v1_MapValue &)mapValue {
+  NSString *decimalString = @"";
+  if (mapValue.fields_count == 1) {
+    const google_firestore_v1_Value &decimalValue = mapValue.fields[0].value;
+    if (decimalValue.which_value_type == google_firestore_v1_Value_string_value_tag) {
+      decimalString = MakeNSString(MakeStringView(decimalValue.string_value));
+    }
+  }
+
+  return [[FIRDecimal128Value alloc] initWithValue:decimalString];
 }
 
 - (FIRBSONObjectId *)convertedBsonObjectId:(const google_firestore_v1_MapValue &)mapValue {
@@ -219,12 +239,12 @@ NS_ASSUME_NONNULL_BEGIN
       for (pb_size_t i = 0; i < innerValue.map_value.fields_count; ++i) {
         absl::string_view key = MakeStringView(innerValue.map_value.fields[i].key);
         const google_firestore_v1_Value &value = innerValue.map_value.fields[i].value;
-        if ((0 == key.compare(absl::string_view(kRawBsonTimestampTypeSecondsFieldValue))) &&
+        if ((key.compare(absl::string_view(kRawBsonTimestampTypeSecondsFieldValue)) == 0) &&
             value.which_value_type == google_firestore_v1_Value_integer_value_tag) {
           // The value from the server is guaranteed to fit in a 32-bit unsigned integer.
           seconds = static_cast<uint32_t>(value.integer_value);
         }
-        if ((0 == key.compare(absl::string_view(kRawBsonTimestampTypeIncrementFieldValue))) &&
+        if ((key.compare(absl::string_view(kRawBsonTimestampTypeIncrementFieldValue)) == 0) &&
             value.which_value_type == google_firestore_v1_Value_integer_value_tag) {
           // The value from the server is guaranteed to fit in a 32-bit unsigned integer.
           increment = static_cast<uint32_t>(value.integer_value);

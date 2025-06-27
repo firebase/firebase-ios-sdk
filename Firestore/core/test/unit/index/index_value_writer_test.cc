@@ -29,6 +29,7 @@ namespace {
 using testutil::BsonBinaryData;
 using testutil::BsonObjectId;
 using testutil::BsonTimestamp;
+using testutil::Decimal128;
 using testutil::Int32;
 using testutil::MaxKey;
 using testutil::MinKey;
@@ -290,6 +291,114 @@ TEST(IndexValueWriterTest, writeIndexValueSupportsLargestInt32) {
       expected_encoder.ForKind(model::Segment::Kind::kAscending);
   index_byte_encoder->WriteLong(IndexType::kNumber);
   index_byte_encoder->WriteDouble(2147483647.0);
+  index_byte_encoder->WriteInfinity();
+  auto& expected_bytes = expected_encoder.GetEncodedBytes();
+
+  EXPECT_EQ(actual_bytes, expected_bytes);
+}
+
+TEST(IndexValueWriterTest, writeIndexValueSupportsDecimal128) {
+  // Value
+  auto value = Decimal128("1.2e3");
+
+  // Actual
+  IndexEncodingBuffer encoder;
+  WriteIndexValue(*value, encoder.ForKind(model::Segment::Kind::kAscending));
+  auto& actual_bytes = encoder.GetEncodedBytes();
+
+  // Expected
+  IndexEncodingBuffer expected_encoder;
+  DirectionalIndexByteEncoder* index_byte_encoder =
+      expected_encoder.ForKind(model::Segment::Kind::kAscending);
+  index_byte_encoder->WriteLong(IndexType::kNumber);
+  // We currently store a 64-bit double representation in the client-side index.
+  index_byte_encoder->WriteDouble(1200.0);
+  index_byte_encoder->WriteInfinity();
+  auto& expected_bytes = expected_encoder.GetEncodedBytes();
+
+  EXPECT_EQ(actual_bytes, expected_bytes);
+}
+
+TEST(IndexValueWriterTest, writeIndexValueSupportsNegativeDecimal128) {
+  // Value
+  auto value = Decimal128("-1.2e3");
+
+  // Actual
+  IndexEncodingBuffer encoder;
+  WriteIndexValue(*value, encoder.ForKind(model::Segment::Kind::kAscending));
+  auto& actual_bytes = encoder.GetEncodedBytes();
+
+  // Expected
+  IndexEncodingBuffer expected_encoder;
+  DirectionalIndexByteEncoder* index_byte_encoder =
+      expected_encoder.ForKind(model::Segment::Kind::kAscending);
+  index_byte_encoder->WriteLong(IndexType::kNumber);
+  // We currently store a 64-bit double representation in the client-side index.
+  index_byte_encoder->WriteDouble(-1200.0);
+  index_byte_encoder->WriteInfinity();
+  auto& expected_bytes = expected_encoder.GetEncodedBytes();
+
+  EXPECT_EQ(actual_bytes, expected_bytes);
+}
+
+TEST(IndexValueWriterTest, writeIndexValueSupportsNaNDecimal128) {
+  // Value
+  auto value = Decimal128("NaN");
+
+  // Actual
+  IndexEncodingBuffer encoder;
+  WriteIndexValue(*value, encoder.ForKind(model::Segment::Kind::kAscending));
+  auto& actual_bytes = encoder.GetEncodedBytes();
+
+  // Expected
+  IndexEncodingBuffer expected_encoder;
+  DirectionalIndexByteEncoder* index_byte_encoder =
+      expected_encoder.ForKind(model::Segment::Kind::kAscending);
+  index_byte_encoder->WriteLong(IndexType::kNan);
+  index_byte_encoder->WriteInfinity();
+  auto& expected_bytes = expected_encoder.GetEncodedBytes();
+
+  EXPECT_EQ(actual_bytes, expected_bytes);
+}
+
+TEST(IndexValueWriterTest, writeIndexValueSupportsDecimal128Infinity) {
+  // Value
+  auto value = Decimal128("Infinity");
+
+  // Actual
+  IndexEncodingBuffer encoder;
+  WriteIndexValue(*value, encoder.ForKind(model::Segment::Kind::kAscending));
+  auto& actual_bytes = encoder.GetEncodedBytes();
+
+  // Expected
+  IndexEncodingBuffer expected_encoder;
+  DirectionalIndexByteEncoder* index_byte_encoder =
+      expected_encoder.ForKind(model::Segment::Kind::kAscending);
+  index_byte_encoder->WriteLong(IndexType::kNumber);
+  // We currently store a 64-bit double representation in the client-side index.
+  index_byte_encoder->WriteDouble(std::stod("Infinity"));
+  index_byte_encoder->WriteInfinity();
+  auto& expected_bytes = expected_encoder.GetEncodedBytes();
+
+  EXPECT_EQ(actual_bytes, expected_bytes);
+}
+
+TEST(IndexValueWriterTest, writeIndexValueSupportsDecimal128NegativeInfinity) {
+  // Value
+  auto value = Decimal128("-Infinity");
+
+  // Actual
+  IndexEncodingBuffer encoder;
+  WriteIndexValue(*value, encoder.ForKind(model::Segment::Kind::kAscending));
+  auto& actual_bytes = encoder.GetEncodedBytes();
+
+  // Expected
+  IndexEncodingBuffer expected_encoder;
+  DirectionalIndexByteEncoder* index_byte_encoder =
+      expected_encoder.ForKind(model::Segment::Kind::kAscending);
+  index_byte_encoder->WriteLong(IndexType::kNumber);
+  // We currently store a 64-bit double representation in the client-side index.
+  index_byte_encoder->WriteDouble(std::stod("-Infinity"));
   index_byte_encoder->WriteInfinity();
   auto& expected_bytes = expected_encoder.GetEncodedBytes();
 

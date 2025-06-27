@@ -202,6 +202,35 @@ void WriteIndexInt32Value(const google_firestore_v1_MapValue& map_index_value,
   encoder->WriteDouble(map_index_value.fields[0].value.integer_value);
 }
 
+void WriteIndexDoubleValue(double number,
+                           DirectionalIndexByteEncoder* encoder) {
+  if (std::isnan(number)) {
+    WriteValueTypeLabel(encoder, IndexType::kNan);
+    return;
+  }
+
+  WriteValueTypeLabel(encoder, IndexType::kNumber);
+  if (number == -0.0) {
+    // -0.0, 0 and 0.0 are all considered the same
+    encoder->WriteDouble(0.0);
+  } else {
+    encoder->WriteDouble(number);
+  }
+}
+
+void WriteIndexDecimal128Value(
+    const google_firestore_v1_MapValue& map_index_value,
+    DirectionalIndexByteEncoder* encoder) {
+  // Note: We currently give up some precision and store the 128-bit decimal as
+  // a 64-bit double for client-side indexing purposes. We could consider
+  // improving this in the future.
+  // Note: std::stod is able to parse 'NaN', '-NaN', 'Infinity' and '-Infinity',
+  // with different string cases.
+  const double number = std::stod(
+      nanopb::MakeString(map_index_value.fields[0].value.string_value));
+  WriteIndexDoubleValue(number, encoder);
+}
+
 void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
                         DirectionalIndexByteEncoder* encoder) {
   switch (index_value.which_value_type) {
@@ -215,18 +244,7 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
       break;
     }
     case google_firestore_v1_Value_double_value_tag: {
-      double number = index_value.double_value;
-      if (std::isnan(number)) {
-        WriteValueTypeLabel(encoder, IndexType::kNan);
-        break;
-      }
-      WriteValueTypeLabel(encoder, IndexType::kNumber);
-      if (number == -0.0) {
-        // -0.0, 0 and 0.0 are all considered the same
-        encoder->WriteDouble(0.0);
-      } else {
-        encoder->WriteDouble(number);
-      }
+      WriteIndexDoubleValue(index_value.double_value, encoder);
       break;
     }
     case google_firestore_v1_Value_integer_value_tag: {
@@ -291,6 +309,9 @@ void WriteIndexValueAux(const google_firestore_v1_Value& index_value,
         break;
       } else if (model::IsBsonObjectId(index_value)) {
         WriteIndexBsonObjectId(index_value.map_value, encoder);
+        break;
+      } else if (model::IsDecimal128Value(index_value)) {
+        WriteIndexDecimal128Value(index_value.map_value, encoder);
         break;
       } else if (model::IsInt32Value(index_value)) {
         WriteIndexInt32Value(index_value.map_value, encoder);

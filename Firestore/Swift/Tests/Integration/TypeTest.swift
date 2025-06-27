@@ -137,6 +137,24 @@ class TypeTest: FSTIntegrationTestCase {
     XCTAssertTrue(v1 != v3)
   }
 
+  func testDecimal128ValueEquality() {
+    let v1 = Decimal128Value("1.2e3")
+    let v2 = Decimal128Value("12e2")
+    let v3 = Decimal128Value("0.12e4")
+    let v4 = Decimal128Value("12000e-1")
+    let v5 = Decimal128Value("1.2")
+
+    XCTAssertTrue(v1 == v2)
+    XCTAssertTrue(v1 == v3)
+    XCTAssertTrue(v1 == v4)
+    XCTAssertFalse(v1 == v5)
+
+    XCTAssertFalse(v1 != v2)
+    XCTAssertFalse(v1 != v3)
+    XCTAssertFalse(v1 != v4)
+    XCTAssertTrue(v1 != v5)
+  }
+
   func testBsonTimestampEquality() {
     let v1 = BSONTimestamp(seconds: 1, increment: 1)
     let v2 = BSONTimestamp(seconds: 1, increment: 1)
@@ -207,6 +225,27 @@ class TypeTest: FSTIntegrationTestCase {
     )
   }
 
+  func testCanReadAndWriteDecimal128Fields() async throws {
+    _ = try await expectRoundtrip(
+      coll: collectionRef(),
+      data: ["map": [
+        "decimalSciPositive": Decimal128Value("1.2e3"),
+        "decimalSciNegative": Decimal128Value("-1.2e3"),
+        "decimalSciNegativeExponent": Decimal128Value("1.2e-3"),
+        "decimalSciNegativeValueAndExponent": Decimal128Value("-1.2e-3"),
+        "decimalSciExplicitPositiveExponent": Decimal128Value("1.2e+3"),
+        "decimalFloatPositive": Decimal128Value("1.1"),
+        "decimalIntNegative": Decimal128Value("-1"),
+        "decimalZeroNegative": Decimal128Value("-0"),
+        "decimalZeroInt": Decimal128Value("0"),
+        "decimalZeroFloat": Decimal128Value("0.0"),
+        "decimalNaN": Decimal128Value("NaN"),
+        "decimalInfinityPositive": Decimal128Value("Infinity"),
+        "decimalInfinityNegative": Decimal128Value("-Infinity"),
+      ]]
+    )
+  }
+
   func testCanReadAndWriteBsonTimestampFields() async throws {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
@@ -244,6 +283,7 @@ class TypeTest: FSTIntegrationTestCase {
         BSONObjectId("507f191e810c19729de860ea"),
         BSONTimestamp(seconds: 123, increment: 456),
         Int32Value(1),
+        Decimal128Value("1.2e3"),
         MinKey.shared,
         MaxKey.shared,
         RegexValue(pattern: "^foo", options: "i"),
@@ -254,11 +294,12 @@ class TypeTest: FSTIntegrationTestCase {
   func testCanReadAndWriteBsonFieldsInAnObject() async throws {
     _ = try await expectRoundtrip(
       coll: collectionRef(),
-      data: ["array": [
+      data: ["map": [
         "binary": BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
         "objectId": BSONObjectId("507f191e810c19729de860ea"),
         "bsonTimestamp": BSONTimestamp(seconds: 123, increment: 456),
         "int32": Int32Value(1),
+        "decimal128": Decimal128Value("-Infinity"),
         "min": MinKey.shared,
         "max": MaxKey.shared,
         "regex": RegexValue(pattern: "^foo", options: "i"),
@@ -303,6 +344,50 @@ class TypeTest: FSTIntegrationTestCase {
     }
   }
 
+  func testInvalidDecimal128ValuesGetsRejected() async throws {
+    let docRef = collectionRef().document("test-doc")
+    var errorMessage: String?
+
+    do {
+      try await docRef.setData(["key": Decimal128Value("")])
+      XCTFail("Expected error for invalid Decimal128Value")
+    } catch {
+      errorMessage = (error as NSError).userInfo[NSLocalizedDescriptionKey] as? String
+      XCTAssertNotNil(errorMessage)
+      XCTAssertTrue(errorMessage!.contains("Invalid decimal128 string"))
+    }
+
+    errorMessage = nil
+    do {
+      try await docRef.setData(["key": Decimal128Value("abc")])
+      XCTFail("Expected error for invalid Decimal128Value")
+    } catch {
+      errorMessage = (error as NSError).userInfo[NSLocalizedDescriptionKey] as? String
+      XCTAssertNotNil(errorMessage)
+      XCTAssertTrue(errorMessage!.contains("Invalid decimal128 string"))
+    }
+
+    errorMessage = nil
+    do {
+      try await docRef.setData(["key": Decimal128Value("1 23.45")])
+      XCTFail("Expected error for invalid Decimal128Value")
+    } catch {
+      errorMessage = (error as NSError).userInfo[NSLocalizedDescriptionKey] as? String
+      XCTAssertNotNil(errorMessage)
+      XCTAssertTrue(errorMessage!.contains("Invalid decimal128 string"))
+    }
+
+    errorMessage = nil
+    do {
+      try await docRef.setData(["key": Decimal128Value("1e1234567890")])
+      XCTFail("Expected error for invalid Decimal128Value")
+    } catch {
+      errorMessage = (error as NSError).userInfo[NSLocalizedDescriptionKey] as? String
+      XCTAssertNotNil(errorMessage)
+      XCTAssertTrue(errorMessage!.contains("Invalid decimal128 string"))
+    }
+  }
+
   func testCanOrderValuesOfDifferentTypeOrderTogether() async throws {
     let collection = collectionRef()
     let testDocs: [String: [String: Any?]] = [
@@ -310,9 +395,13 @@ class TypeTest: FSTIntegrationTestCase {
       "minValue": ["key": MinKey.shared],
       "booleanValue": ["key": true],
       "nanValue": ["key": Double.nan],
+      "nanValue2": ["key": Decimal128Value("NaN")],
+      "negativeInfinity": ["key": Decimal128Value("-Infinity")],
       "int32Value": ["key": Int32Value(1)],
       "doubleValue": ["key": 2.0],
       "integerValue": ["key": 3],
+      "decimal128Value": ["key": Decimal128Value("345e-2")],
+      "infinity": ["key": Decimal128Value("Infinity")],
       "timestampValue": ["key": Timestamp(seconds: 100, nanoseconds: 123_456_000)],
       "bsonTimestampValue": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "stringValue": ["key": "string"],
@@ -340,9 +429,13 @@ class TypeTest: FSTIntegrationTestCase {
       "minValue",
       "booleanValue",
       "nanValue",
+      "nanValue2",
+      "negativeInfinity",
       "int32Value",
       "doubleValue",
       "integerValue",
+      "decimal128Value",
+      "infinity",
       "timestampValue",
       "bsonTimestampValue",
       "stringValue",

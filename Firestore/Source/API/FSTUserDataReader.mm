@@ -27,6 +27,7 @@
 #import "FIRBSONBinaryData.h"
 #import "FIRBSONObjectId.h"
 #import "FIRBSONTimestamp.h"
+#import "FIRDecimal128Value.h"
 #import "FIRGeoPoint.h"
 #import "FIRInt32Value.h"
 #import "FIRMaxKey.h"
@@ -452,6 +453,20 @@ NS_ASSUME_NONNULL_BEGIN
   return std::move(result);
 }
 
+- (Message<google_firestore_v1_Value>)parseDecimal128Value:(FIRDecimal128Value *)decimal128
+                                                   context:(ParseContext &&)context {
+  __block Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_map_value_tag;
+  result->map_value = {};
+  result->map_value.fields_count = 1;
+  result->map_value.fields = nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  result->map_value.fields[0].key = nanopb::CopyBytesArray(model::kDecimal128TypeFieldValue);
+  result->map_value.fields[0].value =
+      *[self encodeStringValue:MakeString(decimal128.value)].release();
+
+  return std::move(result);
+}
+
 - (Message<google_firestore_v1_Value>)parseBsonObjectId:(FIRBSONObjectId *)oid
                                                 context:(ParseContext &&)context {
   __block Message<google_firestore_v1_Value> result;
@@ -723,6 +738,9 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([input isKindOfClass:[FIRInt32Value class]]) {
     FIRInt32Value *value = input;
     return [self parseInt32Value:value context:std::move(context)];
+  } else if ([input isKindOfClass:[FIRDecimal128Value class]]) {
+    FIRDecimal128Value *value = input;
+    return [self parseDecimal128Value:value context:std::move(context)];
   } else if ([input isKindOfClass:[FIRBSONObjectId class]]) {
     FIRBSONObjectId *oid = input;
     return [self parseBsonObjectId:oid context:std::move(context)];

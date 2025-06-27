@@ -81,6 +81,10 @@ extern pb_bytes_array_s* kRegexTypeOptionsFieldValue;
 extern const char* kRawInt32TypeFieldValue;
 extern pb_bytes_array_s* kInt32TypeFieldValue;
 
+/** The key of a decimal128 in a map proto. */
+extern const char* kRawDecimal128TypeFieldValue;
+extern pb_bytes_array_s* kDecimal128TypeFieldValue;
+
 /** The key of a BSON ObjectId in a map proto. */
 extern const char* kRawBsonObjectIdTypeFieldValue;
 extern pb_bytes_array_s* kBsonObjectIdTypeFieldValue;
@@ -145,9 +149,10 @@ enum class MapType {
   kMaxKey = 5,
   kRegex = 6,
   kInt32 = 7,
-  kBsonObjectId = 8,
-  kBsonTimestamp = 9,
-  kBsonBinaryData = 10
+  kDecimal128 = 8,
+  kBsonObjectId = 9,
+  kBsonTimestamp = 10,
+  kBsonBinaryData = 11
 };
 
 /** Returns the Map type for the given value. */
@@ -279,6 +284,11 @@ bool IsRegexValue(const google_firestore_v1_Value& value);
  * Returns `true` if `value` represents an Int32Value.
  */
 bool IsInt32Value(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a Decimal128Value.
+ */
+bool IsDecimal128Value(const google_firestore_v1_Value& value);
 
 /**
  * Returns `true` if `value` represents a BsonObjectId.

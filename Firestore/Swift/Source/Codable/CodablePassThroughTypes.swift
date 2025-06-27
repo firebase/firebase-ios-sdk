@@ -37,6 +37,7 @@ struct FirestorePassthroughTypes: StructureCodingPassthroughTypeResolver {
       t is MaxKey ||
       t is RegexValue ||
       t is Int32Value ||
+      t is Decimal128Value ||
       t is BSONObjectId ||
       t is BSONTimestamp ||
       t is BSONBinaryData

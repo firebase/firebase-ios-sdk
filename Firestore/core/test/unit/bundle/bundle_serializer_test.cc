@@ -653,6 +653,16 @@ TEST_F(BundleSerializerTest, DecodesInt32Value) {
   VerifyFieldValueRoundtrip(object);
 }
 
+TEST_F(BundleSerializerTest, DecodesDecimal128Value) {
+  ProtoValue decimal_value;
+  decimal_value.set_string_value("1.2e3");
+  ProtoValue object;
+  object.mutable_map_value()->mutable_fields()->insert(
+      {model::kRawDecimal128TypeFieldValue, decimal_value});
+
+  VerifyFieldValueRoundtrip(object);
+}
+
 TEST_F(BundleSerializerTest, DecodesRegexValue) {
   ProtoValue pattern_value;
   ProtoValue options_value;

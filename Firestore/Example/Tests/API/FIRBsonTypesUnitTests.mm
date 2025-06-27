@@ -17,6 +17,7 @@
 #import <FirebaseFirestore/FIRBSONBinaryData.h>
 #import <FirebaseFirestore/FIRBSONObjectId.h>
 #import <FirebaseFirestore/FIRBSONTimestamp.h>
+#import <FirebaseFirestore/FIRDecimal128Value.h>
 #import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRInt32Value.h>
 #import <FirebaseFirestore/FIRMaxKey.h>
@@ -73,6 +74,39 @@ NS_ASSUME_NONNULL_BEGIN
   // Test isEqual
   XCTAssertTrue([val1 isEqual:val2]);
   XCTAssertFalse([val1 isEqual:val3]);
+}
+
+- (void)testCreateAndReadAndCompareDecimal128Value {
+  FIRDecimal128Value *val1 = [[FIRDecimal128Value alloc] initWithValue:@"1.2e3"];
+  FIRDecimal128Value *val2 = [[FIRDecimal128Value alloc] initWithValue:@"12e2"];
+  FIRDecimal128Value *val3 = [[FIRDecimal128Value alloc] initWithValue:@"0.12e4"];
+  FIRDecimal128Value *val4 = [[FIRDecimal128Value alloc] initWithValue:@"12000e-1"];
+  FIRDecimal128Value *val5 = [[FIRDecimal128Value alloc] initWithValue:@"1.2"];
+  FIRDecimal128Value *val6 = [[FIRDecimal128Value alloc] initWithValue:@"NaN"];
+  FIRDecimal128Value *val7 = [[FIRDecimal128Value alloc] initWithValue:@"Infinity"];
+  FIRDecimal128Value *val8 = [[FIRDecimal128Value alloc] initWithValue:@"-Infinity"];
+  FIRDecimal128Value *val9 = [[FIRDecimal128Value alloc] initWithValue:@"NaN"];
+  FIRDecimal128Value *val10 = [[FIRDecimal128Value alloc] initWithValue:@"-0"];
+  FIRDecimal128Value *val11 = [[FIRDecimal128Value alloc] initWithValue:@"0"];
+  FIRDecimal128Value *val12 = [[FIRDecimal128Value alloc] initWithValue:@"-0.0"];
+  FIRDecimal128Value *val13 = [[FIRDecimal128Value alloc] initWithValue:@"0.0"];
+
+  // Test reading the value back
+  XCTAssertEqual(@"1.2e3", val1.value);
+
+  // Test isEqual
+  XCTAssertTrue([val1 isEqual:val2]);
+  XCTAssertTrue([val1 isEqual:val3]);
+  XCTAssertTrue([val1 isEqual:val4]);
+  XCTAssertFalse([val1 isEqual:val5]);
+
+  // Test isEqual for special values.
+  XCTAssertTrue([val6 isEqual:val9]);
+  XCTAssertFalse([val7 isEqual:val8]);
+  XCTAssertFalse([val7 isEqual:val9]);
+  XCTAssertTrue([val10 isEqual:val11]);
+  XCTAssertTrue([val10 isEqual:val12]);
+  XCTAssertTrue([val10 isEqual:val13]);
 }
 
 - (void)testCreateAndReadAndCompareBsonObjectId {

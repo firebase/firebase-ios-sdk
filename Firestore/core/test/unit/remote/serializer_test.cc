@@ -115,6 +115,7 @@ using testutil::BsonBinaryData;
 using testutil::BsonObjectId;
 using testutil::BsonTimestamp;
 using testutil::Bytes;
+using testutil::Decimal128;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Filter;
@@ -874,6 +875,17 @@ TEST_F(SerializerTest, EncodesInt32Value) {
   google::protobuf::Map<std::string, v1::Value>* fields =
       proto.mutable_map_value()->mutable_fields();
   (*fields)["__int__"] = ValueProto(78);
+
+  ExpectRoundTrip(model, proto, TypeOrder::kNumber);
+}
+
+TEST_F(SerializerTest, EncodesDecimal128Value) {
+  Message<google_firestore_v1_Value> model = Decimal128("1.2e3");
+
+  v1::Value proto;
+  google::protobuf::Map<std::string, v1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
+  (*fields)["__decimal128__"] = ValueProto("1.2e3");
 
   ExpectRoundTrip(model, proto, TypeOrder::kNumber);
 }

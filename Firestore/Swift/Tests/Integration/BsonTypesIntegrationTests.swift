@@ -107,6 +107,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "binary": BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
       "objectId": BSONObjectId("507f191e810c19729de860ea"),
       "int32": Int32Value(1),
+      "decimal128": Decimal128Value("1.2e3"),
       "min": MinKey.shared,
       "max": MaxKey.shared,
       "regex": RegexValue(pattern: "^foo", options: "i"),
@@ -126,6 +127,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(
       snapshot.get("int32") as? Int32Value,
       Int32Value(2)
+    )
+    XCTAssertEqual(
+      snapshot.get("decimal128") as? Decimal128Value,
+      Decimal128Value("1.2e3")
     )
     XCTAssertEqual(
       snapshot.get("min") as? MinKey,
@@ -160,6 +165,7 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "binary": BSONBinaryData(subtype: 1, data: Data([1, 2, 3])),
       "objectId": BSONObjectId("507f191e810c19729de860ea"),
       "int32": Int32Value(1),
+      "decimal128": Decimal128Value("-1.23e-4"),
       "min": MinKey.shared,
       "max": MaxKey.shared,
       "regex": RegexValue(pattern: "^foo", options: "i"),
@@ -178,6 +184,10 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(
       snapshot.get("int32") as? Int32Value,
       Int32Value(2)
+    )
+    XCTAssertEqual(
+      snapshot.get("decimal128") as? Decimal128Value,
+      Decimal128Value("-1.23e-4")
     )
     XCTAssertEqual(
       snapshot.get("min") as? MinKey,
@@ -265,6 +275,209 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       collection: collection,
       query: query,
       expectedResult: ["c", "a"]
+    )
+  }
+
+  func testCanFilterAndOrderDecimal128Values() async throws {
+    let testDocs: [String: [String: Any]] = [
+      "a": ["key": Decimal128Value("-Infinity")],
+      "b": ["key": Decimal128Value("NaN")],
+      "c": ["key": Decimal128Value("-0")],
+      "d": ["key": Decimal128Value("0")],
+      "e": ["key": Decimal128Value("0.0")],
+      "f": ["key": Decimal128Value("-01.23e-4")],
+      "g": ["key": Decimal128Value("1.5e6")],
+      "h": ["key": Decimal128Value("Infinity")],
+    ]
+
+    let collection = collectionRef()
+    await setDocumentData(testDocs, toCollection: collection)
+
+    var query = collection
+      .whereField("key", isGreaterThanOrEqualTo: Decimal128Value("0"))
+      .order(by: "key", descending: true)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["h", "g", "e", "d", "c"]
+    )
+
+    query = collection
+      .whereField("key", isNotEqualTo: Decimal128Value("0"))
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["b", "a", "f", "g", "h"]
+    )
+
+    query = collection
+      .whereField("key", isNotEqualTo: Decimal128Value("NaN"))
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["a", "f", "c", "d", "e", "g", "h"]
+    )
+
+    query = collection
+      .whereField("key", isEqualTo: Decimal128Value("-01.23e-4"))
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["f"]
+    )
+
+    query = collection
+      .whereField("key", isNotEqualTo: Decimal128Value("-01.23e-4"))
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["b", "a", "c", "d", "e", "g", "h"]
+    )
+
+    query = collection
+      .whereField("key", in: [Decimal128Value("0")])
+      .order(by: "key", descending: true)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["e", "d", "c"]
+    )
+
+    // Note: The server sends document `b` incorrectly, but the client filters
+    // it out. Currently `FieldFilter.NOT_IN` with `NaN` in the list does not
+    // behave the same as `UnaryFilter.IS_NOT_NAN`.
+    query = collection
+      .whereField("key", notIn: [Decimal128Value("NaN"), Decimal128Value("Infinity")])
+      .order(by: "key", descending: true)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["g", "e", "d", "c", "f", "a"]
+    )
+  }
+
+  func testCanFilterAndOrderNumericalValues() async throws {
+    let testDocs: [String: [String: Any]] = [
+      "a": ["key": Decimal128Value("-1.2e3")],
+      "b": ["key": Int32Value(0)],
+      "c": ["key": Decimal128Value("1")],
+      "d": ["key": Int32Value(1)],
+      "e": ["key": 1],
+      "f": ["key": 1.0],
+      "g": ["key": Decimal128Value("1.2e-3")],
+      "h": ["key": Int32Value(2)],
+      "i": ["key": Decimal128Value("NaN")],
+      "j": ["key": Decimal128Value("-Infinity")],
+      "k": ["key": Double.nan],
+      "l": ["key": Decimal128Value("Infinity")],
+    ]
+
+    let collection = collectionRef()
+    await setDocumentData(testDocs, toCollection: collection)
+
+    let query = collection.order(by: "key", descending: true)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: [
+        "l", // Infinity
+        "h", // 2
+        "f", // 1.0
+        "e", // 1
+        "d", // 1
+        "c", // 1
+        "g", // 0.0012
+        "b", // 0
+        "a", // -1200
+        "j", // -Infinity
+        "k", // NaN
+        "i", // NaN
+      ]
+    )
+
+    let query2 = collection
+      .whereField("key", isNotEqualTo: Decimal128Value("1.0"))
+      .order(by: "key", descending: true)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query2,
+      expectedResult: ["l", "h", "g", "b", "a", "j", "k", "i"]
+    )
+
+    let query3 = collection
+      .whereField("key", isEqualTo: 1)
+      .order(by: "key", descending: true)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query3,
+      expectedResult: ["f", "e", "d", "c"]
+    )
+  }
+
+  func testDecimal128ValuesWithNo2sComplementRepresentation() async throws {
+    let testDocs: [String: [String: Any]] = [
+      "a": ["key": Decimal128Value("-1.1e-3")], // -0.0011
+      "b": ["key": Decimal128Value("1.1")],
+      "c": ["key": 1.1],
+      "d": ["key": 1.0],
+      "e": ["key": Decimal128Value("1.1e-3")], // 0.0011
+    ]
+
+    let collection = collectionRef()
+    await setDocumentData(testDocs, toCollection: collection)
+
+    let query = collection
+      .whereField("key", isEqualTo: Decimal128Value("1.1"))
+      .order(by: "key", descending: true)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["b"]
+    )
+
+    let query2 = collection
+      .whereField("key", isNotEqualTo: Decimal128Value("1.1"))
+      .order(by: "key", descending: false)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query2,
+      expectedResult: ["a", "e", "d", "c"]
+    )
+
+    let query3 = collection
+      .whereField("key", isEqualTo: 1.1)
+      .order(by: "key", descending: false)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query3,
+      expectedResult: ["c"]
+    )
+
+    let query4 = collection
+      .whereField("key", isNotEqualTo: 1.1)
+      .order(by: "key", descending: false)
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query4,
+      expectedResult: ["a", "e", "d", "b"]
     )
   }
 
@@ -387,17 +600,15 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       expectedResult: ["b", "a"]
     )
 
-    // TODO(b/410032145): This currently fails, and is fixed by
-    // PR #14704. Uncomment this when moving to the main branch.
-    // var query2 = collection
-    //   .whereField("key", isNotEqualTo: MinKey.shared))
-    //   .order(by: "key")
-    // try await assertSdkQueryResultsConsistentWithBackend(
-    //   testDocs,
-    //   collection: collection,
-    //   query: query2,
-    //   expectedResult: ["d", "e"]
-    // )
+    query = collection
+      .whereField("key", isNotEqualTo: MinKey.shared)
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["d", "e"]
+    )
 
     query = collection
       .whereField("key", isGreaterThanOrEqualTo: MinKey.shared)
@@ -472,17 +683,15 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       expectedResult: ["c", "d"]
     )
 
-    // TODO(b/410032145): This currently fails, and is fixed by
-    // PR #14704. Uncomment this when moving to the main branch.
-    // query = collection
-    //   .whereField("key", isNotEqualTo: MaxKey.shared))
-    //   .order(by: "key")
-    // try await assertSdkQueryResultsConsistentWithBackend(
-    //   testDocs,
-    //   collection: collection,
-    //   query: query,
-    //   expectedResult: ["a", "b"]
-    // )
+    query = collection
+      .whereField("key", isNotEqualTo: MaxKey.shared)
+      .order(by: "key")
+    try await assertSdkQueryResultsConsistentWithBackend(
+      testDocs,
+      collection: collection,
+      query: query,
+      expectedResult: ["a", "b"]
+    )
 
     query = collection
       .whereField("key", isGreaterThanOrEqualTo: MaxKey.shared)
@@ -584,9 +793,17 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "bsonBinary1": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
       "bsonBinary2": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 4]))],
       "bsonBinary3": ["key": BSONBinaryData(subtype: 2, data: Data([1, 2, 2]))],
+      "decimal128Value1": ["key": Decimal128Value("NaN")],
+      "decimal128Value2": ["key": Decimal128Value("-Infinity")],
+      "decimal128Value3": ["key": Decimal128Value("-1.0")],
       "int32Value1": ["key": Int32Value(-1)],
+      "decimal128Value4": ["key": Decimal128Value("1.0")],
       "int32Value2": ["key": Int32Value(1)],
+      "decimal128Value5": ["key": Decimal128Value("-0.0")],
+      "decimal128Value6": ["key": Decimal128Value("0.0")],
       "int32Value3": ["key": Int32Value(0)],
+      "decimal128Value7": ["key": Decimal128Value("1.23e-4")],
+      "decimal128Value8": ["key": Decimal128Value("Infinity")],
       "minKey1": ["key": MinKey.shared],
       "minKey2": ["key": MinKey.shared],
       "maxKey1": ["key": MaxKey.shared],
@@ -614,9 +831,17 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
                                                            "bsonTimestamp1",
                                                            "bsonTimestamp2",
                                                            "bsonTimestamp3",
+                                                           "decimal128Value8",
                                                            "int32Value2",
+                                                           "decimal128Value4",
+                                                           "decimal128Value7",
                                                            "int32Value3",
+                                                           "decimal128Value6",
+                                                           "decimal128Value5",
                                                            "int32Value1",
+                                                           "decimal128Value3",
+                                                           "decimal128Value2",
+                                                           "decimal128Value1",
                                                            "minKey2",
                                                            "minKey1",
                                                          ])
@@ -631,9 +856,13 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "minValue": ["key": MinKey.shared],
       "booleanValue": ["key": true],
       "nanValue": ["key": Double.nan],
+      "nanValue2": ["key": Decimal128Value("NaN")],
+      "negativeInfinity": ["key": Decimal128Value("-Infinity")],
       "int32Value": ["key": Int32Value(1)],
       "doubleValue": ["key": 2.0],
       "integerValue": ["key": 3],
+      "decimal128Value": ["key": Decimal128Value("3.4e-5")],
+      "infinity": ["key": Decimal128Value("Infinity")],
       "timestampValue": ["key": Timestamp(seconds: 100, nanoseconds: 123_456_000)],
       "bsonTimestampValue": ["key": BSONTimestamp(seconds: 1, increment: 2)],
       "stringValue": ["key": "string"],
@@ -660,9 +889,13 @@ class BsonTypesIntegrationTests: FSTIntegrationTestCase {
       "minValue",
       "booleanValue",
       "nanValue",
+      "nanValue2",
+      "negativeInfinity",
+      "decimal128Value",
       "int32Value",
       "doubleValue",
       "integerValue",
+      "infinity",
       "timestampValue",
       "bsonTimestampValue",
       "stringValue",

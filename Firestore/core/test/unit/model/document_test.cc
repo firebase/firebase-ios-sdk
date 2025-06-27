@@ -28,6 +28,7 @@ namespace model {
 using testutil::BsonBinaryData;
 using testutil::BsonObjectId;
 using testutil::BsonTimestamp;
+using testutil::Decimal128;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Field;
@@ -81,8 +82,9 @@ TEST(DocumentTest, ExtractsFields) {
 TEST(DocumentTest, CanContainBsonTypes) {
   auto data = WrapObject(
       Map("minKey", MinKey(), "maxKey", MaxKey(), "regex", Regex("^foo", "i"),
-          "int32", Int32(1234), "objectId", BsonObjectId("foo"), "timestamp",
-          BsonTimestamp(123, 456), "binary", BsonBinaryData(128, {7, 8, 9})));
+          "int32", Int32(1234), "decimal128", Decimal128("1.234e2"), "objectId",
+          BsonObjectId("foo"), "timestamp", BsonTimestamp(123, 456), "binary",
+          BsonBinaryData(128, {7, 8, 9})));
 
   auto doc = MutableDocument::FoundDocument(Key("col/doc"), Version(1), data);
 
@@ -92,6 +94,7 @@ TEST(DocumentTest, CanContainBsonTypes) {
   EXPECT_EQ(doc.field(Field("maxKey")), *MaxKey());
   EXPECT_EQ(doc.field(Field("regex")), *Regex("^foo", "i"));
   EXPECT_EQ(doc.field(Field("int32")), *Int32(1234));
+  EXPECT_EQ(doc.field(Field("decimal128")), *Decimal128("1.234e2"));
   EXPECT_EQ(doc.field(Field("objectId")), *BsonObjectId("foo"));
   EXPECT_EQ(doc.field(Field("timestamp")), *BsonTimestamp(123, 456));
   EXPECT_EQ(doc.field(Field("binary")), *BsonBinaryData(128, {7, 8, 9}));
