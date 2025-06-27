@@ -43,8 +43,8 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.0'
-  s.dependency 'FirebaseAuthInterop', '~> 12.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.0.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.0.0'
   s.dependency 'FirebaseCore', '~> 12.0.0'
   s.dependency 'FirebaseCoreExtension', '~> 12.0.0'
 
