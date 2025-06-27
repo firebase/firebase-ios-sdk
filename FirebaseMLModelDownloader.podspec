@@ -36,9 +36,9 @@ Pod::Spec.new do |s|
   ]
 
   s.framework = 'Foundation'
-  s.dependency 'FirebaseCore', '~> 12.0.0'
-  s.dependency 'FirebaseCoreExtension', '~> 12.0.0'
-  s.dependency 'FirebaseInstallations', '~> 12.0'
+  s.dependency 'FirebaseCore', '12.0.0'
+  s.dependency 'FirebaseCoreExtension', '12.0.0'
+  s.dependency 'FirebaseInstallations', '12.0.0'
   s.dependency 'GoogleDataTransport', '~> 10.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
   s.dependency 'SwiftProtobuf', '~> 1.19'
