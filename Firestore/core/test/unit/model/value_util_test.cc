@@ -44,6 +44,7 @@ using testutil::BsonBinaryData;
 using testutil::BsonObjectId;
 using testutil::BsonTimestamp;
 using testutil::DbId;
+using testutil::Decimal128;
 using testutil::Int32;
 using testutil::kCanonicalNanBits;
 using testutil::Key;
@@ -222,6 +223,10 @@ TEST(FieldValueTest, ValueHelpers) {
   ASSERT_EQ(GetTypeOrder(*int32_value), TypeOrder::kNumber);
   ASSERT_EQ(DetectMapType(*int32_value), MapType::kInt32);
 
+  auto decimal128_value = Decimal128("1.2e3");
+  ASSERT_EQ(GetTypeOrder(*decimal128_value), TypeOrder::kNumber);
+  ASSERT_EQ(DetectMapType(*decimal128_value), MapType::kDecimal128);
+
   auto bson_object_id_value = BsonObjectId("foo");
   ASSERT_EQ(GetTypeOrder(*bson_object_id_value), TypeOrder::kBsonObjectId);
   ASSERT_EQ(DetectMapType(*bson_object_id_value), MapType::kBsonObjectId);
@@ -251,6 +256,35 @@ TEST(FieldValueTest, CanonicalBitsAreCanonical) {
 }
 #endif  // __APPLE__
 
+TEST_F(ValueUtilTest, Decimal128Comparison) {
+  EXPECT_EQ(Compare(*Decimal128("NaN"), *Value(std::nan("1"))),
+            ComparisonResult::Same);
+  EXPECT_EQ(Compare(*Decimal128("NaN"), *Decimal128("NaN")),
+            ComparisonResult::Same);
+  EXPECT_EQ(Compare(*Decimal128("NaN"), *Decimal128("-Infinity")),
+            ComparisonResult::Ascending);
+  EXPECT_EQ(Compare(*Decimal128("NaN"), *Decimal128("+Infinity")),
+            ComparisonResult::Ascending);
+  EXPECT_EQ(Compare(*Decimal128("NaN"), *Decimal128("-1.2e-3")),
+            ComparisonResult::Ascending);
+  EXPECT_EQ(Compare(*Decimal128("1"), *Decimal128("2e-4")),
+            ComparisonResult::Descending);
+  EXPECT_EQ(Compare(*Decimal128("-1"), *Decimal128("-2e-4")),
+            ComparisonResult::Ascending);
+  EXPECT_EQ(Compare(*Decimal128("-0.0"), *Decimal128("0.0")),
+            ComparisonResult::Same);
+  EXPECT_EQ(Compare(*Decimal128("-0.0"), *Decimal128("+0.0")),
+            ComparisonResult::Same);
+  EXPECT_EQ(Compare(*Decimal128("-0"), *Decimal128("0")),
+            ComparisonResult::Same);
+  EXPECT_EQ(Compare(*Decimal128("1500e-3"), *Value(1.5F)),
+            ComparisonResult::Same);
+  EXPECT_EQ(Compare(*Decimal128("-1000e-3"), *Value(-1L)),
+            ComparisonResult::Same);
+  EXPECT_EQ(Compare(*Decimal128("3.4e-5"), *Value(2.0F)),
+            ComparisonResult::Ascending);
+}
+
 TEST_F(ValueUtilTest, Equality) {
   // Create a matrix that defines an equality group. The outer vector has
   // multiple rows and each row can have an arbitrary number of entries.
@@ -265,6 +299,8 @@ TEST_F(ValueUtilTest, Equality) {
   Add(equals_group, std::numeric_limits<double>::quiet_NaN(),
       ToDouble(kCanonicalNanBits), ToDouble(kAlternateNanBits), std::nan("1"),
       std::nan("2"));
+
+  Add(equals_group, Decimal128("-Infinity"));
   // -0.0 and 0.0 compare the same but are not equal.
   Add(equals_group, -0.0);
   Add(equals_group, 0.0);
@@ -272,8 +308,11 @@ TEST_F(ValueUtilTest, Equality) {
   // Doubles and Longs aren't equal (even though they compare same).
   Add(equals_group, 1.0, 1.0);
   Add(equals_group, 1.1, 1.1);
+  Add(equals_group, Decimal128("-1.2"), Decimal128("-12e-1"));
   Add(equals_group, Int32(-1), Int32(-1));
   Add(equals_group, Int32(1), Int32(1));
+  Add(equals_group, Decimal128("1.2"), Decimal128("12e-1"));
+  Add(equals_group, Decimal128("Infinity"));
   Add(equals_group, BlobValue(0, 1, 1));
   Add(equals_group, BlobValue(0, 1));
   Add(equals_group, "string", "string");
@@ -343,18 +382,19 @@ TEST_F(ValueUtilTest, StrictOrdering) {
 
   // numbers
   Add(comparison_groups, DeepClone(MinNumber()));
-  Add(comparison_groups, -1e20);
+  Add(comparison_groups, -1e20, Decimal128("-1e20"));
   Add(comparison_groups, std::numeric_limits<int64_t>::min());
   Add(comparison_groups, -0.1);
   // Zeros all compare the same.
-  Add(comparison_groups, -0.0, 0.0, 0L, Int32(0));
+  Add(comparison_groups, -0.0, 0.0, 0L, Int32(0), Decimal128("0"),
+      Decimal128("-0.0"));
   Add(comparison_groups, 0.1);
   // Doubles, longs, and Int32 Compare() the same.
-  Add(comparison_groups, 1.0, 1L, Int32(1));
-  Add(comparison_groups, Int32(2));
+  Add(comparison_groups, 1.0, 1L, Int32(1), Decimal128("1.0e0"));
+  Add(comparison_groups, Int32(2), Decimal128("0.2e1"));
   Add(comparison_groups, Int32(2147483647));
   Add(comparison_groups, std::numeric_limits<int64_t>::max());
-  Add(comparison_groups, 1e20);
+  Add(comparison_groups, 1e20, Decimal128("1e20"));
 
   // dates
   Add(comparison_groups, DeepClone(MinTimestamp()));
@@ -500,18 +540,20 @@ TEST_F(ValueUtilTest, RelaxedOrdering) {
   // numbers
   Add(comparison_groups, DeepClone(MinNumber()));
   Add(comparison_groups, DeepClone(MinNumber()));
-  Add(comparison_groups, -1e20);
+  Add(comparison_groups, -1e20, Decimal128("-1e20"));
   Add(comparison_groups, std::numeric_limits<int64_t>::min());
   Add(comparison_groups, -0.1);
   // Zeros all compare the same.
-  Add(comparison_groups, -0.0, 0.0, 0L, Int32(0));
+  Add(comparison_groups, -0.0, 0.0, 0L, Int32(0), Decimal128("-0.0"),
+      Decimal128("0.0"));
   Add(comparison_groups, 0.1);
   // Doubles and longs Compare() the same.
-  Add(comparison_groups, 1.0, 1L, Int32(1));
-  Add(comparison_groups, Int32(2));
+  Add(comparison_groups, 1.0, 1L, Int32(1), Decimal128("100.0e-2"),
+      Decimal128("1"));
+  Add(comparison_groups, Int32(2), Decimal128("2"));
   Add(comparison_groups, Int32(2147483647));
   Add(comparison_groups, std::numeric_limits<int64_t>::max());
-  Add(comparison_groups, 1e20);
+  Add(comparison_groups, 1e20, Decimal128("1e20"));
   Add(comparison_groups, DeepClone(MinTimestamp()));
   Add(comparison_groups, DeepClone(MinTimestamp()));
 
@@ -657,7 +699,11 @@ TEST_F(ValueUtilTest, ComputesLowerBound) {
 
   // Numbers
   Add(groups, GetLowerBoundMessage(Value(0.0)), GetLowerBoundMessage(Value(0L)),
-      GetLowerBoundMessage(Int32(0)), std::nan(""), DeepClone(MinNumber()));
+      GetLowerBoundMessage(Decimal128("0.0")),
+      GetLowerBoundMessage(Decimal128("-Infinity")),
+      GetLowerBoundMessage(Decimal128("Infinity")),
+      GetLowerBoundMessage(Decimal128("NaN")), GetLowerBoundMessage(Int32(0)),
+      std::nan(""), DeepClone(MinNumber()));
   Add(groups, INT_MIN);
 
   // Timestamps
@@ -753,6 +799,11 @@ TEST_F(ValueUtilTest, ComputesUpperBound) {
   Add(groups, INT_MAX);
   Add(groups, GetUpperBoundMessage(Value(INT_MAX)),
       GetUpperBoundMessage(Value(0L)), GetUpperBoundMessage(Int32(0)),
+      GetUpperBoundMessage(Decimal128("0")),
+      GetUpperBoundMessage(Decimal128("NaN")),
+      GetUpperBoundMessage(Decimal128("Infinity")),
+      GetUpperBoundMessage(Decimal128("-Infinity")),
+      GetUpperBoundMessage(Decimal128("2.0e5")),
       GetUpperBoundMessage(Value(std::nan(""))));
 
   // Timestamps
@@ -839,6 +890,7 @@ TEST_F(ValueUtilTest, CanonicalId) {
   VerifyCanonicalId(MaxKey(), "{__max__:null}");
   VerifyCanonicalId(Regex("^foo", "x"), "{__regex__:{pattern:^foo,options:x}}");
   VerifyCanonicalId(Int32(123), "{__int__:123}");
+  VerifyCanonicalId(Decimal128("1.2e3"), "{__decimal128__:1.2e3}");
   VerifyCanonicalId(BsonObjectId("foo"), "{__oid__:foo}");
   VerifyCanonicalId(BsonTimestamp(1, 2),
                     "{__request_timestamp__:{seconds:1,increment:2}}");

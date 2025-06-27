@@ -30,6 +30,7 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/quadruple.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
@@ -41,6 +42,7 @@ namespace model {
 
 using nanopb::Message;
 using util::ComparisonResult;
+using util::Quadruple;
 
 /** The smallest reference value. */
 pb_bytes_array_s* kMinimumReferenceValue =
@@ -96,6 +98,11 @@ const char* kRawInt32TypeFieldValue = "__int__";
 pb_bytes_array_s* kInt32TypeFieldValue =
     nanopb::MakeBytesArray(kRawInt32TypeFieldValue);
 
+/** The key of a decimal128 in a map proto. */
+const char* kRawDecimal128TypeFieldValue = "__decimal128__";
+pb_bytes_array_s* kDecimal128TypeFieldValue =
+    nanopb::MakeBytesArray(kRawDecimal128TypeFieldValue);
+
 /** The key of a BSON ObjectId in a map proto. */
 const char* kRawBsonObjectIdTypeFieldValue = "__oid__";
 pb_bytes_array_s* kBsonObjectIdTypeFieldValue =
@@ -148,6 +155,8 @@ MapType DetectMapType(const google_firestore_v1_Value& value) {
     return MapType::kMaxKey;
   } else if (IsRegexValue(value)) {
     return MapType::kRegex;
+  } else if (IsDecimal128Value(value)) {
+    return MapType::kDecimal128;
   } else if (IsInt32Value(value)) {
     return MapType::kInt32;
   } else if (IsBsonObjectId(value)) {
@@ -206,6 +215,7 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
         case MapType::kRegex:
           return TypeOrder::kRegex;
         case MapType::kInt32:
+        case MapType::kDecimal128:
           return TypeOrder::kNumber;
         case MapType::kBsonObjectId:
           return TypeOrder::kBsonObjectId;
@@ -251,8 +261,54 @@ void SortFields(google_firestore_v1_Value& value) {
   }
 }
 
+Quadruple ConvertNumericValueToQuadruple(
+    const google_firestore_v1_Value& value) {
+  if (value.which_value_type == google_firestore_v1_Value_double_value_tag) {
+    return Quadruple(value.double_value);
+  } else if (value.which_value_type ==
+             google_firestore_v1_Value_integer_value_tag) {
+    return Quadruple(value.integer_value);
+  } else if (IsInt32Value(value)) {
+    return Quadruple(value.map_value.fields[0].value.integer_value);
+  } else if (IsDecimal128Value(value)) {
+    Quadruple result;
+    result.Parse(
+        nanopb::MakeString(value.map_value.fields[0].value.string_value));
+    return result;
+  }
+
+  HARD_FAIL(
+      "ConvertNumericValueToQuadruple was called with non-numeric value: %s",
+      value.ToString());
+}
+
+ComparisonResult Compare128BitNumbers(const google_firestore_v1_Value& left,
+                                      const google_firestore_v1_Value& right) {
+  Quadruple lhs = ConvertNumericValueToQuadruple(left);
+  Quadruple rhs = ConvertNumericValueToQuadruple(right);
+  if (lhs.is_nan()) {
+    return rhs.is_nan() ? ComparisonResult::Same : ComparisonResult::Ascending;
+  } else if (rhs.is_nan()) {
+    // rhs is NaN, but lhs is not.
+    return ComparisonResult::Descending;
+  }
+
+  // Firestore considers +0 and -0 equal, but `Quadruple.Compare()` does not.
+  // SO, override negative zero to positive zero.
+  if (lhs.Compare(Quadruple(-0.0)) == 0) lhs = Quadruple();
+  if (rhs.Compare(Quadruple(-0.0)) == 0) rhs = Quadruple();
+
+  // Since `Compare` returns `-1`, `0`, and `1` with the same semantics as the
+  // `ComparisonResult` enum, we can safely cast it.
+  return static_cast<ComparisonResult>(lhs.Compare(rhs));
+}
+
 ComparisonResult CompareNumbers(const google_firestore_v1_Value& left,
                                 const google_firestore_v1_Value& right) {
+  if (IsDecimal128Value(left) || IsDecimal128Value(right)) {
+    return Compare128BitNumbers(left, right);
+  }
+
   if (left.which_value_type == google_firestore_v1_Value_double_value_tag) {
     double left_double = left.double_value;
     if (right.which_value_type == google_firestore_v1_Value_double_value_tag) {
@@ -655,7 +711,10 @@ bool NumberEquals(const google_firestore_v1_Value& left,
   } else if (IsInt32Value(left) && IsInt32Value(right)) {
     return left.map_value.fields[0].value.integer_value ==
            right.map_value.fields[0].value.integer_value;
+  } else if (IsDecimal128Value(left) && IsDecimal128Value(right)) {
+    return Compare128BitNumbers(left, right) == util::ComparisonResult::Same;
   }
+
   return false;
 }
 
@@ -906,8 +965,9 @@ google_firestore_v1_Value GetLowerBound(
         return MinBsonBinaryData();
       } else if (IsRegexValue(value)) {
         return MinRegex();
-      } else if (IsInt32Value(value)) {
-        // int32Value is treated the same as integerValue and doubleValue.
+      } else if (IsInt32Value(value) || IsDecimal128Value(value)) {
+        // Int32Value and Decimal128Value are treated the same as integerValue
+        // and doubleValue.
         return MinNumber();
       } else if (IsMinKeyValue(value)) {
         return MinKeyValue();
@@ -950,8 +1010,9 @@ google_firestore_v1_Value GetUpperBound(
         return MinMap();
       } else if (IsMinKeyValue(value)) {
         return MinBoolean();
-      } else if (IsInt32Value(value)) {
-        // int32Value is treated the same as integerValue and doubleValue.
+      } else if (IsInt32Value(value) || IsDecimal128Value(value)) {
+        // Int32Value and Decimal128Value are treated the same as integerValue
+        // and doubleValue.
         return MinTimestamp();
       } else if (IsBsonTimestamp(value)) {
         return MinString();
@@ -1372,11 +1433,40 @@ bool IsInt32Value(const google_firestore_v1_Value& value) {
   return true;
 }
 
+bool IsDecimal128Value(const google_firestore_v1_Value& value) {
+  // A Decimal128Value is expected to be a map as follows:
+  // {
+  //   "__decimal128__": 12345
+  // }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a "__decimal128__" key.
+  absl::optional<pb_size_t> field_index = IndexOfKey(
+      value.map_value, kRawDecimal128TypeFieldValue, kDecimal128TypeFieldValue);
+  if (!field_index.has_value()) {
+    return false;
+  }
+
+  // Must have a string value.
+  google_firestore_v1_Value& decimal_str = value.map_value.fields[0].value;
+  if (decimal_str.which_value_type !=
+      google_firestore_v1_Value_string_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
 bool IsBsonType(const google_firestore_v1_Value& value) {
-  MapType mapType = DetectMapType(value);
+  const MapType mapType = DetectMapType(value);
   return mapType == MapType::kMinKey || mapType == MapType::kMaxKey ||
          mapType == MapType::kRegex || mapType == MapType::kInt32 ||
-         mapType == MapType::kBsonObjectId ||
+         mapType == MapType::kDecimal128 || mapType == MapType::kBsonObjectId ||
          mapType == MapType::kBsonTimestamp ||
          mapType == MapType::kBsonBinaryData;
 }

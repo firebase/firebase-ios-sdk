@@ -113,6 +113,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       var vector: VectorValue
       var regex: RegexValue
       var int32: Int32Value
+      var decimal128: Decimal128Value
       var minKey: MinKey
       var maxKey: MaxKey
       var bsonOjectId: BSONObjectId
@@ -128,6 +129,7 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
                       vector: FieldValue.vector([0.7, 0.6]),
                       regex: RegexValue(pattern: "^foo", options: "i"),
                       int32: Int32Value(1),
+                      decimal128: Decimal128Value("1.5"),
                       minKey: MinKey.shared,
                       maxKey: MaxKey.shared,
                       bsonOjectId: BSONObjectId("507f191e810c19729de860ec"),
@@ -249,6 +251,10 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
 
   func testInt32Value() throws {
     try assertCanWriteAndReadCodableValueWithAllFlavors(value: Int32Value(123))
+  }
+
+  func testDecimal128Value() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: Decimal128Value("1.2e3"))
   }
 
   func testBsonObjectId() throws {

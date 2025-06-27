@@ -209,6 +209,10 @@ nanopb::Message<google_firestore_v1_Value> Int32(int32_t value) {
   return Map("__int__", Value(value));
 }
 
+nanopb::Message<google_firestore_v1_Value> Decimal128(std::string value) {
+  return Map("__decimal128__", Value(value));
+}
+
 nanopb::Message<google_firestore_v1_Value> BsonObjectId(std::string oid) {
   return Map("__oid__", Value(oid));
 }

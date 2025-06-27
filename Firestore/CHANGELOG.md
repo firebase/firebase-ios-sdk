@@ -1,6 +1,6 @@
 # Unreleased
 - [feature] Adds support for the following new types: `MinKey`, `MaxKey`, `RegexValue`,
-  `Int32Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#14800)
+  `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#14800)
 
 # 11.12.0
 - [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
