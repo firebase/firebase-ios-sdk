@@ -29,6 +29,8 @@
   To start using the new SDK, import the `FirebaseAI` module and use the
   top-level `FirebaseAI` class. See details in the [migration guide
   ](https://firebase.google.com/docs/ai-logic/migrate-to-latest-sdk).
+- [changed] **Breaking change** The Firebase Swift package now requires the
+  Swift 6.0 toolchain (Xcode 16.2+).
 
 # Firebase 11.15.0
 - [fixed] Remove c99 as the required C language standard. (#14950)
