@@ -1,5 +1,9 @@
 /*
+<<<<<<<< HEAD:FirebaseFirestoreInternal/FirebaseFirestore/FIRPipelineBridge.h
+ * Copyright 2025 Google LLC
+========
  * Copyright 2021 Google LLC
+>>>>>>>> main:FirebaseAnalyticsCoreWrapper/include/dummy.h
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,5 +18,9 @@
  * limitations under the License.
  */
 
+<<<<<<<< HEAD:FirebaseFirestoreInternal/FirebaseFirestore/FIRPipelineBridge.h
+#import <FirebaseFirestoreInternal/FIRPipelineBridge.h>
+========
 // Swift Package Manager needs at least one header to prevent a warning. See
 // https://github.com/firebase/firebase-ios-sdk/pull/6504.
+>>>>>>>> main:FirebaseAnalyticsCoreWrapper/include/dummy.h
