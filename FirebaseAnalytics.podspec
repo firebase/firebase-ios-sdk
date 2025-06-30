@@ -37,29 +37,29 @@ Pod::Spec.new do |s|
     s.default_subspecs = 'Default'
 
     s.subspec 'Default' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Default', '~> 12.0.0'
+        ss.dependency 'GoogleAppMeasurement/Default', '12.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'Core' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Core', '~> 12.0.0'
+        ss.dependency 'GoogleAppMeasurement/Core', '12.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'IdentitySupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '~> 12.0.0'
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     # Deprecated. Use IdentitySupport subspec instead.
     s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/AdIdSupport', '~> 12.0.0'
+        ss.dependency 'GoogleAppMeasurement/AdIdSupport', '12.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     # Deprecated. Use Core subspec instead.
     s.subspec 'WithoutAdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '~> 12.0.0'
+        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '12.0.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
