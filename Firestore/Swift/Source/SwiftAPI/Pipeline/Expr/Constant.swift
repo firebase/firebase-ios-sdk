@@ -33,7 +33,12 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
     }
   }
 
-  // Initializer for numbers
+  // Initializer for integer
+  public init(_ value: Int) {
+    self.init(value as Any)
+  }
+
+  // Initializer for double
   public init(_ value: Double) {
     self.init(value as Any)
   }
@@ -49,7 +54,7 @@ public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
   }
 
   // Initializer for Bytes
-  public init(_ value: [UInt8]) {
+  public init(_ value: Data) {
     self.init(value as Any)
   }
 

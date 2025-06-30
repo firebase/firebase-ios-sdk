@@ -485,10 +485,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       Constant(GeoPoint(latitude: 0.1, longitude: 0.2)).as("geoPoint"),
       Constant(refTimestamp).as("timestamp"),
       Constant(refDate).as("date"), // Firestore will convert this to a Timestamp
-      Constant([1, 2, 3, 4, 5, 6, 7, 0] as [UInt8]).as("bytes"),
+      Constant(Data([1, 2, 3, 4, 5, 6, 7, 0])).as("bytes"),
       Constant(db.document("foo/bar")).as("documentReference"),
       Constant(VectorValue([1, 2, 3])).as("vectorValue"),
-      Constant([1, 2, 3]).as("arrayValue"), // Treated as an array of numbers
     ]
 
     let constantsSecond: [Selectable] = [
@@ -500,7 +499,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
         "timestamp": refTimestamp,
         "date": refDate,
-        "uint8Array": Data([1, 2, 3, 4, 5, 6, 7, 0]),
+        "bytesArray": Data([1, 2, 3, 4, 5, 6, 7, 0]),
         "documentReference": Constant(db.document("foo/bar")),
         "vectorValue": VectorValue([1, 2, 3]),
         "map": [
@@ -517,7 +516,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         GeoPoint(latitude: 10.1, longitude: 20.2),
         Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)), // Different timestamp
         Date(timeIntervalSince1970: 1_700_000_000), // Different date
-        [11, 22, 33] as [UInt8],
+        Data([11, 22, 33]),
         db.document("another/doc"),
         VectorValue([7, 8, 9]),
         [
@@ -536,10 +535,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
       "timestamp": refTimestamp,
       "date": refTimestamp, // Dates are converted to Timestamps
-      "bytes": [1, 2, 3, 4, 5, 6, 7, 0] as [UInt8],
+      "bytes": Data([1, 2, 3, 4, 5, 6, 7, 0]),
       "documentReference": db.document("foo/bar"),
       "vectorValue": VectorValue([1, 2, 3]),
-      "arrayValue": [1, 2, 3],
       "map": [
         "number": 1,
         "string": "a string",
@@ -548,7 +546,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "geoPoint": GeoPoint(latitude: 0.1, longitude: 0.2),
         "timestamp": refTimestamp,
         "date": refTimestamp,
-        "uint8Array": Data([1, 2, 3, 4, 5, 6, 7, 0]),
+        "bytesArray": Data([1, 2, 3, 4, 5, 6, 7, 0]),
         "documentReference": db.document("foo/bar"),
         "vectorValue": VectorValue([1, 2, 3]),
         "map": [
@@ -565,7 +563,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         GeoPoint(latitude: 10.1, longitude: 20.2),
         Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)),
         Timestamp(date: Date(timeIntervalSince1970: 1_700_000_000)), // Dates are converted
-        [11, 22, 33] as [UInt8],
+        Data([11, 22, 33]),
         db.document("another/doc"),
         VectorValue([7, 8, 9]),
         [
@@ -594,9 +592,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     // Add a dummy document to the collection.
     // A pipeline query with .select against an empty collection might not behave as expected.
     try await randomCol.document("dummyDoc").setData(["field": "value"])
-
-    let refDate = Date(timeIntervalSince1970: 1_678_886_400)
-    let refTimestamp = Timestamp(date: refDate)
 
     let constantsFirst: [Selectable] = [
       Constant.nil.as("nil"),
@@ -1379,12 +1374,33 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .union(db.pipeline()
         .collection(collRef.path))
+      .sort(Field(FieldPath.documentID()).ascending())
 
     let snapshot = try await pipeline.execute()
 
-    let bookSequence = (1 ... 10).map { "book\($0)" }
-    let repeatedIDs = bookSequence + bookSequence
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: repeatedIDs, enforceOrder: false)
+    let books = [
+      "book1",
+      "book1",
+      "book10",
+      "book10",
+      "book2",
+      "book2",
+      "book3",
+      "book3",
+      "book4",
+      "book4",
+      "book5",
+      "book5",
+      "book6",
+      "book6",
+      "book7",
+      "book7",
+      "book8",
+      "book8",
+      "book9",
+      "book9",
+    ]
+    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: books, enforceOrder: false)
   }
 
   func testUnnestStage() async throws {
@@ -1507,5 +1523,1643 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ]
 
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testFindNearest() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let measures: [DistanceMeasure] = [.euclidean, .dotProduct, .cosine]
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy"],
+      ["title": "One Hundred Years of Solitude"],
+      ["title": "The Handmaid's Tale"],
+    ]
+
+    for measure in measures {
+      let pipeline = db.pipeline()
+        .collection(collRef.path)
+        .findNearest(
+          field: Field("embedding"),
+          vectorValue: [10, 1, 3, 1, 2, 1, 1, 1, 1, 1],
+          distanceMeasure: measure, limit: 3
+        )
+        .select("title")
+      let snapshot = try await pipeline.execute()
+      TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    }
+  }
+
+  func testFindNearestWithDistance() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "computedDistance": 1.0,
+      ],
+      [
+        "title": "One Hundred Years of Solitude",
+        "computedDistance": 12.041594578792296,
+      ],
+    ]
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .findNearest(
+        field: Field("embedding"),
+        vectorValue: [10, 1, 2, 1, 1, 1, 1, 1, 1, 1],
+        distanceMeasure: .euclidean, limit: 2,
+        distanceField: "computedDistance"
+      )
+      .select("title", "computedDistance")
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testLogicalMaxWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(
+        Field("title"),
+        Field("published").logicalMaximum(Constant(1960), 1961).as("published-safe")
+      )
+      .sort(Field("title").ascending())
+      .limit(3)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "1984", "published-safe": 1961],
+      ["title": "Crime and Punishment", "published-safe": 1961],
+      ["title": "Dune", "published-safe": 1965],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testLogicalMinWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(
+        Field("title"),
+        Field("published").logicalMinimum(Constant(1960), 1961).as("published-safe")
+      )
+      .sort(Field("title").ascending())
+      .limit(3)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "1984", "published-safe": 1949],
+      ["title": "Crime and Punishment", "published-safe": 1866],
+      ["title": "Dune", "published-safe": 1960],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testCondWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(
+        Field("title"),
+        Field("published").lt(1960).then(Constant(1960), else: Field("published"))
+          .as("published-safe")
+      )
+      .sort(Field("title").ascending())
+      .limit(3)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "1984", "published-safe": 1960],
+      ["title": "Crime and Punishment", "published-safe": 1960],
+      ["title": "Dune", "published-safe": 1965],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testEqAnyWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").eqAny([1979, 1999, 1967]))
+      .sort(Field("title").descending())
+      .select("title")
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy"],
+      ["title": "One Hundred Years of Solitude"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testNotEqAnyWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").notEqAny([1965, 1925, 1949, 1960, 1866, 1985, 1954, 1967, 1979]))
+      .select("title")
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "Pride and Prejudice"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testArrayContainsWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("tags").arrayContains("comedy"))
+      .select("title")
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testArrayContainsAnyWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("tags").arrayContainsAny(["comedy", "classic"]))
+      .sort(Field("title").descending())
+      .select("title")
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy"],
+      ["title": "Pride and Prejudice"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayContainsAllWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("tags").arrayContainsAll(["adventure", "magic"]))
+      .select("title")
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Lord of the Rings"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testArrayLengthWorks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(Field("tags").arrayLength().as("tagsCount"))
+      .where(Field("tagsCount").eq(3))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 10)
+  }
+
+  func testStrConcat() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("author").ascending())
+      .select(Field("author").strConcat(Constant(" - "), Field("title")).as("bookInfo"))
+      .limit(1)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["bookInfo": "Douglas Adams - The Hitchhiker's Guide to the Galaxy"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testStartsWith() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").startsWith("The"))
+      .select("title")
+      .sort(Field("title").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Great Gatsby"],
+      ["title": "The Handmaid's Tale"],
+      ["title": "The Hitchhiker's Guide to the Galaxy"],
+      ["title": "The Lord of the Rings"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testEndsWith() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").endsWith("y"))
+      .select("title")
+      .sort(Field("title").descending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy"],
+      ["title": "The Great Gatsby"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testStrContains() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").strContains("'s"))
+      .select("title")
+      .sort(Field("title").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Handmaid's Tale"],
+      ["title": "The Hitchhiker's Guide to the Galaxy"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testCharLength() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(
+        Field("title").charLength().as("titleLength"),
+        Field("title")
+      )
+      .where(Field("titleLength").gt(20))
+      .sort(Field("title").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["titleLength": 29, "title": "One Hundred Years of Solitude"],
+      ["titleLength": 36, "title": "The Hitchhiker's Guide to the Galaxy"],
+      ["titleLength": 21, "title": "The Lord of the Rings"],
+      ["titleLength": 21, "title": "To Kill a Mockingbird"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testLike() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").like("%Guide%"))
+      .select("title")
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
+  func testRegexContains() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").regexContains("(?i)(the|of)"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 5)
+  }
+
+  func testRegexMatches() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").regexMatch(".*(?i)(the|of).*"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 5)
+  }
+
+  func testArithmeticOperations() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("To Kill a Mockingbird"))
+      .select(
+        Field("rating").add(1).as("ratingPlusOne"),
+        Field("published").subtract(1900).as("yearsSince1900"),
+        Field("rating").multiply(10).as("ratingTimesTen"),
+        Field("rating").divide(2).as("ratingDividedByTwo"),
+        Field("rating").multiply(20).as("ratingTimes20"),
+        Field("rating").add(3).as("ratingPlus3"),
+        Field("rating").mod(2).as("ratingMod2")
+      )
+      .limit(1)
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    if let resultDoc = snapshot.results.first {
+      let expectedResults: [String: Sendable?] = [
+        "ratingPlusOne": 5.2,
+        "yearsSince1900": 60,
+        "ratingTimesTen": 42.0,
+        "ratingDividedByTwo": 2.1,
+        "ratingTimes20": 84.0,
+        "ratingPlus3": 7.2,
+        "ratingMod2": 0.20000000000000018,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for arithmetic operations test")
+    }
+  }
+
+  func testComparisonOperators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        Field("rating").gt(4.2) &&
+          Field("rating").lte(4.5) &&
+          Field("genre").neq("Science Fiction")
+      )
+      .select("rating", "title")
+      .sort(Field("title").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["rating": 4.3, "title": "Crime and Punishment"],
+      ["rating": 4.3, "title": "One Hundred Years of Solitude"],
+      ["rating": 4.5, "title": "Pride and Prejudice"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testLogicalOperators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        (Field("rating").gt(4.5) && Field("genre").eq("Science Fiction")) ||
+          Field("published").lt(1900)
+      )
+      .select("title")
+      .sort(Field("title").ascending())
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["title": "Crime and Punishment"],
+      ["title": "Dune"],
+      ["title": "Pride and Prejudice"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testChecks() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    // Part 1
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(
+        Field("rating").isNull().as("ratingIsNull"),
+        Field("rating").isNan().as("ratingIsNaN"),
+        Field("title").arrayGet(0).isError().as("isError"),
+        Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
+        Field("foo").isAbsent().as("isAbsent"),
+        Field("title").isNotNull().as("titleIsNotNull"),
+        Field("cost").isNotNan().as("costIsNotNan"),
+        Field("fooBarBaz").exists().as("fooBarBazExists"),
+        Field("title").exists().as("titleExists")
+      )
+
+    var snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for checks part 1")
+
+    if let resultDoc = snapshot.results.first {
+      let expectedResults: [String: Sendable?] = [
+        "ratingIsNull": false,
+        "ratingIsNaN": false,
+        "isError": true,
+        "ifError": "was error",
+        "isAbsent": true,
+        "titleIsNotNull": true,
+        "costIsNotNan": false,
+        "fooBarBazExists": false,
+        "titleExists": true,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for checks part 1")
+    }
+
+    // Part 2
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(
+        Field("rating").isNull().as("ratingIsNull"),
+        Field("rating").isNan().as("ratingIsNaN"),
+        Field("title").arrayGet(0).isError().as("isError"),
+        Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
+        Field("foo").isAbsent().as("isAbsent"),
+        Field("title").isNotNull().as("titleIsNotNull"),
+        Field("cost").isNotNan().as("costIsNotNan")
+      )
+
+    snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for checks part 2")
+
+    if let resultDoc = snapshot.results.first {
+      let expectedResults: [String: Sendable?] = [
+        "ratingIsNull": false,
+        "ratingIsNaN": false,
+        "isError": true,
+        "ifError": "was error",
+        "isAbsent": true,
+        "titleIsNotNull": true,
+        "costIsNotNan": false,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for checks part 2")
+    }
+  }
+
+  func testMapGet() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("published").descending())
+      .select(
+        Field("awards").mapGet("hugo").as("hugoAward"),
+        Field("awards").mapGet("others").as("others"),
+        Field("title")
+      )
+      .where(Field("hugoAward").eq(true))
+
+    let snapshot = try await pipeline.execute()
+
+    // Expected results are ordered by "published" descending for those with hugoAward == true
+    // 1. The Hitchhiker's Guide to the Galaxy (1979)
+    // 2. Dune (1965)
+    let expectedResults: [[String: Sendable?]] = [
+      [
+        "hugoAward": true,
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "others": ["unknown": ["year": 1980]],
+      ],
+      [
+        "hugoAward": true,
+        "title": "Dune",
+        "others": nil,
+      ],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testDistanceFunctions() async throws {
+    let db = firestore()
+    let randomCol = collectionRef() // Ensure a unique collection for the test
+    // Add a dummy document to the collection for the select stage to operate on.
+    try await randomCol.document("dummyDocForDistanceTest").setData(["field": "value"])
+
+    let sourceVector: [Double] = [0.1, 0.1]
+    let targetVector: [Double] = [0.5, 0.8]
+    let targetVectorValue = VectorValue(targetVector)
+
+    let expectedCosineDistance = 0.02560880430538015
+    let expectedDotProductDistance = 0.13
+    let expectedEuclideanDistance = 0.806225774829855
+    let accuracy = 0.000000000000001 // Define a suitable accuracy for floating-point comparisons
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .select(
+        Constant(VectorValue(sourceVector)).cosineDistance(targetVectorValue).as("cosineDistance"),
+        Constant(VectorValue(sourceVector)).dotProduct(targetVectorValue).as("dotProductDistance"),
+        Constant(VectorValue(sourceVector)).euclideanDistance(targetVectorValue)
+          .as("euclideanDistance")
+      )
+      .limit(1)
+
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(
+      snapshot.results.count,
+      1,
+      "Should retrieve one document for distance functions part 1"
+    )
+
+    if let resultDoc = snapshot.results.first {
+      XCTAssertEqual(
+        resultDoc.get("cosineDistance")! as! Double,
+        expectedCosineDistance,
+        accuracy: accuracy
+      )
+      XCTAssertEqual(
+        resultDoc.get("dotProductDistance")! as! Double,
+        expectedDotProductDistance,
+        accuracy: accuracy
+      )
+      XCTAssertEqual(
+        resultDoc.get("euclideanDistance")! as! Double,
+        expectedEuclideanDistance,
+        accuracy: accuracy
+      )
+    } else {
+      XCTFail("No document retrieved for distance functions part 1")
+    }
+  }
+
+  func testVectorLength() async throws {
+    let collRef = collectionRef() // Using a new collection for this test
+    let db = collRef.firestore
+    let docRef = collRef.document("vectorDocForLengthTestFinal")
+
+    // Add a document with a known vector field
+    try await docRef.setData(["embedding": VectorValue([1.0, 2.0, 3.0])])
+
+    // Construct a pipeline query
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1) // Limit to the document we just added
+      .select(Field("embedding").vectorLength().as("vectorLength"))
+
+    // Execute the pipeline
+    let snapshot = try await pipeline.execute()
+
+    // Assert that the vectorLength in the result is 3
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      let expectedResult: [String: Sendable?] = ["vectorLength": 3]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for vectorLength test")
+    }
+  }
+
+  func testNestedFields() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("awards.hugo").eq(true))
+      .sort(Field("title").descending())
+      .select(Field("title"), Field("awards.hugo"))
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      ["title": "The Hitchhiker's Guide to the Galaxy", "awards.hugo": true],
+      ["title": "Dune", "awards.hugo": true],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testMapGetWithFieldNameIncludingDotNotation() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("awards.hugo").eq(true)) // Filters to book1 and book10
+      .select(
+        Field("title"),
+        Field("nestedField.level.1"),
+        Field("nestedField").mapGet("level.1").mapGet("level.2").as("nested")
+      )
+      .sort(Field("title").descending())
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 2, "Should retrieve two documents")
+
+    let expectedResultsArray: [[String: Sendable?]] = [
+      [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "nestedField.level.`1`": nil,
+        "nested": true,
+      ],
+      [
+        "title": "Dune",
+        "nestedField.level.`1`": nil,
+        "nested": nil,
+      ],
+    ]
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: expectedResultsArray,
+      enforceOrder: true
+    )
+  }
+
+  func testGenericFunctionAddSelectable() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(
+        FunctionExpr("add", [Field("rating"), Constant(1)]).as(
+          "rating"
+        )
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResult: [String: Sendable?] = [
+      "rating": 5.7,
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testGenericFunctionAddSelectable")
+    }
+  }
+
+  func testGenericFunctionAndVariadicSelectable() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        BooleanExpr("and", [Field("rating").gt(0),
+                            Field("title").charLength().lt(5),
+                            Field("tags").arrayContains("propaganda")])
+      )
+      .select("title")
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResult: [[String: Sendable?]] = [
+      ["title": "1984"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResult, enforceOrder: false)
+  }
+
+  func testGenericFunctionArrayContainsAny() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(BooleanExpr("array_contains_any", [Field("tags"), ArrayExpression(["politics"])]))
+      .select(Field("title"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResult: [[String: Sendable?]] = [
+      ["title": "Dune"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResult, enforceOrder: false)
+  }
+
+  func testGenericFunctionCountIfAggregate() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate(AggregateFunction("count_if", [Field("rating").gte(4.5)]).as("countOfBest"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Aggregate should return a single document")
+
+    let expectedResult: [String: Sendable?] = [
+      "countOfBest": 3,
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testGenericFunctionCountIfAggregate")
+    }
+  }
+
+  func testGenericFunctionSortByCharLen() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(
+        FunctionExpr("char_length", [Field("title")]).ascending(),
+        Field("__name__").descending()
+      )
+      .limit(3)
+      .select(Field("title"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 3, "Should retrieve three documents")
+
+    let expectedResults: [[String: Sendable?]] = [
+      ["title": "1984"],
+      ["title": "Dune"],
+      ["title": "The Great Gatsby"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testSupportsRand() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(10)
+      .select(RandomExpr().as("result"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 10, "Should fetch 10 documents")
+
+    for doc in snapshot.results {
+      guard let resultValue = doc.get("result") else {
+        XCTFail("Document \(doc.id ?? "unknown") should have a 'result' field")
+        continue
+      }
+      guard let doubleValue = resultValue as? Double else {
+        XCTFail("Result value for document \(doc.id ?? "unknown") is not a Double: \(resultValue)")
+        continue
+      }
+      XCTAssertGreaterThanOrEqual(
+        doubleValue,
+        0.0,
+        "Result for \(doc.id ?? "unknown") should be >= 0.0"
+      )
+      XCTAssertLessThan(doubleValue, 1.0, "Result for \(doc.id ?? "unknown") should be < 1.0")
+    }
+  }
+
+  func testSupportsArray() async throws {
+    let db = firestore()
+    let collRef = collectionRef(withDocuments: bookDocs)
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(ArrayExpression([1, 2, 3, 4]).as("metadata"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResults: [String: Sendable?] = ["metadata": [1, 2, 3, 4]]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for testSupportsArray")
+    }
+  }
+
+  func testEvaluatesExpressionInArray() async throws {
+    let db = firestore()
+    let collRef = collectionRef(withDocuments: bookDocs)
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(ArrayExpression([
+        1,
+        2,
+        Field("genre"),
+        Field("rating").multiply(10),
+      ]).as("metadata"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResults: [String: Sendable?] = ["metadata": [1, 2, "Fantasy", 47.0]]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for testEvaluatesExpressionInArray")
+    }
+  }
+
+  func testSupportsArrayOffset() async throws {
+    let db = firestore()
+    let collRef = collectionRef(withDocuments: bookDocs)
+
+    let expectedResultsPart1: [[String: Sendable?]] = [
+      ["firstTag": "adventure"],
+      ["firstTag": "politics"],
+      ["firstTag": "classic"],
+    ]
+
+    let pipeline1 = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(3)
+      .select(Field("tags").arrayGet(0).as("firstTag"))
+
+    let snapshot1 = try await pipeline1.execute()
+    XCTAssertEqual(snapshot1.results.count, 3, "Part 1: Should retrieve three documents")
+    TestHelper.compare(
+      pipelineSnapshot: snapshot1,
+      expected: expectedResultsPart1,
+      enforceOrder: true
+    )
+  }
+
+  func testSupportsMap() async throws {
+    let db = firestore()
+    let collRef = collectionRef(withDocuments: bookDocs)
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(MapExpression(["foo": "bar"]).as("metadata"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResult: [String: Sendable?] = ["metadata": ["foo": "bar"]]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testSupportsMap")
+    }
+  }
+
+  func testEvaluatesExpressionInMap() async throws {
+    let db = firestore()
+    let collRef = collectionRef(withDocuments: bookDocs)
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(MapExpression([
+        "genre": Field("genre"), // "Fantasy"
+        "rating": Field("rating").multiply(10), // 4.7 * 10 = 47.0
+      ]).as("metadata"))
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    // Expected: genre is "Fantasy", rating is 4.7 for book4
+    let expectedResult: [String: Sendable?] = ["metadata": ["genre": "Fantasy", "rating": 47.0]]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testEvaluatesExpressionInMap")
+    }
+  }
+
+  func testSupportsMapRemove() async throws {
+    let db = firestore()
+    let collRef = collectionRef(withDocuments: bookDocs)
+
+    let expectedResult: [String: Sendable?] = ["awards": ["nebula": false]]
+
+    let pipeline2 = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(Field("awards").mapRemove("hugo").as("awards"))
+
+    let snapshot2 = try await pipeline2.execute()
+    XCTAssertEqual(snapshot2.results.count, 1, "Should retrieve one document")
+    if let resultDoc2 = snapshot2.results.first {
+      TestHelper.compare(pipelineResult: resultDoc2, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testSupportsMapRemove")
+    }
+  }
+
+  func testSupportsMapMerge() async throws {
+    let db = firestore()
+    let collRef = collectionRef(withDocuments: bookDocs)
+
+    let expectedResult: [String: Sendable?] =
+      ["awards": ["hugo": false, "nebula": false, "fakeAward": true]]
+    let mergeMap: [String: Sendable] = ["fakeAward": true]
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(Field("awards").mapMerge(mergeMap).as("awards"))
+
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testSupportsMapMerge")
+    }
+  }
+
+  func testSupportsTimestampConversions() async throws {
+    let db = firestore()
+    let randomCol = collectionRef() // Unique collection for this test
+
+    // Add a dummy document to ensure the select stage has an input
+    try await randomCol.document("dummyTimeDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        Constant(1_741_380_235).unixSecondsToTimestamp().as("unixSecondsToTimestamp"),
+        Constant(1_741_380_235_123).unixMillisToTimestamp().as("unixMillisToTimestamp"),
+        Constant(1_741_380_235_123_456).unixMicrosToTimestamp().as("unixMicrosToTimestamp"),
+        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+          .timestampToUnixSeconds().as("timestampToUnixSeconds"),
+        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+          .timestampToUnixMillis().as("timestampToUnixMillis"),
+        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+          .timestampToUnixMicros().as("timestampToUnixMicros")
+      )
+
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(
+      snapshot.results.count,
+      1,
+      "Should retrieve one document for timestamp conversions"
+    )
+
+    let expectedResults: [String: Sendable?] = [
+      "unixSecondsToTimestamp": Timestamp(seconds: 1_741_380_235, nanoseconds: 0),
+      "unixMillisToTimestamp": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_000_000),
+      "unixMicrosToTimestamp": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000),
+      "timestampToUnixSeconds": 1_741_380_235,
+      "timestampToUnixMillis": 1_741_380_235_123,
+      "timestampToUnixMicros": 1_741_380_235_123_456,
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for testSupportsTimestampConversions")
+    }
+  }
+
+  func testSupportsTimestampMath() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let initialTimestamp = Timestamp(seconds: 1_741_380_235, nanoseconds: 0)
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        Constant(initialTimestamp).as("timestamp")
+      )
+      .select(
+        Field("timestamp").timestampAdd(.day, 10).as("plus10days"),
+        Field("timestamp").timestampAdd(.hour, 10).as("plus10hours"),
+        Field("timestamp").timestampAdd(.minute, 10).as("plus10minutes"),
+        Field("timestamp").timestampAdd(.second, 10).as("plus10seconds"),
+        Field("timestamp").timestampAdd(.microsecond, 10).as("plus10micros"),
+        Field("timestamp").timestampAdd(.millisecond, 10).as("plus10millis"),
+        Field("timestamp").timestampSub(.day, 10).as("minus10days"),
+        Field("timestamp").timestampSub(.hour, 10).as("minus10hours"),
+        Field("timestamp").timestampSub(.minute, 10).as("minus10minutes"),
+        Field("timestamp").timestampSub(.second, 10).as("minus10seconds"),
+        Field("timestamp").timestampSub(.microsecond, 10).as("minus10micros"),
+        Field("timestamp").timestampSub(.millisecond, 10).as("minus10millis")
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [String: Timestamp] = [
+      "plus10days": Timestamp(seconds: 1_742_244_235, nanoseconds: 0),
+      "plus10hours": Timestamp(seconds: 1_741_416_235, nanoseconds: 0),
+      "plus10minutes": Timestamp(seconds: 1_741_380_835, nanoseconds: 0),
+      "plus10seconds": Timestamp(seconds: 1_741_380_245, nanoseconds: 0),
+      "plus10micros": Timestamp(seconds: 1_741_380_235, nanoseconds: 10000),
+      "plus10millis": Timestamp(seconds: 1_741_380_235, nanoseconds: 10_000_000),
+      "minus10days": Timestamp(seconds: 1_740_516_235, nanoseconds: 0),
+      "minus10hours": Timestamp(seconds: 1_741_344_235, nanoseconds: 0),
+      "minus10minutes": Timestamp(seconds: 1_741_379_635, nanoseconds: 0),
+      "minus10seconds": Timestamp(seconds: 1_741_380_225, nanoseconds: 0),
+      "minus10micros": Timestamp(seconds: 1_741_380_234, nanoseconds: 999_990_000),
+      "minus10millis": Timestamp(seconds: 1_741_380_234, nanoseconds: 990_000_000),
+    ]
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for timestamp math test")
+    }
+  }
+
+  func testSupportsByteLength() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let bytes = Data([1, 2, 3, 4, 5, 6, 7, 0])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        Constant(bytes).as("bytes")
+      )
+      .select(
+        Field("bytes").byteLength().as("byteLength")
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [String: Sendable] = [
+      "byteLength": 8,
+    ]
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(
+        pipelineResult: resultDoc,
+        expected: expectedResults.mapValues { $0 as Sendable }
+      )
+    } else {
+      XCTFail("No document retrieved for byte length test")
+    }
+  }
+
+  func testSupportsNot() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(true).as("trueField"))
+      .select(
+        Field("trueField"),
+        (!(Field("trueField").eq(true))).as("falseField")
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [String: Bool] = [
+      "trueField": true,
+      "falseField": false,
+    ]
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for not operator test")
+    }
+  }
+
+  func testReplaceFirst() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("The Lord of the Rings"))
+      .limit(1)
+      .select(Field("title").replaceFirst("o", "0").as("newName"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["newName": "The L0rd of the Rings"]],
+      enforceOrder: false
+    )
+  }
+
+  func testReplaceAll() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("The Lord of the Rings"))
+      .limit(1)
+      .select(Field("title").replaceAll("o", "0").as("newName"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["newName": "The L0rd 0f the Rings"]],
+      enforceOrder: false
+    )
+  }
+
+  func testBitAnd() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(5).bitAnd(12).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 4]], enforceOrder: false)
+  }
+
+  func testBitOr() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(5).bitOr(12).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 13]], enforceOrder: false)
+  }
+
+  func testBitXor() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(5).bitXor(12).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 9]], enforceOrder: false)
+  }
+
+  func testBitNot() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+    let bytesInput = Data([0xFD])
+    let expectedOutput = Data([0x02])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(bytesInput).bitNot().as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["result": expectedOutput]],
+      enforceOrder: false
+    )
+  }
+
+  func testBitLeftShift() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+    let bytesInput = Data([0x02])
+    let expectedOutput = Data([0x08])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(bytesInput).bitLeftShift(2).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["result": expectedOutput]],
+      enforceOrder: false
+    )
+  }
+
+  func testBitRightShift() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+    let bytesInput = Data([0x02])
+    let expectedOutput = Data([0x00])
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(Constant(bytesInput).bitRightShift(2).as("result"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["result": expectedOutput]],
+      enforceOrder: false
+    )
+  }
+
+  func testDocumentId() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(Field("__path__").documentId().as("docId"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["docId": "book4"]],
+      enforceOrder: false
+    )
+  }
+
+  func testSubstr() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(Field("title").substr(9, 2).as("of"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["of": "of"]], enforceOrder: false)
+  }
+
+  func testSubstrWithoutLength() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort(Field("rating").descending())
+      .limit(1)
+      .select(Field("title").substr(9).as("of"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["of": "of the Rings"]],
+      enforceOrder: false
+    )
+  }
+
+  func testArrayConcat() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1) // Assuming we operate on the first book (book1)
+      .select(
+        Field("tags").arrayConcat(
+          ["newTag1", "newTag2"],
+          [Field("tags")],
+          [Constant.nil]
+        ).as("modifiedTags")
+      )
+    var snapshot = try await pipeline.execute()
+
+    let expectedTags: [Sendable?] = [
+      "comedy", "space", "adventure",
+      "newTag1", "newTag2",
+      "comedy", "space", "adventure",
+      nil,
+    ]
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["modifiedTags": expectedTags]],
+      enforceOrder: false
+    )
+
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1) // Assuming we operate on the first book (book1)
+      .select(
+        Field("tags").arrayConcat(
+          Field("newTag1"), Field("newTag2"),
+          Field("tags"),
+          Constant.nil
+        ).as("modifiedTags")
+      )
+    snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["modifiedTags": expectedTags]],
+      enforceOrder: false
+    )
+  }
+
+  func testToLowercase() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select(Field("title").lowercased().as("lowercaseTitle"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["lowercaseTitle": "the hitchhiker's guide to the galaxy"]],
+      enforceOrder: false
+    )
+  }
+
+  func testToUppercase() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select(Field("author").uppercased().as("uppercaseAuthor"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["uppercaseAuthor": "DOUGLAS ADAMS"]],
+      enforceOrder: false
+    )
+  }
+
+  func testTrim() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .addFields(Constant(" The Hitchhiker's Guide to the Galaxy ").as("spacedTitle"))
+      .select(Field("spacedTitle").trim().as("trimmedTitle"), Field("spacedTitle"))
+      .limit(1)
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [[
+        "spacedTitle": " The Hitchhiker's Guide to the Galaxy ",
+        "trimmedTitle": "The Hitchhiker's Guide to the Galaxy",
+      ]],
+      enforceOrder: false
+    )
+  }
+
+  func testReverseString() async throws {
+    // Renamed from testReverse to avoid conflict if a generic reverse exists elsewhere
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").eq("1984"))
+      .limit(1)
+      .select(Field("title").reverse().as("reverseTitle"))
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [["reverseTitle": "4891"]],
+      enforceOrder: false
+    )
+  }
+
+  private func addBooks(to collectionReference: CollectionReference) async throws {
+    try await collectionReference.document("book11").setData([
+      "title": "Jonathan Strange & Mr Norrell",
+      "author": "Susanna Clarke",
+      "genre": "Fantasy",
+      "published": 2004,
+      "rating": 4.6,
+      "tags": ["historical fantasy", "magic", "alternate history", "england"],
+      "awards": ["hugo": false, "nebula": false],
+    ])
+    try await collectionReference.document("book12").setData([
+      "title": "The Master and Margarita",
+      "author": "Mikhail Bulgakov",
+      "genre": "Satire",
+      "published": 1967,
+      "rating": 4.6,
+      "tags": ["russian literature", "supernatural", "philosophy", "dark comedy"],
+      "awards": [:],
+    ])
+    try await collectionReference.document("book13").setData([
+      "title": "A Long Way to a Small, Angry Planet",
+      "author": "Becky Chambers",
+      "genre": "Science Fiction",
+      "published": 2014,
+      "rating": 4.6,
+      "tags": ["space opera", "found family", "character-driven", "optimistic"],
+      "awards": ["hugo": false, "nebula": false, "kitschies": true],
+    ])
+  }
+
+  func testSupportsPaginationWithOffsetsUsingName() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+    try await addBooks(to: collRef)
+
+    let pageSize = 2
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select("title", "rating", "__name__")
+      .sort(
+        Field("rating").descending(),
+        Field("__name__").ascending()
+      )
+
+    var snapshot = try await pipeline.limit(Int32(pageSize)).execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["title": "The Lord of the Rings", "rating": 4.7],
+        ["title": "Jonathan Strange & Mr Norrell", "rating": 4.6],
+      ],
+      enforceOrder: true
+    )
+
+    let lastDoc = snapshot.results.last!
+
+    snapshot = try await pipeline.where(
+      (Field("rating").eq(lastDoc.get("rating")!)
+        && Field("rating").lt(lastDoc.get("rating")!))
+        || Field("rating").lt(lastDoc.get("rating")!)
+    ).limit(Int32(pageSize)).execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["title": "Pride and Prejudice", "rating": 4.5],
+        ["title": "Crime and Punishment", "rating": 4.3],
+      ],
+      enforceOrder: false
+    )
+  }
+
+  func testSupportsPaginationWithOffsetsUsingPath() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+    try await addBooks(to: collRef)
+
+    let pageSize = 2
+    var currPage = 0
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select("title", "rating", "__path__")
+      .sort(
+        Field("rating").descending(),
+        Field("__path__").ascending()
+      )
+
+    var snapshot = try await pipeline.offset(Int32(currPage) * Int32(pageSize)).limit(
+      Int32(pageSize)
+    ).execute()
+
+    currPage += 1
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["title": "The Lord of the Rings", "rating": 4.7],
+        ["title": "Dune", "rating": 4.6],
+      ],
+      enforceOrder: true
+    )
+
+    snapshot = try await pipeline.offset(Int32(currPage) * Int32(pageSize)).limit(
+      Int32(pageSize)
+    ).execute()
+
+    currPage += 1
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["title": "A Long Way to a Small, Angry Planet", "rating": 4.6],
+        ["title": "Pride and Prejudice", "rating": 4.5],
+      ],
+      enforceOrder: true
+    )
   }
 }

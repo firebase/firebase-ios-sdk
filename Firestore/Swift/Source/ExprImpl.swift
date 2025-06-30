@@ -25,14 +25,12 @@ public extension Expr {
 
   // MARK: Arithmetic Operators
 
-  func add(_ second: Expr, _ others: Expr...) -> FunctionExpr {
-    return FunctionExpr("add", [self, second] + others)
+  func add(_ value: Expr) -> FunctionExpr {
+    return FunctionExpr("add", [self, value])
   }
 
-  func add(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
-    let exprs = [self] + [Helper.sendableToExpr(second)] + others
-      .map { Helper.sendableToExpr($0) }
-    return FunctionExpr("add", exprs)
+  func add(_ value: Sendable) -> FunctionExpr {
+    return FunctionExpr("add", [self, Helper.sendableToExpr(value)])
   }
 
   func subtract(_ other: Expr) -> FunctionExpr {
@@ -43,14 +41,12 @@ public extension Expr {
     return FunctionExpr("subtract", [self, Helper.sendableToExpr(other)])
   }
 
-  func multiply(_ second: Expr, _ others: Expr...) -> FunctionExpr {
-    return FunctionExpr("multiply", [self, second] + others)
+  func multiply(_ value: Expr) -> FunctionExpr {
+    return FunctionExpr("multiply", [self, value])
   }
 
-  func multiply(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
-    let exprs = [self] + [Helper.sendableToExpr(second)] + others
-      .map { Helper.sendableToExpr($0) }
-    return FunctionExpr("multiply", exprs)
+  func multiply(_ value: Sendable) -> FunctionExpr {
+    return FunctionExpr("multiply", [self, Helper.sendableToExpr(value)])
   }
 
   func divide(_ other: Expr) -> FunctionExpr {
@@ -89,34 +85,32 @@ public extension Expr {
     return BooleanExpr("array_contains", [self, Helper.sendableToExpr(element)])
   }
 
-  func arrayContainsAll(_ values: Expr...) -> BooleanExpr {
-    return BooleanExpr("array_contains_all", [self] + values)
+  func arrayContainsAll(_ values: [Expr]) -> BooleanExpr {
+    return BooleanExpr("array_contains_all", [self, Helper.array(values)])
   }
 
-  func arrayContainsAll(_ values: Sendable...) -> BooleanExpr {
-    let exprValues = values.map { Helper.sendableToExpr($0) }
-    return BooleanExpr("array_contains_all", [self] + exprValues)
+  func arrayContainsAll(_ values: [Sendable]) -> BooleanExpr {
+    return BooleanExpr("array_contains_all", [self, Helper.array(values)])
   }
 
-  func arrayContainsAny(_ values: Expr...) -> BooleanExpr {
-    return BooleanExpr("array_contains_any", [self] + values)
+  func arrayContainsAny(_ values: [Expr]) -> BooleanExpr {
+    return BooleanExpr("array_contains_any", [self, Helper.array(values)])
   }
 
-  func arrayContainsAny(_ values: Sendable...) -> BooleanExpr {
-    let exprValues = values.map { Helper.sendableToExpr($0) }
-    return BooleanExpr("array_contains_any", [self] + exprValues)
+  func arrayContainsAny(_ values: [Sendable]) -> BooleanExpr {
+    return BooleanExpr("array_contains_any", [self, Helper.array(values)])
   }
 
   func arrayLength() -> FunctionExpr {
     return FunctionExpr("array_length", [self])
   }
 
-  func arrayOffset(_ offset: Int) -> FunctionExpr {
-    return FunctionExpr("array_offset", [self, Helper.sendableToExpr(offset)])
+  func arrayGet(_ offset: Int) -> FunctionExpr {
+    return FunctionExpr("array_get", [self, Helper.sendableToExpr(offset)])
   }
 
-  func arrayOffset(_ offsetExpr: Expr) -> FunctionExpr {
-    return FunctionExpr("array_offset", [self, offsetExpr])
+  func arrayGet(_ offsetExpr: Expr) -> FunctionExpr {
+    return FunctionExpr("array_get", [self, offsetExpr])
   }
 
   func gt(_ other: Expr) -> BooleanExpr {
@@ -172,31 +166,28 @@ public extension Expr {
     return BooleanExpr("eq", [self, exprOther])
   }
 
-  func neq(_ others: Expr...) -> BooleanExpr {
-    return BooleanExpr("neq", [self] + others)
+  func neq(_ other: Expr) -> BooleanExpr {
+    return BooleanExpr("neq", [self, other])
   }
 
-  func neq(_ others: Sendable...) -> BooleanExpr {
-    let exprOthers = others.map { Helper.sendableToExpr($0) }
-    return BooleanExpr("neq", [self] + exprOthers)
+  func neq(_ other: Sendable) -> BooleanExpr {
+    return BooleanExpr("neq", [self, Helper.sendableToExpr(other)])
   }
 
-  func eqAny(_ others: Expr...) -> BooleanExpr {
-    return BooleanExpr("eq_any", [self] + others)
+  func eqAny(_ others: [Expr]) -> BooleanExpr {
+    return BooleanExpr("eq_any", [self, Helper.array(others)])
   }
 
-  func eqAny(_ others: Sendable...) -> BooleanExpr {
-    let exprOthers = others.map { Helper.sendableToExpr($0) }
-    return BooleanExpr("eq_any", [self] + exprOthers)
+  func eqAny(_ others: [Sendable]) -> BooleanExpr {
+    return BooleanExpr("eq_any", [self, Helper.array(others)])
   }
 
-  func notEqAny(_ others: Expr...) -> BooleanExpr {
-    return BooleanExpr("not_eq_any", [self] + others)
+  func notEqAny(_ others: [Expr]) -> BooleanExpr {
+    return BooleanExpr("not_eq_any", [self, Helper.array(others)])
   }
 
-  func notEqAny(_ others: Sendable...) -> BooleanExpr {
-    let exprOthers = others.map { Helper.sendableToExpr($0) }
-    return BooleanExpr("not_eq_any", [self] + exprOthers)
+  func notEqAny(_ others: [Sendable]) -> BooleanExpr {
+    return BooleanExpr("not_eq_any", [self, Helper.array(others)])
   }
 
   // MARK: Checks
@@ -237,12 +228,12 @@ public extension Expr {
     return FunctionExpr("char_length", [self])
   }
 
-  func like(_ pattern: String) -> FunctionExpr {
-    return FunctionExpr("like", [self, Helper.sendableToExpr(pattern)])
+  func like(_ pattern: String) -> BooleanExpr {
+    return BooleanExpr("like", [self, Helper.sendableToExpr(pattern)])
   }
 
-  func like(_ pattern: Expr) -> FunctionExpr {
-    return FunctionExpr("like", [self, pattern])
+  func like(_ pattern: Expr) -> BooleanExpr {
+    return BooleanExpr("like", [self, pattern])
   }
 
   func regexContains(_ pattern: String) -> BooleanExpr {
@@ -414,13 +405,13 @@ public extension Expr {
   }
 
   func logicalMinimum(_ second: Expr, _ others: Expr...) -> FunctionExpr {
-    return FunctionExpr("logical_min", [self, second] + others)
+    return FunctionExpr("logical_minimum", [self, second] + others)
   }
 
   func logicalMinimum(_ second: Sendable, _ others: Sendable...) -> FunctionExpr {
     let exprs = [self] + [Helper.sendableToExpr(second)] + others
       .map { Helper.sendableToExpr($0) }
-    return FunctionExpr("logical_min", exprs)
+    return FunctionExpr("logical_minimum", exprs)
   }
 
   // MARK: Vector Operations

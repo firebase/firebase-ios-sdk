@@ -163,10 +163,10 @@ public enum TestHelper {
       guard let value2 = dict2[key], areEqual(value1, value2) else {
         XCTFail("""
         Dictionary value mismatch for key: '\(key)'
-        Expected value: '\(String(describing: value1))' (from dict1)
-        Actual value:   '\(String(describing: dict2[key]))' (from dict2)
-        Full dict1: \(String(describing: dict1))
-        Full dict2: \(String(describing: dict2))
+        Actual value: '\(String(describing: value1))' (from dict1)
+        Expected value:   '\(String(describing: dict2[key]))' (from dict2)
+        Full actual value: \(String(describing: dict1))
+        Full expected value: \(String(describing: dict2))
         """)
         return false
       }
@@ -182,8 +182,8 @@ public enum TestHelper {
       if !areEqual(value1, value2) {
         XCTFail("""
         Array value mismatch.
-        Expected array value: '\(String(describing: value1))'
-        Actual array value:   '\(String(describing: value2))'
+        Actual array value: '\(String(describing: value1))'
+        Expected array value:   '\(String(describing: value2))'
         """)
         return false
       }
