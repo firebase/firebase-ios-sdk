@@ -45,7 +45,7 @@ public struct PipelineResult: @unchecked Sendable {
   public let updateTime: Timestamp?
 
   /// Retrieves all fields in the result as a dictionary.
-  public let data: [String: Sendable]
+  public let data: [String: Sendable?]
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").

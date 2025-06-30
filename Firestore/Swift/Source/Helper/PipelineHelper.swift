@@ -13,13 +13,17 @@
 // limitations under the License.
 
 enum Helper {
-  static func sendableToExpr(_ value: Sendable) -> Expr {
+  static func sendableToExpr(_ value: Sendable?) -> Expr {
+    guard let value = value else {
+      return Constant.nil
+    }
+
     if value is Expr {
       return value as! Expr
-    } else if value is [String: Sendable] {
-      return map(value as! [String: Sendable])
-    } else if value is [Sendable] {
-      return array(value as! [Sendable])
+    } else if value is [String: Sendable?] {
+      return map(value as! [String: Sendable?])
+    } else if value is [Sendable?] {
+      return array(value as! [Sendable?])
     } else {
       return Constant(value)
     }
@@ -33,7 +37,7 @@ enum Helper {
     return exprMap
   }
 
-  static func map(_ elements: [String: Sendable]) -> FunctionExpr {
+  static func map(_ elements: [String: Sendable?]) -> FunctionExpr {
     var result: [Expr] = []
     for (key, value) in elements {
       result.append(Constant(key))
@@ -42,10 +46,37 @@ enum Helper {
     return FunctionExpr("map", result)
   }
 
-  static func array(_ elements: [Sendable]) -> FunctionExpr {
+  static func array(_ elements: [Sendable?]) -> FunctionExpr {
     let transformedElements = elements.map { element in
       sendableToExpr(element)
     }
     return FunctionExpr("array", transformedElements)
+  }
+
+  // This function is used to convert Swift type into Objective-C type.
+  static func sendableToAnyObjectForRawStage(_ value: Sendable?) -> AnyObject {
+    guard let value = value else {
+      return Constant.nil.bridge
+    }
+
+    guard !(value is NSNull) else {
+      return Constant.nil.bridge
+    }
+
+    if value is Expr {
+      return (value as! Expr).toBridge()
+    } else if value is AggregateFunction {
+      return (value as! AggregateFunction).toBridge()
+    } else if value is [String: Sendable?] {
+      let mappedValue: [String: Sendable?] = (value as! [String: Sendable?]).mapValues {
+        if $0 is AggregateFunction {
+          return ($0 as! AggregateFunction).toBridge()
+        }
+        return sendableToExpr($0).toBridge()
+      }
+      return mappedValue as NSDictionary
+    } else {
+      return Constant(value).bridge
+    }
   }
 }

@@ -191,14 +191,16 @@ NS_SWIFT_NAME(UnionStageBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(UnnestStageBridge)
 @interface FIRUnnestStageBridge : FIRStageBridge
-- (id)initWithField:(FIRExprBridge *)field indexField:(NSString *_Nullable)indexField;
+- (id)initWithField:(FIRExprBridge *)field
+              alias:(FIRExprBridge *)alias
+         indexField:(FIRExprBridge *_Nullable)index_field;
 @end
 
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(RawStageBridge)
 @interface FIRRawStageBridge : FIRStageBridge
 - (id)initWithName:(NSString *)name
-            params:(NSArray<FIRExprBridge *> *)params
+            params:(NSArray<id> *)params
            options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
 @end
 

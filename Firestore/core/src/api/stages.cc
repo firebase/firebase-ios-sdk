@@ -306,41 +306,78 @@ google_firestore_v1_Pipeline_Stage RemoveFieldsStage::to_proto() const {
   return result;
 }
 
+google_firestore_v1_Value ReplaceWith::ReplaceMode::to_proto() const {
+  google_firestore_v1_Value result;
+  result.which_value_type = google_firestore_v1_Value_string_value_tag;
+  switch (mode_) {
+    case FULL_REPLACE:
+      result.string_value = nanopb::MakeBytesArray("full_replace");
+      break;
+    case MERGE_PREFER_NEST:
+      result.string_value = nanopb::MakeBytesArray("merge_prefer_nest");
+      break;
+  }
+  return result;
+}
+
 google_firestore_v1_Pipeline_Stage ReplaceWith::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray("replace_with");
 
-  result.args_count = 1;
-  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  result.args_count = 2;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
   result.args[0] = expr_->to_proto();
+
+  result.args[1] = mode_.to_proto();
 
   result.options_count = 0;
   result.options = nullptr;
   return result;
 }
 
-ReplaceWith::ReplaceWith(std::shared_ptr<Expr> expr) : expr_(std::move(expr)) {
+ReplaceWith::ReplaceWith(std::shared_ptr<Expr> expr, ReplaceMode mode)
+    : expr_(std::move(expr)), mode_(mode) {
 }
 
-Sample::Sample(std::string type, int64_t count, double percentage)
-    : type_(type), count_(count), percentage_(percentage) {
+google_firestore_v1_Value Sample::SampleMode::to_proto() const {
+  google_firestore_v1_Value result;
+  result.which_value_type = google_firestore_v1_Value_string_value_tag;
+  switch (mode_) {
+    case DOCUMENTS:
+      result.string_value = nanopb::MakeBytesArray("documents");
+      break;
+    case PERCENT:
+      result.string_value = nanopb::MakeBytesArray("percent");
+      break;
+  }
+  return result;
+}
+
+Sample::Sample(SampleMode mode, int64_t count, double percentage)
+    : mode_(mode), count_(count), percentage_(percentage) {
 }
 
 google_firestore_v1_Pipeline_Stage Sample::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray("sample");
 
-  result.args_count = 1;
-  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
-  if (type_ == "count") {
-    result.args[0].which_value_type =
-        google_firestore_v1_Value_integer_value_tag;
-    result.args[0].integer_value = count_;
-  } else {
-    result.args[0].which_value_type =
-        google_firestore_v1_Value_double_value_tag;
-    result.args[0].double_value = percentage_;
+  result.args_count = 2;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
+
+  switch (mode_.mode()) {
+    case SampleMode::Mode::DOCUMENTS:
+      result.args[0].which_value_type =
+          google_firestore_v1_Value_integer_value_tag;
+      result.args[0].integer_value = count_;
+      break;
+    case SampleMode::Mode::PERCENT:
+      result.args[0].which_value_type =
+          google_firestore_v1_Value_double_value_tag;
+      result.args[0].double_value = percentage_;
+      break;
   }
+
+  result.args[1] = mode_.to_proto();
 
   result.options_count = 0;
   result.options = nullptr;
@@ -364,27 +401,28 @@ google_firestore_v1_Pipeline_Stage Union::to_proto() const {
 }
 
 Unnest::Unnest(std::shared_ptr<Expr> field,
-               absl::optional<std::string> index_field)
-    : field_(std::move(field)), index_field_(std::move(index_field)) {
+               std::shared_ptr<Expr> alias,
+               absl::optional<std::shared_ptr<Expr>> index_field)
+    : field_(std::move(field)),
+      alias_(alias),
+      index_field_(std::move(index_field)) {
 }
 
 google_firestore_v1_Pipeline_Stage Unnest::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray("unnest");
 
-  result.args_count = 1;
-  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  result.args_count = 2;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
   result.args[0] = field_->to_proto();
+  result.args[1] = alias_->to_proto();
 
   if (index_field_.has_value()) {
     result.options_count = 1;
     result.options =
         nanopb::MakeArray<google_firestore_v1_Pipeline_Stage_OptionsEntry>(1);
     result.options[0].key = nanopb::MakeBytesArray("index_field");
-    result.options[0].value.which_value_type =
-        google_firestore_v1_Value_string_value_tag;
-    result.options[0].value.string_value =
-        nanopb::MakeBytesArray(index_field_.value());
+    result.options[0].value = index_field_.value()->to_proto();
   } else {
     result.options_count = 0;
     result.options = nullptr;
@@ -395,7 +433,7 @@ google_firestore_v1_Pipeline_Stage Unnest::to_proto() const {
 
 RawStage::RawStage(
     std::string name,
-    std::vector<std::shared_ptr<Expr>> params,
+    std::vector<google_firestore_v1_Value> params,
     std::unordered_map<std::string, std::shared_ptr<Expr>> options)
     : name_(std::move(name)),
       params_(std::move(params)),
@@ -410,7 +448,7 @@ google_firestore_v1_Pipeline_Stage RawStage::to_proto() const {
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
 
   for (size_t i = 0; i < result.args_count; i++) {
-    result.args[i] = params_[i]->to_proto();
+    result.args[i] = params_[i];
   }
 
   nanopb::SetRepeatedField(
