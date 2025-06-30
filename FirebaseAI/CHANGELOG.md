@@ -8,7 +8,7 @@
   `totalTokens` instead. Gemini 2.0 series models and newer are always billed by
   token count. (#14934)
 - [removed] Removed `CountTokensResponse.totalBillableCharacters` which was
-  deprecated in 11.15.0. Use `totalTokens` instead. (#XXXX)
+  deprecated in 11.15.0. Use `totalTokens` instead. (#15056)
 
 # 11.13.0
 - [feature] Initial release of the Firebase AI Logic SDK (`FirebaseAI`). This

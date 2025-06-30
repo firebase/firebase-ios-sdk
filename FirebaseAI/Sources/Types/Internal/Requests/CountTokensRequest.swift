@@ -92,7 +92,6 @@ extension CountTokensRequest: Encodable {
 extension CountTokensResponse: Decodable {
   enum CodingKeys: CodingKey {
     case totalTokens
-    // totalBillableCharacters is intentionally omitted.
     case promptTokensDetails
   }
 
@@ -101,6 +100,5 @@ extension CountTokensResponse: Decodable {
     totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens) ?? 0
     promptTokensDetails =
       try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
-    // totalBillableCharacters is intentionally omitted.
   }
 }
