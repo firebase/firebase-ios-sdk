@@ -39,31 +39,11 @@ extension CountTokensRequest: GenerativeAIRequest {
 /// The model's response to a count tokens request.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CountTokensResponse: Sendable {
-  /// Container for deprecated properties or methods.
-  ///
-  /// This workaround allows deprecated fields to be referenced internally (for example in the
-  /// `init(from:)` constructor) without introducing compiler warnings.
-  struct Deprecated {
-    let totalBillableCharacters: Int?
-  }
-
   /// The total number of tokens in the input given to the model as a prompt.
   public let totalTokens: Int
 
-  /// The total number of billable characters in the text input given to the model as a prompt.
-  ///
-  /// > Important: This does not include billable image, video or other non-text input. See
-  /// [Vertex AI pricing](https://firebase.google.com/docs/vertex-ai/pricing) for details.
-  @available(*, deprecated, message: """
-  Use `totalTokens` instead; Gemini 2.0 series models and newer are always billed by token count.
-  """)
-  public var totalBillableCharacters: Int? { deprecated.totalBillableCharacters }
-
   /// The breakdown, by modality, of how many tokens are consumed by the prompt.
   public let promptTokensDetails: [ModalityTokenCount]
-
-  /// Deprecated properties or methods.
-  let deprecated: Deprecated
 }
 
 // MARK: - Codable Conformances
@@ -112,7 +92,7 @@ extension CountTokensRequest: Encodable {
 extension CountTokensResponse: Decodable {
   enum CodingKeys: CodingKey {
     case totalTokens
-    case totalBillableCharacters
+    // totalBillableCharacters is intentionally omitted.
     case promptTokensDetails
   }
 
@@ -121,8 +101,6 @@ extension CountTokensResponse: Decodable {
     totalTokens = try container.decodeIfPresent(Int.self, forKey: .totalTokens) ?? 0
     promptTokensDetails =
       try container.decodeIfPresent([ModalityTokenCount].self, forKey: .promptTokensDetails) ?? []
-    let totalBillableCharacters =
-      try container.decodeIfPresent(Int.self, forKey: .totalBillableCharacters)
-    deprecated = CountTokensResponse.Deprecated(totalBillableCharacters: totalBillableCharacters)
+    // totalBillableCharacters is intentionally omitted.
   }
 }
