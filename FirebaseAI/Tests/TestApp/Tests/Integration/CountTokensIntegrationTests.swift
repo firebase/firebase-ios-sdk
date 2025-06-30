@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import Testing
-import VertexAITestApp
 
 @testable import struct FirebaseAI.APIConfig
 
@@ -59,9 +59,9 @@ struct CountTokensIntegrationTests {
     #expect(response.totalTokens == 6)
     switch config.apiConfig.service {
     case .vertexAI:
-      #expect(response.totalBillableCharacters == 16)
+      #expect(response.deprecated.totalBillableCharacters == 16)
     case .googleAI:
-      #expect(response.totalBillableCharacters == nil)
+      #expect(response.deprecated.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)
@@ -69,16 +69,13 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(
-    /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
-  )
+  @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
-      systemInstruction: systemInstruction // Not supported on the v1 Developer API
+      systemInstruction: systemInstruction
     )
 
     let response = try await model.countTokens("What is your favourite colour?")
@@ -86,9 +83,9 @@ struct CountTokensIntegrationTests {
     #expect(response.totalTokens == 14)
     switch config.apiConfig.service {
     case .vertexAI:
-      #expect(response.totalBillableCharacters == 61)
+      #expect(response.deprecated.totalBillableCharacters == 61)
     case .googleAI:
-      #expect(response.totalBillableCharacters == nil)
+      #expect(response.deprecated.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)
@@ -96,32 +93,7 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(arguments: [
-    /* System instructions are not supported on the v1 Developer API. */
-    InstanceConfig.googleAI_v1_freeTier_bypassProxy,
-  ])
-  func countTokens_text_systemInstruction_unsupported(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
-      systemInstruction: systemInstruction // Not supported on the v1 Developer API
-    )
-
-    try await #require(
-      throws: BackendError.self,
-      """
-      If this test fails (i.e., `countTokens` succeeds), remove \(config) from this test and add it
-      to `countTokens_text_systemInstruction`.
-      """,
-      performing: {
-        try await model.countTokens("What is your favourite colour?")
-      }
-    )
-  }
-
-  @Test(
-    /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
-  )
+  @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
@@ -143,12 +115,12 @@ struct CountTokensIntegrationTests {
     switch config.apiConfig.service {
     case .vertexAI:
       #expect(response.totalTokens == 65)
-      #expect(response.totalBillableCharacters == 170)
+      #expect(response.deprecated.totalBillableCharacters == 170)
     case .googleAI:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting
       // in a lower total count than Vertex AI.
       #expect(response.totalTokens == 34)
-      #expect(response.totalBillableCharacters == nil)
+      #expect(response.deprecated.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)

@@ -59,6 +59,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 /// Invalidation message field names.
 static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber";
 static NSString *const kIsFeatureDisabled = @"featureDisabled";
+static NSString *const kRealtime_Retry_Interval = @"retryIntervalSeconds";
 
 static NSTimeInterval gTimeoutSeconds = 330;
 static NSInteger const gFetchAttempts = 3;
@@ -521,12 +522,16 @@ static NSInteger const gMaxRetries = 7;
 
 - (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError {
   NSInteger updateTemplateVersion = 1;
+  NSTimeInterval realtimeRetryInterval = 0;
   if (dataError == nil) {
     if ([response objectForKey:kTemplateVersionNumberKey]) {
       updateTemplateVersion = [[response objectForKey:kTemplateVersionNumberKey] integerValue];
     }
     if ([response objectForKey:kIsFeatureDisabled]) {
       self->_isRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
+    }
+    if ([response objectForKey:kRealtime_Retry_Interval]) {
+      realtimeRetryInterval = [[response objectForKey:kRealtime_Retry_Interval] integerValue];
     }
 
     if (self->_isRealtimeDisabled) {
@@ -543,6 +548,14 @@ static NSInteger const gMaxRetries = 7;
       NSInteger clientTemplateVersion = [_configFetch.templateVersionNumber integerValue];
       if (updateTemplateVersion > clientTemplateVersion) {
         [self autoFetch:gFetchAttempts targetVersion:updateTemplateVersion];
+      }
+
+      /// This field in the response indicates that the realtime request should retry after the
+      /// specified interval to establish a long-lived connection. This interval extends the backoff
+      /// duration without affecting the number of retries, so it will not enter an exponential
+      /// backoff state.
+      if (realtimeRetryInterval > 0) {
+        [self->_settings updateRealtimeBackoffTimeWithInterval:realtimeRetryInterval];
       }
     }
   } else {

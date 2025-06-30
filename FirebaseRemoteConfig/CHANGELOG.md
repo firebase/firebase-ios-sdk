@@ -1,3 +1,12 @@
+# Unreleased
+- [added] Improved how the SDK handles real-time requests when a Firebase
+  project has exceeded its available quota for real-time services.
+  Released in anticipation of future quota enforcement, this change is
+  designed to fetch the latest template even when the quota is exhausted.
+
+# 11.14.0
+- [fixed] Fix build warning from comparison of different enumeration types.
+
 # 11.13.0
 - [fixed] Fix an issue where network requests would fail in the iOS 18.4
   simulator due to a URLSession bug introduced in Xcode 16.3. (#14728)

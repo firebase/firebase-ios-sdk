@@ -25,7 +25,7 @@ let findHeaders = ["FirebaseMessaging"]
 // Update with directories in which to change imports.
 let changeImports = ["GoogleUtilities", "FirebaseAuth", "FirebaseCore", "Firebase",
                      "FirebaseDatabase", "GoogleDataTransport",
-                     "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebaseMessaging",
+                     "FirebaseInAppMessaging", "FirebaseMessaging",
                      "FirebaseRemoteConfig", "FirebaseInstallations", "FirebaseFunctions",
                      "FirebaseABTesting",
                      "FirebaseAppDistribution", "Example", "Crashlytics", "FirebaseStorage"]

@@ -20,11 +20,9 @@
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";
-NSString *const kFIRTrackingID = @"TRACKING_ID";
 NSString *const kFIRGoogleAppID = @"GOOGLE_APP_ID";
 NSString *const kFIRClientID = @"CLIENT_ID";
 NSString *const kFIRGCMSenderID = @"GCM_SENDER_ID";
-NSString *const kFIRAndroidClientID = @"ANDROID_CLIENT_ID";
 NSString *const kFIRDatabaseURL = @"DATABASE_URL";
 NSString *const kFIRStorageBucket = @"STORAGE_BUCKET";
 // The key to locate the expected bundle identifier in the plist file.
@@ -160,7 +158,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   FIROptions *newOptions = [(FIROptions *)[[self class] allocWithZone:zone]
       initInternalWithOptionsDictionary:self.optionsDictionary];
   if (newOptions) {
-    newOptions.deepLinkURLScheme = self.deepLinkURLScheme;
     newOptions.appGroupID = self.appGroupID;
     newOptions.editingLocked = self.isEditingLocked;
     newOptions.usingOptionsFromDefaultPlist = self.usingOptionsFromDefaultPlist;
@@ -233,15 +230,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   _optionsDictionary[kFIRClientID] = [clientID copy];
 }
 
-- (NSString *)trackingID {
-  return self.optionsDictionary[kFIRTrackingID];
-}
-
-- (void)setTrackingID:(NSString *)trackingID {
-  [self checkEditingLocked];
-  _optionsDictionary[kFIRTrackingID] = [trackingID copy];
-}
-
 - (NSString *)GCMSenderID {
   return self.optionsDictionary[kFIRGCMSenderID];
 }
@@ -258,15 +246,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 - (void)setProjectID:(NSString *)projectID {
   [self checkEditingLocked];
   _optionsDictionary[kFIRProjectID] = [projectID copy];
-}
-
-- (NSString *)androidClientID {
-  return self.optionsDictionary[kFIRAndroidClientID];
-}
-
-- (void)setAndroidClientID:(NSString *)androidClientID {
-  [self checkEditingLocked];
-  _optionsDictionary[kFIRAndroidClientID] = [androidClientID copy];
 }
 
 - (NSString *)googleAppID {
@@ -315,11 +294,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   _optionsDictionary[kFIRStorageBucket] = [storageBucket copy];
 }
 
-- (void)setDeepLinkURLScheme:(NSString *)deepLinkURLScheme {
-  [self checkEditingLocked];
-  _deepLinkURLScheme = [deepLinkURLScheme copy];
-}
-
 - (NSString *)bundleID {
   return self.optionsDictionary[kFIRBundleID];
 }
@@ -357,11 +331,6 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
   // Validate extra properties not contained in the dictionary. Only validate it if one of the
   // objects has the property set.
-  if ((options.deepLinkURLScheme != nil || self.deepLinkURLScheme != nil) &&
-      ![options.deepLinkURLScheme isEqualToString:self.deepLinkURLScheme]) {
-    return NO;
-  }
-
   if ((options.appGroupID != nil || self.appGroupID != nil) &&
       ![options.appGroupID isEqualToString:self.appGroupID]) {
     return NO;
@@ -384,7 +353,7 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
   // Note: `self.analyticsOptionsDictionary` was left out here since it solely relies on the
   // contents of the main bundle's `Info.plist`. We should avoid reading that file and the contents
   // should be identical.
-  return self.optionsDictionary.hash ^ self.deepLinkURLScheme.hash ^ self.appGroupID.hash;
+  return self.optionsDictionary.hash ^ self.appGroupID.hash;
 }
 
 #pragma mark - Internal instance methods

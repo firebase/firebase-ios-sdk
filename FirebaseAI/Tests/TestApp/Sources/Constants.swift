@@ -23,5 +23,8 @@ public enum FirebaseAppNames {
 public enum ModelNames {
   public static let gemini2Flash = "gemini-2.0-flash-001"
   public static let gemini2FlashLite = "gemini-2.0-flash-lite-001"
-  public static let gemini2FlashExperimental = "gemini-2.0-flash-exp"
+  public static let gemini2FlashPreviewImageGeneration = "gemini-2.0-flash-preview-image-generation"
+  public static let gemini2_5_Flash = "gemini-2.5-flash"
+  public static let gemini2_5_Pro = "gemini-2.5-pro"
+  public static let gemma3_4B = "gemma-3-4b-it"
 }

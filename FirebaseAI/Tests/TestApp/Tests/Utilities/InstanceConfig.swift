@@ -13,20 +13,18 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseCore
 import Testing
-import VertexAITestApp
 
 @testable import struct FirebaseAI.APIConfig
 
 struct InstanceConfig: Equatable, Encodable {
-  static let vertexAI_v1 = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1)
-  )
-  static let vertexAI_v1_staging = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyStaging), version: .v1)
-  )
   static let vertexAI_v1beta = InstanceConfig(
+    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
+  )
+  static let vertexAI_v1beta_global = InstanceConfig(
+    location: "global",
     apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
   )
   static let vertexAI_v1beta_staging = InstanceConfig(
@@ -38,9 +36,9 @@ struct InstanceConfig: Equatable, Encodable {
   static let googleAI_v1beta_staging = InstanceConfig(
     apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyStaging), version: .v1beta)
   )
-  static let googleAI_v1_freeTier_bypassProxy = InstanceConfig(
+  static let googleAI_v1beta_freeTier = InstanceConfig(
     appName: FirebaseAppNames.spark,
-    apiConfig: APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1)
+    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
   )
   static let googleAI_v1beta_freeTier_bypassProxy = InstanceConfig(
     appName: FirebaseAppNames.spark,
@@ -48,23 +46,14 @@ struct InstanceConfig: Equatable, Encodable {
   )
 
   static let allConfigs = [
-    vertexAI_v1,
-    vertexAI_v1_staging,
     vertexAI_v1beta,
+    vertexAI_v1beta_global,
     vertexAI_v1beta_staging,
     googleAI_v1beta,
     googleAI_v1beta_staging,
-    googleAI_v1_freeTier_bypassProxy,
     googleAI_v1beta_freeTier_bypassProxy,
   ]
-  static let allConfigsExceptGoogleAI_v1 = allConfigs.filter {
-    $0 != googleAI_v1_freeTier_bypassProxy
-  }
 
-  static let vertexAI_v1_appCheckNotConfigured = InstanceConfig(
-    appName: FirebaseAppNames.appCheckNotConfigured,
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1)
-  )
   static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
@@ -75,7 +64,6 @@ struct InstanceConfig: Equatable, Encodable {
   )
 
   static let appCheckNotConfiguredConfigs = [
-    vertexAI_v1_appCheckNotConfigured,
     vertexAI_v1beta_appCheckNotConfigured,
     googleAI_v1beta_appCheckNotConfigured,
   ]

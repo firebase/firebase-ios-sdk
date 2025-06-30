@@ -1,3 +1,20 @@
+# Unreleased
+- [removed] **Breaking Change**: Removed the following Dynamic Links related
+  APIs:
+  - `ActionCodeSettings.dynamicLinkDomain`
+  - `AuthErrorCode.dynamicLinkNotActivated`
+  - `AuthErrorCode.invalidDynamicLinkDomain`
+- [removed] **Breaking Change**: Remove deprecated Swift APIs using
+  `String`-typed `productID`s that were  in favor of API that leverages the
+  `AuthProviderID` enum. Note, this only affects Swift clients.
+
+# 11.15.0
+- [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14996)
+
+# 11.14.0
+- [fixed] Synchronize internal `AuthKeychainServices` class to prevent
+  crashes from concurrent access. (#14835)
+
 # 11.12.0
 - [fixed] Fix a `fatalError` unenrolling from MFA. An invalid user token now throws an
   `invalidUserToken` error instead of crashing. (#14663)

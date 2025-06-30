@@ -1,3 +1,6 @@
+# 11.14.0
+- [fixed] Fix a potential SQL injection issue. (#14846).
+
 # 11.9.0
 - [fixed] Migrate FCM codebase to new NSKeyedUnarchiver APIs. (#14424).
 

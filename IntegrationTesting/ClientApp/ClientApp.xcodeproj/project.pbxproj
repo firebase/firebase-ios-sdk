@@ -29,7 +29,6 @@
 		EA7DF58D29EF3326005664A7 /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = EA7DF58C29EF3326005664A7 /* FirebaseAppDistribution-Beta */; };
 		EA7DF59329EF3326005664A7 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59229EF3326005664A7 /* FirebaseCrashlytics */; };
 		EA7DF59529EF3326005664A7 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59429EF3326005664A7 /* FirebaseDatabase */; };
-		EA7DF59929EF3326005664A7 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */; };
 		EA7DF59B29EF3326005664A7 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59A29EF3326005664A7 /* FirebaseFirestore */; };
 		EA7DF59D29EF3326005664A7 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */; };
 		EA7DF5A129EF3327005664A7 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5A029EF3327005664A7 /* FirebaseFunctions */; };
@@ -81,7 +80,6 @@
 				EA7DF5A129EF3327005664A7 /* FirebaseFunctions in Frameworks */,
 				EA7DF58D29EF3326005664A7 /* FirebaseAppDistribution-Beta in Frameworks */,
 				EA7DF5AF29EF3328005664A7 /* FirebasePerformance in Frameworks */,
-				EA7DF59929EF3326005664A7 /* FirebaseDynamicLinks in Frameworks */,
 				EA7DF59D29EF3326005664A7 /* FirebaseFirestoreCombine-Community in Frameworks */,
 				EA7DF5A929EF3327005664A7 /* FirebaseInstallations in Frameworks */,
 			);
@@ -203,7 +201,6 @@
 				EA7DF58C29EF3326005664A7 /* FirebaseAppDistribution-Beta */,
 				EA7DF59229EF3326005664A7 /* FirebaseCrashlytics */,
 				EA7DF59429EF3326005664A7 /* FirebaseDatabase */,
-				EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */,
 				EA7DF59A29EF3326005664A7 /* FirebaseFirestore */,
 				EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */,
 				EA7DF5A029EF3327005664A7 /* FirebaseFunctions */,
@@ -460,10 +457,10 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ClientApp;
@@ -476,7 +473,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
-				TVOS_DEPLOYMENT_TARGET = 13.0;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Debug;
 		};
@@ -503,10 +500,10 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ClientApp;
@@ -518,7 +515,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3";
-				TVOS_DEPLOYMENT_TARGET = 13.0;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Release;
 		};
@@ -543,7 +540,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -555,7 +552,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TVOS_DEPLOYMENT_TARGET = 13.0;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Debug;
 		};
@@ -580,7 +577,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
@@ -592,7 +589,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TVOS_DEPLOYMENT_TARGET = 13.0;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Release;
 		};
@@ -660,10 +657,6 @@
 		EA7DF59429EF3326005664A7 /* FirebaseDatabase */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseDatabase;
-		};
-		EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseDynamicLinks;
 		};
 		EA7DF59A29EF3326005664A7 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;

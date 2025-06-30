@@ -17,7 +17,7 @@ import Foundation
 
 internal import GoogleDataTransport
 
-protocol EventGDTLoggerProtocol {
+protocol EventGDTLoggerProtocol: Sendable {
   func logEvent(event: SessionStartEvent, completion: @escaping (Result<Void, Error>) -> Void)
 }
 
@@ -26,7 +26,7 @@ protocol EventGDTLoggerProtocol {
 ///   1) Creating GDT Events and logging them to the GoogleDataTransport SDK
 ///   2) Handling debugging situations (eg. running in Simulator or printing the event to console)
 ///
-class EventGDTLogger: EventGDTLoggerProtocol {
+final class EventGDTLogger: EventGDTLoggerProtocol {
   let googleDataTransport: GoogleDataTransportProtocol
   let devEventConsoleLogger: EventGDTLoggerProtocol
 

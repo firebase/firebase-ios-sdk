@@ -16,16 +16,16 @@
 import Foundation
 
 /// A fake object to replace a real `AuthAPNSTokenManager` in tests.
-public class PhoneAuthProviderFake: PhoneAuthProvider {
+public class PhoneAuthProviderFake: PhoneAuthProvider, @unchecked Sendable {
   override init(auth: Auth) {
     super.init(auth: auth)
   }
 
-  var verifyPhoneNumberHandler: (((String?, Error?) -> Void) -> Void)?
+  var verifyPhoneNumberHandler: ((@MainActor (String?, Error?) -> Void) -> Void)?
 
   override public func verifyPhoneNumber(_ phoneNumber: String,
                                          uiDelegate: AuthUIDelegate? = nil,
-                                         completion: ((_: String?, _: Error?) -> Void)?) {
+                                         completion: (@MainActor (String?, Error?) -> Void)?) {
     if let verifyPhoneNumberHandler,
        let completion {
       verifyPhoneNumberHandler(completion)

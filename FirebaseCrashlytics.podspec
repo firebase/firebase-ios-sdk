@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '11.13.0'
+  s.version          = '12.0.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -11,9 +11,9 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  ios_deployment_target = '12.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  tvos_deployment_target = '13.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.swift_version = '5.9'
@@ -59,12 +59,12 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/CrashlyticsInputFiles.xcfilelist ./CrashlyticsInputFiles.xcfilelist
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 11.13.0'
-  s.dependency 'FirebaseInstallations', '~> 11.0'
-  s.dependency 'FirebaseSessions', '~> 11.0'
-  s.dependency 'FirebaseRemoteConfigInterop', '~> 11.0'
+  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseInstallations', '~> 12.0'
+  s.dependency 'FirebaseSessions', '~> 12.0'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 12.0'
   s.dependency 'PromisesObjC', '~> 2.4'
-  s.dependency 'GoogleDataTransport', '~> 10.0'
+  s.dependency 'GoogleDataTransport', '~> 10.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'nanopb', '~> 3.30910.0'
 
@@ -75,7 +75,6 @@ Pod::Spec.new do |s|
   s.watchos.frameworks = 'Security'
 
   s.ios.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics iOS SDK" ' +
       # For nanopb:
@@ -84,7 +83,6 @@ Pod::Spec.new do |s|
   }
 
   s.osx.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics Mac SDK" ' +
       # For nanopb:
@@ -93,7 +91,6 @@ Pod::Spec.new do |s|
   }
 
   s.tvos.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics tvOS SDK" ' +
       # For nanopb:
@@ -102,7 +99,6 @@ Pod::Spec.new do |s|
   }
 
   s.watchos.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'CLS_SDK_NAME="Crashlytics watchOS SDK" ' +
       # For nanopb:

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurement'
-    s.version          = '11.13.0'
+    s.version          = '12.0.0'
     s.summary          = 'Shared measurement methods for Google libraries. Not intended for direct use.'
 
     s.description      = <<-DESC
@@ -16,14 +16,14 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/8fcabc8a7a8f1142/GoogleAppMeasurement-11.12.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/922d99823e10f4a0/GoogleAppMeasurement-11.15.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
 
-    s.ios.deployment_target  = '12.0'
+    s.ios.deployment_target = '15.0'
     s.osx.deployment_target  = '10.15'
-    s.tvos.deployment_target = '13.0'
+    s.tvos.deployment_target = '15.0'
 
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
@@ -34,15 +34,30 @@ Pod::Spec.new do |s|
     s.dependency 'GoogleUtilities/Network', '~> 8.1'
     s.dependency 'nanopb', '~> 3.30910.0'
 
-    s.default_subspecs = 'AdIdSupport'
+    s.default_subspecs = 'Default'
 
-    s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '11.13.0'
-        ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
+    s.subspec 'Default' do |ss|
+        ss.dependency 'GoogleAppMeasurement/Core', '12.0.0'
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.0.0'
+        ss.ios.dependency 'GoogleAdsOnDeviceConversion', '2.1.0'
     end
 
-    s.subspec 'WithoutAdIdSupport' do |ss|
+    s.subspec 'Core' do |ss|
         ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurement.xcframework'
     end
 
+    s.subspec 'IdentitySupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement/Core', '12.0.0'
+        ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
+    end
+
+    # Deprecated. Use IdentitySupport subspec instead.
+    s.subspec 'AdIdSupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.0.0'
+    end
+
+    # Deprecated. Use Core subspec instead.
+    s.subspec 'WithoutAdIdSupport' do |ss|
+        ss.dependency 'GoogleAppMeasurement/Core', '12.0.0'
+    end
 end

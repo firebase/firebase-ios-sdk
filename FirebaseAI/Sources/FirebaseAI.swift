@@ -72,7 +72,8 @@ public final class FirebaseAI: Sendable {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix) {
+    if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix)
+      && !modelName.starts(with: GenerativeModel.gemmaModelNamePrefix) {
       AILog.warning(code: .unsupportedGeminiModel, """
       Unsupported Gemini model "\(modelName)"; see \
       https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.

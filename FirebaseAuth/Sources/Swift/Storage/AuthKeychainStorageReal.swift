@@ -15,9 +15,12 @@
 import Foundation
 
 /// The utility class to update the real keychain
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthKeychainStorageReal: AuthKeychainStorage {
+final class AuthKeychainStorageReal: AuthKeychainStorage {
+  static let shared: AuthKeychainStorageReal = .init()
+
+  private init() {}
+
   func get(query: [String: Any], result: inout AnyObject?) -> OSStatus {
     return SecItemCopyMatching(query as CFDictionary, &result)
   }

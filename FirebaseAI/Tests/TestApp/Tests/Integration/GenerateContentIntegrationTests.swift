@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import FirebaseAI
+import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import Testing
-import VertexAITestApp
 
 #if canImport(UIKit)
   import UIKit
@@ -47,12 +47,22 @@ struct GenerateContentIntegrationTests {
     storage = Storage.storage()
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateContent(_ config: InstanceConfig) async throws {
+  @Test(arguments: [
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+  ])
+  func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2FlashLite,
+      modelName: modelName,
       generationConfig: generationConfig,
-      safetySettings: safetySettings
+      safetySettings: safetySettings,
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
@@ -62,34 +72,43 @@ struct GenerateContentIntegrationTests {
     #expect(text == "Mountain View")
 
     let usageMetadata = try #require(response.usageMetadata)
-    #expect(usageMetadata.promptTokenCount == 13)
-    #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
-    #expect(usageMetadata.totalTokenCount.isEqual(to: 16, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
     #expect(usageMetadata.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
-    #expect(usageMetadata.candidatesTokensDetails.count == 1)
-    let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
-    #expect(candidatesTokensDetails.modality == .text)
-    #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+    #expect(usageMetadata.thoughtsTokenCount == 0)
+    // The fields `candidatesTokenCount` and `candidatesTokensDetails` are not included when using
+    // Gemma models.
+    if modelName.hasPrefix("gemma") {
+      #expect(usageMetadata.candidatesTokenCount == 0)
+      #expect(usageMetadata.candidatesTokensDetails.isEmpty)
+    } else {
+      #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
+      #expect(usageMetadata.candidatesTokensDetails.count == 1)
+      let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+      #expect(candidatesTokensDetails.modality == .text)
+      #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+    }
+    #expect(usageMetadata.totalTokenCount > 0)
+    #expect(usageMetadata.totalTokenCount ==
+      (usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount))
   }
 
   @Test(
     "Generate an enum and provide a system instruction",
-    /* System instructions are not supported on the v1 Developer API. */
-    arguments: InstanceConfig.allConfigsExceptGoogleAI_v1
+    arguments: InstanceConfig.allConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
-        responseMIMEType: "text/x.enum", // Not supported on the v1 Developer API
+        responseMIMEType: "text/x.enum",
         responseSchema: .enumeration(values: ["Red", "Green", "Blue"])
       ),
       safetySettings: safetySettings,
-      tools: [], // Not supported on the v1 Developer API
-      toolConfig: .init(functionCallingConfig: .none()), // Not supported on the v1 Developer API
+      tools: [],
+      toolConfig: .init(functionCallingConfig: .none()),
       systemInstruction: ModelContent(role: "system", parts: "Always pick blue.")
     )
     let prompt = "What is your favourite colour?"
@@ -102,6 +121,7 @@ struct GenerateContentIntegrationTests {
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
     #expect(usageMetadata.candidatesTokenCount.isEqual(to: 1, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.thoughtsTokenCount == 0)
     #expect(usageMetadata.totalTokenCount
       == usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount)
     #expect(usageMetadata.promptTokensDetails.count == 1)
@@ -115,8 +135,69 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    InstanceConfig.vertexAI_v1,
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash, 0),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash, 24576),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, 128),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, 32768),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash, 0),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash, 24576),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Pro, 128),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Pro, 32768),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, 0),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, 24576),
+  ])
+  func generateContentThinking(_ config: InstanceConfig, modelName: String,
+                               thinkingBudget: Int) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: GenerationConfig(
+        temperature: 0.0,
+        topP: 0.0,
+        topK: 1,
+        thinkingConfig: ThinkingConfig(thinkingBudget: thinkingBudget)
+      ),
+      safetySettings: safetySettings
+    )
+    let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(text == "Mountain View")
+
+    let usageMetadata = try #require(response.usageMetadata)
+    #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.promptTokensDetails.count == 1)
+    let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
+    #expect(promptTokensDetails.modality == .text)
+    #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
+    if thinkingBudget == 0 {
+      #expect(usageMetadata.thoughtsTokenCount == 0)
+    } else {
+      #expect(usageMetadata.thoughtsTokenCount <= thinkingBudget)
+    }
+    #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
+    // The `candidatesTokensDetails` field is erroneously omitted when using the Google AI (Gemini
+    // Developer API) backend.
+    if case .googleAI = config.apiConfig.service {
+      #expect(usageMetadata.candidatesTokensDetails.isEmpty)
+    } else {
+      #expect(usageMetadata.candidatesTokensDetails.count == 1)
+      let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+      #expect(candidatesTokensDetails.modality == .text)
+      #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+    }
+    #expect(usageMetadata.totalTokenCount > 0)
+    #expect(usageMetadata.totalTokenCount == (
+      usageMetadata.promptTokenCount
+        + usageMetadata.thoughtsTokenCount
+        + usageMetadata.candidatesTokenCount
+    ))
+  }
+
+  @Test(arguments: [
     InstanceConfig.vertexAI_v1beta,
+    InstanceConfig.vertexAI_v1beta_global,
     InstanceConfig.googleAI_v1beta,
     InstanceConfig.googleAI_v1beta_staging,
     InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
@@ -129,7 +210,7 @@ struct GenerateContentIntegrationTests {
       responseModalities: [.text, .image]
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2FlashExperimental,
+      modelName: ModelNames.gemini2FlashPreviewImageGeneration,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
@@ -168,24 +249,33 @@ struct GenerateContentIntegrationTests {
 
   // MARK: Streaming Tests
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateContentStream(_ config: InstanceConfig) async throws {
-    let expectedText = """
-    1. Mercury
-    2. Venus
-    3. Earth
-    4. Mars
-    5. Jupiter
-    6. Saturn
-    7. Uranus
-    8. Neptune
-    """
+  @Test(arguments: [
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+  ])
+  func generateContentStream(_ config: InstanceConfig, modelName: String) async throws {
+    let expectedResponse = [
+      "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune",
+    ]
     let prompt = """
-    What are the names of the planets in the solar system, ordered from closest to furthest from
-    the sun? Answer with a Markdown numbered list of the names and no other text.
+    Generate a JSON array of strings. The array must contain the names of the planets in Earth's \
+    solar system, ordered from closest to furthest from the Sun.
+
+    Constraints:
+    - Output MUST be only the JSON array.
+    - Do NOT include any introductory or explanatory text.
+    - Do NOT wrap the JSON in Markdown code blocks (e.g., ```json ... ``` or ``` ... ```).
+    - The response must start with '[' and end with ']'.
     """
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2FlashLite,
+      modelName: modelName,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
@@ -194,7 +284,13 @@ struct GenerateContentIntegrationTests {
     let stream = try chat.sendMessageStream(prompt)
     var textValues = [String]()
     for try await value in stream {
-      try textValues.append(#require(value.text))
+      if let text = value.text {
+        textValues.append(text)
+      } else if let finishReason = value.candidates.first?.finishReason {
+        #expect(finishReason == .stop)
+      } else {
+        Issue.record("Expected a candidate with a `TextPart` or a `finishReason`; got \(value).")
+      }
     }
 
     let userHistory = try #require(chat.history.first)
@@ -206,11 +302,9 @@ struct GenerateContentIntegrationTests {
     #expect(modelHistory.role == "model")
     #expect(modelHistory.parts.count == 1)
     let modelTextPart = try #require(modelHistory.parts.first as? TextPart)
-    let modelText = modelTextPart.text.trimmingCharacters(in: .whitespacesAndNewlines)
-    #expect(modelText == expectedText)
-    #expect(textValues.count > 1)
-    let text = textValues.joined().trimmingCharacters(in: .whitespacesAndNewlines)
-    #expect(text == expectedText)
+    let modelJSONData = try #require(modelTextPart.text.data(using: .utf8))
+    let response = try JSONDecoder().decode([String].self, from: modelJSONData)
+    #expect(response == expectedResponse)
   }
 
   // MARK: - App Check Tests

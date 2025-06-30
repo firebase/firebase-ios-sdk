@@ -21,8 +21,9 @@ import Foundation
   internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
-protocol SettingsDownloadClient {
-  func fetch(completion: @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void)
+protocol SettingsDownloadClient: Sendable {
+  func fetch(completion: @Sendable @escaping (Result<[String: Any], SettingsDownloaderError>)
+    -> Void)
 }
 
 enum SettingsDownloaderError: Error {
@@ -36,7 +37,7 @@ enum SettingsDownloaderError: Error {
   case InstallationIDError(String)
 }
 
-class SettingsDownloader: SettingsDownloadClient {
+final class SettingsDownloader: SettingsDownloadClient {
   private let appInfo: ApplicationInfoProtocol
   private let installations: InstallationsProtocol
 
@@ -45,7 +46,8 @@ class SettingsDownloader: SettingsDownloadClient {
     self.installations = installations
   }
 
-  func fetch(completion: @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void) {
+  func fetch(completion: @Sendable @escaping (Result<[String: Any], SettingsDownloaderError>)
+    -> Void) {
     guard let validURL = url else {
       completion(.failure(.URLError("Invalid URL")))
       return

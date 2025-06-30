@@ -923,7 +923,7 @@
       }
     }
 
-    class FakeTokenManager: AuthAPNSTokenManager {
+    class FakeTokenManager: AuthAPNSTokenManager, @unchecked Sendable {
       override func getTokenInternal(callback: @escaping (Result<AuthAPNSToken, Error>) -> Void) {
         let error = NSError(domain: "dummy domain", code: AuthErrorCode.missingAppToken.rawValue)
         callback(.failure(error))

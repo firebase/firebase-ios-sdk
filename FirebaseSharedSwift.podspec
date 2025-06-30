@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseSharedSwift'
-  s.version                 = '11.13.0'
+  s.version                 = '12.0.0'
   s.summary                 = 'Shared Swift Extensions for Firebase'
 
   s.description      = <<-DESC
@@ -20,9 +20,9 @@ Firebase products. FirebaseSharedSwift is not supported for non-Firebase usage.
 
   s.swift_version           = '5.9'
 
-  ios_deployment_target = '13.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  tvos_deployment_target = '13.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target

@@ -918,6 +918,9 @@ final class GenerativeModelVertexAITests: XCTestCase {
   func testGenerateContent_failure_malformedContent() async throws {
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+        // Note: Although this file does not contain `parts` in `content`, it is not actually
+        // malformed. The `invalid-field` in the payload could be added, as a non-breaking change to
+        // the proto API. Therefore, this test checks for the `emptyContent` error instead.
         forResource: "unary-failure-malformed-content",
         withExtension: "json",
         subdirectory: vertexSubdirectory
@@ -939,13 +942,13 @@ final class GenerativeModelVertexAITests: XCTestCase {
       return
     }
     let invalidCandidateError = try XCTUnwrap(underlyingError as? InvalidCandidateError)
-    guard case let .malformedContent(malformedContentUnderlyingError) = invalidCandidateError else {
-      XCTFail("Not a malformed content error: \(invalidCandidateError)")
+    guard case let .emptyContent(emptyContentUnderlyingError) = invalidCandidateError else {
+      XCTFail("Not an empty content error: \(invalidCandidateError)")
       return
     }
     _ = try XCTUnwrap(
-      malformedContentUnderlyingError as? DecodingError,
-      "Not a decoding error: \(malformedContentUnderlyingError)"
+      emptyContentUnderlyingError as? DecodingError,
+      "Not a decoding error: \(emptyContentUnderlyingError)"
     )
   }
 
@@ -1446,6 +1449,9 @@ final class GenerativeModelVertexAITests: XCTestCase {
   func testGenerateContentStream_malformedContent() async throws {
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+        // Note: Although this file does not contain `parts` in `content`, it is not actually
+        // malformed. The `invalid-field` in the payload could be added, as a non-breaking change to
+        // the proto API. Therefore, this test checks for the `emptyContent` error instead.
         forResource: "streaming-failure-malformed-content",
         withExtension: "txt",
         subdirectory: vertexSubdirectory
@@ -1457,8 +1463,8 @@ final class GenerativeModelVertexAITests: XCTestCase {
         XCTFail("Unexpected content in stream: \(content)")
       }
     } catch let GenerateContentError.internalError(underlyingError as InvalidCandidateError) {
-      guard case let .malformedContent(contentError) = underlyingError else {
-        XCTFail("Not a malformed content error: \(underlyingError)")
+      guard case let .emptyContent(contentError) = underlyingError else {
+        XCTFail("Not an empty content error: \(underlyingError)")
         return
       }
 
@@ -1511,7 +1517,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.totalBillableCharacters, 16)
+    XCTAssertEqual(response.deprecated.totalBillableCharacters, 16)
   }
 
   func testCountTokens_succeeds_detailed() async throws {
@@ -1524,7 +1530,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 1837)
-    XCTAssertEqual(response.totalBillableCharacters, 117)
+    XCTAssertEqual(response.deprecated.totalBillableCharacters, 117)
     XCTAssertEqual(response.promptTokensDetails.count, 2)
     XCTAssertEqual(response.promptTokensDetails[0].modality, .image)
     XCTAssertEqual(response.promptTokensDetails[0].tokenCount, 1806)
@@ -1571,7 +1577,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.totalBillableCharacters, 16)
+    XCTAssertEqual(response.deprecated.totalBillableCharacters, 16)
   }
 
   func testCountTokens_succeeds_noBillableCharacters() async throws {
@@ -1584,7 +1590,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens(InlineDataPart(data: Data(), mimeType: "image/jpeg"))
 
     XCTAssertEqual(response.totalTokens, 258)
-    XCTAssertNil(response.totalBillableCharacters)
+    XCTAssertNil(response.deprecated.totalBillableCharacters)
   }
 
   func testCountTokens_modelNotFound() async throws {

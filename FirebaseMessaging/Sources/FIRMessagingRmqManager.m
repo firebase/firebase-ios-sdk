@@ -277,17 +277,24 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {
   __block FIRMessagingPersistentSyncMessage *persistentMessage;
   dispatch_sync(_databaseOperationQueue, ^{
-    NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ = '%@'";
+    NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ = ?";
     NSString *query =
         [NSString stringWithFormat:queryFormat,
                                    kSyncMessagesColumns,  // SELECT (rmq_id, expiration_ts,
                                                           // apns_recv, mcs_recv)
                                    kTableSyncMessages,    // FROM sync_rmq
-                                   kRmqIdColumn,          // WHERE rmq_id
-                                   rmqID];
+                                   kRmqIdColumn           // WHERE rmq_id
+    ];
 
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
+      [self logError];
+      sqlite3_finalize(stmt);
+      return;
+    }
+
+    if (sqlite3_bind_text(stmt, 1, [rmqID UTF8String], (int)[rmqID length], SQLITE_STATIC) !=
+        SQLITE_OK) {
       [self logError];
       sqlite3_finalize(stmt);
       return;

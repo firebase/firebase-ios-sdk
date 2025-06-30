@@ -3,7 +3,7 @@ source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 target 'ClientApp-CocoaPods' do
-  platform :ios, '13.0'
+  platform :ios, '15.0'
 
   use_frameworks!
 
@@ -22,7 +22,6 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCrashlytics', :path => '../../'
   pod 'FirebaseDatabase', :path => '../../'
-  pod 'FirebaseDynamicLinks', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
   pod 'FirebaseFirestoreInternal', :path => '../../'
   pod 'FirebaseFunctions', :path => '../../'

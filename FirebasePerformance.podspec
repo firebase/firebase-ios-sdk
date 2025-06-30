@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebasePerformance'
-  s.version          = '11.13.0'
+  s.version          = '12.0.0'
   s.summary          = 'Firebase Performance'
 
   s.description      = <<-DESC
@@ -17,8 +17,8 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '13.0'
-  tvos_deployment_target = '13.0'
+  ios_deployment_target = '15.0'
+  tvos_deployment_target = '15.0'
 
   s.swift_version = '5.9'
 
@@ -50,7 +50,6 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   end
 
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
     # Unit tests do library imports using repo-root relative paths.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
@@ -59,11 +58,11 @@ Firebase Performance library to measure performance of Mobile and Web Apps.
   s.ios.framework = 'CoreTelephony'
   s.framework = 'QuartzCore'
   s.framework = 'SystemConfiguration'
-  s.dependency 'FirebaseCore', '~> 11.13.0'
-  s.dependency 'FirebaseInstallations', '~> 11.0'
-  s.dependency 'FirebaseRemoteConfig', '~> 11.0'
-  s.dependency 'FirebaseSessions', '~> 11.0'
-  s.dependency 'GoogleDataTransport', '~> 10.0'
+  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseInstallations', '~> 12.0'
+  s.dependency 'FirebaseRemoteConfig', '~> 12.0'
+  s.dependency 'FirebaseSessions', '~> 12.0'
+  s.dependency 'GoogleDataTransport', '~> 10.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'

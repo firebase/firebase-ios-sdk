@@ -43,7 +43,7 @@ class AuthTests: RPCBaseTests {
     #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
       let keychainStorageProvider = FakeAuthKeychainStorage()
     #else
-      let keychainStorageProvider = AuthKeychainStorageReal()
+      let keychainStorageProvider = AuthKeychainStorageReal.shared
     #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
 
     // Stub the implementation to save the token refresh task for later execution.
@@ -2291,7 +2291,7 @@ class AuthTests: RPCBaseTests {
 
   #if os(iOS)
     func testAppDidRegisterForRemoteNotifications_APNSTokenUpdated() {
-      class FakeAuthTokenManager: AuthAPNSTokenManager {
+      class FakeAuthTokenManager: AuthAPNSTokenManager, @unchecked Sendable {
         override var token: AuthAPNSToken? {
           get {
             return tokenStore
@@ -2310,7 +2310,7 @@ class AuthTests: RPCBaseTests {
     }
 
     func testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancels() {
-      class FakeAuthTokenManager: AuthAPNSTokenManager {
+      class FakeAuthTokenManager: AuthAPNSTokenManager, @unchecked Sendable {
         var cancelled = false
         override func cancel(withError error: Error) {
           cancelled = true

@@ -15,10 +15,11 @@
 
 import Foundation
 
+// TODO: sendable (remove preconcurrency)
 #if SWIFT_PACKAGE
-  internal import GoogleUtilities_UserDefaults
+  @preconcurrency internal import GoogleUtilities_UserDefaults
 #else
-  internal import GoogleUtilities
+  @preconcurrency internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// CacheKey is like a "key" to a "safe". It provides necessary metadata about the current cache to
@@ -30,7 +31,7 @@ struct CacheKey: Codable {
 }
 
 /// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
-protocol SettingsCacheClient {
+protocol SettingsCacheClient: Sendable {
   /// Returns in-memory cache content in O(1) time. Returns empty dictionary if it does not exist in
   /// cache.
   var cacheContent: [String: Any] { get set }
@@ -39,13 +40,17 @@ protocol SettingsCacheClient {
   var cacheKey: CacheKey? { get set }
   /// Removes all cache content and cache-key
   func removeCache()
+  /// Returns whether the cache is expired for the given app info structure and time.
+  func isExpired(for appInfo: ApplicationInfoProtocol, time: Date) -> Bool
 }
 
 /// SettingsCache uses UserDefaults to store Settings on-disk, but also directly query UserDefaults
 /// when accessing Settings values during run-time. This is because UserDefaults encapsulates both
 /// in-memory and persisted-on-disk storage, allowing fast synchronous access in-app while hiding
 /// away the complexity of managing persistence asynchronously.
-class SettingsCache: SettingsCacheClient {
+final class SettingsCache: SettingsCacheClient {
+  private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
+  private static let flagCacheDuration = "cache_duration"
   private static let settingsVersion: Int = 1
   private enum UserDefaultsKeys {
     static let forContent = "firebase-sessions-settings"
@@ -91,5 +96,40 @@ class SettingsCache: SettingsCacheClient {
   func removeCache() {
     cache.setObject(nil, forKey: UserDefaultsKeys.forContent)
     cache.setObject(nil, forKey: UserDefaultsKeys.forCacheKey)
+  }
+
+  func isExpired(for appInfo: ApplicationInfoProtocol, time: Date) -> Bool {
+    guard !cacheContent.isEmpty else {
+      removeCache()
+      return true
+    }
+    guard let cacheKey = cacheKey else {
+      Logger.logError("[Settings] Could not load settings cache key")
+      removeCache()
+      return true
+    }
+    guard cacheKey.googleAppID == appInfo.appID else {
+      Logger
+        .logDebug("[Settings] Cache expired because Google App ID changed")
+      removeCache()
+      return true
+    }
+    if time.timeIntervalSince(cacheKey.createdAt) > cacheDuration() {
+      Logger.logDebug("[Settings] Cache TTL expired")
+      return true
+    }
+    if appInfo.synthesizedVersion != cacheKey.appVersion {
+      Logger.logDebug("[Settings] Cache expired because app version changed")
+      return true
+    }
+    return false
+  }
+
+  private func cacheDuration() -> TimeInterval {
+    guard let duration = cacheContent[Self.flagCacheDuration] as? Double else {
+      return Self.cacheDurationSecondsDefault
+    }
+    print("Duration: \(duration)")
+    return duration
   }
 }

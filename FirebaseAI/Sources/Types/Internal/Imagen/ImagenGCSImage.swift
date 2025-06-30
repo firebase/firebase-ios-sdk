@@ -18,7 +18,7 @@ import Foundation
 ///
 /// TODO(#14451): Make this `public` and move to the `Public` directory when ready.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ImagenGCSImage {
+struct ImagenGCSImage: Sendable {
   /// The IANA standard MIME type of the image file; either `"image/png"` or `"image/jpeg"`.
   ///
   /// > Note: To request a different format, set ``ImagenGenerationConfig/imageFormat`` in

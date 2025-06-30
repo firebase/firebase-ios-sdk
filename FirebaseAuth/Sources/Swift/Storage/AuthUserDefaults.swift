@@ -19,16 +19,10 @@ private let kPersistentDomainNamePrefix = "com.google.Firebase.Auth."
 /// The utility class to manage data storage in NSUserDefaults.
 class AuthUserDefaults {
   /// The name of the persistent domain in user defaults.
-
   private let persistentDomainName: String
 
   /// The backing NSUserDefaults storage for this instance.
-
   private let storage: UserDefaults
-
-  static func storage(identifier: String) -> Self {
-    return Self(service: identifier)
-  }
 
   required init(service: String) {
     persistentDomainName = kPersistentDomainNamePrefix + service

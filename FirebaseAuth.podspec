@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '11.13.0'
+  s.version          = '12.0.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -19,9 +19,9 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '13.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  tvos_deployment_target = '13.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.swift_version = '5.9'
@@ -49,17 +49,16 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'FirebaseAuth/CHANGELOG.md'
   ]
   s.pod_target_xcconfig = {
-    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     # The second path is to find FirebaseAuth-Swift.h from a pod gen project
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"',
     'OTHER_SWIFT_FLAGS' => "$(inherited) #{ENV.key?('FIREBASE_CI') ? '-D FIREBASE_CI -warnings-as-errors' : ''}"
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
-  s.dependency 'FirebaseAuthInterop', '~> 11.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.13.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.13.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.0'
+  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.0.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 5.0'

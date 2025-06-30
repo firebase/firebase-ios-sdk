@@ -191,6 +191,8 @@
 
 #if !SWIFT_PACKAGE
 // The next 3 tests depend on a sharedApplication which is not available in the Swift PM test env.
+
+#if !TARGET_OS_OSX
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
   IncompleteAppDelegate *incompleteAppDelegate = [[IncompleteAppDelegate alloc] init];
@@ -209,6 +211,7 @@
   [self.mockMessaging verify];
   [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
+#endif  // !TARGET_OS_OSX
 
 // This test demonstrates the difference between Firebase 10 and 11. In 10 and earlier the
 // swizzler inserts the old `didReceiveRemoteNotification` method. In 11, the new.
@@ -232,10 +235,9 @@
   [[GULAppDelegateSwizzler sharedApplication] setDelegate:appDelegate];
   [self.proxy swizzleMethodsIfPossible];
 
-  NSDictionary *notification = @{@"test" : @""};
-
   // Test application:didReceiveRemoteNotification:fetchCompletionHandler:
 #if TARGET_OS_IOS || TARGET_OS_TV
+  NSDictionary *notification = @{@"test" : @""};
   // Verify our swizzled method was called
   OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
 
@@ -273,6 +275,7 @@
 #endif  // !SWIFT_PACKAGE
 
 - (void)testListeningForDelegateChangesOnInvalidUserNotificationCenter {
+  XCTSkip(@"https://github.com/firebase/firebase-ios-sdk/issues/14922");
   if (@available(macOS 10.14, iOS 10.0, *)) {
     RandomObject *invalidNotificationCenter = [[RandomObject alloc] init];
     OCMStub([self.mockUserNotificationCenter currentNotificationCenter])

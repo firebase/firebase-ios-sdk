@@ -14,8 +14,11 @@
 
 import Foundation
 
+// TODO(Swift 6 Breaking): This type is immutable. Consider removing `open` at
+// breaking change so checked Sendable can be used.
+
 /// Manages information regarding action codes.
-@objc(FIRActionCodeInfo) open class ActionCodeInfo: NSObject {
+@objc(FIRActionCodeInfo) open class ActionCodeInfo: NSObject, @unchecked Sendable {
   /// The operation being performed.
   @objc public let operation: ActionCodeOperation
 
