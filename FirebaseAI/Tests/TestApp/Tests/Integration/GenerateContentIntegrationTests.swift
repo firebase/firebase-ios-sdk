@@ -254,8 +254,6 @@ struct GenerateContentIntegrationTests {
   func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
       tools: [.googleSearch()]
     )
     let prompt = "What is the weather in Toronto today?"

@@ -350,7 +350,7 @@ public struct GroundingMetadata: Sendable {
     /// undesired interaction with the rest of the page's CSS.
     ///
     /// To ensure proper rendering, it's recommended to display this content within a `WKWebView`.
-    public let renderedContent: String?
+    public let renderedContent: String
   }
 
   /// Represents a chunk of retrieved data that supports a claim in the model's response. This is
@@ -393,12 +393,27 @@ public struct GroundingMetadata: Sendable {
   public struct GroundingSupport: Sendable {
     /// Specifies the segment of the model's response content that this grounding support pertains
     /// to.
-    public let segment: Segment?
+    public let segment: Segment
 
     /// A list of indices that refer to specific ``GroundingChunk`` structs within the
     /// ``GroundingMetadata/groundingChunks`` array. These referenced chunks are the sources that
     /// support the claim made in the associated `segment` of the response.
     public let groundingChunkIndices: [Int]
+
+    struct Internal {
+      let segment: Segment?
+      let groundingChunkIndices: [Int]
+
+      func toPublic() -> GroundingSupport? {
+        if segment == nil {
+          return nil
+        }
+        return GroundingSupport(
+          segment: segment!,
+          groundingChunkIndices: groundingChunkIndices
+        )
+      }
+    }
   }
 }
 
@@ -657,9 +672,9 @@ extension GroundingMetadata: Decodable {
       forKey: .groundingChunks
     ) ?? []
     groundingSupports = try container.decodeIfPresent(
-      [GroundingSupport].self,
+      [GroundingSupport.Internal].self,
       forKey: .groundingSupports
-    ) ?? []
+    )?.compactMap { $0.toPublic() } ?? []
     searchEntryPoint = try container.decodeIfPresent(
       SearchEntryPoint.self,
       forKey: .searchEntryPoint
@@ -677,7 +692,7 @@ extension GroundingMetadata.GroundingChunk: Decodable {}
 extension GroundingMetadata.WebGroundingChunk: Decodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension GroundingMetadata.GroundingSupport: Decodable {
+extension GroundingMetadata.GroundingSupport.Internal: Decodable {
   enum CodingKeys: String, CodingKey {
     case segment
     case groundingChunkIndices

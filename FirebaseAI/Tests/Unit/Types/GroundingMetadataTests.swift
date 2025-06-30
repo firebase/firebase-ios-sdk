@@ -41,11 +41,31 @@ final class GroundingMetadataTests: XCTestCase {
     XCTAssertEqual(metadata.groundingChunks.count, 1)
     XCTAssertEqual(metadata.groundingChunks.first?.web?.uri, "uri1")
     XCTAssertEqual(metadata.groundingSupports.count, 1)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment?.startIndex, 0)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment?.partIndex, 0)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment?.endIndex, 10)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment?.text, "text")
+    XCTAssertEqual(metadata.groundingSupports.first?.segment.startIndex, 0)
+    XCTAssertEqual(metadata.groundingSupports.first?.segment.partIndex, 0)
+    XCTAssertEqual(metadata.groundingSupports.first?.segment.endIndex, 10)
+    XCTAssertEqual(metadata.groundingSupports.first?.segment.text, "text")
     XCTAssertEqual(metadata.searchEntryPoint?.renderedContent, "html")
+  }
+
+  func testDecodeGroundingMetadata_missingSegments() throws {
+    let json = """
+    {
+      "groundingSupports": [
+        { "segment": { "endIndex": 10, "text": "text" }, "groundingChunkIndices": [0] },
+        { "groundingChunkIndices": [0] }
+      ],
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let metadata = try decoder.decode(GroundingMetadata.self, from: jsonData)
+
+    XCTAssertEqual(metadata.groundingSupports.count, 1)
+    XCTAssertEqual(metadata.groundingSupports.first?.segment.startIndex, 0)
+    XCTAssertEqual(metadata.groundingSupports.first?.segment.partIndex, 0)
+    XCTAssertEqual(metadata.groundingSupports.first?.segment.endIndex, 10)
+    XCTAssertEqual(metadata.groundingSupports.first?.segment.text, "text")
   }
 
   func testDecodeGroundingMetadata_missingOptionals() throws {
@@ -58,6 +78,30 @@ final class GroundingMetadataTests: XCTestCase {
     XCTAssertTrue(metadata.groundingChunks.isEmpty)
     XCTAssertTrue(metadata.groundingSupports.isEmpty)
     XCTAssertNil(metadata.searchEntryPoint)
+  }
+
+  func testDecodeSearchEntrypoint_missingRenderedContent() throws {
+    let json = "{}"
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    XCTAssertThrowsError(try decoder.decode(
+      GroundingMetadata.SearchEntryPoint.self,
+      from: jsonData
+    ))
+  }
+
+  func testDecodeSearchEntrypoint_withRenderedContent() throws {
+    let json = """
+    { "renderedContent": "html" }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let searchEntrypoint = try decoder.decode(
+      GroundingMetadata.SearchEntryPoint.self,
+      from: jsonData
+    )
+
+    XCTAssertEqual(searchEntrypoint.renderedContent, "html")
   }
 
   func testDecodeGroundingChunk_withoutWeb() throws {
@@ -83,9 +127,13 @@ final class GroundingMetadataTests: XCTestCase {
     { "groundingChunkIndices": [1, 2] }
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
-    let support = try decoder.decode(GroundingMetadata.GroundingSupport.self, from: jsonData)
+    let support = try decoder.decode(
+      GroundingMetadata.GroundingSupport.Internal.self,
+      from: jsonData
+    )
     XCTAssertNil(support.segment)
     XCTAssertEqual(support.groundingChunkIndices, [1, 2])
+    XCTAssertNil(support.toPublic())
   }
 
   func testDecodeSegment_defaults() throws {
