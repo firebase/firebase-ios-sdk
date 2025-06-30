@@ -105,12 +105,12 @@ public extension Expr {
     return FunctionExpr("array_length", [self])
   }
 
-  func arrayOffset(_ offset: Int) -> FunctionExpr {
-    return FunctionExpr("array_offset", [self, Helper.sendableToExpr(offset)])
+  func arrayGet(_ offset: Int) -> FunctionExpr {
+    return FunctionExpr("array_get", [self, Helper.sendableToExpr(offset)])
   }
 
-  func arrayOffset(_ offsetExpr: Expr) -> FunctionExpr {
-    return FunctionExpr("array_offset", [self, offsetExpr])
+  func arrayGet(_ offsetExpr: Expr) -> FunctionExpr {
+    return FunctionExpr("array_get", [self, offsetExpr])
   }
 
   func gt(_ other: Expr) -> BooleanExpr {

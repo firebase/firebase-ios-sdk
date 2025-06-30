@@ -304,14 +304,14 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Return the value in the 'tags' field array at index 1.
-  /// Field("tags").arrayOffset(1)
+  /// Field("tags").arrayGet(1)
   /// // Return the last element in the 'tags' field array.
-  /// Field("tags").arrayOffset(-1)
+  /// Field("tags").arrayGet(-1)
   /// ```
   ///
   /// - Parameter offset: The literal `Int` offset of the element to return.
-  /// - Returns: A new `FunctionExpr` representing the 'arrayOffset' operation.
-  func arrayOffset(_ offset: Int) -> FunctionExpr
+  /// - Returns: A new `FunctionExpr` representing the 'arrayGet' operation.
+  func arrayGet(_ offset: Int) -> FunctionExpr
 
   /// Creates an expression that accesses an element in an array (from `self`) at the offset
   /// specified by an expression.
@@ -321,13 +321,13 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Return the value in the tags field array at index specified by field 'favoriteTagIndex'.
-  /// Field("tags").arrayOffset(Field("favoriteTagIndex"))
+  /// Field("tags").arrayGet(Field("favoriteTagIndex"))
   /// ```
   ///
   /// - Parameter offsetExpr: An `Expr` (evaluating to an Int) representing the offset of the
   /// element to return.
-  /// - Returns: A new `FunctionExpr` representing the 'arrayOffset' operation.
-  func arrayOffset(_ offsetExpr: Expr) -> FunctionExpr
+  /// - Returns: A new `FunctionExpr` representing the 'arrayGet' operation.
+  func arrayGet(_ offsetExpr: Expr) -> FunctionExpr
 
   // MARK: Equality with Sendable
 
@@ -424,7 +424,7 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Check if accessing a non-existent array index causes an error
-  /// Field("myArray").arrayOffset(100).isError()
+  /// Field("myArray").arrayGet(100).isError()
   /// ```
   ///
   /// - Returns: A new `BooleanExpr` representing the 'isError' check.
@@ -1520,7 +1520,7 @@ public protocol Expr: Sendable {
   ///
   /// ```swift
   /// // Get first item in 'title' array, or return "Default Title" if error (e.g., empty array)
-  /// Field("title").arrayOffset(0).ifError("Default Title")
+  /// Field("title").arrayGet(0).ifError("Default Title")
   /// ```
   ///
   /// - Parameter catchValue: The literal `Sendable` value to return if this expression errors.

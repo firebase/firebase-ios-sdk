@@ -2008,8 +2008,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select(
         Field("rating").isNull().as("ratingIsNull"),
         Field("rating").isNan().as("ratingIsNaN"),
-        Field("title").arrayOffset(0).isError().as("isError"),
-        Field("title").arrayOffset(0).ifError(Constant("was error")).as("ifError"),
+        Field("title").arrayGet(0).isError().as("isError"),
+        Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
         Field("foo").isAbsent().as("isAbsent"),
         Field("title").isNotNull().as("titleIsNotNull"),
         Field("cost").isNotNan().as("costIsNotNan"),
@@ -2045,8 +2045,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select(
         Field("rating").isNull().as("ratingIsNull"),
         Field("rating").isNan().as("ratingIsNaN"),
-        Field("title").arrayOffset(0).isError().as("isError"),
-        Field("title").arrayOffset(0).ifError(Constant("was error")).as("ifError"),
+        Field("title").arrayGet(0).isError().as("isError"),
+        Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
         Field("foo").isAbsent().as("isAbsent"),
         Field("title").isNotNull().as("titleIsNotNull"),
         Field("cost").isNotNan().as("costIsNotNan")
@@ -2452,18 +2452,16 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let collRef = collectionRef(withDocuments: bookDocs)
 
     let expectedResultsPart1: [[String: Sendable?]] = [
-      ["firstTag": "adventure"], // book4 (rating 4.7)
-      ["firstTag": "politics"], // book10 (rating 4.6)
-      ["firstTag": "classic"], // book2 (rating 4.5)
+      ["firstTag": "adventure"],
+      ["firstTag": "politics"],
+      ["firstTag": "classic"],
     ]
 
-    // Part 1: Using arrayOffset as FunctionExpr("array_offset", ...)
-    // (Assuming direct top-level ArrayOffset() isn't available, as per Expr.swift structure)
     let pipeline1 = db.pipeline()
       .collection(collRef.path)
       .sort(Field("rating").descending())
       .limit(3)
-      .select(Field("tags").arrayOffset(0).as("firstTag"))
+      .select(Field("tags").arrayGet(0).as("firstTag"))
 
     let snapshot1 = try await pipeline1.execute()
     XCTAssertEqual(snapshot1.results.count, 3, "Part 1: Should retrieve three documents")
@@ -3037,6 +3035,131 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       pipelineSnapshot: snapshot,
       expected: [["reverseTitle": "4891"]],
       enforceOrder: false
+    )
+  }
+
+  private func addBooks(to collectionReference: CollectionReference) async throws {
+    try await collectionReference.document("book11").setData([
+      "title": "Jonathan Strange & Mr Norrell",
+      "author": "Susanna Clarke",
+      "genre": "Fantasy",
+      "published": 2004,
+      "rating": 4.6,
+      "tags": ["historical fantasy", "magic", "alternate history", "england"],
+      "awards": ["hugo": false, "nebula": false],
+    ])
+    try await collectionReference.document("book12").setData([
+      "title": "The Master and Margarita",
+      "author": "Mikhail Bulgakov",
+      "genre": "Satire",
+      "published": 1967,
+      "rating": 4.6,
+      "tags": ["russian literature", "supernatural", "philosophy", "dark comedy"],
+      "awards": [:],
+    ])
+    try await collectionReference.document("book13").setData([
+      "title": "A Long Way to a Small, Angry Planet",
+      "author": "Becky Chambers",
+      "genre": "Science Fiction",
+      "published": 2014,
+      "rating": 4.6,
+      "tags": ["space opera", "found family", "character-driven", "optimistic"],
+      "awards": ["hugo": false, "nebula": false, "kitschies": true],
+    ])
+  }
+
+  func testSupportsPaginationWithOffsetsUsingName() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+    try await addBooks(to: collRef)
+
+    let pageSize = 2
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select("title", "rating", "__name__")
+      .sort(
+        Field("rating").descending(),
+        Field("__name__").ascending()
+      )
+
+    var snapshot = try await pipeline.limit(Int32(pageSize)).execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["title": "The Lord of the Rings", "rating": 4.7],
+        ["title": "Jonathan Strange & Mr Norrell", "rating": 4.6],
+      ],
+      enforceOrder: true
+    )
+
+    let lastDoc = snapshot.results.last!
+
+    snapshot = try await pipeline.where(
+      (Field("rating").eq(lastDoc.get("rating")!)
+        && Field("rating").lt(lastDoc.get("rating")!))
+        || Field("rating").lt(lastDoc.get("rating")!)
+    ).limit(Int32(pageSize)).execute()
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["title": "Pride and Prejudice", "rating": 4.5],
+        ["title": "Crime and Punishment", "rating": 4.3],
+      ],
+      enforceOrder: false
+    )
+  }
+
+  func testSupportsPaginationWithOffsetsUsingPath() async throws {
+    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+    try await addBooks(to: collRef)
+
+    let pageSize = 2
+    var currPage = 0
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select("title", "rating", "__path__")
+      .sort(
+        Field("rating").descending(),
+        Field("__path__").ascending()
+      )
+
+    var snapshot = try await pipeline.offset(Int32(currPage) * Int32(pageSize)).limit(
+      Int32(pageSize)
+    ).execute()
+
+    currPage += 1
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["title": "The Lord of the Rings", "rating": 4.7],
+        ["title": "Dune", "rating": 4.6],
+      ],
+      enforceOrder: true
+    )
+
+    snapshot = try await pipeline.offset(Int32(currPage) * Int32(pageSize)).limit(
+      Int32(pageSize)
+    ).execute()
+
+    currPage += 1
+
+    TestHelper.compare(
+      pipelineSnapshot: snapshot,
+      expected: [
+        ["title": "A Long Way to a Small, Angry Planet", "rating": 4.6],
+        ["title": "Pride and Prejudice", "rating": 4.5],
+      ],
+      enforceOrder: true
     )
   }
 }
