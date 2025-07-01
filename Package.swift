@@ -45,21 +45,6 @@ let package = Package(
       name: "FirebaseAnalyticsIdentitySupport",
       targets: ["FirebaseAnalyticsIdentitySupportTarget"]
     ),
-    // Deprecated. Use FirebaseAnalyticsCore instead.
-    // Adding this library to your project is enough for it to take effect. The module
-    // does not need to be imported into any source files.
-    .library(
-      name: "FirebaseAnalyticsWithoutAdIdSupport",
-      targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
-    ),
-    // Deprecated. Use GoogleAdsOnDeviceConversion from
-    // https://github.com/googleads/google-ads-on-device-conversion-ios-sdk/ instead.
-    // Adding this library to your project is enough for it to take effect. The module
-    // does not need to be imported into any source files.
-    .library(
-      name: "FirebaseAnalyticsOnDeviceConversion",
-      targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
-    ),
     .library(
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
@@ -418,53 +403,6 @@ let package = Package(
         .linkedFramework("StoreKit"),
       ]
     ),
-
-    .target(
-      name: "FirebaseAnalyticsWithoutAdIdSupportTarget",
-      dependencies: [.target(name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWithoutAdIdSupportWrap"
-    ),
-    .target(
-      name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-      dependencies: [
-        .target(
-          name: "FirebaseAnalytics",
-          condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
-        ),
-        .product(name: "GoogleAppMeasurementWithoutAdIdSupport",
-                 package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
-        "FirebaseCore",
-        "FirebaseInstallations",
-        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
-        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
-        .product(name: "GULNSData", package: "GoogleUtilities"),
-        .product(name: "GULNetwork", package: "GoogleUtilities"),
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-      linkerSettings: [
-        .linkedLibrary("sqlite3"),
-        .linkedLibrary("c++"),
-        .linkedLibrary("z"),
-        .linkedFramework("StoreKit"),
-      ]
-    ),
-
-    .target(
-      name: "FirebaseAnalyticsOnDeviceConversionTarget",
-      dependencies: [
-        .product(name: "GoogleAppMeasurementOnDeviceConversion",
-                 package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS])),
-      ],
-      path: "FirebaseAnalyticsOnDeviceConversionWrapper",
-      linkerSettings: [
-        .linkedLibrary("c++"),
-      ]
-    ),
-
     .target(
       name: "FirebaseAppDistributionTarget",
       dependencies: [.target(name: "FirebaseAppDistribution",
