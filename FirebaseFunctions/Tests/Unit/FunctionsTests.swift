@@ -134,7 +134,7 @@ class FunctionsTests: XCTestCase {
 
   // MARK: - App Check Integration
 
-  func testCallFunctionWhenUsingLimitedUseAppCheckTokenThenTokenSuccess() {
+  @MainActor func testCallFunctionWhenUsingLimitedUseAppCheckTokenThenTokenSuccess() {
     // Given
     // Stub returns of two different kinds of App Check tokens. Only the
     // limited use token should be present in Functions's request header.
@@ -174,7 +174,7 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
-  func testCallFunctionWhenLimitedUseAppCheckTokenDisabledThenCallWithoutToken() {
+  @MainActor func testCallFunctionWhenLimitedUseAppCheckTokenDisabledThenCallWithoutToken() {
     // Given
     let limitedUseDummyToken = "limited use dummy token"
     appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
@@ -215,7 +215,7 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
-  func testCallFunctionWhenLimitedUseAppCheckTokenCannotBeGeneratedThenCallWithPlaceholderToken() {
+  @MainActor func testCallFunctionWhenLimitedUseAppCheckTokenCannotBeGeneratedThenCallWithPlaceholderToken() {
     // Given
     appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
       token: "limited use token",
@@ -257,7 +257,7 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
-  func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
+  @MainActor func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
     // Stub returns of two different kinds of App Check tokens. Only the
     // shared use token should be present in Functions's request header.
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
@@ -329,37 +329,30 @@ class FunctionsTests: XCTestCase {
     await fulfillment(of: [httpRequestExpectation], timeout: 1.5)
   }
 
-  func testCallFunctionWhenAppCheckIsNotInstalled() {
+  func testCallFunctionWhenAppCheckIsNotInstalled() async {
     let networkError = NSError(
       domain: "testCallFunctionWhenAppCheckIsInstalled",
       code: -1,
       userInfo: nil
     )
 
-    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       let appCheckTokenHeader = fetcherToTest.request?
         .value(forHTTPHeaderField: "X-Firebase-AppCheck")
       XCTAssertNil(appCheckTokenHeader)
       testResponse(nil, nil, networkError)
-      httpRequestExpectation.fulfill()
     }
 
-    let completionExpectation = expectation(description: "completionExpectation")
-    functionsCustomDomain?.callFunction(
-      at: URL(string: "https://example.com/fake_func")!,
-      withObject: nil,
-      options: nil,
-      timeout: 10
-    ) { result in
-      switch result {
-      case .success:
-        XCTFail("Unexpected success from functions?.callFunction")
-      case let .failure(error as NSError):
-        XCTAssertEqual(error, networkError)
-      }
-      completionExpectation.fulfill()
+    do {
+      _ = try await functionsCustomDomain?.callFunction(
+        at: URL(string: "https://example.com/fake_func")!,
+        withObject: nil,
+        options: nil,
+        timeout: 10
+      )
+      XCTFail("Unexpected success from functions?.callFunction")
+    } catch {
+      XCTAssertEqual(error as NSError, networkError)
     }
-    waitForExpectations(timeout: 1.5)
   }
 }

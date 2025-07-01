@@ -52,18 +52,12 @@ class ContextProviderTests: XCTestCase {
     XCTAssertEqual(context.fcmToken, messagingFake.fcmToken)
   }
 
-  func testContextWithAuth() {
+  func testContextWithAuth() async throws {
     let auth = FIRAuthInteropFake(token: "token", userID: "userID", error: nil)
     let provider = FunctionsContextProvider(auth: auth, messaging: messagingFake, appCheck: nil)
-    let expectation = expectation(description: "Context should have auth keys.")
-    provider.getContext { context, error in
-      XCTAssertNotNil(context)
-      XCTAssertEqual(context.authToken, "token")
-      XCTAssertEqual(context.fcmToken, self.messagingFake.fcmToken)
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 0.1)
+    let context = try await provider.context(options: nil)
+    XCTAssertEqual(context.authToken, "token")
+    XCTAssertEqual(context.fcmToken, messagingFake.fcmToken)
   }
 
   func testAsyncContextWithAuthError() async {
@@ -79,18 +73,16 @@ class ContextProviderTests: XCTestCase {
     }
   }
 
-  func testContextWithAuthError() {
+  func testContextWithAuthError() async throws {
     let authError = NSError(domain: "com.functions.tests", code: 4, userInfo: nil)
     let auth = FIRAuthInteropFake(token: nil, userID: "userID", error: authError)
     let provider = FunctionsContextProvider(auth: auth, messaging: messagingFake, appCheck: nil)
-    let expectation = expectation(description: "Completion handler should fail with Auth error.")
-    provider.getContext { context, error in
-      XCTAssertNotNil(context)
-      XCTAssertNil(context.authToken)
+    do {
+      _ = try await provider.context(options: nil)
+      XCTFail("Expected an error")
+    } catch {
       XCTAssertEqual(error as NSError?, authError)
-      expectation.fulfill()
     }
-    waitForExpectations(timeout: 0.1)
   }
 
   func testAsyncContextWithoutAuth() async throws {
@@ -102,17 +94,11 @@ class ContextProviderTests: XCTestCase {
     XCTAssertNil(context.fcmToken)
   }
 
-  func testContextWithoutAuth() {
+  func testContextWithoutAuth() async throws {
     let provider = FunctionsContextProvider(auth: nil, messaging: nil, appCheck: nil)
-    let expectation = expectation(description: "Completion handler should succeed without Auth.")
-    provider.getContext { context, error in
-      XCTAssertNotNil(context)
-      XCTAssertNil(error)
-      XCTAssertNil(context.authToken)
-      XCTAssertNil(context.fcmToken)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 0.1)
+    let context = try await provider.context(options: nil)
+    XCTAssertNil(context.authToken)
+    XCTAssertNil(context.fcmToken)
   }
 
   func testAsyncContextWithAppCheckOnlySuccess() async throws {
@@ -126,19 +112,13 @@ class ContextProviderTests: XCTestCase {
     XCTAssertEqual(context.appCheckToken, appCheckTokenSuccess.token)
   }
 
-  func testContextWithAppCheckOnlySuccess() {
+  func testContextWithAppCheckOnlySuccess() async throws {
     appCheckFake.tokenResult = appCheckTokenSuccess
     let provider = FunctionsContextProvider(auth: nil, messaging: nil, appCheck: appCheckFake)
-    let expectation = expectation(description: "Verify app check.")
-    provider.getContext { context, error in
-      XCTAssertNotNil(context)
-      XCTAssertNil(error)
-      XCTAssertNil(context.authToken)
-      XCTAssertNil(context.fcmToken)
-      XCTAssertEqual(context.appCheckToken, self.appCheckTokenSuccess.token)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 0.1)
+    let context = try await provider.context(options: nil)
+    XCTAssertNil(context.authToken)
+    XCTAssertNil(context.fcmToken)
+    XCTAssertEqual(context.appCheckToken, appCheckTokenSuccess.token)
   }
 
   func testAsyncContextWithAppCheckOnlyError() async throws {
@@ -165,36 +145,25 @@ class ContextProviderTests: XCTestCase {
     XCTAssertEqual(context.limitedUseAppCheckToken, appCheckFake.limitedUseTokenResult.token)
   }
 
-  func testContextWithAppCheckOnlyError() {
+  func testContextWithAppCheckOnlyError() async throws {
     appCheckFake.tokenResult = appCheckTokenError
     let provider = FunctionsContextProvider(auth: nil, messaging: nil, appCheck: appCheckFake)
-    let expectation = expectation(description: "Verify bad app check token")
-    provider.getContext { context, error in
-      XCTAssertNotNil(context)
-      XCTAssertNil(error)
-      XCTAssertNil(context.authToken)
-      XCTAssertNil(context.fcmToken)
-      // Expect placeholder token in the case of App Check error.
-      XCTAssertEqual(context.appCheckToken, self.appCheckFake.tokenResult.token)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 0.1)
+    let context = try await provider.context(options: nil)
+    XCTAssertNil(context.authToken)
+    XCTAssertNil(context.fcmToken)
+    // Expect placeholder token in the case of App Check error.
+    XCTAssertEqual(context.appCheckToken, appCheckFake.tokenResult.token)
   }
 
-  func testContextWithAppCheckOnlyError_LimitedUseToken() {
+  func testContextWithAppCheckOnlyError_LimitedUseToken() async throws {
     appCheckFake.limitedUseTokenResult = appCheckLimitedUseTokenError
     let provider = FunctionsContextProvider(auth: nil, messaging: nil, appCheck: appCheckFake)
-    let expectation = expectation(description: "Verify bad app check token")
-    provider.getContext(options: .init(requireLimitedUseAppCheckTokens: true)) { context, error in
-      XCTAssertNotNil(context)
-      XCTAssertNil(error)
-      XCTAssertNil(context.authToken)
-      XCTAssertNil(context.fcmToken)
-      // Expect placeholder token in the case of App Check error.
-      XCTAssertEqual(context.limitedUseAppCheckToken, self.appCheckFake.limitedUseTokenResult.token)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 0.1)
+    let context = try await provider
+      .context(options: HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true))
+    XCTAssertNil(context.authToken)
+    XCTAssertNil(context.fcmToken)
+    // Expect placeholder token in the case of App Check error.
+    XCTAssertEqual(context.limitedUseAppCheckToken, appCheckFake.limitedUseTokenResult.token)
   }
 
   func testAsyncContextWithAppCheckWithoutOptionalMethods() async throws {
@@ -210,23 +179,15 @@ class ContextProviderTests: XCTestCase {
     XCTAssertNil(context.limitedUseAppCheckToken)
   }
 
-  func testContextWithAppCheckWithoutOptionalMethods() {
+  func testContextWithAppCheckWithoutOptionalMethods() async throws {
     let appCheck = AppCheckFakeWithoutOptionalMethods(tokenResult: appCheckTokenSuccess)
     let provider = FunctionsContextProvider(auth: nil, messaging: nil, appCheck: appCheck)
-    let expectation =
-      expectation(description: "Verify non-implemented method for limited-use tokens")
-    provider.getContext(options: .init(requireLimitedUseAppCheckTokens: true)) { context, error in
-      XCTAssertNotNil(context)
-      XCTAssertNil(error)
-      XCTAssertNil(context.authToken)
-      XCTAssertNil(context.fcmToken)
-      XCTAssertNil(context.appCheckToken)
-      // If the method for limited-use tokens is not implemented, the value should be `nil`:
-      XCTAssertNil(context.limitedUseAppCheckToken)
-      expectation.fulfill()
-    }
-    // Importantly, `getContext(options:_:)` must still finish in a timely manner:
-    waitForExpectations(timeout: 0.1)
+    let context = try await provider.context(options: .init(requireLimitedUseAppCheckTokens: true))
+    XCTAssertNil(context.authToken)
+    XCTAssertNil(context.fcmToken)
+    XCTAssertNil(context.appCheckToken)
+    // If the method for limited-use tokens is not implemented, the value should be `nil`:
+    XCTAssertNil(context.limitedUseAppCheckToken)
   }
 
   func testAsyncAllContextsAvailableSuccess() async throws {
@@ -245,7 +206,7 @@ class ContextProviderTests: XCTestCase {
     XCTAssertEqual(context.appCheckToken, appCheckTokenSuccess.token)
   }
 
-  func testAllContextsAvailableSuccess() {
+  func testAllContextsAvailableSuccess() async throws {
     appCheckFake.tokenResult = appCheckTokenSuccess
     let auth = FIRAuthInteropFake(token: "token", userID: "userID", error: nil)
     let provider = FunctionsContextProvider(
@@ -253,16 +214,10 @@ class ContextProviderTests: XCTestCase {
       messaging: messagingFake,
       appCheck: appCheckFake
     )
-    let expectation = expectation(description: "All contexts available")
-    provider.getContext { context, error in
-      XCTAssertNotNil(context)
-      XCTAssertNil(error)
-      XCTAssertEqual(context.authToken, "token")
-      XCTAssertEqual(context.fcmToken, self.messagingFake.fcmToken)
-      XCTAssertEqual(context.appCheckToken, self.appCheckTokenSuccess.token)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 0.1)
+    let context = try await provider.context(options: nil)
+    XCTAssertEqual(context.authToken, "token")
+    XCTAssertEqual(context.fcmToken, messagingFake.fcmToken)
+    XCTAssertEqual(context.appCheckToken, appCheckTokenSuccess.token)
   }
 
   func testAsyncAllContextsAuthAndAppCheckError() async {
@@ -283,7 +238,7 @@ class ContextProviderTests: XCTestCase {
     }
   }
 
-  func testAllContextsAuthAndAppCheckError() {
+  func testAllContextsAuthAndAppCheckError() async throws {
     appCheckFake.tokenResult = appCheckTokenError
     let authError = NSError(domain: "com.functions.tests", code: 4, userInfo: nil)
     let auth = FIRAuthInteropFake(token: nil, userID: "userID", error: authError)
@@ -292,20 +247,15 @@ class ContextProviderTests: XCTestCase {
       messaging: messagingFake,
       appCheck: appCheckFake
     )
-    let expectation = expectation(description: "All contexts with errors")
-    provider.getContext { context, error in
-      XCTAssertNotNil(context)
+    do {
+      _ = try await provider.context(options: nil)
+      XCTFail("Expected an error")
+    } catch {
       XCTAssertEqual(error as NSError?, authError)
-      XCTAssertNil(context.authToken)
-      XCTAssertEqual(context.fcmToken, self.messagingFake.fcmToken)
-      // Expect placeholder token in the case of App Check error.
-      XCTAssertEqual(context.appCheckToken, self.appCheckFake.tokenResult.token)
-      expectation.fulfill()
     }
-    waitForExpectations(timeout: 0.1)
   }
 
-  func testAllContextsAuthAndAppCheckError_LimitedUseToken() {
+  func testAllContextsAuthAndAppCheckError_LimitedUseToken() async throws {
     appCheckFake.limitedUseTokenResult = appCheckLimitedUseTokenError
     let authError = NSError(domain: "com.functions.tests", code: 4, userInfo: nil)
     let auth = FIRAuthInteropFake(token: nil, userID: "userID", error: authError)
@@ -314,17 +264,12 @@ class ContextProviderTests: XCTestCase {
       messaging: messagingFake,
       appCheck: appCheckFake
     )
-    let expectation = expectation(description: "All contexts with errors")
-    provider.getContext(options: .init(requireLimitedUseAppCheckTokens: true)) { context, error in
-      XCTAssertNotNil(context)
+    do {
+      _ = try await provider.context(options: .init(requireLimitedUseAppCheckTokens: true))
+      XCTFail("Expected an error")
+    } catch {
       XCTAssertEqual(error as NSError?, authError)
-      XCTAssertNil(context.authToken)
-      XCTAssertEqual(context.fcmToken, self.messagingFake.fcmToken)
-      // Expect placeholder token in the case of App Check error.
-      XCTAssertEqual(context.limitedUseAppCheckToken, self.appCheckFake.limitedUseTokenResult.token)
-      expectation.fulfill()
     }
-    waitForExpectations(timeout: 0.1)
   }
 }
 
