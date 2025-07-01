@@ -40,25 +40,6 @@ class MockFunctions: Functions, @unchecked Sendable {
     return try mockCallFunction()
   }
 
-  override func callFunction(at url: URL,
-                             withObject data: Any?,
-                             options: HTTPSCallableOptions?,
-                             timeout: TimeInterval,
-                             completion: @escaping @MainActor
-                             (Result<HTTPSCallableResult, any Error>) -> Void) {
-    do {
-      try verifyParameters?(url, data, timeout)
-      let result = try mockCallFunction()
-      DispatchQueue.main.async {
-        completion(.success(result))
-      }
-    } catch {
-      DispatchQueue.main.async {
-        completion(.failure(error))
-      }
-    }
-  }
-
   init(mockCallFunction: @escaping () throws -> HTTPSCallableResult) {
     self.mockCallFunction = mockCallFunction
     super.init(
