@@ -438,30 +438,6 @@ enum FunctionsConstants {
     }
   }
 
-  func callFunction(at url: URL,
-                    withObject data: Any?,
-                    options: HTTPSCallableOptions?,
-                    timeout: TimeInterval,
-                    completion: @escaping @MainActor (Result<HTTPSCallableResult, Error>) -> Void) {
-    // Get context first.
-    contextProvider.getContext(options: options) { context, error in
-      // Note: context is always non-nil since some checks could succeed, we're only failing if
-      // there's an error.
-      if let error {
-        DispatchQueue.main.async {
-          completion(.failure(error))
-        }
-      } else {
-        self.callFunction(url: url,
-                          withObject: data,
-                          options: options,
-                          timeout: timeout,
-                          context: context,
-                          completion: completion)
-      }
-    }
-  }
-
   private func callFunction(url: URL,
                             withObject data: Any?,
                             options: HTTPSCallableOptions?,
