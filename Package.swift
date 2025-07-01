@@ -503,7 +503,7 @@ let package = Package(
       ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
-      ],
+      ]
     ),
 
     .target(
@@ -573,7 +573,7 @@ let package = Package(
         "FIROAuthProviderTests.m",
       ],
       swiftSettings: [
-        .swiftLanguageMode(.v5)
+        .swiftLanguageMode(SwiftLanguageMode.v5)
       ]
     ),
     .target(
@@ -1128,7 +1128,7 @@ let package = Package(
         .headerSearchPath("../../../"),
       ],
       swiftSettings: [
-        .swiftLanguageMode(.v5)
+        .swiftLanguageMode(SwiftLanguageMode.v5)
       ]
     ),
     .target(
@@ -1299,7 +1299,7 @@ let package = Package(
       ],
       path: "SwiftPMTests/swift-test",
       swiftSettings: [
-        .swiftLanguageMode(.v5)
+        .swiftLanguageMode(SwiftLanguageMode.v5)
       ]
     ),
     .testTarget(
