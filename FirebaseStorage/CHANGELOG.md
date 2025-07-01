@@ -1,3 +1,7 @@
+# Unreleased
+- [removed] **Breaking change**: Removed the following unused API,
+  `StorageMetadata.storageReference`.
+
 # 11.13.0
 - [fixed] `putFile` now works in App Clips. Similarly to app extensions, background session
   configurations are not used in App Clips (#14794).

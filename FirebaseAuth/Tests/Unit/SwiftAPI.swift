@@ -273,11 +273,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.webSignInUserInteractionFailure
     _ = AuthErrorCode.localPlayerNotAuthenticated
     _ = AuthErrorCode.nullUser
-    _ = AuthErrorCode.dynamicLinkNotActivated
     _ = AuthErrorCode.invalidProviderID
     _ = AuthErrorCode.tenantIDMismatch
     _ = AuthErrorCode.unsupportedTenantOperation
-    _ = AuthErrorCode.invalidDynamicLinkDomain
     _ = AuthErrorCode.invalidHostingLinkDomain
     _ = AuthErrorCode.rejectedCredential
     _ = AuthErrorCode.gameKitNotLinked
@@ -474,34 +472,24 @@ class AuthAPI_hOnlyTests: XCTestCase {
   func FIROAuthProvider_h() {
     let _: (String, Auth) -> OAuthProvider = OAuthProvider.init(providerID:auth:)
     let _: (AuthProviderID, Auth) -> OAuthProvider = OAuthProvider.init(providerID:auth:)
-    let _: (String) -> OAuthProvider = OAuthProvider.provider(providerID:)
-    let _: (String, Auth) -> OAuthProvider = OAuthProvider.provider(providerID:auth:)
     let _: (AuthProviderID) -> OAuthProvider = OAuthProvider.provider(providerID:)
     let _: (AuthProviderID, Auth) -> OAuthProvider = OAuthProvider.provider(providerID:auth:)
     // `auth` defaults to `nil`
     let provider = OAuthProvider(providerID: "id")
     let _: String = provider.providerID
     #if os(iOS)
-      let _: (String, String, String?) -> OAuthCredential =
-        OAuthProvider.credential(withProviderID:idToken:accessToken:)
       let _: (AuthProviderID, String, String?) -> OAuthCredential =
         OAuthProvider.credential(providerID:idToken:accessToken:)
       // `accessToken` defaults to `nil`
       let _: OAuthCredential =
         OAuthProvider.credential(providerID: .apple, idToken: "")
-      let _: (String, String) -> OAuthCredential =
-        OAuthProvider.credential(withProviderID:accessToken:)
       let _: (AuthProviderID, String) -> OAuthCredential = OAuthProvider
         .credential(providerID:accessToken:)
-      let _: (String, String, String, String) -> OAuthCredential =
-        OAuthProvider.credential(withProviderID:idToken:rawNonce:accessToken:)
       let _: (AuthProviderID, String, String, String?) -> OAuthCredential =
         OAuthProvider.credential(providerID:idToken:rawNonce:accessToken:)
       // `accessToken` defaults to `nil`
       let _: OAuthCredential =
         OAuthProvider.credential(providerID: .apple, idToken: "", rawNonce: "")
-      let _: (String, String, String) -> OAuthCredential =
-        OAuthProvider.credential(withProviderID:idToken:rawNonce:)
 
       provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
       }

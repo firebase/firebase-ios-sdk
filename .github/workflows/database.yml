@@ -63,7 +63,7 @@ jobs:
     - name: Install xcpretty
       run: gem install xcpretty
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: IntegrationTest
       # Only iOS to mitigate flakes.
       run: scripts/third_party/travis/retry.sh scripts/build.sh Database iOS integration
