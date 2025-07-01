@@ -500,7 +500,10 @@ let package = Package(
       path: "FirebaseAppDistribution/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../../../.."),
-      ]
+      ],
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ],
     ),
 
     .target(
@@ -568,6 +571,9 @@ let package = Package(
         "ObjCAPITests.m",
         "ObjCGlobalTests.m",
         "FIROAuthProviderTests.m",
+      ],
+      swiftSettings: [
+        .swiftLanguageMode(.v5)
       ]
     ),
     .target(
@@ -658,7 +664,10 @@ let package = Package(
     .testTarget(
       name: "FirebaseCrashlyticsSwiftUnit",
       dependencies: ["FirebaseCrashlyticsSwift"],
-      path: "Crashlytics/UnitTestsSwift/"
+      path: "Crashlytics/UnitTestsSwift/",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
     ),
     .testTarget(
       name: "FirebaseCrashlyticsUnit",
@@ -731,6 +740,9 @@ let package = Package(
       path: "FirebaseDatabase/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../.."),
+      ],
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .target(
@@ -783,6 +795,9 @@ let package = Package(
       path: "FirebaseFunctions/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
+      ],
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1111,6 +1126,9 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
+      ],
+      swiftSettings: [
+        .swiftLanguageMode(.v5)
       ]
     ),
     .target(
@@ -1230,6 +1248,9 @@ let package = Package(
       path: "FirebaseStorage/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
+      ],
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1276,7 +1297,10 @@ let package = Package(
         "FirebaseStorage",
         .product(name: "nanopb", package: "nanopb"),
       ],
-      path: "SwiftPMTests/swift-test"
+      path: "SwiftPMTests/swift-test",
+      swiftSettings: [
+        .swiftLanguageMode(.v5)
+      ]
     ),
     .testTarget(
       name: "analytics-import-test",
@@ -1284,7 +1308,10 @@ let package = Package(
         "FirebaseAnalyticsWrapper",
         "Firebase",
       ],
-      path: "SwiftPMTests/analytics-import-test"
+      path: "SwiftPMTests/analytics-import-test",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
     ),
     .testTarget(
       name: "objc-import-test",
@@ -1375,7 +1402,10 @@ let package = Package(
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
-      path: "FirebaseAppCheck/Tests/Unit/Swift"
+      path: "FirebaseAppCheck/Tests/Unit/Swift",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
     ),
 
     // MARK: Testing support
