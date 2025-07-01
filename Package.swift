@@ -744,6 +744,10 @@ let package = Package(
       exclude: [
         "third_party/FirebaseDataEncoder/LICENSE",
         "third_party/FirebaseDataEncoder/METADATA",
+      ],
+      // TODO(ncooke3): Can this be upgraded to Swift 6?
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
