@@ -61,5 +61,5 @@ extension CodableMinKey {
   }
 }
 
-/** Extends RegexValue to conform to Codable. */
+/** Extends MinKey to conform to Codable. */
 extension FirebaseFirestore.MinKey: FirebaseFirestore.CodableMinKey {}

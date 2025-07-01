@@ -61,5 +61,5 @@ extension CodableMaxKey {
   }
 }
 
-/** Extends RegexValue to conform to Codable. */
+/** Extends MaxKey to conform to Codable. */
 extension FirebaseFirestore.MaxKey: FirebaseFirestore.CodableMaxKey {}

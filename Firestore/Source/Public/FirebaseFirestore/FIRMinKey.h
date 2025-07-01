@@ -31,9 +31,6 @@ __attribute__((objc_subclassing_restricted))
 
 /** Returns true if the given object is equal to this, and false otherwise. */
 - (BOOL)isEqual:(nullable id)object;
-
-- (instancetype)init NS_UNAVAILABLE;
-
 @end
 
 NS_ASSUME_NONNULL_END
