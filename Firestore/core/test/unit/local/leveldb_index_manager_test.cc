@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/local/leveldb_index_manager.h"
+#include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/model/field_index.h"
@@ -39,16 +40,27 @@ using model::ResourcePath;
 using model::Segment;
 using testutil::AndFilters;
 using testutil::Array;
+using testutil::BlobValue;
+using testutil::BsonBinaryData;
+using testutil::BsonObjectId;
+using testutil::BsonTimestamp;
 using testutil::CollectionGroupQuery;
+using testutil::Decimal128;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Filter;
+using testutil::Int32;
 using testutil::Key;
 using testutil::MakeFieldIndex;
 using testutil::Map;
+using testutil::MaxKey;
+using testutil::MinKey;
 using testutil::OrderBy;
 using testutil::OrFilters;
 using testutil::Query;
+using testutil::Ref;
+using testutil::Regex;
+using testutil::Value;
 using testutil::VectorType;
 using testutil::Version;
 
@@ -973,6 +985,698 @@ TEST_F(LevelDbIndexManagerTest, IndexVectorValueFields) {
       SCOPED_TRACE("> vector<4.0>");
       VerifyResults(query, {"coll/doc4", "coll/doc3"});
     }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexBsonObjectIdFields) {
+  persistence_->Run("TestIndexBsonObjectIdFields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1", Map("key", BsonObjectId("507f191e810c19729de860ea")));
+    AddDoc("coll/doc2", Map("key", BsonObjectId("507f191e810c19729de860eb")));
+    AddDoc("coll/doc3", Map("key", BsonObjectId("507f191e810c19729de860ec")));
+
+    auto query = Query("coll").AddingOrderBy(OrderBy("key"));
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(query, {"coll/doc1", "coll/doc2", "coll/doc3"});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("key"))
+                .AddingFilter(Filter(
+                    "key", "==", BsonObjectId("507f191e810c19729de860ea")));
+    {
+      SCOPED_TRACE("Query BsonObjectId with EqualTo filter");
+      VerifyResults(query, {"coll/doc1"});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("key"))
+                .AddingFilter(Filter(
+                    "key", "!=", BsonObjectId("507f191e810c19729de860ea")));
+    {
+      SCOPED_TRACE("Query BsonObjectId with NotEqualTo filter");
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("key"))
+                .AddingFilter(Filter(
+                    "key", ">=", BsonObjectId("507f191e810c19729de860eb")));
+    {
+      SCOPED_TRACE("Query BsonObjectId with GreaterThanOrEqualTo filter");
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("key"))
+                .AddingFilter(Filter(
+                    "key", "<=", BsonObjectId("507f191e810c19729de860eb")));
+    {
+      SCOPED_TRACE("Query BsonObjectId with LessThanOrEqualTo filter");
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("key"))
+                .AddingFilter(Filter("key", ">",
+                                     BsonObjectId("507f191e810c19729de860eb")));
+    {
+      SCOPED_TRACE("Query BsonObjectId with GreaterThan filter");
+      VerifyResults(query, {"coll/doc3"});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("key"))
+                .AddingFilter(Filter("key", "<",
+                                     BsonObjectId("507f191e810c19729de860eb")));
+    {
+      SCOPED_TRACE("Query BsonObjectId with LessThan filter");
+      VerifyResults(query, {"coll/doc1"});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("key"))
+                .AddingFilter(Filter("key", ">",
+                                     BsonObjectId("507f191e810c19729de860ec")));
+    {
+      SCOPED_TRACE(
+          "Query BsonObjectId with GreaterThan filter and empty result set");
+      VerifyResults(query, {});
+    }
+
+    query = Query("coll")
+                .AddingOrderBy(OrderBy("key"))
+                .AddingFilter(Filter("key", "<",
+                                     BsonObjectId("507f191e810c19729de860ea")));
+    {
+      SCOPED_TRACE(
+          "Query BsonObjectId with LessThan filter and empty result set");
+      VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexBsonBinaryDataFields) {
+  persistence_->Run("TestIndexBsonBinaryDataFields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1", Map("key", BsonBinaryData(1, {1, 2, 3})));
+    AddDoc("coll/doc2", Map("key", BsonBinaryData(1, {1, 2, 4})));
+    AddDoc("coll/doc3", Map("key", BsonBinaryData(1, {2, 1, 2})));
+
+    auto base_query = Query("coll").AddingOrderBy(OrderBy("key"));
+
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(base_query, {"coll/doc1", "coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query BsonBinaryData with EqualTo filter");
+      auto query = base_query.AddingFilter(
+          Filter("key", "==", BsonBinaryData(1, {1, 2, 3})));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE("Query BsonBinaryData with NotEqualTo filter");
+      auto query = base_query.AddingFilter(
+          Filter("key", "!=", BsonBinaryData(1, {1, 2, 3})));
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query BsonBinaryData with GreaterThanOrEqualTo filter");
+      auto query = base_query.AddingFilter(
+          Filter("key", ">=", BsonBinaryData(1, {1, 2, 4})));
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query BsonBinaryData with LessThanOrEqualTo filter");
+      auto query = base_query.AddingFilter(
+          Filter("key", "<=", BsonBinaryData(1, {1, 2, 4})));
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+    {
+      SCOPED_TRACE("Query BsonBinaryData with GreaterThan filter");
+      auto query = base_query.AddingFilter(
+          Filter("key", ">", BsonBinaryData(1, {1, 2, 4})));
+      VerifyResults(query, {"coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query BsonBinaryData with LessThan filter");
+      auto query = base_query.AddingFilter(
+          Filter("key", "<", BsonBinaryData(1, {1, 2, 4})));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE(
+          "Query BsonBinaryData with GreaterThan filter and empty result set");
+      auto query = base_query.AddingFilter(
+          Filter("key", ">", BsonBinaryData(1, {2, 1, 2})));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE(
+          "Query BsonBinaryData with LessThan filter and empty result set");
+      auto query = base_query.AddingFilter(
+          Filter("key", "<", BsonBinaryData(1, {1, 2, 3})));
+      VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexBsonTimestampFields) {
+  persistence_->Run("TestIndexBsonTimestampFields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1", Map("key", BsonTimestamp(1, 1)));
+    AddDoc("coll/doc2", Map("key", BsonTimestamp(1, 2)));
+    AddDoc("coll/doc3", Map("key", BsonTimestamp(2, 1)));
+
+    auto base_query = Query("coll").AddingOrderBy(OrderBy("key"));
+
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(base_query, {"coll/doc1", "coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query BsonTimestamp with EqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "==", BsonTimestamp(1, 1)));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE("Query BsonTimestamp with NotEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "!=", BsonTimestamp(1, 1)));
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query BsonTimestamp with GreaterThanOrEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">=", BsonTimestamp(1, 2)));
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query BsonTimestamp with LessThanOrEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<=", BsonTimestamp(1, 2)));
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+    {
+      SCOPED_TRACE("Query BsonTimestamp with GreaterThan filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">", BsonTimestamp(1, 2)));
+      VerifyResults(query, {"coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query BsonTimestamp with LessThan filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<", BsonTimestamp(1, 2)));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE(
+          "Query BsonTimestamp with GreaterThan filter and empty result set");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">", BsonTimestamp(2, 1)));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE(
+          "Query BsonTimestamp with LessThan filter and empty result set");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<", BsonTimestamp(1, 1)));
+      VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexInt32Fields) {
+  persistence_->Run("TestIndexInt32Fields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1", Map("key", Int32(1)));
+    AddDoc("coll/doc2", Map("key", Int32(2)));
+    AddDoc("coll/doc3", Map("key", Int32(3)));
+
+    auto base_query = Query("coll").AddingOrderBy(OrderBy("key"));
+
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(base_query, {"coll/doc1", "coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Int32 with EqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "==", Int32(1)));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE("Query Int32 with NotEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "!=", Int32(1)));
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Int32 with GreaterThanOrEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", ">=", Int32(2)));
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Int32 with LessThanOrEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "<=", Int32(2)));
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+    {
+      SCOPED_TRACE("Query Int32 with GreaterThan filter");
+      auto query = base_query.AddingFilter(Filter("key", ">", Int32(2)));
+      VerifyResults(query, {"coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Int32 with LessThan filter");
+      auto query = base_query.AddingFilter(Filter("key", "<", Int32(2)));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE("Query Int32 with GreaterThan filter and empty result set");
+      auto query = base_query.AddingFilter(Filter("key", ">", Int32(3)));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE("Query Int32 with LessThan filter and empty result set");
+      auto query = base_query.AddingFilter(Filter("key", "<", Int32(1)));
+      VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexDecimal128Fields) {
+  persistence_->Run("TestIndexDecimal128Fields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1", Map("key", Decimal128("-Infinity")));
+    AddDoc("coll/doc2", Map("key", Decimal128("-0.0")));
+    AddDoc("coll/doc3", Map("key", Decimal128("0")));
+    AddDoc("coll/doc4", Map("key", Decimal128("1.3e-3")));
+    AddDoc("coll/doc5", Map("key", Decimal128("1.2e3")));
+    AddDoc("coll/doc6", Map("key", Decimal128("Infinity")));
+    AddDoc("coll/doc7", Map("key", Decimal128("NaN")));
+
+    auto base_query = Query("coll").AddingOrderBy(OrderBy("key"));
+
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(base_query,
+                    {"coll/doc7", "coll/doc1", "coll/doc2", "coll/doc3",
+                     "coll/doc4", "coll/doc5", "coll/doc6"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with EqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "==", Decimal128("1200")));
+      VerifyResults(query, {"coll/doc5"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with NotEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "!=", Decimal128("0")));
+      VerifyResults(query, {"coll/doc7", "coll/doc1", "coll/doc4", "coll/doc5",
+                            "coll/doc6"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with GreaterThanOrEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">=", Decimal128("0.12e4")));
+      VerifyResults(query, {"coll/doc5", "coll/doc6"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with LessThanOrEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<=", Decimal128("0.0")));
+      VerifyResults(query,
+                    {"coll/doc7", "coll/doc1", "coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with GreaterThan filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">", Decimal128("1200")));
+      VerifyResults(query, {"coll/doc6"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with LessThan filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<", Decimal128("-Infinity")));
+      VerifyResults(query, {"coll/doc7"});
+    }
+    {
+      SCOPED_TRACE(
+          "Query Decimal128 with GreaterThan filter and empty result set");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">", Decimal128("Infinity")));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE(
+          "Query Decimal128 with LessThan filter and empty result set");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<", Decimal128("NaN")));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with GreaterThan NaN filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">", Decimal128("NaN")));
+      VerifyResults(query, {"coll/doc1", "coll/doc2", "coll/doc3", "coll/doc4",
+                            "coll/doc5", "coll/doc6"});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexDecimal128FieldsWithPrecisionLoss) {
+  persistence_->Run("TestIndexDecimal128Fields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1",
+           Map("key",
+               Decimal128("-0.1234567890123456789")));  // will be rounded to
+                                                        // -0.12345678901234568
+    AddDoc("coll/doc2", Map("key", Decimal128("0")));
+    AddDoc("coll/doc3",
+           Map("key",
+               Decimal128("0.1234567890123456789")));  // will be rounded to
+                                                       // 0.12345678901234568
+
+    auto base_query = Query("coll").AddingOrderBy(OrderBy("key"));
+
+    {
+      SCOPED_TRACE("Query Decimal128 with EqualTo filter");
+      auto query = base_query.AddingFilter(
+          Filter("key", "==", Decimal128("0.1234567890123456789")));
+      VerifyResults(query, {"coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with EqualTo filter with rounding error");
+      // Mismatch behaviour caused by rounding error. Firestore fetches the doc3
+      // from LevelDb as doc3 rounds to the same number, even though the actual
+      // number in doc3 is different.
+      auto query = base_query.AddingFilter(
+          Filter("key", "==", Decimal128("0.12345678901234568")));
+      VerifyResults(query, {"coll/doc3"});
+    }
+
+    // Operations that doesn't go up to 17 decimal digits of precision wouldn't
+    // be affected by this rounding errors.
+    {
+      SCOPED_TRACE("Query Decimal128 with NotEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "!=", Decimal128("0.0")));
+      VerifyResults(query, {"coll/doc1", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with GreaterThanOrEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">=", Decimal128("1.23e-1")));
+      VerifyResults(query, {"coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Decimal128 with LessThanOrEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<=", Decimal128("-1.23e-1")));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE(
+          "Query Decimal128 with GreaterThan filter and empty result set");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">", Decimal128("1.2e3")));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE(
+          "Query Decimal128 with LessThan filter and empty result set");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<", Decimal128("-1.2e3")));
+      VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexRegexFields) {
+  persistence_->Run("TestIndexRegexFields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1", Map("key", Regex("a", "i")));
+    AddDoc("coll/doc2", Map("key", Regex("a", "m")));
+    AddDoc("coll/doc3", Map("key", Regex("b", "i")));
+
+    auto base_query = Query("coll").AddingOrderBy(OrderBy("key"));
+
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(base_query, {"coll/doc1", "coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Regex with EqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "==", Regex("a", "i")));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE("Query Regex with NotEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "!=", Regex("a", "i")));
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Regex with GreaterThanOrEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", ">=", Regex("a", "m")));
+      VerifyResults(query, {"coll/doc2", "coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Regex with LessThanOrEqualTo filter");
+      auto query =
+          base_query.AddingFilter(Filter("key", "<=", Regex("a", "m")));
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+    {
+      SCOPED_TRACE("Query Regex with GreaterThan filter");
+      auto query = base_query.AddingFilter(Filter("key", ">", Regex("a", "m")));
+      VerifyResults(query, {"coll/doc3"});
+    }
+    {
+      SCOPED_TRACE("Query Regex with LessThan filter");
+      auto query = base_query.AddingFilter(Filter("key", "<", Regex("a", "m")));
+      VerifyResults(query, {"coll/doc1"});
+    }
+    {
+      SCOPED_TRACE("Query Regex with GreaterThan filter and empty result set");
+      auto query = base_query.AddingFilter(Filter("key", ">", Regex("b", "i")));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE("Query Regex with LessThan filter and empty result set");
+      auto query = base_query.AddingFilter(Filter("key", "<", Regex("a", "i")));
+      VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexMinKeyFields) {
+  persistence_->Run("TestIndexMinKeyFields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1", Map("key", MinKey()));
+    AddDoc("coll/doc2", Map("key", MinKey()));
+    AddDoc("coll/doc3", Map("key", nullptr));
+    AddDoc("coll/doc4", Map("key", 1));
+    AddDoc("coll/doc5", Map("key", MaxKey()));
+
+    auto base_query = Query("coll").AddingOrderBy(OrderBy("key"));
+
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(base_query, {"coll/doc3", "coll/doc1", "coll/doc2",
+                                 "coll/doc4", "coll/doc5"});
+    }
+    {
+      SCOPED_TRACE("Query MinKey with EqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "==", MinKey()));
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+    {
+      SCOPED_TRACE("Query MinKey with NotEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "!=", MinKey()));
+      VerifyResults(query, {"coll/doc4", "coll/doc5"});
+    }
+    {
+      SCOPED_TRACE("Query MinKey with GreaterThanOrEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", ">=", MinKey()));
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+    {
+      SCOPED_TRACE("Query MinKey with LessThanOrEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "<=", MinKey()));
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+    {
+      SCOPED_TRACE("Query MinKey with GreaterThan filter");
+      auto query = base_query.AddingFilter(Filter("key", ">", MinKey()));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE("Query MinKey with LessThan filter");
+      auto query = base_query.AddingFilter(Filter("key", "<", MinKey()));
+      VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexMaxKeyFields) {
+  persistence_->Run("TestIndexMaxKeyFields", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kAscending));
+
+    AddDoc("coll/doc1", Map("key", MinKey()));
+    AddDoc("coll/doc2", Map("key", 1));
+    AddDoc("coll/doc3", Map("key", MaxKey()));
+    AddDoc("coll/doc4", Map("key", MaxKey()));
+    AddDoc("coll/doc5", Map("key", nullptr));
+
+    auto base_query = Query("coll").AddingOrderBy(OrderBy("key"));
+
+    {
+      SCOPED_TRACE("no filter");
+      VerifyResults(base_query, {"coll/doc5", "coll/doc1", "coll/doc2",
+                                 "coll/doc3", "coll/doc4"});
+    }
+    {
+      SCOPED_TRACE("Query MaxKey with EqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "==", MaxKey()));
+      VerifyResults(query, {"coll/doc3", "coll/doc4"});
+    }
+    {
+      SCOPED_TRACE("Query MaxKey with NotEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "!=", MaxKey()));
+      VerifyResults(query, {"coll/doc1", "coll/doc2"});
+    }
+    {
+      SCOPED_TRACE("Query MaxKey with GreaterThanOrEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", ">=", MaxKey()));
+      VerifyResults(query, {"coll/doc3", "coll/doc4"});
+    }
+    {
+      SCOPED_TRACE("Query MaxKey with LessThanOrEqualTo filter");
+      auto query = base_query.AddingFilter(Filter("key", "<=", MaxKey()));
+      VerifyResults(query, {"coll/doc3", "coll/doc4"});
+    }
+    {
+      SCOPED_TRACE("Query MaxKey with GreaterThan filter");
+      auto query = base_query.AddingFilter(Filter("key", ">", MaxKey()));
+      VerifyResults(query, {});
+    }
+    {
+      SCOPED_TRACE("Query MaxKey with LessThan filter");
+      auto query = base_query.AddingFilter(Filter("key", "<", MaxKey()));
+      VerifyResults(query, {});
+    }
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexBsonTypesTogether) {
+  persistence_->Run("TestIndexBsonTypesTogether", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kDescending));
+
+    AddDoc("coll/doc1", Map("key", MinKey()));
+    AddDoc("coll/doc2", Map("key", Decimal128("NaN")));
+    AddDoc("coll/doc3", Map("key", Decimal128("-Infinity")));
+    AddDoc("coll/doc4", Map("key", Decimal128("Infinity")));
+    AddDoc("coll/doc5", Map("key", Decimal128("0")));
+    AddDoc("coll/doc6", Map("key", Decimal128("-1.2e3")));
+    AddDoc("coll/doc7", Map("key", Decimal128("2.3e-4")));
+    AddDoc("coll/doc8", Map("key", Int32(2)));
+    AddDoc("coll/doc9", Map("key", Int32(1)));
+    AddDoc("coll/doc10", Map("key", BsonTimestamp(1, 2)));
+    AddDoc("coll/doc11", Map("key", BsonTimestamp(1, 1)));
+    AddDoc("coll/doc12", Map("key", BsonBinaryData(1, {1, 2, 4})));
+    AddDoc("coll/doc13", Map("key", BsonBinaryData(1, {1, 2, 3})));
+    AddDoc("coll/doc14", Map("key", BsonObjectId("507f191e810c19729de860eb")));
+    AddDoc("coll/doc15", Map("key", BsonObjectId("507f191e810c19729de860ea")));
+    AddDoc("coll/doc16", Map("key", Regex("a", "m")));
+    AddDoc("coll/doc17", Map("key", Regex("a", "i")));
+    AddDoc("coll/doc18", Map("key", MaxKey()));
+
+    auto query = Query("coll").AddingOrderBy(OrderBy("key", "desc"));
+
+    VerifyResults(query, {"coll/doc18", "coll/doc16", "coll/doc17",
+                          "coll/doc14", "coll/doc15", "coll/doc12",
+                          "coll/doc13", "coll/doc10", "coll/doc11", "coll/doc4",
+                          "coll/doc8", "coll/doc9", "coll/doc7", "coll/doc5",
+                          "coll/doc6", "coll/doc3", "coll/doc2", "coll/doc1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, IndexAllTypesTogether) {
+  persistence_->Run("TestIndexAllTypesTogether", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "key", model::Segment::kDescending));
+
+    AddDoc("coll/doc1", Map("key", nullptr));
+    AddDoc("coll/doc2", Map("key", MinKey()));
+    AddDoc("coll/doc3", Map("key", true));
+    AddDoc("coll/doc4", Map("key", std::numeric_limits<double>::quiet_NaN()));
+    AddDoc("coll/doc5", Map("key", Decimal128("NaN")));
+    AddDoc("coll/doc6", Map("key", Decimal128("-Infinifty")));
+    AddDoc("coll/doc7", Map("key", Decimal128("-1.2e-3")));
+    AddDoc("coll/doc8", Map("key", Decimal128("0")));
+    AddDoc("coll/doc9", Map("key", Int32(1)));
+    AddDoc("coll/doc10", Map("key", 2.0));
+    AddDoc("coll/doc11", Map("key", 3));
+    AddDoc("coll/doc12", Map("key", Decimal128("2.3e4")));
+    AddDoc("coll/doc13", Map("key", Decimal128("Infinifty")));
+    AddDoc("coll/doc14", Map("key", Timestamp(100, 123456000)));
+    AddDoc("coll/doc15", Map("key", BsonTimestamp(1, 2)));
+    AddDoc("coll/doc16", Map("key", "string"));
+    AddDoc("coll/doc17", Map("key", BlobValue(0, 1, 255)));
+    AddDoc("coll/doc18", Map("key", BsonBinaryData(1, {1, 2, 3})));
+    AddDoc("coll/doc19", Map("key", Ref("project", "coll/doc")));
+    AddDoc("coll/doc20", Map("key", BsonObjectId("507f191e810c19729de860ea")));
+    AddDoc("coll/doc21", Map("key", GeoPoint(0, 1)));
+    AddDoc("coll/doc22", Map("key", Regex("^foo", "i")));
+    AddDoc("coll/doc23", Map("key", Array(1, 2)));
+    AddDoc("coll/doc24", Map("key", VectorType(1, 2)));
+    AddDoc("coll/doc25", Map("key", Map("a", 1)));
+    AddDoc("coll/doc26", Map("key", MaxKey()));
+
+    auto query = Query("coll").AddingOrderBy(OrderBy("key", "desc"));
+
+    VerifyResults(
+        query,
+        {"coll/doc26", "coll/doc25", "coll/doc24", "coll/doc23", "coll/doc22",
+         "coll/doc21", "coll/doc20", "coll/doc19", "coll/doc18", "coll/doc17",
+         "coll/doc16", "coll/doc15", "coll/doc14", "coll/doc13", "coll/doc12",
+         "coll/doc11", "coll/doc10", "coll/doc9",  "coll/doc8",  "coll/doc7",
+         "coll/doc6",  "coll/doc5",  "coll/doc4",  "coll/doc3",  "coll/doc2",
+         "coll/doc1"});
   });
 }
 

@@ -1,8 +1,9 @@
 # Unreleased
+- [feature] Adds support for the following new types: `MinKey`, `MaxKey`, `RegexValue`,
+  `Int32Value`, `Decimal128Value`, `BSONObjectId`, `BSONTimestamp`, and `BSONBinaryData`. (#14800)
 - [changed] Migrates the network connectivity monitoring implementation for
   Apple platforms from the legacy SCNetworkReachability API to the modern
   NWPathMonitor API.
-
 # 12.15.0
 - [fix] Remove use of designated initializers for `forceIndex` [#16229].
 
@@ -46,7 +47,6 @@
 
 # 12.1.0
 - [fixed] Fixed accidental removal of `pod "Firebase/Firestore"` for tvOS in 12.0.0.
-
 # 11.12.0
 - [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
 
