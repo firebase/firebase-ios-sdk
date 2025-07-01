@@ -12,16 +12,22 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#include "quadruple.h"
-#include <ctype.h>
-#include <stdint.h>
+#include "Firestore/core/src/util/quadruple.h"
+
+#include <cctype>
 #include <cmath>
+#include <cstdint>
 #include <limits>
-#include "quadruple_builder.h"
+#include <vector>
+
+#include "Firestore/core/src/util/quadruple_builder.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+
+using std::fpclassify;
+using std::signbit;
 
 namespace {
 constexpr int64_t kHashCodeOfNan = 7652541255;

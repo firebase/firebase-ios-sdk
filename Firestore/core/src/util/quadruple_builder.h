@@ -16,11 +16,12 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_QUADRUPLE_BUILDER_H_
 #define FIRESTORE_CORE_SRC_UTIL_QUADRUPLE_BUILDER_H_
 
-#include <math.h>
-#include <array>
 #include <bit>
 #include <cstddef>
 #include <cstdint>
+
+#include <array>
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -95,4 +96,4 @@ class QuadrupleBuilder {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif
+#endif  // FIRESTORE_CORE_SRC_UTIL_QUADRUPLE_BUILDER_H_

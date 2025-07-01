@@ -13,7 +13,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#include "quadruple_builder.h"
+#include "Firestore/core/src/util/quadruple_builder.h"
 
 #include <array>
 #include <cmath>
@@ -244,7 +244,6 @@ static std::array<std::array<uint64_t, 4>, 33> NEG_POWERS_OF_2 = {
      {{static_cast<uint64_t>(-9), 0x3b9aca0000000000LL, 0x0000000000000000LL,
        0x0000000000000001LL}},  // ***
                                 // 7: 2^-(2^6) =   2^-64
-                                // =   5.42101086242752217003726400434970855712890625E-20
                                 // =
                                 // 0.542101086242752217003726400434970855712890625e-19
      {{static_cast<uint64_t>(-19), 0x8ac7230489e80000LL, 0x0000000000000000LL,
@@ -660,8 +659,8 @@ void QuadrupleBuilder::multPacked3x64_simply(std::array<uint64_t, 4>& factor1,
   for (int32_t i = (0); i < (static_cast<int32_t>((result).size())); i++) {
     result[i] = 0LL;
   }
-  // TODO2 19.01.16 21:23:06 for the next version -- rebuild the table of powers
-  // to make the numbers unpacked, to avoid packing/unpacking
+  // TODO(dgay): 19.01.16 21:23:06 for the next version -- rebuild the table of
+  //  powers to make the numbers unpacked, to avoid packing/unpacking
   unpack_3x64_to_6x32(factor1, this->buffer6x32A);
   unpack_3x64_to_6x32(factor2, this->buffer6x32B);
   for (int32_t i = (6) - 1; i >= (0); i--) {  // compute partial 32-bit products

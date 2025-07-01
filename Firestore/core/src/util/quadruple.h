@@ -12,14 +12,14 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#include <stdint.h>
+#include <cstdint>
 #include <iomanip>
 #include <ios>
 #include <sstream>
 #include <string>
 
-#ifndef FIRESTORE_CORE_UTIL_QUADRUPLE_H_
-#define FIRESTORE_CORE_UTIL_QUADRUPLE_H_
+#ifndef FIRESTORE_CORE_SRC_UTIL_QUADRUPLE_H_
+#define FIRESTORE_CORE_SRC_UTIL_QUADRUPLE_H_
 
 namespace firebase {
 namespace firestore {
@@ -97,4 +97,4 @@ class Quadruple {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_UTIL_QUADRUPLE_H_
+#endif  // FIRESTORE_CORE_SRC_UTIL_QUADRUPLE_H_
