@@ -336,16 +336,13 @@ class FunctionsTests: XCTestCase {
       userInfo: nil
     )
 
-    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       let appCheckTokenHeader = fetcherToTest.request?
         .value(forHTTPHeaderField: "X-Firebase-AppCheck")
       XCTAssertNil(appCheckTokenHeader)
       testResponse(nil, nil, networkError)
-      httpRequestExpectation.fulfill()
     }
 
-    let completionExpectation = expectation(description: "completionExpectation")
     do {
       _ = try await functionsCustomDomain?.callFunction(
         at: URL(string: "https://example.com/fake_func")!,
