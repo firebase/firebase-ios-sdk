@@ -16,7 +16,14 @@
 
 #import "Crashlytics/Shared/FIRCLSByteUtility.h"
 
-static NSInteger const FIRCLSUUIDStringLength = 33;
+/// Use an enum to define a true compile-time integer constant. This prevents
+/// warning below where the constant is used to declare the size of an array.
+enum {
+  /// The buffer size needed to hold the hexadecimal string representation of a
+  /// 16-byte UUID. This accounts for 32 characters (2 for each byte) plus one
+  /// byte for the null terminator.
+  FIRCLSUUIDStringLength = (16 * 2) + 1
+};
 
 #pragma mark Public methods
 
