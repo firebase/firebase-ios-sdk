@@ -40,6 +40,9 @@ NSString *const AppVersion = @"app_version";
 
 @property(nonatomic) BOOL isCacheKeyExpired;
 
+// Test-only property to make certain operations synchronous for testing
+@property (nonatomic, assign) BOOL testExecutionSynchronous;
+
 @end
 
 @implementation FIRCLSSettings
@@ -189,16 +192,39 @@ NSString *const AppVersion = @"app_version";
 }
 
 - (void)deleteCachedSettings {
-  __weak FIRCLSSettings *weakSelf = self;
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-    __strong FIRCLSSettings *strongSelf = weakSelf;
-    if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsFilePath]) {
-      [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsFilePath];
+  void (^deleteBlock)(void) = ^{
+    if ([self.fileManager fileExistsAtPath:self.fileManager.settingsFilePath]) {
+      [self.fileManager removeItemAtPath:self.fileManager.settingsFilePath];
     }
-    if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsCacheKeyPath]) {
-      [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsCacheKeyPath];
+    if ([self.fileManager fileExistsAtPath:self.fileManager.settingsCacheKeyPath]) {
+      [self.fileManager removeItemAtPath:self.fileManager.settingsCacheKeyPath];
     }
-  });
+  };
+
+  if (self.testExecutionSynchronous) {
+    deleteBlock();
+  } else {
+    // Preserving original weakSelf/strongSelf dance for the async case, though self should be fine.
+    __weak FIRCLSSettings *weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+      __strong FIRCLSSettings *strongSelf = weakSelf;
+      if (!strongSelf) {
+        return;
+      }
+      // Call the block using strongSelf to maintain original capture semantics if any were intended.
+      // However, deleteBlock as defined above captures `self` directly.
+      // For safety and to minimize deviation for the non-test path, let's redefine the block slightly for async
+      void (^asyncDeleteBlock)(void) = ^{
+        if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsFilePath]) {
+          [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsFilePath];
+        }
+        if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsCacheKeyPath]) {
+          [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsCacheKeyPath];
+        }
+      };
+      asyncDeleteBlock();
+    });
+  }
 
   @synchronized(self) {
     self.isCacheKeyExpired = YES;

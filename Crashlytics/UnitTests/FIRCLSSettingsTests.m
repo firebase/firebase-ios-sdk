@@ -27,6 +27,23 @@
 #import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 
+// Test-only category to allow setting testExecutionSynchronous
+@interface FIRCLSSettings (TestExecutionMode)
+@property(nonatomic, assign) BOOL testExecutionSynchronous; // Matches private property in .m
+@end
+
+@implementation FIRCLSSettings (TestExecutionMode)
+@dynamic testExecutionSynchronous; // Synthesize using the private ivar
+
+- (void)setTestExecutionSynchronous:(BOOL)isSynchronous {
+    [self setValue:@(isSynchronous) forKey:@"testExecutionSynchronous"];
+}
+
+- (BOOL)testExecutionSynchronous {
+    return [[self valueForKey:@"testExecutionSynchronous"] boolValue];
+}
+@end
+
 const NSString *FIRCLSTestSettingsActivated =
     @"{\"settings_version\":3,\"cache_duration\":60,\"features\":{\"collect_logged_exceptions\":"
     @"true,\"collect_reports\":true, \"collect_metric_kit\":true},"
@@ -84,6 +101,8 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   _appIDModel.buildVersion = FIRCLSDefaultMockAppBuildVersion;
 
   _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
+  // Make delete operations synchronous for testing
+  _settings.testExecutionSynchronous = YES;
 }
 
 - (void)testDefaultSettings {

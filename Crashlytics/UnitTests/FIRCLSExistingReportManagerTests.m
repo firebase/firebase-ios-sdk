@@ -22,6 +22,17 @@
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSTempMockFileManager.h"
 
+// Test-only category to allow setting the root path
+@interface FIRCLSFileManager (TestingERM) // Existing Report Manager
+- (void)test_setRootPath:(NSString *)newRootPath;
+@end
+
+@implementation FIRCLSFileManager (TestingERM)
+- (void)test_setRootPath:(NSString *)newRootPath {
+  [self setValue:newRootPath forKey:@"_rootPath"];
+}
+@end
+
 #define METADATA_FORMAT                                                                        \
   (@"{\"identity\":{\"generator\":\"Crashlytics iOS "                                          \
    @"SDK/"                                                                                     \
@@ -43,6 +54,10 @@
 @property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 
+// Path for test-specific files
+NSString *_testSpecificRootPathERM; // Existing Report Manager tests
+}
+
 @end
 
 @implementation FIRCLSExistingReportManagerTests
@@ -52,12 +67,22 @@
 
   FIRCLSContextBaseInit();
 
-  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
+  // Generate a unique path for this test instance
+  _testSpecificRootPathERM =
+      [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
-  // Cleanup potential artifacts from other test files.
-  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
-    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
+  // Override the root path to our unique one
+  [self.fileManager test_setRootPath:_testSpecificRootPathERM];
+
+  // Ensure the unique directory exists and is clean
+  if ([[NSFileManager defaultManager] fileExistsAtPath:_testSpecificRootPathERM]) {
+    [[NSFileManager defaultManager] removeItemAtPath:_testSpecificRootPathERM error:nil];
   }
+  [[NSFileManager defaultManager] createDirectoryAtPath:_testSpecificRootPathERM
+                            withIntermediateDirectories:YES
+                                             attributes:nil
+                                                  error:nil];
 
   // Allow nil values only in tests
 #pragma clang diagnostic push
@@ -79,9 +104,16 @@
 }
 
 - (void)tearDown {
-  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
-    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  // Clean up the test-specific directory
+  if (_testSpecificRootPathERM &&
+      [[NSFileManager defaultManager] fileExistsAtPath:_testSpecificRootPathERM]) {
+    NSError *error = nil;
+    if (![[NSFileManager defaultManager] removeItemAtPath:_testSpecificRootPathERM error:&error]) {
+      NSLog(@"[FIRCLSExistingReportManagerTests] Error removing test root directory %@: %@",
+            _testSpecificRootPathERM, error);
+    }
   }
+  _testSpecificRootPathERM = nil;
 
   FIRCLSContextBaseDeinit();
 

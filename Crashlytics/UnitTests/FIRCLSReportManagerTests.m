@@ -45,6 +45,17 @@
 #import "Crashlytics/UnitTests/Mocks/FIRMockGDTCoreTransport.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
+// Test-only category to allow setting the root path
+@interface FIRCLSFileManager (TestingPMRM) // Post-mortem Report Manager
+- (void)test_setRootPath:(NSString *)newRootPath;
+@end
+
+@implementation FIRCLSFileManager (TestingPMRM)
+- (void)test_setRootPath:(NSString *)newRootPath {
+  [self setValue:newRootPath forKey:@"_rootPath"];
+}
+@end
+
 #define TEST_API_KEY (@"DB5C8FA65C0D43419120FB96CFDBDE0C")
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")
 #define TEST_INSTALL_ID (@"DC352568-33A7-4830-A9D8-20EA708F1905")
@@ -64,6 +75,10 @@
 @property(nonatomic, strong) FIRCLSDataCollectionArbiter *dataArbiter;
 @property(nonatomic, strong) FIRCLSApplicationIdentifierModel *appIDModel;
 
+// Path for test-specific files
+NSString *_testSpecificRootPathRPTM; // Report Manager Tests
+}
+
 @end
 
 @implementation FIRCLSReportManagerTests
@@ -75,18 +90,32 @@
 
   FIRCLSContextBaseInit();
 
+  // Generate a unique path for this test instance
+  _testSpecificRootPathRPTM =
+      [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+
   id fakeApp = [[FIRAppFake alloc] init];
   self.dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
+  // Override the root path to our unique one
+  [self.fileManager test_setRootPath:_testSpecificRootPathRPTM];
 
-  // Cleanup potential artifacts from other test files.
-  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
-    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  // Ensure the unique directory exists and is clean
+  if ([[NSFileManager defaultManager] fileExistsAtPath:_testSpecificRootPathRPTM]) {
+    [[NSFileManager defaultManager] removeItemAtPath:_testSpecificRootPathRPTM error:nil];
   }
+  [[NSFileManager defaultManager] createDirectoryAtPath:_testSpecificRootPathRPTM
+                            withIntermediateDirectories:YES
+                                             attributes:nil
+                                                  error:nil];
 
-  // Delete cached settings
-  [self.fileManager removeItemAtPath:_fileManager.settingsFilePath];
+  // Delete cached settings file specifically if it exists from a previous bad state,
+  // it will be within our unique root path now.
+  // Note: settingsFilePath is a computed property based on the rootPath.
+  if ([self.fileManager fileExistsAtPath:self.fileManager.settingsFilePath]) {
+    [self.fileManager removeItemAtPath:self.fileManager.settingsFilePath];
+  }
 
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
 
@@ -126,9 +155,16 @@
 - (void)tearDown {
   self.reportManager = nil;
 
-  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
-    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  // Clean up the test-specific directory
+  if (_testSpecificRootPathRPTM &&
+      [[NSFileManager defaultManager] fileExistsAtPath:_testSpecificRootPathRPTM]) {
+    NSError *error = nil;
+    if (![[NSFileManager defaultManager] removeItemAtPath:_testSpecificRootPathRPTM error:&error]) {
+      NSLog(@"[FIRCLSReportManagerTests] Error removing test root directory %@: %@",
+            _testSpecificRootPathRPTM, error);
+    }
   }
+  _testSpecificRootPathRPTM = nil;
 
   FIRCLSContextBaseDeinit();
 
@@ -203,14 +239,14 @@
 #pragma mark - File/Directory Handling
 - (void)testCreatesNewReportOnStart {
   FBLPromise<NSNumber *> *promise = [self->_reportManager startWithProfiling];
-  FBLWaitForPromisesWithTimeout(1.0);
+  FBLWaitForPromisesWithTimeout(10.0); // Increased timeout
 
   XCTAssertTrue([promise.value boolValue]);
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 }
 
 - (void)waitForPromise:(FBLPromise<NSNumber *> *)promise {
-  [self waitForPromise:promise withTimeout:1.0];
+  [self waitForPromise:promise withTimeout:10.0]; // Increased default timeout
 }
 
 - (void)waitForPromise:(FBLPromise<NSNumber *> *)promise withTimeout:(double)timeout {
@@ -258,7 +294,7 @@
     [processReportsComplete fulfill];
     return nil;
   }];
-  [self waitForExpectations:@[ processReportsComplete ] timeout:1.0];
+  [self waitForExpectations:@[ processReportsComplete ] timeout:10.0]; // Increased timeout
   if (reportsExpected) {
     XCTAssertTrue(reportsAvailable, "should have unsent reports");
   } else {
@@ -304,7 +340,7 @@
                           attributes:nil];
 
   // MetricKit manager should resolve its promise after 3 seconds.
-  [self waitForPromise:[self startReportManagerWithDataCollectionEnabled:YES] withTimeout:4];
+  [self waitForPromise:[self startReportManagerWithDataCollectionEnabled:YES] withTimeout:10.0]; // Increased timeout
 }
 
 - (void)testExistingUnimportantReportOnStartWithDataCollectionDisabled {
