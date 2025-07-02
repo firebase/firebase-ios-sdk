@@ -78,6 +78,18 @@ NSString *const kFIRExceptionBadModification =
  */
 - (void)checkEditingLocked;
 
+/**
+ * The flag indicating whether this object was constructed with the values in the default plist
+ * file.
+ */
+@property(nonatomic) BOOL usingOptionsFromDefaultPlist;
+
+/**
+ * Whether or not Measurement was enabled. Measurement is enabled unless explicitly disabled in
+ * GoogleService-Info.plist.
+ */
+@property(nonatomic, readonly) BOOL isMeasurementEnabled;
+
 @end
 
 @implementation FIROptions {
