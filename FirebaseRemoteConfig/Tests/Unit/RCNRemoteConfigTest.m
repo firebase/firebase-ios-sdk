@@ -311,7 +311,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   _userDefaultsMock = nil;
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
     [(id)_configInstances[i] stopMocking];
-    [(id)_configFetch[i] stopMocking];
+    // [(id)_configFetch[i] stopMocking];
   }
   [_configInstances removeAllObjects];
   [_configFetch removeAllObjects];
@@ -1654,8 +1654,9 @@ static NSString *UTCToLocal(NSString *utcTime) {
           OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
           [expectations[i] fulfill];
         });
+
+    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
   }
-  [self waitForExpectations:expectations.copy timeout:_expectationTimeout];
 }
 
 - (void)testRealtimeFetch {
