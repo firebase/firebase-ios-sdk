@@ -239,14 +239,14 @@ NSString *_testSpecificRootPathRPTM; // Report Manager Tests
 #pragma mark - File/Directory Handling
 - (void)testCreatesNewReportOnStart {
   FBLPromise<NSNumber *> *promise = [self->_reportManager startWithProfiling];
-  FBLWaitForPromisesWithTimeout(10.0); // Increased timeout
+  FBLWaitForPromisesWithTimeout(1.0); // Reverted timeout
 
   XCTAssertTrue([promise.value boolValue]);
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
 }
 
 - (void)waitForPromise:(FBLPromise<NSNumber *> *)promise {
-  [self waitForPromise:promise withTimeout:10.0]; // Increased default timeout
+  [self waitForPromise:promise withTimeout:1.0]; // Reverted default timeout
 }
 
 - (void)waitForPromise:(FBLPromise<NSNumber *> *)promise withTimeout:(double)timeout {
@@ -294,7 +294,7 @@ NSString *_testSpecificRootPathRPTM; // Report Manager Tests
     [processReportsComplete fulfill];
     return nil;
   }];
-  [self waitForExpectations:@[ processReportsComplete ] timeout:10.0]; // Increased timeout
+  [self waitForExpectations:@[ processReportsComplete ] timeout:1.0]; // Reverted timeout
   if (reportsExpected) {
     XCTAssertTrue(reportsAvailable, "should have unsent reports");
   } else {
