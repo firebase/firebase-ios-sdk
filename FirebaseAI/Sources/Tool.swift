@@ -53,10 +53,11 @@ public struct FunctionDeclaration: Sendable {
 /// A tool that allows the generative model to connect to Google Search to access and incorporate
 /// up-to-date information from the web into its responses.
 ///
-/// > Important: When this tool is used, the model's responses may include "Grounded Results" which
-/// are subject
-/// to the Grounding with Google Search terms outlined in the
-/// [Service Specific Terms](https://cloud.google.com/terms/service-terms).
+/// > Important: When using this feature, you are required to comply with the
+/// "Grounding with Google Search" usage requirements for your chosen API provider:
+/// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
+/// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+/// section within the Service Specific Terms).
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GoogleSearch: Sendable {
   public init() {}
@@ -70,6 +71,7 @@ public struct GoogleSearch: Sendable {
 public struct Tool: Sendable {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
+  /// Specifies the Google Search configuration.
   let googleSearch: GoogleSearch?
 
   init(functionDeclarations: [FunctionDeclaration]?) {
@@ -110,9 +112,11 @@ public struct Tool: Sendable {
   /// Grounding with Google Search can be used to allow the model to connect to Google Search to
   /// access and incorporate up-to-date information from the web into it's responses.
   ///
-  /// When this tool is used, the model's responses may include "Grounded Results" which are subject
-  /// to the Grounding with Google Search terms outlined in the [Service Specific
-  /// Terms](https://cloud.google.com/terms/service-terms).
+  /// > Important: When using this feature, you are required to comply with the
+  /// "Grounding with Google Search" usage requirements for your chosen API provider:
+  /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
+  /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+  /// section within the Service Specific Terms).
   ///
   /// - Parameters:
   ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list

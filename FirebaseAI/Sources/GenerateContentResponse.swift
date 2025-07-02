@@ -304,62 +304,38 @@ public struct PromptFeedback: Sendable {
 
 /// Metadata returned to the client when grounding is enabled.
 ///
-/// > Important: If using Grounding with Google Search, you are required to comply with the [Service
-/// Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with Google
-/// Search*.
+/// > Important: If using Grounding with Google Search, you are required to comply with the
+/// "Grounding with Google Search" usage requirements for your chosen API provider:
+/// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
+/// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+/// section within the Service Specific Terms).
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GroundingMetadata: Sendable {
   /// A list of web search queries that the model performed to gather the grounding information.
   /// These can be used to allow users to explore the search results themselves.
-  ///
-  /// > Important: If using Grounding with Google Search, you are required to comply with the
-  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
-  /// Google Search*.
   public let webSearchQueries: [String]
   /// A list of ``GroundingChunk`` structs. Each chunk represents a piece of retrieved content
   /// (e.g., from a web page) that the model used to ground its response.
-  ///
-  /// > Important: If using Grounding with Google Search, you are required to comply with the
-  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
-  /// Google Search*.
   public let groundingChunks: [GroundingChunk]
   /// A list of ``GroundingSupport`` structs. Each object details how specific segments of the
   /// model's response are supported by the `groundingChunks`.
-  ///
-  /// > Important: If using Grounding with Google Search, you are required to comply with the
-  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
-  /// Google Search*.
   public let groundingSupports: [GroundingSupport]
-  /// Google search entry point for web searches.
+  /// Google Search entry point for web searches.
   /// This contains an HTML/CSS snippet that **must** be embedded in an app to display a Google
-  /// Search Entry point for follow-up web searches related to the model's "Grounded Response".
-  ///
-  /// > Important: If using Grounding with Google Search, you are required to comply with the
-  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
-  /// Google Search*.
+  /// Search entry point for follow-up web searches related to the model's "Grounded Response".
   public let searchEntryPoint: SearchEntryPoint?
 
   /// A struct representing the Google Search entry point.
-  ///
-  /// > Important: If using Grounding with Google Search, you are required to comply with the
-  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
-  /// Google Search*.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct SearchEntryPoint: Sendable {
-    /// An HTML/CSS snippet that can be embedded in your app. The snippet is designed to avoid
-    /// undesired interaction with the rest of the page's CSS.
+    /// An HTML/CSS snippet that can be embedded in your app.
     ///
     /// To ensure proper rendering, it's recommended to display this content within a `WKWebView`.
     public let renderedContent: String
   }
 
   /// Represents a chunk of retrieved data that supports a claim in the model's response. This is
-  /// part
-  /// of the grounding information provided when grounding is enabled.
-  ///
-  /// > Important: If using Grounding with Google Search, you are required to comply with the
-  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
-  /// Google Search*.
+  /// part of the grounding information provided when grounding is enabled.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct GroundingChunk: Sendable {
     /// Contains details if the grounding chunk is from a web source.
@@ -367,17 +343,13 @@ public struct GroundingMetadata: Sendable {
   }
 
   /// A grounding chunk sourced from the web.
-  ///
-  /// > Important: If using Grounding with Google Search, you are required to comply with the
-  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
-  /// Google Search*.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct WebGroundingChunk: Sendable {
     /// The URI of the retrieved web page.
     public let uri: String?
     /// The title of the retrieved web page.
     public let title: String?
-    /// The domain of the original URI from which the content was retrieved (e.g., `example.com`).
+    /// The domain of the original URI from which the content was retrieved.
     ///
     /// This field is only populated when using the Vertex AI Gemini API.
     public let domain: String?
@@ -385,10 +357,6 @@ public struct GroundingMetadata: Sendable {
 
   /// Provides information about how a specific segment of the model's response is supported by the
   /// retrieved grounding chunks.
-  ///
-  /// > Important: If using Grounding with Google Search, you are required to comply with the
-  /// [Service Specific Terms](https://cloud.google.com/terms/service-terms) for *Grounding with
-  /// Google Search*.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct GroundingSupport: Sendable {
     /// Specifies the segment of the model's response content that this grounding support pertains
@@ -397,7 +365,10 @@ public struct GroundingMetadata: Sendable {
 
     /// A list of indices that refer to specific ``GroundingChunk`` structs within the
     /// ``GroundingMetadata/groundingChunks`` array. These referenced chunks are the sources that
-    /// support the claim made in the associated `segment` of the response.
+    /// support the claim made in the associated `segment` of the response. For example, an array
+    /// `[1, 3, 4]`
+    /// means that `groundingChunks[1]`, `groundingChunks[3]`, `groundingChunks[4]` are the
+    /// retrieved content supporting this part of the response.
     public let groundingChunkIndices: [Int]
 
     struct Internal {
@@ -428,9 +399,10 @@ public struct Segment: Sendable {
   /// bytes. This offset is inclusive, starting from 0 at the beginning of the part's content.
   public let startIndex: Int
   /// The zero-based end index of the segment within the specified ``Part``, measured in UTF-8
-  /// bytes. This offset is exclusive.
+  /// bytes. This offset is exclusive, meaning the character at this index is not included in the
+  /// segment.
   public let endIndex: Int
-  /// The text content of the segment.
+  /// The text corresponding to the segment from the response.
   public let text: String
 }
 
