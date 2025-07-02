@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct AggregateWithAlias {
-  public let aggregate: AggregateFunction
-  public let alias: String
+public class ArrayExpression: FunctionExpression, @unchecked Sendable {
+  var result: [Expression] = []
+  public init(_ elements: [Sendable]) {
+    for element in elements {
+      result.append(Helper.sendableToExpr(element))
+    }
+
+    super.init("array", result)
+  }
 }

@@ -12,29 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class Field: ExprBridge, Expr, Selectable, BridgeWrapper, SelectableWrapper,
-  @unchecked Sendable {
+public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable {
   let bridge: ExprBridge
 
-  var alias: String
+  let functionName: String
+  let agrs: [Expression]
 
-  var expr: Expr {
-    return self
-  }
-
-  public let fieldName: String
-
-  public init(_ name: String) {
-    let fieldBridge = FieldBridge(name: name)
-    bridge = fieldBridge
-    fieldName = fieldBridge.field_name()
-    alias = fieldName
-  }
-
-  public init(_ path: FieldPath) {
-    let fieldBridge = FieldBridge(path: path)
-    bridge = fieldBridge
-    fieldName = fieldBridge.field_name()
-    alias = fieldName
+  public init(_ functionName: String, _ agrs: [Expression]) {
+    self.functionName = functionName
+    self.agrs = agrs
+    bridge = FunctionExprBridge(
+      name: functionName,
+      args: self.agrs.map { $0.toBridge()
+      }
+    )
   }
 }

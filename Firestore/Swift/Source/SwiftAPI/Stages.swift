@@ -218,10 +218,10 @@ class Distinct: Stage {
 class Aggregate: Stage {
   let name: String = "aggregate"
   let bridge: StageBridge
-  private var accumulators: [AggregateWithAlias]
-  private var groups: [String: Expr] = [:]
+  private var accumulators: [AliasedAggregate]
+  private var groups: [String: Expression] = [:]
 
-  init(accumulators: [AggregateWithAlias], groups: [Selectable]?) {
+  init(accumulators: [AliasedAggregate], groups: [Selectable]?) {
     self.accumulators = accumulators
     if groups != nil {
       self.groups = Helper.selectablesToMap(selectables: groups!)
@@ -283,9 +283,9 @@ class Sort: Stage {
 class ReplaceWith: Stage {
   let name: String = "replaceWith"
   let bridge: StageBridge
-  private var expr: Expr
+  private var expr: Expression
 
-  init(expr: Expr) {
+  init(expr: Expression) {
     self.expr = expr
     bridge = ReplaceWithStageBridge(expr: expr.toBridge())
   }
@@ -327,8 +327,8 @@ class Union: Stage {
 class Unnest: Stage {
   let name: String = "unnest"
   let bridge: StageBridge
-  private var alias: Expr
-  private var field: Expr
+  private var alias: Expression
+  private var field: Expression
   private var indexField: String?
 
   init(field: Selectable, indexField: String? = nil) {

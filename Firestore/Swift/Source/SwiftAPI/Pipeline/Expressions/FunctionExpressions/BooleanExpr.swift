@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class BooleanExpr: FunctionExpr, @unchecked Sendable {
-  override public init(_ functionName: String, _ agrs: [Expr]) {
+public class BooleanExpr: FunctionExpression, @unchecked Sendable {
+  override public init(_ functionName: String, _ agrs: [Expression]) {
     super.init(functionName, agrs)
   }
 
@@ -21,8 +21,8 @@ public class BooleanExpr: FunctionExpr, @unchecked Sendable {
     return AggregateFunction("count_if", [self])
   }
 
-  public func then(_ thenExpr: Expr, else elseExpr: Expr) -> FunctionExpr {
-    return FunctionExpr("cond", [self, thenExpr, elseExpr])
+  public func then(_ thenExpr: Expression, else elseExpr: Expression) -> FunctionExpression {
+    return FunctionExpression("cond", [self, thenExpr, elseExpr])
   }
 
   public static func && (lhs: BooleanExpr,

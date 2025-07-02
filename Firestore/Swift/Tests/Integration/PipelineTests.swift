@@ -267,7 +267,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate(Field("rating").avg().as("avgRating"))
+      .aggregate([Field("rating").avg().as("avgRating")])
     let snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "Aggregate query should return a single result")
@@ -284,7 +284,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .aggregate(
         [Field("rating").avg().as("avgRating")],
-        groups: ["genre"]
+        groups: [Field("genre")]
       ) // Make sure 'groupBy' and 'average' are correct
     let snapshot = try await pipeline.execute()
 
@@ -395,7 +395,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collectionGroup(randomSubCollectionId)
-      .sort(Field("order").ascending())
+      .sort([Field("order").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -2252,7 +2252,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .sort(Field("rating").descending())
       .limit(1)
       .select(
-        FunctionExpr("add", [Field("rating"), Constant(1)]).as(
+        FunctionExpression("add", [Field("rating"), Constant(1)]).as(
           "rating"
         )
       )
@@ -2346,7 +2346,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .sort(
-        FunctionExpr("char_length", [Field("title")]).ascending(),
+        FunctionExpression("char_length", [Field("title")]).ascending(),
         Field("__name__").descending()
       )
       .limit(3)
@@ -2372,7 +2372,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(10)
-      .select(RandomExpr().as("result"))
+      .select(RandomExpression().as("result"))
 
     let snapshot = try await pipeline.execute()
 

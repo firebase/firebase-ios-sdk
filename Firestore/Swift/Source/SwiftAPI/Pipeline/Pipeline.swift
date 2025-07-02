@@ -147,8 +147,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter field: The first field to add to the documents, specified as a `Selectable`.
   /// - Parameter additionalFields: Optional additional fields to add, specified as `Selectable`s.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func addFields(_ field: Selectable, _ additionalFields: Selectable...) -> Pipeline {
-    let fields = [field] + additionalFields
+  public func addFields(_ fields: [AliasedExpression]) -> Pipeline {
     return Pipeline(stages: stages + [AddFields(fields: fields)], db: db)
   }
 
@@ -163,9 +162,9 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter field: The first field to remove, specified as a `Field` instance.
   /// - Parameter additionalFields: Optional additional fields to remove.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func removeFields(_ field: Field, _ additionalFields: Field...) -> Pipeline {
+  public func removeFields(_ fields: [Field]) -> Pipeline {
     return Pipeline(
-      stages: stages + [RemoveFieldsStage(fields: [field] + additionalFields)],
+      stages: stages + [RemoveFieldsStage(fields: fields)],
       db: db
     )
   }
@@ -182,9 +181,9 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter field: The name of the first field to remove.
   /// - Parameter additionalFields: Optional additional field names to remove.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func removeFields(_ field: String, _ additionalFields: String...) -> Pipeline {
+  public func removeFields(_ fields: [String]) -> Pipeline {
     return Pipeline(
-      stages: stages + [RemoveFieldsStage(fields: [field] + additionalFields)],
+      stages: stages + [RemoveFieldsStage(fields: fields)],
       db: db
     )
   }
@@ -216,8 +215,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter additionalSelections: Optional additional fields to include, specified as
   /// `Selectable`s.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func select(_ selection: Selectable, _ additionalSelections: Selectable...) -> Pipeline {
-    let selections = [selection] + additionalSelections
+  public func select(_ selections: [Selectable]) -> Pipeline {
     return Pipeline(
       stages: stages + [Select(selections: selections)],
       db: db
@@ -238,15 +236,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter selection: The name of the first field to include in the output documents.
   /// - Parameter additionalSelections: Optional additional field names to include.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func select(_ selection: String, _ additionalSelections: String...) -> Pipeline {
-    let selections = ([selection] + additionalSelections).map { Field($0) }
-    return Pipeline(
-      stages: stages + [Select(selections: selections)],
-      db: db
-    )
-  }
-
-  public func select(_ selections: [Selectable]) -> Pipeline {
+  public func select(_ selections: [String]) -> Pipeline {
+    let selections = selections.map { Field($0) }
     return Pipeline(
       stages: stages + [Select(selections: selections)],
       db: db
@@ -339,8 +330,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter group: The name of the first field for distinct value combinations.
   /// - Parameter additionalGroups: Optional additional field names.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func distinct(_ group: String, _ additionalGroups: String...) -> Pipeline {
-    let selections = ([group] + additionalGroups).map { Field($0) }
+  public func distinct(_ groups: [String]) -> Pipeline {
+    let selections = groups.map { Field($0) }
     return Pipeline(stages: stages + [Distinct(groups: selections)], db: db)
   }
 
@@ -369,40 +360,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter group: The first `Selectable` expression to consider.
   /// - Parameter additionalGroups: Optional additional `Selectable` expressions.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func distinct(_ group: Selectable, _ additionalGroups: Selectable...) -> Pipeline {
-    let groups = [group] + additionalGroups
+  public func distinct(_ groups: [Selectable]) -> Pipeline {
     return Pipeline(stages: stages + [Distinct(groups: groups)], db: db)
-  }
-
-  /// Performs aggregation operations on all documents from previous stages.
-  ///
-  /// Computes aggregate values (e.g., sum, average, count) over the entire set of documents
-  /// from the previous stage. Aggregations are defined using `AggregateWithAlias`,
-  /// which pairs an `Accumulator` (e.g., `avg(Field("price"))`) with a result field name.
-  ///
-  /// ```swift
-  /// // let pipeline: Pipeline = ... // Assume pipeline from a "books" collection.
-  /// // Calculate the average rating and total number of books.
-  /// let aggregatedPipeline = pipeline.aggregate(
-  ///   AggregateWithas(aggregate: avg(Field("rating")), alias: "averageRating"),
-  ///   AggregateWithas(aggregate: countAll(), alias: "totalBooks")
-  /// )
-  /// // let results = try await aggregatedPipeline.execute()
-  /// // results.documents might be: [["averageRating": 4.2, "totalBooks": 150]]
-  /// ```
-  ///
-  /// - Parameter accumulator: The first `AggregateWithAlias` expression.
-  /// - Parameter additionalAccumulators: Optional additional `AggregateWithAlias` expressions.
-  /// - Returns: A new `Pipeline` object with this stage appended.
-  public func aggregate(_ accumulator: AggregateWithAlias,
-                        _ additionalAccumulators: AggregateWithAlias...) -> Pipeline {
-    return Pipeline(
-      stages: stages + [Aggregate(
-        accumulators: [accumulator] + additionalAccumulators,
-        groups: nil // No grouping: aggregate over all documents.
-      )],
-      db: db
-    )
   }
 
   /// Performs optionally grouped aggregation operations on documents from previous stages.
@@ -435,42 +394,9 @@ public struct Pipeline: @unchecked Sendable {
   ///   - groups: Optional array of `Selectable` expressions for grouping. If `nil` or empty,
   /// aggregates across all documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func aggregate(_ accumulator: [AggregateWithAlias],
+  public func aggregate(_ aggregates: [AliasedAggregate],
                         groups: [Selectable]? = nil) -> Pipeline {
-    return Pipeline(stages: stages + [Aggregate(accumulators: accumulator, groups: groups)], db: db)
-  }
-
-  /// Performs optionally grouped aggregation operations using field names for grouping.
-  ///
-  /// Similar to the other `aggregate` method, but `groups` are specified as an array of `String`
-  /// field names.
-  ///
-  /// ```swift
-  /// // let pipeline: Pipeline = ... // Assume pipeline from "books" collection.
-  /// // Count books for each publisher.
-  /// let groupedByPublisherPipeline = pipeline.aggregate(
-  ///   [AggregateWithas(aggregate: countAll(), alias: "book_count")],
-  ///   groups: ["publisher"] // Group by the "publisher" field name.
-  /// )
-  /// // let results = try await groupedByPublisherPipeline.execute()
-  /// // results.documents might be:
-  /// // [
-  /// //   ["publisher": "Penguin", "book_count": 50],
-  /// //   ["publisher": "HarperCollins", "book_count": 35]
-  /// // ]
-  /// ```
-  ///
-  /// - Parameters:
-  ///   - accumulator: An array of `AggregateWithAlias` expressions.
-  ///   - groups: An optional array of `String` field names for grouping.
-  /// - Returns: A new `Pipeline` object with this stage appended.
-  public func aggregate(_ accumulator: [AggregateWithAlias],
-                        groups: [String]? = nil) -> Pipeline {
-    let selectables = groups?.map { Field($0) }
-    return Pipeline(
-      stages: stages + [Aggregate(accumulators: accumulator, groups: selectables)],
-      db: db
-    )
+    return Pipeline(stages: stages + [Aggregate(accumulators: aggregates, groups: groups)], db: db)
   }
 
   /// Performs a vector similarity search, ordering results by similarity.
@@ -537,8 +463,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter additionalOrdering: Optional additional `Ordering` criteria for secondary sorting,
   /// etc.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func sort(_ ordering: Ordering, _ additionalOrdering: Ordering...) -> Pipeline {
-    let orderings = [ordering] + additionalOrdering
+  public func sort(_ orderings: [Ordering]) -> Pipeline {
     return Pipeline(stages: stages + [Sort(orderings: orderings)], db: db)
   }
 
@@ -562,7 +487,7 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Parameter expr: The `Expr` (typically a `Field`) that resolves to the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func replace(with expr: Expr) -> Pipeline {
+  public func replace(with expr: Expression) -> Pipeline {
     return Pipeline(stages: stages + [ReplaceWith(expr: expr)], db: db)
   }
 

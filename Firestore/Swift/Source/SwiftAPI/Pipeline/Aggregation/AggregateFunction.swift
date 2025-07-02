@@ -22,9 +22,9 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   let bridge: AggregateFunctionBridge
 
   let functionName: String
-  let args: [Expr]
+  let args: [Expression]
 
-  public init(_ functionName: String, _ args: [Expr]) {
+  public init(_ functionName: String, _ args: [Expression]) {
     self.functionName = functionName
     self.args = args
     bridge = AggregateFunctionBridge(
@@ -34,7 +34,7 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
     )
   }
 
-  public func `as`(_ name: String) -> AggregateWithAlias {
-    return AggregateWithAlias(aggregate: self, alias: name)
+  public func `as`(_ name: String) -> AliasedAggregate {
+    return AliasedAggregate(aggregate: self, alias: name)
   }
 }
