@@ -1654,9 +1654,8 @@ static NSString *UTCToLocal(NSString *utcTime) {
           OCMVerify([self->_configRealtime[i] pauseRealtimeStream]);
           [expectations[i] fulfill];
         });
-
-    [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
   }
+  [self waitForExpectations:expectations.copy timeout:_expectationTimeout];
 }
 
 - (void)testRealtimeFetch {
