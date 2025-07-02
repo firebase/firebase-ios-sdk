@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class ArrayExpression: FunctionExpr, @unchecked Sendable {
-  var result: [Expr] = []
-  public init(_ elements: [Sendable]) {
-    for element in elements {
-      result.append(Helper.sendableToExpr(element))
-    }
-
-    super.init("array", result)
+public class RandomExpression: FunctionExpression, @unchecked Sendable {
+  public init() {
+    super.init("rand", [])
   }
 }

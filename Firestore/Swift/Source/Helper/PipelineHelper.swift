@@ -13,12 +13,12 @@
 // limitations under the License.
 
 enum Helper {
-  static func sendableToExpr(_ value: Sendable?) -> Expr {
+  static func sendableToExpr(_ value: Sendable?) -> Expression {
     guard let value = value else {
       return Constant.nil
     }
 
-    if let exprValue = value as? Expr {
+    if let exprValue = value as? Expression {
       return exprValue
     } else if let dictionaryValue = value as? [String: Sendable?] {
       return map(dictionaryValue)
@@ -31,8 +31,8 @@ enum Helper {
     }
   }
 
-  static func selectablesToMap(selectables: [Selectable]) -> [String: Expr] {
-    let exprMap = selectables.reduce(into: [String: Expr]()) { result, selectable in
+  static func selectablesToMap(selectables: [Selectable]) -> [String: Expression] {
+    let exprMap = selectables.reduce(into: [String: Expression]()) { result, selectable in
       guard let value = selectable as? SelectableWrapper else {
         fatalError("Selectable class must conform to SelectableWrapper.")
       }
@@ -41,20 +41,20 @@ enum Helper {
     return exprMap
   }
 
-  static func map(_ elements: [String: Sendable?]) -> FunctionExpr {
-    var result: [Expr] = []
+  static func map(_ elements: [String: Sendable?]) -> FunctionExpression {
+    var result: [Expression] = []
     for (key, value) in elements {
       result.append(Constant(key))
       result.append(sendableToExpr(value))
     }
-    return FunctionExpr("map", result)
+    return FunctionExpression("map", result)
   }
 
-  static func array(_ elements: [Sendable?]) -> FunctionExpr {
+  static func array(_ elements: [Sendable?]) -> FunctionExpression {
     let transformedElements = elements.map { element in
       sendableToExpr(element)
     }
-    return FunctionExpr("array", transformedElements)
+    return FunctionExpression("array", transformedElements)
   }
 
   // This function is used to convert Swift type into Objective-C type.
@@ -63,7 +63,7 @@ enum Helper {
       return Constant.nil.bridge
     }
 
-    if let exprValue = value as? Expr {
+    if let exprValue = value as? Expression {
       return exprValue.toBridge()
     } else if let aggregateFunctionValue = value as? AggregateFunction {
       return aggregateFunctionValue.toBridge()

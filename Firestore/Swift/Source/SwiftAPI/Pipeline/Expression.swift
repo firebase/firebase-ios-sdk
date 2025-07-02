@@ -19,8 +19,7 @@
 #endif // SWIFT_PACKAGE
 import Foundation
 
-// TODO: the implementation of `Expr` is not complete
-public protocol Expr: Sendable {
+public protocol Expression: Sendable {
   /// Assigns an alias to this expression.
   ///
   /// Aliases are useful for renaming fields in the output of a stage or for giving meaningful
@@ -33,7 +32,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter name: The alias to assign to this expression.
   /// - Returns: A new `ExprWithAlias` wrapping this expression with the alias.
-  func `as`(_ name: String) -> ExprWithAlias
+  func `as`(_ name: String) -> AliasedExpression
 
   // --- Added Mathematical Operations ---
 
@@ -50,8 +49,8 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Parameter value: Expr` values to add.
-  /// - Returns: A new `FunctionExpr` representing the addition operation.
-  func add(_ value: Expr) -> FunctionExpr
+  /// - Returns: A new `FunctionExpression` representing the addition operation.
+  func add(_ value: Expression) -> FunctionExpression
 
   /// Creates an expression that adds this expression to one or more literal values.
   /// Assumes `self` and all parameters evaluate to compatible types for addition.
@@ -65,8 +64,8 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Parameter value: Expr` value to add.
-  /// - Returns: A new `FunctionExpr` representing the addition operation.
-  func add(_ value: Sendable) -> FunctionExpr
+  /// - Returns: A new `FunctionExpression` representing the addition operation.
+  func add(_ value: Sendable) -> FunctionExpression
 
   /// Creates an expression that subtracts another expression from this expression.
   /// Assumes `self` and `other` evaluate to numeric types.
@@ -78,7 +77,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The `Expr` (evaluating to a number) to subtract from this expression.
   /// - Returns: A new `FunctionExpr` representing the subtraction operation.
-  func subtract(_ other: Expr) -> FunctionExpr
+  func subtract(_ other: Expression) -> FunctionExpression
 
   /// Creates an expression that subtracts a literal value from this expression.
   /// Assumes `self` evaluates to a numeric type.
@@ -90,7 +89,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The `Sendable` literal (numeric) value to subtract from this expression.
   /// - Returns: A new `FunctionExpr` representing the subtraction operation.
-  func subtract(_ other: Sendable) -> FunctionExpr
+  func subtract(_ other: Sendable) -> FunctionExpression
 
   /// Creates an expression that multiplies this expression by one or more other expressions.
   /// Assumes `self` and all parameters evaluate to numeric types.
@@ -105,7 +104,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter value: `Expr` value to multiply by.
   /// - Returns: A new `FunctionExpr` representing the multiplication operation.
-  func multiply(_ value: Expr) -> FunctionExpr
+  func multiply(_ value: Expression) -> FunctionExpression
 
   /// Creates an expression that multiplies this expression by one or more literal values.
   /// Assumes `self` evaluates to a numeric type.
@@ -120,7 +119,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter value: `Sendable` literal value to multiply by.
   /// - Returns: A new `FunctionExpr` representing the multiplication operation.
-  func multiply(_ value: Sendable) -> FunctionExpr
+  func multiply(_ value: Sendable) -> FunctionExpression
 
   /// Creates an expression that divides this expression by another expression.
   /// Assumes `self` and `other` evaluate to numeric types.
@@ -132,7 +131,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The `Expr` (evaluating to a number) to divide by.
   /// - Returns: A new `FunctionExpr` representing the division operation.
-  func divide(_ other: Expr) -> FunctionExpr
+  func divide(_ other: Expression) -> FunctionExpression
 
   /// Creates an expression that divides this expression by a literal value.
   /// Assumes `self` evaluates to a numeric type.
@@ -144,7 +143,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The `Sendable` literal (numeric) value to divide by.
   /// - Returns: A new `FunctionExpr` representing the division operation.
-  func divide(_ other: Sendable) -> FunctionExpr
+  func divide(_ other: Sendable) -> FunctionExpression
 
   /// Creates an expression that calculates the modulo (remainder) of dividing this expression by
   /// another expression.
@@ -157,7 +156,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The `Expr` (evaluating to a number) to use as the divisor.
   /// - Returns: A new `FunctionExpr` representing the modulo operation.
-  func mod(_ other: Expr) -> FunctionExpr
+  func mod(_ other: Expression) -> FunctionExpression
 
   /// Creates an expression that calculates the modulo (remainder) of dividing this expression by a
   /// literal value.
@@ -170,7 +169,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The `Sendable` literal (numeric) value to use as the divisor.
   /// - Returns: A new `FunctionExpr` representing the modulo operation.
-  func mod(_ other: Sendable) -> FunctionExpr
+  func mod(_ other: Sendable) -> FunctionExpression
 
   // --- Added Array Operations ---
 
@@ -186,7 +185,7 @@ public protocol Expr: Sendable {
   /// - Parameter otherArrays: Optional additional `Expr` values (evaluating to arrays) to
   /// concatenate.
   /// - Returns: A new `FunctionExpr` representing the concatenated array.
-  func arrayConcat(_ secondArray: Expr, _ otherArrays: Expr...) -> FunctionExpr
+  func arrayConcat(_ secondArray: Expression, _ otherArrays: Expression...) -> FunctionExpression
 
   /// Creates an expression that concatenates an array expression (from `self`) with one or more
   /// array literals.
@@ -200,7 +199,7 @@ public protocol Expr: Sendable {
   /// - Parameter otherArrays: Optional additional array literals of `Sendable` values to
   /// concatenate.
   /// - Returns: A new `FunctionExpr` representing the concatenated array.
-  func arrayConcat(_ secondArray: [Sendable], _ otherArrays: [Sendable]...) -> FunctionExpr
+  func arrayConcat(_ secondArray: [Sendable], _ otherArrays: [Sendable]...) -> FunctionExpression
 
   /// Creates an expression that checks if an array (from `self`) contains a specific element
   /// expression.
@@ -213,7 +212,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter element: The `Expr` representing the element to search for in the array.
   /// - Returns: A new `BooleanExpr` representing the 'array_contains' comparison.
-  func arrayContains(_ element: Expr) -> BooleanExpr
+  func arrayContains(_ element: Expression) -> BooleanExpr
 
   /// Creates an expression that checks if an array (from `self`) contains a specific literal
   /// element.
@@ -241,7 +240,7 @@ public protocol Expr: Sendable {
   /// - Parameter values: A list of `Expr` elements to check for in the array represented
   /// by `self`.
   /// - Returns: A new `BooleanExpr` representing the 'array_contains_all' comparison.
-  func arrayContainsAll(_ values: [Expr]) -> BooleanExpr
+  func arrayContainsAll(_ values: [Expression]) -> BooleanExpr
 
   /// Creates an expression that checks if an array (from `self`) contains all the specified literal
   /// elements.
@@ -269,7 +268,7 @@ public protocol Expr: Sendable {
   /// - Parameter values: A list of `Expr` elements to check for in the array represented
   /// by `self`.
   /// - Returns: A new `BooleanExpr` representing the 'array_contains_any' comparison.
-  func arrayContainsAny(_ values: [Expr]) -> BooleanExpr
+  func arrayContainsAny(_ values: [Expression]) -> BooleanExpr
 
   /// Creates an expression that checks if an array (from `self`) contains any of the specified
   /// literal elements.
@@ -294,7 +293,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the length of the array.
-  func arrayLength() -> FunctionExpr
+  func arrayLength() -> FunctionExpression
 
   /// Creates an expression that accesses an element in an array (from `self`) at the specified
   /// integer offset.
@@ -311,7 +310,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter offset: The literal `Int` offset of the element to return.
   /// - Returns: A new `FunctionExpr` representing the 'arrayGet' operation.
-  func arrayGet(_ offset: Int) -> FunctionExpr
+  func arrayGet(_ offset: Int) -> FunctionExpression
 
   /// Creates an expression that accesses an element in an array (from `self`) at the offset
   /// specified by an expression.
@@ -327,7 +326,7 @@ public protocol Expr: Sendable {
   /// - Parameter offsetExpr: An `Expr` (evaluating to an Int) representing the offset of the
   /// element to return.
   /// - Returns: A new `FunctionExpr` representing the 'arrayGet' operation.
-  func arrayGet(_ offsetExpr: Expr) -> FunctionExpr
+  func arrayGet(_ offsetExpr: Expression) -> FunctionExpression
 
   // MARK: Equality with Sendable
 
@@ -342,7 +341,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter others: A list of `Expr` values to check against.
   /// - Returns: A new `BooleanExpr` representing the 'IN' comparison (eq_any).
-  func eqAny(_ others: [Expr]) -> BooleanExpr
+  func eqAny(_ others: [Expression]) -> BooleanExpr
 
   /// Creates an expression that checks if this expression is equal to any of the provided literal
   /// values.
@@ -368,7 +367,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter others: A list of `Expr` values to check against.
   /// - Returns: A new `BooleanExpr` representing the 'NOT IN' comparison (not_eq_any).
-  func notEqAny(_ others: [Expr]) -> BooleanExpr
+  func notEqAny(_ others: [Expression]) -> BooleanExpr
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// literal values.
@@ -478,7 +477,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the length of the string.
-  func charLength() -> FunctionExpr
+  func charLength() -> FunctionExpression
 
   /// Creates an expression that performs a case-sensitive string comparison using wildcards against
   /// a literal pattern.
@@ -505,7 +504,7 @@ public protocol Expr: Sendable {
   /// - Parameter pattern: An `Expr` (evaluating to a string) representing the pattern to search
   /// for.
   /// - Returns: A new `FunctionExpr` representing the 'like' comparison.
-  func like(_ pattern: Expr) -> BooleanExpr
+  func like(_ pattern: Expression) -> BooleanExpr
 
   /// Creates an expression that checks if a string (from `self`) contains a specified regular
   /// expression literal as a substring.
@@ -532,7 +531,7 @@ public protocol Expr: Sendable {
   /// - Parameter pattern: An `Expr` (evaluating to a string) representing the regular expression to
   /// use for the search.
   /// - Returns: A new `BooleanExpr` representing the 'regex_contains' comparison.
-  func regexContains(_ pattern: Expr) -> BooleanExpr
+  func regexContains(_ pattern: Expression) -> BooleanExpr
 
   /// Creates an expression that checks if a string (from `self`) matches a specified regular
   /// expression literal entirely.
@@ -559,7 +558,7 @@ public protocol Expr: Sendable {
   /// - Parameter pattern: An `Expr` (evaluating to a string) representing the regular expression to
   /// use for the match.
   /// - Returns: A new `BooleanExpr` representing the regular expression match.
-  func regexMatch(_ pattern: Expr) -> BooleanExpr
+  func regexMatch(_ pattern: Expression) -> BooleanExpr
 
   /// Creates an expression that checks if a string (from `self`) contains a specified literal
   /// substring (case-sensitive).
@@ -585,7 +584,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter expr: An `Expr` (evaluating to a string) representing the substring to search for.
   /// - Returns: A new `BooleanExpr` representing the 'str_contains' comparison.
-  func strContains(_ expr: Expr) -> BooleanExpr
+  func strContains(_ expr: Expression) -> BooleanExpr
 
   /// Creates an expression that checks if a string (from `self`) starts with a given literal prefix
   /// (case-sensitive).
@@ -611,7 +610,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter prefix: An `Expr` (evaluating to a string) representing the prefix to check for.
   /// - Returns: A new `BooleanExpr` representing the 'starts_with' comparison.
-  func startsWith(_ prefix: Expr) -> BooleanExpr
+  func startsWith(_ prefix: Expression) -> BooleanExpr
 
   /// Creates an expression that checks if a string (from `self`) ends with a given literal suffix
   /// (case-sensitive).
@@ -637,7 +636,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter suffix: An `Expr` (evaluating to a string) representing the suffix to check for.
   /// - Returns: A new `BooleanExpr` representing the 'ends_with' comparison.
-  func endsWith(_ suffix: Expr) -> BooleanExpr
+  func endsWith(_ suffix: Expression) -> BooleanExpr
 
   /// Creates an expression that converts a string (from `self`) to lowercase.
   /// Assumes `self` evaluates to a string.
@@ -648,7 +647,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the lowercase string.
-  func lowercased() -> FunctionExpr
+  func lowercased() -> FunctionExpression
 
   /// Creates an expression that converts a string (from `self`) to uppercase.
   /// Assumes `self` evaluates to a string.
@@ -659,7 +658,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the uppercase string.
-  func uppercased() -> FunctionExpr
+  func uppercased() -> FunctionExpression
 
   /// Creates an expression that removes leading and trailing whitespace from a string (from
   /// `self`).
@@ -671,7 +670,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the trimmed string.
-  func trim() -> FunctionExpr
+  func trim() -> FunctionExpression
 
   /// Creates an expression that concatenates this string expression with other string expressions.
   /// Assumes `self` evaluates to a string.
@@ -684,7 +683,7 @@ public protocol Expr: Sendable {
   /// - Parameter secondString: An `Expr` (evaluating to a string) to concatenate.
   /// - Parameter otherStrings: Optional additional `Expr` (evaluating to strings) to concatenate.
   /// - Returns: A new `FunctionExpr` representing the concatenated string.
-  func strConcat(_ secondString: Expr, _ otherStrings: Expr...) -> FunctionExpr
+  func strConcat(_ secondString: Expression, _ otherStrings: Expression...) -> FunctionExpression
 
   /// Creates an expression that concatenates this string expression with other string literals.
   /// Assumes `self` evaluates to a string.
@@ -697,7 +696,7 @@ public protocol Expr: Sendable {
   /// - Parameter secondString: A string literal to concatenate.
   /// - Parameter otherStrings: Optional additional string literals to concatenate.
   /// - Returns: A new `FunctionExpr` representing the concatenated string.
-  func strConcat(_ secondString: String, _ otherStrings: String...) -> FunctionExpr
+  func strConcat(_ secondString: String, _ otherStrings: String...) -> FunctionExpression
 
   /// Creates an expression that reverses this string expression.
   /// Assumes `self` evaluates to a string.
@@ -708,7 +707,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the reversed string.
-  func reverse() -> FunctionExpr
+  func reverse() -> FunctionExpression
 
   /// Creates an expression that replaces the first occurrence of a literal substring within this
   /// string expression with another literal substring.
@@ -722,7 +721,7 @@ public protocol Expr: Sendable {
   /// - Parameter find: The literal string substring to search for.
   /// - Parameter replace: The literal string substring to replace the first occurrence with.
   /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
-  func replaceFirst(_ find: String, _ replace: String) -> FunctionExpr
+  func replaceFirst(_ find: String, _ replace: String) -> FunctionExpression
 
   /// Creates an expression that replaces the first occurrence of a substring (from an expression)
   /// within this string expression with another substring (from an expression).
@@ -737,7 +736,7 @@ public protocol Expr: Sendable {
   /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace the first
   /// occurrence with.
   /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
-  func replaceFirst(_ find: Expr, _ replace: Expr) -> FunctionExpr
+  func replaceFirst(_ find: Expression, _ replace: Expression) -> FunctionExpression
 
   /// Creates an expression that replaces all occurrences of a literal substring within this string
   /// expression with another literal substring.
@@ -751,7 +750,7 @@ public protocol Expr: Sendable {
   /// - Parameter find: The literal string substring to search for.
   /// - Parameter replace: The literal string substring to replace all occurrences with.
   /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
-  func replaceAll(_ find: String, _ replace: String) -> FunctionExpr
+  func replaceAll(_ find: String, _ replace: String) -> FunctionExpression
 
   /// Creates an expression that replaces all occurrences of a substring (from an expression) within
   /// this string expression with another substring (from an expression).
@@ -766,7 +765,7 @@ public protocol Expr: Sendable {
   /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace all
   /// occurrences with.
   /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
-  func replaceAll(_ find: Expr, _ replace: Expr) -> FunctionExpr
+  func replaceAll(_ find: Expression, _ replace: Expression) -> FunctionExpression
 
   /// Creates an expression that calculates the length of this string or bytes expression in bytes.
   /// Assumes `self` evaluates to a string or bytes.
@@ -780,7 +779,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the length in bytes.
-  func byteLength() -> FunctionExpr
+  func byteLength() -> FunctionExpression
 
   /// Creates an expression that returns a substring of this expression (String or Bytes) using
   /// literal integers for position and optional length.
@@ -799,7 +798,7 @@ public protocol Expr: Sendable {
   /// - Parameter position: Literal `Int` index of the first character/byte.
   /// - Parameter length: Optional literal `Int` length of the substring. If `nil`, goes to the end.
   /// - Returns: A new `FunctionExpr` representing the substring.
-  func substr(_ position: Int, _ length: Int?) -> FunctionExpr
+  func substr(_ position: Int, _ length: Int?) -> FunctionExpression
 
   /// Creates an expression that returns a substring of this expression (String or Bytes) using
   /// expressions for position and optional length.
@@ -821,7 +820,7 @@ public protocol Expr: Sendable {
   /// - Parameter length: Optional `Expr` (evaluating to an Int) for the length of the substring. If
   /// `nil`, goes to the end.
   /// - Returns: A new `FunctionExpr` representing the substring.
-  func substr(_ position: Expr, _ length: Expr?) -> FunctionExpr
+  func substr(_ position: Expression, _ length: Expression?) -> FunctionExpression
 
   // MARK: Map Operations
 
@@ -835,7 +834,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter subfield: The literal string key to access in the map.
   /// - Returns: A new `FunctionExpr` representing the value associated with the given key.
-  func mapGet(_ subfield: String) -> FunctionExpr
+  func mapGet(_ subfield: String) -> FunctionExpression
 
   /// Creates an expression that removes a key (specified by a literal string) from the map produced
   /// by evaluating this expression.
@@ -850,7 +849,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter key: The literal string key to remove from the map.
   /// - Returns: A new `FunctionExpr` representing the 'map_remove' operation.
-  func mapRemove(_ key: String) -> FunctionExpr
+  func mapRemove(_ key: String) -> FunctionExpression
 
   /// Creates an expression that removes a key (specified by an expression) from the map produced by
   /// evaluating this expression.
@@ -866,7 +865,7 @@ public protocol Expr: Sendable {
   /// - Parameter keyExpr: An `Expr` (evaluating to a string) representing the key to remove from
   /// the map.
   /// - Returns: A new `FunctionExpr` representing the 'map_remove' operation.
-  func mapRemove(_ keyExpr: Expr) -> FunctionExpr
+  func mapRemove(_ keyExpr: Expression) -> FunctionExpression
 
   /// Creates an expression that merges this map with multiple other map literals.
   /// Assumes `self` evaluates to a Map. Later maps overwrite keys from earlier maps.
@@ -883,7 +882,8 @@ public protocol Expr: Sendable {
   /// - Parameter otherMaps: Optional additional maps (dictionary literals with `Sendable` values)
   /// to merge.
   /// - Returns: A new `FunctionExpr` representing the 'map_merge' operation.
-  func mapMerge(_ secondMap: [String: Sendable], _ otherMaps: [String: Sendable]...) -> FunctionExpr
+  func mapMerge(_ secondMap: [String: Sendable], _ otherMaps: [String: Sendable]...)
+    -> FunctionExpression
 
   /// Creates an expression that merges this map with multiple other map expressions.
   /// Assumes `self` and other arguments evaluate to Maps. Later maps overwrite keys from earlier
@@ -899,7 +899,7 @@ public protocol Expr: Sendable {
   /// - Parameter secondMap: A required second `Expr` (evaluating to a Map) to merge.
   /// - Parameter otherMaps: Optional additional `Expr` (evaluating to Maps) to merge.
   /// - Returns: A new `FunctionExpr` representing the 'map_merge' operation.
-  func mapMerge(_ secondMap: Expr, _ otherMaps: Expr...) -> FunctionExpr
+  func mapMerge(_ secondMap: Expression, _ otherMaps: Expression...) -> FunctionExpression
 
   // MARK: Aggregations
 
@@ -973,7 +973,7 @@ public protocol Expr: Sendable {
   /// - Parameter second: The second `Expr` to compare with.
   /// - Parameter others: Optional additional `Expr` values to compare with.
   /// - Returns: A new `FunctionExpr` representing the logical max operation.
-  func logicalMaximum(_ second: Expr, _ others: Expr...) -> FunctionExpr
+  func logicalMaximum(_ second: Expression, _ others: Expression...) -> FunctionExpression
 
   /// Creates an expression that returns the larger value between this expression and other literal
   /// values, based on Firestore's value type ordering.
@@ -986,7 +986,7 @@ public protocol Expr: Sendable {
   /// - Parameter second: The second literal `Sendable` value to compare with.
   /// - Parameter others: Optional additional literal `Sendable` values to compare with.
   /// - Returns: A new `FunctionExpr` representing the logical max operation.
-  func logicalMaximum(_ second: Sendable, _ others: Sendable...) -> FunctionExpr
+  func logicalMaximum(_ second: Sendable, _ others: Sendable...) -> FunctionExpression
 
   /// Creates an expression that returns the smaller value between this expression and other
   /// expressions, based on Firestore's value type ordering.
@@ -999,7 +999,7 @@ public protocol Expr: Sendable {
   /// - Parameter second: The second `Expr` to compare with.
   /// - Parameter others: Optional additional `Expr` values to compare with.
   /// - Returns: A new `FunctionExpr` representing the logical min operation.
-  func logicalMinimum(_ second: Expr, _ others: Expr...) -> FunctionExpr
+  func logicalMinimum(_ second: Expression, _ others: Expression...) -> FunctionExpression
 
   /// Creates an expression that returns the smaller value between this expression and other literal
   /// values, based on Firestore's value type ordering.
@@ -1012,7 +1012,7 @@ public protocol Expr: Sendable {
   /// - Parameter second: The second literal `Sendable` value to compare with.
   /// - Parameter others: Optional additional literal `Sendable` values to compare with.
   /// - Returns: A new `FunctionExpr` representing the logical min operation.
-  func logicalMinimum(_ second: Sendable, _ others: Sendable...) -> FunctionExpr
+  func logicalMinimum(_ second: Sendable, _ others: Sendable...) -> FunctionExpression
 
   // MARK: Vector Operations
 
@@ -1026,7 +1026,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the length of the vector.
-  func vectorLength() -> FunctionExpr
+  func vectorLength() -> FunctionExpression
 
   /// Calculates the cosine distance between this vector expression and another vector expression.
   /// Assumes both `self` and `other` evaluate to Vectors.
@@ -1038,7 +1038,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The other vector as an `Expr` to compare against.
   /// - Returns: A new `FunctionExpr` representing the cosine distance.
-  func cosineDistance(_ other: Expr) -> FunctionExpr
+  func cosineDistance(_ other: Expression) -> FunctionExpression
 
   /// Calculates the cosine distance between this vector expression and another vector literal
   /// (`VectorValue`).
@@ -1051,7 +1051,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter other: The other vector as a `VectorValue` to compare against.
   /// - Returns: A new `FunctionExpr` representing the cosine distance.
-  func cosineDistance(_ other: VectorValue) -> FunctionExpr
+  func cosineDistance(_ other: VectorValue) -> FunctionExpression
 
   /// Calculates the cosine distance between this vector expression and another vector literal
   /// (`[Double]`).
@@ -1063,7 +1063,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter other: The other vector as `[Double]` to compare against.
   /// - Returns: A new `FunctionExpr` representing the cosine distance.
-  func cosineDistance(_ other: [Double]) -> FunctionExpr
+  func cosineDistance(_ other: [Double]) -> FunctionExpression
 
   /// Calculates the dot product between this vector expression and another vector expression.
   /// Assumes both `self` and `other` evaluate to Vectors.
@@ -1075,7 +1075,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The other vector as an `Expr` to calculate with.
   /// - Returns: A new `FunctionExpr` representing the dot product.
-  func dotProduct(_ other: Expr) -> FunctionExpr
+  func dotProduct(_ other: Expression) -> FunctionExpression
 
   /// Calculates the dot product between this vector expression and another vector literal
   /// (`VectorValue`).
@@ -1088,7 +1088,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter other: The other vector as a `VectorValue` to calculate with.
   /// - Returns: A new `FunctionExpr` representing the dot product.
-  func dotProduct(_ other: VectorValue) -> FunctionExpr
+  func dotProduct(_ other: VectorValue) -> FunctionExpression
 
   /// Calculates the dot product between this vector expression and another vector literal
   /// (`[Double]`).
@@ -1100,7 +1100,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter other: The other vector as `[Double]` to calculate with.
   /// - Returns: A new `FunctionExpr` representing the dot product.
-  func dotProduct(_ other: [Double]) -> FunctionExpr
+  func dotProduct(_ other: [Double]) -> FunctionExpression
 
   /// Calculates the Euclidean distance between this vector expression and another vector
   /// expression.
@@ -1113,7 +1113,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The other vector as an `Expr` to compare against.
   /// - Returns: A new `FunctionExpr` representing the Euclidean distance.
-  func euclideanDistance(_ other: Expr) -> FunctionExpr
+  func euclideanDistance(_ other: Expression) -> FunctionExpression
 
   /// Calculates the Euclidean distance between this vector expression and another vector literal
   /// (`VectorValue`).
@@ -1125,7 +1125,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter other: The other vector as a `VectorValue` to compare against.
   /// - Returns: A new `FunctionExpr` representing the Euclidean distance.
-  func euclideanDistance(_ other: VectorValue) -> FunctionExpr
+  func euclideanDistance(_ other: VectorValue) -> FunctionExpression
 
   /// Calculates the Euclidean distance between this vector expression and another vector literal
   /// (`[Double]`).
@@ -1137,7 +1137,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter other: The other vector as `[Double]` to compare against.
   /// - Returns: A new `FunctionExpr` representing the Euclidean distance.
-  func euclideanDistance(_ other: [Double]) -> FunctionExpr
+  func euclideanDistance(_ other: [Double]) -> FunctionExpression
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// expression.
@@ -1152,7 +1152,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter other: The other vector as an `Expr` to compare against.
   /// - Returns: A new `FunctionExpr` representing the Manhattan distance.
-  func manhattanDistance(_ other: Expr) -> FunctionExpr
+  func manhattanDistance(_ other: Expression) -> FunctionExpression
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// literal (`VectorValue`).
@@ -1164,7 +1164,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter other: The other vector as a `VectorValue` to compare against.
   /// - Returns: A new `FunctionExpr` representing the Manhattan distance.
-  func manhattanDistance(_ other: VectorValue) -> FunctionExpr
+  func manhattanDistance(_ other: VectorValue) -> FunctionExpression
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// literal (`[Double]`).
@@ -1177,7 +1177,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter other: The other vector as `[Double]` to compare against.
   /// - Returns: A new `FunctionExpr` representing the Manhattan distance.
-  func manhattanDistance(_ other: [Double]) -> FunctionExpr
+  func manhattanDistance(_ other: [Double]) -> FunctionExpression
 
   // MARK: Timestamp operations
 
@@ -1191,7 +1191,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the timestamp.
-  func unixMicrosToTimestamp() -> FunctionExpr
+  func unixMicrosToTimestamp() -> FunctionExpression
 
   /// Creates an expression that converts this timestamp expression to the number of microseconds
   /// since the Unix epoch. Assumes `self` evaluates to a Timestamp.
@@ -1202,7 +1202,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the number of microseconds.
-  func timestampToUnixMicros() -> FunctionExpr
+  func timestampToUnixMicros() -> FunctionExpression
 
   /// Creates an expression that interprets this expression (evaluating to a number) as milliseconds
   /// since the Unix epoch and returns a timestamp.
@@ -1214,7 +1214,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the timestamp.
-  func unixMillisToTimestamp() -> FunctionExpr
+  func unixMillisToTimestamp() -> FunctionExpression
 
   /// Creates an expression that converts this timestamp expression to the number of milliseconds
   /// since the Unix epoch. Assumes `self` evaluates to a Timestamp.
@@ -1225,7 +1225,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the number of milliseconds.
-  func timestampToUnixMillis() -> FunctionExpr
+  func timestampToUnixMillis() -> FunctionExpression
 
   /// Creates an expression that interprets this expression (evaluating to a number) as seconds
   /// since the Unix epoch and returns a timestamp.
@@ -1237,7 +1237,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the timestamp.
-  func unixSecondsToTimestamp() -> FunctionExpr
+  func unixSecondsToTimestamp() -> FunctionExpression
 
   /// Creates an expression that converts this timestamp expression to the number of seconds
   /// since the Unix epoch. Assumes `self` evaluates to a Timestamp.
@@ -1248,7 +1248,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the number of seconds.
-  func timestampToUnixSeconds() -> FunctionExpr
+  func timestampToUnixSeconds() -> FunctionExpression
 
   /// Creates an expression that adds a specified amount of time to this timestamp expression,
   /// where unit and amount are provided as expressions.
@@ -1265,7 +1265,7 @@ public protocol Expr: Sendable {
   /// 'day'.
   /// - Parameter amount: An `Expr` evaluating to the amount (Int) of the unit to add.
   /// - Returns: A new `FunctionExpr` representing the resulting timestamp.
-  func timestampAdd(_ unit: Expr, _ amount: Expr) -> FunctionExpr
+  func timestampAdd(_ unit: Expression, _ amount: Expression) -> FunctionExpression
 
   /// Creates an expression that adds a specified amount of time to this timestamp expression,
   /// where unit and amount are provided as literals.
@@ -1279,7 +1279,7 @@ public protocol Expr: Sendable {
   /// - Parameter unit: The `TimeUnit` enum representing the unit of time.
   /// - Parameter amount: The literal `Int` amount of the unit to add.
   /// - Returns: A new `FunctionExpr` representing the resulting timestamp.
-  func timestampAdd(_ unit: TimeUnit, _ amount: Int) -> FunctionExpr
+  func timestampAdd(_ unit: TimeUnit, _ amount: Int) -> FunctionExpression
 
   /// Creates an expression that subtracts a specified amount of time from this timestamp
   /// expression,
@@ -1297,7 +1297,7 @@ public protocol Expr: Sendable {
   /// 'day'.
   /// - Parameter amount: An `Expr` evaluating to the amount (Int) of the unit to subtract.
   /// - Returns: A new `FunctionExpr` representing the resulting timestamp.
-  func timestampSub(_ unit: Expr, _ amount: Expr) -> FunctionExpr
+  func timestampSub(_ unit: Expression, _ amount: Expression) -> FunctionExpression
 
   /// Creates an expression that subtracts a specified amount of time from this timestamp
   /// expression,
@@ -1312,7 +1312,7 @@ public protocol Expr: Sendable {
   /// - Parameter unit: The `TimeUnit` enum representing the unit of time.
   /// - Parameter amount: The literal `Int` amount of the unit to subtract.
   /// - Returns: A new `FunctionExpr` representing the resulting timestamp.
-  func timestampSub(_ unit: TimeUnit, _ amount: Int) -> FunctionExpr
+  func timestampSub(_ unit: TimeUnit, _ amount: Int) -> FunctionExpression
 
   // MARK: - Bitwise operations
 
@@ -1328,7 +1328,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter otherBits: The integer literal operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise AND operation.
-  func bitAnd(_ otherBits: Int) -> FunctionExpr
+  func bitAnd(_ otherBits: Int) -> FunctionExpression
 
   /// Creates an expression applying bitwise AND between this expression and a UInt8 literal (often
   /// for byte masks).
@@ -1340,7 +1340,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter otherBits: The UInt8 literal operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise AND operation.
-  func bitAnd(_ otherBits: UInt8) -> FunctionExpr
+  func bitAnd(_ otherBits: UInt8) -> FunctionExpression
 
   /// Creates an expression applying bitwise AND between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
@@ -1352,7 +1352,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter bitsExpression: The other `Expr` operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise AND operation.
-  func bitAnd(_ bitsExpression: Expr) -> FunctionExpr
+  func bitAnd(_ bitsExpression: Expression) -> FunctionExpression
 
   /// Creates an expression applying bitwise OR between this expression and an integer literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
@@ -1366,7 +1366,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter otherBits: The integer literal operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise OR operation.
-  func bitOr(_ otherBits: Int) -> FunctionExpr
+  func bitOr(_ otherBits: Int) -> FunctionExpression
 
   /// Creates an expression applying bitwise OR between this expression and a UInt8 literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
@@ -1377,7 +1377,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter otherBits: The UInt8 literal operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise OR operation.
-  func bitOr(_ otherBits: UInt8) -> FunctionExpr
+  func bitOr(_ otherBits: UInt8) -> FunctionExpression
 
   /// Creates an expression applying bitwise OR between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
@@ -1389,7 +1389,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter bitsExpression: The other `Expr` operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise OR operation.
-  func bitOr(_ bitsExpression: Expr) -> FunctionExpr
+  func bitOr(_ bitsExpression: Expression) -> FunctionExpression
 
   /// Creates an expression applying bitwise XOR between this expression and an integer literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
@@ -1403,7 +1403,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter otherBits: The integer literal operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise XOR operation.
-  func bitXor(_ otherBits: Int) -> FunctionExpr
+  func bitXor(_ otherBits: Int) -> FunctionExpression
 
   /// Creates an expression applying bitwise XOR between this expression and a UInt8 literal.
   /// Assumes `self` evaluates to an Integer or Bytes.
@@ -1414,7 +1414,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter otherBits: The UInt8 literal operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise XOR operation.
-  func bitXor(_ otherBits: UInt8) -> FunctionExpr
+  func bitXor(_ otherBits: UInt8) -> FunctionExpression
 
   /// Creates an expression applying bitwise XOR between this expression and another expression.
   /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
@@ -1426,7 +1426,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter bitsExpression: The other `Expr` operand.
   /// - Returns: A new `FunctionExpr` representing the bitwise XOR operation.
-  func bitXor(_ bitsExpression: Expr) -> FunctionExpr
+  func bitXor(_ bitsExpression: Expression) -> FunctionExpression
 
   /// Creates an expression applying bitwise NOT to this expression.
   /// Assumes `self` evaluates to an Integer or Bytes.
@@ -1439,7 +1439,7 @@ public protocol Expr: Sendable {
   /// ```
   ///
   /// - Returns: A new `FunctionExpr` representing the bitwise NOT operation.
-  func bitNot() -> FunctionExpr
+  func bitNot() -> FunctionExpression
 
   /// Creates an expression applying bitwise left shift to this expression by a literal number of
   /// bits.
@@ -1454,7 +1454,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter y: The number of bits (Int literal) to shift by.
   /// - Returns: A new `FunctionExpr` representing the bitwise left shift operation.
-  func bitLeftShift(_ y: Int) -> FunctionExpr
+  func bitLeftShift(_ y: Int) -> FunctionExpression
 
   /// Creates an expression applying bitwise left shift to this expression by a number of bits
   /// specified by an expression.
@@ -1467,7 +1467,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter numberExpr: An `Expr` (evaluating to an Int) for the number of bits to shift by.
   /// - Returns: A new `FunctionExpr` representing the bitwise left shift operation.
-  func bitLeftShift(_ numberExpr: Expr) -> FunctionExpr
+  func bitLeftShift(_ numberExpr: Expression) -> FunctionExpression
 
   /// Creates an expression applying bitwise right shift to this expression by a literal number of
   /// bits.
@@ -1482,7 +1482,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter y: The number of bits (Int literal) to shift by.
   /// - Returns: A new `FunctionExpr` representing the bitwise right shift operation.
-  func bitRightShift(_ y: Int) -> FunctionExpr
+  func bitRightShift(_ y: Int) -> FunctionExpression
 
   /// Creates an expression applying bitwise right shift to this expression by a number of bits
   /// specified by an expression.
@@ -1495,7 +1495,7 @@ public protocol Expr: Sendable {
   /// ```
   /// - Parameter numberExpr: An `Expr` (evaluating to an Int) for the number of bits to shift by.
   /// - Returns: A new `FunctionExpr` representing the bitwise right shift operation.
-  func bitRightShift(_ numberExpr: Expr) -> FunctionExpr
+  func bitRightShift(_ numberExpr: Expression) -> FunctionExpression
 
   /// Creates an expression that returns the result of `catchExpr` if this expression produces an
   /// error during evaluation,
@@ -1510,7 +1510,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter catchExpr: The `Expr` to evaluate and return if this expression errors.
   /// - Returns: A new `FunctionExpr` representing the 'ifError' operation.
-  func ifError(_ catchExpr: Expr) -> FunctionExpr
+  func ifError(_ catchExpr: Expression) -> FunctionExpression
 
   /// Creates an expression that returns the literal `catchValue` if this expression produces an
   /// error during evaluation,
@@ -1525,7 +1525,7 @@ public protocol Expr: Sendable {
   ///
   /// - Parameter catchValue: The literal `Sendable` value to return if this expression errors.
   /// - Returns: A new `FunctionExpr` representing the 'ifError' operation.
-  func ifError(_ catchValue: Sendable) -> FunctionExpr
+  func ifError(_ catchValue: Sendable) -> FunctionExpression
 
   // MARK: Sorting
 
