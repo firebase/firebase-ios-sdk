@@ -30,6 +30,7 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/quadruple.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
@@ -41,6 +42,7 @@ namespace model {
 
 using nanopb::Message;
 using util::ComparisonResult;
+using util::Quadruple;
 
 /** The smallest reference value. */
 pb_bytes_array_s* kMinimumReferenceValue =
@@ -52,9 +54,9 @@ pb_bytes_array_s* kTypeValueFieldKey =
     nanopb::MakeBytesArray(kRawTypeValueFieldKey);
 
 /** The field value of a maximum proto value. */
-const char* kRawMaxValueFieldValue = "__max__";
-pb_bytes_array_s* kMaxValueFieldValue =
-    nanopb::MakeBytesArray(kRawMaxValueFieldValue);
+const char* kRawInternalMaxValueFieldValue = "__max__";
+pb_bytes_array_s* kInternalMaxValueFieldValue =
+    nanopb::MakeBytesArray(kRawInternalMaxValueFieldValue);
 
 /** The type of a VectorValue proto. */
 const char* kRawVectorTypeFieldValue = "__vector__";
@@ -65,6 +67,108 @@ pb_bytes_array_s* kVectorTypeFieldValue =
 const char* kRawVectorValueFieldKey = "value";
 pb_bytes_array_s* kVectorValueFieldKey =
     nanopb::MakeBytesArray(kRawVectorValueFieldKey);
+
+/** The key of a MinKey in a map proto. */
+const char* kRawMinKeyTypeFieldValue = "__min__";
+pb_bytes_array_s* kMinKeyTypeFieldValue =
+    nanopb::MakeBytesArray(kRawMinKeyTypeFieldValue);
+
+/** The key of a MaxKey in a map proto. */
+const char* kRawMaxKeyTypeFieldValue = "__max__";
+pb_bytes_array_s* kMaxKeyTypeFieldValue =
+    nanopb::MakeBytesArray(kRawMaxKeyTypeFieldValue);
+
+/** The key of a regex in a map proto. */
+const char* kRawRegexTypeFieldValue = "__regex__";
+pb_bytes_array_s* kRegexTypeFieldValue =
+    nanopb::MakeBytesArray(kRawRegexTypeFieldValue);
+
+/** The regex pattern key. */
+const char* kRawRegexTypePatternFieldValue = "pattern";
+pb_bytes_array_s* kRegexTypePatternFieldValue =
+    nanopb::MakeBytesArray(kRawRegexTypePatternFieldValue);
+
+/** The regex options key. */
+const char* kRawRegexTypeOptionsFieldValue = "options";
+pb_bytes_array_s* kRegexTypeOptionsFieldValue =
+    nanopb::MakeBytesArray(kRawRegexTypeOptionsFieldValue);
+
+/** The key of an int32 in a map proto. */
+const char* kRawInt32TypeFieldValue = "__int__";
+pb_bytes_array_s* kInt32TypeFieldValue =
+    nanopb::MakeBytesArray(kRawInt32TypeFieldValue);
+
+/** The key of a decimal128 in a map proto. */
+const char* kRawDecimal128TypeFieldValue = "__decimal128__";
+pb_bytes_array_s* kDecimal128TypeFieldValue =
+    nanopb::MakeBytesArray(kRawDecimal128TypeFieldValue);
+
+/** The key of a BSON ObjectId in a map proto. */
+const char* kRawBsonObjectIdTypeFieldValue = "__oid__";
+pb_bytes_array_s* kBsonObjectIdTypeFieldValue =
+    nanopb::MakeBytesArray(kRawBsonObjectIdTypeFieldValue);
+
+/** The key of a BSON Timestamp in a map proto. */
+const char* kRawBsonTimestampTypeFieldValue = "__request_timestamp__";
+pb_bytes_array_s* kBsonTimestampTypeFieldValue =
+    nanopb::MakeBytesArray(kRawBsonTimestampTypeFieldValue);
+
+/** The key of a BSON Timestamp seconds in a map proto. */
+const char* kRawBsonTimestampTypeSecondsFieldValue = "seconds";
+pb_bytes_array_s* kBsonTimestampTypeSecondsFieldValue =
+    nanopb::MakeBytesArray(kRawBsonTimestampTypeSecondsFieldValue);
+
+/** The key of a BSON Timestamp increment in a map proto. */
+const char* kRawBsonTimestampTypeIncrementFieldValue = "increment";
+pb_bytes_array_s* kBsonTimestampTypeIncrementFieldValue =
+    nanopb::MakeBytesArray(kRawBsonTimestampTypeIncrementFieldValue);
+
+/** The key of a BSON Binary Data in a map proto. */
+const char* kRawBsonBinaryDataTypeFieldValue = "__binary__";
+pb_bytes_array_s* kBsonBinaryDataTypeFieldValue =
+    nanopb::MakeBytesArray(kRawBsonBinaryDataTypeFieldValue);
+
+MapType DetectMapType(const google_firestore_v1_Value& value) {
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count == 0) {
+    return MapType::kNormal;
+  }
+
+  // Check for type-based mappings
+  if (IsServerTimestamp(value)) {
+    return MapType::kServerTimestamp;
+  } else if (IsInternalMaxValue(value)) {
+    return MapType::kInternalMaxValue;
+  } else if (IsVectorValue(value)) {
+    return MapType::kVector;
+  }
+
+  // Check for BSON-related mappings
+  if (value.map_value.fields_count != 1) {
+    // All BSON types have 1 key in the map. To improve performance, we can
+    // return early if the map is empty or has more than 1 key.
+    return MapType::kNormal;
+  } else if (IsMinKeyValue(value)) {
+    return MapType::kMinKey;
+  }
+  if (IsMaxKeyValue(value)) {
+    return MapType::kMaxKey;
+  } else if (IsRegexValue(value)) {
+    return MapType::kRegex;
+  } else if (IsDecimal128Value(value)) {
+    return MapType::kDecimal128;
+  } else if (IsInt32Value(value)) {
+    return MapType::kInt32;
+  } else if (IsBsonObjectId(value)) {
+    return MapType::kBsonObjectId;
+  } else if (IsBsonTimestamp(value)) {
+    return MapType::kBsonTimestamp;
+  } else if (IsBsonBinaryData(value)) {
+    return MapType::kBsonBinaryData;
+  }
+
+  return MapType::kNormal;
+}
 
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
@@ -97,14 +201,32 @@ TypeOrder GetTypeOrder(const google_firestore_v1_Value& value) {
       return TypeOrder::kArray;
 
     case google_firestore_v1_Value_map_value_tag: {
-      if (IsServerTimestamp(value)) {
-        return TypeOrder::kServerTimestamp;
-      } else if (IsMaxValue(value)) {
-        return TypeOrder::kMaxValue;
-      } else if (IsVectorValue(value)) {
-        return TypeOrder::kVector;
+      switch (DetectMapType(value)) {
+        case MapType::kServerTimestamp:
+          return TypeOrder::kServerTimestamp;
+        case MapType::kInternalMaxValue:
+          return TypeOrder::kInternalMaxValue;
+        case MapType::kVector:
+          return TypeOrder::kVector;
+        case MapType::kMinKey:
+          return TypeOrder::kMinKey;
+        case MapType::kMaxKey:
+          return TypeOrder::kMaxKey;
+        case MapType::kRegex:
+          return TypeOrder::kRegex;
+        case MapType::kInt32:
+        case MapType::kDecimal128:
+          return TypeOrder::kNumber;
+        case MapType::kBsonObjectId:
+          return TypeOrder::kBsonObjectId;
+        case MapType::kBsonTimestamp:
+          return TypeOrder::kBsonTimestamp;
+        case MapType::kBsonBinaryData:
+          return TypeOrder::kBsonBinaryData;
+        case MapType::kNormal:
+        default:
+          return TypeOrder::kMap;
       }
-      return TypeOrder::kMap;
     }
 
     default:
@@ -139,19 +261,73 @@ void SortFields(google_firestore_v1_Value& value) {
   }
 }
 
+Quadruple ConvertNumericValueToQuadruple(
+    const google_firestore_v1_Value& value) {
+  if (value.which_value_type == google_firestore_v1_Value_double_value_tag) {
+    return Quadruple(value.double_value);
+  } else if (value.which_value_type ==
+             google_firestore_v1_Value_integer_value_tag) {
+    return Quadruple(value.integer_value);
+  } else if (IsInt32Value(value)) {
+    return Quadruple(value.map_value.fields[0].value.integer_value);
+  } else if (IsDecimal128Value(value)) {
+    Quadruple result;
+    result.Parse(
+        nanopb::MakeString(value.map_value.fields[0].value.string_value));
+    return result;
+  }
+
+  HARD_FAIL(
+      "ConvertNumericValueToQuadruple was called with non-numeric value: %s",
+      value.ToString());
+}
+
+ComparisonResult Compare128BitNumbers(const google_firestore_v1_Value& left,
+                                      const google_firestore_v1_Value& right) {
+  Quadruple lhs = ConvertNumericValueToQuadruple(left);
+  Quadruple rhs = ConvertNumericValueToQuadruple(right);
+  if (lhs.is_nan()) {
+    return rhs.is_nan() ? ComparisonResult::Same : ComparisonResult::Ascending;
+  } else if (rhs.is_nan()) {
+    // rhs is NaN, but lhs is not.
+    return ComparisonResult::Descending;
+  }
+
+  // Firestore considers +0 and -0 equal, but `Quadruple.Compare()` does not.
+  // SO, override negative zero to positive zero.
+  if (lhs.Compare(Quadruple(-0.0)) == 0) lhs = Quadruple();
+  if (rhs.Compare(Quadruple(-0.0)) == 0) rhs = Quadruple();
+
+  // Since `Compare` returns `-1`, `0`, and `1` with the same semantics as the
+  // `ComparisonResult` enum, we can safely cast it.
+  return static_cast<ComparisonResult>(lhs.Compare(rhs));
+}
+
 ComparisonResult CompareNumbers(const google_firestore_v1_Value& left,
                                 const google_firestore_v1_Value& right) {
+  if (IsDecimal128Value(left) || IsDecimal128Value(right)) {
+    return Compare128BitNumbers(left, right);
+  }
+
   if (left.which_value_type == google_firestore_v1_Value_double_value_tag) {
     double left_double = left.double_value;
     if (right.which_value_type == google_firestore_v1_Value_double_value_tag) {
       return util::Compare(left_double, right.double_value);
+    } else if (IsInt32Value(right)) {
+      return util::CompareMixedNumber(
+          left_double, right.map_value.fields[0].value.integer_value);
     } else {
       return util::CompareMixedNumber(left_double, right.integer_value);
     }
   } else {
-    int64_t left_long = left.integer_value;
+    int64_t left_long = IsInt32Value(left)
+                            ? left.map_value.fields[0].value.integer_value
+                            : left.integer_value;
     if (right.which_value_type == google_firestore_v1_Value_integer_value_tag) {
       return util::Compare(left_long, right.integer_value);
+    } else if (IsInt32Value(right)) {
+      return util::Compare(left_long,
+                           right.map_value.fields[0].value.integer_value);
     } else {
       return util::ReverseOrder(
           util::CompareMixedNumber(right.double_value, left_long));
@@ -299,6 +475,124 @@ ComparisonResult CompareVectors(const google_firestore_v1_Value& left,
   return CompareArrays(leftArray, rightArray);
 }
 
+ComparisonResult CompareRegexValues(const google_firestore_v1_Value& left,
+                                    const google_firestore_v1_Value& right) {
+  HARD_ASSERT(IsRegexValue(left) && IsRegexValue(right),
+              "Cannot compare non-regex values as regex values.");
+
+  // Since the above assertion ensures the given values have the expected format
+  // we can safely access the fields as we expect.
+  const google_firestore_v1_MapValue& left_inner_map_value =
+      left.map_value.fields[0].value.map_value;
+  const google_firestore_v1_MapValue& right_inner_map_value =
+      right.map_value.fields[0].value.map_value;
+
+  // Find the left and right patterns.
+  absl::optional<pb_size_t> left_pattern_index =
+      IndexOfKey(left_inner_map_value, kRawRegexTypePatternFieldValue,
+                 kRegexTypePatternFieldValue);
+  const auto& left_pattern_value =
+      left_inner_map_value.fields[left_pattern_index.value()].value;
+  absl::optional<pb_size_t> right_pattern_index =
+      IndexOfKey(right_inner_map_value, kRawRegexTypePatternFieldValue,
+                 kRegexTypePatternFieldValue);
+  const auto& right_pattern_value =
+      right_inner_map_value.fields[right_pattern_index.value()].value;
+
+  // First compare patterns.
+  const auto compare_patterns =
+      CompareStrings(left_pattern_value, right_pattern_value);
+  if (compare_patterns != ComparisonResult::Same) {
+    return compare_patterns;
+  }
+
+  // Find the left and right options.
+  absl::optional<pb_size_t> left_options_index =
+      IndexOfKey(left_inner_map_value, kRawRegexTypeOptionsFieldValue,
+                 kRegexTypeOptionsFieldValue);
+  const auto& left_options_value =
+      left_inner_map_value.fields[left_options_index.value()].value;
+  absl::optional<pb_size_t> right_options_index =
+      IndexOfKey(right_inner_map_value, kRawRegexTypeOptionsFieldValue,
+                 kRegexTypeOptionsFieldValue);
+  const auto& right_options_value =
+      right_inner_map_value.fields[right_options_index.value()].value;
+
+  // If patterns are equal, compare the options.
+  return CompareStrings(left_options_value, right_options_value);
+}
+
+ComparisonResult CompareBsonObjectId(const google_firestore_v1_Value& left,
+                                     const google_firestore_v1_Value& right) {
+  HARD_ASSERT(IsBsonObjectId(left) && IsBsonObjectId(right),
+              "Cannot compare non-BsonObjectId values as BsonObjectId values.");
+
+  // Since the above assertion ensures the given values have the expected format
+  // we can safely access the fields as we expect.
+  return CompareStrings(left.map_value.fields[0].value,
+                        right.map_value.fields[0].value);
+}
+
+ComparisonResult CompareBsonTimestamp(const google_firestore_v1_Value& left,
+                                      const google_firestore_v1_Value& right) {
+  HARD_ASSERT(
+      IsBsonTimestamp(left) && IsBsonTimestamp(right),
+      "Cannot compare non-BsonTimestamp values as BsonTimestamp values.");
+
+  // Since the above assertion ensures the given values have the expected format
+  // we can safely access the fields as we expect.
+  const google_firestore_v1_MapValue& left_inner_map_value =
+      left.map_value.fields[0].value.map_value;
+  const google_firestore_v1_MapValue& right_inner_map_value =
+      right.map_value.fields[0].value.map_value;
+
+  // Find the left and right 'seconds'.
+  absl::optional<pb_size_t> left_seconds_index =
+      IndexOfKey(left_inner_map_value, kRawBsonTimestampTypeSecondsFieldValue,
+                 kBsonTimestampTypeSecondsFieldValue);
+  const auto& left_seconds_value =
+      left_inner_map_value.fields[left_seconds_index.value()].value;
+  absl::optional<pb_size_t> right_seconds_index =
+      IndexOfKey(right_inner_map_value, kRawBsonTimestampTypeSecondsFieldValue,
+                 kBsonTimestampTypeSecondsFieldValue);
+  const auto& right_seconds_value =
+      right_inner_map_value.fields[right_seconds_index.value()].value;
+
+  // First compare 'seconds'.
+  const auto compare_seconds =
+      CompareNumbers(left_seconds_value, right_seconds_value);
+  if (compare_seconds != ComparisonResult::Same) {
+    return compare_seconds;
+  }
+
+  // Find the left and right 'increment'.
+  absl::optional<pb_size_t> left_increment_index =
+      IndexOfKey(left_inner_map_value, kRawBsonTimestampTypeIncrementFieldValue,
+                 kBsonTimestampTypeIncrementFieldValue);
+  const auto& left_increment_value =
+      left_inner_map_value.fields[left_increment_index.value()].value;
+  absl::optional<pb_size_t> right_increment_index = IndexOfKey(
+      right_inner_map_value, kRawBsonTimestampTypeIncrementFieldValue,
+      kBsonTimestampTypeIncrementFieldValue);
+  const auto& right_increment_value =
+      right_inner_map_value.fields[right_increment_index.value()].value;
+
+  // If 'seconds' are equal, compare the 'increment'.
+  return CompareNumbers(left_increment_value, right_increment_value);
+}
+
+ComparisonResult CompareBsonBinaryData(const google_firestore_v1_Value& left,
+                                       const google_firestore_v1_Value& right) {
+  HARD_ASSERT(
+      IsBsonBinaryData(left) && IsBsonBinaryData(right),
+      "Cannot compare non-BsonBinaryData values as BsonBinaryData values.");
+
+  // Since the above assertion ensures the given values have the expected format
+  // we can safely access the fields as we expect.
+  return CompareBlobs(left.map_value.fields[0].value,
+                      right.map_value.fields[0].value);
+}
+
 ComparisonResult Compare(const google_firestore_v1_Value& left,
                          const google_firestore_v1_Value& right) {
   TypeOrder left_type = GetTypeOrder(left);
@@ -310,6 +604,11 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
 
   switch (left_type) {
     case TypeOrder::kNull:
+    case TypeOrder::kInternalMaxValue:
+    // All MinKeys are equal.
+    case TypeOrder::kMinKey:
+    // All MaxKeys are equal.
+    case TypeOrder::kMaxKey:
       return ComparisonResult::Same;
 
     case TypeOrder::kBoolean:
@@ -337,6 +636,18 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
     case TypeOrder::kGeoPoint:
       return CompareGeoPoints(left, right);
 
+    case TypeOrder::kRegex:
+      return CompareRegexValues(left, right);
+
+    case TypeOrder::kBsonObjectId:
+      return CompareBsonObjectId(left, right);
+
+    case TypeOrder::kBsonTimestamp:
+      return CompareBsonTimestamp(left, right);
+
+    case TypeOrder::kBsonBinaryData:
+      return CompareBsonBinaryData(left, right);
+
     case TypeOrder::kArray:
       return CompareArrays(left, right);
 
@@ -345,9 +656,6 @@ ComparisonResult Compare(const google_firestore_v1_Value& left,
 
     case TypeOrder::kVector:
       return CompareVectors(left, right);
-
-    case TypeOrder::kMaxValue:
-      return util::ComparisonResult::Same;
 
     default:
       HARD_FAIL("Invalid type value: %s", left_type);
@@ -400,7 +708,13 @@ bool NumberEquals(const google_firestore_v1_Value& left,
              right.which_value_type ==
                  google_firestore_v1_Value_double_value_tag) {
     return util::DoubleBitwiseEquals(left.double_value, right.double_value);
+  } else if (IsInt32Value(left) && IsInt32Value(right)) {
+    return left.map_value.fields[0].value.integer_value ==
+           right.map_value.fields[0].value.integer_value;
+  } else if (IsDecimal128Value(left) && IsDecimal128Value(right)) {
+    return Compare128BitNumbers(left, right) == util::ComparisonResult::Same;
   }
+
   return false;
 }
 
@@ -437,6 +751,8 @@ bool Equals(const google_firestore_v1_Value& lhs,
 
   switch (left_type) {
     case TypeOrder::kNull:
+    case TypeOrder::kMinKey:
+    case TypeOrder::kMaxKey:
       return true;
 
     case TypeOrder::kBoolean:
@@ -474,11 +790,21 @@ bool Equals(const google_firestore_v1_Value& lhs,
     case TypeOrder::kArray:
       return ArrayEquals(lhs.array_value, rhs.array_value);
 
+    case TypeOrder::kRegex:
+      return CompareRegexValues(lhs, rhs) == ComparisonResult::Same;
+
+    case TypeOrder::kBsonObjectId:
+      return CompareBsonObjectId(lhs, rhs) == ComparisonResult::Same;
+
+    case TypeOrder::kBsonTimestamp:
+      return CompareBsonTimestamp(lhs, rhs) == ComparisonResult::Same;
+
+    case TypeOrder::kBsonBinaryData:
+      return CompareBsonBinaryData(lhs, rhs) == ComparisonResult::Same;
+
     case TypeOrder::kVector:
     case TypeOrder::kMap:
-      return MapValueEquals(lhs.map_value, rhs.map_value);
-
-    case TypeOrder::kMaxValue:
+    case TypeOrder::kInternalMaxValue:
       return MapValueEquals(lhs.map_value, rhs.map_value);
 
     default:
@@ -631,6 +957,22 @@ google_firestore_v1_Value GetLowerBound(
     case google_firestore_v1_Value_map_value_tag: {
       if (IsVectorValue(value)) {
         return MinVector();
+      } else if (IsBsonObjectId(value)) {
+        return MinBsonObjectId();
+      } else if (IsBsonTimestamp(value)) {
+        return MinBsonTimestamp();
+      } else if (IsBsonBinaryData(value)) {
+        return MinBsonBinaryData();
+      } else if (IsRegexValue(value)) {
+        return MinRegex();
+      } else if (IsInt32Value(value) || IsDecimal128Value(value)) {
+        // Int32Value and Decimal128Value are treated the same as integerValue
+        // and doubleValue.
+        return MinNumber();
+      } else if (IsMinKeyValue(value)) {
+        return MinKeyValue();
+      } else if (IsMaxKeyValue(value)) {
+        return MaxKeyValue();
       }
 
       return MinMap();
@@ -645,29 +987,48 @@ google_firestore_v1_Value GetUpperBound(
     const google_firestore_v1_Value& value) {
   switch (value.which_value_type) {
     case google_firestore_v1_Value_null_value_tag:
-      return MinBoolean();
+      return MinKeyValue();
     case google_firestore_v1_Value_boolean_value_tag:
       return MinNumber();
     case google_firestore_v1_Value_integer_value_tag:
     case google_firestore_v1_Value_double_value_tag:
       return MinTimestamp();
     case google_firestore_v1_Value_timestamp_value_tag:
-      return MinString();
+      return MinBsonTimestamp();
     case google_firestore_v1_Value_string_value_tag:
       return MinBytes();
     case google_firestore_v1_Value_bytes_value_tag:
-      return MinReference();
+      return MinBsonBinaryData();
     case google_firestore_v1_Value_reference_value_tag:
-      return MinGeoPoint();
+      return MinBsonObjectId();
     case google_firestore_v1_Value_geo_point_value_tag:
-      return MinArray();
+      return MinRegex();
     case google_firestore_v1_Value_array_value_tag:
       return MinVector();
     case google_firestore_v1_Value_map_value_tag:
       if (IsVectorValue(value)) {
         return MinMap();
+      } else if (IsMinKeyValue(value)) {
+        return MinBoolean();
+      } else if (IsInt32Value(value) || IsDecimal128Value(value)) {
+        // Int32Value and Decimal128Value are treated the same as integerValue
+        // and doubleValue.
+        return MinTimestamp();
+      } else if (IsBsonTimestamp(value)) {
+        return MinString();
+      } else if (IsBsonBinaryData(value)) {
+        return MinReference();
+      } else if (IsBsonObjectId(value)) {
+        return MinGeoPoint();
+      } else if (IsRegexValue(value)) {
+        return MinArray();
+      } else if (IsMaxKeyValue(value)) {
+        // The upper bound for MaxKey is the internal max value.
+        return InternalMaxValue();
       }
-      return MaxValue();
+
+      // For normal maps, the upper bound is MaxKey.
+      return MaxKeyValue();
     default:
       HARD_FAIL("Invalid type value: %s", value.which_value_type);
   }
@@ -694,14 +1055,14 @@ bool IsNullValue(const google_firestore_v1_Value& value) {
   return value.which_value_type == google_firestore_v1_Value_null_value_tag;
 }
 
-google_firestore_v1_Value MinValue() {
+google_firestore_v1_Value InternalMinValue() {
   google_firestore_v1_Value null_value;
   null_value.which_value_type = google_firestore_v1_Value_null_value_tag;
   null_value.null_value = {};
   return null_value;
 }
 
-bool IsMinValue(const google_firestore_v1_Value& value) {
+bool IsInternalMinValue(const google_firestore_v1_Value& value) {
   return IsNullValue(value);
 }
 
@@ -710,10 +1071,10 @@ bool IsMinValue(const google_firestore_v1_Value& value) {
  * values. Underlying it is a map value with a special map field that SDK user
  * cannot possibly construct.
  */
-google_firestore_v1_Value MaxValue() {
+google_firestore_v1_Value InternalMaxValue() {
   google_firestore_v1_Value value;
   value.which_value_type = google_firestore_v1_Value_string_value_tag;
-  value.string_value = kMaxValueFieldValue;
+  value.string_value = kInternalMaxValueFieldValue;
 
   // Make `field_entry` static so that it has a memory address that outlives
   // this function's scope; otherwise, using its address in the `map_value`
@@ -738,7 +1099,7 @@ google_firestore_v1_Value MaxValue() {
   return max_value;
 }
 
-bool IsMaxValue(const google_firestore_v1_Value& value) {
+bool IsInternalMaxValue(const google_firestore_v1_Value& value) {
   if (value.which_value_type != google_firestore_v1_Value_map_value_tag) {
     return false;
   }
@@ -762,9 +1123,10 @@ bool IsMaxValue(const google_firestore_v1_Value& value) {
 
   // Comparing the pointer address, then actual content if addresses are
   // different.
-  return value.map_value.fields[0].value.string_value == kMaxValueFieldValue ||
+  return value.map_value.fields[0].value.string_value ==
+             kInternalMaxValueFieldValue ||
          nanopb::MakeStringView(value.map_value.fields[0].value.string_value) ==
-             kRawMaxValueFieldValue;
+             kRawInternalMaxValueFieldValue;
 }
 
 absl::optional<pb_size_t> IndexOfKey(
@@ -826,11 +1188,301 @@ bool IsVectorValue(const google_firestore_v1_Value& value) {
   return true;
 }
 
+bool IsMinKeyValue(const google_firestore_v1_Value& value) {
+  // A MinKey is expected to be a map as follows: { "__min__": null }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a '__min__' key.
+  absl::optional<pb_size_t> min_key_field_index = IndexOfKey(
+      value.map_value, kRawMinKeyTypeFieldValue, kMinKeyTypeFieldValue);
+  if (!min_key_field_index.has_value()) {
+    return false;
+  }
+
+  // The inner value should be null.
+  if (value.map_value.fields[0].value.which_value_type !=
+      google_firestore_v1_Value_null_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
+bool IsMaxKeyValue(const google_firestore_v1_Value& value) {
+  // A MaxKey is expected to be a map as follows: { "__max__": null }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a '__max__' key.
+  absl::optional<pb_size_t> max_key_field_index = IndexOfKey(
+      value.map_value, kRawMaxKeyTypeFieldValue, kMaxKeyTypeFieldValue);
+  if (!max_key_field_index.has_value()) {
+    return false;
+  }
+
+  // The inner value should be null.
+  if (value.map_value.fields[0].value.which_value_type !=
+      google_firestore_v1_Value_null_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
+bool IsRegexValue(const google_firestore_v1_Value& value) {
+  // A regex is expected to be a map as follows:
+  // {
+  //   "__regex__": {
+  //     "pattern": "...",
+  //     "options": "..."
+  //   }
+  // }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a "__regex__" key.
+  absl::optional<pb_size_t> regex_field_index = IndexOfKey(
+      value.map_value, kRawRegexTypeFieldValue, kRegexTypeFieldValue);
+  if (!regex_field_index.has_value()) {
+    return false;
+  }
+
+  // The inner value should be a map with 2 fields.
+  google_firestore_v1_Value& inner_value = value.map_value.fields[0].value;
+  if (inner_value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      inner_value.map_value.fields_count != 2) {
+    return false;
+  }
+
+  // Must have a string 'pattern'.
+  absl::optional<pb_size_t> pattern_field_index =
+      IndexOfKey(inner_value.map_value, kRawRegexTypePatternFieldValue,
+                 kRegexTypePatternFieldValue);
+  if (!pattern_field_index.has_value() ||
+      inner_value.map_value.fields[pattern_field_index.value()]
+              .value.which_value_type !=
+          google_firestore_v1_Value_string_value_tag) {
+    return false;
+  }
+
+  // Must have a string 'options'.
+  absl::optional<pb_size_t> options_field_index =
+      IndexOfKey(inner_value.map_value, kRawRegexTypeOptionsFieldValue,
+                 kRegexTypeOptionsFieldValue);
+  if (!options_field_index.has_value() ||
+      inner_value.map_value.fields[options_field_index.value()]
+              .value.which_value_type !=
+          google_firestore_v1_Value_string_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
+bool IsBsonObjectId(const google_firestore_v1_Value& value) {
+  // A BsonObjectId is expected to be a map as follows:
+  // {
+  //   "__oid__": "..."
+  // }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a "__oid__" key.
+  absl::optional<pb_size_t> field_index =
+      IndexOfKey(value.map_value, kRawBsonObjectIdTypeFieldValue,
+                 kBsonObjectIdTypeFieldValue);
+  if (!field_index.has_value()) {
+    return false;
+  }
+
+  // Must have a string value.
+  google_firestore_v1_Value& oid = value.map_value.fields[0].value;
+  if (oid.which_value_type != google_firestore_v1_Value_string_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
+bool IsBsonTimestamp(const google_firestore_v1_Value& value) {
+  // A BsonTimestamp is expected to be a map as follows:
+  // {
+  //   "__request_timestamp__": {
+  //     "seconds": "...",
+  //     "increment": "..."
+  //   }
+  // }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a "__request_timestamp__" key.
+  absl::optional<pb_size_t> field_index =
+      IndexOfKey(value.map_value, kRawBsonTimestampTypeFieldValue,
+                 kBsonTimestampTypeFieldValue);
+  if (!field_index.has_value()) {
+    return false;
+  }
+
+  // The inner value should be a map with 2 fields.
+  google_firestore_v1_Value& innerValue = value.map_value.fields[0].value;
+  if (innerValue.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      innerValue.map_value.fields_count != 2) {
+    return false;
+  }
+
+  // Must have an integer 'seconds' field.
+  absl::optional<pb_size_t> seconds_field_index =
+      IndexOfKey(innerValue.map_value, kRawBsonTimestampTypeSecondsFieldValue,
+                 kBsonTimestampTypeSecondsFieldValue);
+  if (!seconds_field_index.has_value() ||
+      innerValue.map_value.fields[seconds_field_index.value()]
+              .value.which_value_type !=
+          google_firestore_v1_Value_integer_value_tag) {
+    return false;
+  }
+
+  // Must have an integer 'increment'.
+  absl::optional<pb_size_t> increment_field_index =
+      IndexOfKey(innerValue.map_value, kRawBsonTimestampTypeIncrementFieldValue,
+                 kBsonTimestampTypeIncrementFieldValue);
+  if (!increment_field_index.has_value() ||
+      innerValue.map_value.fields[increment_field_index.value()]
+              .value.which_value_type !=
+          google_firestore_v1_Value_integer_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
+bool IsBsonBinaryData(const google_firestore_v1_Value& value) {
+  // A BsonTimestamp is expected to be a map as follows:
+  // {
+  //   "__binary__": <>
+  // }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a "__binary__" key.
+  absl::optional<pb_size_t> field_index =
+      IndexOfKey(value.map_value, kRawBsonBinaryDataTypeFieldValue,
+                 kBsonBinaryDataTypeFieldValue);
+  if (!field_index.has_value()) {
+    return false;
+  }
+
+  // Must have a 'bytes' value.
+  if (value.map_value.fields[0].value.which_value_type !=
+      google_firestore_v1_Value_bytes_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
+bool IsInt32Value(const google_firestore_v1_Value& value) {
+  // An Int32Value is expected to be a map as follows:
+  // {
+  //   "__int__": 12345
+  // }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a "__int__" key.
+  absl::optional<pb_size_t> field_index = IndexOfKey(
+      value.map_value, kRawInt32TypeFieldValue, kInt32TypeFieldValue);
+  if (!field_index.has_value()) {
+    return false;
+  }
+
+  // Must have an integer value.
+  if (value.map_value.fields[0].value.which_value_type !=
+      google_firestore_v1_Value_integer_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
+bool IsDecimal128Value(const google_firestore_v1_Value& value) {
+  // A Decimal128Value is expected to be a map as follows:
+  // {
+  //   "__decimal128__": 12345
+  // }
+
+  // Must be a map with 1 field.
+  if (value.which_value_type != google_firestore_v1_Value_map_value_tag ||
+      value.map_value.fields_count != 1) {
+    return false;
+  }
+
+  // Must have a "__decimal128__" key.
+  absl::optional<pb_size_t> field_index = IndexOfKey(
+      value.map_value, kRawDecimal128TypeFieldValue, kDecimal128TypeFieldValue);
+  if (!field_index.has_value()) {
+    return false;
+  }
+
+  // Must have a string value.
+  google_firestore_v1_Value& decimal_str = value.map_value.fields[0].value;
+  if (decimal_str.which_value_type !=
+      google_firestore_v1_Value_string_value_tag) {
+    return false;
+  }
+
+  return true;
+}
+
+bool IsBsonType(const google_firestore_v1_Value& value) {
+  const MapType mapType = DetectMapType(value);
+  return mapType == MapType::kMinKey || mapType == MapType::kMaxKey ||
+         mapType == MapType::kRegex || mapType == MapType::kInt32 ||
+         mapType == MapType::kDecimal128 || mapType == MapType::kBsonObjectId ||
+         mapType == MapType::kBsonTimestamp ||
+         mapType == MapType::kBsonBinaryData;
+}
+
 google_firestore_v1_Value NaNValue() {
   google_firestore_v1_Value nan_value;
   nan_value.which_value_type = google_firestore_v1_Value_double_value_tag;
   nan_value.double_value = std::numeric_limits<double>::quiet_NaN();
   return nan_value;
+}
+
+google_firestore_v1_Value ZeroIntegerValue() {
+  google_firestore_v1_Value zero_value;
+  zero_value.which_value_type = google_firestore_v1_Value_integer_value_tag;
+  zero_value.integer_value = 0;
+  return zero_value;
 }
 
 bool IsNaNValue(const google_firestore_v1_Value& value) {
@@ -920,6 +1572,128 @@ google_firestore_v1_Value MinVector() {
   lowerBound.map_value = map_value;
 
   return lowerBound;
+}
+
+google_firestore_v1_Value MinRegex() {
+  google_firestore_v1_MapValue_FieldsEntry* inner_field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
+  inner_field_entries[0].key = kRegexTypePatternFieldValue;
+  inner_field_entries[0].value = MinString();
+  inner_field_entries[1].key = kRegexTypeOptionsFieldValue;
+  inner_field_entries[1].value = MinString();
+  google_firestore_v1_MapValue inner_map_value;
+  inner_map_value.fields_count = 2;
+  inner_map_value.fields = inner_field_entries;
+  google_firestore_v1_Value inner_value;
+  inner_value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  inner_value.map_value = inner_map_value;
+
+  google_firestore_v1_MapValue_FieldsEntry* outer_field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  outer_field_entries[0].key = kRegexTypeFieldValue;
+  outer_field_entries[0].value = inner_value;
+  google_firestore_v1_MapValue outer_map_value;
+  outer_map_value.fields_count = 1;
+  outer_map_value.fields = outer_field_entries;
+
+  google_firestore_v1_Value lower_bound;
+  lower_bound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lower_bound.map_value = outer_map_value;
+
+  return lower_bound;
+}
+
+google_firestore_v1_Value MinBsonObjectId() {
+  google_firestore_v1_MapValue_FieldsEntry* field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  field_entries[0].key = kBsonObjectIdTypeFieldValue;
+  field_entries[0].value = MinString();
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 1;
+  map_value.fields = field_entries;
+
+  google_firestore_v1_Value lower_bound;
+  lower_bound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lower_bound.map_value = map_value;
+
+  return lower_bound;
+}
+
+google_firestore_v1_Value MinBsonTimestamp() {
+  google_firestore_v1_MapValue_FieldsEntry* inner_field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(2);
+  inner_field_entries[0].key = kBsonTimestampTypeSecondsFieldValue;
+  inner_field_entries[0].value = ZeroIntegerValue();
+  inner_field_entries[1].key = kBsonTimestampTypeIncrementFieldValue;
+  inner_field_entries[1].value = ZeroIntegerValue();
+  google_firestore_v1_MapValue inner_map_value;
+  inner_map_value.fields_count = 2;
+  inner_map_value.fields = inner_field_entries;
+  google_firestore_v1_Value inner_value;
+  inner_value.which_value_type = google_firestore_v1_Value_map_value_tag;
+  inner_value.map_value = inner_map_value;
+
+  google_firestore_v1_MapValue_FieldsEntry* outer_field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  outer_field_entries[0].key = kBsonTimestampTypeFieldValue;
+  outer_field_entries[0].value = inner_value;
+  google_firestore_v1_MapValue outer_map_value;
+  outer_map_value.fields_count = 1;
+  outer_map_value.fields = outer_field_entries;
+
+  google_firestore_v1_Value lower_bound;
+  lower_bound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lower_bound.map_value = outer_map_value;
+
+  return lower_bound;
+}
+
+google_firestore_v1_Value MinBsonBinaryData() {
+  google_firestore_v1_MapValue_FieldsEntry* field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  field_entries[0].key = kBsonBinaryDataTypeFieldValue;
+  field_entries[0].value = MinBytes();
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 1;
+  map_value.fields = field_entries;
+
+  google_firestore_v1_Value lower_bound;
+  lower_bound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lower_bound.map_value = map_value;
+
+  return lower_bound;
+}
+
+google_firestore_v1_Value MinKeyValue() {
+  google_firestore_v1_MapValue_FieldsEntry* field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  field_entries[0].key = kMinKeyTypeFieldValue;
+  field_entries[0].value = NullValue();
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 1;
+  map_value.fields = field_entries;
+
+  google_firestore_v1_Value lower_bound;
+  lower_bound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lower_bound.map_value = map_value;
+
+  return lower_bound;
+}
+
+google_firestore_v1_Value MaxKeyValue() {
+  google_firestore_v1_MapValue_FieldsEntry* field_entries =
+      nanopb::MakeArray<google_firestore_v1_MapValue_FieldsEntry>(1);
+  field_entries[0].key = kMaxKeyTypeFieldValue;
+  field_entries[0].value = NullValue();
+  google_firestore_v1_MapValue map_value;
+  map_value.fields_count = 1;
+  map_value.fields = field_entries;
+
+  google_firestore_v1_Value lower_bound;
+  lower_bound.which_value_type = google_firestore_v1_Value_map_value_tag;
+  lower_bound.map_value = map_value;
+
+  return lower_bound;
 }
 
 google_firestore_v1_Value MinMap() {

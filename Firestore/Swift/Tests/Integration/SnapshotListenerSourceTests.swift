@@ -753,4 +753,127 @@ class SnapshotListenerSourceTests: FSTIntegrationTestCase {
     eventAccumulator.assertNoAdditionalEvents()
     registration.remove()
   }
+
+  func testCanListenToDocumentsWithBsonTypes() throws {
+    let collection = collectionRef()
+    let testData = [
+      "a": ["key": MaxKey.shared],
+      "b": ["key": MinKey.shared],
+      "c": ["key": BSONTimestamp(seconds: 1, increment: 2)],
+      "d": ["key": BSONObjectId("507f191e810c19729de860ea")],
+      "e": ["key": BSONBinaryData(subtype: 1, data: Data([1, 2, 3]))],
+      "f": ["key": RegexValue(pattern: "^foo", options: "i")],
+    ]
+
+    let query = collection.order(by: "key", descending: false)
+    let registration = query.addSnapshotListener(eventAccumulator.valueEventHandler)
+
+    var querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, true)
+
+    writeAllDocuments(testData, toCollection: collection)
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["key"] as! MinKey,
+      testData["b"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[1].data()["key"] as! BSONTimestamp,
+      testData["c"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[2].data()["key"] as! BSONBinaryData,
+      testData["e"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[3].data()["key"] as! BSONObjectId,
+      testData["d"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[4].data()["key"] as! RegexValue,
+      testData["f"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[5].data()["key"] as! MaxKey,
+      testData["a"]!["key"]
+    )
+
+    // Add a 32-bit int value.
+    let newData = ["key": Int32Value(2)]
+    collection.document("g").setData(newData)
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["key"] as! MinKey,
+      testData["b"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[1].data()["key"] as! Int32Value,
+      newData["key"]!
+    )
+    XCTAssertEqual(
+      querySnap.documents[2].data()["key"] as! BSONTimestamp,
+      testData["c"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[3].data()["key"] as! BSONBinaryData,
+      testData["e"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[4].data()["key"] as! BSONObjectId,
+      testData["d"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[5].data()["key"] as! RegexValue,
+      testData["f"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[6].data()["key"] as! MaxKey,
+      testData["a"]!["key"]
+    )
+
+    // Add a 128-bit decimal value.
+    let decimalData = ["key": Decimal128Value("-4.123e-5")]
+    collection.document("h").setData(decimalData)
+
+    querySnap = eventAccumulator.awaitEvent(withName: "snapshot") as! QuerySnapshot
+    XCTAssertEqual(querySnap.isEmpty, false)
+    XCTAssertEqual(
+      querySnap.documents[0].data()["key"] as! MinKey,
+      testData["b"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[1].data()["key"] as! Decimal128Value,
+      decimalData["key"]!
+    )
+    XCTAssertEqual(
+      querySnap.documents[2].data()["key"] as! Int32Value,
+      newData["key"]!
+    )
+    XCTAssertEqual(
+      querySnap.documents[3].data()["key"] as! BSONTimestamp,
+      testData["c"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[4].data()["key"] as! BSONBinaryData,
+      testData["e"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[5].data()["key"] as! BSONObjectId,
+      testData["d"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[6].data()["key"] as! RegexValue,
+      testData["f"]!["key"]
+    )
+    XCTAssertEqual(
+      querySnap.documents[7].data()["key"] as! MaxKey,
+      testData["a"]!["key"]
+    )
+
+    registration.remove()
+  }
 }
