@@ -22,6 +22,12 @@ import Foundation
   import WatchKit
 #endif // os(iOS) || os(tvOS)
 
+#if SWIFT_PACKAGE
+  internal import GoogleUtilities_Environment
+#else
+  internal import GoogleUtilities
+#endif // SWIFT_PACKAGE
+
 /// The SessionInitiator is responsible for:
 ///   1) Running the initiate callback whenever a Session Start Event should
 ///      begin sending. This can happen at a cold start of the app, and when it
@@ -45,12 +51,22 @@ class SessionInitiator {
 
     let notificationCenter = NotificationCenter.default
     #if os(iOS) || os(tvOS) || os(visionOS)
-      notificationCenter.addObserver(
-        self,
-        selector: #selector(appBackgrounded),
-        name: UIApplication.didEnterBackgroundNotification,
-        object: nil
-      )
+      // Change background update event listerner for iPadOS 26 multi-windowing supoort
+      if #available(iOS 26, *), GULAppEnvironmentUtil.appleDevicePlatform().contains("ipados") {
+        notificationCenter.addObserver(
+          self,
+          selector: #selector(appBackgrounded),
+          name: UIApplication.willResignActiveNotification,
+          object: nil
+        )
+      } else {
+        notificationCenter.addObserver(
+          self,
+          selector: #selector(appBackgrounded),
+          name: UIApplication.didEnterBackgroundNotification,
+          object: nil
+        )
+      }
       notificationCenter.addObserver(
         self,
         selector: #selector(appForegrounded),

@@ -62,19 +62,6 @@ import Foundation
     set { impl.androidInstallIfNotAvailable.withLock { $0 = newValue } }
   }
 
-  /// The Firebase Dynamic Link domain used for out of band code flow.
-  #if !FIREBASE_CI
-    @available(
-      *,
-      deprecated,
-      message: "Firebase Dynamic Links is deprecated. Migrate to use Firebase Hosting link and use `linkDomain` to set a custom domain instead."
-    )
-  #endif // !FIREBASE_CI
-  @objc open var dynamicLinkDomain: String? {
-    get { impl.dynamicLinkDomain.value() }
-    set { impl.dynamicLinkDomain.withLock { $0 = newValue } }
-  }
-
   /// The out of band custom domain for handling code in app.
   @objc public var linkDomain: String? {
     get { impl.linkDomain.value() }
@@ -129,15 +116,6 @@ private extension ActionCodeSettings {
     let androidMinimumVersion = FIRAllocatedUnfairLock<String?>(initialState: nil)
 
     let androidInstallIfNotAvailable = FIRAllocatedUnfairLock<Bool>(initialState: false)
-
-    #if !FIREBASE_CI
-      @available(
-        *,
-        deprecated,
-        message: "Firebase Dynamic Links is deprecated. Migrate to use Firebase Hosting link and use `linkDomain` to set a custom domain instead."
-      )
-    #endif // !FIREBASE_CI
-    let dynamicLinkDomain = FIRAllocatedUnfairLock<String?>(initialState: nil)
 
     let linkDomain = FIRAllocatedUnfairLock<String?>(initialState: nil)
 

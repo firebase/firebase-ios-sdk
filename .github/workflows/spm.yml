@@ -59,7 +59,7 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            xcode: Xcode_16.3
+            xcode: Xcode_16.4
             test: spm
           - os: macos-14
             xcode: Xcode_16.2
@@ -71,7 +71,7 @@ jobs:
       with:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
-    - name: Clone mock responses for Vertex AI unit tests
+    - name: Clone mock responses for Firebase AI Logic unit tests
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -106,7 +106,7 @@ jobs:
       with:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
-    - name: Clone mock responses for Vertex AI unit tests
+    - name: Clone mock responses for Firebase AI Logic unit tests
       run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer

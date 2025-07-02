@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '11.15.0'
+  s.version          = '12.0.0'
   s.summary          = 'Firebase Storage'
 
   s.description      = <<-DESC
@@ -17,9 +17,9 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '13.0'
+  ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
-  tvos_deployment_target = '13.0'
+  tvos_deployment_target = '15.0'
   watchos_deployment_target = '7.0'
 
   s.ios.deployment_target = ios_deployment_target
@@ -37,10 +37,10 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorage/Typedefs/*.h',
   ]
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 11.0'
-  s.dependency 'FirebaseAuthInterop', '~> 11.0'
-  s.dependency 'FirebaseCore', '~> 11.15.0'
-  s.dependency 'FirebaseCoreExtension', '~> 11.15.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.0.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.0.0'
+  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.0.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 5.0'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
 
@@ -57,7 +57,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     objc_tests.requires_app_host = true
     objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    objc_tests.dependency 'FirebaseAuth', '~> 11.0'
+    objc_tests.dependency 'FirebaseAuth', '~> 12.0.0'
     objc_tests.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
@@ -86,6 +86,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 11.0'
+    int_tests.dependency 'FirebaseAuth', '~> 12.0.0'
   end
 end

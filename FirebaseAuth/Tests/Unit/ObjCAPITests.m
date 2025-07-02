@@ -64,7 +64,6 @@
   NSString *s = [codeSettings iOSBundleID];
   s = [codeSettings androidPackageName];
   s = [codeSettings androidMinimumVersion];
-  s = [codeSettings dynamicLinkDomain];
   s = [codeSettings linkDomain];
 }
 
@@ -276,11 +275,9 @@
   c = FIRAuthErrorCodeWebSignInUserInteractionFailure;
   c = FIRAuthErrorCodeLocalPlayerNotAuthenticated;
   c = FIRAuthErrorCodeNullUser;
-  c = FIRAuthErrorCodeDynamicLinkNotActivated;
   c = FIRAuthErrorCodeInvalidProviderID;
   c = FIRAuthErrorCodeTenantIDMismatch;
   c = FIRAuthErrorCodeUnsupportedTenantOperation;
-  c = FIRAuthErrorCodeInvalidDynamicLinkDomain;
   c = FIRAuthErrorCodeInvalidHostingLinkDomain;
   c = FIRAuthErrorCodeRejectedCredential;
   c = FIRAuthErrorCodeGameKitNotLinked;

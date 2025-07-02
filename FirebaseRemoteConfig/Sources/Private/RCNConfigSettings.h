@@ -135,6 +135,10 @@
 /// indicates a server issue.
 - (void)updateRealtimeExponentialBackoffTime;
 
+/// Increases the throttling time for Realtime. Should only be called if we receive a Realtime
+/// retry interval in the response.
+- (void)updateRealtimeBackoffTimeWithInterval:(NSTimeInterval)realtimeRetryInterval;
+
 /// Update last active template version from last fetched template version.
 - (void)updateLastActiveTemplateVersion;
 

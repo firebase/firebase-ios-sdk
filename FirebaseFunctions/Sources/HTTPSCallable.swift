@@ -184,34 +184,12 @@ private extension HTTPSCallable {
     func call(_ data: sending Any? = nil,
               completion: @escaping @MainActor (HTTPSCallableResult?, Error?) -> Void) {
       let data = (data as? SendableWrapper)?.value ?? data
-      if #available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *) {
-        Task {
-          do {
-            let result = try await call(data)
-            await completion(result, nil)
-          } catch {
-            await completion(nil, error)
-          }
-        }
-      } else {
-        // This isn’t expected to ever be called because Functions
-        // doesn’t officially support the older platforms.
-        functions.callFunction(
-          at: url,
-          withObject: data,
-          options: options,
-          timeout: timeoutInterval
-        ) { result in
-          switch result {
-          case let .success(callableResult):
-            DispatchQueue.main.async {
-              completion(callableResult, nil)
-            }
-          case let .failure(error):
-            DispatchQueue.main.async {
-              completion(nil, error)
-            }
-          }
+      Task {
+        do {
+          let result = try await call(data)
+          await completion(result, nil)
+        } catch {
+          await completion(nil, error)
         }
       }
     }

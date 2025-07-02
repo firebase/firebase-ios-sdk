@@ -1569,7 +1569,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.deprecated.totalBillableCharacters, 16)
   }
 
   func testCountTokens_succeeds_detailed() async throws {
@@ -1582,7 +1581,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 1837)
-    XCTAssertEqual(response.deprecated.totalBillableCharacters, 117)
     XCTAssertEqual(response.promptTokensDetails.count, 2)
     XCTAssertEqual(response.promptTokensDetails[0].modality, .image)
     XCTAssertEqual(response.promptTokensDetails[0].tokenCount, 1806)
@@ -1629,7 +1627,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.deprecated.totalBillableCharacters, 16)
   }
 
   func testCountTokens_succeeds_noBillableCharacters() async throws {
@@ -1642,7 +1639,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens(InlineDataPart(data: Data(), mimeType: "image/jpeg"))
 
     XCTAssertEqual(response.totalTokens, 258)
-    XCTAssertNil(response.deprecated.totalBillableCharacters)
   }
 
   func testCountTokens_modelNotFound() async throws {

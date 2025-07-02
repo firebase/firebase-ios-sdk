@@ -234,6 +234,16 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
       setCurrentRealtimeThrottlingRetryIntervalSeconds:_realtimeExponentialBackoffRetryInterval];
 }
 
+/// Increase the real-time stream's backoff period from the current time plus the retry interval.
+/// Any subsequent Realtime requests will be checked and allowed only if past this throttle end
+/// time.
+- (void)updateRealtimeBackoffTimeWithInterval:(NSTimeInterval)realtimeRetryInterval {
+  _realtimeExponentialBackoffThrottleEndTime =
+      [[NSDate date] timeIntervalSince1970] + realtimeRetryInterval;
+
+  [_userDefaultsManager setRealtimeThrottleEndTime:_realtimeExponentialBackoffThrottleEndTime];
+}
+
 - (void)setRealtimeRetryCount:(int)realtimeRetryCount {
   _realtimeRetryCount = realtimeRetryCount;
   [_userDefaultsManager setRealtimeRetryCount:_realtimeRetryCount];

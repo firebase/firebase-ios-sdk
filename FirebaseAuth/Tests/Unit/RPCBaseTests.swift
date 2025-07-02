@@ -37,7 +37,6 @@ class RPCBaseTests: XCTestCase {
   let kIosBundleID = "testBundleID"
   let kAndroidPackageName = "androidpackagename"
   let kAndroidMinimumVersion = "3.0"
-  let kDynamicLinkDomain = "test.page.link"
   let kLinkDomain = "link.firebaseapp.com"
   let kTestPhotoURL = "https://host.domain/image"
   let kCreationDateTimeIntervalInSeconds = 1_505_858_500.0
@@ -304,7 +303,6 @@ class RPCBaseTests: XCTestCase {
                                    minimumVersion: kAndroidMinimumVersion)
     settings.handleCodeInApp = true
     settings.url = URL(string: kContinueURL)
-    settings.dynamicLinkDomain = kDynamicLinkDomain
     settings.linkDomain = kLinkDomain
     return settings
   }

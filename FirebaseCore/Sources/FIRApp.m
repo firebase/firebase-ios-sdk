@@ -448,26 +448,6 @@ static FIRApp *sDefaultApp;
                                                     userInfo:appInfoDict];
 }
 
-+ (NSError *)errorForMissingOptions {
-  NSDictionary *errorDict = @{
-    NSLocalizedDescriptionKey :
-        @"Unable to parse GoogleService-Info.plist in order to configure services.",
-    NSLocalizedRecoverySuggestionErrorKey :
-        @"Check formatting and location of GoogleService-Info.plist."
-  };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-100 userInfo:errorDict];
-}
-
-+ (NSError *)errorForInvalidAppID {
-  NSDictionary *errorDict = @{
-    NSLocalizedDescriptionKey : @"Unable to validate Google App ID",
-    NSLocalizedRecoverySuggestionErrorKey :
-        @"Check formatting and location of GoogleService-Info.plist or GoogleAppID set in the "
-        @"customized options."
-  };
-  return [NSError errorWithDomain:kFirebaseCoreErrorDomain code:-101 userInfo:errorDict];
-}
-
 + (BOOL)isDefaultAppConfigured {
   return (sDefaultApp != nil);
 }

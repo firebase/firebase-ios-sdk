@@ -19,23 +19,15 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "11.15.0"
+let firebaseVersion = "12.0.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v12), .macCatalyst(.v13), .macOS(.v10_15), .tvOS(.v13), .watchOS(.v7)],
+  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAI",
       targets: ["FirebaseAI"]
-    ),
-    // Backwards-compatibility library for existing "Vertex AI in Firebase" users.
-    .library(
-      name: "FirebaseVertexAI",
-      targets: [
-        "FirebaseAI",
-        "FirebaseVertexAI",
-      ]
     ),
     .library(
       name: "FirebaseAnalytics",
@@ -52,21 +44,6 @@ let package = Package(
     .library(
       name: "FirebaseAnalyticsIdentitySupport",
       targets: ["FirebaseAnalyticsIdentitySupportTarget"]
-    ),
-    // Deprecated. Use FirebaseAnalyticsCore instead.
-    // Adding this library to your project is enough for it to take effect. The module
-    // does not need to be imported into any source files.
-    .library(
-      name: "FirebaseAnalyticsWithoutAdIdSupport",
-      targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
-    ),
-    // Deprecated. Use GoogleAdsOnDeviceConversion from
-    // https://github.com/googleads/google-ads-on-device-conversion-ios-sdk/ instead.
-    // Adding this library to your project is enough for it to take effect. The module
-    // does not need to be imported into any source files.
-    .library(
-      name: "FirebaseAnalyticsOnDeviceConversion",
-      targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
     ),
     .library(
       name: "FirebaseAuth",
@@ -157,7 +134,7 @@ let package = Package(
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      "10.0.0" ..< "11.0.0"
+      "10.1.0" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
@@ -224,24 +201,6 @@ let package = Package(
       ],
       cSettings: [
         .headerSearchPath("../../../"),
-      ]
-    ),
-    // Backwards-compatibility targets for existing "Vertex AI in Firebase" users.
-    .target(
-      name: "FirebaseVertexAI",
-      dependencies: [
-        "FirebaseAI",
-      ],
-      path: "FirebaseVertexAI/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseVertexAIUnit",
-      dependencies: [
-        "FirebaseVertexAI",
-      ],
-      path: "FirebaseVertexAI/Tests/Unit",
-      resources: [
-        .process("Resources"),
       ]
     ),
 
@@ -444,53 +403,6 @@ let package = Package(
         .linkedFramework("StoreKit"),
       ]
     ),
-
-    .target(
-      name: "FirebaseAnalyticsWithoutAdIdSupportTarget",
-      dependencies: [.target(name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWithoutAdIdSupportWrap"
-    ),
-    .target(
-      name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-      dependencies: [
-        .target(
-          name: "FirebaseAnalytics",
-          condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
-        ),
-        .product(name: "GoogleAppMeasurementWithoutAdIdSupport",
-                 package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
-        "FirebaseCore",
-        "FirebaseInstallations",
-        .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
-        .product(name: "GULMethodSwizzler", package: "GoogleUtilities"),
-        .product(name: "GULNSData", package: "GoogleUtilities"),
-        .product(name: "GULNetwork", package: "GoogleUtilities"),
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-      linkerSettings: [
-        .linkedLibrary("sqlite3"),
-        .linkedLibrary("c++"),
-        .linkedLibrary("z"),
-        .linkedFramework("StoreKit"),
-      ]
-    ),
-
-    .target(
-      name: "FirebaseAnalyticsOnDeviceConversionTarget",
-      dependencies: [
-        .product(name: "GoogleAppMeasurementOnDeviceConversion",
-                 package: "GoogleAppMeasurement",
-                 condition: .when(platforms: [.iOS])),
-      ],
-      path: "FirebaseAnalyticsOnDeviceConversionWrapper",
-      linkerSettings: [
-        .linkedLibrary("c++"),
-      ]
-    ),
-
     .target(
       name: "FirebaseAppDistributionTarget",
       dependencies: [.target(name: "FirebaseAppDistribution",
