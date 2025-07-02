@@ -333,9 +333,9 @@ static FIRApp *sDefaultApp;
     return NO;
   }
 
-  static dispatch_once_t analyticsSetupOnceToken;
-  dispatch_once(&analyticsSetupOnceToken, ^{
-    // Analytics is initialized only once and for the first app configured.
+  // Initialize the Analytics once there is a valid options under default app. Analytics should
+  // always initialize first by itself before the other SDKs.
+  if ([self.name isEqualToString:kFIRDefaultAppName]) {
     Class firAnalyticsClass = NSClassFromString(@"FIRAnalytics");
     if (firAnalyticsClass) {
 #pragma clang diagnostic push
@@ -352,7 +352,7 @@ static FIRApp *sDefaultApp;
 #pragma clang diagnostic pop
       }
     }
-  });
+  }
 
   [self subscribeForAppDidBecomeActiveNotifications];
 
