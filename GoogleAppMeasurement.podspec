@@ -50,14 +50,4 @@ Pod::Spec.new do |s|
         ss.dependency 'GoogleAppMeasurement/Core', '12.0.0'
         ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
     end
-
-    # Deprecated. Use IdentitySupport subspec instead.
-    s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.0.0'
-    end
-
-    # Deprecated. Use Core subspec instead.
-    s.subspec 'WithoutAdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Core', '12.0.0'
-    end
 end
