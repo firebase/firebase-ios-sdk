@@ -212,8 +212,8 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
 
     XCTAssertEqual(groundingMetadata.webSearchQueries, ["current weather in London"])
-    XCTAssertNotNil(groundingMetadata.searchEntryPoint)
-    XCTAssertNotNil(groundingMetadata.searchEntryPoint?.renderedContent)
+    let searchEntryPoint = try XCTUnwrap(groundingMetadata.searchEntryPoint)
+    XCTAssertFalse(searchEntryPoint.renderedContent.isEmpty)
 
     XCTAssertEqual(groundingMetadata.groundingChunks.count, 2)
     let firstChunk = try XCTUnwrap(groundingMetadata.groundingChunks.first?.web)
@@ -245,7 +245,7 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(response.candidates.count, 1)
     let candidate = try XCTUnwrap(response.candidates.first)
     let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
-    XCTAssertNotNil(groundingMetadata.searchEntryPoint?.renderedContent)
+    XCTAssertNotNil(groundingMetadata.searchEntryPoint)
     XCTAssertEqual(groundingMetadata.webSearchQueries, ["current weather London"])
 
     // Chunks exist, but contain no web information.
@@ -256,8 +256,10 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(groundingMetadata.groundingSupports.count, 1)
     let support = try XCTUnwrap(groundingMetadata.groundingSupports.first)
     XCTAssertEqual(support.groundingChunkIndices, [0])
-    let segment = try XCTUnwrap(support.segment)
-    XCTAssertEqual(segment.text, "There is a 0% chance of rain and the humidity is around 41%.")
+    XCTAssertEqual(
+      support.segment.text,
+      "There is a 0% chance of rain and the humidity is around 41%."
+    )
   }
 
   func testGenerateContent_failure_invalidAPIKey() async throws {

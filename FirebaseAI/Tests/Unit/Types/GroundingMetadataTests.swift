@@ -39,13 +39,17 @@ final class GroundingMetadataTests: XCTestCase {
 
     XCTAssertEqual(metadata.webSearchQueries, ["query1", "query2"])
     XCTAssertEqual(metadata.groundingChunks.count, 1)
-    XCTAssertEqual(metadata.groundingChunks.first?.web?.uri, "uri1")
+    let groundingChunk = try XCTUnwrap(metadata.groundingChunks.first)
+    let webChunk = try XCTUnwrap(groundingChunk.web)
+    XCTAssertEqual(webChunk.uri, "uri1")
     XCTAssertEqual(metadata.groundingSupports.count, 1)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment.startIndex, 0)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment.partIndex, 0)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment.endIndex, 10)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment.text, "text")
-    XCTAssertEqual(metadata.searchEntryPoint?.renderedContent, "html")
+    let groundingSupport = try XCTUnwrap(metadata.groundingSupports.first)
+    XCTAssertEqual(groundingSupport.segment.startIndex, 0)
+    XCTAssertEqual(groundingSupport.segment.partIndex, 0)
+    XCTAssertEqual(groundingSupport.segment.endIndex, 10)
+    XCTAssertEqual(groundingSupport.segment.text, "text")
+    let searchEntryPoint = try XCTUnwrap(metadata.searchEntryPoint)
+    XCTAssertEqual(searchEntryPoint.renderedContent, "html")
   }
 
   func testDecodeGroundingMetadata_missingSegments() throws {
@@ -62,10 +66,11 @@ final class GroundingMetadataTests: XCTestCase {
     let metadata = try decoder.decode(GroundingMetadata.self, from: jsonData)
 
     XCTAssertEqual(metadata.groundingSupports.count, 1)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment.startIndex, 0)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment.partIndex, 0)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment.endIndex, 10)
-    XCTAssertEqual(metadata.groundingSupports.first?.segment.text, "text")
+    let groundingSupport = try XCTUnwrap(metadata.groundingSupports.first)
+    XCTAssertEqual(groundingSupport.segment.startIndex, 0)
+    XCTAssertEqual(groundingSupport.segment.partIndex, 0)
+    XCTAssertEqual(groundingSupport.segment.endIndex, 10)
+    XCTAssertEqual(groundingSupport.segment.text, "text")
   }
 
   func testDecodeGroundingMetadata_missingOptionals() throws {

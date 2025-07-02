@@ -265,7 +265,7 @@ struct GenerateContentIntegrationTests {
     let searchEntrypoint = try #require(groundingMetadata.searchEntryPoint)
 
     #expect(!groundingMetadata.webSearchQueries.isEmpty)
-    #expect(searchEntrypoint.renderedContent != nil)
+    #expect(!searchEntrypoint.renderedContent.isEmpty)
     #expect(!groundingMetadata.groundingChunks.isEmpty)
     #expect(!groundingMetadata.groundingSupports.isEmpty)
 
@@ -274,7 +274,7 @@ struct GenerateContentIntegrationTests {
     }
 
     for support in groundingMetadata.groundingSupports {
-      let segment = try #require(support.segment)
+      let segment = support.segment
       #expect(segment.endIndex > segment.startIndex)
       #expect(!segment.text.isEmpty)
       #expect(!support.groundingChunkIndices.isEmpty)
