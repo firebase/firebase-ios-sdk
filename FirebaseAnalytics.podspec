@@ -51,16 +51,4 @@ Pod::Spec.new do |s|
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
-    # Deprecated. Use IdentitySupport subspec instead.
-    s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/AdIdSupport', '12.0.0'
-        ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
-    end
-
-    # Deprecated. Use Core subspec instead.
-    s.subspec 'WithoutAdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '12.0.0'
-        ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
-    end
-
 end
