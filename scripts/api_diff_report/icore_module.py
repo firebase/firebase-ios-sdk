@@ -45,8 +45,6 @@ MODULE_LIST = [
     'FirebaseStorage',
     # Not buildable. NO "source_files"
     'GoogleAppMeasurement',
-    # Not buildable. NO "source_files"
-    'GoogleAppMeasurementOnDeviceConversion'
 ]
 
 
