@@ -378,7 +378,81 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-  // TODO( adecuada): Re-enable email update tests with new API when available.
+  /** @fn testUpdateEmailSuccess
+      @brief Tests the flow of a successful @c updateEmail:completion: call.
+   */
+  func testUpdateEmailSuccess() {
+    setFakeGetAccountProvider(withPasswordHash: kFakePassword)
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.changeUserEmail(user: user, changeEmail: true, expectation: expectation)
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testUpdateEmailWithAuthLinkAccountSuccess
+      @brief Tests a successful @c updateEmail:completion: call updates provider info.
+   */
+  func testUpdateEmailWithAuthLinkAccountSuccess() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUserLink { user in
+      self.changeUserEmail(user: user, expectation: expectation)
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testUpdateEmailFailure
+      @brief Tests the flow of a failed @c updateEmail:completion: call.
+   */
+  func testUpdateEmailFailure() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer.respond(serverErrorMessage: "INVALID_EMAIL")
+        }
+        user.updateEmail(to: self.kNewEmail) { rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.invalidEmail.rawValue)
+          // Email should not have changed on the client side.
+          XCTAssertEqual(user.email, self.kEmail)
+          // User is still signed in.
+          XCTAssertEqual(self.auth?.currentUser, user)
+          expectation.fulfill()
+        }
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testUpdateEmailAutoSignOut
+      @brief Tests the flow of a failed @c updateEmail:completion: call that automatically signs out.
+   */
+  func testUpdateEmailAutoSignOut() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer.respond(serverErrorMessage: "INVALID_ID_TOKEN")
+        }
+        user.updateEmail(to: self.kNewEmail) { rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.invalidUserToken.rawValue)
+          // Email should not have changed on the client side.
+          XCTAssertEqual(user.email, self.kEmail)
+          // User is no longer signed in..
+          XCTAssertNil(self.auth?.currentUser)
+          expectation.fulfill()
+        }
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
 
   #if os(iOS)
 
@@ -1540,6 +1614,59 @@ class UserTests: RPCBaseTests {
       }
     }
     waitForExpectations(timeout: 5)
+  }
+
+  private func changeUserEmail(user: User, changeEmail: Bool = false,
+                               expectation: XCTestExpectation) {
+    do {
+      XCTAssertEqual(user.providerID, "Firebase")
+      XCTAssertEqual(user.uid, kLocalID)
+      XCTAssertEqual(user.displayName, kDisplayName)
+      XCTAssertEqual(user.photoURL, URL(string: kTestPhotoURL))
+      XCTAssertEqual(user.email, kEmail)
+
+      // Pretend that the display name on the server has been changed since the original signin.
+      setFakeGetAccountProvider(withNewDisplayName: kNewDisplayName)
+
+      rpcIssuer.respondBlock = {
+        let request = try XCTUnwrap(self.rpcIssuer?.request as? SetAccountInfoRequest)
+        XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
+        XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
+        if changeEmail {
+          XCTAssertEqual(request.email, self.kNewEmail)
+          XCTAssertNil(request.password)
+        } else {
+          XCTAssertEqual(request.password, self.kNewPassword)
+          XCTAssertNil(request.email)
+        }
+        XCTAssertNil(request.localID)
+        XCTAssertNil(request.displayName)
+        XCTAssertNil(request.photoURL)
+        XCTAssertNil(request.providers)
+        XCTAssertNil(request.deleteAttributes)
+        XCTAssertNil(request.deleteProviders)
+
+        return try self.rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                     "email": self.kNewEmail,
+                                                     "refreshToken": self.kRefreshToken])
+      }
+      if changeEmail {
+        user.updateEmail(to: kNewEmail) { error in
+          XCTAssertNil(error)
+          XCTAssertEqual(user.email, self.kNewEmail)
+          XCTAssertEqual(user.displayName, self.kNewDisplayName)
+          XCTAssertFalse(user.isAnonymous)
+          expectation.fulfill()
+        }
+      } else {
+        user.updatePassword(to: kNewPassword) { error in
+          XCTAssertNil(error)
+          XCTAssertEqual(user.displayName, self.kNewDisplayName)
+          XCTAssertFalse(user.isAnonymous)
+          expectation.fulfill()
+        }
+      }
+    }
   }
 
   private func signInWithEmailPasswordReturnFakeUser(fakeAccessToken: String = RPCBaseTests

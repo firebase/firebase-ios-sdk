@@ -56,7 +56,9 @@ class StorageDeleteTests: StorageTestHelpers {
   func testSuccessfulFetchWithEmulator() async {
     let storage = self.storage()
     storage.useEmulator(withHost: "localhost", port: 8080)
-    // TODO(emulator): This should use a custom URL.
+    let testBlock = successBlock(
+      withURL: URL(string: "http://localhost:8080/v0/b/bucket/o/object")!
+    )
     await StorageFetcherService.shared.updateTestBlock(successBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)

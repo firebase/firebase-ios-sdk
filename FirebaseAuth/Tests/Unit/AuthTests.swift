@@ -71,6 +71,53 @@ class AuthTests: RPCBaseTests {
     _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
   }
 
+  /** @fn testFetchSignInMethodsForEmailSuccess
+      @brief Tests the flow of a successful @c fetchSignInMethodsForEmail:completion: call.
+   */
+  func testFetchSignInMethodsForEmailSuccess() throws {
+    let allSignInMethods = ["emailLink", "facebook.com"]
+    let expectation = self.expectation(description: #function)
+
+    rpcIssuer.respondBlock = {
+      let request = try XCTUnwrap(self.rpcIssuer.request as? CreateAuthURIRequest)
+      XCTAssertEqual(request.identifier, self.kEmail)
+      XCTAssertEqual(request.endpoint, "createAuthUri")
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+
+      return try self.rpcIssuer.respond(withJSON: ["signinMethods": allSignInMethods])
+    }
+
+    auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
+      // 4. After the response triggers the callback, verify the returned signInMethods.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertEqual(signInMethods, allSignInMethods)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testFetchSignInMethodsForEmailFailure
+      @brief Tests the flow of a failed @c fetchSignInMethodsForEmail:completion: call.
+   */
+  func testFetchSignInMethodsForEmailFailure() throws {
+    let expectation = self.expectation(description: #function)
+
+    rpcIssuer.respondBlock = {
+      let message = "TOO_MANY_ATTEMPTS_TRY_LATER"
+      return try self.rpcIssuer.respond(serverErrorMessage: message)
+    }
+    auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(signInMethods)
+      let rpcError = (error as? NSError)!
+      XCTAssertEqual(rpcError.code, AuthErrorCode.tooManyRequests.rawValue)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
   #if os(iOS)
     /** @fn testPhoneAuthSuccess
         @brief Tests the flow of a successful @c signInWithCredential:completion for phone auth.
