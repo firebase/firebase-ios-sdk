@@ -105,7 +105,6 @@ has_license_changes = didModify(["LICENSE"])
 
 ## Product directories
 @has_analytics_changes = hasChangesIn([
-  "FirebaseAnalyticsWithoutAdIdSupportWrapper",
   "FirebaseAnalyticsWrapper"
 ]) || didModify([
   "FirebaseAnalytics.podspec",
