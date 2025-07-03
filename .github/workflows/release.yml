@@ -61,7 +61,7 @@ jobs:
          # Attempt to push. If it fails, print a detailed error message and exit.
          git push || {
            echo "--------------------------------------------------------------------------------"
-            echo "ERROR: Failed to push to Firebase/SpecsTesting."
+            echo "ERROR: Failed to push to Firebase/SpecsReleasing."
             echo "This is likely due to an expired Personal Access Token (PAT)."
             echo "Please take the following steps to resolve this:"
             echo "1. Refresh the OSS bot's scoped access token for the Firebase/SpecsReleasing repo."
