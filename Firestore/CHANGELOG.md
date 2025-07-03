@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
+- 
 # 11.12.0
 - [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
 
