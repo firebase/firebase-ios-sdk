@@ -34,6 +34,7 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/core/bound.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
@@ -633,14 +634,22 @@ FieldTransform Serializer::DecodeFieldTransform(
 google_firestore_v1_Target Serializer::EncodeTarget(
     const TargetData& target_data) const {
   google_firestore_v1_Target result{};
-  const Target& target = target_data.target();
+  const core::TargetOrPipeline& target_or_pipeline =
+      target_data.target_or_pipeline();
 
-  if (target.IsDocumentQuery()) {
+  if (target_or_pipeline.IsPipeline()) {
+    result.which_target_type = google_firestore_v1_Target_pipeline_query_tag;
+    result.target_type.pipeline_query.which_pipeline_type =
+        google_firestore_v1_Target_PipelineQueryTarget_structured_pipeline_tag;
+    result.target_type.pipeline_query.structured_pipeline =
+        EncodeRealtimePipeline(target_or_pipeline.pipeline());
+  } else if (target_or_pipeline.target().IsDocumentQuery()) {
     result.which_target_type = google_firestore_v1_Target_documents_tag;
-    result.target_type.documents = EncodeDocumentsTarget(target);
-  } else {
+    result.target_type.documents =
+        EncodeDocumentsTarget(target_or_pipeline.target());
+  } else {  // query target
     result.which_target_type = google_firestore_v1_Target_query_tag;
-    result.target_type.query = EncodeQueryTarget(target);
+    result.target_type.query = EncodeQueryTarget(target_or_pipeline.target());
   }
 
   result.target_id = target_data.target_id();
@@ -1206,16 +1215,32 @@ Serializer::DecodeCursorValue(google_firestore_v1_Cursor& cursor) const {
   return index_components;
 }
 
-google_firestore_v1_StructuredPipeline Serializer::EncodePipeline(
-    const api::Pipeline& pipeline) const {
+namespace {
+template <typename T>
+google_firestore_v1_StructuredPipeline EncodeStages(
+    const std::vector<std::shared_ptr<T>>& stage_list) {
   google_firestore_v1_StructuredPipeline result;
 
-  result.pipeline = pipeline.to_proto().pipeline_value;
+  result.pipeline = google_firestore_v1_Pipeline{};
+  nanopb::SetRepeatedField(
+      &result.pipeline.stages, &result.pipeline.stages_count, stage_list,
+      [](const std::shared_ptr<api::Stage>& arg) { return arg->to_proto(); });
 
   result.options_count = 0;
   result.options = nullptr;
 
   return result;
+}
+}  // namespace
+
+google_firestore_v1_StructuredPipeline Serializer::EncodePipeline(
+    const api::Pipeline& pipeline) const {
+  return EncodeStages(pipeline.stages());
+}
+
+google_firestore_v1_StructuredPipeline Serializer::EncodeRealtimePipeline(
+    const api::RealtimePipeline& pipeline) const {
+  return EncodeStages(pipeline.rewritten_stages());
 }
 
 /* static */
@@ -1528,6 +1553,244 @@ api::PipelineSnapshot Serializer::DecodePipelineResponse(
   }
 
   return api::PipelineSnapshot(std::move(results), execution_time);
+}
+
+absl::optional<core::TargetOrPipeline> Serializer::DecodePipelineTarget(
+    util::ReadContext* context,
+    const google_firestore_v1_Target_PipelineQueryTarget& proto) const {
+  if (!context->status().ok()) {
+    return absl::nullopt;
+  }
+
+  if (proto.which_pipeline_type !=
+      google_firestore_v1_Target_PipelineQueryTarget_structured_pipeline_tag) {
+    context->Fail(
+        StringFormat("Unknown pipeline_type in PipelineQueryTarget: %d",
+                     proto.which_pipeline_type));
+    return absl::nullopt;
+  }
+
+  const auto& pipeline_proto = proto.structured_pipeline.pipeline;
+  std::vector<std::shared_ptr<api::EvaluableStage>> decoded_stages;
+  decoded_stages.reserve(pipeline_proto.stages_count);
+
+  for (pb_size_t i = 0; i < pipeline_proto.stages_count; ++i) {
+    auto stage_ptr = DecodeStage(context, pipeline_proto.stages[i]);
+    if (!context->status().ok()) {
+      return absl::nullopt;
+    }
+    decoded_stages.push_back(std::move(stage_ptr));
+  }
+
+  return core::TargetOrPipeline(api::RealtimePipeline(
+      std::move(decoded_stages), std::make_unique<remote::Serializer>(*this)));
+}
+
+std::unique_ptr<api::EvaluableStage> Serializer::DecodeStage(
+    util::ReadContext* context,
+    const google_firestore_v1_Pipeline_Stage& proto_stage)
+    const {  // Corrected proto type
+  if (!context->status().ok()) return nullptr;
+
+  std::string stage_name = DecodeString(proto_stage.name);
+
+  // Access args from google_firestore_v1_Pipeline_Stage
+  const pb_size_t args_count = proto_stage.args_count;
+  const google_firestore_v1_Value* current_args = proto_stage.args;
+
+  if (stage_name == "collection") {
+    if (args_count >= 1 && current_args[0].which_value_type ==
+                               google_firestore_v1_Value_reference_value_tag) {
+      return std::make_unique<api::CollectionSource>(
+          DecodeString(current_args[0].reference_value));
+    }
+    context->Fail("Invalid 'collection' stage: missing or invalid arguments");
+    return nullptr;
+  } else if (stage_name == "collection_group") {
+    if (args_count >= 1 && current_args[0].which_value_type ==
+                               google_firestore_v1_Value_string_value_tag) {
+      return std::make_unique<api::CollectionGroupSource>(
+          DecodeString(current_args[0].string_value));
+    }
+    context->Fail(
+        "Invalid 'collection_group' stage: missing or invalid arguments");
+    return nullptr;
+  } else if (stage_name == "documents") {
+    std::vector<std::string> document_paths;
+    // args_count can be 0 for an empty DocumentsSource.
+    // nanopb guarantees that if args_count > 0, args will not be null.
+    document_paths.reserve(args_count);
+    for (pb_size_t i = 0; i < args_count; ++i) {
+      if (current_args[i].which_value_type ==
+          google_firestore_v1_Value_string_value_tag) {
+        document_paths.push_back(DecodeString(current_args[i].string_value));
+      } else {
+        context->Fail(StringFormat(
+            "Invalid argument type for 'documents' stage at index %zu: "
+            "expected string_value, got %d",
+            i, current_args[i].which_value_type));
+        return nullptr;
+      }
+    }
+    return std::make_unique<api::DocumentsSource>(std::move(document_paths));
+  } else if (stage_name == "where") {
+    if (args_count >= 1) {
+      auto expr = DecodeExpression(context, current_args[0]);
+      if (!context->status().ok()) return nullptr;
+      return std::make_unique<api::Where>(std::move(expr));
+    }
+    context->Fail("Invalid 'where' stage: missing or invalid arguments");
+    return nullptr;
+  } else if (stage_name == "limit") {
+    if (args_count >= 1) {
+      const auto& limit_arg = current_args[0];
+      if (limit_arg.which_value_type ==
+          google_firestore_v1_Value_integer_value_tag) {
+        return std::make_unique<api::LimitStage>(limit_arg.integer_value);
+      }
+    }
+    context->Fail("Invalid 'limit' stage: missing or invalid arguments");
+    return nullptr;
+  } else if (stage_name == "sort") {
+    if (args_count > 0) {
+      std::vector<api::Ordering> orderings;
+      orderings.reserve(args_count);
+      for (pb_size_t i = 0; i < args_count; ++i) {
+        auto ordering = DecodeOrdering(context, current_args[i]);
+        if (!context->status().ok()) return nullptr;
+        orderings.push_back(ordering);
+      }
+      return std::make_unique<api::SortStage>(
+          std::move(orderings));  // Corrected class name
+    }
+    context->Fail("Invalid 'sort' stage: missing arguments");
+    return nullptr;
+  }
+
+  context->Fail(StringFormat("Unsupported stage type: %s", stage_name));
+  return nullptr;
+}
+
+std::unique_ptr<api::Expr> Serializer::DecodeExpression(
+    util::ReadContext* context,
+    const google_firestore_v1_Value& proto_value) const {
+  if (!context->status().ok()) return nullptr;
+
+  switch (proto_value.which_value_type) {
+    case google_firestore_v1_Value_field_reference_value_tag: {
+      // This could be a document name, OR if used for field paths in
+      // expressions:
+      StatusOr<FieldPath> path = FieldPath::FromDotSeparatedString(
+          DecodeString(proto_value.reference_value));
+      if (path.ok()) {
+        return std::make_unique<api::Field>(path.ConsumeValueOrDie());
+      }
+      context->Fail("Unable to parse field from proto");
+      return nullptr;
+    }
+
+    case google_firestore_v1_Value_function_value_tag:
+      return std::make_unique<api::FunctionExpr>(DecodeFunctionExpression(
+          context,
+          proto_value
+              .function_value));  // Pass proto_value.function_value directly
+
+    default:
+      // All other types are constants
+      // DeepClone to avoid double-free
+      return std::make_unique<api::Constant>(
+          SharedMessage<google_firestore_v1_Value>(DeepClone(proto_value)));
+  }
+}
+
+api::FunctionExpr Serializer::DecodeFunctionExpression(
+    util::ReadContext* context,
+    const google_firestore_v1_Function& proto_function) const {
+  if (!context->status().ok()) return api::FunctionExpr("", {});
+
+  std::string func_name = DecodeString(proto_function.name);
+  std::vector<std::shared_ptr<api::Expr>> decoded_args;
+  decoded_args.reserve(proto_function.args_count);
+
+  for (pb_size_t i = 0; i < proto_function.args_count; ++i) {
+    auto arg_expr = DecodeExpression(context, proto_function.args[i]);
+    if (!context->status().ok()) return api::FunctionExpr("", {});
+    decoded_args.push_back(std::move(arg_expr));
+  }
+  return api::FunctionExpr(std::move(func_name), std::move(decoded_args));
+}
+
+api::Ordering Serializer::DecodeOrdering(
+    util::ReadContext* context,
+    const google_firestore_v1_Value& proto_value) const {
+  if (!context->status().ok()) {
+    return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+  }
+
+  if (proto_value.which_value_type != google_firestore_v1_Value_map_value_tag) {
+    context->Fail("Invalid proto_value type for Ordering, expected map_value.");
+    return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+  }
+
+  std::shared_ptr<api::Expr> decoded_expr = nullptr;
+  absl::optional<api::Ordering::Direction> decoded_direction;
+
+  const auto& map_value = proto_value.map_value;
+  for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
+    const auto& field = map_value.fields[i];
+    std::string key = DecodeString(field.key);
+
+    if (key == "expression") {
+      if (decoded_expr) {
+        context->Fail("Duplicate 'expression' field in Ordering proto.");
+        return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+      }
+      decoded_expr = DecodeExpression(context, field.value);
+      if (!context->status().ok()) {
+        // Error already set by DecodeExpression
+        return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+      }
+    } else if (key == "direction") {
+      if (decoded_direction) {
+        context->Fail("Duplicate 'direction' field in Ordering proto.");
+        return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+      }
+      if (field.value.which_value_type !=
+          google_firestore_v1_Value_string_value_tag) {
+        context->Fail(
+            "Invalid type for 'direction' field in Ordering proto, expected "
+            "string_value.");
+        return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+      }
+      std::string direction_str = DecodeString(field.value.string_value);
+      if (direction_str == "ascending") {
+        decoded_direction = api::Ordering::Direction::ASCENDING;
+      } else if (direction_str == "descending") {
+        decoded_direction = api::Ordering::Direction::DESCENDING;
+      } else {
+        context->Fail(StringFormat(
+            "Invalid string value '%s' for 'direction' field in Ordering "
+            "proto.",
+            direction_str));
+        return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+      }
+    } else {
+      // Unknown fields are ignored by protobuf spec, but we can be stricter
+      // if needed. For now, ignore.
+    }
+  }
+
+  if (!decoded_expr) {
+    context->Fail("Missing 'expression' field in Ordering proto.");
+    return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+  }
+
+  if (!decoded_direction) {
+    context->Fail("Missing 'direction' field in Ordering proto.");
+    return api::Ordering(nullptr, api::Ordering::Direction::ASCENDING);
+  }
+
+  return api::Ordering(std::move(decoded_expr), decoded_direction.value());
 }
 
 }  // namespace remote

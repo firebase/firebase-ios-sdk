@@ -65,7 +65,7 @@ using testutil::MarkCurrent;
 namespace {
 
 ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot& snapshot) {
-  return ViewSnapshot{snapshot.query(),
+  return ViewSnapshot{snapshot.query_or_pipeline(),
                       snapshot.documents(),
                       snapshot.old_documents(),
                       snapshot.document_changes(),
@@ -129,9 +129,9 @@ TEST_F(QueryListenerTest, RaisesCollectionEvents) {
   ASSERT_THAT(accum[1].document_changes(), ElementsAre(change3));
 
   ViewSnapshot expected_snap2{
-      snap2.query(),
+      snap2.query_or_pipeline(),
       snap2.documents(),
-      /*old_documents=*/DocumentSet{snap2.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap2.query_or_pipeline().Comparator()},
       /*document_changes=*/{change1, change4},
       snap2.mutated_keys(),
       snap2.from_cache(),
@@ -323,7 +323,7 @@ TEST_F(QueryListenerTest,
   full_listener->OnViewSnapshot(snap3);
   full_listener->OnViewSnapshot(snap4);  // Metadata change event.
 
-  ViewSnapshot expected_snap4{snap4.query(),
+  ViewSnapshot expected_snap4{snap4.query_or_pipeline(),
                               snap4.documents(),
                               snap3.documents(),
                               /*document_changes=*/{},
@@ -362,7 +362,7 @@ TEST_F(QueryListenerTest,
   filtered_listener->OnViewSnapshot(snap1);
   filtered_listener->OnViewSnapshot(snap2);
 
-  ViewSnapshot expected_snap2{snap2.query(),
+  ViewSnapshot expected_snap2{snap2.query_or_pipeline(),
                               snap2.documents(),
                               snap1.documents(),
                               /*document_changes=*/{change3},
@@ -403,9 +403,9 @@ TEST_F(QueryListenerTest, WillWaitForSyncIfOnline) {
   DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
   DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
   ViewSnapshot expected_snap{
-      snap3.query(),
+      snap3.query_or_pipeline(),
       snap3.documents(),
-      /*old_documents=*/DocumentSet{snap3.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap3.query_or_pipeline().Comparator()},
       /*document_changes=*/{change1, change2},
       snap3.mutated_keys(),
       /*from_cache=*/false,
@@ -445,7 +445,7 @@ TEST_F(QueryListenerTest, WillRaiseInitialEventWhenGoingOffline) {
   ViewSnapshot expected_snap1{
       query,
       /*documents=*/snap1.documents(),
-      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap1.query_or_pipeline().Comparator()},
       /*document_changes=*/{change1},
       snap1.mutated_keys(),
       /*from_cache=*/true,
@@ -482,7 +482,7 @@ TEST_F(QueryListenerTest,
   ViewSnapshot expected_snap{
       query,
       /*documents=*/snap1.documents(),
-      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap1.query_or_pipeline().Comparator()},
       /*document_changes=*/{},
       snap1.mutated_keys(),
       /*from_cache=*/true,
@@ -508,7 +508,7 @@ TEST_F(QueryListenerTest,
   ViewSnapshot expected_snap{
       query,
       /*documents=*/snap1.documents(),
-      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap1.query_or_pipeline().Comparator()},
       /*document_changes=*/{},
       snap1.mutated_keys(),
       /*from_cache=*/true,
