@@ -18,6 +18,8 @@
 #define FIRESTORE_CORE_TEST_UNIT_CORE_PIPELINE_UTILS_H_
 
 #include <memory>
+#include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "Firestore/core/src/api/firestore.h"

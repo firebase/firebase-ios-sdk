@@ -177,6 +177,10 @@ class MutableDocument {
     return *value_;
   }
 
+  std::shared_ptr<ObjectValue> shared_data() const {
+    return value_;
+  }
+
   /**
    * Returns the value at the given path or absl::nullopt. If the path is empty,
    * an identical copy of the FieldValue is returned.

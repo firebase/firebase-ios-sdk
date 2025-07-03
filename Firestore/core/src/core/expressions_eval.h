@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_CORE_EXPRESSIONS_EVAL_H_
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #include <utility>  // For std::move
