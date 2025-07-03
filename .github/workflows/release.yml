@@ -58,7 +58,20 @@ jobs:
          git add .
          # commit without diff will throw an error. `git diff --exit-code` can avoid such error.
          git diff --staged --exit-code || git commit -m "Empty spec repo."
-         git push
+         # Attempt to push. If it fails, print a detailed error message and exit.
+         git push || {
+           echo "--------------------------------------------------------------------------------"
+            echo "ERROR: Failed to push to Firebase/SpecsReleasing."
+            echo "This is likely due to an expired Personal Access Token (PAT)."
+            echo "Please take the following steps to resolve this:"
+            echo "1. Refresh the OSS bot's scoped access token for the Firebase/SpecsReleasing repo."
+            echo "   This can be done in the OSS bot's GitHub account settings. Ensure the token "
+            echo "   has the 'public_repo' scope."
+            echo "2. Update the 'RELEASE_TESTING_PAT' secret in this repo's settings."
+            echo "   (https://github.com/Firebase/firebase-ios-sdk/settings/secrets/actions)"
+            echo "--------------------------------------------------------------------------------"
+            exit 1
+         }
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
