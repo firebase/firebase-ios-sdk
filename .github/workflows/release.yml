@@ -24,7 +24,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
     runs-on: macos-14
     env:
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       local_repo: specsreleasing
       podspec_repo_branch: main
     outputs:
@@ -44,13 +44,8 @@ jobs:
       run: |
          podspec_repo_branch="${podspec_repo_branch}" \
            scripts/release_testing_setup.sh release_testing
-    - name: Get token
-      run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-         bot-access.txt "$bot_token_secret"
     - name: Clean spec repo
       run: |
-         botaccess=`cat bot-access.txt`
          git clone --quiet https://"$botaccess"@github.com/Firebase/SpecsReleasing.git "${local_repo}"
          cd "${local_repo}"
          # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
@@ -72,10 +67,6 @@ jobs:
             echo "--------------------------------------------------------------------------------"
             exit 1
          }
-    - name: Clean Artifacts
-      if: ${{ always() }}
-      run: |
-        rm -rf bot-access.txt
     - uses: actions/upload-artifact@v4
       with:
         name: firebase-ios-sdk
@@ -89,7 +80,7 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-15
     env:
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       local_repo: specsreleasing
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: FirebaseCore
@@ -99,13 +90,8 @@ jobs:
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
-    - name: Get token
-      run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-         bot-access.txt "$bot_token_secret"
     - name: Update SpecsReleasing repo
       run: |
-        botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsReleasing.git
@@ -116,9 +102,7 @@ jobs:
                                 --include-pods "${targeted_pod}" --keep-repo
     - name: Clean Artifacts
       if: ${{ always() }}
-      run: |
-        pod repo remove "${local_repo}"
-        rm -rf bot-access.txt
+      run: pod repo remove "${local_repo}"
 
   buildup_SpecsReleasing_repo:
     needs: [buildup_SpecsReleasing_repo_FirebaseCore, specs_checking]
@@ -129,7 +113,7 @@ jobs:
       fail-fast: false
       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
     env:
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       local_repo: specsreleasing
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: ${{ matrix.podspec }}
@@ -139,14 +123,9 @@ jobs:
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
-    - name: Get token
-      run: |
-         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-         bot-access.txt "$bot_token_secret"
     - name: Update SpecsReleasing repo
       run: |
         [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
-        botaccess=`cat bot-access.txt`
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsReleasing.git
@@ -160,9 +139,7 @@ jobs:
                                 --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
     - name: Clean Artifacts
       if: ${{ always() }}
-      run: |
-        pod repo remove "${local_repo}"
-        rm -rf bot-access.txt
+      run: pod repo remove "${local_repo}"
 
   abtesting_quickstart:
     # Don't run on private repo unless it is a PR.
@@ -171,20 +148,15 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       env:
         LEGACY: true
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh abtesting nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
           quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
@@ -210,20 +182,15 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
           quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
@@ -245,22 +212,17 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
       env:
         LEGACY: true
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Crashlytics nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
           quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
@@ -291,20 +253,15 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-database.plist.gpg \
           quickstart-ios/database/GoogleService-Info.plist "$plist_secret"
@@ -328,20 +285,15 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
           quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
@@ -365,7 +317,7 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #     botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
   #     testing_repo_dir: "/tmp/test/"
   #     testing_repo: "firebase-ios-sdk"
   #     LEGACY: true
@@ -373,13 +325,8 @@ jobs:
   #   steps:
   #   - uses: actions/checkout@v4
   #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-  #   - name: Get token
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-  #         bot-access.txt "$bot_token_secret"
   #   - name: Setup testing repo and quickstart
-  #     run: |
-  #         botaccess=`cat bot-access.txt`
-  #         BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions nightly_release_testing
+  #     run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh functions nightly_release_testing
   #   - name: install secret googleservice-info.plist
   #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
   #         quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
@@ -407,20 +354,15 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging nightly_release_testing
     - name: install secret googleservice-info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
           quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
@@ -446,20 +388,15 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
           quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
@@ -485,18 +422,13 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
           quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
@@ -518,7 +450,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
       LEGACY: true
@@ -526,13 +458,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
@@ -554,20 +481,15 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Get token
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/release-testing-token.txt.gpg \
-          bot-access.txt "$bot_token_secret"
     - name: Setup testing repo and quickstart
-      run: |
-          botaccess=`cat bot-access.txt`
-          BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Performance nightly_release_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Performance nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
           quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
