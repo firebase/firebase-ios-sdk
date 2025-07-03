@@ -58,34 +58,19 @@ jobs:
          git add .
          # commit without diff will throw an error. `git diff --exit-code` can avoid such error.
          git diff --staged --exit-code || git commit -m "Empty spec repo."
-
-         # Attempt git push and capture output
-         output=$(git push 2>&1) || true # Ensure script continues on error
-         git_exit_code=$?
-
-         if [ $git_exit_code -ne 0 ]; then
-           echo "Git push command finished."
-           echo "Exit code: $git_exit_code"
-           echo "Captured output:"
-           echo "$output"
-           if echo "$output" | grep -q "fatal: could not read Password for"; then
-             echo "--------------------------------------------------------------------------------"
-             echo "ERROR: Failed to push to Firebase/SpecsReleasing."
-             echo "This is likely due to an expired Personal Access Token (PAT)."
-             echo "Please take the following steps to resolve this:"
-             echo "1. Refresh the OSS bot's scoped access token for the Firebase/SpecsReleasing repo."
-             echo "   Ensure the token has the 'public_repo' scope."
-             echo "2. Update the RELEASE_TESTING_PAT secret in the firebase-ios-sdk repository's Actions secrets."
-             echo "   (https://github.com/Firebase/firebase-ios-sdk/settings/secrets/actions)"
-             echo "--------------------------------------------------------------------------------"
-           else
-             echo "Git push failed with an error, but it does not seem to be the expected PAT issue."
-           fi
-           exit $git_exit_code
-         else
-           echo "Git push successful."
-           echo "$output" # Print output if successful
-         fi
+         # Attempt to push. If it fails, print a detailed error message and exit.
+         git push || {
+           echo "--------------------------------------------------------------------------------"
+            echo "ERROR: Failed to push to Firebase/SpecsTesting."
+            echo "This is likely due to an expired Personal Access Token (PAT)."
+            echo "Please take the following steps to resolve this:"
+            echo "1. Refresh the OSS bot's scoped access token for the Firebase/SpecsTesting repo."
+            echo "   Ensure the token has the 'public_repo' scope."
+            echo "2. Update the RELEASE_TESTING_PAT secret in the firebase-ios-sdk repository's Actions secrets."
+            echo "   (https://github.com/Firebase/firebase-ios-sdk/settings/secrets/actions)"
+            echo "--------------------------------------------------------------------------------"
+            exit 1
+         }
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
