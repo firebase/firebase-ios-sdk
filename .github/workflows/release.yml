@@ -65,8 +65,9 @@ jobs:
             echo "This is likely due to an expired Personal Access Token (PAT)."
             echo "Please take the following steps to resolve this:"
             echo "1. Refresh the OSS bot's scoped access token for the Firebase/SpecsReleasing repo."
-            echo "   Ensure the token has the 'public_repo' scope."
-            echo "2. Update the RELEASE_TESTING_PAT secret in the repo's settings."
+            echo "   This can be done in the OSS bot's GitHub account settings. Ensure the token "
+            echo "   has the 'public_repo' scope."
+            echo "2. Update the 'RELEASE_TESTING_PAT' secret in this repo's settings."
             echo "   (https://github.com/Firebase/firebase-ios-sdk/settings/secrets/actions)"
             echo "--------------------------------------------------------------------------------"
             exit 1
