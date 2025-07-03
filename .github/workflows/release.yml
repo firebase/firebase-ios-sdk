@@ -59,15 +59,16 @@ jobs:
          # commit without diff will throw an error. `git diff --exit-code` can avoid such error.
          git diff --staged --exit-code || git commit -m "Empty spec repo."
 
-         # Attempt git push and capture stderr
-         output=$(git push 2>&1)
-         exit_code=$?
+         # Attempt git push and capture output
+         output=$(git push 2>&1) || true # Ensure script continues on error
+         git_exit_code=$?
 
-         if [ $exit_code -ne 0 ]; then
-           echo "Git push failed with exit code $exit_code"
-           echo "Output:"
+         if [ $git_exit_code -ne 0 ]; then
+           echo "Git push command finished."
+           echo "Exit code: $git_exit_code"
+           echo "Captured output:"
            echo "$output"
-           if echo "$output" | grep -q "fatal: could not read Password for 'https://\*\*\*@github.com': Device not configured"; then
+           if echo "$output" | grep -q "fatal: could not read Password for"; then
              echo "--------------------------------------------------------------------------------"
              echo "ERROR: Failed to push to Firebase/SpecsReleasing."
              echo "This is likely due to an expired Personal Access Token (PAT)."
@@ -77,10 +78,14 @@ jobs:
              echo "2. Update the RELEASE_TESTING_PAT secret in the firebase-ios-sdk repository's Actions secrets."
              echo "   (https://github.com/Firebase/firebase-ios-sdk/settings/secrets/actions)"
              echo "--------------------------------------------------------------------------------"
+           else
+             echo "Git push failed with an error, but it does not seem to be the expected PAT issue."
            fi
-           exit $exit_code
+           exit $git_exit_code
+         else
+           echo "Git push successful."
+           echo "$output" # Print output if successful
          fi
-         echo "$output" # Print output if successful
     - name: Clean Artifacts
       if: ${{ always() }}
       run: |
