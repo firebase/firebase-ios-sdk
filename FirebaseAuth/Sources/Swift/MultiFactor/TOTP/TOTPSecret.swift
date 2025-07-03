@@ -54,7 +54,7 @@ import Foundation
     ///
     /// See more details
     /// [here](https://developer.apple.com/documentation/authenticationservices/securing_logins_with_icloud_keychain_verification_codes)
-    @MainActor @objc(openInOTPAppWithQRCodeURL:)
+    @objc(openInOTPAppWithQRCodeURL:)
     open func openInOTPApp(withQRCodeURL qrCodeURL: String) {
       if GULAppEnvironmentUtil.isAppExtension() {
         // iOS App extensions should not call [UIApplication sharedApplication], even if
