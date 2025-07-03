@@ -69,8 +69,7 @@ jobs:
             echo "Please take the following steps to resolve this:"
             echo "1. Refresh the OSS bot's scoped access token for the Firebase/SpecsTesting repo."
             echo "   Ensure the token has the 'public_repo' scope."
-            echo "2. Update the secret used for decryption in the firebase-ios-sdk repository's Actions secrets."
-            echo "   Based on the workflow, this is likely 'GHASecretsGPGPassphrase1'."
+            echo "2. Update the RELEASE_TESTING_PAT secret in the firebase-ios-sdk repository's Actions secrets."
             echo "   (https://github.com/Firebase/firebase-ios-sdk/settings/secrets/actions)"
             echo "--------------------------------------------------------------------------------"
             exit 1
