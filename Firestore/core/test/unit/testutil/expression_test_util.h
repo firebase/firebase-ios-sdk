@@ -532,7 +532,7 @@ static remote::Serializer serializer(model::DatabaseId("test-project"));
 
 // Creates a default evaluation context.
 inline api::EvaluateContext NewContext() {
-  return {&serializer};
+  return {&serializer, core::ListenOptions()};
 }
 
 // Helper function to evaluate an expression and return the result.
