@@ -49,7 +49,7 @@ jobs:
          BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Clean spec repo
       run: |
-         git clone --quiet https://${ossbotaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
+         git clone --quiet https://${botaccess}@github.com/Firebase/SpecsTesting.git "${local_repo}"
          cd "${local_repo}"
          # Remove all unhidden dirs, i.e. all podspec dir from the spec repo.
          rm -Rf -- */
