@@ -17,10 +17,7 @@
 @implementation FIRQueryFake
 
 - (instancetype)init {
-  self = [super init];
-  if (self) {
-    // The object is partially initialized. Make sure the methods used during testing are overridden.
-  }
+  // The object is partially initialized. Make sure the methods used during testing are overridden.
   return self;
 }
 
