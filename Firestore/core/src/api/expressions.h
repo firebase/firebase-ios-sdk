@@ -23,10 +23,14 @@
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
+namespace core {
+class EvaluableExpr;
+}  // namespace core
 namespace api {
 
 class Expr {
@@ -34,19 +38,39 @@ class Expr {
   Expr() = default;
   virtual ~Expr() = default;
   virtual google_firestore_v1_Value to_proto() const = 0;
+  virtual std::unique_ptr<core::EvaluableExpr> ToEvaluable() const = 0;
 };
 
-class Field : public Expr {
+class Selectable : public Expr {
  public:
-  explicit Field(std::string name) : name_(std::move(name)) {
+  ~Selectable() override = default;
+  virtual const std::string& alias() const = 0;
+};
+
+class Field : public Selectable {
+ public:
+  explicit Field(model::FieldPath field_path)
+      : field_path_(std::move(field_path)),
+        alias_(field_path_.CanonicalString()) {
   }
+  ~Field() override = default;
+
+  explicit Field(std::string name);
+
   google_firestore_v1_Value to_proto() const override;
-  const std::string& alias() const {
-    return name_;
+
+  const std::string& alias() const override {
+    return alias_;
+  }
+  const model::FieldPath& field_path() const {
+    return field_path_;
   }
 
+  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+
  private:
-  std::string name_;
+  model::FieldPath field_path_;
+  std::string alias_;
 };
 
 class Constant : public Expr {
@@ -56,21 +80,33 @@ class Constant : public Expr {
   }
   google_firestore_v1_Value to_proto() const override;
 
+  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+
  private:
   nanopb::SharedMessage<google_firestore_v1_Value> value_;
 };
 
 class FunctionExpr : public Expr {
  public:
-  FunctionExpr(std::string name, std::vector<std::shared_ptr<Expr>> args)
-      : name_(std::move(name)), args_(std::move(args)) {
+  FunctionExpr(std::string name, std::vector<std::shared_ptr<Expr>> params)
+      : name_(std::move(name)), params_(std::move(params)) {
   }
 
   google_firestore_v1_Value to_proto() const override;
 
+  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+
+  const std::string& name() const {
+    return name_;
+  }
+
+  const std::vector<std::shared_ptr<Expr>>& params() const {
+    return params_;
+  }
+
  private:
   std::string name_;
-  std::vector<std::shared_ptr<Expr>> args_;
+  std::vector<std::shared_ptr<Expr>> params_;
 };
 
 }  // namespace api
