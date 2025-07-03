@@ -12,9 +12,7 @@ following setup is beneficial.
 
 ### Prerequisites
 
-1.  **Xcode**: The development environment relies on Xcode. The `README.md` mentions Xcode 16.2 or
-    later, while `CONTRIBUTING.md` refers to v12.2 or later. The latest compatible version is
-    generally preferred.
+1.  **Xcode**: The development environment relies on Xcode 16.2 or above.
 2.  **Command-Line Tools**:
     *   `clang-format`: Used for C, C++, and Objective-C code formatting. Version 20 is
         specifically mentioned.
