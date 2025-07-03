@@ -445,7 +445,6 @@ Examples of such dependencies include (but are not limited to):
 *   abseil-cpp (common C++ libraries)
 *   GTMSessionFetcher (for networking)
 
-**A Note for Jules (AI Agent):**
 When working on tasks for this repository, **do not introduce new external dependencies** unless
 explicitly instructed to do so by the user. Adding and managing dependencies in a large SDK like
 this involves careful consideration of binary size, licensing, potential conflicts, and long-term
@@ -453,9 +452,9 @@ maintenance. The existing dependencies are curated and managed by the Firebase t
 seems to require functionality that might suggest a new library, discuss alternatives or confirm
 the need for a new dependency with the user first.
 
-## Updating Jules.md
+## Updating agents.md
 
-This document (`Jules.md`) is intended as a living guide to assist AI agents (like Jules) in
+This document (`agents.md`) is intended as a living guide to assist AI agents (like Jules) in
 understanding and contributing to the `firebase-ios-sdk` repository. As the SDK evolves, new
 patterns may emerge, best practices might be updated, or setup procedures could change.
 
@@ -467,5 +466,5 @@ If, during the course of completing new tasks, you identify:
 *   Any other information that would be beneficial for an AI agent to have context on this
     repository.
 
-Please consider updating this `Jules.md` file to reflect those new findings. Keeping this
+Please consider updating this `agents.md` file to reflect those new findings. Keeping this
 document current will improve the efficiency and accuracy of future AI-assisted development.
