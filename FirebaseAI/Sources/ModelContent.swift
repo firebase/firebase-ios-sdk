@@ -31,12 +31,9 @@ extension [ModelContent] {
   }
 }
 
-/// A type describing data in media formats interpretable by an AI model. Each generative AI
-/// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
-/// may comprise multiple heterogeneous ``Part``s.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelContent: Equatable, Sendable {
-  enum InternalPart: Equatable, Sendable {
+struct InternalPart: Equatable, Sendable {
+  enum OneOfData: Equatable, Sendable {
     case text(String)
     case inlineData(InlineData)
     case fileData(FileData)
@@ -44,6 +41,18 @@ public struct ModelContent: Equatable, Sendable {
     case functionResponse(FunctionResponse)
   }
 
+  let data: OneOfData
+
+  init(_ data: OneOfData) {
+    self.data = data
+  }
+}
+
+/// A type describing data in media formats interpretable by an AI model. Each generative AI
+/// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
+/// may comprise multiple heterogeneous ``Part``s.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct ModelContent: Equatable, Sendable {
   /// The role of the entity creating the ``ModelContent``. For user-generated client requests,
   /// for example, the role is `user`.
   public let role: String?
@@ -52,7 +61,7 @@ public struct ModelContent: Equatable, Sendable {
   public var parts: [any Part] {
     var convertedParts = [any Part]()
     for part in internalParts {
-      switch part {
+      switch part.data {
       case let .text(text):
         convertedParts.append(TextPart(text))
       case let .inlineData(inlineData):
@@ -78,15 +87,17 @@ public struct ModelContent: Equatable, Sendable {
     for part in parts {
       switch part {
       case let textPart as TextPart:
-        convertedParts.append(.text(textPart.text))
+        convertedParts.append(InternalPart(.text(textPart.text)))
       case let inlineDataPart as InlineDataPart:
-        convertedParts.append(.inlineData(inlineDataPart.inlineData))
+        convertedParts.append(InternalPart(.inlineData(inlineDataPart.inlineData)))
       case let fileDataPart as FileDataPart:
-        convertedParts.append(.fileData(fileDataPart.fileData))
+        convertedParts.append(InternalPart(.fileData(fileDataPart.fileData)))
       case let functionCallPart as FunctionCallPart:
-        convertedParts.append(.functionCall(functionCallPart.functionCall))
+        convertedParts.append(InternalPart(.functionCall(functionCallPart.functionCall)))
       case let functionResponsePart as FunctionResponsePart:
-        convertedParts.append(.functionResponse(functionResponsePart.functionResponse))
+        convertedParts.append(
+          InternalPart(.functionResponse(functionResponsePart.functionResponse))
+        )
       default:
         fatalError()
       }
@@ -119,7 +130,20 @@ extension ModelContent: Codable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelContent.InternalPart: Codable {
+extension InternalPart: Codable {
+  enum CodingKeys: CodingKey {}
+
+  public func encode(to encoder: Encoder) throws {
+    try data.encode(to: encoder)
+  }
+
+  public init(from decoder: Decoder) throws {
+    data = try OneOfData(from: decoder)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension InternalPart.OneOfData: Codable {
   enum CodingKeys: String, CodingKey {
     case text
     case inlineData
