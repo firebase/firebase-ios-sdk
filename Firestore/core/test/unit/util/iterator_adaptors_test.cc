@@ -82,8 +82,14 @@ class IteratorAdaptorTest : public testing::Test {
   }
 
   template <typename T>
-  class InlineStorageIter : public std::iterator<std::input_iterator_tag, T> {
+  class InlineStorageIter {
    public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+
     T* operator->() const {
       return get();
     }
@@ -567,9 +573,14 @@ TEST_F(IteratorAdaptorTest, IteratorPtrHasRandomAccessMethods) {
   EXPECT_EQ(88, value2);
 }
 
-class MyInputIterator
-    : public std::iterator<std::input_iterator_tag, const int*> {
+class MyInputIterator {
  public:
+  using iterator_category = std::input_iterator_tag;
+  using value_type = const int*;
+  using difference_type = std::ptrdiff_t;
+  using pointer = const int**;
+  using reference = const int*;
+
   explicit MyInputIterator(int* x) : x_(x) {
   }
   const int* operator*() const {
