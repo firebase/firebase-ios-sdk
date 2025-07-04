@@ -10,6 +10,8 @@
 - [changed] **Breaking Change**: `TOTPSecret.openInOTPApp(withQRCodeURL:)` is
   now labeled with `@MainActor` and requires the `await` keyword when called
   off of the main actor or main thread.
+- [fixed] Simplified completion handler memory management in Auth interop
+  (#14962).
 
 # 11.15.0
 - [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14996)
