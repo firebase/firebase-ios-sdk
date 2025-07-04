@@ -78,7 +78,6 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseAI
-      supports_swift6: true
       setup_command: scripts/update_vertexai_responses.sh
 
   quickstart:
