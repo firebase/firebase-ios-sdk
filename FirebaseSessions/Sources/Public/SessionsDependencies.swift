@@ -15,27 +15,7 @@
 
 import Foundation
 
-private final class AtomicBox<T> {
-  private var _value: T
-  private let lock = NSLock()
-
-  init(_ value: T) {
-    _value = value
-  }
-
-  func value() -> T {
-    lock.withLock {
-      _value
-    }
-  }
-
-  @discardableResult func withLock(_ body: (_ value: inout T) -> Void) -> T {
-    lock.withLock {
-      body(&_value)
-      return _value
-    }
-  }
-}
+private import FirebaseCoreInternal
 
 /// Sessions Dependencies determines when a dependent SDK is
 /// installed in the app. The Sessions SDK uses this to figure
@@ -46,10 +26,8 @@ private final class AtomicBox<T> {
 /// dependent SDKs
 @objc(FIRSessionsDependencies)
 public class SessionsDependencies: NSObject {
-  private nonisolated(unsafe) static let _dependencies: AtomicBox<Set<SessionsSubscriberName>> =
-    AtomicBox(
-      Set()
-    )
+  private static let _dependencies =
+    FIRAllocatedUnfairLock<Set<SessionsSubscriberName>>(initialState: Set())
 
   static var dependencies: Set<SessionsSubscriberName> {
     _dependencies.value()
