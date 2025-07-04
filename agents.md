@@ -125,6 +125,29 @@ environment using either Swift Package Manager or CocoaPods.
     *   Note: `CONTRIBUTING.md` mentions that not all test schemes might be configured to run
         with SPM.
 
+##### Environment Variables in SwiftPM
+
+The following are environment variables to modify sources of code that can help with testing
+specific frameworks or dealing with version mismatches.
+*   `FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT`: When passed, sets the dependency on the
+    https://github.com/google/GoogleAppMeasurement.git package to use the main branch. This is
+    done to keep the Firebase package's main branch building when it depends on unreleased changes
+    in the GoogleAppMeasurement package's main branch. Use it when you run into version issues.
+*   `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP`: When passed, looks for a local
+    `FirebaseFirestoreInternal.xcframework` framework at the root of the repo to resolve the
+    Firestore target. Used for testing incombination with `scripts/check_firestore_symbols.sh`.
+*   `FIREBASE_SOURCE_FIRESTORE`: When passed, builds Firestore's large C++ dependencies (abseil,
+     gRPC, BoringSSL) from source rather than, by default, using existing binaries.
+
+To enable an env var within Xcode, quit the current Xcode instance, and open it from the command
+line, passing each desired env var with the `--env` argument.
+```console
+open --env FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT --env FIREBASE_SOURCE_FIRESTORE \
+Package.swift 
+```
+
+To unset the env vars, quit the running Xcode instance.
+
 #### 2. CocoaPods
 
 1.  **Generate Workspace**: After generating a workspace using `pod gen ...` as described in the
