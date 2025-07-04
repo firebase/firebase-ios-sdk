@@ -38,8 +38,8 @@ extension [ModelContent] {
 public struct ModelContent: Equatable, Sendable {
   enum InternalPart: Equatable, Sendable {
     case text(String)
-    case inlineData(mimetype: String, Data)
-    case fileData(mimetype: String, uri: String)
+    case inlineData(InlineData)
+    case fileData(FileData)
     case functionCall(FunctionCall)
     case functionResponse(FunctionResponse)
   }
@@ -55,10 +55,10 @@ public struct ModelContent: Equatable, Sendable {
       switch part {
       case let .text(text):
         convertedParts.append(TextPart(text))
-      case let .inlineData(mimetype, data):
-        convertedParts.append(InlineDataPart(data: data, mimeType: mimetype))
-      case let .fileData(mimetype, uri):
-        convertedParts.append(FileDataPart(uri: uri, mimeType: mimetype))
+      case let .inlineData(inlineData):
+        convertedParts.append(InlineDataPart(inlineData))
+      case let .fileData(fileData):
+        convertedParts.append(FileDataPart(fileData))
       case let .functionCall(functionCall):
         convertedParts.append(FunctionCallPart(functionCall))
       case let .functionResponse(functionResponse):
@@ -80,11 +80,9 @@ public struct ModelContent: Equatable, Sendable {
       case let textPart as TextPart:
         convertedParts.append(.text(textPart.text))
       case let inlineDataPart as InlineDataPart:
-        let inlineData = inlineDataPart.inlineData
-        convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
+        convertedParts.append(.inlineData(inlineDataPart.inlineData))
       case let fileDataPart as FileDataPart:
-        let fileData = fileDataPart.fileData
-        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.fileURI))
+        convertedParts.append(.fileData(fileDataPart.fileData))
       case let functionCallPart as FunctionCallPart:
         convertedParts.append(.functionCall(functionCallPart.functionCall))
       case let functionResponsePart as FunctionResponsePart:
@@ -135,10 +133,10 @@ extension ModelContent.InternalPart: Codable {
     switch self {
     case let .text(text):
       try container.encode(text, forKey: .text)
-    case let .inlineData(mimetype, bytes):
-      try container.encode(InlineData(data: bytes, mimeType: mimetype), forKey: .inlineData)
-    case let .fileData(mimetype: mimetype, url):
-      try container.encode(FileData(fileURI: url, mimeType: mimetype), forKey: .fileData)
+    case let .inlineData(inlineData):
+      try container.encode(inlineData, forKey: .inlineData)
+    case let .fileData(fileData):
+      try container.encode(fileData, forKey: .fileData)
     case let .functionCall(functionCall):
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
@@ -151,11 +149,9 @@ extension ModelContent.InternalPart: Codable {
     if values.contains(.text) {
       self = try .text(values.decode(String.self, forKey: .text))
     } else if values.contains(.inlineData) {
-      let inlineData = try values.decode(InlineData.self, forKey: .inlineData)
-      self = .inlineData(mimetype: inlineData.mimeType, inlineData.data)
+      self = try .inlineData(values.decode(InlineData.self, forKey: .inlineData))
     } else if values.contains(.fileData) {
-      let fileData = try values.decode(FileData.self, forKey: .fileData)
-      self = .fileData(mimetype: fileData.mimeType, uri: fileData.fileURI)
+      self = try .fileData(values.decode(FileData.self, forKey: .fileData))
     } else if values.contains(.functionCall) {
       self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
     } else if values.contains(.functionResponse) {
