@@ -143,7 +143,7 @@ To enable an env var within Xcode, quit the current Xcode instance, and open it 
 line, passing each desired env var with the `--env` argument.
 ```console
 open --env FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT --env FIREBASE_SOURCE_FIRESTORE \
-Package.swift 
+Package.swift
 ```
 
 To unset the env vars, quit the running Xcode instance.
