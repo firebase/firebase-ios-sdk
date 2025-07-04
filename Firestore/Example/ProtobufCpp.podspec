@@ -62,7 +62,7 @@ Pod::Spec.new do |s|
 
   # Set a CPP symbol so the code knows to use framework imports.
   s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
       'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
