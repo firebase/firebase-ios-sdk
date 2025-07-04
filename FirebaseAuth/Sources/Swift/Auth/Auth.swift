@@ -124,11 +124,12 @@ extension Auth: AuthInterop {
       }
       // Call back with current user token.
       currentUser
-        .internalGetToken(forceRefresh: forceRefresh, backend: strongSelf.backend) { token, error in
-          DispatchQueue.main.async {
-            callback(token, error)
-          }
-        }
+        .internalGetToken(
+          forceRefresh: forceRefresh,
+          backend: strongSelf.backend,
+          callback: callback,
+          callCallbackOnMain: true
+        )
     }
   }
 
