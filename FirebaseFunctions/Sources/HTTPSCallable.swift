@@ -31,23 +31,34 @@ open class HTTPSCallableResult: NSObject {
 
 /// A `HTTPSCallable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
 @objc(FIRHTTPSCallable)
-open class HTTPSCallable: NSObject, @unchecked Sendable {
+public final class HTTPSCallable: NSObject, Sendable {
   // MARK: - Private Properties
 
-  /// Until this class can be marked *checked* `Sendable`, it's implementation
-  /// is delegated to an auxiliary class that is checked Sendable.
-  private let sendableCallable: SendableHTTPSCallable
+  // The functions client to use for making calls.
+  private let functions: Functions
+
+  private let url: URL
+
+  private let options: HTTPSCallableOptions?
+
+  private let _timeoutInterval: AtomicBox<TimeInterval> = .init(70)
 
   // MARK: - Public Properties
 
   /// The timeout to use when calling the function. Defaults to 70 seconds.
-  @objc open var timeoutInterval: TimeInterval {
-    get { sendableCallable.timeoutInterval }
-    set { sendableCallable.timeoutInterval = newValue }
+  @objc public var timeoutInterval: TimeInterval {
+    get { _timeoutInterval.value() }
+    set {
+      _timeoutInterval.withLock { timeoutInterval in
+        timeoutInterval = newValue
+      }
+    }
   }
 
   init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
-    sendableCallable = SendableHTTPSCallable(functions: functions, url: url, options: options)
+    self.functions = functions
+    self.url = url
+    self.options = options
   }
 
   /// Executes this Callable HTTPS trigger asynchronously.
@@ -72,11 +83,11 @@ open class HTTPSCallable: NSObject, @unchecked Sendable {
   ///   - data: Parameters to pass to the trigger.
   ///   - completion: The block to call when the HTTPS request has completed.
   @available(swift 1000.0) // Objective-C only API
-  @objc(callWithObject:completion:) open func call(_ data: Any? = nil,
-                                                   completion: @escaping @MainActor (HTTPSCallableResult?,
-                                                                                     Error?)
-                                                     -> Void) {
-    sendableCallable.call(SendableWrapper(value: data as Any), completion: completion)
+  @objc(callWithObject:completion:) public func call(_ data: Any? = nil,
+                                                     completion: @escaping @MainActor (HTTPSCallableResult?,
+                                                                                       Error?)
+                                                       -> Void) {
+    call(SendableWrapper(value: data as Any), completion: completion)
   }
 
   /// Executes this Callable HTTPS trigger asynchronously.
@@ -100,11 +111,19 @@ open class HTTPSCallable: NSObject, @unchecked Sendable {
   /// - Parameters:
   ///   - data: Parameters to pass to the trigger.
   ///   - completion: The block to call when the HTTPS request has completed.
-  @nonobjc open func call(_ data: sending Any? = nil,
-                          completion: @escaping @MainActor (HTTPSCallableResult?,
-                                                            Error?)
-                            -> Void) {
-    sendableCallable.call(data, completion: completion)
+  @nonobjc public func call(_ data: sending Any? = nil,
+                            completion: @escaping @MainActor (HTTPSCallableResult?,
+                                                              Error?)
+                              -> Void) {
+    let data = (data as? SendableWrapper)?.value ?? data
+    Task {
+      do {
+        let result = try await call(data)
+        await completion(result, nil)
+      } catch {
+        await completion(nil, error)
+      }
+    }
   }
 
   /// Executes this Callable HTTPS trigger asynchronously. This API should only be used from
@@ -140,73 +159,13 @@ open class HTTPSCallable: NSObject, @unchecked Sendable {
   /// - Throws: An error if the Cloud Functions invocation failed.
   /// - Returns: The result of the call.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  open func call(_ data: Any? = nil) async throws -> sending HTTPSCallableResult {
-    try await sendableCallable.call(data)
+  public func call(_ data: Any? = nil) async throws -> sending HTTPSCallableResult {
+    try await functions
+      .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
   }
 
   @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
   func stream(_ data: SendableWrapper? = nil) -> AsyncThrowingStream<JSONStreamResponse, Error> {
-    sendableCallable.stream(data)
-  }
-}
-
-private extension HTTPSCallable {
-  final class SendableHTTPSCallable: Sendable {
-    // MARK: - Private Properties
-
-    // The functions client to use for making calls.
-    private let functions: Functions
-
-    private let url: URL
-
-    private let options: HTTPSCallableOptions?
-
-    // MARK: - Public Properties
-
-    let _timeoutInterval: AtomicBox<TimeInterval> = .init(70)
-
-    /// The timeout to use when calling the function. Defaults to 70 seconds.
-    var timeoutInterval: TimeInterval {
-      get { _timeoutInterval.value() }
-      set {
-        _timeoutInterval.withLock { timeoutInterval in
-          timeoutInterval = newValue
-        }
-      }
-    }
-
-    init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
-      self.functions = functions
-      self.url = url
-      self.options = options
-    }
-
-    func call(_ data: sending Any? = nil,
-              completion: @escaping @MainActor (HTTPSCallableResult?, Error?) -> Void) {
-      let data = (data as? SendableWrapper)?.value ?? data
-      Task {
-        do {
-          let result = try await call(data)
-          await completion(result, nil)
-        } catch {
-          await completion(nil, error)
-        }
-      }
-    }
-
-    func __call(completion: @escaping @MainActor (HTTPSCallableResult?, Error?) -> Void) {
-      call(nil, completion: completion)
-    }
-
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func call(_ data: Any? = nil) async throws -> sending HTTPSCallableResult {
-      try await functions
-        .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)
-    }
-
-    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-    func stream(_ data: SendableWrapper? = nil) -> AsyncThrowingStream<JSONStreamResponse, Error> {
-      functions.stream(at: url, data: data, options: options, timeout: timeoutInterval)
-    }
+    functions.stream(at: url, data: data, options: options, timeout: timeoutInterval)
   }
 }
