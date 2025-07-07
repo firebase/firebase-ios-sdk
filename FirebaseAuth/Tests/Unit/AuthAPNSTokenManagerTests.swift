@@ -62,7 +62,7 @@
     func testCallback() throws {
       let expectation = self.expectation(description: #function)
       XCTAssertFalse(fakeApplication!.registerCalled)
-      let firstCallbackCalled = FIRAllocatedUnfairLock(false)
+      let firstCallbackCalled = UnfairLock(false)
       let manager = try XCTUnwrap(manager)
       manager.getTokenInternal { result in
         firstCallbackCalled.withLock { $0 = true }
@@ -77,7 +77,7 @@
       XCTAssertFalse(firstCallbackCalled.value())
 
       // Add second callback, which is yet to be called either.
-      let secondCallbackCalled = FIRAllocatedUnfairLock(false)
+      let secondCallbackCalled = UnfairLock(false)
       manager.getTokenInternal { result in
         secondCallbackCalled.withLock { $0 = true }
         switch result {
@@ -104,7 +104,7 @@
       XCTAssertEqual(manager.token?.type, .sandbox)
 
       // Add third callback, which should be called back immediately.
-      let thirdCallbackCalled = FIRAllocatedUnfairLock(false)
+      let thirdCallbackCalled = UnfairLock(false)
       manager.getTokenInternal { result in
         thirdCallbackCalled.withLock { $0 = true }
         switch result {
@@ -178,7 +178,7 @@
       XCTAssertGreaterThan(try XCTUnwrap(manager.timeout), 0)
 
       // Add callback to cancel.
-      let callbackCalled = FIRAllocatedUnfairLock(false)
+      let callbackCalled = UnfairLock(false)
       manager.getTokenInternal { result in
         switch result {
         case let .success(token):

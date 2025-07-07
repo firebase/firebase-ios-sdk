@@ -29,7 +29,7 @@ final class RemoteSettings: SettingsProvider, Sendable {
   private static let flagSessionsCache = "app_quality"
   private let appInfo: ApplicationInfoProtocol
   private let downloader: SettingsDownloadClient
-  private let cache: FIRAllocatedUnfairLock<SettingsCacheClient>
+  private let cache: UnfairLock<SettingsCacheClient>
 
   private var sessionsCache: [String: Any] {
     cache.withLock { cache in
@@ -41,7 +41,7 @@ final class RemoteSettings: SettingsProvider, Sendable {
        downloader: SettingsDownloadClient,
        cache: SettingsCacheClient = SettingsCache()) {
     self.appInfo = appInfo
-    self.cache = FIRAllocatedUnfairLock(cache)
+    self.cache = UnfairLock(cache)
     self.downloader = downloader
   }
 

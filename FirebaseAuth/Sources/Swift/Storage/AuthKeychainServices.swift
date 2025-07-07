@@ -102,7 +102,7 @@ final class AuthKeychainServices: Sendable {
   /// been deleted.
   ///
   /// This dictionary is to avoid unnecessary keychain operations against legacy items.
-  private let legacyEntryDeletedForKey = FIRAllocatedUnfairLock<Set<String>>([])
+  private let legacyEntryDeletedForKey = UnfairLock<Set<String>>([])
 
   func data(forKey key: String) throws -> Data? {
     if let data = try getItemLegacy(query: genericPasswordQuery(key: key)) {

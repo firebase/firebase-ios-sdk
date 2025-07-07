@@ -27,7 +27,7 @@ private import FirebaseCoreInternal
 @objc(FIRSessionsDependencies)
 public class SessionsDependencies: NSObject {
   private static let _dependencies =
-    FIRAllocatedUnfairLock<Set<SessionsSubscriberName>>(Set())
+    UnfairLock<Set<SessionsSubscriberName>>(Set())
 
   static var dependencies: Set<SessionsSubscriberName> {
     _dependencies.value()

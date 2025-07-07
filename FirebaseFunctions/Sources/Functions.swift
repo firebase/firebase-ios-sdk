@@ -53,7 +53,7 @@ enum FunctionsConstants {
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
-  private static let instances = FIRAllocatedUnfairLock<[String: [Functions]]>([:])
+  private static let instances = UnfairLock<[String: [Functions]]>([:])
 
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?
@@ -61,7 +61,7 @@ enum FunctionsConstants {
   /// The region to use for all function references.
   let region: String
 
-  private let _emulatorOrigin: FIRAllocatedUnfairLock<String?>
+  private let _emulatorOrigin: UnfairLock<String?>
 
   // MARK: - Public APIs
 
@@ -341,7 +341,7 @@ enum FunctionsConstants {
     self.projectID = projectID
     self.region = region
     self.customDomain = customDomain
-    _emulatorOrigin = FIRAllocatedUnfairLock(nil)
+    _emulatorOrigin = UnfairLock(nil)
     contextProvider = FunctionsContextProvider(auth: auth,
                                                messaging: messaging,
                                                appCheck: appCheck)

@@ -19,7 +19,7 @@ private import os.lock
 /// `OSAllocatedUnfairLock` once we support only iOS 16+. For an explanation
 /// on why this is necessary, see the docs:
 /// https://developer.apple.com/documentation/os/osallocatedunfairlock
-public final class FIRAllocatedUnfairLock<Value>: @unchecked Sendable {
+public final class UnfairLock<Value>: @unchecked Sendable {
   private var lockPointer: UnsafeMutablePointer<os_unfair_lock>
   private var _value: Value
 
