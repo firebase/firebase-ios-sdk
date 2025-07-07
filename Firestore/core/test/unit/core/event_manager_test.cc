@@ -51,13 +51,14 @@ ViewSnapshotListener NoopViewSnapshotHandler() {
       [](const StatusOr<ViewSnapshot>&) {});
 }
 
-std::shared_ptr<QueryListener> NoopQueryListener(core::Query query) {
+std::shared_ptr<QueryListener> NoopQueryListener(core::QueryOrPipeline query) {
   return QueryListener::Create(std::move(query),
                                ListenOptions::DefaultOptions(),
                                NoopViewSnapshotHandler());
 }
 
-std::shared_ptr<QueryListener> NoopQueryCacheListener(core::Query query) {
+std::shared_ptr<QueryListener> NoopQueryCacheListener(
+    core::QueryOrPipeline query) {
   return QueryListener::Create(
       std::move(query),
       ListenOptions::FromOptions(/** include_metadata_changes= */ false,
@@ -68,14 +69,15 @@ std::shared_ptr<QueryListener> NoopQueryCacheListener(core::Query query) {
 class MockEventSource : public core::QueryEventSource {
  public:
   MOCK_METHOD1(SetCallback, void(core::SyncEngineCallback*));
-  MOCK_METHOD2(Listen, model::TargetId(core::Query, bool));
-  MOCK_METHOD1(ListenToRemoteStore, void(core::Query));
-  MOCK_METHOD2(StopListening, void(const core::Query&, bool));
-  MOCK_METHOD1(StopListeningToRemoteStoreOnly, void(const core::Query&));
+  MOCK_METHOD2(Listen, model::TargetId(core::QueryOrPipeline, bool));
+  MOCK_METHOD1(ListenToRemoteStore, void(core::QueryOrPipeline));
+  MOCK_METHOD2(StopListening, void(const core::QueryOrPipeline&, bool));
+  MOCK_METHOD1(StopListeningToRemoteStoreOnly,
+               void(const core::QueryOrPipeline&));
 };
 
 TEST(EventManagerTest, HandlesManyListenersPerQuery) {
-  core::Query query = Query("foo/bar");
+  auto query = QueryOrPipeline(Query("foo/bar"));
   auto listener1 = NoopQueryListener(query);
   auto listener2 = NoopQueryListener(query);
 
@@ -95,7 +97,7 @@ TEST(EventManagerTest, HandlesManyListenersPerQuery) {
 }
 
 TEST(EventManagerTest, HandlesManyCacheListenersPerQuery) {
-  core::Query query = Query("foo/bar");
+  auto query = QueryOrPipeline(Query("foo/bar"));
   auto listener1 = NoopQueryCacheListener(query);
   auto listener2 = NoopQueryCacheListener(query);
 
@@ -116,7 +118,7 @@ TEST(EventManagerTest, HandlesManyCacheListenersPerQuery) {
 
 TEST(EventManagerTest, HandlesUnlistenOnUnknownListenerGracefully) {
   core::Query query = Query("foo/bar");
-  auto listener = NoopQueryListener(query);
+  auto listener = NoopQueryListener(QueryOrPipeline(query));
 
   MockEventSource mock_event_source;
   EventManager event_manager(&mock_event_source);
@@ -125,7 +127,7 @@ TEST(EventManagerTest, HandlesUnlistenOnUnknownListenerGracefully) {
   event_manager.RemoveQueryListener(listener);
 }
 
-ViewSnapshot make_empty_view_snapshot(const core::Query& query) {
+ViewSnapshot make_empty_view_snapshot(const core::QueryOrPipeline& query) {
   DocumentSet empty_docs{query.Comparator()};
   // sync_state_changed has to be `true` to prevent an assertion about a
   // meaningless view snapshot.
@@ -141,8 +143,8 @@ ViewSnapshot make_empty_view_snapshot(const core::Query& query) {
 }
 
 TEST(EventManagerTest, NotifiesListenersInTheRightOrder) {
-  core::Query query1 = Query("foo/bar");
-  core::Query query2 = Query("bar/baz");
+  auto query1 = QueryOrPipeline(Query("foo/bar"));
+  auto query2 = QueryOrPipeline(Query("bar/baz"));
   std::vector<std::string> event_order;
 
   auto listener1 = QueryListener::Create(query1, [&](StatusOr<ViewSnapshot>) {
@@ -179,7 +181,7 @@ TEST(EventManagerTest, WillForwardOnlineStateChanges) {
   class FakeQueryListener : public QueryListener {
    public:
     explicit FakeQueryListener(core::Query query)
-        : QueryListener(std::move(query),
+        : QueryListener(QueryOrPipeline(std::move(query)),
                         ListenOptions::DefaultOptions(),
                         NoopViewSnapshotHandler()) {
     }

@@ -65,9 +65,12 @@ model::DocumentMap DocumentMap(
 
 }  // namespace
 
-INSTANTIATE_TEST_SUITE_P(LevelDbQueryEngineTest,
-                         QueryEngineTest,
-                         testing::Values(PersistenceFactory));
+INSTANTIATE_TEST_SUITE_P(
+    LevelDbQueryEngineTest,
+    QueryEngineTest,
+    testing::Values(
+        QueryEngineTestParams{PersistenceFactory, /*use_pipeline=*/false},
+        QueryEngineTestParams{PersistenceFactory, /*use_pipeline=*/true}));
 
 class LevelDbQueryEngineTest : public QueryEngineTestBase {
  public:

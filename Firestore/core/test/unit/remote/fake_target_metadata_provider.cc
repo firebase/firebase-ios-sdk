@@ -45,13 +45,13 @@ FakeTargetMetadataProvider::CreateSingleResultProvider(
   core::Query query(document_key.path());
 
   for (TargetId target_id : listen_targets) {
-    TargetData target_data(query.ToTarget(), target_id, 0,
-                           QueryPurpose::Listen);
+    TargetData target_data(core::TargetOrPipeline(query.ToTarget()), target_id,
+                           0, QueryPurpose::Listen);
     metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, target_data);
   }
   for (TargetId target_id : limbo_targets) {
-    TargetData target_data(query.ToTarget(), target_id, 0,
-                           QueryPurpose::LimboResolution);
+    TargetData target_data(core::TargetOrPipeline(query.ToTarget()), target_id,
+                           0, QueryPurpose::LimboResolution);
     metadata_provider.SetSyncedKeys(DocumentKeySet{document_key}, target_data);
   }
 
@@ -72,8 +72,8 @@ FakeTargetMetadataProvider::CreateEmptyResultProvider(
   core::Query query(path);
 
   for (TargetId target_id : targets) {
-    TargetData target_data(query.ToTarget(), target_id, 0,
-                           QueryPurpose::Listen);
+    TargetData target_data(core::TargetOrPipeline(query.ToTarget()), target_id,
+                           0, QueryPurpose::Listen);
     metadata_provider.SetSyncedKeys(DocumentKeySet{}, target_data);
   }
 

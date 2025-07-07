@@ -140,7 +140,8 @@ std::string FromBytes(pb_bytes_array_t*&& ptr) {
 }
 
 TargetData CreateTargetData(core::Query query) {
-  return TargetData(query.ToTarget(), 1, 0, QueryPurpose::Listen);
+  return TargetData(core::TargetOrPipeline(query.ToTarget()), 1, 0,
+                    QueryPurpose::Listen);
 }
 
 TargetData CreateTargetData(absl::string_view str) {
@@ -526,7 +527,7 @@ class SerializerTest : public ::testing::Test {
           std::mem_fn(&Serializer::DecodeQueryTarget), proto.query());
     }
 
-    EXPECT_EQ(model.target(), actual_model);
+    EXPECT_EQ(model.target_or_pipeline(), core::TargetOrPipeline(actual_model));
   }
 
   void ExpectSerializationRoundTrip(const Mutation& model,
@@ -1542,9 +1543,10 @@ TEST_F(SerializerTest, EncodesLimits) {
 
 TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
-  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
-                   SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes({1, 2, 3}), /*expected_count=*/absl::nullopt);
+  TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0,
+                   QueryPurpose::Listen, SnapshotVersion::None(),
+                   SnapshotVersion::None(), Bytes({1, 2, 3}),
+                   /*expected_count=*/absl::nullopt);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1569,9 +1571,10 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
 
 TEST_F(SerializerTest, EncodesExpectedCount) {
   core::Query q = Query("docs");
-  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
-                   SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes({1, 2, 3}), /*expected_count=*/1234);
+  TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0,
+                   QueryPurpose::Listen, SnapshotVersion::None(),
+                   SnapshotVersion::None(), Bytes({1, 2, 3}),
+                   /*expected_count=*/1234);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1601,9 +1604,10 @@ TEST_F(SerializerTest, EncodesExpectedCount) {
 
 TEST_F(SerializerTest, EncodeExpectedCountSkippedWithoutResumeToken) {
   core::Query q = Query("docs");
-  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
-                   SnapshotVersion::None(), SnapshotVersion::None(),
-                   ByteString(), /*expected_count=*/1234);
+  TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0,
+                   QueryPurpose::Listen, SnapshotVersion::None(),
+                   SnapshotVersion::None(), ByteString(),
+                   /*expected_count=*/1234);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1637,7 +1641,7 @@ TEST_F(SerializerTest, EncodesListenRequestLabels) {
       };
 
   for (const auto& p : purpose_to_label) {
-    TargetData model(q.ToTarget(), 1, 0, p.first);
+    TargetData model(core::TargetOrPipeline(q.ToTarget()), 1, 0, p.first);
 
     auto result = serializer.EncodeListenRequestLabels(model);
     std::unordered_map<std::string, std::string> result_in_map;

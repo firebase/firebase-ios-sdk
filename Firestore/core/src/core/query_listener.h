@@ -21,6 +21,7 @@
 #include <utility>
 
 #include "Firestore/core/src/core/listen_options.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/types.h"
@@ -38,28 +39,28 @@ namespace core {
 class QueryListener {
  public:
   static std::shared_ptr<QueryListener> Create(
-      Query query,
+      QueryOrPipeline query,
       ListenOptions options,
       ViewSnapshotSharedListener&& listener);
 
   static std::shared_ptr<QueryListener> Create(
-      Query query, ViewSnapshotSharedListener&& listener);
+      QueryOrPipeline query, ViewSnapshotSharedListener&& listener);
 
   static std::shared_ptr<QueryListener> Create(
-      Query query,
+      QueryOrPipeline query,
       ListenOptions options,
       util::StatusOrCallback<ViewSnapshot>&& listener);
 
   static std::shared_ptr<QueryListener> Create(
-      Query query, util::StatusOrCallback<ViewSnapshot>&& listener);
+      QueryOrPipeline query, util::StatusOrCallback<ViewSnapshot>&& listener);
 
-  QueryListener(Query query,
+  QueryListener(QueryOrPipeline query,
                 ListenOptions options,
                 ViewSnapshotSharedListener&& listener);
 
   virtual ~QueryListener() = default;
 
-  const Query& query() const {
+  const QueryOrPipeline& query() const {
     return query_;
   }
 
@@ -91,7 +92,7 @@ class QueryListener {
   bool ShouldRaiseEvent(const ViewSnapshot& snapshot) const;
   void RaiseInitialEvent(const ViewSnapshot& snapshot);
 
-  Query query_;
+  QueryOrPipeline query_;
   ListenOptions options_;
 
   /**

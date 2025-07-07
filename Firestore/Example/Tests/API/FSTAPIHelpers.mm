@@ -33,6 +33,7 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
 
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
@@ -148,7 +149,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
     }
     newDocuments = newDocuments.insert(doc);
   }
-  ViewSnapshot viewSnapshot{Query(path),
+  ViewSnapshot viewSnapshot{core::QueryOrPipeline(Query(path)),
                             newDocuments,
                             oldDocuments,
                             std::move(documentChanges),

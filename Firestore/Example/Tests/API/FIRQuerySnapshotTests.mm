@@ -30,6 +30,7 @@
 #import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/view_snapshot.h"
 #include "Firestore/core/src/model/document.h"
@@ -101,7 +102,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   std::shared_ptr<Firestore> firestore = FSTTestFirestore().wrapped;
   core::Query query = Query("foo");
-  ViewSnapshot viewSnapshot(query, newDocuments, oldDocuments, std::move(documentChanges),
+  ViewSnapshot viewSnapshot(core::QueryOrPipeline(query), newDocuments, oldDocuments,
+                            std::move(documentChanges),
                             /*mutated_keys=*/DocumentKeySet(),
                             /*from_cache=*/false,
                             /*sync_state_changed=*/true,

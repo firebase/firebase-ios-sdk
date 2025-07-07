@@ -478,18 +478,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (TargetId)addUserListenerWithQuery:(Query)query options:(ListenOptions)options {
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
-  auto listener = QueryListener::Create(
-      query, options, [self, query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
-        FSTQueryEvent *event = [[FSTQueryEvent alloc] init];
-        event.query = query;
-        if (maybe_snapshot.ok()) {
-          [event setViewSnapshot:maybe_snapshot.ValueOrDie()];
-        } else {
-          event.error = MakeNSError(maybe_snapshot.status());
-        }
+  auto listener =
+      QueryListener::Create(core::QueryOrPipeline(query), options,
+                            [self, query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+                              FSTQueryEvent *event = [[FSTQueryEvent alloc] init];
+                              event.query = query;
+                              if (maybe_snapshot.ok()) {
+                                [event setViewSnapshot:maybe_snapshot.ValueOrDie()];
+                              } else {
+                                event.error = MakeNSError(maybe_snapshot.status());
+                              }
 
-        [self.events addObject:event];
-      });
+                              [self.events addObject:event];
+                            });
   _queryListeners[query] = listener;
   TargetId targetID;
   _workerQueue->EnqueueBlocking([&] { targetID = _eventManager->AddQueryListener(listener); });
