@@ -134,6 +134,7 @@
 		101393F60336924F64966C74 /* globals_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4564AD9C55EC39C080EB9476 /* globals_cache_test.cc */; };
 		1029F0461945A444FCB523B3 /* leveldb_local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5FF903AEFA7A3284660FA4C5 /* leveldb_local_store_test.cc */; };
 		10B69419AC04F157D855FED7 /* leveldb_document_overlay_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AE89CFF09C6804573841397F /* leveldb_document_overlay_cache_test.cc */; };
+		11105C1A9E2065B6A3816983 /* pipeline_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9F12A488C443DBCCEC54DB61 /* pipeline_util_test.cc */; };
 		1115DB1F1DCE93B63E03BA8C /* comparison_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 548DB928200D59F600E00ABC /* comparison_test.cc */; };
 		113190791F42202FDE1ABC14 /* FIRQuerySnapshotTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04F202154AA00B64F25 /* FIRQuerySnapshotTests.mm */; };
 		1145D70555D8CDC75183A88C /* leveldb_mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5C7942B6244F4C416B11B86C /* leveldb_mutation_queue_test.cc */; };
@@ -150,6 +151,9 @@
 		125B1048ECB755C2106802EB /* executor_std_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4687208F9B9100554BA2 /* executor_std_test.cc */; };
 		1290FA77A922B76503AE407C /* lru_garbage_collector_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */; };
 		1291D9F5300AFACD1FBD262D /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
+		1296CECE2DEE97F5007F8552 /* RealtimePipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1296CECD2DEE97EF007F8552 /* RealtimePipelineTests.swift */; };
+		1296CECF2DEE97F5007F8552 /* RealtimePipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1296CECD2DEE97EF007F8552 /* RealtimePipelineTests.swift */; };
+		1296CED02DEE97F5007F8552 /* RealtimePipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1296CECD2DEE97EF007F8552 /* RealtimePipelineTests.swift */; };
 		129A369A28CA555B005AE7E2 /* FIRCountTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 129A369928CA555B005AE7E2 /* FIRCountTests.mm */; };
 		129A369B28CA555B005AE7E2 /* FIRCountTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 129A369928CA555B005AE7E2 /* FIRCountTests.mm */; };
 		129A369C28CA555B005AE7E2 /* FIRCountTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 129A369928CA555B005AE7E2 /* FIRCountTests.mm */; };
@@ -501,6 +505,7 @@
 		46683E00E0119595555018AB /* hashing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54511E8D209805F8005BD28F /* hashing_test.cc */; };
 		46999832F7D1709B4C29FAA8 /* FIRDocumentReferenceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E049202154AA00B64F25 /* FIRDocumentReferenceTests.mm */; };
 		46B104DEE6014D881F7ED169 /* collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129C1F315EE100DD57A1 /* collection_spec_test.json */; };
+		46B9BFFA5E118C9F577BC13F /* pipeline_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9F12A488C443DBCCEC54DB61 /* pipeline_util_test.cc */; };
 		46EAC2828CD942F27834F497 /* persistence_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9113B6F513D0473AEABBAF1F /* persistence_testing.cc */; };
 		46F0403DB1A8516F76D2D37A /* disjunctive_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE59C9C2992E1A580D02935 /* disjunctive_test.cc */; };
 		470A37727BBF516B05ED276A /* executor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4688208F9B9100554BA2 /* executor_test.cc */; };
@@ -889,6 +894,7 @@
 		6D7F70938662E8CA334F11C2 /* target_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B5C37696557C81A6C2B7271A /* target_cache_test.cc */; };
 		6DBB3DB3FD6B4981B7F26A55 /* FIRQuerySnapshotTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04F202154AA00B64F25 /* FIRQuerySnapshotTests.mm */; };
 		6DCA8E54E652B78EFF3EEDAC /* XCTestCase+Await.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0372021401E00B64F25 /* XCTestCase+Await.mm */; };
+		6DE74D7630D78E7F1C34B427 /* pipeline_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9F12A488C443DBCCEC54DB61 /* pipeline_util_test.cc */; };
 		6DFD49CCE2281CE243FEBB63 /* thread_safe_memoizer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1A8141230C7E3986EACEF0B6 /* thread_safe_memoizer_test.cc */; };
 		6E10507432E1D7AE658D16BD /* FSTSpecTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E03020213FFC00B64F25 /* FSTSpecTests.mm */; };
 		6E12265524DDD86F13797EF4 /* map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CB852EE6E7D301545700BFD8 /* map_test.cc */; };
@@ -1054,6 +1060,7 @@
 		8429E18EFBAF473209731E01 /* pipeline.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = D49E7AEE500651D25C5360C3 /* pipeline.pb.cc */; };
 		843EE932AA9A8F43721F189E /* leveldb_local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5FF903AEFA7A3284660FA4C5 /* leveldb_local_store_test.cc */; };
 		8460C97C9209D7DAF07090BD /* FIRFieldsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E06A202154D500B64F25 /* FIRFieldsTests.mm */; };
+		8493FD47DC37A3DF06DCC5FA /* pipeline_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9F12A488C443DBCCEC54DB61 /* pipeline_util_test.cc */; };
 		84E75527F3739131C09BEAA5 /* target_index_matcher_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */; };
 		851346D66DEC223E839E3AA9 /* memory_mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 74FBEFA4FE4B12C435011763 /* memory_mutation_queue_test.cc */; };
 		856A1EAAD674ADBDAAEDAC37 /* bundle_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B96F3ABCD2CA901DB1CD4 /* bundle_builder.cc */; };
@@ -1083,6 +1090,7 @@
 		8976F3D5515C4A784EC6627F /* arithmetic_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 76EED4ED84056B623D92FE20 /* arithmetic_test.cc */; };
 		897F3C1936612ACB018CA1DD /* http.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9720B89AAC00B5BCE7 /* http.pb.cc */; };
 		89C71AEAA5316836BB1D5A01 /* view_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = C7429071B33BDF80A7FA2F8A /* view_test.cc */; };
+		89D2D8DB745919C598582BBC /* pipeline_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9F12A488C443DBCCEC54DB61 /* pipeline_util_test.cc */; };
 		89EB0C7B1241E6F1800A3C7E /* empty_credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8FA60B08D59FEA0D6751E87F /* empty_credentials_provider_test.cc */; };
 		8A6C809B9F81C30B7333FCAA /* FIRFirestoreSourceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */; };
 		8A76A3A8345B984C91B0843E /* schedule_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9B0B005A79E765AF02793DCE /* schedule_test.cc */; };
@@ -1775,6 +1783,7 @@
 		F3DEF2DB11FADAABDAA4C8BB /* bundle_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4F5B96F3ABCD2CA901DB1CD4 /* bundle_builder.cc */; };
 		F3F09BC931A717CEFF4E14B9 /* FIRFieldValueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04A202154AA00B64F25 /* FIRFieldValueTests.mm */; };
 		F481368DB694B3B4D0C8E4A2 /* query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B9C261C26C5D311E1E3C0CB9 /* query_test.cc */; };
+		F498507B577D43837EBC1F77 /* pipeline_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9F12A488C443DBCCEC54DB61 /* pipeline_util_test.cc */; };
 		F4DD8315F7F85F9CAB2E7206 /* expression_test_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = AC64E6C629AAFAC92999B083 /* expression_test_util.cc */; };
 		F4F00BF4E87D7F0F0F8831DB /* FSTEventAccumulator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0392021401F00B64F25 /* FSTEventAccumulator.mm */; };
 		F4FAC5A7D40A0A9A3EA77998 /* FSTLevelDBSpecTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E02C20213FFB00B64F25 /* FSTLevelDBSpecTests.mm */; };
@@ -1905,8 +1914,8 @@
 		0473AFFF5567E667A125347B /* ordered_code_benchmark.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = ordered_code_benchmark.cc; sourceTree = "<group>"; };
 		062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncAwaitIntegrationTests.swift; sourceTree = "<group>"; };
 		0840319686A223CC4AD3FAB1 /* leveldb_remote_document_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_remote_document_cache_test.cc; sourceTree = "<group>"; };
-		09885253E010E281EC2773C4 /* where_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = where_test.cc; path = pipeline/where_test.cc; sourceTree = "<group>"; };
-		09C56D14F17CA02A07C60847 /* unicode_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = unicode_test.cc; path = pipeline/unicode_test.cc; sourceTree = "<group>"; };
+		09885253E010E281EC2773C4 /* where_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = where_test.cc; path = pipeline/where_test.cc; sourceTree = "<group>"; };
+		09C56D14F17CA02A07C60847 /* unicode_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = unicode_test.cc; path = pipeline/unicode_test.cc; sourceTree = "<group>"; };
 		0D964D4936953635AC7E0834 /* Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json; sourceTree = "<group>"; };
 		0E73D03B9C02CAC7BEBAFA86 /* TestHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestHelper.swift; path = TestHelper/TestHelper.swift; sourceTree = "<group>"; };
 		0EE5300F8233D14025EF0456 /* string_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = string_apple_test.mm; sourceTree = "<group>"; };
@@ -1914,13 +1923,14 @@
 		1235769122B7E915007DDFA9 /* EncodableFieldValueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodableFieldValueTests.swift; sourceTree = "<group>"; };
 		1235769422B86E65007DDFA9 /* FirestoreEncoderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirestoreEncoderTests.swift; sourceTree = "<group>"; };
 		124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableIntegrationTests.swift; sourceTree = "<group>"; };
+		1296CECD2DEE97EF007F8552 /* RealtimePipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimePipelineTests.swift; sourceTree = "<group>"; };
 		129A369928CA555B005AE7E2 /* FIRCountTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRCountTests.mm; sourceTree = "<group>"; };
 		12F4357299652983A615F886 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		132E32997D781B896672D30A /* reference_set_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reference_set_test.cc; sourceTree = "<group>"; };
 		15249D092D85B40EFC8A1459 /* pipeline.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = pipeline.pb.h; sourceTree = "<group>"; };
-		15EAAEEE767299A3CDA96132 /* sort_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = sort_test.cc; path = pipeline/sort_test.cc; sourceTree = "<group>"; };
+		15EAAEEE767299A3CDA96132 /* sort_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = sort_test.cc; path = pipeline/sort_test.cc; sourceTree = "<group>"; };
 		166CE73C03AB4366AAC5201C /* leveldb_index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_index_manager_test.cc; sourceTree = "<group>"; };
-		1924149B429A2020C3CD94D6 /* utils.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = utils.cc; path = pipeline/utils.cc; sourceTree = "<group>"; };
+		1924149B429A2020C3CD94D6 /* utils.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = utils.cc; path = pipeline/utils.cc; sourceTree = "<group>"; };
 		1A7D48A017ECB54FD381D126 /* Validation_BloomFilterTest_MD5_5000_1_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_5000_1_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_5000_1_membership_test_result.json; sourceTree = "<group>"; };
 		1A8141230C7E3986EACEF0B6 /* thread_safe_memoizer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = thread_safe_memoizer_test.cc; sourceTree = "<group>"; };
 		1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = cc_compilation_test.cc; path = api/cc_compilation_test.cc; sourceTree = "<group>"; };
@@ -1930,27 +1940,27 @@
 		1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_remote_document_cache_test.cc; sourceTree = "<group>"; };
 		1E0C7C0DCD2790019E66D8CC /* bloom_filter.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = bloom_filter.pb.cc; sourceTree = "<group>"; };
 		1F50E872B3F117A674DA8E94 /* index_backfiller_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = index_backfiller_test.cc; sourceTree = "<group>"; };
-		1F78CD3208A1D5885B4C134E /* field_behavior.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = field_behavior.pb.cc; sourceTree = "<group>"; };
+		1F78CD3208A1D5885B4C134E /* field_behavior.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = field_behavior.pb.cc; sourceTree = "<group>"; };
 		214877F52A705012D6720CA0 /* object_value_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = object_value_test.cc; sourceTree = "<group>"; };
 		2286F308EFB0534B1BDE05B9 /* memory_target_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_target_cache_test.cc; sourceTree = "<group>"; };
-		24F0F49F016E65823E0075DB /* field_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = field_test.cc; path = expressions/field_test.cc; sourceTree = "<group>"; };
+		24F0F49F016E65823E0075DB /* field_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = field_test.cc; path = expressions/field_test.cc; sourceTree = "<group>"; };
 		25191D04F1D477571A7D3740 /* Pods-Firestore_Benchmarks_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Benchmarks_iOS.debug.xcconfig"; path = "Target Support Files/Pods-Firestore_Benchmarks_iOS/Pods-Firestore_Benchmarks_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		253A7A96FFAA2C8A8754D3CF /* Pods_Firestore_IntegrationTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		26DDBA115DEB88631B93F203 /* thread_safe_memoizer_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = thread_safe_memoizer_testing.h; sourceTree = "<group>"; };
 		277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = lru_garbage_collector_test.cc; sourceTree = "<group>"; };
-		28034BA61A7395543F1508B3 /* maybe_document.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = maybe_document.pb.cc; sourceTree = "<group>"; };
+		28034BA61A7395543F1508B3 /* maybe_document.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = maybe_document.pb.cc; sourceTree = "<group>"; };
 		28B45B2104E2DAFBBF86DBB7 /* logic_utils_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = logic_utils_test.cc; sourceTree = "<group>"; };
 		29749DC3DADA38CAD1EB9AC4 /* Pods-Firestore_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_macOS.debug.xcconfig"; path = "Target Support Files/Pods-Firestore_Tests_macOS/Pods-Firestore_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		2996F8E339AD187C2C5068DE /* utils.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = utils.h; path = pipeline/utils.h; sourceTree = "<group>"; };
 		29D9C76922DAC6F710BC1EF4 /* memory_document_overlay_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_document_overlay_cache_test.cc; sourceTree = "<group>"; };
 		2A0CF41BA5AED6049B0BEB2C /* objc_type_traits_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = objc_type_traits_apple_test.mm; sourceTree = "<group>"; };
-		2BE59C9C2992E1A580D02935 /* disjunctive_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = disjunctive_test.cc; path = pipeline/disjunctive_test.cc; sourceTree = "<group>"; };
+		2BE59C9C2992E1A580D02935 /* disjunctive_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = disjunctive_test.cc; path = pipeline/disjunctive_test.cc; sourceTree = "<group>"; };
 		2D7472BC70C024D736FF74D9 /* watch_change_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = watch_change_test.cc; sourceTree = "<group>"; };
 		2DAA26538D1A93A39F8AC373 /* nanopb_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = nanopb_testing.h; path = nanopb/nanopb_testing.h; sourceTree = "<group>"; };
 		2F4FA4576525144C5069A7A5 /* credentials_provider_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = credentials_provider_test.cc; path = credentials/credentials_provider_test.cc; sourceTree = "<group>"; };
 		3068AA9DFBBA86C1FE2A946E /* mutation_queue_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = mutation_queue_test.cc; sourceTree = "<group>"; };
 		307FF03D0297024D59348EBD /* local_store_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = local_store_test.cc; sourceTree = "<group>"; };
-		3081975D68903993303FA256 /* collection_group_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = collection_group_test.cc; path = pipeline/collection_group_test.cc; sourceTree = "<group>"; };
+		3081975D68903993303FA256 /* collection_group_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = collection_group_test.cc; path = pipeline/collection_group_test.cc; sourceTree = "<group>"; };
 		312E4667E3D994592C77B63C /* byte_stream_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = byte_stream_test.h; sourceTree = "<group>"; };
 		3167BD972EFF8EC636530E59 /* datastore_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = datastore_test.cc; sourceTree = "<group>"; };
 		32C7CB095CD53D07E98D74B8 /* bundle.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = bundle.pb.h; sourceTree = "<group>"; };
@@ -1970,16 +1980,16 @@
 		406BBAC409B5EB8531D366CA /* Pods_Firestore_Tests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		40F9D09063A07F710811A84F /* value_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = value_util_test.cc; sourceTree = "<group>"; };
 		4132F30044D5DF1FB15B2A9D /* fake_credentials_provider.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = fake_credentials_provider.h; sourceTree = "<group>"; };
-		428662F00938E9E21F7080D7 /* explain_stats.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = explain_stats.pb.cc; sourceTree = "<group>"; };
+		428662F00938E9E21F7080D7 /* explain_stats.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = explain_stats.pb.cc; sourceTree = "<group>"; };
 		432C71959255C5DBDF522F52 /* byte_stream_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = byte_stream_test.cc; sourceTree = "<group>"; };
 		4334F87873015E3763954578 /* status_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = status_testing.h; sourceTree = "<group>"; };
 		4375BDCDBCA9938C7F086730 /* Validation_BloomFilterTest_MD5_5000_1_bloom_filter_proto.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_5000_1_bloom_filter_proto.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_5000_1_bloom_filter_proto.json; sourceTree = "<group>"; };
 		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = hard_assert_test.cc; sourceTree = "<group>"; };
 		453332546740E27077C65FDC /* Pods_Firestore_IntegrationTests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		4564AD9C55EC39C080EB9476 /* globals_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = globals_cache_test.cc; sourceTree = "<group>"; };
+		4564AD9C55EC39C080EB9476 /* globals_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = globals_cache_test.cc; sourceTree = "<group>"; };
 		478DC75A0DCA6249A616DD30 /* Validation_BloomFilterTest_MD5_500_0001_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_500_0001_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_500_0001_membership_test_result.json; sourceTree = "<group>"; };
 		48D0915834C3D234E5A875A9 /* grpc_stream_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = grpc_stream_tester.h; sourceTree = "<group>"; };
-		4B0A3187AAD8B02135E80C2E /* collection_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = collection_test.cc; path = pipeline/collection_test.cc; sourceTree = "<group>"; };
+		4B0A3187AAD8B02135E80C2E /* collection_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = collection_test.cc; path = pipeline/collection_test.cc; sourceTree = "<group>"; };
 		4B2C0786117A4C34F4CD0C6A /* Pods-Firestore_IntegrationTests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_macOS.release.xcconfig"; path = "Target Support Files/Pods-Firestore_IntegrationTests_macOS/Pods-Firestore_IntegrationTests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		4B3E4A77493524333133C5DC /* Validation_BloomFilterTest_MD5_50000_1_bloom_filter_proto.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_50000_1_bloom_filter_proto.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_50000_1_bloom_filter_proto.json; sourceTree = "<group>"; };
 		4B59C0A7B2A4548496ED4E7D /* Validation_BloomFilterTest_MD5_1_0001_bloom_filter_proto.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_1_0001_bloom_filter_proto.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_1_0001_bloom_filter_proto.json; sourceTree = "<group>"; };
@@ -1988,7 +1998,7 @@
 		4D65F6E69993611D47DC8E7C /* SnapshotListenerSourceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SnapshotListenerSourceTests.swift; sourceTree = "<group>"; };
 		4D9E51DA7A275D8B1CAEAEB2 /* listen_source_spec_test.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; path = listen_source_spec_test.json; sourceTree = "<group>"; };
 		4F5B96F3ABCD2CA901DB1CD4 /* bundle_builder.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = bundle_builder.cc; sourceTree = "<group>"; };
-		51004EAF5EE01ADCE8FE3788 /* canonify_eq_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = canonify_eq_test.cc; path = pipeline/canonify_eq_test.cc; sourceTree = "<group>"; };
+		51004EAF5EE01ADCE8FE3788 /* canonify_eq_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = canonify_eq_test.cc; path = pipeline/canonify_eq_test.cc; sourceTree = "<group>"; };
 		526D755F65AC676234F57125 /* target_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = target_test.cc; sourceTree = "<group>"; };
 		52756B7624904C36FBB56000 /* fake_target_metadata_provider.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = fake_target_metadata_provider.h; sourceTree = "<group>"; };
 		5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = byte_string_test.cc; path = nanopb/byte_string_test.cc; sourceTree = "<group>"; };
@@ -2098,7 +2108,7 @@
 		5B96CC29E9946508F022859C /* Validation_BloomFilterTest_MD5_50000_0001_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_50000_0001_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_50000_0001_membership_test_result.json; sourceTree = "<group>"; };
 		5BAD4FE9D876483DDAD34D96 /* Pods-Firestore_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_iOS.release.xcconfig"; path = "Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		5C68EE4CB94C0DD6E333F546 /* Validation_BloomFilterTest_MD5_1_01_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_1_01_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_1_01_membership_test_result.json; sourceTree = "<group>"; };
-		5C6DEA63FBDE19D841291723 /* memory_globals_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = memory_globals_cache_test.cc; sourceTree = "<group>"; };
+		5C6DEA63FBDE19D841291723 /* memory_globals_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_globals_cache_test.cc; sourceTree = "<group>"; };
 		5C767F7D43A603B557327513 /* Pods-Firestore_IntegrationTests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_macOS.debug.xcconfig"; path = "Target Support Files/Pods-Firestore_IntegrationTests_macOS/Pods-Firestore_IntegrationTests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		5C7942B6244F4C416B11B86C /* leveldb_mutation_queue_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_mutation_queue_test.cc; sourceTree = "<group>"; };
 		5CAE131920FFFED600BE9A4A /* Firestore_Benchmarks_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_Benchmarks_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2136,7 +2146,7 @@
 		618BBE9720B89AAC00B5BCE7 /* http.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http.pb.cc; sourceTree = "<group>"; };
 		618BBE9920B89AAC00B5BCE7 /* status.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = status.pb.cc; sourceTree = "<group>"; };
 		618BBE9A20B89AAC00B5BCE7 /* status.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = status.pb.h; sourceTree = "<group>"; };
-		61B4384743C16DAE47A69939 /* limit_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = limit_test.cc; path = pipeline/limit_test.cc; sourceTree = "<group>"; };
+		61B4384743C16DAE47A69939 /* limit_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = limit_test.cc; path = pipeline/limit_test.cc; sourceTree = "<group>"; };
 		61F72C5520BC48FD001A68CB /* serializer_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer_test.cc; sourceTree = "<group>"; };
 		620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryIntegrationTests.swift; sourceTree = "<group>"; };
@@ -2144,11 +2154,11 @@
 		62E54B832A9E910A003347C8 /* IndexingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexingTests.swift; sourceTree = "<group>"; };
 		63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = target_index_matcher_test.cc; sourceTree = "<group>"; };
 		64AA92CFA356A2360F3C5646 /* filesystem_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = filesystem_testing.h; sourceTree = "<group>"; };
-		6534F87DEF534CEEF672ADC5 /* number_semantics_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = number_semantics_test.cc; path = pipeline/number_semantics_test.cc; sourceTree = "<group>"; };
+		6534F87DEF534CEEF672ADC5 /* number_semantics_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = number_semantics_test.cc; path = pipeline/number_semantics_test.cc; sourceTree = "<group>"; };
 		65AF0AB593C3AD81A1F1A57E /* FIRCompositeIndexQueryTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRCompositeIndexQueryTests.mm; sourceTree = "<group>"; };
 		67786C62C76A740AEDBD8CD3 /* FSTTestingHooks.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FSTTestingHooks.h; sourceTree = "<group>"; };
 		6A7A30A2DB3367E08939E789 /* bloom_filter.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = bloom_filter.pb.h; sourceTree = "<group>"; };
-		6E42FA109D363EA7F3387AAE /* thread_safe_memoizer_testing.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = thread_safe_memoizer_testing.cc; sourceTree = "<group>"; };
+		6E42FA109D363EA7F3387AAE /* thread_safe_memoizer_testing.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = thread_safe_memoizer_testing.cc; sourceTree = "<group>"; };
 		6E8302DE210222ED003E1EA3 /* FSTFuzzTestFieldPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTFuzzTestFieldPath.h; sourceTree = "<group>"; };
 		6E8302DF21022309003E1EA3 /* FSTFuzzTestFieldPath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFuzzTestFieldPath.mm; sourceTree = "<group>"; };
 		6EA39FDD20FE820E008D461F /* FSTFuzzTestSerializer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFuzzTestSerializer.mm; sourceTree = "<group>"; };
@@ -2173,7 +2183,7 @@
 		75860CD13AF47EB1EA39EC2F /* leveldb_opener_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_opener_test.cc; sourceTree = "<group>"; };
 		75E24C5CD7BC423D48713100 /* counting_query_engine.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = counting_query_engine.h; sourceTree = "<group>"; };
 		7628664347B9C96462D4BF17 /* byte_stream_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = byte_stream_apple_test.mm; sourceTree = "<group>"; };
-		76EED4ED84056B623D92FE20 /* arithmetic_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = arithmetic_test.cc; path = expressions/arithmetic_test.cc; sourceTree = "<group>"; };
+		76EED4ED84056B623D92FE20 /* arithmetic_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = arithmetic_test.cc; path = expressions/arithmetic_test.cc; sourceTree = "<group>"; };
 		776530F066E788C355B78457 /* FIRBundlesTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRBundlesTests.mm; sourceTree = "<group>"; };
 		78EE0BFC7E60C4929458A0EA /* resource.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = resource.pb.h; sourceTree = "<group>"; };
 		79507DF8378D3C42F5B36268 /* string_win_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = string_win_test.cc; sourceTree = "<group>"; };
@@ -2187,21 +2197,21 @@
 		7EB299CF85034F09CFD6F3FD /* remote_document_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = remote_document_cache_test.cc; sourceTree = "<group>"; };
 		81DFB7DE556603F7FDEDCA84 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		8294C2063C0096AE5E43F6DF /* Pods_Firestore_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		82DF854A7238D538FA53C908 /* timestamp_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = timestamp_test.cc; path = expressions/timestamp_test.cc; sourceTree = "<group>"; };
+		82DF854A7238D538FA53C908 /* timestamp_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = timestamp_test.cc; path = expressions/timestamp_test.cc; sourceTree = "<group>"; };
 		84076EADF6872C78CDAC7291 /* bundle_builder.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = bundle_builder.h; sourceTree = "<group>"; };
 		861684E49DAC993D153E60D0 /* PipelineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipelineTests.swift; sourceTree = "<group>"; };
 		86C7F725E6E1DA312807D8D3 /* explain_stats.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = explain_stats.pb.h; sourceTree = "<group>"; };
 		872C92ABD71B12784A1C5520 /* async_testing.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = async_testing.cc; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		87553338E42B8ECA05BA987E /* grpc_stream_tester.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_stream_tester.cc; sourceTree = "<group>"; };
-		87DD1A65EBA9FFC1FFAAE657 /* comparison_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = comparison_test.cc; path = expressions/comparison_test.cc; sourceTree = "<group>"; };
+		87DD1A65EBA9FFC1FFAAE657 /* comparison_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = comparison_test.cc; path = expressions/comparison_test.cc; sourceTree = "<group>"; };
 		88B7F25F26338EB9C03AE440 /* Pods-Firestore_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_macOS.release.xcconfig"; path = "Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		88CF09277CFA45EE1273E3BA /* leveldb_transaction_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_transaction_test.cc; sourceTree = "<group>"; };
 		899FC22684B0F7BEEAE13527 /* task_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = task_test.cc; sourceTree = "<group>"; };
 		8A41BBE832158C76BE901BC9 /* mutation_queue_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = mutation_queue_test.h; sourceTree = "<group>"; };
 		8AB49283E544497A9C5A0E59 /* Validation_BloomFilterTest_MD5_500_1_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_500_1_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_500_1_membership_test_result.json; sourceTree = "<group>"; };
 		8ABAC2E0402213D837F73DC3 /* defer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = defer_test.cc; sourceTree = "<group>"; };
-		8AC88AA2B929CFEC2656E37D /* nested_properties_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = nested_properties_test.cc; path = pipeline/nested_properties_test.cc; sourceTree = "<group>"; };
+		8AC88AA2B929CFEC2656E37D /* nested_properties_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = nested_properties_test.cc; path = pipeline/nested_properties_test.cc; sourceTree = "<group>"; };
 		8C058C8BE2723D9A53CCD64B /* persistence_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = persistence_testing.h; sourceTree = "<group>"; };
 		8C7278B604B8799F074F4E8C /* index_spec_test.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; path = index_spec_test.json; sourceTree = "<group>"; };
 		8D9892F204959C50613F16C8 /* FSTUserDataReaderTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTUserDataReaderTests.mm; sourceTree = "<group>"; };
@@ -2220,13 +2230,14 @@
 		9C1AFCC9E616EC33D6E169CF /* recovery_spec_test.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; path = recovery_spec_test.json; sourceTree = "<group>"; };
 		9CFD366B783AE27B9E79EE7A /* string_format_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = string_format_apple_test.mm; sourceTree = "<group>"; };
 		9E60C06991E3D28A0F70DD8D /* globals_cache_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = globals_cache_test.h; sourceTree = "<group>"; };
+		9F12A488C443DBCCEC54DB61 /* pipeline_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = pipeline_util_test.cc; sourceTree = "<group>"; };
 		A002425BC4FC4E805F4175B6 /* testing_hooks_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = testing_hooks_test.cc; sourceTree = "<group>"; };
 		A082AFDD981B07B5AD78FDE8 /* token_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = token_test.cc; path = credentials/token_test.cc; sourceTree = "<group>"; };
 		A17F8CBAFA07CAE9FFBC8BC5 /* Pods_Firestore_Example_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20BAA3D2F994384279727EC /* md5_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = md5_testing.h; sourceTree = "<group>"; };
 		A2E6F09AD1EE0A6A452E9A08 /* bloom_filter_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = bloom_filter_test.cc; sourceTree = "<group>"; };
 		A366F6AE1A5A77548485C091 /* bundle.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = bundle.pb.cc; sourceTree = "<group>"; };
-		A410E38FA5C3EB5AECDB6F1C /* inequality_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = inequality_test.cc; path = pipeline/inequality_test.cc; sourceTree = "<group>"; };
+		A410E38FA5C3EB5AECDB6F1C /* inequality_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = inequality_test.cc; path = pipeline/inequality_test.cc; sourceTree = "<group>"; };
 		A4192EB032E23129EF23605A /* field_behavior.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = field_behavior.pb.h; sourceTree = "<group>"; };
 		A47DF1B9E7CDA6F76A0BFF57 /* Pods-Firestore_Example_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-Firestore_Example_tvOS/Pods-Firestore_Example_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		A5466E7809AD2871FFDE6C76 /* view_testing.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = view_testing.cc; sourceTree = "<group>"; };
@@ -2246,13 +2257,13 @@
 		AB7BAB332012B519001E0872 /* geo_point_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = geo_point_test.cc; sourceTree = "<group>"; };
 		ABA495B9202B7E79008A7851 /* snapshot_version_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = snapshot_version_test.cc; sourceTree = "<group>"; };
 		ABF6506B201131F8005F2C74 /* timestamp_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = timestamp_test.cc; sourceTree = "<group>"; };
-		AC64E6C629AAFAC92999B083 /* expression_test_util.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = expression_test_util.cc; sourceTree = "<group>"; };
+		AC64E6C629AAFAC92999B083 /* expression_test_util.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = expression_test_util.cc; sourceTree = "<group>"; };
 		AE4A9E38D65688EE000EE2A1 /* index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = index_manager_test.cc; sourceTree = "<group>"; };
 		AE89CFF09C6804573841397F /* leveldb_document_overlay_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_document_overlay_cache_test.cc; sourceTree = "<group>"; };
 		AF924C79F49F793992A84879 /* aggregate_query_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = aggregate_query_test.cc; path = api/aggregate_query_test.cc; sourceTree = "<group>"; };
 		B0520A41251254B3C24024A3 /* Validation_BloomFilterTest_MD5_5000_01_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_5000_01_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_5000_01_membership_test_result.json; sourceTree = "<group>"; };
-		B32C2DDDEC16F6465317B8AE /* complex_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = complex_test.cc; path = pipeline/complex_test.cc; sourceTree = "<group>"; };
-		B37729DE4DE097CBBCB9B0DD /* error_handling_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = error_handling_test.cc; path = pipeline/error_handling_test.cc; sourceTree = "<group>"; };
+		B32C2DDDEC16F6465317B8AE /* complex_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = complex_test.cc; path = pipeline/complex_test.cc; sourceTree = "<group>"; };
+		B37729DE4DE097CBBCB9B0DD /* error_handling_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = error_handling_test.cc; path = pipeline/error_handling_test.cc; sourceTree = "<group>"; };
 		B5C2A94EE24E60543F62CC35 /* bundle_serializer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = bundle_serializer_test.cc; path = bundle/bundle_serializer_test.cc; sourceTree = "<group>"; };
 		B5C37696557C81A6C2B7271A /* target_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = target_cache_test.cc; sourceTree = "<group>"; };
 		B6152AD5202A5385000E5744 /* document_key_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = document_key_test.cc; sourceTree = "<group>"; };
@@ -2293,7 +2304,7 @@
 		C8FB22BCB9F454DA44BA80C8 /* Validation_BloomFilterTest_MD5_50000_01_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_50000_01_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_50000_01_membership_test_result.json; sourceTree = "<group>"; };
 		C939D1789E38C09F9A0C1157 /* Validation_BloomFilterTest_MD5_1_0001_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_1_0001_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_1_0001_membership_test_result.json; sourceTree = "<group>"; };
 		CB7B2D4691C380DE3EB59038 /* lru_garbage_collector_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = lru_garbage_collector_test.h; sourceTree = "<group>"; };
-		CB852EE6E7D301545700BFD8 /* map_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = map_test.cc; path = expressions/map_test.cc; sourceTree = "<group>"; };
+		CB852EE6E7D301545700BFD8 /* map_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = map_test.cc; path = expressions/map_test.cc; sourceTree = "<group>"; };
 		CC572A9168BBEF7B83E4BBC5 /* view_snapshot_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = view_snapshot_test.cc; sourceTree = "<group>"; };
 		CCC9BD953F121B9E29F9AA42 /* user_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = user_test.cc; path = credentials/user_test.cc; sourceTree = "<group>"; };
 		CD422AF3E4515FB8E9BE67A0 /* equals_tester.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = equals_tester.h; sourceTree = "<group>"; };
@@ -2305,7 +2316,7 @@
 		D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = delayed_constructor_test.cc; sourceTree = "<group>"; };
 		D22D4C211AC32E4F8B4883DA /* Validation_BloomFilterTest_MD5_500_0001_bloom_filter_proto.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_500_0001_bloom_filter_proto.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_500_0001_bloom_filter_proto.json; sourceTree = "<group>"; };
 		D3CC3DC5338DCAF43A211155 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		D49E7AEE500651D25C5360C3 /* pipeline.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = pipeline.pb.cc; sourceTree = "<group>"; };
+		D49E7AEE500651D25C5360C3 /* pipeline.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = pipeline.pb.cc; sourceTree = "<group>"; };
 		D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = perf_spec_test.json; sourceTree = "<group>"; };
 		D5B25E7E7D6873CBA4571841 /* FIRNumericTransformTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRNumericTransformTests.mm; sourceTree = "<group>"; };
 		D6714D35B66361601CB3C749 /* Pods-Firestore_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2327,7 +2338,7 @@
 		DB58B9A32136B962240C8716 /* Pods-Firestore_Example_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.release.xcconfig"; path = "Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		DB5A1E760451189DA36028B3 /* memory_index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_index_manager_test.cc; sourceTree = "<group>"; };
 		DD12BC1DB2480886D2FB0005 /* settings_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = settings_test.cc; path = api/settings_test.cc; sourceTree = "<group>"; };
-		DD520991DBDF5C11BBFAFE6D /* null_semantics_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = null_semantics_test.cc; path = pipeline/null_semantics_test.cc; sourceTree = "<group>"; };
+		DD520991DBDF5C11BBFAFE6D /* null_semantics_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = null_semantics_test.cc; path = pipeline/null_semantics_test.cc; sourceTree = "<group>"; };
 		DD990FD89C165F4064B4F608 /* Validation_BloomFilterTest_MD5_500_01_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_500_01_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_500_01_membership_test_result.json; sourceTree = "<group>"; };
 		DE03B2E91F2149D600A30B9C /* Firestore_IntegrationTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_IntegrationTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE0761F61F2FE68D003233AF /* BasicCompileTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BasicCompileTests.swift; sourceTree = "<group>"; };
@@ -2341,8 +2352,8 @@
 		E2E39422953DE1D3C7B97E77 /* md5_testing.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = md5_testing.cc; sourceTree = "<group>"; };
 		E3228F51DCDC2E90D5C58F97 /* ConditionalConformanceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConditionalConformanceTests.swift; sourceTree = "<group>"; };
 		E76F0CDF28E5FA62D21DE648 /* leveldb_target_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_target_cache_test.cc; sourceTree = "<group>"; };
-		EA10515F99A42D71DA2D2841 /* thread_safe_memoizer_testing_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = thread_safe_memoizer_testing_test.cc; sourceTree = "<group>"; };
-		EEF23C7104A4D040C3A8CF9B /* string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = string_test.cc; path = expressions/string_test.cc; sourceTree = "<group>"; };
+		EA10515F99A42D71DA2D2841 /* thread_safe_memoizer_testing_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = thread_safe_memoizer_testing_test.cc; sourceTree = "<group>"; };
+		EEF23C7104A4D040C3A8CF9B /* string_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = string_test.cc; path = expressions/string_test.cc; sourceTree = "<group>"; };
 		EF3A65472C66B9560041EE69 /* FIRVectorValueTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRVectorValueTests.mm; sourceTree = "<group>"; };
 		EF6C285029E462A200A7D4F1 /* FIRAggregateTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRAggregateTests.mm; sourceTree = "<group>"; };
 		EF6C286C29E6D22200A7D4F1 /* AggregationIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AggregationIntegrationTests.swift; sourceTree = "<group>"; };
@@ -2352,17 +2363,17 @@
 		F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = firebase_app_check_credentials_provider_test.mm; path = credentials/firebase_app_check_credentials_provider_test.mm; sourceTree = "<group>"; };
 		F243090EDC079930C87D5F96 /* Pods-Firestore_Tests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-Firestore_Tests_tvOS/Pods-Firestore_Tests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		F339B5B848F79BBDB2133210 /* Pods-Firestore_Example_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_tvOS.release.xcconfig"; path = "Target Support Files/Pods-Firestore_Example_tvOS/Pods-Firestore_Example_tvOS.release.xcconfig"; sourceTree = "<group>"; };
-		F3704E3BF509EE783D0B0F08 /* mirroring_semantics_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = mirroring_semantics_test.cc; path = expressions/mirroring_semantics_test.cc; sourceTree = "<group>"; };
-		F51619F8CFF13B0CDD13EDC3 /* logical_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = logical_test.cc; path = expressions/logical_test.cc; sourceTree = "<group>"; };
+		F3704E3BF509EE783D0B0F08 /* mirroring_semantics_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = mirroring_semantics_test.cc; path = expressions/mirroring_semantics_test.cc; sourceTree = "<group>"; };
+		F51619F8CFF13B0CDD13EDC3 /* logical_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = logical_test.cc; path = expressions/logical_test.cc; sourceTree = "<group>"; };
 		F51859B394D01C0C507282F1 /* filesystem_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = filesystem_test.cc; sourceTree = "<group>"; };
 		F6CA0C5638AB6627CB5B4CF4 /* memory_local_store_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_local_store_test.cc; sourceTree = "<group>"; };
-		F6DBD8EDF0074DD0079ECCE6 /* debug_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; name = debug_test.cc; path = expressions/debug_test.cc; sourceTree = "<group>"; };
+		F6DBD8EDF0074DD0079ECCE6 /* debug_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = debug_test.cc; path = expressions/debug_test.cc; sourceTree = "<group>"; };
 		F7FC06E0A47D393DE1759AE1 /* bundle_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = bundle_cache_test.cc; sourceTree = "<group>"; };
 		F8043813A5D16963EC02B182 /* local_serializer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = local_serializer_test.cc; sourceTree = "<group>"; };
 		F848C41C03A25C42AD5A4BC2 /* target_cache_test.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = target_cache_test.h; sourceTree = "<group>"; };
 		F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = firebase_auth_credentials_provider_test.mm; path = credentials/firebase_auth_credentials_provider_test.mm; sourceTree = "<group>"; };
 		FBEED3A3B940302D76B6113A /* Pods-Firestore_Tests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_tvOS.release.xcconfig"; path = "Target Support Files/Pods-Firestore_Tests_tvOS/Pods-Firestore_Tests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
-		FC44D934D4A52C790659C8D6 /* leveldb_globals_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = leveldb_globals_cache_test.cc; sourceTree = "<group>"; };
+		FC44D934D4A52C790659C8D6 /* leveldb_globals_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_globals_cache_test.cc; sourceTree = "<group>"; };
 		FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRQueryUnitTests.mm; sourceTree = "<group>"; };
 		FFCA39825D9678A03D1845D0 /* document_overlay_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = document_overlay_cache_test.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -2494,6 +2505,7 @@
 				59BF06E5A4988F9F949DD871 /* PipelineApiTests.swift */,
 				861684E49DAC993D153E60D0 /* PipelineTests.swift */,
 				621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */,
+				1296CECD2DEE97EF007F8552 /* RealtimePipelineTests.swift */,
 				4D65F6E69993611D47DC8E7C /* SnapshotListenerSourceTests.swift */,
 				EFF22EA92C5060A4009A369B /* VectorIntegrationTests.swift */,
 			);
@@ -3047,7 +3059,6 @@
 				F243090EDC079930C87D5F96 /* Pods-Firestore_Tests_tvOS.debug.xcconfig */,
 				FBEED3A3B940302D76B6113A /* Pods-Firestore_Tests_tvOS.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -3178,7 +3189,7 @@
 				AB38D92E20235D22000A432D /* database_info_test.cc */,
 				6F57521E161450FAF89075ED /* event_manager_test.cc */,
 				F02F734F272C3C70D1307076 /* filter_test.cc */,
-				0401C6FDE59C493BFBD5DFED /* pipeline_util_test.cc */,
+				9F12A488C443DBCCEC54DB61 /* pipeline_util_test.cc */,
 				7C3F995E040E9E9C5E8514BB /* query_listener_test.cc */,
 				B9C261C26C5D311E1E3C0CB9 /* query_test.cc */,
 				AB380CF82019382300D97691 /* target_id_generator_test.cc */,
@@ -4588,7 +4599,7 @@
 				DB7E9C5A59CCCDDB7F0C238A /* path_test.cc in Sources */,
 				E30BF9E316316446371C956C /* persistence_testing.cc in Sources */,
 				60DA778E447F9ACD402FDA2F /* pipeline.pb.cc in Sources */,
-				E5FE2BEECD70D59361B51540 /* pipeline_util_test.cc in Sources */,
+				89D2D8DB745919C598582BBC /* pipeline_util_test.cc in Sources */,
 				0455FC6E2A281BD755FD933A /* precondition_test.cc in Sources */,
 				5ECE040F87E9FCD0A5D215DB /* pretty_printing_test.cc in Sources */,
 				938F2AF6EC5CD0B839300DB0 /* query.pb.cc in Sources */,
@@ -4841,7 +4852,7 @@
 				0963F6D7B0F9AE1E24B82866 /* path_test.cc in Sources */,
 				92D7081085679497DC112EDB /* persistence_testing.cc in Sources */,
 				8429E18EFBAF473209731E01 /* pipeline.pb.cc in Sources */,
-				48A9AD22B0601C52B0522CF7 /* pipeline_util_test.cc in Sources */,
+				6DE74D7630D78E7F1C34B427 /* pipeline_util_test.cc in Sources */,
 				152543FD706D5E8851C8DA92 /* precondition_test.cc in Sources */,
 				2639ABDA17EECEB7F62D1D83 /* pretty_printing_test.cc in Sources */,
 				5FA3DB52A478B01384D3A2ED /* query.pb.cc in Sources */,
@@ -4973,6 +4984,7 @@
 				3D5F7AA7BB68529F47BE4B12 /* PipelineApiTests.swift in Sources */,
 				655F8647F57E5F2155DFF7B5 /* PipelineTests.swift in Sources */,
 				621D620C28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
+				1296CECF2DEE97F5007F8552 /* RealtimePipelineTests.swift in Sources */,
 				1CFBD4563960D8A20C4679A3 /* SnapshotListenerSourceTests.swift in Sources */,
 				EE4C4BE7F93366AE6368EE02 /* TestHelper.swift in Sources */,
 				EFF22EAC2C5060A4009A369B /* VectorIntegrationTests.swift in Sources */,
@@ -5007,8 +5019,8 @@
 				E3E6B368A755D892F937DBF7 /* collection_group_test.cc in Sources */,
 				064689971747DA312770AB7A /* collection_test.cc in Sources */,
 				1DB3013C5FC736B519CD65A3 /* common.pb.cc in Sources */,
-				555161D6DB2DDC8B57F72A70 /* comparison_test.cc in Sources */,
 				99F97B28DA546D42AB14214B /* comparison_test.cc in Sources */,
+				555161D6DB2DDC8B57F72A70 /* comparison_test.cc in Sources */,
 				BB5F19878EA5A8D9C7276D40 /* complex_test.cc in Sources */,
 				7394B5C29C6E524C2AF964E6 /* counting_query_engine.cc in Sources */,
 				C02A969BF4BB63ABCB531B4B /* create_noop_connectivity_monitor.cc in Sources */,
@@ -5121,7 +5133,7 @@
 				70A171FC43BE328767D1B243 /* path_test.cc in Sources */,
 				EECC1EC64CA963A8376FA55C /* persistence_testing.cc in Sources */,
 				5CDD24225992674A4D3E3D4E /* pipeline.pb.cc in Sources */,
-				E14DBE1D9FC94B5E7E391BEE /* pipeline_util_test.cc in Sources */,
+				46B9BFFA5E118C9F577BC13F /* pipeline_util_test.cc in Sources */,
 				34D69886DAD4A2029BFC5C63 /* precondition_test.cc in Sources */,
 				F56E9334642C207D7D85D428 /* pretty_printing_test.cc in Sources */,
 				22A00AC39CAB3426A943E037 /* query.pb.cc in Sources */,
@@ -5253,6 +5265,7 @@
 				DF6FBE5BBD578B0DD34CEFA1 /* PipelineApiTests.swift in Sources */,
 				C8C2B945D84DD98391145F3F /* PipelineTests.swift in Sources */,
 				621D620B28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
+				1296CECE2DEE97F5007F8552 /* RealtimePipelineTests.swift in Sources */,
 				A0BC30D482B0ABD1A3A24CDC /* SnapshotListenerSourceTests.swift in Sources */,
 				A78366DBE0BFDE42474A728A /* TestHelper.swift in Sources */,
 				EFF22EAB2C5060A4009A369B /* VectorIntegrationTests.swift in Sources */,
@@ -5287,8 +5300,8 @@
 				1CDA0E10BC669276E0EAA1E8 /* collection_group_test.cc in Sources */,
 				C87DF880BADEA1CBF8365700 /* collection_test.cc in Sources */,
 				1D71CA6BBA1E3433F243188E /* common.pb.cc in Sources */,
-				9C86EEDEA131BFD50255EEF1 /* comparison_test.cc in Sources */,
 				476AE05E0878007DE1BF5460 /* comparison_test.cc in Sources */,
+				9C86EEDEA131BFD50255EEF1 /* comparison_test.cc in Sources */,
 				C5434EF8A0C8B79A71F0784C /* complex_test.cc in Sources */,
 				DCD83C545D764FB15FD88B02 /* counting_query_engine.cc in Sources */,
 				ECC433628575AE994C621C54 /* create_noop_connectivity_monitor.cc in Sources */,
@@ -5401,7 +5414,7 @@
 				B3A309CCF5D75A555C7196E1 /* path_test.cc in Sources */,
 				46EAC2828CD942F27834F497 /* persistence_testing.cc in Sources */,
 				D64792BBFA130E26CB3D1028 /* pipeline.pb.cc in Sources */,
-				563FE05627C7E66469E99292 /* pipeline_util_test.cc in Sources */,
+				F498507B577D43837EBC1F77 /* pipeline_util_test.cc in Sources */,
 				9EE1447AA8E68DF98D0590FF /* precondition_test.cc in Sources */,
 				F6079BFC9460B190DA85C2E6 /* pretty_printing_test.cc in Sources */,
 				7B0F073BDB6D0D6E542E23D4 /* query.pb.cc in Sources */,
@@ -5664,7 +5677,7 @@
 				5A080105CCBFDB6BF3F3772D /* path_test.cc in Sources */,
 				21C17F15579341289AD01051 /* persistence_testing.cc in Sources */,
 				C8889F3C37F1CC3E64558287 /* pipeline.pb.cc in Sources */,
-				11A5189E73D954824F015424 /* pipeline_util_test.cc in Sources */,
+				8493FD47DC37A3DF06DCC5FA /* pipeline_util_test.cc in Sources */,
 				549CCA5920A36E1F00BCEB75 /* precondition_test.cc in Sources */,
 				6A94393D83EB338DFAF6A0D2 /* pretty_printing_test.cc in Sources */,
 				544129DC21C2DDC800EFB9CC /* query.pb.cc in Sources */,
@@ -5815,6 +5828,7 @@
 				BD74B0E1FC752236A7376BC3 /* PipelineApiTests.swift in Sources */,
 				E04CB0D580980748D5DC453F /* PipelineTests.swift in Sources */,
 				621D620A28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
+				1296CED02DEE97F5007F8552 /* RealtimePipelineTests.swift in Sources */,
 				B00F8D1819EE20C45B660940 /* SnapshotListenerSourceTests.swift in Sources */,
 				AD34726BFD3461FF64BBD56D /* TestHelper.swift in Sources */,
 				EFF22EAA2C5060A4009A369B /* VectorIntegrationTests.swift in Sources */,
@@ -5849,8 +5863,8 @@
 				4A6B1E0B678E31367A55DC17 /* collection_group_test.cc in Sources */,
 				BACA9CDF0F2E926926B5F36F /* collection_test.cc in Sources */,
 				4C66806697D7BCA730FA3697 /* common.pb.cc in Sources */,
-				EC7A44792A5513FBB6F501EE /* comparison_test.cc in Sources */,
 				C885C84B7549C860784E4E3C /* comparison_test.cc in Sources */,
+				EC7A44792A5513FBB6F501EE /* comparison_test.cc in Sources */,
 				62C86789E72E624A27BF6AE5 /* complex_test.cc in Sources */,
 				BDF3A6C121F2773BB3A347A7 /* counting_query_engine.cc in Sources */,
 				1F4930A8366F74288121F627 /* create_noop_connectivity_monitor.cc in Sources */,
@@ -5963,7 +5977,7 @@
 				6105A1365831B79A7DEEA4F3 /* path_test.cc in Sources */,
 				CB8BEF34CC4A996C7BE85119 /* persistence_testing.cc in Sources */,
 				BC9966788F245D79A63C2E47 /* pipeline.pb.cc in Sources */,
-				7676C06AF7FF67806747E4F0 /* pipeline_util_test.cc in Sources */,
+				11105C1A9E2065B6A3816983 /* pipeline_util_test.cc in Sources */,
 				4194B7BB8B0352E1AC5D69B9 /* precondition_test.cc in Sources */,
 				0EA40EDACC28F445F9A3F32F /* pretty_printing_test.cc in Sources */,
 				63B91FC476F3915A44F00796 /* query.pb.cc in Sources */,

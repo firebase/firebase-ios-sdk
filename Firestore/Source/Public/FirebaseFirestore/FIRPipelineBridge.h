@@ -18,7 +18,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRDocumentChange.h"
 #import "FIRDocumentSnapshot.h"
+#import "FIRSnapshotListenOptions.h"
 
 @class FIRTimestamp;
 @class FIRVectorValue;
@@ -229,6 +231,22 @@ NS_SWIFT_NAME(__PipelineResultBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__PipelineResultChangeBridge)
+@interface __FIRPipelineResultChangeBridge : NSObject
+
+/** The type of change that occurred (added, modified, or removed). */
+@property(nonatomic, readonly) FIRDocumentChangeType type;
+
+/** The document affected by this change. */
+@property(nonatomic, strong, readonly) __FIRPipelineResultBridge *result;
+
+@property(nonatomic, readonly) NSUInteger oldIndex;
+
+@property(nonatomic, readonly) NSUInteger newIndex;
+
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__PipelineSnapshotBridge)
 @interface __FIRPipelineSnapshotBridge : NSObject
 
@@ -247,6 +265,52 @@ NS_SWIFT_NAME(PipelineBridge)
 
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion;
+
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__RealtimePipelineSnapshotBridge)
+@interface __FIRRealtimePipelineSnapshotBridge : NSObject
+
+@property(nonatomic, strong, readonly) NSArray<__FIRPipelineResultBridge *> *results;
+
+@property(nonatomic, strong, readonly) NSArray<__FIRPipelineResultChangeBridge *> *changes;
+
+@property(nonatomic, strong, readonly) FIRSnapshotMetadata *metadata;
+
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__PipelineListenOptionsBridge)
+@interface __FIRPipelineListenOptionsBridge : NSObject
+
+@property(nonatomic, readonly) NSString *serverTimestampBehavior;
+@property(nonatomic, readonly) BOOL includeMetadata;
+@property(nonatomic, readonly) FIRListenSource source;
+- (instancetype)initWithServerTimestampBehavior:(NSString *)serverTimestampBehavior
+                                includeMetadata:(BOOL)includeMetadata
+                                         source:(FIRListenSource)source NS_DESIGNATED_INITIALIZER;
+
+/**
+ * The default initializer is unavailable. Please use the designated initializer.
+ */
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(RealtimePipelineBridge)
+@interface FIRRealtimePipelineBridge : NSObject
+
+/** :nodoc: */
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages db:(FIRFirestore *)db;
+
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithOptions:(__FIRPipelineListenOptionsBridge *)options
+                          listener:
+                              (void (^)(__FIRRealtimePipelineSnapshotBridge *_Nullable snapshot,
+                                        NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
 
 @end
 

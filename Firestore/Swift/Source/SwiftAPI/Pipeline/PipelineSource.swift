@@ -13,48 +13,46 @@
 // limitations under the License.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineSource: @unchecked Sendable {
+public struct PipelineSource<P>: @unchecked Sendable {
   let db: Firestore
+  let factory: ([Stage], Firestore) -> P
 
-  init(_ db: Firestore) {
+  init(db: Firestore, factory: @escaping ([Stage], Firestore) -> P) {
     self.db = db
+    self.factory = factory
   }
 
-  public func collection(_ path: String) -> Pipeline {
-    return Pipeline(stages: [CollectionSource(collection: db.collection(path), db: db)], db: db)
+  public func collection(_ path: String) -> P {
+    let normalizedPath = path.hasPrefix("/") ? path : "/" + path
+    return factory([CollectionSource(collection: normalizedPath)], db)
   }
 
-  public func collection(_ ref: CollectionReference) -> Pipeline {
-    let collectionStage = CollectionSource(collection: ref, db: db)
-    return Pipeline(stages: [collectionStage], db: db)
-  }
-
-  public func collectionGroup(_ collectionId: String) -> Pipeline {
-    return Pipeline(
-      stages: [CollectionGroupSource(collectionId: collectionId)],
-      db: db
+  public func collectionGroup(_ collectionId: String) -> P {
+    return factory(
+      [CollectionGroupSource(collectionId: collectionId)],
+      db
     )
   }
 
-  public func database() -> Pipeline {
-    return Pipeline(stages: [DatabaseSource()], db: db)
+  public func database() -> P {
+    return factory([DatabaseSource()], db)
   }
 
-  public func documents(_ docs: [DocumentReference]) -> Pipeline {
-    return Pipeline(stages: [DocumentsSource(docs: docs, db: db)], db: db)
+  public func documents(_ docs: [DocumentReference]) -> P {
+    let paths = docs.map { $0.path.hasPrefix("/") ? $0.path : "/" + $0.path }
+    return factory([DocumentsSource(paths: paths)], db)
   }
 
-  public func documents(_ paths: [String]) -> Pipeline {
-    let docs = paths.map { db.document($0) }
-    let documentsStage = DocumentsSource(docs: docs, db: db)
-    return Pipeline(stages: [documentsStage], db: db)
+  public func documents(_ paths: [String]) -> P {
+    let normalizedPaths = paths.map { $0.hasPrefix("/") ? $0 : "/" + $0 }
+    return factory([DocumentsSource(paths: normalizedPaths)], db)
   }
 
-  public func create(from query: Query) -> Pipeline {
-    return Pipeline(stages: [QuerySource(query: query)], db: db)
+  public func create(from query: Query) -> P {
+    return factory([QuerySource(query: query)], db)
   }
 
-  public func create(from aggregateQuery: AggregateQuery) -> Pipeline {
-    return Pipeline(stages: [AggregateQuerySource(aggregateQuery: aggregateQuery)], db: db)
+  public func create(from aggregateQuery: AggregateQuery) -> P {
+    return factory([AggregateQuerySource(aggregateQuery: aggregateQuery)], db)
   }
 }

@@ -769,7 +769,7 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithPipeline) {
         pipeline_proto_obj->add_stages();  // Changed type
     stage1_proto->set_name("collection");
     v1::Value* stage1_arg1 = stage1_proto->add_args();
-    stage1_arg1->set_reference_value("rooms");
+    stage1_arg1->set_reference_value("/rooms");
   }
 
   // Stage 2: Where(EqExpr(Field("name"), Value("testroom")))
