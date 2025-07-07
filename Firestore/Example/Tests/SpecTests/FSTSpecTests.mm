@@ -158,6 +158,9 @@ static NSString *const kMultiClientTag = @"multi-client";
 // if `kRunBenchmarkTests` is set to 'YES'.
 static NSString *const kBenchmarkTag = @"benchmark";
 
+// A tag for tests that should skip its pipeline run.
+static NSString *const kNoPipelineConversion = @"no-pipeline-conversion";
+
 NSString *const kEagerGC = @"eager-gc";
 
 NSString *const kDurablePersistence = @"durable-persistence";
@@ -236,11 +239,14 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     return NO;
   } else if (!kRunBenchmarkTests && [tags containsObject:kBenchmarkTag]) {
     return NO;
+  } else if (self.usePipelineMode && [tags containsObject:kNoPipelineConversion]) {
+    return NO;
   }
   return YES;
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
+  _convertToPipeline = [self usePipelineMode];  // Call new method
   _reader = FSTTestUserDataReader();
   std::unique_ptr<Executor> user_executor = Executor::CreateSerial("user executor");
   user_executor_ = absl::ShareUniquePtr(std::move(user_executor));
@@ -261,6 +267,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   self.driver =
       [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
                                                    eagerGC:_useEagerGCForMemory
+                                         convertToPipeline:_convertToPipeline  // Pass the flag
                                                initialUser:User::Unauthenticated()
                                          outstandingWrites:{}
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
@@ -280,6 +287,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
  */
 - (BOOL)isTestBaseClass {
   return [self class] == [FSTSpecTests class];
+}
+
+// Default implementation for pipeline mode. Subclasses can override.
+- (BOOL)usePipelineMode {
+  return NO;
 }
 
 #pragma mark - Methods for constructing objects from specs.
@@ -645,6 +657,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   self.driver =
       [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
                                                    eagerGC:_useEagerGCForMemory
+                                         convertToPipeline:_convertToPipeline  // Pass the flag
                                                initialUser:currentUser
                                          outstandingWrites:outstandingWrites
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
@@ -721,8 +734,42 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)validateEvent:(FSTQueryEvent *)actual matches:(NSDictionary *)expected {
-  Query expectedQuery = [self parseQuery:expected[@"query"]];
-  XCTAssertEqual(actual.query, expectedQuery);
+  // The 'expected' query from JSON is always a standard Query.
+  Query expectedJSONQuery = [self parseQuery:expected[@"query"]];
+  core::QueryOrPipeline actualQueryOrPipeline = actual.queryOrPipeline;
+
+  if (_convertToPipeline) {
+    XCTAssertTrue(actualQueryOrPipeline.IsPipeline(),
+                  @"In pipeline mode, actual event query should be a pipeline. Actual: %@",
+                  MakeNSString(actualQueryOrPipeline.ToString()));
+
+    // Convert the expected JSON Query to a RealtimePipeline for comparison.
+    std::vector<std::shared_ptr<api::EvaluableStage>> expectedStages =
+        core::ToPipelineStages(expectedJSONQuery);
+    // TODO(specstest): Need access to the database_id for the serializer.
+    // Assuming self.driver.databaseInfo is accessible and provides it.
+    // This might require making databaseInfo public or providing a getter in
+    // FSTSyncEngineTestDriver. For now, proceeding with the assumption it's available.
+    auto serializer = absl::make_unique<remote::Serializer>(self.driver.databaseInfo.database_id());
+    api::RealtimePipeline expectedPipeline(std::move(expectedStages), std::move(serializer));
+    auto expectedQoPForComparison =
+        core::QueryOrPipeline(expectedPipeline);  // Wrap expected pipeline
+
+    XCTAssertEqual(actualQueryOrPipeline.CanonicalId(), expectedQoPForComparison.CanonicalId(),
+                   @"Pipeline canonical IDs do not match. Actual: %@, Expected: %@",
+                   MakeNSString(actualQueryOrPipeline.CanonicalId()),
+                   MakeNSString(expectedQoPForComparison.CanonicalId()));
+
+  } else {
+    XCTAssertFalse(actualQueryOrPipeline.IsPipeline(),
+                   @"In non-pipeline mode, actual event query should be a Query. Actual: %@",
+                   MakeNSString(actualQueryOrPipeline.ToString()));
+    XCTAssertTrue(actualQueryOrPipeline.query() == expectedJSONQuery,
+                  @"Queries do not match. Actual: %@, Expected: %@",
+                  MakeNSString(actualQueryOrPipeline.query().ToString()),
+                  MakeNSString(expectedJSONQuery.ToString()));
+  }
+
   if ([expected[@"errorCode"] integerValue] != 0) {
     XCTAssertNotNil(actual.error);
     XCTAssertEqual(actual.error.code, [expected[@"errorCode"] integerValue]);
@@ -787,14 +834,43 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   XCTAssertEqual(events.count, expectedEvents.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
-        return WrapCompare(q1.query.CanonicalId(), q2.query.CanonicalId());
+        // Use QueryOrPipeline's CanonicalId for sorting
+        return WrapCompare(q1.queryOrPipeline.CanonicalId(), q2.queryOrPipeline.CanonicalId());
       }];
-  expectedEvents = [expectedEvents
-      sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
-        Query leftQuery = [self parseQuery:left[@"query"]];
-        Query rightQuery = [self parseQuery:right[@"query"]];
-        return WrapCompare(leftQuery.CanonicalId(), rightQuery.CanonicalId());
-      }];
+  expectedEvents = [expectedEvents sortedArrayUsingComparator:^NSComparisonResult(
+                                       NSDictionary *left, NSDictionary *right) {
+    // Expected query from JSON is always a core::Query.
+    // For sorting consistency with actual events (which might be pipelines),
+    // we convert the expected query to QueryOrPipeline then get its CanonicalId.
+    // If _convertToPipeline is true, this will effectively sort expected items
+    // by their pipeline canonical ID.
+    Query leftJSONQuery = [self parseQuery:left[@"query"]];
+    core::QueryOrPipeline leftQoP;
+    if (self->_convertToPipeline) {
+      std::vector<std::shared_ptr<api::EvaluableStage>> stages =
+          core::ToPipelineStages(leftJSONQuery);
+      auto serializer =
+          absl::make_unique<remote::Serializer>(self.driver.databaseInfo.database_id());
+      leftQoP =
+          core::QueryOrPipeline(api::RealtimePipeline(std::move(stages), std::move(serializer)));
+    } else {
+      leftQoP = core::QueryOrPipeline(leftJSONQuery);
+    }
+
+    Query rightJSONQuery = [self parseQuery:right[@"query"]];
+    core::QueryOrPipeline rightQoP;
+    if (self->_convertToPipeline) {
+      std::vector<std::shared_ptr<api::EvaluableStage>> stages =
+          core::ToPipelineStages(rightJSONQuery);
+      auto serializer =
+          absl::make_unique<remote::Serializer>(self.driver.databaseInfo.database_id());
+      rightQoP =
+          core::QueryOrPipeline(api::RealtimePipeline(std::move(stages), std::move(serializer)));
+    } else {
+      rightQoP = core::QueryOrPipeline(rightJSONQuery);
+    }
+    return WrapCompare(leftQoP.CanonicalId(), rightQoP.CanonicalId());
+  }];
 
   NSUInteger i = 0;
   for (; i < expectedEvents.count && i < events.count; ++i) {
@@ -849,6 +925,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
         NSArray *queriesJson = queryData[@"queries"];
         std::vector<TargetData> queries;
         for (id queryJson in queriesJson) {
+          core::QueryOrPipeline qop;
           Query query = [self parseQuery:queryJson];
 
           QueryPurpose purpose = QueryPurpose::Listen;
@@ -980,9 +1057,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     // is ever made to be consistent.
     // XCTAssertEqualObjects(actualTargets[targetID], TargetData);
     const TargetData &actual = found->second;
-
+    auto left = actual.target_or_pipeline();
+    auto left_p = left.IsPipeline();
+    auto right = targetData.target_or_pipeline();
+    auto right_p = right.IsPipeline();
     XCTAssertEqual(actual.purpose(), targetData.purpose());
-    XCTAssertEqual(actual.target_or_pipeline(), targetData.target_or_pipeline());
+    XCTAssertEqual(left_p, right_p);
+    XCTAssertEqual(left, right);
     XCTAssertEqual(actual.target_id(), targetData.target_id());
     XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());
@@ -1031,6 +1112,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
 - (void)testSpecTests {
   if ([self isTestBaseClass]) return;
+
+  // LogSetLevel(firebase::firestore::util::kLogLevelDebug);
 
   // Enumerate the .json files containing the spec tests.
   NSMutableArray<NSString *> *specFiles = [NSMutableArray array];
@@ -1121,10 +1204,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
         ++testPassCount;
       } else {
         ++testSkipCount;
-        NSLog(@"  [SKIPPED] Spec test: %@", name);
+        // NSLog(@"  [SKIPPED] Spec test: %@", name);
         NSString *comment = testDescription[@"comment"];
         if (comment) {
-          NSLog(@"    %@", comment);
+          // NSLog(@"    %@", comment);
         }
       }
     }];

@@ -37,15 +37,11 @@ EventManager::EventManager(QueryEventSource* query_event_source)
 model::TargetId EventManager::AddQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const QueryOrPipeline& query_or_pipeline = listener->query();
-  if (query_or_pipeline.IsPipeline()) {
-    HARD_FAIL("Unimplemented");
-  }
 
-  const auto& query = query_or_pipeline.query();
   ListenerSetupAction listener_action =
       ListenerSetupAction::NoSetupActionRequired;
 
-  auto inserted = queries_.emplace(query, QueryListenersInfo{});
+  auto inserted = queries_.emplace(query_or_pipeline, QueryListenersInfo{});
   // If successfully inserted, it means we haven't listened to this query
   // before.
   bool first_listen = inserted.second;
@@ -98,10 +94,6 @@ model::TargetId EventManager::AddQueryListener(
 void EventManager::RemoveQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const auto& query_or_pipeline = listener->query();
-  if (query_or_pipeline.IsPipeline()) {
-    HARD_FAIL("Unimplemented");
-  }
-
   ListenerRemovalAction listener_action =
       ListenerRemovalAction::NoRemovalActionRequired;
 

@@ -448,6 +448,72 @@
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": true,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/collection",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -460,6 +526,74 @@
         "expectedState": {
           "activeTargets": {
             "2": {
+              "pipelines": [
+                {
+                  "isCorePipeline": true,
+                  "serializer": {
+                    "databaseId": {
+                      "database": "(default)",
+                      "projectId": "test-project"
+                    },
+                    "useProto3Json": false
+                  },
+                  "stages": [
+                    {
+                      "collectionPath": "/collection",
+                      "name": "collection"
+                    },
+                    {
+                      "condition": {
+                        "_createdFromLiteral": false,
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Function",
+                        "filterable": true,
+                        "name": "exists",
+                        "params": [
+                          {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        ]
+                      },
+                      "name": "where"
+                    },
+                    {
+                      "name": "sort",
+                      "orders": [
+                        {
+                          "_createdFromLiteral": false,
+                          "_protoValueType": "ProtoValue",
+                          "direction": "ascending",
+                          "expr": {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "queries": [
                 {
                   "filters": [
@@ -609,6 +743,74 @@
         "expectedState": {
           "activeTargets": {
             "2": {
+              "pipelines": [
+                {
+                  "isCorePipeline": true,
+                  "serializer": {
+                    "databaseId": {
+                      "database": "(default)",
+                      "projectId": "test-project"
+                    },
+                    "useProto3Json": false
+                  },
+                  "stages": [
+                    {
+                      "collectionPath": "/collection",
+                      "name": "collection"
+                    },
+                    {
+                      "condition": {
+                        "_createdFromLiteral": false,
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Function",
+                        "filterable": true,
+                        "name": "exists",
+                        "params": [
+                          {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        ]
+                      },
+                      "name": "where"
+                    },
+                    {
+                      "name": "sort",
+                      "orders": [
+                        {
+                          "_createdFromLiteral": false,
+                          "_protoValueType": "ProtoValue",
+                          "direction": "ascending",
+                          "expr": {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "queries": [
                 {
                   "filters": [
@@ -682,6 +884,72 @@
             "errorCode": 0,
             "fromCache": false,
             "hasPendingWrites": false,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/collection",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -733,6 +1001,72 @@
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/collection",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -745,6 +1079,74 @@
         "expectedState": {
           "activeTargets": {
             "2": {
+              "pipelines": [
+                {
+                  "isCorePipeline": true,
+                  "serializer": {
+                    "databaseId": {
+                      "database": "(default)",
+                      "projectId": "test-project"
+                    },
+                    "useProto3Json": false
+                  },
+                  "stages": [
+                    {
+                      "collectionPath": "/collection",
+                      "name": "collection"
+                    },
+                    {
+                      "condition": {
+                        "_createdFromLiteral": false,
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Function",
+                        "filterable": true,
+                        "name": "exists",
+                        "params": [
+                          {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        ]
+                      },
+                      "name": "where"
+                    },
+                    {
+                      "name": "sort",
+                      "orders": [
+                        {
+                          "_createdFromLiteral": false,
+                          "_protoValueType": "ProtoValue",
+                          "direction": "ascending",
+                          "expr": {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "queries": [
                 {
                   "filters": [
@@ -823,6 +1225,72 @@
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/collection",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -835,6 +1303,74 @@
         "expectedState": {
           "activeTargets": {
             "2": {
+              "pipelines": [
+                {
+                  "isCorePipeline": true,
+                  "serializer": {
+                    "databaseId": {
+                      "database": "(default)",
+                      "projectId": "test-project"
+                    },
+                    "useProto3Json": false
+                  },
+                  "stages": [
+                    {
+                      "collectionPath": "/collection",
+                      "name": "collection"
+                    },
+                    {
+                      "condition": {
+                        "_createdFromLiteral": false,
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Function",
+                        "filterable": true,
+                        "name": "exists",
+                        "params": [
+                          {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        ]
+                      },
+                      "name": "where"
+                    },
+                    {
+                      "name": "sort",
+                      "orders": [
+                        {
+                          "_createdFromLiteral": false,
+                          "_protoValueType": "ProtoValue",
+                          "direction": "ascending",
+                          "expr": {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "queries": [
                 {
                   "filters": [
@@ -875,6 +1411,74 @@
         "expectedState": {
           "activeTargets": {
             "2": {
+              "pipelines": [
+                {
+                  "isCorePipeline": true,
+                  "serializer": {
+                    "databaseId": {
+                      "database": "(default)",
+                      "projectId": "test-project"
+                    },
+                    "useProto3Json": false
+                  },
+                  "stages": [
+                    {
+                      "collectionPath": "/collection",
+                      "name": "collection"
+                    },
+                    {
+                      "condition": {
+                        "_createdFromLiteral": false,
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Function",
+                        "filterable": true,
+                        "name": "exists",
+                        "params": [
+                          {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        ]
+                      },
+                      "name": "where"
+                    },
+                    {
+                      "name": "sort",
+                      "orders": [
+                        {
+                          "_createdFromLiteral": false,
+                          "_protoValueType": "ProtoValue",
+                          "direction": "ascending",
+                          "expr": {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "queries": [
                 {
                   "filters": [
@@ -948,6 +1552,72 @@
             "errorCode": 0,
             "fromCache": false,
             "hasPendingWrites": false,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/collection",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -1004,6 +1674,72 @@
             "errorCode": 0,
             "fromCache": true,
             "hasPendingWrites": false,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/collection",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -1016,6 +1752,74 @@
         "expectedState": {
           "activeTargets": {
             "2": {
+              "pipelines": [
+                {
+                  "isCorePipeline": true,
+                  "serializer": {
+                    "databaseId": {
+                      "database": "(default)",
+                      "projectId": "test-project"
+                    },
+                    "useProto3Json": false
+                  },
+                  "stages": [
+                    {
+                      "collectionPath": "/collection",
+                      "name": "collection"
+                    },
+                    {
+                      "condition": {
+                        "_createdFromLiteral": false,
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Function",
+                        "filterable": true,
+                        "name": "exists",
+                        "params": [
+                          {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        ]
+                      },
+                      "name": "where"
+                    },
+                    {
+                      "name": "sort",
+                      "orders": [
+                        {
+                          "_createdFromLiteral": false,
+                          "_protoValueType": "ProtoValue",
+                          "direction": "ascending",
+                          "expr": {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "queries": [
                 {
                   "filters": [
@@ -1122,6 +1926,74 @@
         "expectedState": {
           "activeTargets": {
             "2": {
+              "pipelines": [
+                {
+                  "isCorePipeline": true,
+                  "serializer": {
+                    "databaseId": {
+                      "database": "(default)",
+                      "projectId": "test-project"
+                    },
+                    "useProto3Json": false
+                  },
+                  "stages": [
+                    {
+                      "collectionPath": "/users",
+                      "name": "collection"
+                    },
+                    {
+                      "condition": {
+                        "_createdFromLiteral": false,
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Function",
+                        "filterable": true,
+                        "name": "exists",
+                        "params": [
+                          {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        ]
+                      },
+                      "name": "where"
+                    },
+                    {
+                      "name": "sort",
+                      "orders": [
+                        {
+                          "_createdFromLiteral": false,
+                          "_protoValueType": "ProtoValue",
+                          "direction": "ascending",
+                          "expr": {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "queries": [
                 {
                   "filters": [
@@ -1195,6 +2067,72 @@
             "errorCode": 0,
             "fromCache": false,
             "hasPendingWrites": false,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/users",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -1231,6 +2169,72 @@
             "errorCode": 0,
             "fromCache": false,
             "hasPendingWrites": true,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/users",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -1248,6 +2252,72 @@
             "errorCode": 0,
             "fromCache": false,
             "hasPendingWrites": false,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/users",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -1274,6 +2344,74 @@
         "expectedState": {
           "activeTargets": {
             "2": {
+              "pipelines": [
+                {
+                  "isCorePipeline": true,
+                  "serializer": {
+                    "databaseId": {
+                      "database": "(default)",
+                      "projectId": "test-project"
+                    },
+                    "useProto3Json": false
+                  },
+                  "stages": [
+                    {
+                      "collectionPath": "/users",
+                      "name": "collection"
+                    },
+                    {
+                      "condition": {
+                        "_createdFromLiteral": false,
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Function",
+                        "filterable": true,
+                        "name": "exists",
+                        "params": [
+                          {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        ]
+                      },
+                      "name": "where"
+                    },
+                    {
+                      "name": "sort",
+                      "orders": [
+                        {
+                          "_createdFromLiteral": false,
+                          "_protoValueType": "ProtoValue",
+                          "direction": "ascending",
+                          "expr": {
+                            "_createdFromLiteral": false,
+                            "_fieldPath": {
+                              "len": 1,
+                              "offset": 0,
+                              "segments": [
+                                "__name__"
+                              ]
+                            },
+                            "_protoValueType": "ProtoValue",
+                            "exprType": "Field",
+                            "pipeline": null,
+                            "selectable": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
               "queries": [
                 {
                   "filters": [
@@ -1314,6 +2452,72 @@
             "errorCode": 0,
             "fromCache": false,
             "hasPendingWrites": true,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/users",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
@@ -1345,6 +2549,72 @@
             "errorCode": 0,
             "fromCache": false,
             "hasPendingWrites": true,
+            "pipeline": {
+              "isCorePipeline": true,
+              "serializer": {
+                "databaseId": {
+                  "database": "(default)",
+                  "projectId": "test-project"
+                },
+                "useProto3Json": false
+              },
+              "stages": [
+                {
+                  "collectionPath": "/users",
+                  "name": "collection"
+                },
+                {
+                  "condition": {
+                    "_createdFromLiteral": false,
+                    "_protoValueType": "ProtoValue",
+                    "exprType": "Function",
+                    "filterable": true,
+                    "name": "exists",
+                    "params": [
+                      {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    ]
+                  },
+                  "name": "where"
+                },
+                {
+                  "name": "sort",
+                  "orders": [
+                    {
+                      "_createdFromLiteral": false,
+                      "_protoValueType": "ProtoValue",
+                      "direction": "ascending",
+                      "expr": {
+                        "_createdFromLiteral": false,
+                        "_fieldPath": {
+                          "len": 1,
+                          "offset": 0,
+                          "segments": [
+                            "__name__"
+                          ]
+                        },
+                        "_protoValueType": "ProtoValue",
+                        "exprType": "Field",
+                        "pipeline": null,
+                        "selectable": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             "query": {
               "filters": [
               ],
