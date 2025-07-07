@@ -40,6 +40,7 @@ public final class UnfairLock<Value>: @unchecked Sendable {
     return _value
   }
 
+  @discardableResult
   public borrowing func withLock<Result>(_ body: (inout sending Value) throws
     -> sending Result) rethrows -> sending Result {
     lock()
@@ -47,6 +48,7 @@ public final class UnfairLock<Value>: @unchecked Sendable {
     return try body(&_value)
   }
 
+  @discardableResult
   public borrowing func withLock<Result>(_ body: (inout sending Value) -> sending Result)
     -> sending Result {
     lock()

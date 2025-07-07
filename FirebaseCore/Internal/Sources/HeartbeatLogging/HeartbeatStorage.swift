@@ -93,7 +93,7 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
 
   deinit {
     // Removes the instance if it was cached.
-    _ = Self.cachedInstances.withLock { value in
+    Self.cachedInstances.withLock { value in
       value.removeValue(forKey: id)
     }
   }
