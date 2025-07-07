@@ -28,11 +28,17 @@
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/ordering.h"
+#include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace remote {
+class Serializer;
+}
+
 namespace api {
 
 class Stage {
@@ -43,7 +49,31 @@ class Stage {
   virtual google_firestore_v1_Pipeline_Stage to_proto() const = 0;
 };
 
-class CollectionSource : public Stage {
+class EvaluateContext {
+ public:
+  explicit EvaluateContext(remote::Serializer* serializer)
+      : serializer_(serializer) {
+  }
+
+  const remote::Serializer& serializer() const {
+    return *serializer_;
+  }
+
+ private:
+  remote::Serializer* serializer_;
+};
+
+class EvaluableStage : public Stage {
+ public:
+  EvaluableStage() = default;
+  virtual ~EvaluableStage() = default;
+
+  virtual model::PipelineInputOutputVector Evaluate(
+      const EvaluateContext& context,
+      const model::PipelineInputOutputVector& inputs) const = 0;
+};
+
+class CollectionSource : public EvaluableStage {
  public:
   explicit CollectionSource(std::string path) : path_(std::move(path)) {
   }
@@ -51,16 +81,23 @@ class CollectionSource : public Stage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  model::PipelineInputOutputVector Evaluate(
+      const EvaluateContext& context,
+      const model::PipelineInputOutputVector& inputs) const override;
+
  private:
   std::string path_;
 };
 
-class DatabaseSource : public Stage {
+class DatabaseSource : public EvaluableStage {
  public:
   DatabaseSource() = default;
   ~DatabaseSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+  model::PipelineInputOutputVector Evaluate(
+      const EvaluateContext& context,
+      const model::PipelineInputOutputVector& inputs) const override;
 };
 
 class CollectionGroupSource : public Stage {
@@ -120,13 +157,16 @@ class AggregateStage : public Stage {
   std::unordered_map<std::string, std::shared_ptr<Expr>> groups_;
 };
 
-class Where : public Stage {
+class Where : public EvaluableStage {
  public:
   explicit Where(std::shared_ptr<Expr> expr) : expr_(expr) {
   }
   ~Where() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+  model::PipelineInputOutputVector Evaluate(
+      const EvaluateContext& context,
+      const model::PipelineInputOutputVector& inputs) const override;
 
  private:
   std::shared_ptr<Expr> expr_;
@@ -168,13 +208,16 @@ class FindNearestStage : public Stage {
   std::unordered_map<std::string, google_firestore_v1_Value> options_;
 };
 
-class LimitStage : public Stage {
+class LimitStage : public EvaluableStage {
  public:
   explicit LimitStage(int32_t limit) : limit_(limit) {
   }
   ~LimitStage() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+  model::PipelineInputOutputVector Evaluate(
+      const EvaluateContext& context,
+      const model::PipelineInputOutputVector& inputs) const override;
 
  private:
   int32_t limit_;
