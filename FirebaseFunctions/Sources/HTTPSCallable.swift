@@ -14,6 +14,8 @@
 
 import Foundation
 
+private import FirebaseCoreInternal
+
 /// A `HTTPSCallableResult` contains the result of calling a `HTTPSCallable`.
 @objc(FIRHTTPSCallableResult)
 open class HTTPSCallableResult: NSObject {
@@ -163,7 +165,7 @@ private extension HTTPSCallable {
 
     // MARK: - Public Properties
 
-    let _timeoutInterval: AtomicBox<TimeInterval> = .init(70)
+    let _timeoutInterval = FIRAllocatedUnfairLock<TimeInterval>(initialState: 70)
 
     /// The timeout to use when calling the function. Defaults to 70 seconds.
     var timeoutInterval: TimeInterval {
