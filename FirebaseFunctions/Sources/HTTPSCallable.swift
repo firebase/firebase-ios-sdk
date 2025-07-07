@@ -14,6 +14,8 @@
 
 import Foundation
 
+private import FirebaseCoreInternal
+
 /// A `HTTPSCallableResult` contains the result of calling a `HTTPSCallable`.
 @objc(FIRHTTPSCallableResult)
 open class HTTPSCallableResult: NSObject {

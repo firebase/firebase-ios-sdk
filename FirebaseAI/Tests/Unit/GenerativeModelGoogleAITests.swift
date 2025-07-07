@@ -198,6 +198,70 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(usageMetadata.candidatesTokensDetails[0].tokenCount, 22)
   }
 
+  func testGenerateContent_groundingMetadata() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-google-search-grounding",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
+
+    XCTAssertEqual(groundingMetadata.webSearchQueries, ["current weather in London"])
+    let searchEntryPoint = try XCTUnwrap(groundingMetadata.searchEntryPoint)
+    XCTAssertFalse(searchEntryPoint.renderedContent.isEmpty)
+
+    XCTAssertEqual(groundingMetadata.groundingChunks.count, 2)
+    let firstChunk = try XCTUnwrap(groundingMetadata.groundingChunks.first?.web)
+    XCTAssertEqual(firstChunk.title, "accuweather.com")
+    XCTAssertNotNil(firstChunk.uri)
+    XCTAssertNil(firstChunk.domain) // Domain is not supported by Google AI backend
+
+    XCTAssertEqual(groundingMetadata.groundingSupports.count, 3)
+    let firstSupport = try XCTUnwrap(groundingMetadata.groundingSupports.first)
+    let segment = try XCTUnwrap(firstSupport.segment)
+    XCTAssertEqual(segment.text, "The current weather in London, United Kingdom is cloudy.")
+    XCTAssertEqual(segment.startIndex, 0)
+    XCTAssertEqual(segment.partIndex, 0)
+    XCTAssertEqual(segment.endIndex, 56)
+    XCTAssertEqual(firstSupport.groundingChunkIndices, [0])
+  }
+
+  // This test case can be deleted once https://b.corp.google.com/issues/422779395 (internal) is
+  // fixed.
+  func testGenerateContent_groundingMetadata_emptyGroundingChunks() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-google-search-grounding-empty-grounding-chunks",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
+    XCTAssertNotNil(groundingMetadata.searchEntryPoint)
+    XCTAssertEqual(groundingMetadata.webSearchQueries, ["current weather London"])
+
+    // Chunks exist, but contain no web information.
+    XCTAssertEqual(groundingMetadata.groundingChunks.count, 2)
+    XCTAssertNil(groundingMetadata.groundingChunks[0].web)
+    XCTAssertNil(groundingMetadata.groundingChunks[1].web)
+
+    XCTAssertEqual(groundingMetadata.groundingSupports.count, 1)
+    let support = try XCTUnwrap(groundingMetadata.groundingSupports.first)
+    XCTAssertEqual(support.groundingChunkIndices, [0])
+    XCTAssertEqual(
+      support.segment.text,
+      "There is a 0% chance of rain and the humidity is around 41%."
+    )
+  }
+
   func testGenerateContent_failure_invalidAPIKey() async throws {
     let expectedStatusCode = 400
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
