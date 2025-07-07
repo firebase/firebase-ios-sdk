@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/expressions_eval.h"  // For EvaluateResult, CoreEq etc.
-
 #include <initializer_list>
 #include <limits>
 #include <memory>
@@ -24,6 +22,7 @@
 #include <vector>
 
 #include "Firestore/core/src/api/expressions.h"  // Include for api::Constant, api::Field
+#include "Firestore/core/src/core/expressions_eval.h"  // For EvaluateResult, CoreEq etc.
 #include "Firestore/core/src/model/database_id.h"   // For DatabaseId
 #include "Firestore/core/src/model/document_key.h"  // For DocumentKey
 #include "Firestore/core/src/model/value_util.h"  // For value constants like NaNValue, TypeOrder, NullValue, CanonicalId, Equals

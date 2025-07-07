@@ -248,6 +248,14 @@ google_firestore_v1_Value MinMap();
 nanopb::Message<google_firestore_v1_Value> RefValue(
     const DatabaseId& database_id, const DocumentKey& document_key);
 
+/**
+ * Returns a Protobuf array value representing the given values.
+ *
+ * This function owns the passed in vector and might move the values out.
+ */
+nanopb::Message<google_firestore_v1_Value> ArrayValue(
+    std::vector<nanopb::Message<google_firestore_v1_Value>> values);
+
 /** Creates a copy of the contents of the Value proto. */
 nanopb::Message<google_firestore_v1_Value> DeepClone(
     const google_firestore_v1_Value& source);

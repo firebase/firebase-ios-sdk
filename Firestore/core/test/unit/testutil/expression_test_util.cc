@@ -17,7 +17,6 @@
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
 
 #include <limits>  // For std::numeric_limits
-#include <limits>  // Required for numeric_limits
 #include <memory>  // For std::shared_ptr
 #include <vector>
 
@@ -82,14 +81,14 @@ const std::vector<std::shared_ptr<Expr>>
         // C++
         SharedConstant("santé"), SharedConstant("santé et bonheur")};
 
-const std::vector<std::shared_ptr<Expr>> ComparisonValueTestData::BYTE_VALUES =
-    {
+const auto ComparisonValueTestData::BYTE_VALUES =
+    std::vector<std::shared_ptr<Expr>>{
         SharedConstant(*BlobValue()),  // Empty - use default constructor
         SharedConstant(*BlobValue(0, 2, 56, 42)),  // Use variadic args
         SharedConstant(*BlobValue(2, 26)),         // Use variadic args
         SharedConstant(*BlobValue(2, 26, 31)),     // Use variadic args
         // SharedConstant(*BlobValue(std::vector<uint8_t>(...))), // Large blob
-};
+    };
 
 const std::vector<std::shared_ptr<Expr>>
     ComparisonValueTestData::ENTITY_REF_VALUES = {
