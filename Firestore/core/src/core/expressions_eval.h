@@ -18,16 +18,22 @@
 #define FIRESTORE_CORE_SRC_CORE_EXPRESSIONS_EVAL_H_
 
 #include <memory>
+#include <string>
 #include <utility>
-
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
+
+// Forward declaration removed, definition moved below
 
 /** Represents the result of evaluating an expression. */
 class EvaluateResult {
@@ -218,74 +224,94 @@ class CoreGte : public ComparisonBase {
                                  const EvaluateResult& right) const override;
 };
 
-class CoreAdd : public EvaluableExpr {
+// --- Base Class for Arithmetic Operations ---
+class ArithmeticBase : public EvaluableExpr {
  public:
-  explicit CoreAdd(const api::FunctionExpr& expr)
+  explicit ArithmeticBase(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
+  ~ArithmeticBase() override = default;
 
+  // Implementation is inline below
   EvaluateResult Evaluate(
       const api::EvaluateContext& context,
       const model::PipelineInputOutput& document) const override;
 
- private:
+ protected:
+  // Performs the specific integer operation (e.g., add, subtract).
+  // Returns Error result on overflow or invalid operation (like div/mod by
+  // zero).
+  virtual EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                                 int64_t rhs) const = 0;
+
+  // Performs the specific double operation.
+  // Returns Error result on invalid operation (like div/mod by zero).
+  virtual EvaluateResult PerformDoubleOperation(double lhs,
+                                                double rhs) const = 0;
+
+  // Applies the arithmetic operation between two evaluated results.
+  // Mirrors the logic from TypeScript's applyArithmetics.
+  // Implementation is inline below
+  EvaluateResult ApplyOperation(const EvaluateResult& left,
+                                const EvaluateResult& right) const;
+
   std::unique_ptr<api::FunctionExpr> expr_;
 };
+// --- End Base Class for Arithmetic Operations ---
 
-class CoreSubtract : public EvaluableExpr {
+class CoreAdd : public ArithmeticBase {
  public:
-  explicit CoreSubtract(const api::FunctionExpr& expr)
-      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  explicit CoreAdd(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
-  EvaluateResult Evaluate(
-      const api::EvaluateContext& context,
-      const model::PipelineInputOutput& document) const override;
-
- private:
-  std::unique_ptr<api::FunctionExpr> expr_;
+ protected:
+  EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                         int64_t rhs) const override;
+  EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class CoreMultiply : public EvaluableExpr {
+class CoreSubtract : public ArithmeticBase {
  public:
-  explicit CoreMultiply(const api::FunctionExpr& expr)
-      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  explicit CoreSubtract(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
-  EvaluateResult Evaluate(
-      const api::EvaluateContext& context,
-      const model::PipelineInputOutput& document) const override;
-
- private:
-  std::unique_ptr<api::FunctionExpr> expr_;
+ protected:
+  EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                         int64_t rhs) const override;
+  EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class CoreDivide : public EvaluableExpr {
+class CoreMultiply : public ArithmeticBase {
  public:
-  explicit CoreDivide(const api::FunctionExpr& expr)
-      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  explicit CoreMultiply(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
-  EvaluateResult Evaluate(
-      const api::EvaluateContext& context,
-      const model::PipelineInputOutput& document) const override;
-
- private:
-  std::unique_ptr<api::FunctionExpr> expr_;
+ protected:
+  EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                         int64_t rhs) const override;
+  EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class CoreMod : public EvaluableExpr {
+class CoreDivide : public ArithmeticBase {
  public:
-  explicit CoreMod(const api::FunctionExpr& expr)
-      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  explicit CoreDivide(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
-  EvaluateResult Evaluate(
-      const api::EvaluateContext& context,
-      const model::PipelineInputOutput& document) const override;
+ protected:
+  EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                         int64_t rhs) const override;
+  EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
+};
 
- private:
-  std::unique_ptr<api::FunctionExpr> expr_;
+class CoreMod : public ArithmeticBase {
+ public:
+  explicit CoreMod(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                         int64_t rhs) const override;
+  EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
 // --- Array Expressions ---
@@ -345,6 +371,202 @@ class CoreArrayContainsAny : public EvaluableExpr {
 class CoreArrayLength : public EvaluableExpr {
  public:
   explicit CoreArrayLength(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+// --- String Expressions ---
+
+/** Base class for binary string search functions (starts_with, ends_with,
+ * str_contains). */
+class StringSearchBase : public EvaluableExpr {
+ public:
+  explicit StringSearchBase(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ protected:
+  /**
+   * Performs the specific string search logic after operands have been
+   * evaluated and basic checks (Error, Unset, Null, Type) have passed.
+   */
+  virtual EvaluateResult PerformSearch(const std::string& value,
+                                       const std::string& search) const = 0;
+
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreByteLength : public EvaluableExpr {
+ public:
+  explicit CoreByteLength(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreCharLength : public EvaluableExpr {
+ public:
+  explicit CoreCharLength(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreStrConcat : public EvaluableExpr {
+ public:
+  explicit CoreStrConcat(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreEndsWith : public StringSearchBase {
+ public:
+  explicit CoreEndsWith(const api::FunctionExpr& expr)
+      : StringSearchBase(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformSearch(const std::string& value,
+                               const std::string& search) const override;
+};
+
+class CoreStartsWith : public StringSearchBase {
+ public:
+  explicit CoreStartsWith(const api::FunctionExpr& expr)
+      : StringSearchBase(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformSearch(const std::string& value,
+                               const std::string& search) const override;
+};
+
+class CoreStrContains : public StringSearchBase {
+ public:
+  explicit CoreStrContains(const api::FunctionExpr& expr)
+      : StringSearchBase(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformSearch(const std::string& value,
+                               const std::string& search) const override;
+};
+
+class CoreToLower : public EvaluableExpr {
+ public:
+  explicit CoreToLower(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreToUpper : public EvaluableExpr {
+ public:
+  explicit CoreToUpper(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreTrim : public EvaluableExpr {
+ public:
+  explicit CoreTrim(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreReverse : public EvaluableExpr {
+ public:
+  explicit CoreReverse(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreRegexContains : public StringSearchBase {
+ public:
+  explicit CoreRegexContains(const api::FunctionExpr& expr)
+      : StringSearchBase(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformSearch(const std::string& value,
+                               const std::string& search) const override;
+};
+
+class CoreRegexMatch : public StringSearchBase {
+ public:
+  explicit CoreRegexMatch(const api::FunctionExpr& expr)
+      : StringSearchBase(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformSearch(const std::string& value,
+                               const std::string& search) const override;
+};
+
+class CoreLike : public StringSearchBase {
+ public:
+  explicit CoreLike(const api::FunctionExpr& expr) : StringSearchBase(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformSearch(const std::string& value,
+                               const std::string& search) const override;
+};
+
+// --- Map Expressions ---
+
+class CoreMapGet : public EvaluableExpr {
+ public:
+  explicit CoreMapGet(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -552,6 +774,134 @@ class CoreNot : public EvaluableExpr {
 
  private:
   std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+// --- Timestamp Expressions ---
+
+/** Base class for converting Unix time (micros/millis/seconds) to Timestamp. */
+class UnixToTimestampBase : public EvaluableExpr {
+ public:
+  explicit UnixToTimestampBase(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ protected:
+  /** Performs the specific conversion logic after input validation. */
+  virtual EvaluateResult ToTimestamp(int64_t value) const = 0;
+
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+// Note: Implementations are in expressions_eval.cc
+class CoreUnixMicrosToTimestamp : public UnixToTimestampBase {
+ public:
+  explicit CoreUnixMicrosToTimestamp(const api::FunctionExpr& expr);
+
+ protected:
+  EvaluateResult ToTimestamp(int64_t value) const override;
+};
+
+class CoreUnixMillisToTimestamp : public UnixToTimestampBase {
+ public:
+  explicit CoreUnixMillisToTimestamp(const api::FunctionExpr& expr);
+
+ protected:
+  EvaluateResult ToTimestamp(int64_t value) const override;
+};
+
+class CoreUnixSecondsToTimestamp : public UnixToTimestampBase {
+ public:
+  explicit CoreUnixSecondsToTimestamp(const api::FunctionExpr& expr);
+
+ protected:
+  EvaluateResult ToTimestamp(int64_t value) const override;
+};
+
+/** Base class for converting Timestamp to Unix time (micros/millis/seconds). */
+class TimestampToUnixBase : public EvaluableExpr {
+ public:
+  explicit TimestampToUnixBase(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ protected:
+  /** Performs the specific conversion logic after input validation. */
+  virtual EvaluateResult ToUnix(
+      const google_protobuf_Timestamp& ts) const = 0;  // Use protobuf type
+
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+// Note: Implementations are in expressions_eval.cc
+class CoreTimestampToUnixMicros : public TimestampToUnixBase {
+ public:
+  explicit CoreTimestampToUnixMicros(const api::FunctionExpr& expr);
+
+ protected:
+  EvaluateResult ToUnix(const google_protobuf_Timestamp& ts) const override;
+};
+
+class CoreTimestampToUnixMillis : public TimestampToUnixBase {
+ public:
+  explicit CoreTimestampToUnixMillis(const api::FunctionExpr& expr);
+
+ protected:
+  EvaluateResult ToUnix(const google_protobuf_Timestamp& ts) const override;
+};
+
+class CoreTimestampToUnixSeconds : public TimestampToUnixBase {
+ public:
+  explicit CoreTimestampToUnixSeconds(const api::FunctionExpr& expr);
+
+ protected:
+  EvaluateResult ToUnix(const google_protobuf_Timestamp& ts) const override;
+};
+
+/** Base class for timestamp arithmetic (add/sub). */
+class TimestampArithmeticBase : public EvaluableExpr {
+ public:
+  explicit TimestampArithmeticBase(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ protected:
+  /** Performs the specific arithmetic operation. */
+  // Return optional<int64> as int128 is not needed and adds complexity
+  virtual absl::optional<int64_t> PerformArithmetic(
+      int64_t initial_micros, int64_t micros_to_operate) const = 0;
+
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+// Note: Implementations are in expressions_eval.cc
+class CoreTimestampAdd : public TimestampArithmeticBase {
+ public:
+  explicit CoreTimestampAdd(const api::FunctionExpr& expr);
+
+ protected:
+  absl::optional<int64_t> PerformArithmetic(
+      int64_t initial_micros, int64_t micros_to_operate) const override;
+};
+
+class CoreTimestampSub : public TimestampArithmeticBase {
+ public:
+  explicit CoreTimestampSub(const api::FunctionExpr& expr);
+
+ protected:
+  absl::optional<int64_t> PerformArithmetic(
+      int64_t initial_micros, int64_t micros_to_operate) const override;
 };
 
 /**

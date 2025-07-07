@@ -17,12 +17,17 @@
 #include "Firestore/core/src/core/expressions_eval.h"
 
 #include <algorithm>  // For std::reverse
+#include <cctype>
 #include <cmath>
-#include <limits>
+#include <functional>  // Added for std::function
+#include <limits>      // For std::numeric_limits
+#include <locale>
 #include <memory>
+#include <string>
 #include <utility>  // For std::move
 #include <vector>   // For std::vector
 
+// Ensure timestamp proto is included
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/model/mutable_document.h"
@@ -30,7 +35,13 @@
 #include "Firestore/core/src/nanopb/message.h"  // Added for MakeMessage
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "absl/strings/ascii.h"  // For AsciiStrToLower/ToUpper (if needed later)
+#include "absl/strings/internal/utf8.h"
+#include "absl/strings/match.h"    // For StartsWith, EndsWith, StrContains
+#include "absl/strings/str_cat.h"  // For StrAppend
+#include "absl/strings/strip.h"    // For StripAsciiWhitespace
 #include "absl/types/optional.h"
+#include "re2/re2.h"
 
 namespace firebase {
 namespace firestore {
@@ -119,16 +130,6 @@ absl::optional<int64_t> SafeMod(int64_t lhs, int64_t rhs) {
   return lhs % rhs;
 }
 
-// Helper to get double value, converting integer if necessary.
-absl::optional<double> GetDoubleValue(const google_firestore_v1_Value& value) {
-  if (model::IsDouble(value)) {
-    return value.double_value;
-  } else if (model::IsInteger(value)) {
-    return static_cast<double>(value.integer_value);
-  }
-  return absl::nullopt;
-}
-
 // Helper to create a Value proto from int64_t
 nanopb::Message<google_firestore_v1_Value> IntValue(int64_t val) {
   google_firestore_v1_Value proto;
@@ -143,92 +144,6 @@ nanopb::Message<google_firestore_v1_Value> DoubleValue(double val) {
   proto.which_value_type = google_firestore_v1_Value_double_value_tag;
   proto.double_value = val;
   return nanopb::MakeMessage(std::move(proto));
-}
-
-// Common evaluation logic for binary arithmetic operations
-template <typename IntOp, typename DoubleOp>
-EvaluateResult EvaluateArithmetic(const api::FunctionExpr* expr,
-                                  const api::EvaluateContext& context,
-                                  const model::PipelineInputOutput& document,
-                                  IntOp int_op,
-                                  DoubleOp double_op) {
-  HARD_ASSERT(expr->params().size() >= 2,
-              "%s() function requires at least 2 params", expr->name());
-
-  EvaluateResult current_result =
-      expr->params()[0]->ToEvaluable()->Evaluate(context, document);
-
-  for (size_t i = 1; i < expr->params().size(); ++i) {
-    if (current_result.IsErrorOrUnset()) {
-      return EvaluateResult::NewError();
-    }
-    if (current_result.IsNull()) {
-      // Null propagates
-      return EvaluateResult::NewNull();
-    }
-
-    EvaluateResult next_operand =
-        expr->params()[i]->ToEvaluable()->Evaluate(context, document);
-
-    if (next_operand.IsErrorOrUnset()) {
-      return EvaluateResult::NewError();
-    }
-    if (next_operand.IsNull()) {
-      // Null propagates
-      return EvaluateResult::NewNull();
-    }
-
-    const google_firestore_v1_Value* left_val = current_result.value();
-    const google_firestore_v1_Value* right_val = next_operand.value();
-
-    // Type checking
-    bool left_is_num = model::IsNumber(*left_val);
-    bool right_is_num = model::IsNumber(*right_val);
-
-    if (!left_is_num || !right_is_num) {
-      return EvaluateResult::NewError();  // Type error
-    }
-
-    // NaN propagation
-    if (model::IsNaNValue(*left_val) || model::IsNaNValue(*right_val)) {
-      current_result =
-          EvaluateResult::NewValue(nanopb::MakeMessage(model::NaNValue()));
-      continue;
-    }
-
-    // Perform arithmetic
-    if (model::IsDouble(*left_val) || model::IsDouble(*right_val)) {
-      // Promote to double
-      absl::optional<double> left_double = GetDoubleValue(*left_val);
-      absl::optional<double> right_double = GetDoubleValue(*right_val);
-      // Should always succeed due to IsNumber check above
-      HARD_ASSERT(left_double.has_value() && right_double.has_value(),
-                  "Failed to extract double values");
-
-      double result_double =
-          double_op(left_double.value(), right_double.value());
-      current_result = EvaluateResult::NewValue(DoubleValue(result_double));
-
-    } else {
-      // Both are integers
-      absl::optional<int64_t> left_int = model::GetInteger(*left_val);
-      absl::optional<int64_t> right_int = model::GetInteger(*right_val);
-      // Should always succeed due to IsNumber check above
-      HARD_ASSERT(left_int.has_value() && right_int.has_value(),
-                  "Failed to extract integer values");
-
-      absl::optional<int64_t> result_int =
-          int_op(left_int.value(), right_int.value());
-
-      if (!result_int.has_value()) {
-        // Overflow or division/mod by zero
-        return EvaluateResult::NewError();
-      }
-      current_result = EvaluateResult::NewValue(IntValue(result_int.value()));
-    }
-  }
-
-  return current_result;
 }
 
 }  // anonymous namespace
@@ -347,8 +262,52 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreLogicalMaximum>(function);
   } else if (function.name() == "logical_minimum") {
     return std::make_unique<CoreLogicalMinimum>(function);
+  } else if (function.name() == "map_get") {
+    return std::make_unique<CoreMapGet>(function);
+  } else if (function.name() == "byte_length") {
+    return std::make_unique<CoreByteLength>(function);
+  } else if (function.name() == "char_length") {
+    return std::make_unique<CoreCharLength>(function);
+  } else if (function.name() == "str_concat") {
+    return std::make_unique<CoreStrConcat>(function);
+  } else if (function.name() == "ends_with") {
+    return std::make_unique<CoreEndsWith>(function);
+  } else if (function.name() == "starts_with") {
+    return std::make_unique<CoreStartsWith>(function);
+  } else if (function.name() == "str_contains") {
+    return std::make_unique<CoreStrContains>(function);
+  } else if (function.name() == "to_lower") {
+    return std::make_unique<CoreToLower>(function);
+  } else if (function.name() == "to_upper") {
+    return std::make_unique<CoreToUpper>(function);
+  } else if (function.name() == "trim") {
+    return std::make_unique<CoreTrim>(function);
+  } else if (function.name() == "reverse") {
+    // Note: This handles string reverse. Array reverse is separate.
+    return std::make_unique<CoreReverse>(function);
+  } else if (function.name() == "regex_contains") {
+    return std::make_unique<CoreRegexContains>(function);
+  } else if (function.name() == "regex_match") {
+    return std::make_unique<CoreRegexMatch>(function);
+  } else if (function.name() == "like") {
+    return std::make_unique<CoreLike>(function);
+  } else if (function.name() == "unix_micros_to_timestamp") {
+    return std::make_unique<CoreUnixMicrosToTimestamp>(function);
+  } else if (function.name() == "unix_millis_to_timestamp") {
+    return std::make_unique<CoreUnixMillisToTimestamp>(function);
+  } else if (function.name() == "unix_seconds_to_timestamp") {
+    return std::make_unique<CoreUnixSecondsToTimestamp>(function);
+  } else if (function.name() == "timestamp_to_unix_micros") {
+    return std::make_unique<CoreTimestampToUnixMicros>(function);
+  } else if (function.name() == "timestamp_to_unix_millis") {
+    return std::make_unique<CoreTimestampToUnixMillis>(function);
+  } else if (function.name() == "timestamp_to_unix_seconds") {
+    return std::make_unique<CoreTimestampToUnixSeconds>(function);
+  } else if (function.name() == "timestamp_add") {
+    return std::make_unique<CoreTimestampAdd>(function);
+  } else if (function.name() == "timestamp_sub") {
+    return std::make_unique<CoreTimestampSub>(function);
   }
-  // TODO(wuandy): Add other non-array/logical functions
 
   HARD_FAIL("Unsupported function name: %s", function.name());
 }
@@ -404,17 +363,27 @@ EvaluateResult ComparisonBase::Evaluate(
 
   std::unique_ptr<EvaluableExpr> left_evaluable =
       expr_->params()[0]->ToEvaluable();
-  std::unique_ptr<EvaluableExpr> right_evaluable =
-      expr_->params()[1]->ToEvaluable();
-
   EvaluateResult left = left_evaluable->Evaluate(context, document);
-  if (left.IsErrorOrUnset()) {
-    return left;  // Propagate Error or Unset
+
+  switch (left.type()) {
+    case EvaluateResult::ResultType::kError:
+    case EvaluateResult::ResultType::kUnset: {
+      return EvaluateResult::NewError();
+    }
+    default:
+      break;
   }
 
+  std::unique_ptr<EvaluableExpr> right_evaluable =
+      expr_->params()[1]->ToEvaluable();
   EvaluateResult right = right_evaluable->Evaluate(context, document);
-  if (right.IsErrorOrUnset()) {
-    return right;  // Propagate Error or Unset
+  switch (right.type()) {
+    case EvaluateResult::ResultType::kError:
+    case EvaluateResult::ResultType::kUnset: {
+      return EvaluateResult::NewError();
+    }
+    default:
+      break;
   }
 
   // Comparisons involving Null propagate Null
@@ -556,66 +525,695 @@ EvaluateResult CoreGte::CompareToResult(const EvaluateResult& left,
       nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
 }
 
+// --- String Expression Implementations ---
+
+namespace {
+
+/**
+ * @brief Validates a string as UTF-8 and process the Unicode code points.
+ *
+ * Iterates through the byte sequence of the input string, performing
+ * full UTF-8 validation checks:
+ * - Correct number of continuation bytes.
+ * - Correct format of continuation bytes (10xxxxxx).
+ * - No overlong encodings (e.g., encoding '/' as 2 bytes).
+ * - Decoded code points are within the valid Unicode range
+ * (U+0000-U+D7FF and U+E000-U+10FFFF), excluding surrogates.
+ *
+ * @tparam T The type of the result accumulator.
+ * @param s The input string (byte sequence) to validate.
+ * @param result A pointer to the result accumulator, updated by `func`.
+ * @param func A function `void(T* result, uint32_t code_point,
+ * absl::string_view utf8_bytes)` called for each valid code point, providing
+ * the code point and its UTF-8 byte representation.
+ * @return `true` if the string is valid UTF-8, `false` otherwise.
+ */
+template <typename T>
+bool ProcessUtf8(const std::string& s,
+                 T* result,
+                 std::function<void(T*, uint32_t, absl::string_view)> func) {
+  int i = 0;
+  const int len = s.size();
+  const unsigned char* data = reinterpret_cast<const unsigned char*>(s.data());
+
+  while (i < len) {
+    uint32_t code_point = 0;  // To store the decoded code point
+    int num_bytes = 0;
+    const unsigned char start_byte = data[i];
+
+    // 1. Determine expected sequence length and initial code point bits
+    if ((start_byte & 0x80) == 0) {  // 1-byte sequence (ASCII 0xxxxxxx)
+      num_bytes = 1;
+      code_point = start_byte;
+      // Overlong check: Not possible for 1-byte sequences
+      // Range check: ASCII is always valid (0x00-0x7F)
+    } else if ((start_byte & 0xE0) == 0xC0) {  // 2-byte sequence (110xxxxx)
+      num_bytes = 2;
+      code_point = start_byte & 0x1F;  // Mask out 110xxxxx
+      // Overlong check: Must not represent code points < 0x80
+      // Also, C0 and C1 are specifically invalid start bytes
+      if (start_byte < 0xC2) {
+        return false;  // C0, C1 are invalid starts
+      }
+    } else if ((start_byte & 0xF0) == 0xE0) {  // 3-byte sequence (1110xxxx)
+      num_bytes = 3;
+      code_point = start_byte & 0x0F;          // Mask out 1110xxxx
+    } else if ((start_byte & 0xF8) == 0xF0) {  // 4-byte sequence (11110xxx)
+      num_bytes = 4;
+      code_point =
+          start_byte & 0x07;  // Mask out 11110xxx
+                              // Overlong check: Must not represent code points
+                              // < 0x10000 Range check: Must not represent code
+                              // points > 0x10FFFF F4 90.. BF.. is > 0x10FFFF
+      if (start_byte > 0xF4) {
+        return false;
+      }
+    } else {
+      return false;  // Invalid start byte (e.g., 10xxxxxx or > F4)
+    }
+
+    // 2. Check for incomplete sequence
+    if (i + num_bytes > len) {
+      return false;  // Sequence extends beyond string end
+    }
+
+    // 3. Check and process continuation bytes (if any)
+    for (int j = 1; j < num_bytes; ++j) {
+      const unsigned char continuation_byte = data[i + j];
+      if ((continuation_byte & 0xC0) != 0x80) {
+        return false;  // Not a valid continuation byte (10xxxxxx)
+      }
+      // Combine bits into the code point
+      code_point = (code_point << 6) | (continuation_byte & 0x3F);
+    }
+
+    // 4. Perform Overlong and Range Checks based on the fully decoded
+    // code_point
+    if (num_bytes == 2 && code_point < 0x80) {
+      return false;  // Overlong encoding (should have been 1 byte)
+    }
+    if (num_bytes == 3 && code_point < 0x800) {
+      // Specific check for 0xE0 0x80..0x9F .. sequences (overlong)
+      if (start_byte == 0xE0 && (data[i + 1] & 0xFF) < 0xA0) {
+        return false;
+      }
+      return false;  // Overlong encoding (should have been 1 or 2 bytes)
+    }
+    if (num_bytes == 4 && code_point < 0x10000) {
+      // Specific check for 0xF0 0x80..0x8F .. sequences (overlong)
+      if (start_byte == 0xF0 && (data[i + 1] & 0xFF) < 0x90) {
+        return false;
+      }
+      return false;  // Overlong encoding (should have been 1, 2 or 3 bytes)
+    }
+
+    // Check for surrogates (U+D800 to U+DFFF)
+    if (code_point >= 0xD800 && code_point <= 0xDFFF) {
+      return false;
+    }
+
+    // Check for code points beyond the Unicode maximum (U+10FFFF)
+    if (code_point > 0x10FFFF) {
+      // Specific check for 0xF4 90..BF .. sequences (> U+10FFFF)
+      if (start_byte == 0xF4 && (data[i + 1] & 0xFF) > 0x8F) {
+        return false;
+      }
+      return false;
+    }
+
+    // 5. If all checks passed, call the function and advance index
+    absl::string_view utf8_bytes(s.data() + i, num_bytes);
+    func(result, code_point, utf8_bytes);
+    i += num_bytes;
+  }
+
+  return true;  // String is valid UTF-8
+}
+
+// Helper function to convert SQL LIKE patterns to RE2 regex patterns.
+// Handles % (matches any sequence of zero or more characters)
+// and _ (matches any single character).
+// Escapes other regex special characters.
+std::string LikeToRegex(const std::string& like_pattern) {
+  std::string regex_pattern = "^";  // Anchor at the start
+  for (char c : like_pattern) {
+    switch (c) {
+      case '%':
+        regex_pattern += ".*";
+        break;
+      case '_':
+        regex_pattern += ".";
+        break;
+      // Escape RE2 special characters
+      case '\\':
+      case '.':
+      case '*':
+      case '+':
+      case '?':
+      case '(':
+      case ')':
+      case '|':
+      case '{':
+      case '}':
+      case '[':
+      case ']':
+      case '^':
+      case '$':
+        regex_pattern += '\\';
+        regex_pattern += c;
+        break;
+      default:
+        regex_pattern += c;
+        break;
+    }
+  }
+  regex_pattern += '$';  // Anchor at the end
+  return regex_pattern;
+}
+
+}  // anonymous namespace
+
+EvaluateResult StringSearchBase::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 2,
+              "%s() function requires exactly 2 params", expr_->name());
+
+  bool has_null = false;
+  EvaluateResult op1 =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+  switch (op1.type()) {
+    case EvaluateResult::ResultType::kString: {
+      break;
+    }
+    case EvaluateResult::ResultType::kNull: {
+      has_null = true;
+      break;
+    }
+    default: {
+      return EvaluateResult::NewError();
+    }
+  }
+
+  EvaluateResult op2 =
+      expr_->params()[1]->ToEvaluable()->Evaluate(context, document);
+  switch (op2.type()) {
+    case EvaluateResult::ResultType::kString: {
+      break;
+    }
+    case EvaluateResult::ResultType::kNull: {
+      has_null = true;
+      break;
+    }
+    default: {
+      return EvaluateResult::NewError();
+    }
+  }
+
+  // Null propagation
+  if (has_null) {
+    return EvaluateResult::NewNull();
+  }
+
+  // Both operands are valid strings, perform the specific search
+  std::string value_str = nanopb::MakeString(op1.value()->string_value);
+  std::string search_str = nanopb::MakeString(op2.value()->string_value);
+
+  return PerformSearch(value_str, search_str);
+}
+
+EvaluateResult CoreRegexContains::PerformSearch(
+    const std::string& value, const std::string& search) const {
+  re2::RE2 re(search);
+  if (!re.ok()) {
+    // TODO(wuandy): Log warning about invalid regex?
+    return EvaluateResult::NewError();
+  }
+  bool result = RE2::PartialMatch(value, re);
+  return EvaluateResult::NewValue(
+      nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
+}
+
+EvaluateResult CoreRegexMatch::PerformSearch(const std::string& value,
+                                             const std::string& search) const {
+  re2::RE2 re(search);
+  if (!re.ok()) {
+    // TODO(wuandy): Log warning about invalid regex?
+    return EvaluateResult::NewError();
+  }
+  bool result = RE2::FullMatch(value, re);
+  return EvaluateResult::NewValue(
+      nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
+}
+
+EvaluateResult CoreLike::PerformSearch(const std::string& value,
+                                       const std::string& search) const {
+  std::string regex_pattern = LikeToRegex(search);
+  re2::RE2 re(regex_pattern);
+  // LikeToRegex should ideally produce valid regex, but check anyway.
+  if (!re.ok()) {
+    // TODO(wuandy): Log warning about failed LIKE conversion?
+    return EvaluateResult::NewError();
+  }
+  // LIKE implies matching the entire string
+  bool result = RE2::FullMatch(value, re);
+  return EvaluateResult::NewValue(
+      nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
+}
+
+EvaluateResult CoreByteLength::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 1,
+              "byte_length() requires exactly 1 param");
+  EvaluateResult evaluated =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  switch (evaluated.type()) {
+    case EvaluateResult::ResultType::kString: {
+      const auto str = nanopb::MakeString(evaluated.value()->string_value);
+      // Validate UTF-8 using the generic function with a no-op lambda
+      bool dummy_result = false;  // Result accumulator not needed here
+      bool is_valid_utf8 = ProcessUtf8<bool>(
+          str, &dummy_result,
+          [](bool*, uint32_t, absl::string_view) { /* no-op */ });
+
+      if (is_valid_utf8) {
+        return EvaluateResult::NewValue(IntValue(str.size()));
+      } else {
+        return EvaluateResult::NewError();  // Invalid UTF-8
+      }
+    }
+    case EvaluateResult::ResultType::kBytes: {
+      const size_t len = evaluated.value()->bytes_value == nullptr
+                             ? 0
+                             : evaluated.value()->bytes_value->size;
+      return EvaluateResult::NewValue(IntValue(len));
+    }
+    case EvaluateResult::ResultType::kNull:
+      return EvaluateResult::NewNull();
+    default:
+      return EvaluateResult::NewError();  // Type mismatch or Error/Unset
+  }
+}
+
+EvaluateResult CoreCharLength::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 1,
+              "char_length() requires exactly 1 param");
+  EvaluateResult evaluated =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  switch (evaluated.type()) {
+    case EvaluateResult::ResultType::kString: {
+      const auto str = nanopb::MakeString(evaluated.value()->string_value);
+      // Count codepoints using the generic function
+      int char_count = 0;
+      bool is_valid_utf8 = ProcessUtf8<int>(
+          str, &char_count,
+          [](int* count, uint32_t, absl::string_view) { (*count)++; });
+
+      if (is_valid_utf8) {
+        return EvaluateResult::NewValue(IntValue(char_count));
+      } else {
+        return EvaluateResult::NewError();  // Invalid UTF-8
+      }
+    }
+    case EvaluateResult::ResultType::kNull:
+      return EvaluateResult::NewNull();
+    default:
+      return EvaluateResult::NewError();  // Type mismatch or Error/Unset
+  }
+}
+
+EvaluateResult CoreStrConcat::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  std::string result_string;
+
+  bool found_null = false;
+  for (const auto& param : expr_->params()) {
+    EvaluateResult evaluated =
+        param->ToEvaluable()->Evaluate(context, document);
+    switch (evaluated.type()) {
+      case EvaluateResult::ResultType::kString: {
+        absl::StrAppend(&result_string,
+                        nanopb::MakeString(evaluated.value()->string_value));
+        break;
+      }
+      case EvaluateResult::ResultType::kNull: {
+        found_null = true;
+        break;
+      }
+      default:
+        return EvaluateResult::NewError();  // Type mismatch or Error/Unset
+    }
+  }
+
+  if (found_null) {
+    return EvaluateResult::NewNull();
+  }
+
+  return EvaluateResult::NewValue(model::StringValue(result_string));
+}
+
+EvaluateResult CoreEndsWith::PerformSearch(const std::string& value,
+                                           const std::string& search) const {
+  // Use absl::EndsWith
+  bool result = absl::EndsWith(value, search);
+  return EvaluateResult::NewValue(
+      nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
+}
+
+EvaluateResult CoreStartsWith::PerformSearch(const std::string& value,
+                                             const std::string& search) const {
+  // Use absl::StartsWith
+  bool result = absl::StartsWith(value, search);
+  return EvaluateResult::NewValue(
+      nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
+}
+
+EvaluateResult CoreStrContains::PerformSearch(const std::string& value,
+                                              const std::string& search) const {
+  // Use absl::StrContains
+  bool result = absl::StrContains(value, search);
+  return EvaluateResult::NewValue(
+      nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
+}
+
+EvaluateResult CoreToLower::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 1,
+              "to_lower() requires exactly 1 param");
+  EvaluateResult evaluated =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  switch (evaluated.type()) {
+    case EvaluateResult::ResultType::kString: {
+      std::locale locale{"en_US.UTF-8"};
+      std::string str = nanopb::MakeString(evaluated.value()->string_value);
+      std::transform(str.begin(), str.end(), str.begin(),
+                     [&locale](char c) { return std::tolower(c, locale); });
+      return EvaluateResult::NewValue(model::StringValue(str));
+    }
+    case EvaluateResult::ResultType::kNull:
+      return EvaluateResult::NewNull();
+    default:
+      return EvaluateResult::NewError();  // Type mismatch or Error/Unset
+  }
+}
+EvaluateResult CoreToUpper::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 1,
+              "to_upper() requires exactly 1 param");
+  EvaluateResult evaluated =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  switch (evaluated.type()) {
+    case EvaluateResult::ResultType::kString: {
+      std::locale locale{"en_US.UTF-8"};
+      std::string str = nanopb::MakeString(evaluated.value()->string_value);
+      std::transform(str.begin(), str.end(), str.begin(),
+                     [&locale](char c) { return std::toupper(c, locale); });
+      return EvaluateResult::NewValue(model::StringValue(str));
+    }
+    case EvaluateResult::ResultType::kNull:
+      return EvaluateResult::NewNull();
+    default:
+      return EvaluateResult::NewError();  // Type mismatch or Error/Unset
+  }
+}
+
+EvaluateResult CoreTrim::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 1, "trim() requires exactly 1 param");
+  EvaluateResult evaluated =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  switch (evaluated.type()) {
+    case EvaluateResult::ResultType::kString: {
+      absl::string_view trimmed_view = absl::StripAsciiWhitespace(
+          nanopb::MakeString(evaluated.value()->string_value));
+      return EvaluateResult::NewValue(
+          model::StringValue(std::move(trimmed_view)));
+    }
+    case EvaluateResult::ResultType::kNull:
+      return EvaluateResult::NewNull();
+    default:
+      return EvaluateResult::NewError();  // Type mismatch or Error/Unset
+  }
+}
+
+EvaluateResult CoreReverse::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 1,
+              "reverse() requires exactly 1 param");
+  EvaluateResult evaluated =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  switch (evaluated.type()) {
+    case EvaluateResult::ResultType::kString: {
+      std::string reversed;
+      bool is_valid_utf8 = ProcessUtf8<std::string>(
+          nanopb::MakeString(evaluated.value()->string_value), &reversed,
+          [](std::string* reversed_str, uint32_t /*code_point*/,
+             absl::string_view utf8_bytes) {
+            reversed_str->insert(0, utf8_bytes.data(), utf8_bytes.size());
+          });
+
+      if (is_valid_utf8) {
+        return EvaluateResult::NewValue(model::StringValue(reversed));
+      }
+
+      return EvaluateResult::NewError();
+    }
+    case EvaluateResult::ResultType::kNull:
+      return EvaluateResult::NewNull();
+    default:
+      return EvaluateResult::NewError();  // Type mismatch or Error/Unset
+  }
+}
+
+// --- Map Expression Implementations ---
+
+EvaluateResult CoreMapGet::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 2,
+              "map_get() function requires exactly 2 params (map and key)");
+
+  // Evaluate the map operand (param 0)
+  std::unique_ptr<EvaluableExpr> map_evaluable =
+      expr_->params()[0]->ToEvaluable();
+  EvaluateResult map_result = map_evaluable->Evaluate(context, document);
+
+  switch (map_result.type()) {
+    case EvaluateResult::ResultType::kUnset: {
+      // If the map itself is unset, the result is unset
+      return EvaluateResult::NewUnset();
+    }
+    case EvaluateResult::ResultType::kMap: {
+      // Expected type, continue
+      break;
+    }
+    default: {
+      // Any other type (including Null, Error) is an error
+      return EvaluateResult::NewError();
+    }
+  }
+
+  // Evaluate the key operand (param 1)
+  std::unique_ptr<EvaluableExpr> key_evaluable =
+      expr_->params()[1]->ToEvaluable();
+  EvaluateResult key_result = key_evaluable->Evaluate(context, document);
+
+  absl::optional<std::string> key_string;
+  switch (key_result.type()) {
+    case EvaluateResult::ResultType::kString: {
+      key_string = nanopb::MakeString(key_result.value()->string_value);
+      HARD_ASSERT(key_string.has_value(), "Failed to extract string key");
+      break;
+    }
+    default: {
+      // Key must be a string, otherwise it's an error
+      return EvaluateResult::NewError();
+    }
+  }
+
+  // Look up the field in the map value
+  const auto* entry = model::FindEntry(*map_result.value(), key_string.value());
+
+  if (entry != nullptr) {
+    // Key found, return a deep clone of the value
+    return EvaluateResult::NewValue(model::DeepClone(entry->value));
+  } else {
+    // Key not found, return Unset
+    return EvaluateResult::NewUnset();
+  }
+}
+
 // --- Arithmetic Implementations ---
-
-EvaluateResult CoreAdd::Evaluate(
+EvaluateResult ArithmeticBase::Evaluate(
     const api::EvaluateContext& context,
     const model::PipelineInputOutput& document) const {
-  return EvaluateArithmetic(
-      expr_.get(), context, document,
-      [](int64_t l, int64_t r) { return SafeAdd(l, r); },
-      [](double l, double r) { return l + r; });
+  HARD_ASSERT(expr_->params().size() >= 2,
+              "%s() function requires at least 2 params", expr_->name());
+
+  EvaluateResult current_result =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  for (size_t i = 1; i < expr_->params().size(); ++i) {
+    // Check current accumulated result before evaluating next operand
+    if (current_result.IsErrorOrUnset()) {
+      // Propagate error immediately if accumulated result is error/unset
+      // Note: Unset is treated as Error in arithmetic according to TS logic
+      return EvaluateResult::NewError();
+    }
+    // Null check happens inside ApplyOperation
+
+    EvaluateResult next_operand =
+        expr_->params()[i]->ToEvaluable()->Evaluate(context, document);
+
+    // Apply the operation
+    current_result = ApplyOperation(current_result, next_operand);
+
+    // If ApplyOperation resulted in error or unset, propagate immediately as
+    // error
+    if (current_result.IsErrorOrUnset()) {
+      // Treat Unset from ApplyOperation as Error for propagation
+      return EvaluateResult::NewError();
+    }
+    // Null is handled within the loop by ApplyOperation in the next iteration
+  }
+
+  return current_result;
 }
 
-EvaluateResult CoreSubtract::Evaluate(
-    const api::EvaluateContext& context,
-    const model::PipelineInputOutput& document) const {
-  return EvaluateArithmetic(
-      expr_.get(), context, document,
-      [](int64_t l, int64_t r) { return SafeSubtract(l, r); },
-      [](double l, double r) { return l - r; });
+inline EvaluateResult ArithmeticBase::ApplyOperation(
+    const EvaluateResult& left, const EvaluateResult& right) const {
+  // Mirroring TypeScript logic:
+  // 1. Check for Error/Unset first
+  if (left.IsErrorOrUnset() || right.IsErrorOrUnset()) {
+    return EvaluateResult::NewError();
+  }
+  // 2. Check for Null
+  if (left.IsNull() || right.IsNull()) {
+    return EvaluateResult::NewNull();
+  }
+
+  // 3. Type check: Both must be numbers
+  const google_firestore_v1_Value* left_val = left.value();
+  const google_firestore_v1_Value* right_val = right.value();
+  if (!model::IsNumber(*left_val) || !model::IsNumber(*right_val)) {
+    return EvaluateResult::NewError();  // Type error
+  }
+
+  // 4. Determine operation type (Integer or Double)
+  if (model::IsDouble(*left_val) || model::IsDouble(*right_val)) {
+    // Promote to double
+    double left_double_val = model::IsDouble(*left_val)
+                                 ? left_val->double_value
+                                 : static_cast<double>(left_val->integer_value);
+    double right_double_val =
+        model::IsDouble(*right_val)
+            ? right_val->double_value
+            : static_cast<double>(right_val->integer_value);
+
+    // NaN propagation and specific error handling (like div/mod by zero)
+    // are handled within PerformDoubleOperation.
+    return PerformDoubleOperation(left_double_val, right_double_val);
+
+  } else {
+    // Both are integers
+    absl::optional<int64_t> left_int_opt = model::GetInteger(*left_val);
+    absl::optional<int64_t> right_int_opt = model::GetInteger(*right_val);
+    // These should always succeed because we already checked IsNumber and
+    // excluded IsDouble.
+    HARD_ASSERT(left_int_opt.has_value() && right_int_opt.has_value(),
+                "Failed to extract integer values after IsNumber check");
+
+    return PerformIntegerOperation(left_int_opt.value(), right_int_opt.value());
+  }
 }
 
-EvaluateResult CoreMultiply::Evaluate(
-    const api::EvaluateContext& context,
-    const model::PipelineInputOutput& document) const {
-  return EvaluateArithmetic(
-      expr_.get(), context, document,
-      [](int64_t l, int64_t r) { return SafeMultiply(l, r); },
-      [](double l, double r) { return l * r; });
+EvaluateResult CoreAdd::PerformIntegerOperation(int64_t l, int64_t r) const {
+  auto const result = SafeAdd(l, r);
+  if (result.has_value()) {
+    return EvaluateResult::NewValue(IntValue(result.value()));
+  }
+
+  return EvaluateResult::NewError();
 }
 
-EvaluateResult CoreDivide::Evaluate(
-    const api::EvaluateContext& context,
-    const model::PipelineInputOutput& document) const {
-  return EvaluateArithmetic(
-      expr_.get(), context, document,
-      // Integer division
-      [](int64_t l, int64_t r) { return SafeDivide(l, r); },
-      // Double division
-      [](double l, double r) {
-        // C++ double division handles signed zero correctly according to IEEE
-        // 754. +x / +0 -> +Inf -x / +0 -> -Inf +x / -0 -> -Inf -x / -0 -> +Inf
-        //  0 /  0 -> NaN
-        return l / r;
-      });
+EvaluateResult CoreAdd::PerformDoubleOperation(double l, double r) const {
+  return EvaluateResult::NewValue(DoubleValue(l + r));
 }
 
-EvaluateResult CoreMod::Evaluate(
-    const api::EvaluateContext& context,
-    const model::PipelineInputOutput& document) const {
-  return EvaluateArithmetic(
-      expr_.get(), context, document,
-      // Integer modulo
-      [](int64_t l, int64_t r) { return SafeMod(l, r); },
-      // Double modulo
-      [](double l, double r) {
-        if (r == 0.0) {
-          return std::numeric_limits<double>::quiet_NaN();
-        }
-        // Use std::fmod for double modulo, matches C++ and Firestore semantics
-        return std::fmod(l, r);
-      });
+EvaluateResult CoreSubtract::PerformIntegerOperation(int64_t l,
+                                                     int64_t r) const {
+  auto const result = SafeSubtract(l, r);
+  if (result.has_value()) {
+    return EvaluateResult::NewValue(IntValue(result.value()));
+  }
+
+  return EvaluateResult::NewError();
+}
+
+EvaluateResult CoreSubtract::PerformDoubleOperation(double l, double r) const {
+  return EvaluateResult::NewValue(DoubleValue(l - r));
+}
+
+EvaluateResult CoreMultiply::PerformIntegerOperation(int64_t l,
+                                                     int64_t r) const {
+  auto const result = SafeMultiply(l, r);
+  if (result.has_value()) {
+    return EvaluateResult::NewValue(IntValue(result.value()));
+  }
+
+  return EvaluateResult::NewError();
+}
+
+EvaluateResult CoreMultiply::PerformDoubleOperation(double l, double r) const {
+  return EvaluateResult::NewValue(DoubleValue(l * r));
+}
+
+EvaluateResult CoreDivide::PerformIntegerOperation(int64_t l, int64_t r) const {
+  auto const result = SafeDivide(l, r);
+  if (result.has_value()) {
+    return EvaluateResult::NewValue(IntValue(result.value()));
+  }
+
+  return EvaluateResult::NewError();
+}
+
+EvaluateResult CoreDivide::PerformDoubleOperation(double l, double r) const {
+  // C++ double division handles signed zero correctly according to IEEE
+  // 754. +x / +0 -> +Inf -x / +0 -> -Inf +x / -0 -> -Inf -x / -0 -> +Inf
+  //  0 /  0 -> NaN
+  return EvaluateResult::NewValue(DoubleValue(l / r));
+}
+
+EvaluateResult CoreMod::PerformIntegerOperation(int64_t l, int64_t r) const {
+  auto const result = SafeMod(l, r);
+  if (result.has_value()) {
+    return EvaluateResult::NewValue(IntValue(result.value()));
+  }
+
+  return EvaluateResult::NewError();
+}
+
+EvaluateResult CoreMod::PerformDoubleOperation(double l, double r) const {
+  if (r == 0.0) {
+    return EvaluateResult::NewValue(
+        DoubleValue(std::numeric_limits<double>::quiet_NaN()));
+  }
+  // Use std::fmod for double modulo, matches C++ and Firestore semantics
+  return EvaluateResult::NewValue(DoubleValue(std::fmod(l, r)));
 }
 
 // --- Array Expression Implementations ---
@@ -1339,6 +1937,560 @@ EvaluateResult CoreNot::Evaluate(
       return EvaluateResult::NewError();
     }
   }
+}
+
+namespace {
+// timestamp utilities
+
+// --- Timestamp Constants ---
+// 0001-01-01T00:00:00Z
+constexpr int64_t kTimestampMinSeconds = -62135596800LL;
+// 9999-12-31T23:59:59Z (max seconds part)
+constexpr int64_t kTimestampMaxSeconds = 253402300799LL;
+// Max nanoseconds part
+constexpr int32_t kTimestampMaxNanos = 999999999;
+
+constexpr int64_t kMillisecondsPerSecond = 1000LL;
+constexpr int64_t kMicrosecondsPerSecond = 1000000LL;
+constexpr int64_t kNanosecondsPerMicrosecond = 1000LL;
+constexpr int64_t kNanosecondsPerMillisecond = 1000000LL;
+constexpr int64_t kNanosecondsPerSecond = 1000000000LL;
+
+// 0001-01-01T00:00:00.000Z
+constexpr int64_t kTimestampMinMilliseconds =
+    kTimestampMinSeconds * kMillisecondsPerSecond;
+// 9999-12-31T23:59:59.999Z
+constexpr int64_t kTimestampMaxMilliseconds =
+    kTimestampMaxSeconds * kMillisecondsPerSecond + 999LL;
+
+// 0001-01-01T00:00:00.000000Z
+constexpr int64_t kTimestampMinMicroseconds =
+    kTimestampMinSeconds * kMicrosecondsPerSecond;
+// 9999-12-31T23:59:59.999999Z
+constexpr int64_t kTimestampMaxMicroseconds =
+    kTimestampMaxSeconds * kMicrosecondsPerSecond + 999999LL;
+
+// --- Timestamp Helper Functions ---
+
+bool IsMicrosInBounds(int64_t micros) {
+  return micros >= kTimestampMinMicroseconds &&
+         micros <= kTimestampMaxMicroseconds;
+}
+
+bool IsMillisInBounds(int64_t millis) {
+  return millis >= kTimestampMinMilliseconds &&
+         millis <= kTimestampMaxMilliseconds;
+}
+
+bool IsSecondsInBounds(int64_t seconds) {
+  return seconds >= kTimestampMinSeconds && seconds <= kTimestampMaxSeconds;
+}
+
+// Checks if a google_protobuf_Timestamp is within the valid Firestore range.
+bool IsTimestampInBounds(const google_protobuf_Timestamp& ts) {
+  if (ts.seconds < kTimestampMinSeconds || ts.seconds > kTimestampMaxSeconds) {
+    return false;
+  }
+  // Nanos must be non-negative and less than 1 second.
+  if (ts.nanos < 0 || ts.nanos >= kNanosecondsPerSecond) {
+    return false;
+  }
+  // Additional checks for min/max boundaries.
+  if (ts.seconds == kTimestampMinSeconds && ts.nanos != 0) {
+    return false;  // Min timestamp must have 0 nanos.
+  }
+  if (ts.seconds == kTimestampMaxSeconds && ts.nanos > kTimestampMaxNanos) {
+    return false;  // Max timestamp allows up to 999,999,999 nanos.
+  }
+  return true;
+}
+
+// Converts a google_protobuf_Timestamp to total microseconds since epoch.
+// Returns nullopt if the timestamp is out of bounds or calculation overflows.
+absl::optional<int64_t> TimestampToMicros(const google_protobuf_Timestamp& ts) {
+  if (!IsTimestampInBounds(ts)) {
+    return absl::nullopt;
+  }
+
+  absl::optional<int64_t> seconds_part_micros =
+      SafeMultiply(ts.seconds, kMicrosecondsPerSecond);
+  if (!seconds_part_micros.has_value()) {
+    return absl::nullopt;  // Overflow multiplying seconds
+  }
+
+  // Integer division truncates towards zero.
+  int64_t nanos_part_micros = ts.nanos / kNanosecondsPerMicrosecond;
+
+  absl::optional<int64_t> total_micros =
+      SafeAdd(seconds_part_micros.value(), nanos_part_micros);
+
+  // Final check to ensure the result is within the representable microsecond
+  // range.
+  if (!total_micros.has_value() || !IsMicrosInBounds(total_micros.value())) {
+    return absl::nullopt;
+  }
+
+  return total_micros;
+}
+
+// Enum for time units used in timestamp arithmetic.
+enum class TimeUnit {
+  kMicrosecond,
+  kMillisecond,
+  kSecond,
+  kMinute,
+  kHour,
+  kDay
+};
+
+// Parses a string representation of a time unit into the TimeUnit enum.
+absl::optional<TimeUnit> ParseTimeUnit(const std::string& unit_str) {
+  if (unit_str == "microsecond") return TimeUnit::kMicrosecond;
+  if (unit_str == "millisecond") return TimeUnit::kMillisecond;
+  if (unit_str == "second") return TimeUnit::kSecond;
+  if (unit_str == "minute") return TimeUnit::kMinute;
+  if (unit_str == "hour") return TimeUnit::kHour;
+  if (unit_str == "day") return TimeUnit::kDay;
+  return absl::nullopt;  // Invalid unit string
+}
+
+// Calculates the total microseconds for a given unit and amount.
+// Returns nullopt on overflow.
+absl::optional<int64_t> MicrosFromUnitAndAmount(TimeUnit unit, int64_t amount) {
+  switch (unit) {
+    case TimeUnit::kMicrosecond:
+      return amount;  // No multiplication needed, no overflow possible here.
+    case TimeUnit::kMillisecond:
+      return SafeMultiply(
+          amount, kNanosecondsPerMillisecond / kNanosecondsPerMicrosecond);
+    case TimeUnit::kSecond:
+      return SafeMultiply(amount, kMicrosecondsPerSecond);
+    case TimeUnit::kMinute:
+      return SafeMultiply(amount, 60LL * kMicrosecondsPerSecond);
+    case TimeUnit::kHour:
+      return SafeMultiply(amount, 3600LL * kMicrosecondsPerSecond);
+    case TimeUnit::kDay:
+      return SafeMultiply(amount, 86400LL * kMicrosecondsPerSecond);
+    default:
+      // Should not happen if ParseTimeUnit is used correctly.
+      HARD_FAIL("Invalid TimeUnit enum value");
+      return absl::nullopt;
+  }
+}
+
+// Helper to create a google_protobuf_Timestamp from seconds and nanos.
+// Assumes inputs are already validated to be within bounds.
+google_protobuf_Timestamp CreateTimestampProto(int64_t seconds, int32_t nanos) {
+  google_protobuf_Timestamp ts;
+  // Use direct member assignment for protobuf fields
+  ts.seconds = seconds;
+  ts.nanos = nanos;
+  return ts;
+}
+
+// Helper function to adjust timestamp for negative nanoseconds.
+// Returns the adjusted {seconds, nanos} pair. Returns nullopt if adjusting
+// seconds underflows.
+absl::optional<std::pair<int64_t, int32_t>> AdjustTimestamp(int64_t seconds,
+                                                            int32_t nanos) {
+  if (nanos < 0) {
+    absl::optional<int64_t> adjusted_seconds = SafeSubtract(seconds, 1);
+    if (!adjusted_seconds.has_value()) {
+      return absl::nullopt;  // Underflow during adjustment
+    }
+    // Ensure nanos is within [-1e9 + 1, -1] before adding 1e9.
+    // The modulo operation should guarantee this range for negative results.
+    return std::make_pair(adjusted_seconds.value(),
+                          nanos + kNanosecondsPerSecond);
+  }
+  // No adjustment needed, return original values.
+  return std::make_pair(seconds, nanos);
+}
+
+}  // anonymous namespace
+
+// --- Timestamp Expression Implementations ---
+
+EvaluateResult UnixToTimestampBase::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 1,
+              "%s() function requires exactly 1 param", expr_->name());
+
+  EvaluateResult evaluated =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  switch (evaluated.type()) {
+    case EvaluateResult::ResultType::kInt: {
+      absl::optional<int64_t> value = model::GetInteger(*evaluated.value());
+      HARD_ASSERT(value.has_value(), "Integer value extraction failed");
+      return ToTimestamp(value.value());
+    }
+    case EvaluateResult::ResultType::kNull:
+      return EvaluateResult::NewNull();
+    default:
+      // Type error (not integer or null)
+      return EvaluateResult::NewError();
+  }
+}
+
+EvaluateResult TimestampToUnixBase::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(expr_->params().size() == 1,
+              "%s() function requires exactly 1 param", expr_->name());
+
+  EvaluateResult evaluated =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+
+  switch (evaluated.type()) {
+    case EvaluateResult::ResultType::kTimestamp: {
+      // Check if the input timestamp is within valid bounds before conversion.
+      if (!IsTimestampInBounds(evaluated.value()->timestamp_value)) {
+        return EvaluateResult::NewError();
+      }
+      return ToUnix(evaluated.value()->timestamp_value);
+    }
+    case EvaluateResult::ResultType::kNull:
+      return EvaluateResult::NewNull();
+    default:
+      // Type error (not timestamp or null)
+      return EvaluateResult::NewError();
+  }
+}
+
+EvaluateResult TimestampArithmeticBase::Evaluate(
+    const api::EvaluateContext& context,
+    const model::PipelineInputOutput& document) const {
+  HARD_ASSERT(
+      expr_->params().size() == 3,
+      "%s() function requires exactly 3 params (timestamp, unit, amount)",
+      expr_->name());
+
+  bool has_null = false;
+
+  // 1. Evaluate Timestamp operand
+  EvaluateResult timestamp_result =
+      expr_->params()[0]->ToEvaluable()->Evaluate(context, document);
+  switch (timestamp_result.type()) {
+    case EvaluateResult::ResultType::kTimestamp:
+      // Check initial timestamp bounds
+      if (!IsTimestampInBounds(timestamp_result.value()->timestamp_value)) {
+        return EvaluateResult::NewError();
+      }
+      break;
+    case EvaluateResult::ResultType::kNull:
+      has_null = true;
+      break;
+    default:
+      return EvaluateResult::NewError();  // Type error
+  }
+
+  // 2. Evaluate Unit operand (must be string)
+  EvaluateResult unit_result =
+      expr_->params()[1]->ToEvaluable()->Evaluate(context, document);
+  absl::optional<TimeUnit> time_unit;
+  switch (unit_result.type()) {
+    case EvaluateResult::ResultType::kString: {
+      std::string unit_str =
+          nanopb::MakeString(unit_result.value()->string_value);
+      time_unit = ParseTimeUnit(unit_str);
+      if (!time_unit.has_value()) {
+        return EvaluateResult::NewError();  // Invalid unit string
+      }
+      break;
+    }
+    case EvaluateResult::ResultType::kNull:
+      has_null = true;
+      break;
+    default:
+      return EvaluateResult::NewError();  // Type error
+  }
+
+  // 3. Evaluate Amount operand (must be integer)
+  EvaluateResult amount_result =
+      expr_->params()[2]->ToEvaluable()->Evaluate(context, document);
+  absl::optional<int64_t> amount;
+  switch (amount_result.type()) {
+    case EvaluateResult::ResultType::kInt:
+      amount = model::GetInteger(*amount_result.value());
+      HARD_ASSERT(amount.has_value(), "Integer value extraction failed");
+      break;
+    case EvaluateResult::ResultType::kNull:
+      has_null = true;
+      break;
+    default:
+      return EvaluateResult::NewError();  // Type error
+  }
+
+  // Null propagation
+  if (has_null) {
+    return EvaluateResult::NewNull();
+  }
+
+  // Calculate initial micros and micros to operate
+  absl::optional<int64_t> initial_micros =
+      TimestampToMicros(timestamp_result.value()->timestamp_value);
+  if (!initial_micros.has_value()) {
+    // Should have been caught by IsTimestampInBounds earlier, but double-check.
+    return EvaluateResult::NewError();
+  }
+
+  absl::optional<int64_t> micros_to_operate =
+      MicrosFromUnitAndAmount(time_unit.value(), amount.value());
+  if (!micros_to_operate.has_value()) {
+    return EvaluateResult::NewError();  // Overflow calculating micros delta
+  }
+
+  // Perform the specific arithmetic (add or subtract)
+  absl::optional<int64_t> new_micros_opt =
+      PerformArithmetic(initial_micros.value(), micros_to_operate.value());
+  if (!new_micros_opt.has_value()) {
+    return EvaluateResult::NewError();  // Arithmetic overflow/error
+  }
+  int64_t new_micros = new_micros_opt.value();
+
+  // Check final microsecond bounds
+  if (!IsMicrosInBounds(new_micros)) {
+    return EvaluateResult::NewError();
+  }
+
+  // Convert back to seconds and nanos
+  // Use SafeDivide to handle potential INT64_MIN / -1 edge case, though
+  // unlikely here.
+  absl::optional<int64_t> new_seconds_opt =
+      SafeDivide(new_micros, kMicrosecondsPerSecond);
+  if (!new_seconds_opt.has_value()) {
+    return EvaluateResult::NewError();  // Should not happen if IsMicrosInBounds
+                                        // passed
+  }
+  int64_t new_seconds = new_seconds_opt.value();
+  int64_t nanos_remainder_micros = new_micros % kMicrosecondsPerSecond;
+
+  // Adjust seconds and calculate nanos based on remainder sign
+  int32_t new_nanos;
+  if (nanos_remainder_micros < 0) {
+    // If remainder is negative, adjust seconds down and make nanos positive.
+    absl::optional<int64_t> adjusted_seconds_opt = SafeSubtract(new_seconds, 1);
+    if (!adjusted_seconds_opt.has_value())
+      return EvaluateResult::NewError();  // Overflow
+    new_seconds = adjusted_seconds_opt.value();
+    new_nanos =
+        static_cast<int32_t>((nanos_remainder_micros + kMicrosecondsPerSecond) *
+                             kNanosecondsPerMicrosecond);
+  } else {
+    new_nanos = static_cast<int32_t>(nanos_remainder_micros *
+                                     kNanosecondsPerMicrosecond);
+  }
+
+  // Create the final timestamp proto
+  google_protobuf_Timestamp result_ts =
+      CreateTimestampProto(new_seconds, new_nanos);
+
+  // Final check on calculated timestamp bounds
+  if (!IsTimestampInBounds(result_ts)) {
+    return EvaluateResult::NewError();
+  }
+
+  // Wrap in Value proto and return
+  google_firestore_v1_Value result_value;
+  result_value.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  result_value.timestamp_value = result_ts;  // Copy the timestamp proto
+  return EvaluateResult::NewValue(nanopb::MakeMessage(std::move(result_value)));
+}
+
+// --- Specific Timestamp Function Implementations ---
+
+// Define constructors declared in the header
+CoreUnixMicrosToTimestamp::CoreUnixMicrosToTimestamp(
+    const api::FunctionExpr& expr)
+    : UnixToTimestampBase(expr) {
+}
+CoreUnixMillisToTimestamp::CoreUnixMillisToTimestamp(
+    const api::FunctionExpr& expr)
+    : UnixToTimestampBase(expr) {
+}
+CoreUnixSecondsToTimestamp::CoreUnixSecondsToTimestamp(
+    const api::FunctionExpr& expr)
+    : UnixToTimestampBase(expr) {
+}
+CoreTimestampToUnixMicros::CoreTimestampToUnixMicros(
+    const api::FunctionExpr& expr)
+    : TimestampToUnixBase(expr) {
+}
+CoreTimestampToUnixMillis::CoreTimestampToUnixMillis(
+    const api::FunctionExpr& expr)
+    : TimestampToUnixBase(expr) {
+}
+CoreTimestampToUnixSeconds::CoreTimestampToUnixSeconds(
+    const api::FunctionExpr& expr)
+    : TimestampToUnixBase(expr) {
+}
+CoreTimestampAdd::CoreTimestampAdd(const api::FunctionExpr& expr)
+    : TimestampArithmeticBase(expr) {
+}
+CoreTimestampSub::CoreTimestampSub(const api::FunctionExpr& expr)
+    : TimestampArithmeticBase(expr) {
+}
+
+// Define member function implementations
+EvaluateResult CoreUnixMicrosToTimestamp::ToTimestamp(int64_t micros) const {
+  if (!IsMicrosInBounds(micros)) {
+    return EvaluateResult::NewError();
+  }
+
+  // Use SafeDivide to handle potential INT64_MIN / -1 edge case, though
+  // unlikely here.
+  absl::optional<int64_t> seconds_opt =
+      SafeDivide(micros, kMicrosecondsPerSecond);
+  if (!seconds_opt.has_value()) return EvaluateResult::NewError();
+  int64_t initial_seconds = seconds_opt.value();
+  // Calculate initial nanos directly from the remainder.
+  int32_t initial_nanos = static_cast<int32_t>(
+      (micros % kMicrosecondsPerSecond) * kNanosecondsPerMicrosecond);
+
+  // Adjust for negative nanoseconds using the helper function.
+  absl::optional<std::pair<int64_t, int32_t>> adjusted_ts =
+      AdjustTimestamp(initial_seconds, initial_nanos);
+
+  if (!adjusted_ts.has_value()) {
+    return EvaluateResult::NewError();  // Overflow during adjustment
+  }
+
+  int64_t final_seconds = adjusted_ts.value().first;
+  int32_t final_nanos = adjusted_ts.value().second;
+
+  google_firestore_v1_Value result_value;
+  result_value.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  result_value.timestamp_value =
+      CreateTimestampProto(final_seconds, final_nanos);
+
+  // Final bounds check after adjustment.
+  if (!IsTimestampInBounds(result_value.timestamp_value)) {
+    return EvaluateResult::NewError();
+  }
+
+  return EvaluateResult::NewValue(nanopb::MakeMessage(std::move(result_value)));
+}
+
+EvaluateResult CoreUnixMillisToTimestamp::ToTimestamp(int64_t millis) const {
+  if (!IsMillisInBounds(millis)) {
+    return EvaluateResult::NewError();
+  }
+
+  absl::optional<int64_t> seconds_opt =
+      SafeDivide(millis, kMillisecondsPerSecond);
+  if (!seconds_opt.has_value()) return EvaluateResult::NewError();
+  int64_t initial_seconds = seconds_opt.value();
+  // Calculate initial nanos directly from the remainder.
+  int32_t initial_nanos = static_cast<int32_t>(
+      (millis % kMillisecondsPerSecond) * kNanosecondsPerMillisecond);
+
+  // Adjust for negative nanoseconds using the helper function.
+  absl::optional<std::pair<int64_t, int32_t>> adjusted_ts =
+      AdjustTimestamp(initial_seconds, initial_nanos);
+
+  if (!adjusted_ts.has_value()) {
+    return EvaluateResult::NewError();  // Overflow during adjustment
+  }
+
+  int64_t final_seconds = adjusted_ts.value().first;
+  int32_t final_nanos = adjusted_ts.value().second;
+
+  google_firestore_v1_Value result_value;
+  result_value.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  result_value.timestamp_value =
+      CreateTimestampProto(final_seconds, final_nanos);
+
+  // Final bounds check after adjustment.
+  if (!IsTimestampInBounds(result_value.timestamp_value)) {
+    return EvaluateResult::NewError();
+  }
+
+  return EvaluateResult::NewValue(nanopb::MakeMessage(std::move(result_value)));
+}
+
+EvaluateResult CoreUnixSecondsToTimestamp::ToTimestamp(int64_t seconds) const {
+  if (!IsSecondsInBounds(seconds)) {
+    return EvaluateResult::NewError();
+  }
+
+  google_firestore_v1_Value result_value;
+  result_value.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+  result_value.timestamp_value =
+      CreateTimestampProto(seconds, 0);  // Nanos are always 0
+
+  // Bounds check is implicitly handled by IsSecondsInBounds
+  return EvaluateResult::NewValue(nanopb::MakeMessage(std::move(result_value)));
+}
+
+EvaluateResult CoreTimestampToUnixMicros::ToUnix(
+    const google_protobuf_Timestamp& ts) const {
+  absl::optional<int64_t> micros = TimestampToMicros(ts);
+  // Check if the resulting micros are within representable bounds (already done
+  // in TimestampToMicros)
+  if (!micros.has_value()) {
+    return EvaluateResult::NewError();
+  }
+  return EvaluateResult::NewValue(IntValue(micros.value()));
+}
+
+EvaluateResult CoreTimestampToUnixMillis::ToUnix(
+    const google_protobuf_Timestamp& ts) const {
+  absl::optional<int64_t> micros_opt = TimestampToMicros(ts);
+  if (!micros_opt.has_value()) {
+    return EvaluateResult::NewError();
+  }
+  int64_t micros = micros_opt.value();
+
+  // Perform division, truncating towards zero.
+  absl::optional<int64_t> millis_opt = SafeDivide(micros, 1000LL);
+  if (!millis_opt.has_value()) {
+    // This should ideally not happen if micros were in bounds, but check
+    // anyway.
+    return EvaluateResult::NewError();
+  }
+  int64_t millis = millis_opt.value();
+
+  // Adjust for negative timestamps where truncation differs from floor
+  // division. If micros is negative and not perfectly divisible by 1000,
+  // subtract 1 from millis.
+  if (micros < 0 && (micros % 1000LL != 0)) {
+    absl::optional<int64_t> adjusted_millis_opt = SafeSubtract(millis, 1);
+    if (!adjusted_millis_opt.has_value())
+      return EvaluateResult::NewError();  // Overflow check
+    millis = adjusted_millis_opt.value();
+  }
+
+  // Check if the resulting millis are within representable bounds
+  if (!IsMillisInBounds(millis)) {
+    return EvaluateResult::NewError();
+  }
+
+  return EvaluateResult::NewValue(IntValue(millis));
+}
+
+EvaluateResult CoreTimestampToUnixSeconds::ToUnix(
+    const google_protobuf_Timestamp& ts) const {
+  // Seconds are directly available and already checked by IsTimestampInBounds
+  // in base class.
+  int64_t seconds = ts.seconds;
+  // Check if the resulting seconds are within representable bounds (redundant
+  // but safe)
+  if (!IsSecondsInBounds(seconds)) {
+    return EvaluateResult::NewError();
+  }
+  return EvaluateResult::NewValue(IntValue(seconds));
+}
+
+absl::optional<int64_t> CoreTimestampAdd::PerformArithmetic(
+    int64_t initial_micros, int64_t micros_to_operate) const {
+  return SafeAdd(initial_micros, micros_to_operate);
+}
+
+absl::optional<int64_t> CoreTimestampSub::PerformArithmetic(
+    int64_t initial_micros, int64_t micros_to_operate) const {
+  return SafeSubtract(initial_micros, micros_to_operate);
 }
 
 }  // namespace core

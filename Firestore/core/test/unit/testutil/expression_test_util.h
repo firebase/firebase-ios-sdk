@@ -156,6 +156,59 @@ inline std::shared_ptr<Expr> ModExpr(
       "mod", std::vector<std::shared_ptr<Expr>>(params));
 }
 
+// --- Timestamp Expression Helpers ---
+
+inline std::shared_ptr<Expr> UnixMicrosToTimestampExpr(
+    std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "unix_micros_to_timestamp",
+      std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> UnixMillisToTimestampExpr(
+    std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "unix_millis_to_timestamp",
+      std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> UnixSecondsToTimestampExpr(
+    std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "unix_seconds_to_timestamp",
+      std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> TimestampToUnixMicrosExpr(
+    std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "timestamp_to_unix_micros",
+      std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> TimestampToUnixMillisExpr(
+    std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "timestamp_to_unix_millis",
+      std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> TimestampToUnixSecondsExpr(
+    std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "timestamp_to_unix_seconds",
+      std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> TimestampAddExpr(std::shared_ptr<Expr> timestamp,
+                                              std::shared_ptr<Expr> unit,
+                                              std::shared_ptr<Expr> amount) {
+  return std::make_shared<FunctionExpr>(
+      "timestamp_add",
+      std::vector<std::shared_ptr<Expr>>{std::move(timestamp), std::move(unit),
+                                         std::move(amount)});
+}
+
 // --- Comparison Expression Helpers ---
 
 inline std::shared_ptr<Expr> EqExpr(
@@ -225,8 +278,8 @@ inline std::shared_ptr<Expr> ArrayLengthExpr(std::shared_ptr<Expr> array_expr) {
       "array_length", std::vector<std::shared_ptr<Expr>>{array_expr});
 }
 
-// TODO(wuandy): Add ArrayConcatExpr, ArrayReverseExpr, ArrayElementExpr when
-// needed.
+// TODO(b/351084804): Add ArrayConcatExpr, ArrayReverseExpr, ArrayElementExpr
+// when needed.
 
 // --- Logical Expression Helpers ---
 
@@ -585,6 +638,88 @@ inline testing::Matcher<T> Returns(
   return testing::MakeMatcher(
       new ReturnsMatcherImpl<T>(std::move(expected_value)));
 }
+
+// --- String Expression Helpers ---
+
+inline std::shared_ptr<Expr> CharLengthExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "char_length", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> ByteLengthExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "byte_length", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> ToLowerExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "to_lower", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> ToUpperExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "to_upper", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> ReverseExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "reverse", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> TrimExpr(std::shared_ptr<Expr> operand) {
+  return std::make_shared<FunctionExpr>(
+      "trim", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+}
+
+inline std::shared_ptr<Expr> LikeExpr(std::shared_ptr<Expr> value,
+                                      std::shared_ptr<Expr> pattern) {
+  return std::make_shared<FunctionExpr>(
+      "like",
+      std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(pattern)});
+}
+
+inline std::shared_ptr<Expr> RegexContainsExpr(std::shared_ptr<Expr> value,
+                                               std::shared_ptr<Expr> regex) {
+  return std::make_shared<FunctionExpr>(
+      "regex_contains",
+      std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(regex)});
+}
+
+inline std::shared_ptr<Expr> RegexMatchExpr(std::shared_ptr<Expr> value,
+                                            std::shared_ptr<Expr> regex) {
+  return std::make_shared<FunctionExpr>(
+      "regex_match",
+      std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(regex)});
+}
+
+inline std::shared_ptr<Expr> StrContainsExpr(std::shared_ptr<Expr> value,
+                                             std::shared_ptr<Expr> search) {
+  return std::make_shared<FunctionExpr>(
+      "str_contains",
+      std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(search)});
+}
+
+inline std::shared_ptr<Expr> StartsWithExpr(std::shared_ptr<Expr> value,
+                                            std::shared_ptr<Expr> prefix) {
+  return std::make_shared<FunctionExpr>(
+      "starts_with",
+      std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(prefix)});
+}
+
+inline std::shared_ptr<Expr> EndsWithExpr(std::shared_ptr<Expr> value,
+                                          std::shared_ptr<Expr> suffix) {
+  return std::make_shared<FunctionExpr>(
+      "ends_with",
+      std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(suffix)});
+}
+
+inline std::shared_ptr<Expr> StrConcatExpr(
+    std::vector<std::shared_ptr<Expr>> operands) {
+  return std::make_shared<FunctionExpr>("str_concat", std::move(operands));
+}
+
+// --- Vector Expression Helpers ---
+// TODO(b/351084804): Add vector helpers when supported.
 
 }  // namespace testutil
 }  // namespace firestore
