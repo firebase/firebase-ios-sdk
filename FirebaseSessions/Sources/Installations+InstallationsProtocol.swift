@@ -39,9 +39,9 @@ extension InstallationsProtocol {
   // TODO(ncooke3): Convert o async await ahead of Firebase 12.
 
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
-    let authTokenComplete = FIRAllocatedUnfairLock<String>(initialState: "")
-    let installationComplete = FIRAllocatedUnfairLock<String?>(initialState: nil)
-    let errorComplete = FIRAllocatedUnfairLock<Error?>(initialState: nil)
+    let authTokenComplete = FIRAllocatedUnfairLock<String>("")
+    let installationComplete = FIRAllocatedUnfairLock<String?>(nil)
+    let errorComplete = FIRAllocatedUnfairLock<Error?>(nil)
 
     let workingGroup = DispatchGroup()
 

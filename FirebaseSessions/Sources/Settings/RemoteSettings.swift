@@ -41,7 +41,7 @@ final class RemoteSettings: SettingsProvider, Sendable {
        downloader: SettingsDownloadClient,
        cache: SettingsCacheClient = SettingsCache()) {
     self.appInfo = appInfo
-    self.cache = FIRAllocatedUnfairLock(initialState: cache)
+    self.cache = FIRAllocatedUnfairLock(cache)
     self.downloader = downloader
   }
 

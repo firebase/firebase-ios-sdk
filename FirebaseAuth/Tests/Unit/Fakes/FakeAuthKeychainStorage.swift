@@ -21,9 +21,9 @@ import XCTest
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class FakeAuthKeychainStorage: AuthKeychainStorage {
   // Fake Keychain. It's a dictionary, keyed by service name, for each key-value store dictionary
-  private let fakeKeychain = FIRAllocatedUnfairLock<[String: [String: Any]]>(initialState: [:])
+  private let fakeKeychain = FIRAllocatedUnfairLock<[String: [String: Any]]>([:])
 
-  private let fakeLegacyKeychain = FIRAllocatedUnfairLock<[String: Any]>(initialState: [:])
+  private let fakeLegacyKeychain = FIRAllocatedUnfairLock<[String: Any]>([:])
 
   func get(query: [String: Any], result: inout AnyObject?) -> OSStatus {
     if let service = queryService(query) {

@@ -13,60 +13,46 @@
 // limitations under the License.
 
 import Foundation
-import os.lock
+private import os.lock
 
 /// A reference wrapper around `os_unfair_lock`. Replace this class with
 /// `OSAllocatedUnfairLock` once we support only iOS 16+. For an explanation
 /// on why this is necessary, see the docs:
 /// https://developer.apple.com/documentation/os/osallocatedunfairlock
-public final class FIRAllocatedUnfairLock<State>: @unchecked Sendable {
+public final class FIRAllocatedUnfairLock<Value>: @unchecked Sendable {
   private var lockPointer: UnsafeMutablePointer<os_unfair_lock>
-  private var state: State
+  private var _value: Value
 
-  public init(initialState: sending State) {
+  public init(_ value: consuming sending Value) {
     lockPointer = UnsafeMutablePointer<os_unfair_lock>
       .allocate(capacity: 1)
     lockPointer.initialize(to: os_unfair_lock())
-    state = initialState
-  }
-
-  public convenience init() where State == Void {
-    self.init(initialState: ())
-  }
-
-  public func lock() {
-    os_unfair_lock_lock(lockPointer)
-  }
-
-  public func unlock() {
-    os_unfair_lock_unlock(lockPointer)
-  }
-
-  public func value() -> State {
-    lock()
-    defer { unlock() }
-    return state
-  }
-
-  @discardableResult
-  public func withLock<R>(_ body: (inout State) throws -> R) rethrows -> R {
-    let value: R
-    lock()
-    defer { unlock() }
-    value = try body(&state)
-    return value
-  }
-
-  @discardableResult
-  public func withLock<R>(_ body: () throws -> R) rethrows -> R {
-    let value: R
-    lock()
-    defer { unlock() }
-    value = try body()
-    return value
+    self._value = value
   }
 
   deinit {
     lockPointer.deallocate()
+  }
+
+  public func value() -> Value {
+    lock()
+    defer { unlock() }
+    return _value
+  }
+
+  public borrowing func withLock<Result, E>(
+    _ body: (inout sending Value) throws(E) -> sending Result
+  ) throws(E) -> sending Result where E : Error, Result : ~Copyable {
+    lock()
+    defer { unlock() }
+    return try body(&_value)
+  }
+
+  private func lock() {
+    os_unfair_lock_lock(lockPointer)
+  }
+
+  private func unlock() {
+    os_unfair_lock_unlock(lockPointer)
   }
 }

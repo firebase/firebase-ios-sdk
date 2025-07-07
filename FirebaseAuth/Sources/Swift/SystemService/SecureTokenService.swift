@@ -170,10 +170,10 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
        accessTokenExpirationDate: Date?,
        refreshToken: String) {
     internalService = SecureTokenServiceInternal()
-    _requestConfiguration = FIRAllocatedUnfairLock(initialState: requestConfiguration)
-    _accessToken = FIRAllocatedUnfairLock(initialState: accessToken)
-    _accessTokenExpirationDate = FIRAllocatedUnfairLock(initialState: accessTokenExpirationDate)
-    _refreshToken = FIRAllocatedUnfairLock(initialState: refreshToken)
+    _requestConfiguration = FIRAllocatedUnfairLock(requestConfiguration)
+    _accessToken = FIRAllocatedUnfairLock(accessToken)
+    _accessTokenExpirationDate = FIRAllocatedUnfairLock(accessTokenExpirationDate)
+    _refreshToken = FIRAllocatedUnfairLock(refreshToken)
   }
 
   /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token

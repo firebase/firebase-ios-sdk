@@ -105,22 +105,22 @@ import Foundation
 private extension ActionCodeSettings {
   /// Checked Sendable implementation of `ActionCodeSettings`.
   final class SendableActionCodeSettings: Sendable {
-    let url = FIRAllocatedUnfairLock<URL?>(initialState: nil)
+    let url = FIRAllocatedUnfairLock<URL?>(nil)
 
-    let handleCodeInApp = FIRAllocatedUnfairLock<Bool>(initialState: false)
+    let handleCodeInApp = FIRAllocatedUnfairLock<Bool>(false)
 
     let iOSBundleID: FIRAllocatedUnfairLock<String?>
 
-    let androidPackageName = FIRAllocatedUnfairLock<String?>(initialState: nil)
+    let androidPackageName = FIRAllocatedUnfairLock<String?>(nil)
 
-    let androidMinimumVersion = FIRAllocatedUnfairLock<String?>(initialState: nil)
+    let androidMinimumVersion = FIRAllocatedUnfairLock<String?>(nil)
 
-    let androidInstallIfNotAvailable = FIRAllocatedUnfairLock<Bool>(initialState: false)
+    let androidInstallIfNotAvailable = FIRAllocatedUnfairLock<Bool>(false)
 
-    let linkDomain = FIRAllocatedUnfairLock<String?>(initialState: nil)
+    let linkDomain = FIRAllocatedUnfairLock<String?>(nil)
 
     init() {
-      iOSBundleID = FIRAllocatedUnfairLock<String?>(initialState: Bundle.main.bundleIdentifier)
+      iOSBundleID = FIRAllocatedUnfairLock<String?>(Bundle.main.bundleIdentifier)
     }
 
     func setAndroidPackageName(_ androidPackageName: String,

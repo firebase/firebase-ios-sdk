@@ -54,7 +54,7 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   /// Statically allocated cache of `HeartbeatStorage` instances keyed by string IDs.
   private static let cachedInstances: FIRAllocatedUnfairLock<
     [String: WeakContainer<HeartbeatStorage>]
-  > = FIRAllocatedUnfairLock(initialState: [:])
+  > = FIRAllocatedUnfairLock([:])
 
   /// Gets an existing `HeartbeatStorage` instance with the given `id` if one exists. Otherwise,
   /// makes a new instance with the given `id`.
@@ -93,7 +93,7 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
 
   deinit {
     // Removes the instance if it was cached.
-    Self.cachedInstances.withLock { value in
+    _ = Self.cachedInstances.withLock { value in
       value.removeValue(forKey: id)
     }
   }
