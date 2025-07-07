@@ -27,7 +27,7 @@ public final class UnfairLock<Value>: @unchecked Sendable {
     lockPointer = UnsafeMutablePointer<os_unfair_lock>
       .allocate(capacity: 1)
     lockPointer.initialize(to: os_unfair_lock())
-    self._value = value
+    _value = value
   }
 
   deinit {
@@ -40,12 +40,18 @@ public final class UnfairLock<Value>: @unchecked Sendable {
     return _value
   }
 
-  public borrowing func withLock<Result, E>(
-    _ body: (inout sending Value) throws(E) -> sending Result
-  ) throws(E) -> sending Result where E : Error, Result : ~Copyable {
+  public borrowing func withLock<Result>(_ body: (inout sending Value) throws
+    -> sending Result) rethrows -> sending Result {
     lock()
     defer { unlock() }
     return try body(&_value)
+  }
+
+  public borrowing func withLock<Result>(_ body: (inout sending Value) -> sending Result)
+    -> sending Result {
+    lock()
+    defer { unlock() }
+    return body(&_value)
   }
 
   private func lock() {
