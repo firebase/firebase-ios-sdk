@@ -43,8 +43,11 @@ struct InternalPart: Equatable, Sendable {
 
   let data: OneOfData
 
-  init(_ data: OneOfData) {
+  let isThought: Bool?
+
+  init(_ data: OneOfData, isThought: Bool?) {
     self.data = data
+    self.isThought = isThought
   }
 }
 
@@ -63,15 +66,15 @@ public struct ModelContent: Equatable, Sendable {
     for part in internalParts {
       switch part.data {
       case let .text(text):
-        convertedParts.append(TextPart(text))
+        convertedParts.append(TextPart(text, isThought: part.isThought))
       case let .inlineData(inlineData):
-        convertedParts.append(InlineDataPart(inlineData))
+        convertedParts.append(InlineDataPart(inlineData, isThought: part.isThought))
       case let .fileData(fileData):
-        convertedParts.append(FileDataPart(fileData))
+        convertedParts.append(FileDataPart(fileData, isThought: part.isThought))
       case let .functionCall(functionCall):
-        convertedParts.append(FunctionCallPart(functionCall))
+        convertedParts.append(FunctionCallPart(functionCall, isThought: part.isThought))
       case let .functionResponse(functionResponse):
-        convertedParts.append(FunctionResponsePart(functionResponse))
+        convertedParts.append(FunctionResponsePart(functionResponse, isThought: part.isThought))
       }
     }
     return convertedParts
@@ -87,16 +90,27 @@ public struct ModelContent: Equatable, Sendable {
     for part in parts {
       switch part {
       case let textPart as TextPart:
-        convertedParts.append(InternalPart(.text(textPart.text)))
+        convertedParts.append(InternalPart(.text(textPart.text), isThought: textPart._isThought))
       case let inlineDataPart as InlineDataPart:
-        convertedParts.append(InternalPart(.inlineData(inlineDataPart.inlineData)))
+        convertedParts.append(
+          InternalPart(.inlineData(inlineDataPart.inlineData), isThought: inlineDataPart._isThought)
+        )
       case let fileDataPart as FileDataPart:
-        convertedParts.append(InternalPart(.fileData(fileDataPart.fileData)))
+        convertedParts.append(
+          InternalPart(.fileData(fileDataPart.fileData), isThought: fileDataPart._isThought)
+        )
       case let functionCallPart as FunctionCallPart:
-        convertedParts.append(InternalPart(.functionCall(functionCallPart.functionCall)))
+        convertedParts.append(
+          InternalPart(
+            .functionCall(functionCallPart.functionCall), isThought: functionCallPart._isThought
+          )
+        )
       case let functionResponsePart as FunctionResponsePart:
         convertedParts.append(
-          InternalPart(.functionResponse(functionResponsePart.functionResponse))
+          InternalPart(
+            .functionResponse(functionResponsePart.functionResponse),
+            isThought: functionResponsePart._isThought
+          )
         )
       default:
         fatalError()
@@ -131,14 +145,20 @@ extension ModelContent: Codable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension InternalPart: Codable {
-  enum CodingKeys: CodingKey {}
+  enum CodingKeys: String, CodingKey {
+    case isThought = "thought"
+  }
 
   public func encode(to encoder: Encoder) throws {
     try data.encode(to: encoder)
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(isThought, forKey: .isThought)
   }
 
   public init(from decoder: Decoder) throws {
     data = try OneOfData(from: decoder)
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    isThought = try container.decodeIfPresent(Bool.self, forKey: .isThought)
   }
 }
 
