@@ -43,7 +43,7 @@ public final class HTTPSCallable: NSObject, Sendable {
 
   private let options: HTTPSCallableOptions?
 
-  private let _timeoutInterval: AtomicBox<TimeInterval> = .init(70)
+  private let _timeoutInterval: UnfairLock<TimeInterval> = .init(70)
 
   // MARK: - Public Properties
 
