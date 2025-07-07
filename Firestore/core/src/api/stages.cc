@@ -43,6 +43,10 @@ namespace api {
 
 using model::DeepClone;
 
+CollectionSource::CollectionSource(std::string path)
+    : path_(model::ResourcePath::FromStringView(path)) {
+}
+
 google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 
@@ -52,7 +56,9 @@ google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
   result.args[0].which_value_type =
       google_firestore_v1_Value_reference_value_tag;
-  result.args[0].reference_value = nanopb::MakeBytesArray(this->path_);
+  // TODO(wuandy): use EncodeResourceName instead
+  result.args[0].reference_value =
+      nanopb::MakeBytesArray(this->path_.CanonicalString());
 
   result.options_count = 0;
   result.options = nullptr;
@@ -275,7 +281,7 @@ google_firestore_v1_Pipeline_Stage SortStage::to_proto() const {
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
 
   for (size_t i = 0; i < orders_.size(); ++i) {
-    result.args[i] = orders_[i]->to_proto();
+    result.args[i] = orders_[i].to_proto();
   }
 
   result.options_count = 0;
@@ -481,7 +487,20 @@ model::PipelineInputOutputVector CollectionSource::Evaluate(
   std::copy_if(inputs.begin(), inputs.end(), std::back_inserter(results),
                [this](const model::MutableDocument& doc) {
                  return doc.is_found_document() &&
-                        doc.key().path().PopLast().CanonicalString() == path_;
+                        doc.key().path().PopLast().CanonicalString() ==
+                            path_.CanonicalString();
+               });
+  return results;
+}
+
+model::PipelineInputOutputVector CollectionGroupSource::Evaluate(
+    const EvaluateContext& /*context*/,
+    const model::PipelineInputOutputVector& inputs) const {
+  model::PipelineInputOutputVector results;
+  std::copy_if(inputs.begin(), inputs.end(), std::back_inserter(results),
+               [this](const model::MutableDocument& doc) {
+                 return doc.is_found_document() &&
+                        doc.key().GetCollectionGroup() == collection_id_;
                });
   return results;
 }
@@ -528,6 +547,39 @@ model::PipelineInputOutputVector LimitStage::Evaluate(
   }
   return model::PipelineInputOutputVector(inputs.begin(),
                                           inputs.begin() + count);
+}
+
+model::PipelineInputOutputVector SortStage::Evaluate(
+    const EvaluateContext& context,
+    const model::PipelineInputOutputVector& inputs) const {
+  model::PipelineInputOutputVector input_copy = inputs;
+  std::sort(
+      input_copy.begin(), input_copy.end(),
+      [this, &context](const model::PipelineInputOutput& left,
+                       const model::PipelineInputOutput& right) -> bool {
+        for (const auto& ordering : this->orders_) {
+          const auto left_result =
+              ordering.expr()->ToEvaluable()->Evaluate(context, left);
+          const auto right_result =
+              ordering.expr()->ToEvaluable()->Evaluate(context, right);
+
+          auto left_val = left_result.IsErrorOrUnset() ? model::MinValue()
+                                                       : *left_result.value();
+          auto right_val = right_result.IsErrorOrUnset()
+                               ? model::MinValue()
+                               : *right_result.value();
+          const auto compare_result = model::Compare(left_val, right_val);
+          if (compare_result != util::ComparisonResult::Same) {
+            return ordering.direction() == Ordering::ASCENDING
+                       ? compare_result == util::ComparisonResult::Ascending
+                       : compare_result == util::ComparisonResult::Descending;
+          }
+        }
+
+        return false;
+      });
+
+  return input_copy;
 }
 
 }  // namespace api

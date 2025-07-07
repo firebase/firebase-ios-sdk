@@ -45,6 +45,14 @@ class Ordering {
       : expr_(expr), direction_(direction) {
   }
 
+  const Expr* expr() const {
+    return expr_.get();
+  }
+
+  Direction direction() const {
+    return direction_;
+  }
+
   google_firestore_v1_Value to_proto() const;
 
  private:

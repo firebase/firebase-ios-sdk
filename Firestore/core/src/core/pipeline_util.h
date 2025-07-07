@@ -14,36 +14,28 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline_run.h"
+#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_UTIL_H_
+#define FIRESTORE_CORE_SRC_CORE_PIPELINE_UTIL_H_
 
+#include <memory>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/realtime_pipeline.h"
 #include "Firestore/core/src/api/stages.h"
-#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/model/mutable_document.h"
-#include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-std::vector<model::MutableDocument> RunPipeline(
-    api::RealtimePipeline& pipeline,
-    const std::vector<model::MutableDocument>& inputs) {
-  if (pipeline.rewritten_stages().empty()) {
-    pipeline.SetRewrittentStages(RewriteStages(pipeline.stages()));
-  }
-
-  auto current = std::vector<model::MutableDocument>(inputs);
-  for (const auto& stage : pipeline.rewritten_stages()) {
-    current = stage->Evaluate(pipeline.evaluate_context(), current);
-  }
-
-  return current;
-}
+std::vector<std::shared_ptr<api::EvaluableStage>> RewriteStages(
+    const std::vector<std::shared_ptr<api::EvaluableStage>>&);
 
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_UTIL_H_
