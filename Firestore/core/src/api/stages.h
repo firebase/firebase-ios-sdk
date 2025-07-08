@@ -29,6 +29,7 @@
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/ordering.h"
+#include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -53,16 +54,22 @@ class Stage {
 
 class EvaluateContext {
  public:
-  explicit EvaluateContext(remote::Serializer* serializer)
-      : serializer_(serializer) {
+  explicit EvaluateContext(remote::Serializer* serializer,
+                           core::ListenOptions options)
+      : serializer_(serializer), listen_options_(std::move(options)) {
   }
 
   const remote::Serializer& serializer() const {
     return *serializer_;
   }
 
+  const core::ListenOptions& listen_options() const {
+    return listen_options_;
+  }
+
  private:
   remote::Serializer* serializer_;
+  core::ListenOptions listen_options_;
 };
 
 class EvaluableStage : public Stage {

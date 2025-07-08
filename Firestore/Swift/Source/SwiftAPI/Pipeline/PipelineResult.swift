@@ -22,12 +22,24 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineResult: @unchecked Sendable {
   let bridge: __PipelineResultBridge
+  private let serverTimestamp: ServerTimestampBehavior
 
   init(_ bridge: __PipelineResultBridge) {
     self.bridge = bridge
+    serverTimestamp = .none
     ref = self.bridge.reference
     id = self.bridge.documentID
     data = self.bridge.data().mapValues { Helper.convertObjCToSwift($0) }
+    createTime = self.bridge.create_time
+    updateTime = self.bridge.update_time
+  }
+
+  init(_ bridge: __PipelineResultBridge, _ behavior: ServerTimestampBehavior) {
+    self.bridge = bridge
+    serverTimestamp = behavior
+    ref = self.bridge.reference
+    id = self.bridge.documentID
+    data = self.bridge.data(with: serverTimestamp)
     createTime = self.bridge.create_time
     updateTime = self.bridge.update_time
   }
@@ -51,20 +63,29 @@ public struct PipelineResult: @unchecked Sendable {
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldName: String) -> Sendable? {
-    return Helper.convertObjCToSwift(bridge.get(fieldName))
+    return Helper.convertObjCToSwift(bridge.get(
+      fieldName,
+      serverTimestampBehavior: serverTimestamp
+    ))
   }
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ fieldPath: FieldPath) -> Sendable? {
-    return Helper.convertObjCToSwift(bridge.get(fieldPath))
+    return Helper.convertObjCToSwift(bridge.get(
+      fieldPath,
+      serverTimestampBehavior: serverTimestamp
+    ))
   }
 
   /// Retrieves the field specified by `fieldPath`.
   /// - Parameter fieldPath: The field path (e.g., "foo" or "foo.bar").
   /// - Returns: The data at the specified field location or `nil` if no such field exists.
   public func get(_ field: Field) -> Sendable? {
-    return Helper.convertObjCToSwift(bridge.get(field.fieldName))
+    return Helper.convertObjCToSwift(bridge.get(
+      field.fieldName,
+      serverTimestampBehavior: serverTimestamp
+    ))
   }
 }
