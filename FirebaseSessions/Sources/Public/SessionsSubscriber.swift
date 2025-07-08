@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// Sessions Subscriber is an interface that dependent SDKs
 /// must implement.

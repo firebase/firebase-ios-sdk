@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
+public import FirebaseCore
 import FirebaseInstallations
 import Foundation
 #if SWIFT_PACKAGE

@@ -18,7 +18,7 @@ import Foundation
 #if SWIFT_PACKAGE
   @_exported import FirebaseDatabaseInternal
 #endif // SWIFT_PACKAGE
-import FirebaseSharedSwift
+  public import FirebaseSharedSwift
 
 public extension DatabaseReference {
   /// Encodes an instance of `Encodable` and overwrites the encoded data

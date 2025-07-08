@@ -19,7 +19,7 @@
 #else
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
-import FirebaseSharedSwift
+public import FirebaseSharedSwift
 import Foundation
 
 public extension Firestore {

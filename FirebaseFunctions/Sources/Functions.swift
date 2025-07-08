@@ -14,9 +14,9 @@
 
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
-import FirebaseCore
+public import FirebaseCore
 import FirebaseMessagingInterop
-import FirebaseSharedSwift
+public import FirebaseSharedSwift
 import Foundation
 #if COCOAPODS
   @preconcurrency import GTMSessionFetcher

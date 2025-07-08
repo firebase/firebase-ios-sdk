@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
-import FirebaseCore
+public import FirebaseCore
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension

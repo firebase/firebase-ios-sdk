@@ -26,7 +26,7 @@ import FirebaseCoreExtension
 #endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-  import UIKit
+  public import UIKit
 #endif
 
 // Export the deprecated Objective-C defined globals and typedefs.
