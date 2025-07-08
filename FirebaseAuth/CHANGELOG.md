@@ -1,4 +1,4 @@
-# Unreleased
+# 12.0.0
 - [removed] **Breaking Change**: Removed the following Dynamic Links related
   APIs:
   - `ActionCodeSettings.dynamicLinkDomain`

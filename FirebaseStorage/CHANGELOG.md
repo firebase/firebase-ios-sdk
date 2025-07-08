@@ -1,4 +1,4 @@
-# Unreleased
+# 12.0.0
 - [removed] **Breaking change**: Removed the following unused API,
   `StorageMetadata.storageReference`.
 
