@@ -193,8 +193,8 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
   tasks.AwaitAll();
 
   MutableDocumentMap map;
-  for (const auto& [key, doc] : results.Result()) {
-    map = map.insert(key, doc);
+  for (const auto& entry : results.Result()) {
+    map = map.insert(entry.first, entry.second);
   }
   return map;
 }
