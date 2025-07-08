@@ -1319,10 +1319,19 @@ extension Auth: AuthInterop {
   /// dictionary will contain more information about the error encountered.
   @objc(signOut:) open func signOut() throws {
     try kAuthGlobalWorkQueue.sync {
-      guard self._currentUser != nil else {
-        return
+      if self._currentUser != nil {
+        // Clear standard user session if one exists.
+        try self.updateCurrentUser(nil, byForce: false, savingToDisk: true)
       }
-      return try self.updateCurrentUser(nil, byForce: false, savingToDisk: true)
+
+      // Clear R-GCIP token-only session.
+      self.rGCIPFirebaseTokenLock.withLock { token in
+        if token != nil {
+          token = nil
+        }
+      }
+      // authStateDidChangeNotification is primarily driven by changes to _currentUser, not yet
+      // implemented for rgcip token change.
     }
   }
 
@@ -2540,12 +2549,17 @@ public extension Auth {
   ///   call fails, or if the token response parsing fails.
   func exchangeToken(idToken: String, idpConfigId: String,
                      useStaging: Bool = false) async throws -> FirebaseToken {
-    // Ensure R-GCIP is configured with location and tenant ID
-    guard let _ = requestConfiguration.tenantConfig?.location,
-          let _ = requestConfiguration.tenantConfig?.tenantId
-    else {
+    /// Ensure R-GCIP is configured with location and tenant ID.
+    guard requestConfiguration.tenantConfig != nil else {
       /// This should never happen in production code, as it indicates a misconfiguration.
       fatalError("R-GCIP is not configured correctly.")
+    }
+    /// This method should only be called on an R-GCIP instance, which doesn't manage standard
+    /// users.
+    guard _currentUser == nil else {
+      fatalError(
+        "exchangeToken cannot be called on an Auth instance with an active standard user session."
+      )
     }
     let request = ExchangeTokenRequest(
       idToken: idToken,
@@ -2559,16 +2573,39 @@ public extension Auth {
         token: response.firebaseToken,
         expirationDate: response.expirationDate
       )
-      // Lock and update the token, signing out any current user.
+      // Lock and update the R-GCIP token.
       rGCIPFirebaseTokenLock.withLock { token in
-        if self._currentUser != nil {
-          try? self.signOut()
-        }
         token = newToken
       }
       return newToken
     } catch {
       throw error
+    }
+  }
+
+  /// Signs out from the current R-GCIP token-only session.
+  ///
+  /// This method invalidates the existing Firebase token (if any) and resets
+  /// the session.
+  /// Throws an error if something happens while trying to invalidate.
+  func exchangeTokenSignOut() throws {
+    try kAuthGlobalWorkQueue.sync {
+      guard self._currentUser == nil else {
+        // If theres a firebase user, signOut must be called instead.
+        let error = AuthErrorUtils
+          .operationNotAllowedError(
+            message: "exchangeTokenSignOut cannot be called when standard user is available. Call signOut instead."
+          )
+        throw error
+      }
+
+      // Clear R-GCIP token-only session.
+      self.rGCIPFirebaseTokenLock.withLock { token in
+        if token != nil {
+          print("INFO: Signing out from R-GCIP Token Only Session.")
+        }
+        token = nil
+      }
     }
   }
 }

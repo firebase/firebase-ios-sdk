@@ -194,6 +194,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .exchangeToken:
       callExchangeToken()
+
+    case .exchangeTokenSignOut:
+      callExchangeTokenSignOut()
     }
   }
 
@@ -1162,6 +1165,37 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
         DispatchQueue.main.async {
           let alert = UIAlertController(
             title: "Token Exchange Error",
+            message: error.localizedDescription,
+            preferredStyle: .alert
+          )
+          alert.addAction(UIAlertAction(title: "OK", style: .default))
+          self.present(alert, animated: true)
+        }
+      }
+    }
+  }
+
+  private func callExchangeTokenSignOut() {
+    Task {
+      do {
+        /// Attempt to sign out from current session.
+        try AppManager.shared.auth().exchangeTokenSignOut()
+        print("Sign out successful.")
+        await MainActor.run {
+          let alert = UIAlertController(
+            title: "Signed Out",
+            message: "The current R-GCIP session has been signed out.",
+            preferredStyle: .alert
+          )
+          alert.addAction(UIAlertAction(title: "OK", style: .default))
+          self.present(alert, animated: true)
+        }
+      } catch {
+        /// Handle sign out error
+        print("Failed to sign out: \(error)")
+        await MainActor.run {
+          let alert = UIAlertController(
+            title: "Sign Out Error",
             message: error.localizedDescription,
             preferredStyle: .alert
           )

@@ -25,25 +25,37 @@ class AppManager {
   private var otherApp: FirebaseApp
   var app: FirebaseApp
 
-  // Initialise Auth with TenantConfig
-  let tenantConfig = TenantConfig(tenantId: "Foo-e2e-tenant-007", location: "global")
+  // TenantConfig for regionalized Auth
+  private let tenantConfig = TenantConfig(tenantId: "Foo-e2e-tenant-007", location: "global")
+
+  // Cached Auth instances
+  private var defaultAppAuth: Auth
+  private var otherAppAuth: Auth
+  private var regionalAuthInstance: Auth
+
   func auth() -> Auth {
-    return Auth.auth(app: app, tenantConfig: tenantConfig)
+    /// Always return the specific regional instance
+    return regionalAuthInstance
   }
 
   private init() {
     defaultApp = FirebaseApp.app()!
-    app = FirebaseApp.app()!
+    defaultAppAuth = Auth.auth(app: defaultApp)
     guard let path = Bundle.main.path(forResource: "GoogleService-Info_multi", ofType: "plist"),
           let options = FirebaseOptions(contentsOfFile: path) else {
       fatalError("GoogleService-Info_multi.plist must be added to the project")
     }
-
-    FirebaseApp.configure(name: "OtherApp", options: options)
+    if FirebaseApp.app(name: "OtherApp") == nil {
+      FirebaseApp.configure(name: "OtherApp", options: options)
+    }
     guard let other = FirebaseApp.app(name: "OtherApp") else {
       fatalError("Failed to find OtherApp")
     }
     otherApp = other
+    otherAppAuth = Auth.auth(app: otherApp)
+    regionalAuthInstance = Auth.auth(app: otherApp, tenantConfig: tenantConfig)
+    print("AppManager init: regionalAuthInstance created: \(regionalAuthInstance)")
+    app = defaultApp
   }
 
   func toggle() {
@@ -51,6 +63,15 @@ class AppManager {
       app = otherApp
     } else {
       app = defaultApp
+    }
+  }
+
+  /// Function to get the standard Auth instance based on the current 'app'
+  func standardAuth() -> Auth {
+    if app == defaultApp {
+      return defaultAppAuth
+    } else {
+      return otherAppAuth
     }
   }
 }

@@ -54,6 +54,7 @@ enum AuthMenu: String {
   case totpEnroll
   case multifactorUnenroll
   case exchangeToken
+  case exchangeTokenSignOut
 
   // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
@@ -143,6 +144,8 @@ enum AuthMenu: String {
     // R-GCIP Exchange Token
     case .exchangeToken:
       return "Exchange Token"
+    case .exchangeTokenSignOut:
+      return "Sign Out from R-GCIP"
     }
   }
 
@@ -226,6 +229,8 @@ enum AuthMenu: String {
       self = .multifactorUnenroll
     case "Exchange Token":
       self = .exchangeToken
+    case "Sign Out from R-GCIP":
+      self = .exchangeTokenSignOut
     default:
       return nil
     }
@@ -364,6 +369,7 @@ class AuthMenuData: DataSourceProvidable {
     let header = "Exchange Token [Regionalized Auth]"
     let items: [Item] = [
       Item(title: AuthMenu.exchangeToken.name),
+      Item(title: AuthMenu.exchangeTokenSignOut.name),
     ]
     return Section(headerDescription: header, items: items)
   }
