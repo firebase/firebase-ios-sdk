@@ -1,3 +1,8 @@
+# 12.0.0
+- [changed] **Breaking Change**: Mark `HTTPSCallable` and `HTTPSCallableOptions`
+  as `final` classes for Swift clients. This was to achieve Swift 6 checked
+  `Sendable` support.
+
 # 11.12.0
 - [fixed] Fix regression from 11.6.0 where `HTTPSCallable` did not invoke
   completion block on main thread (#14653).

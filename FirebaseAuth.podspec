@@ -61,7 +61,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'FirebaseCoreExtension', '~> 12.0.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 5.0'
+  s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 6.0'
   s.ios.dependency 'RecaptchaInterop', '~> 101.0'
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
