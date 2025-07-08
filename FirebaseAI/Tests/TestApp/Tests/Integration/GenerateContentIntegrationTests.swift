@@ -134,36 +134,71 @@ struct GenerateContentIntegrationTests {
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 
-  @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash, 0),
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash, 24576),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, 128),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, 32768),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash, 0),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash, 24576),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Pro, 128),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Pro, 32768),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, 0),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, 24576),
-  ])
+  @Test(
+    arguments: [
+      (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
+      (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
+      (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+        thinkingBudget: 24576, includeThoughts: true
+      )),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
+        thinkingBudget: 32768, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+        thinkingBudget: 24576, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
+        thinkingBudget: 32768, includeThoughts: true
+      )),
+      (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
+      (
+        .googleAI_v1beta_freeTier,
+        ModelNames.gemini2_5_Flash,
+        ThinkingConfig(thinkingBudget: 24576)
+      ),
+      (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(
+        thinkingBudget: 24576, includeThoughts: true
+      )),
+      (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
+        thinkingBudget: 0
+      )),
+      (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
+        thinkingBudget: 24576
+      )),
+      (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
+        thinkingBudget: 24576, includeThoughts: true
+      )),
+    ] as [(InstanceConfig, String, ThinkingConfig)]
+  )
   func generateContentThinking(_ config: InstanceConfig, modelName: String,
-                               thinkingBudget: Int) async throws {
+                               thinkingConfig: ThinkingConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: GenerationConfig(
         temperature: 0.0,
         topP: 0.0,
         topK: 1,
-        thinkingConfig: ThinkingConfig(thinkingBudget: thinkingBudget)
+        thinkingConfig: thinkingConfig
       ),
       safetySettings: safetySettings
     )
+    let chat = model.startChat()
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 
-    let response = try await model.generateContent(prompt)
+    let response = try await chat.sendMessage(prompt)
 
     let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
     #expect(text == "Mountain View")
+
+    let candidate = try #require(response.candidates.first)
+    let thoughtParts = candidate.content.parts.compactMap { $0.isThought ? $0 : nil }
+    #expect(thoughtParts.isEmpty != thinkingConfig.includeThoughts)
 
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
@@ -171,10 +206,11 @@ struct GenerateContentIntegrationTests {
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
-    if thinkingBudget == 0 {
-      #expect(usageMetadata.thoughtsTokenCount == 0)
-    } else {
+    if let thinkingBudget = thinkingConfig.thinkingBudget, thinkingBudget > 0 {
+      #expect(usageMetadata.thoughtsTokenCount > 0)
       #expect(usageMetadata.thoughtsTokenCount <= thinkingBudget)
+    } else {
+      #expect(usageMetadata.thoughtsTokenCount == 0)
     }
     #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
     // The `candidatesTokensDetails` field is erroneously omitted when using the Google AI (Gemini
