@@ -31,6 +31,8 @@
   ](https://firebase.google.com/docs/ai-logic/migrate-to-latest-sdk).
 - [changed] **Breaking change** The Firebase Swift package now requires the
   Swift 6.0 toolchain (Xcode 16.2+).
+- [changed] Update GTMSessionFetcher dependency specifications to enable
+  support for the compatible GTMSessionFetcher 5.x versions.
 
 # Firebase 11.15.0
 - [fixed] Remove c99 as the required C language standard. (#14950)
