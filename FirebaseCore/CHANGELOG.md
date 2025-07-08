@@ -1,4 +1,4 @@
-# Unreleased
+# Firebase 12.0.0
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:
     - | Platform  | Firebase 12 |
