@@ -30,7 +30,7 @@ Pod::Spec.new do |s|
   }
 
   s.ios.deployment_target = '15.0'
-  s.osx.deployment_target = '10.15'
+  s.osx.deployment_target = '11.0'
   s.tvos.deployment_target = '15.0'
 
   s.source_files = 'src/**/*.{h,cc,inc}',
@@ -58,11 +58,11 @@ Pod::Spec.new do |s|
 
   s.header_mappings_dir = 'src/'
 
-  s.dependency 'abseil', '~> 1.20240722.0'
+  s.dependency 'abseil', '~> 1.20250127.1'
 
   # Set a CPP symbol so the code knows to use framework imports.
   s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
       'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
