@@ -141,7 +141,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "3.4.1" ..< "5.0.0"
+      "3.4.1" ..< "6.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
@@ -335,8 +335,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/11.15.0/FirebaseAnalytics.zip",
-      checksum: "b535a4eb74ddb2786b0e65bbd14e08d11a925c525f9d3e73c1e4fa37963e6b85"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.0.0/FirebaseAnalytics.zip",
+      checksum: "d5db7d1373be7c2595e34e6a50c943ca61ee36b806037da39c7b4d0253ce11db"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1404,7 +1404,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.15.0")
+  return .package(url: appMeasurementURL, exact: "12.0.0")
 }
 
 func abseilDependency() -> Package.Dependency {
