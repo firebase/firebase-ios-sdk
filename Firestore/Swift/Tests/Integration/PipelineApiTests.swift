@@ -36,9 +36,6 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     let query: Query = db.collection("foo").limit(to: 2)
     let _: Pipeline = pipelineSource.create(from: query)
 
-    let aggregateQuery = db.collection("foo").count
-    let _: Pipeline = pipelineSource.create(from: aggregateQuery)
-
     let _: PipelineSnapshot = try await pipeline.execute()
   }
 
@@ -310,12 +307,12 @@ final class PipelineApiTests: FSTIntegrationTestCase {
         ]
       )
 
-    // One special Field value is conveniently exposed as constructor to help the user reference reserved field values of __name__.
-        _ = db.pipeline().collection("books")
-          .addFields([
-            DocumentId()
-            ]
-          )
+    // One special Field value is conveniently exposed as constructor to help the user reference
+    // reserved field values of __name__.
+    _ = db.pipeline().collection("books")
+      .addFields([
+        DocumentId(),
+      ])
   }
 
   func testConstant() async throws {

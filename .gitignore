@@ -61,6 +61,8 @@ profile
 DerivedData
 *.hmap
 *.ipa
+# Xcode index build files
+.index-build/
 
 # Swift Package Manager
 Package.resolved
@@ -166,3 +168,4 @@ Firestore/Example/GoogleService-Info.plist
 
 # FirebaseVertexAI test data
 vertexai-sdk-test-data
+

@@ -23,6 +23,7 @@
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/util/hard_assert.h"  // For HARD_ASSERT and HARD_FAIL
+#include "pipeline_run.h"
 
 namespace firebase {
 namespace firestore {
@@ -260,19 +261,46 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   // Drop documents out to meet limitToFirst/limitToLast requirement.
   auto limit = GetLimit(query_);
   if (limit.has_value()) {
-    auto limit_type = GetLimitType(query_);
-    auto abs_limit = std::abs(limit.value());
-    if (abs_limit < static_cast<int64_t>(new_document_set.size())) {
-      for (size_t i = new_document_set.size() - abs_limit; i > 0; --i) {
-        absl::optional<Document> found =
-            limit_type == LimitType::First
-                ? new_document_set.GetLastDocument()
-                : new_document_set.GetFirstDocument();
-        const Document& old_doc = *found;
-        new_document_set = new_document_set.erase(old_doc->key());
-        new_mutated_keys = new_mutated_keys.erase(old_doc->key());
-        change_set.AddChange(
-            DocumentViewChange{old_doc, DocumentViewChange::Type::Removed});
+    if (query_.IsPipeline()) {
+      // TODO(pipeline): Not very efficient obviously, but should be fine for
+      // now. Longer term, limit queries should be evaluated from query engine
+      // as well.
+      std::vector<model::MutableDocument> candidates;
+      for (const Document& doc : new_document_set) {
+        candidates.push_back(doc.get());
+      }
+
+      auto results = RunPipeline(
+          const_cast<api::RealtimePipeline&>(query_.pipeline()), candidates);
+      DocumentSet new_result = DocumentSet(query_.Comparator());
+      for (auto doc : results) {
+        new_result = new_result.insert(doc);
+      }
+
+      for (Document doc : new_document_set) {
+        if (!new_result.ContainsKey(doc->key())) {
+          new_mutated_keys = new_mutated_keys.erase(doc->key());
+          change_set.AddChange(
+              DocumentViewChange{doc, DocumentViewChange::Type::Removed});
+        }
+      }
+
+      new_document_set = new_result;
+    } else {
+      auto limit_type = GetLimitType(query_);
+      auto abs_limit = std::abs(limit.value());
+      if (abs_limit < static_cast<int64_t>(new_document_set.size())) {
+        for (size_t i = new_document_set.size() - abs_limit; i > 0; --i) {
+          absl::optional<Document> found =
+              limit_type == LimitType::First
+                  ? new_document_set.GetLastDocument()
+                  : new_document_set.GetFirstDocument();
+          const Document& old_doc = *found;
+          new_document_set = new_document_set.erase(old_doc->key());
+          new_mutated_keys = new_mutated_keys.erase(old_doc->key());
+          change_set.AddChange(
+              DocumentViewChange{old_doc, DocumentViewChange::Type::Removed});
+        }
       }
     }
   }
