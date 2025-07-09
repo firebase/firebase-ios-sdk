@@ -31,7 +31,7 @@ import FirebaseCoreExtension
 
 // Export the deprecated Objective-C defined globals and typedefs.
 #if SWIFT_PACKAGE
-  @_exported import FirebaseAuthInternal
+  @_exported public import FirebaseAuthInternal
 #endif // SWIFT_PACKAGE
 
 #if os(iOS)

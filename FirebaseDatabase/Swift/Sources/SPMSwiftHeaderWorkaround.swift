@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseDatabaseInternal
+  @_exported public import FirebaseDatabaseInternal
 
   // This is a trick to force generate a `FirebaseDatabase-Swift.h`
   // header that re-exports `FirebaseDatabaseInternal` for Objective-C

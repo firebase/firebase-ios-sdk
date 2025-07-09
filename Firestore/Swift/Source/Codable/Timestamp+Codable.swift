@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@_exported import class FirebaseCore.Timestamp
+@_exported public import class FirebaseCore.Timestamp
 
 /**
  * A protocol describing the encodable properties of a Timestamp.
