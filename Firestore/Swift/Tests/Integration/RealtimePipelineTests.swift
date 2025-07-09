@@ -175,7 +175,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db
       .realtimePipeline()
       .collection(collRef.path)
-      .where(Field("rating").gte(4.5))
+      .where(Field("rating").greaterThanOrEqual(4.5))
 
     let stream = pipeline.snapshotStream()
     var iterator = stream.makeAsyncIterator()
@@ -223,7 +223,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db
       .realtimePipeline()
       .collection(collRef.path)
-      .where(Field("rating").gte(4.5))
+      .where(Field("rating").greaterThanOrEqual(4.5))
 
     let stream = pipeline.snapshotStream()
     var iterator = stream.makeAsyncIterator()
@@ -281,7 +281,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db
       .realtimePipeline()
       .collection(collRef.path)
-      .where(Field("rating").gte(4.5))
+      .where(Field("rating").greaterThanOrEqual(4.5))
 
     let stream = pipeline.snapshotStream(
       options: PipelineListenOptions(includeMetadataChanges: true, source: .cache)
@@ -314,7 +314,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db
       .realtimePipeline()
       .collection(collRef.path)
-      .where(Field("rating").gte(4.5))
+      .where(Field("rating").greaterThanOrEqual(4.5))
 
     let stream = pipeline.snapshotStream(
       options: PipelineListenOptions(includeMetadataChanges: true)
@@ -335,5 +335,293 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
     XCTAssertEqual(secondSnapshot!.results().count, 3)
     XCTAssertEqual(secondSnapshot!.changes.count, 0)
+  }
+
+  func testCanReadServerTimestampEstimateProperly() async throws {
+    let db = self.db
+    let collRef = collectionRef()
+    writeAllDocuments(bookDocs, toCollection: collRef)
+
+    disableNetwork()
+
+    // Using the non-async version
+    collRef.document("book1").updateData([
+      "rating": FieldValue.serverTimestamp(),
+    ]) { _ in }
+
+    let stream = db.realtimePipeline().collection(collRef.path)
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
+      .snapshotStream(options: PipelineListenOptions(serverTimestamps: .estimate))
+
+    var iterator = stream.makeAsyncIterator()
+
+    let firstSnapshot = try await iterator.next()
+    let result = firstSnapshot!.results()[0]
+    XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
+    XCTAssertNotNil(result.get("rating") as? Timestamp)
+    XCTAssertEqual(result.get("rating") as? Timestamp, result.data["rating"] as? Timestamp)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertNotNil(firstChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      firstChanges[0].result.get("rating") as? Timestamp,
+      result.get("rating") as? Timestamp
+    )
+
+    enableNetwork()
+
+    let secondSnapshot = try await iterator.next()
+    XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
+    XCTAssertNotEqual(
+      secondSnapshot!.results()[0].get("rating") as? Timestamp,
+      result.data["rating"] as? Timestamp
+    )
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
+    )
+  }
+
+  func testCanEvaluateServerTimestampEstimateProperly() async throws {
+    let db = self.db
+    let collRef = collectionRef()
+    writeAllDocuments(bookDocs, toCollection: collRef)
+
+    disableNetwork()
+
+    let now = Constant(Timestamp(date: Date()))
+    // Using the non-async version
+    collRef.document("book1").updateData([
+      "rating": FieldValue.serverTimestamp(),
+    ]) { _ in }
+
+    let stream = db.realtimePipeline().collection(collRef.path)
+      .where(
+        Field("rating").timestampAdd(amount: Constant("second"), unit: Constant(1)).greaterThan(now)
+      )
+      .snapshotStream(
+        options: PipelineListenOptions(serverTimestamps: .estimate, includeMetadataChanges: true)
+      )
+
+    var iterator = stream.makeAsyncIterator()
+
+    let firstSnapshot = try await iterator.next()
+    let result = firstSnapshot!.results()[0]
+    XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
+    XCTAssertNotNil(result.get("rating") as? Timestamp)
+    XCTAssertEqual(result.get("rating") as? Timestamp, result.data["rating"] as? Timestamp)
+
+    // TODO(pipeline): Enable this when watch supports timestampAdd
+    //    enableNetwork()
+    //
+    //    let secondSnapshot = try await iterator.next()
+    //    XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
+    //    XCTAssertNotEqual(
+    //      secondSnapshot!.results()[0].get("rating") as? Timestamp,
+    //      result.data["rating"] as? Timestamp
+    //    )
+  }
+
+  func testCanReadServerTimestampPreviousProperly() async throws {
+    let db = self.db
+    let collRef = collectionRef()
+    writeAllDocuments(bookDocs, toCollection: collRef)
+
+    disableNetwork()
+
+    // Using the non-async version
+    collRef.document("book1").updateData([
+      "rating": FieldValue.serverTimestamp(),
+    ]) { _ in }
+
+    let stream = db.realtimePipeline().collection(collRef.path)
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
+      .snapshotStream(options: PipelineListenOptions(serverTimestamps: .previous))
+
+    var iterator = stream.makeAsyncIterator()
+
+    let firstSnapshot = try await iterator.next()
+    let result = firstSnapshot!.results()[0]
+    XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
+    XCTAssertNotNil(result.get("rating") as? Double)
+    XCTAssertEqual(result.get("rating") as! Double, 4.2)
+    XCTAssertEqual(result.get("rating") as! Double, result.data["rating"] as! Double)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertEqual(firstChanges[0].result.get("rating") as! Double, 4.2)
+
+    enableNetwork()
+
+    let secondSnapshot = try await iterator.next()
+    XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
+    XCTAssertNotNil(secondSnapshot!.results()[0].get("rating") as? Timestamp)
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
+    )
+  }
+
+  func testCanEvaluateServerTimestampPreviousProperly() async throws {
+    let db = self.db
+    let collRef = collectionRef()
+    writeAllDocuments(bookDocs, toCollection: collRef)
+
+    disableNetwork()
+
+    // Using the non-async version
+    collRef.document("book1").updateData([
+      "title": FieldValue.serverTimestamp(),
+    ]) { _ in }
+
+    let stream = db.realtimePipeline().collection(collRef.path)
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
+      .snapshotStream(
+        options: PipelineListenOptions(serverTimestamps: .previous)
+      )
+
+    var iterator = stream.makeAsyncIterator()
+
+    let firstSnapshot = try await iterator.next()
+    let result = firstSnapshot!.results()[0]
+    XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
+    XCTAssertEqual(result.get("title") as? String, "The Hitchhiker's Guide to the Galaxy")
+
+    // TODO(pipeline): Enable this when watch supports timestampAdd
+    //    enableNetwork()
+  }
+
+  func testCanReadServerTimestampNoneProperly() async throws {
+    let db = self.db
+    let collRef = collectionRef()
+    writeAllDocuments(bookDocs, toCollection: collRef)
+
+    disableNetwork()
+
+    // Using the non-async version
+    collRef.document("book1").updateData([
+      "rating": FieldValue.serverTimestamp(),
+    ]) { _ in }
+
+    let stream = db.realtimePipeline().collection(collRef.path)
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
+      // .none is the default behavior
+      .snapshotStream()
+
+    var iterator = stream.makeAsyncIterator()
+
+    let firstSnapshot = try await iterator.next()
+    let result = firstSnapshot!.results()[0]
+    XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
+    XCTAssertNil(result.get("rating") as? Timestamp)
+    XCTAssertEqual(result.get("rating") as? Timestamp, result.data["rating"] as? Timestamp)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertNil(firstChanges[0].result.get("rating") as? Timestamp)
+
+    enableNetwork()
+
+    let secondSnapshot = try await iterator.next()
+    XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
+    XCTAssertNotNil(secondSnapshot!.results()[0].get("rating") as? Timestamp)
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
+    )
+  }
+
+  func testCanEvaluateServerTimestampNoneProperly() async throws {
+    let db = self.db
+    let collRef = collectionRef()
+    writeAllDocuments(bookDocs, toCollection: collRef)
+
+    disableNetwork()
+
+    // Using the non-async version
+    collRef.document("book1").updateData([
+      "title": FieldValue.serverTimestamp(),
+    ]) { _ in }
+
+    let stream = db.realtimePipeline().collection(collRef.path)
+      .where(Field("title").isNil())
+      .snapshotStream(
+      )
+
+    var iterator = stream.makeAsyncIterator()
+
+    let firstSnapshot = try await iterator.next()
+    let result = firstSnapshot!.results()[0]
+    XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
+    XCTAssertNil(result.get("title") as? String)
+
+    // TODO(pipeline): Enable this when watch supports timestampAdd
+    //    enableNetwork()
+  }
+
+  func testSamePipelineWithDifferetnOptions() async throws {
+    let db = self.db
+    let collRef = collectionRef()
+    writeAllDocuments(bookDocs, toCollection: collRef)
+
+    disableNetwork()
+
+    // Using the non-async version
+    collRef.document("book1").updateData([
+      "title": FieldValue.serverTimestamp(),
+    ]) { _ in }
+
+    let pipeline = db.realtimePipeline().collection(collRef.path)
+      .where(Field("title").isNotNil())
+      .limit(1)
+
+    let stream1 = pipeline
+      .snapshotStream(
+        options: PipelineListenOptions(serverTimestamps: .previous)
+      )
+
+    var iterator1 = stream1.makeAsyncIterator()
+
+    let firstSnapshot1 = try await iterator1.next()
+    var result1 = firstSnapshot1!.results()[0]
+    XCTAssertEqual(firstSnapshot1!.metadata.isFromCache, true)
+    XCTAssertEqual(result1.get("title") as? String, "The Hitchhiker's Guide to the Galaxy")
+
+    let stream2 = pipeline
+      .snapshotStream(
+        options: PipelineListenOptions(serverTimestamps: .estimate)
+      )
+
+    var iterator2 = stream2.makeAsyncIterator()
+
+    let firstSnapshot2 = try await iterator2.next()
+    var result2 = firstSnapshot2!.results()[0]
+    XCTAssertEqual(firstSnapshot2!.metadata.isFromCache, true)
+    XCTAssertNotNil(result2.get("title") as? Timestamp)
+
+    enableNetwork()
+
+    let secondSnapshot1 = try await iterator1.next()
+    result1 = secondSnapshot1!.results()[0]
+    XCTAssertEqual(secondSnapshot1!.metadata.isFromCache, false)
+    XCTAssertNotNil(result1.get("title") as? Timestamp)
+
+    let secondSnapshot2 = try await iterator2.next()
+    result2 = secondSnapshot2!.results()[0]
+    XCTAssertEqual(secondSnapshot2!.metadata.isFromCache, false)
+    XCTAssertNotNil(result2.get("title") as? Timestamp)
   }
 }

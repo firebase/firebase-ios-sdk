@@ -143,7 +143,7 @@ public struct RealtimePipeline: @unchecked Sendable {
   ///
   /// - Parameter condition: The `BooleanExpr` to apply.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func `where`(_ condition: BooleanExpr) -> RealtimePipeline {
+  public func `where`(_ condition: BooleanExpression) -> RealtimePipeline {
     return RealtimePipeline(stages: stages + [Where(condition: condition)], db: db)
   }
 

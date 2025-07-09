@@ -48,6 +48,7 @@ class Stage {
   Stage() = default;
   virtual ~Stage() = default;
 
+  virtual const std::string& name() const = 0;
   virtual google_firestore_v1_Pipeline_Stage to_proto() const = 0;
 };
 
@@ -71,9 +72,8 @@ class EvaluateContext {
 class EvaluableStage : public Stage {
  public:
   EvaluableStage() = default;
-  virtual ~EvaluableStage() = default;
+  ~EvaluableStage() override = default;
 
-  virtual absl::string_view name() const = 0;
   virtual model::PipelineInputOutputVector Evaluate(
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const = 0;
@@ -86,8 +86,9 @@ class CollectionSource : public EvaluableStage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
-  absl::string_view name() const override {
-    return "collection";
+  const std::string& name() const override {
+    static const std::string kName = "collection";
+    return kName;
   }
 
   std::string path() const {
@@ -109,8 +110,9 @@ class DatabaseSource : public EvaluableStage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
-  absl::string_view name() const override {
-    return "database";
+  const std::string& name() const override {
+    static const std::string kName = "database";
+    return kName;
   }
 
   model::PipelineInputOutputVector Evaluate(
@@ -127,8 +129,9 @@ class CollectionGroupSource : public EvaluableStage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
-  absl::string_view name() const override {
-    return "collection_group";
+  const std::string& name() const override {
+    static const std::string kName = "collection_group";
+    return kName;
   }
 
   absl::string_view collection_id() const {
@@ -156,8 +159,9 @@ class DocumentsSource : public EvaluableStage {
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const override;
 
-  absl::string_view name() const override {
-    return "documents";
+  const std::string& name() const override {
+    static const std::string kName = "documents";
+    return kName;
   }
 
   std::vector<std::string> documents() const {
@@ -178,6 +182,11 @@ class AddFields : public Stage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "add_fields";
+    return kName;
+  }
+
  private:
   std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
 };
@@ -193,6 +202,11 @@ class AggregateStage : public Stage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "aggregate";
+    return kName;
+  }
+
  private:
   std::unordered_map<std::string, std::shared_ptr<AggregateFunction>>
       accumulators_;
@@ -207,8 +221,9 @@ class Where : public EvaluableStage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
-  absl::string_view name() const override {
-    return "where";
+  const std::string& name() const override {
+    static const std::string kName = "where";
+    return kName;
   }
 
   const Expr* expr() const {
@@ -252,6 +267,11 @@ class FindNearestStage : public Stage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "find_nearest";
+    return kName;
+  }
+
  private:
   std::shared_ptr<Expr> property_;
   nanopb::SharedMessage<google_firestore_v1_Value> vector_;
@@ -267,8 +287,9 @@ class LimitStage : public EvaluableStage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
-  absl::string_view name() const override {
-    return "limit";
+  const std::string& name() const override {
+    static const std::string kName = "limit";
+    return kName;
   }
 
   int64_t limit() const {
@@ -291,6 +312,11 @@ class OffsetStage : public Stage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "offset";
+    return kName;
+  }
+
  private:
   int64_t offset_;
 };
@@ -305,6 +331,11 @@ class SelectStage : public Stage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "select";
+    return kName;
+  }
+
  private:
   std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
 };
@@ -318,8 +349,9 @@ class SortStage : public EvaluableStage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
-  absl::string_view name() const override {
-    return "sort";
+  const std::string& name() const override {
+    static const std::string kName = "sort";
+    return kName;
   }
 
   model::PipelineInputOutputVector Evaluate(
@@ -344,6 +376,11 @@ class DistinctStage : public Stage {
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "distinct";
+    return kName;
+  }
+
  private:
   std::unordered_map<std::string, std::shared_ptr<Expr>> groups_;
 };
@@ -356,6 +393,11 @@ class RemoveFieldsStage : public Stage {
   ~RemoveFieldsStage() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "remove_fields";
+    return kName;
+  }
 
  private:
   std::vector<Field> fields_;
@@ -385,6 +427,11 @@ class ReplaceWith : public Stage {
   ~ReplaceWith() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "replace_with";
+    return kName;
+  }
+
  private:
   std::shared_ptr<Expr> expr_;
   ReplaceMode mode_;
@@ -413,6 +460,11 @@ class Sample : public Stage {
   ~Sample() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "sample";
+    return kName;
+  }
+
  private:
   SampleMode mode_;
   int64_t count_;
@@ -425,6 +477,11 @@ class Union : public Stage {
   ~Union() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
+  const std::string& name() const override {
+    static const std::string kName = "union";
+    return kName;
+  }
+
  private:
   std::shared_ptr<Pipeline> other_;
 };
@@ -436,6 +493,11 @@ class Unnest : public Stage {
          absl::optional<std::shared_ptr<Expr>> index_field);
   ~Unnest() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "unnest";
+    return kName;
+  }
 
  private:
   std::shared_ptr<Expr> field_;
@@ -450,6 +512,10 @@ class RawStage : public Stage {
            std::unordered_map<std::string, std::shared_ptr<Expr>> options);
   ~RawStage() override = default;
   google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    return name_;
+  }
 
  private:
   std::string name_;
