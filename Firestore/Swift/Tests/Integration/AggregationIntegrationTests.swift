@@ -31,6 +31,7 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
     try await collection.addDocument(data: ["author": "authorA",
                                             "title": "titleA",
                                             "pages": 100,
+
                                             "height": 24.5,
                                             "weight": 24.1,
                                             "foo": 1,
