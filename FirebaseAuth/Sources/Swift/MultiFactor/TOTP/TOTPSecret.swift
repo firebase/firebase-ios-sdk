@@ -19,7 +19,7 @@
 #endif
 
 #if os(iOS)
-  public import Foundation
+  import Foundation
   import UIKit
 
   /// The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
