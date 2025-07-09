@@ -30,9 +30,12 @@ struct GenerativeAIService {
 
   private let urlSession: URLSession
 
-  init(firebaseInfo: FirebaseInfo, urlSession: URLSession) {
+  private let aiConfig: FirebaseAIConfig
+
+  init(firebaseInfo: FirebaseInfo, urlSession: URLSession, aiConfig: FirebaseAIConfig) {
     self.firebaseInfo = firebaseInfo
     self.urlSession = urlSession
+    self.aiConfig = aiConfig
   }
 
   func loadRequest<T: GenerativeAIRequest>(request: T) async throws -> T.Response {
@@ -177,7 +180,7 @@ struct GenerativeAIService {
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     if let appCheck = firebaseInfo.appCheck {
-      let tokenResult = await appCheck.getToken(forcingRefresh: false)
+      let tokenResult = await fetchAppCheckToken(appCheck: appCheck)
       urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
       if let error = tokenResult.error {
         AILog.error(
@@ -205,6 +208,23 @@ struct GenerativeAIService {
     urlRequest.timeoutInterval = request.options.timeout
 
     return urlRequest
+  }
+
+  private func fetchAppCheckToken(appCheck: AppCheckInterop) async
+    -> FIRAppCheckTokenResultInterop {
+    if aiConfig.appCheck.requireLimitedUseTokens {
+      if let token = await appCheck.getLimitedUseToken?() {
+        return token
+      }
+
+      AILog.error(
+        code: .appCheckTokenFetchFailed,
+        "Missing getLimitedUseToken() function, but requireLimitedUseTokens was enabled."
+      )
+      // falls back to standard token
+    }
+
+    return await appCheck.getToken(forcingRefresh: false)
   }
 
   private func httpResponse(urlResponse: URLResponse) throws -> HTTPURLResponse {
