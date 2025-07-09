@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
-
 // TODO(Swift 6 Breaking): Make checked Sendable.
 
 #if os(iOS)
+  public import Foundation
 
   /// Extends the MultiFactorInfo class for phone number second factors.
   ///

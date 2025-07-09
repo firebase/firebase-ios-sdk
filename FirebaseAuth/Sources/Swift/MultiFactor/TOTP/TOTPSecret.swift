@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
 #if COCOAPODS
   import GoogleUtilities
 #else
@@ -20,6 +19,7 @@ public import Foundation
 #endif
 
 #if os(iOS)
+  public import Foundation
   import UIKit
 
   /// The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
