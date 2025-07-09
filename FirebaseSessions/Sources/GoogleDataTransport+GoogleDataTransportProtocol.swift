@@ -22,7 +22,8 @@ enum GoogleDataTransportProtocolErrors: Error {
 }
 
 protocol GoogleDataTransportProtocol: Sendable {
-  func logGDTEvent(event: GDTCOREvent, completion: @escaping (Result<Void, Error>) -> Void)
+  func logGDTEvent(event: GDTCOREvent,
+                   completion: @escaping @Sendable (Result<Void, Error>) -> Void)
   func eventForTransport() -> GDTCOREvent
 }
 
@@ -38,7 +39,8 @@ final class GoogleDataTransporter: GoogleDataTransportProtocol {
     transporter = GDTCORTransport(mappingID: mappingID, transformers: transformers, target: target)!
   }
 
-  func logGDTEvent(event: GDTCOREvent, completion: @escaping (Result<Void, any Error>) -> Void) {
+  func logGDTEvent(event: GDTCOREvent,
+                   completion: @escaping @Sendable (Result<Void, any Error>) -> Void) {
     transporter.sendDataEvent(event) { wasWritten, error in
       if let error {
         completion(.failure(error))
