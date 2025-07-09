@@ -918,37 +918,49 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     }
     if (expectedState[@"activeTargets"]) {
       __block ActiveTargetMap expectedActiveTargets;
-      [expectedState[@"activeTargets"] enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString,
-                                                                           NSDictionary *queryData,
-                                                                           BOOL *) {
-        TargetId targetID = [targetIDString intValue];
-        NSArray *queriesJson = queryData[@"queries"];
-        std::vector<TargetData> queries;
-        for (id queryJson in queriesJson) {
-          core::QueryOrPipeline qop;
-          Query query = [self parseQuery:queryJson];
+      [expectedState[@"activeTargets"]
+          enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString, NSDictionary *queryData,
+                                              BOOL *) {
+            TargetId targetID = [targetIDString intValue];
+            NSArray *queriesJson = queryData[@"queries"];
+            std::vector<TargetData> queries;
+            for (id queryJson in queriesJson) {
+              QueryPurpose purpose = QueryPurpose::Listen;
+              if ([queryData objectForKey:@"targetPurpose"] != nil) {
+                purpose = [self parseQueryPurpose:queryData[@"targetPurpose"]];
+              }
 
-          QueryPurpose purpose = QueryPurpose::Listen;
-          if ([queryData objectForKey:@"targetPurpose"] != nil) {
-            purpose = [self parseQueryPurpose:queryData[@"targetPurpose"]];
-          }
+              core::TargetOrPipeline top;
+              Query query = [self parseQuery:queryJson];
 
-          TargetData target_data(core::TargetOrPipeline(query.ToTarget()), targetID, 0, purpose);
-          if ([queryData objectForKey:@"resumeToken"] != nil) {
-            target_data = target_data.WithResumeToken(MakeResumeToken(queryData[@"resumeToken"]),
-                                                      SnapshotVersion::None());
-          } else {
-            target_data = target_data.WithResumeToken(ByteString(),
-                                                      [self parseVersion:queryData[@"readTime"]]);
-          }
+              if (self->_convertToPipeline &&
+                  purpose != firebase::firestore::local::QueryPurpose::LimboResolution) {
+                std::vector<std::shared_ptr<api::EvaluableStage>> stages =
+                    core::ToPipelineStages(query);
+                auto serializer =
+                    absl::make_unique<remote::Serializer>(self.driver.databaseInfo.database_id());
+                top = core::TargetOrPipeline(
+                    api::RealtimePipeline(std::move(stages), std::move(serializer)));
+              } else {
+                top = core::TargetOrPipeline(query.ToTarget());
+              }
 
-          if ([queryData objectForKey:@"expectedCount"] != nil) {
-            target_data = target_data.WithExpectedCount([queryData[@"expectedCount"] intValue]);
-          }
-          queries.push_back(std::move(target_data));
-        }
-        expectedActiveTargets[targetID] = std::move(queries);
-      }];
+              TargetData target_data(top, targetID, 0, purpose);
+              if ([queryData objectForKey:@"resumeToken"] != nil) {
+                target_data = target_data.WithResumeToken(
+                    MakeResumeToken(queryData[@"resumeToken"]), SnapshotVersion::None());
+              } else {
+                target_data = target_data.WithResumeToken(
+                    ByteString(), [self parseVersion:queryData[@"readTime"]]);
+              }
+
+              if ([queryData objectForKey:@"expectedCount"] != nil) {
+                target_data = target_data.WithExpectedCount([queryData[@"expectedCount"] intValue]);
+              }
+              queries.push_back(std::move(target_data));
+            }
+            expectedActiveTargets[targetID] = std::move(queries);
+          }];
       [self.driver setExpectedActiveTargets:std::move(expectedActiveTargets)];
     }
   }
@@ -1058,12 +1070,12 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     // XCTAssertEqualObjects(actualTargets[targetID], TargetData);
     const TargetData &actual = found->second;
     auto left = actual.target_or_pipeline();
-    auto left_p = left.IsPipeline();
     auto right = targetData.target_or_pipeline();
+    auto left_p = left.IsPipeline();
     auto right_p = right.IsPipeline();
-    XCTAssertEqual(actual.purpose(), targetData.purpose());
     XCTAssertEqual(left_p, right_p);
     XCTAssertEqual(left, right);
+    XCTAssertEqual(actual.purpose(), targetData.purpose());
     XCTAssertEqual(actual.target_id(), targetData.target_id());
     XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());
