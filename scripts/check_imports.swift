@@ -81,21 +81,6 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
   }
 
   guard !isSwiftFile else {
-    // Swift specific checks.
-    fileContents.components(separatedBy: .newlines)
-      .enumerated() // [(lineNum, line), ...]
-      .filter {
-        $1.starts(with: "import FirebaseCoreExtension")
-          /* FirebaseVertexAI is using `InternalImportsByDefault` so its files are not checked. */
-          && !file.contains("FirebaseVertexAI")
-      }
-      .forEach { lineNum, line in
-        logger
-          .importLog(
-            "Use `@_implementationOnly import FirebaseCoreExtension` when importing `FirebaseCoreExtension`.",
-            file, lineNum
-          )
-      }
     return
   }
 
