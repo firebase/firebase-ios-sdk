@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import FirebaseCoreInternal
+import Foundation
 
 /// Extends ApplicationInfoProtocol to string-format a combined appDisplayVersion and
 /// appBuildVersion
