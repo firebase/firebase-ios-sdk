@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
-
 #if os(iOS)
+  public import Foundation
 
   /// The base class for asserting ownership of a second factor. This is equivalent to the
   ///    AuthCredential class.

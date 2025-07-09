@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public import Foundation
-
 // TODO(Swift 6 Breaking): Make checked Sendable.
 
 #if os(iOS)
+  public import Foundation
+
   extension MultiFactorInfo: NSSecureCoding {}
 
   /// Safe public structure used to represent a second factor entity from a client perspective.
