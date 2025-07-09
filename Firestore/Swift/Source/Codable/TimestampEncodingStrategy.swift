@@ -16,7 +16,7 @@
 
 @_exported import class FirebaseCore.Timestamp
 
-import FirebaseSharedSwift
+public import FirebaseSharedSwift
 import Foundation
 
 public extension FirebaseDataEncoder.DateEncodingStrategy {

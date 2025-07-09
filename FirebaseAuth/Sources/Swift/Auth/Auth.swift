@@ -15,14 +15,14 @@
 import Foundation
 
 import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseCore
+public import FirebaseAuthInterop
+public import FirebaseCore
 import FirebaseCoreExtension
 #if COCOAPODS
-  internal import GoogleUtilities
+  import GoogleUtilities
 #else
-  internal import GoogleUtilities_AppDelegateSwizzler
-  internal import GoogleUtilities_Environment
+  import GoogleUtilities_AppDelegateSwizzler
+  import GoogleUtilities_Environment
 #endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)

@@ -20,8 +20,8 @@
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-internal import FirebaseCoreExtension
-import FirebaseSharedSwift
+import FirebaseCoreExtension
+public import FirebaseSharedSwift
 
 extension CodingUserInfoKey {
   static let documentRefUserInfoKey =

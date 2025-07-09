@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import SwiftUI
+public import SwiftUI
 
 #if SWIFT_PACKAGE
   @_exported import FirebaseFirestoreInternalWrapper

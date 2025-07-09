@@ -24,7 +24,7 @@ import Foundation
   @preconcurrency import GTMSessionFetcherCore
 #endif
 
-internal import FirebaseCoreExtension
+import FirebaseCoreExtension
 private import FirebaseCoreInternal
 
 /// File specific constants.

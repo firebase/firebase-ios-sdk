@@ -16,9 +16,9 @@
 import Foundation
 
 #if SWIFT_PACKAGE
-  internal import GoogleUtilities_Environment
+  import GoogleUtilities_Environment
 #else
-  internal import GoogleUtilities
+  import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 protocol SettingsDownloadClient: Sendable {
