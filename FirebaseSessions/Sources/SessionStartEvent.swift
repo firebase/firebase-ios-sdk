@@ -15,16 +15,16 @@
 
 import Foundation
 
-internal import GoogleDataTransport
+import GoogleDataTransport
 
 #if SWIFT_PACKAGE
   import FirebaseSessionsObjC
 #endif // SWIFT_PACKAGE
 
 #if SWIFT_PACKAGE
-  internal import GoogleUtilities_Environment
+  import GoogleUtilities_Environment
 #else
-  internal import GoogleUtilities
+  import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 ///

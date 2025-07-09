@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseInAppMessagingInternal
+  @_exported public import FirebaseInAppMessagingInternal
 
   // This is a trick to force generate a `FirebaseInAppMessaging-Swift.h`
   // header that re-exports `FirebaseInAppMessagingInternal` for Objective-C

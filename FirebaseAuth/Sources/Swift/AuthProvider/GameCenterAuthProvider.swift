@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if !os(watchOS)
-  import Foundation
+  public import Foundation
   import GameKit
 
   // TODO: Delete this when minimum iOS version passes 13.5.

@@ -14,7 +14,7 @@
 
 import Foundation
 #if SWIFT_PACKAGE
-  @_exported import FirebaseRemoteConfigInternal
+  @_exported public import FirebaseRemoteConfigInternal
 #endif // SWIFT_PACKAGE
 
 /// Represents a value associated with a key in a custom signal, restricted to the allowed data

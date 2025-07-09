@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// The error domain for codes in the `StorageErrorCode` enum.
 public let StorageErrorDomain: String = "FIRStorageErrorDomain"

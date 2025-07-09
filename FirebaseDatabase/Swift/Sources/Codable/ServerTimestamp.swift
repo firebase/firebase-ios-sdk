@@ -15,7 +15,7 @@
  */
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseDatabaseInternal
+  @_exported public import FirebaseDatabaseInternal
 #endif // SWIFT_PACKAGE
 
 /// A property wrapper that marks an `Optional<Date>` field to be

@@ -17,9 +17,9 @@ import Foundation
 
 // TODO: sendable (remove preconcurrency)
 #if SWIFT_PACKAGE
-  @preconcurrency internal import GoogleUtilities_UserDefaults
+  @preconcurrency import GoogleUtilities_UserDefaults
 #else
-  @preconcurrency internal import GoogleUtilities
+  @preconcurrency import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// CacheKey is like a "key" to a "safe". It provides necessary metadata about the current cache to

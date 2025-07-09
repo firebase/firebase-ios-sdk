@@ -18,7 +18,7 @@ import Foundation
 
   #if canImport(FirebaseAuth)
     #warning("This is experimental - use at your own risk.")
-    @_exported import FirebaseAuthCombineSwift
+    @_exported public import FirebaseAuthCombineSwift
   #endif
 
 #endif
