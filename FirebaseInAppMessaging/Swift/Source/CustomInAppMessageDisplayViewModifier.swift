@@ -15,7 +15,7 @@
 public import SwiftUI
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseInAppMessagingInternal
+  @_exported public import FirebaseInAppMessagingInternal
 #endif // SWIFT_PACKAGE
 
 // MARK: Image-only messages.

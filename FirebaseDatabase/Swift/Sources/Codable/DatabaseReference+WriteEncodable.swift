@@ -16,7 +16,7 @@
 
 import Foundation
 #if SWIFT_PACKAGE
-  @_exported import FirebaseDatabaseInternal
+  @_exported public import FirebaseDatabaseInternal
 #endif // SWIFT_PACKAGE
 public import FirebaseSharedSwift
 

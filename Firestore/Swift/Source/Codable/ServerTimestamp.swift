@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@_exported import class FirebaseCore.Timestamp
+@_exported public import class FirebaseCore.Timestamp
 
 /// A type that can initialize itself from a Firestore Timestamp, which makes
 /// it suitable for use with the `@ServerTimestamp` property wrapper.

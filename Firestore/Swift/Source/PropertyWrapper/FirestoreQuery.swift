@@ -17,9 +17,9 @@
 public import SwiftUI
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
+  @_exported public import FirebaseFirestoreInternalWrapper
 #else
-  @_exported import FirebaseFirestoreInternal
+  @_exported public import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
 /// The strategy to use when an error occurs during mapping Firestore documents

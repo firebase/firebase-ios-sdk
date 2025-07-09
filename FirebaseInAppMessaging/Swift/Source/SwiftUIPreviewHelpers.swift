@@ -15,7 +15,7 @@
 public import UIKit
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseInAppMessagingInternal
+  @_exported public import FirebaseInAppMessagingInternal
 #endif // SWIFT_PACKAGE
 
 @available(iOS 13.0, tvOS 13.0, *)

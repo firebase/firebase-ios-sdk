@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import FirebaseCore
-import Foundation
+public import Foundation
 
 // TODO(Swift 6 Breaking): Make checked Sendable.
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// Determines settings related to an auth object.
 @objc(FIRAuthSettings) open class AuthSettings: NSObject, NSCopying {
