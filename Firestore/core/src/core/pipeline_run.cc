@@ -22,6 +22,7 @@
 #include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
