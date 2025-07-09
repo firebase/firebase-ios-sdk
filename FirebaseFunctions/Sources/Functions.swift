@@ -25,7 +25,7 @@ import Foundation
 #endif
 
 import FirebaseCoreExtension
-private import FirebaseCoreInternal
+import FirebaseCoreInternal
 
 /// File specific constants.
 private enum Constants {

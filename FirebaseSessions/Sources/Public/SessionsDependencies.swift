@@ -15,7 +15,7 @@
 
 public import Foundation
 
-private import FirebaseCoreInternal
+import FirebaseCoreInternal
 
 /// Sessions Dependencies determines when a dependent SDK is
 /// installed in the app. The Sessions SDK uses this to figure
