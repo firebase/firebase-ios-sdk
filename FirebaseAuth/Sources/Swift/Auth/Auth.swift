@@ -2554,8 +2554,7 @@ public extension Auth {
       /// This should never happen in production code, as it indicates a misconfiguration.
       fatalError("R-GCIP is not configured correctly.")
     }
-    /// This method should only be called on an R-GCIP instance, which doesn't manage standard
-    /// users.
+    /// This method should only be called on an R-GCIP instance
     guard _currentUser == nil else {
       fatalError(
         "exchangeToken cannot be called on an Auth instance with an active standard user session."
