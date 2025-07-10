@@ -1331,8 +1331,6 @@ extension Auth: AuthInterop {
           token = nil
         }
       }
-      // authStateDidChangeNotification is primarily driven by changes to _currentUser, not yet
-      // implemented for rgcip token change.
     }
   }
 
