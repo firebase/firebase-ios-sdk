@@ -62,19 +62,6 @@ import Foundation
     set { impl.androidInstallIfNotAvailable.withLock { $0 = newValue } }
   }
 
-  /// The Firebase Dynamic Link domain used for out of band code flow.
-  #if !FIREBASE_CI
-    @available(
-      *,
-      deprecated,
-      message: "Firebase Dynamic Links is deprecated. Migrate to use Firebase Hosting link and use `linkDomain` to set a custom domain instead."
-    )
-  #endif // !FIREBASE_CI
-  @objc open var dynamicLinkDomain: String? {
-    get { impl.dynamicLinkDomain.value() }
-    set { impl.dynamicLinkDomain.withLock { $0 = newValue } }
-  }
-
   /// The out of band custom domain for handling code in app.
   @objc public var linkDomain: String? {
     get { impl.linkDomain.value() }
@@ -118,31 +105,22 @@ import Foundation
 private extension ActionCodeSettings {
   /// Checked Sendable implementation of `ActionCodeSettings`.
   final class SendableActionCodeSettings: Sendable {
-    let url = FIRAllocatedUnfairLock<URL?>(initialState: nil)
+    let url = UnfairLock<URL?>(nil)
 
-    let handleCodeInApp = FIRAllocatedUnfairLock<Bool>(initialState: false)
+    let handleCodeInApp = UnfairLock<Bool>(false)
 
-    let iOSBundleID: FIRAllocatedUnfairLock<String?>
+    let iOSBundleID: UnfairLock<String?>
 
-    let androidPackageName = FIRAllocatedUnfairLock<String?>(initialState: nil)
+    let androidPackageName = UnfairLock<String?>(nil)
 
-    let androidMinimumVersion = FIRAllocatedUnfairLock<String?>(initialState: nil)
+    let androidMinimumVersion = UnfairLock<String?>(nil)
 
-    let androidInstallIfNotAvailable = FIRAllocatedUnfairLock<Bool>(initialState: false)
+    let androidInstallIfNotAvailable = UnfairLock<Bool>(false)
 
-    #if !FIREBASE_CI
-      @available(
-        *,
-        deprecated,
-        message: "Firebase Dynamic Links is deprecated. Migrate to use Firebase Hosting link and use `linkDomain` to set a custom domain instead."
-      )
-    #endif // !FIREBASE_CI
-    let dynamicLinkDomain = FIRAllocatedUnfairLock<String?>(initialState: nil)
-
-    let linkDomain = FIRAllocatedUnfairLock<String?>(initialState: nil)
+    let linkDomain = UnfairLock<String?>(nil)
 
     init() {
-      iOSBundleID = FIRAllocatedUnfairLock<String?>(initialState: Bundle.main.bundleIdentifier)
+      iOSBundleID = UnfairLock<String?>(Bundle.main.bundleIdentifier)
     }
 
     func setAndroidPackageName(_ androidPackageName: String,

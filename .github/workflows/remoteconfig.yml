@@ -70,7 +70,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/generate_access_token.sh "$plist_secret" scripts/gha-encrypted/RemoteConfigSwiftAPI/ServiceAccount.json.gpg
           FirebaseRemoteConfig/Tests/Swift/AccessToken.json)
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Fake Console API Tests
       run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} fakeconsole
     - name: IntegrationTest
@@ -94,7 +94,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh config
     - name: Install Secret GoogleService-Info.plist
@@ -144,7 +144,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Prereqs
       run: scripts/install_prereqs.sh RemoteConfigSample iOS
     - name: Build
@@ -165,7 +165,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint RemoteConfig Cron

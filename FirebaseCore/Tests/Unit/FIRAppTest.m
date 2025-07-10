@@ -43,7 +43,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 + (void)resetApps;
 - (instancetype)initInstanceWithName:(NSString *)name options:(FIROptions *)options;
 - (BOOL)configureCore;
-+ (NSError *)errorForInvalidAppID;
 - (BOOL)isAppIDValid;
 + (NSString *)actualBundleID;
 + (NSNumber *)mapFromServiceStringToTypeEnum:(NSString *)serviceString;

@@ -1,3 +1,6 @@
+# 12.0.0
+- [fixed] Resolved compiler warnings related to constant definitions. (#15059)
+
 # 11.13.0
 - [fixed] Improved startup time by putting some initialization steps on a background. (#13675, #13232)
 

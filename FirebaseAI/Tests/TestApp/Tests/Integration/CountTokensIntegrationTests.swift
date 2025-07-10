@@ -57,12 +57,6 @@ struct CountTokensIntegrationTests {
     let response = try await model.countTokens(prompt)
 
     #expect(response.totalTokens == 6)
-    switch config.apiConfig.service {
-    case .vertexAI:
-      #expect(response.deprecated.totalBillableCharacters == 16)
-    case .googleAI:
-      #expect(response.deprecated.totalBillableCharacters == nil)
-    }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
@@ -81,12 +75,6 @@ struct CountTokensIntegrationTests {
     let response = try await model.countTokens("What is your favourite colour?")
 
     #expect(response.totalTokens == 14)
-    switch config.apiConfig.service {
-    case .vertexAI:
-      #expect(response.deprecated.totalBillableCharacters == 61)
-    case .googleAI:
-      #expect(response.deprecated.totalBillableCharacters == nil)
-    }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
@@ -115,12 +103,10 @@ struct CountTokensIntegrationTests {
     switch config.apiConfig.service {
     case .vertexAI:
       #expect(response.totalTokens == 65)
-      #expect(response.deprecated.totalBillableCharacters == 170)
     case .googleAI:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting
       // in a lower total count than Vertex AI.
       #expect(response.totalTokens == 34)
-      #expect(response.deprecated.totalBillableCharacters == nil)
     }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)

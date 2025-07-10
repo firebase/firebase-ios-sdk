@@ -89,6 +89,7 @@ final class FunctionsAPITests: XCTestCase {
       // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
+          let data: Any? = nil
           let result = try await callableRef.call(data)
           _ = result.data
         } catch {

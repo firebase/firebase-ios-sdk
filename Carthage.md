@@ -48,7 +48,6 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.j
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseVertexAIBinary.json"
 ```
 - Run `carthage update`
 - Use Finder to open `Carthage/Build`.

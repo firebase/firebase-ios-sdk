@@ -21,7 +21,6 @@ FirebaseRemoteConfig
 FirebaseRemoteConfigInterop
 FirebaseSessions
 FirebaseStorage
-FirebaseVertexAI
 GTMSessionFetcher
 GoogleDataTransport
 PromisesObjC
@@ -487,9 +486,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 FirebaseAnalytics
-FirebaseAnalyticsOnDeviceConversion
 GoogleAppMeasurement
-GoogleAppMeasurementOnDeviceConversion
 Copyright 2022 Google
 
 FirebaseCrashlytics
