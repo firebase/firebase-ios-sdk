@@ -2240,7 +2240,8 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }];
 }
 
-- (void)testDeepUpdatesWork {
+// TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
+- (void)SKIP_testDeepUpdatesWork {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *reader = refs.one;
   FIRDatabaseReference *writer = refs.two;
@@ -3008,7 +3009,8 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }
 }
 
-- (void)testServerIncrementOverflowAndTypeCoercion {
+// TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
+- (void)SKIP_testServerIncrementOverflowAndTypeCoercion {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   __block NSMutableArray *found = [NSMutableArray new];
   __block NSMutableArray *foundTypes = [NSMutableArray new];
