@@ -1179,7 +1179,7 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
     Task {
       do {
         /// Attempt to sign out from current session.
-        try AppManager.shared.auth().exchangeTokenSignOut()
+        try AppManager.shared.auth().signOut()
         print("Sign out successful.")
         await MainActor.run {
           let alert = UIAlertController(

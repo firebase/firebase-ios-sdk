@@ -2582,30 +2582,4 @@ public extension Auth {
       throw error
     }
   }
-
-  /// Signs out from the current R-GCIP token-only session.
-  ///
-  /// This method invalidates the existing Firebase token (if any) and resets
-  /// the session.
-  /// Throws an error if something happens while trying to invalidate.
-  func exchangeTokenSignOut() throws {
-    try kAuthGlobalWorkQueue.sync {
-      guard self._currentUser == nil else {
-        // If theres a firebase user, signOut must be called instead.
-        let error = AuthErrorUtils
-          .operationNotAllowedError(
-            message: "exchangeTokenSignOut cannot be called when standard user is available. Call signOut instead."
-          )
-        throw error
-      }
-
-      // Clear R-GCIP token-only session.
-      self.rGCIPFirebaseTokenLock.withLock { token in
-        if token != nil {
-          print("INFO: Signing out from R-GCIP Token Only Session.")
-        }
-        token = nil
-      }
-    }
-  }
 }
