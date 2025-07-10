@@ -89,7 +89,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-15]
-        xcode: [Xcode_16.3]
+        xcode: [Xcode_16.4]
         platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
         include:
           - os: macos-14
@@ -106,7 +106,8 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Install visionOS, if needed.
       if: matrix.platform == 'visionOS'
-      run: xcodebuild -downloadPlatform visionOS
+      run: ls $(xcode-select -p)/Platforms/XROS.platform || \
+        { xcodebuild -downloadPlatform visionOS }
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
       run: ${{ inputs.setup_command }}

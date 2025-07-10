@@ -24,7 +24,6 @@ OBJECTIVE_C = 'Objective-C'
 MODULE_LIST = [
     'FirebaseABTesting',
     'FirebaseAnalytics',  # Not buildable from source
-    'FirebaseAnalyticsOnDeviceConversion',  # Not buildable.
     'FirebaseAppCheck',
     'FirebaseAppDistribution',
     'FirebaseAuth',
@@ -45,8 +44,6 @@ MODULE_LIST = [
     'FirebaseStorage',
     # Not buildable. NO "source_files"
     'GoogleAppMeasurement',
-    # Not buildable. NO "source_files"
-    'GoogleAppMeasurementOnDeviceConversion'
 ]
 
 

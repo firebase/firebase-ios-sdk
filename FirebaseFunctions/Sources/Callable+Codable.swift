@@ -64,7 +64,7 @@ public struct Callable<Request: Encodable, Response: Decodable>: Sendable {
                    completion: @escaping @MainActor (Result<Response, Error>)
                      -> Void) {
     do {
-      let encoded = try encoder.encode(data)
+      let encoded = try SendableWrapper(value: encoder.encode(data))
       callable.call(encoded) { result, error in
         do {
           if let result {

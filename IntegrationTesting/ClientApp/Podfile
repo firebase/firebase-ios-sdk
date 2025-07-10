@@ -3,7 +3,7 @@ source 'https://github.com/firebase/SpecsStaging.git'
 source 'https://cdn.cocoapods.org/'
 
 target 'ClientApp-CocoaPods' do
-  platform :ios, '13.0'
+  platform :ios, '15.0'
 
   use_frameworks!
 
@@ -12,7 +12,6 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseCoreExtension', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseAnalytics' # Binary pods don't work with `:path`.
-  pod 'FirebaseAnalyticsOnDeviceConversion', :path => '../../'
   pod 'FirebaseABTesting', :path => '../../'
   pod 'FirebaseAppCheck', :path => '../../'
   pod 'FirebaseRemoteConfig', :path => '../../'

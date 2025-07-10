@@ -44,7 +44,6 @@ let implicitPods = [
 
 let binaryPods = [
   "GoogleAppMeasurement",
-  "GoogleAppMeasurementOnDeviceConversion",
   "FirebaseAnalytics",
 ]
 

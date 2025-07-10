@@ -619,6 +619,58 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(usageMetadata.candidatesTokensDetails.isEmpty, true)
   }
 
+  func testGenerateContent_groundingMetadata() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-google-search-grounding",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
+
+    XCTAssertEqual(groundingMetadata.webSearchQueries, ["current weather in London"])
+    XCTAssertNotNil(groundingMetadata.searchEntryPoint)
+    XCTAssertNotNil(groundingMetadata.searchEntryPoint?.renderedContent)
+
+    XCTAssertEqual(groundingMetadata.groundingChunks.count, 2)
+    let firstChunk = try XCTUnwrap(groundingMetadata.groundingChunks.first?.web)
+    XCTAssertEqual(firstChunk.title, "accuweather.com")
+    XCTAssertNotNil(firstChunk.uri)
+    XCTAssertNil(firstChunk.domain) // Domain is not supported by Google AI backend
+
+    XCTAssertEqual(groundingMetadata.groundingSupports.count, 3)
+    let firstSupport = try XCTUnwrap(groundingMetadata.groundingSupports.first)
+    let segment = try XCTUnwrap(firstSupport.segment)
+    XCTAssertEqual(segment.text, "The current weather in London, United Kingdom is cloudy.")
+    XCTAssertEqual(segment.startIndex, 0)
+    XCTAssertEqual(segment.partIndex, 0)
+    XCTAssertEqual(segment.endIndex, 56)
+    XCTAssertEqual(firstSupport.groundingChunkIndices, [0])
+  }
+
+  func testGenerateContent_withGoogleSearchTool() async throws {
+    let model = GenerativeModel(
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
+      apiConfig: apiConfig,
+      tools: [.googleSearch()],
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
+    )
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-basic-reply-short",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    _ = try await model.generateContent(testPrompt)
+  }
+
   func testGenerateContent_failure_invalidAPIKey() async throws {
     let expectedStatusCode = 400
     MockURLProtocol
@@ -1517,7 +1569,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.deprecated.totalBillableCharacters, 16)
   }
 
   func testCountTokens_succeeds_detailed() async throws {
@@ -1530,7 +1581,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 1837)
-    XCTAssertEqual(response.deprecated.totalBillableCharacters, 117)
     XCTAssertEqual(response.promptTokensDetails.count, 2)
     XCTAssertEqual(response.promptTokensDetails[0].modality, .image)
     XCTAssertEqual(response.promptTokensDetails[0].tokenCount, 1806)
@@ -1577,7 +1627,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens("Why is the sky blue?")
 
     XCTAssertEqual(response.totalTokens, 6)
-    XCTAssertEqual(response.deprecated.totalBillableCharacters, 16)
   }
 
   func testCountTokens_succeeds_noBillableCharacters() async throws {
@@ -1590,7 +1639,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let response = try await model.countTokens(InlineDataPart(data: Data(), mimeType: "image/jpeg"))
 
     XCTAssertEqual(response.totalTokens, 258)
-    XCTAssertNil(response.deprecated.totalBillableCharacters)
   }
 
   func testCountTokens_modelNotFound() async throws {

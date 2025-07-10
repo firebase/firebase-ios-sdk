@@ -65,18 +65,6 @@
 @property(nonatomic, readonly, copy) NSString *libraryVersionID;
 
 /**
- * The flag indicating whether this object was constructed with the values in the default plist
- * file.
- */
-@property(nonatomic) BOOL usingOptionsFromDefaultPlist;
-
-/**
- * Whether or not Measurement was enabled. Measurement is enabled unless explicitly disabled in
- * GoogleService-Info.plist.
- */
-@property(nonatomic, readonly) BOOL isMeasurementEnabled;
-
-/**
  * Whether or not editing is locked. This should occur after `FirebaseOptions` has been set on a
  * `FirebaseApp`.
  */

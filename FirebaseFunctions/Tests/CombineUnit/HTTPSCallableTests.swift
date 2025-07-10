@@ -40,25 +40,6 @@ class MockFunctions: Functions, @unchecked Sendable {
     return try mockCallFunction()
   }
 
-  override func callFunction(at url: URL,
-                             withObject data: Any?,
-                             options: HTTPSCallableOptions?,
-                             timeout: TimeInterval,
-                             completion: @escaping @MainActor
-                             (Result<HTTPSCallableResult, any Error>) -> Void) {
-    do {
-      try verifyParameters?(url, data, timeout)
-      let result = try mockCallFunction()
-      DispatchQueue.main.async {
-        completion(.success(result))
-      }
-    } catch {
-      DispatchQueue.main.async {
-        completion(.failure(error))
-      }
-    }
-  }
-
   init(mockCallFunction: @escaping () throws -> HTTPSCallableResult) {
     self.mockCallFunction = mockCallFunction
     super.init(
@@ -73,14 +54,6 @@ class MockFunctions: Functions, @unchecked Sendable {
   }
 }
 
-public class HTTPSCallableResultFake: HTTPSCallableResult {
-  let fakeData: String
-  init(data: String) {
-    fakeData = data
-    super.init(data: data)
-  }
-}
-
 @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
 class HTTPSCallableTests: XCTestCase {
   func testCallWithoutParametersSuccess() {
@@ -92,7 +65,7 @@ class HTTPSCallableTests: XCTestCase {
 
     let functions = MockFunctions {
       httpsFunctionWasCalledExpectation.fulfill()
-      return HTTPSCallableResultFake(data: expectedResult)
+      return HTTPSCallableResult(data: expectedResult)
     }
 
     let dummyFunction = functions.httpsCallable("dummyFunction")
@@ -134,7 +107,7 @@ class HTTPSCallableTests: XCTestCase {
     let expectedResult = "mockResult w/ parameters: \(inputParameter)"
     let functions = MockFunctions {
       httpsFunctionWasCalledExpectation.fulfill()
-      return HTTPSCallableResultFake(data: expectedResult)
+      return HTTPSCallableResult(data: expectedResult)
     }
     functions.verifyParameters = { url, data, timeout in
       XCTAssertEqual(

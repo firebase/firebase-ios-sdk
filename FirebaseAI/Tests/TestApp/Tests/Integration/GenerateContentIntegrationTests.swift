@@ -247,6 +247,45 @@ struct GenerateContentIntegrationTests {
     #endif // canImport(UIKit)
   }
 
+  @Test(
+    "generateContent with Google Search returns grounding metadata",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2Flash,
+      tools: [.googleSearch()]
+    )
+    let prompt = "What is the weather in Toronto today?"
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let groundingMetadata = try #require(candidate.groundingMetadata)
+    let searchEntrypoint = try #require(groundingMetadata.searchEntryPoint)
+
+    #expect(!groundingMetadata.webSearchQueries.isEmpty)
+    #expect(!searchEntrypoint.renderedContent.isEmpty)
+    #expect(!groundingMetadata.groundingChunks.isEmpty)
+    #expect(!groundingMetadata.groundingSupports.isEmpty)
+
+    for chunk in groundingMetadata.groundingChunks {
+      #expect(chunk.web != nil)
+    }
+
+    for support in groundingMetadata.groundingSupports {
+      let segment = support.segment
+      #expect(segment.endIndex > segment.startIndex)
+      #expect(!segment.text.isEmpty)
+      #expect(!support.groundingChunkIndices.isEmpty)
+
+      // Ensure indices point to valid chunks
+      for index in support.groundingChunkIndices {
+        #expect(index < groundingMetadata.groundingChunks.count)
+      }
+    }
+  }
+
   // MARK: Streaming Tests
 
   @Test(arguments: [

@@ -1,4 +1,12 @@
-# Unreleased
+# Firebase 12.0.0
+- [changed] **Breaking change**: Firebase's minimum supported versions have
+  updated for the following platforms:
+    - | Platform  | Firebase 12 |
+      | ------------- | ------------- |
+      | iOS  | **15.0**  |
+      | tvOS  | **15.0**  |
+      | macOS  | 10.15  |
+      | watchOS  | 7.0  |
 - [removed] **Breaking change**: FirebaseDynamicLinks has been removed. See
   https://firebase.google.com/support/dynamic-links-faq for more info.
 - [removed] **Breaking change**: Removed the `Options.deepLinkURLScheme`
@@ -7,6 +15,24 @@
 - [removed] **Breaking change**: Removed the following unused API.
   - `Options.androidClientID`
   - `Options.trackingID`
+- [removed] **Breaking change**: Firebase's zip and Carthage distributions of
+  the Google Mobile Ads SDK has been removed. Instead, the Google
+  Mobile Ads SDK binary distribution should be accessed from
+  https://developers.google.com/admob/ios/download. Note that _any existing
+  versions of the Firebase zip or Carthage distributions will
+  continue to be available and functional_. Learn more about this change
+  in our FAQ: https://firebase.google.com/support/faq/#admob-which-sdk. (#14408)
+- [removed] The deprecated Vertex AI in Firebase SDK (`FirebaseVertexAI`) has
+  been removed. It has been replaced by the Firebase AI Logic
+  SDK (`FirebaseAI`) to
+  accommodate the evolving set of supported features and services.
+  To start using the new SDK, import the `FirebaseAI` module and use the
+  top-level `FirebaseAI` class. See details in the [migration guide
+  ](https://firebase.google.com/docs/ai-logic/migrate-to-latest-sdk).
+- [changed] **Breaking change** The Firebase Swift package now requires the
+  Swift 6.0 toolchain (Xcode 16.2+).
+- [changed] Update GTMSessionFetcher dependency specifications to enable
+  support for the compatible GTMSessionFetcher 5.x versions.
 
 # Firebase 11.15.0
 - [fixed] Remove c99 as the required C language standard. (#14950)

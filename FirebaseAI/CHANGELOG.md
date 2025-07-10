@@ -1,3 +1,8 @@
+# 12.0.0
+- [added] Added support for Grounding with Google Search. (#15014)
+- [removed] Removed `CountTokensResponse.totalBillableCharacters` which was
+  deprecated in 11.15.0. Use `totalTokens` instead. (#15056)
+
 # 11.15.0
 - [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14947)
 - [added] Added support for setting `title` in string, number and array `Schema`
