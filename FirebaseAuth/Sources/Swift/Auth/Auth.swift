@@ -90,7 +90,7 @@ extension Auth: AuthInterop {
       }
       /// Before checking for a standard user, check if we are in a token-only session established
       /// by a successful exchangeToken call.
-      let rGCIPToken = self.rGCIPFirebaseTokenLock.withLock { $0 }
+      let rGCIPToken = self.rGCIPFirebaseTokenLock.value()
 
       if let token = rGCIPToken {
         /// Logic for tokens obtained via exchangeToken (R-GCIP mode)
@@ -153,7 +153,7 @@ extension Auth: AuthInterop {
       currentUser
         .internalGetToken(
           forceRefresh: forceRefresh,
-          backend: strongSelf.backend,
+          backend: self.backend,
           callback: callback,
           callCallbackOnMain: true
         )
@@ -2470,7 +2470,7 @@ extension Auth: AuthInterop {
   /// GCIP, where no `User` object is created. It is mutually exclusive with `_currentUser`.
   /// If the wrapped value is non-nil, the `AuthInterop` layer will use it for token generation
   /// instead of relying on a `currentUser`.
-  private let rGCIPFirebaseTokenLock = FIRAllocatedUnfairLock<FirebaseToken?>(initialState: nil)
+  private let rGCIPFirebaseTokenLock = UnfairLock<FirebaseToken?>(nil)
 }
 
 // MARK: - Regionalized Auth
