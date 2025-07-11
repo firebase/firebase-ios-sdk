@@ -12,24 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Configuration options for ``FirebaseAI``, which persists across all models.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FirebaseAIConfig: Sendable, Hashable, Encodable {
-  /// Options for App Check specific behavior within a ``FirebaseAI`` instance.
-  let appCheck: AppCheckOptions
-
-  /// Creates a new ``FirebaseAI`` value.
-  ///
-  /// - Parameters:
-  ///   - appCheck: Optionally configure certain behavior with how App Check is used.
-  public init(appCheck: AppCheckOptions = AppCheckOptions()) {
-    self.appCheck = appCheck
-  }
-}
-
 /// Configurable options for how App Check is used within a ``FirebaseAI`` instance.
 ///
-/// Can be set when creating a ``FirebaseAIConfig``.
+/// Can be set when creating a ``FirebaseAI.Config``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct AppCheckOptions: Sendable, Hashable, Encodable {
   /// Use `limitedUseTokens`, instead of the standard cached tokens, when sending requests
@@ -39,7 +24,7 @@ public struct AppCheckOptions: Sendable, Hashable, Encodable {
   /// Creates a new ``AppCheckOptions`` value.
   ///
   /// - Parameters:
-  ///   - requiredLimitedUseTokens: When sending tokens to the backend, this option enables
+  ///   - requireLimitedUseTokens: When sending tokens to the backend, this option enables
   ///     the usage of App Check's `limitedUseTokens` instead of the standard cached tokens.
   ///
   ///     A new `limitedUseToken` will be generated for each request; providing a lower attack
@@ -57,7 +42,7 @@ public struct AppCheckOptions: Sendable, Hashable, Encodable {
   ///     >
   ///     > Migrating to `limitedUseTokens` ahead of time will also allow you to enable replay
   ///     > protection down the road (when support is added), without breaking your users.
-  public init(requiredLimitedUseTokens: Bool = false) {
-    requireLimitedUseTokens = requiredLimitedUseTokens
+  public init(requireLimitedUseTokens: Bool = false) {
+    self.requireLimitedUseTokens = requireLimitedUseTokens
   }
 }
