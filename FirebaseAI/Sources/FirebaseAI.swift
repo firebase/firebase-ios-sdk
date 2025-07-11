@@ -38,7 +38,8 @@ public final class FirebaseAI: Sendable {
   /// - Returns: A `FirebaseAI` instance, configured with the custom `FirebaseApp`.
   public static func firebaseAI(app: FirebaseApp? = nil,
                                 backend: Backend = .googleAI(),
-                                config: FirebaseAI.Config = .config(appCheck: AppCheckOptions())) -> FirebaseAI {
+                                config: FirebaseAI
+                                  .Config = .config(appCheck: AppCheckOptions())) -> FirebaseAI {
     let instance = createInstance(
       app: app,
       location: backend.location,
@@ -140,13 +141,13 @@ public final class FirebaseAI: Sendable {
   /// Class to enable FirebaseAI to register via the Objective-C based Firebase component system
   /// to include FirebaseAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
-  
+
   /// Configuration options for ``FirebaseAI``, which persists across all models.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public struct Config : Sendable, Hashable, Encodable {
+  public struct Config: Sendable, Hashable, Encodable {
     /// Options for App Check specific behavior within a ``FirebaseAI`` instance.
     let appCheck: AppCheckOptions
-    
+
     /// Creates a new ``FirebaseAI.Config`` value.
     ///
     /// - Parameters:
@@ -155,7 +156,7 @@ public final class FirebaseAI: Sendable {
       Config(appCheck: appCheck)
     }
   }
-  
+
   // MARK: - Private
 
   /// Firebase data relevant to Firebase AI.
