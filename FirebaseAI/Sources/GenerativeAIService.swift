@@ -30,9 +30,9 @@ struct GenerativeAIService {
 
   private let urlSession: URLSession
 
-  private let aiConfig: FirebaseAIConfig
+  private let aiConfig: FirebaseAI.Config
 
-  init(firebaseInfo: FirebaseInfo, urlSession: URLSession, aiConfig: FirebaseAIConfig) {
+  init(firebaseInfo: FirebaseInfo, urlSession: URLSession, aiConfig: FirebaseAI.Config) {
     self.firebaseInfo = firebaseInfo
     self.urlSession = urlSession
     self.aiConfig = aiConfig

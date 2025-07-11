@@ -53,7 +53,7 @@ public final class ImagenModel {
        generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
-       urlSession: URLSession = GenAIURLSession.default, aiConfig: FirebaseAIConfig) {
+       urlSession: URLSession = GenAIURLSession.default, aiConfig: FirebaseAI.Config) {
     self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
