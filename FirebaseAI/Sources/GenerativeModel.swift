@@ -87,7 +87,7 @@ public final class GenerativeModel: Sendable {
        toolConfig: ToolConfig? = nil,
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
-       urlSession: URLSession = GenAIURLSession.default, aiConfig: FirebaseAIConfig) {
+       urlSession: URLSession = GenAIURLSession.default, aiConfig: FirebaseAI.Config) {
     self.modelName = modelName
     self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
