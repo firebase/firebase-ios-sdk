@@ -67,6 +67,8 @@ struct FunctionResponse: Codable, Equatable, Sendable {
 struct ErrorPart: Part, Error {
   let error: Error
 
+  let isThought = false
+
   init(_ error: Error) {
     self.error = error
   }

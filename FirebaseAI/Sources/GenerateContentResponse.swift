@@ -66,12 +66,10 @@ public struct GenerateContentResponse: Sendable {
       return nil
     }
     let textValues: [String] = candidate.content.parts.compactMap { part in
-      switch part {
-      case let textPart as TextPart:
-        return textPart.text
-      default:
+      guard let textPart = part as? TextPart, !part.isThought else {
         return nil
       }
+      return textPart.text
     }
     guard textValues.count > 0 else {
       AILog.error(
@@ -89,12 +87,10 @@ public struct GenerateContentResponse: Sendable {
       return []
     }
     return candidate.content.parts.compactMap { part in
-      switch part {
-      case let functionCallPart as FunctionCallPart:
-        return functionCallPart
-      default:
+      guard let functionCallPart = part as? FunctionCallPart, !part.isThought else {
         return nil
       }
+      return functionCallPart
     }
   }
 
@@ -107,7 +103,12 @@ public struct GenerateContentResponse: Sendable {
       """)
       return []
     }
-    return candidate.content.parts.compactMap { $0 as? InlineDataPart }
+    return candidate.content.parts.compactMap { part in
+      guard let inlineDataPart = part as? InlineDataPart, !part.isThought else {
+        return nil
+      }
+      return inlineDataPart
+    }
   }
 
   /// Initializer for SwiftUI previews or tests.

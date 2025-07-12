@@ -37,12 +37,15 @@ public struct ThinkingConfig: Sendable {
   /// feature or if the specified budget is not within the model's supported range.
   let thinkingBudget: Int?
 
+  let includeThoughts: Bool?
+
   /// Initializes a new `ThinkingConfig`.
   ///
   /// - Parameters:
   ///   - thinkingBudget: The maximum number of tokens to be used for the model's thinking process.
-  public init(thinkingBudget: Int? = nil) {
+  public init(thinkingBudget: Int? = nil, includeThoughts: Bool? = nil) {
     self.thinkingBudget = thinkingBudget
+    self.includeThoughts = includeThoughts
   }
 }
 

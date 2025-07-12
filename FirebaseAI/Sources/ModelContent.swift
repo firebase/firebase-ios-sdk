@@ -31,19 +31,31 @@ extension [ModelContent] {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct InternalPart: Equatable, Sendable {
+  enum OneOfData: Equatable, Sendable {
+    case text(String)
+    case inlineData(InlineData)
+    case fileData(FileData)
+    case functionCall(FunctionCall)
+    case functionResponse(FunctionResponse)
+  }
+
+  let data: OneOfData
+
+  let isThought: Bool?
+
+  init(_ data: OneOfData, isThought: Bool?) {
+    self.data = data
+    self.isThought = isThought
+  }
+}
+
 /// A type describing data in media formats interpretable by an AI model. Each generative AI
 /// request or response contains an `Array` of ``ModelContent``s, and each ``ModelContent`` value
 /// may comprise multiple heterogeneous ``Part``s.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelContent: Equatable, Sendable {
-  enum InternalPart: Equatable, Sendable {
-    case text(String)
-    case inlineData(mimetype: String, Data)
-    case fileData(mimetype: String, uri: String)
-    case functionCall(FunctionCall)
-    case functionResponse(FunctionResponse)
-  }
-
   /// The role of the entity creating the ``ModelContent``. For user-generated client requests,
   /// for example, the role is `user`.
   public let role: String?
@@ -52,17 +64,17 @@ public struct ModelContent: Equatable, Sendable {
   public var parts: [any Part] {
     var convertedParts = [any Part]()
     for part in internalParts {
-      switch part {
+      switch part.data {
       case let .text(text):
-        convertedParts.append(TextPart(text))
-      case let .inlineData(mimetype, data):
-        convertedParts.append(InlineDataPart(data: data, mimeType: mimetype))
-      case let .fileData(mimetype, uri):
-        convertedParts.append(FileDataPart(uri: uri, mimeType: mimetype))
+        convertedParts.append(TextPart(text, isThought: part.isThought))
+      case let .inlineData(inlineData):
+        convertedParts.append(InlineDataPart(inlineData, isThought: part.isThought))
+      case let .fileData(fileData):
+        convertedParts.append(FileDataPart(fileData, isThought: part.isThought))
       case let .functionCall(functionCall):
-        convertedParts.append(FunctionCallPart(functionCall))
+        convertedParts.append(FunctionCallPart(functionCall, isThought: part.isThought))
       case let .functionResponse(functionResponse):
-        convertedParts.append(FunctionResponsePart(functionResponse))
+        convertedParts.append(FunctionResponsePart(functionResponse, isThought: part.isThought))
       }
     }
     return convertedParts
@@ -78,17 +90,28 @@ public struct ModelContent: Equatable, Sendable {
     for part in parts {
       switch part {
       case let textPart as TextPart:
-        convertedParts.append(.text(textPart.text))
+        convertedParts.append(InternalPart(.text(textPart.text), isThought: textPart._isThought))
       case let inlineDataPart as InlineDataPart:
-        let inlineData = inlineDataPart.inlineData
-        convertedParts.append(.inlineData(mimetype: inlineData.mimeType, inlineData.data))
+        convertedParts.append(
+          InternalPart(.inlineData(inlineDataPart.inlineData), isThought: inlineDataPart._isThought)
+        )
       case let fileDataPart as FileDataPart:
-        let fileData = fileDataPart.fileData
-        convertedParts.append(.fileData(mimetype: fileData.mimeType, uri: fileData.fileURI))
+        convertedParts.append(
+          InternalPart(.fileData(fileDataPart.fileData), isThought: fileDataPart._isThought)
+        )
       case let functionCallPart as FunctionCallPart:
-        convertedParts.append(.functionCall(functionCallPart.functionCall))
+        convertedParts.append(
+          InternalPart(
+            .functionCall(functionCallPart.functionCall), isThought: functionCallPart._isThought
+          )
+        )
       case let functionResponsePart as FunctionResponsePart:
-        convertedParts.append(.functionResponse(functionResponsePart.functionResponse))
+        convertedParts.append(
+          InternalPart(
+            .functionResponse(functionResponsePart.functionResponse),
+            isThought: functionResponsePart._isThought
+          )
+        )
       default:
         fatalError()
       }
@@ -121,7 +144,26 @@ extension ModelContent: Codable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelContent.InternalPart: Codable {
+extension InternalPart: Codable {
+  enum CodingKeys: String, CodingKey {
+    case isThought = "thought"
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    try data.encode(to: encoder)
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(isThought, forKey: .isThought)
+  }
+
+  public init(from decoder: Decoder) throws {
+    data = try OneOfData(from: decoder)
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    isThought = try container.decodeIfPresent(Bool.self, forKey: .isThought)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension InternalPart.OneOfData: Codable {
   enum CodingKeys: String, CodingKey {
     case text
     case inlineData
@@ -135,10 +177,10 @@ extension ModelContent.InternalPart: Codable {
     switch self {
     case let .text(text):
       try container.encode(text, forKey: .text)
-    case let .inlineData(mimetype, bytes):
-      try container.encode(InlineData(data: bytes, mimeType: mimetype), forKey: .inlineData)
-    case let .fileData(mimetype: mimetype, url):
-      try container.encode(FileData(fileURI: url, mimeType: mimetype), forKey: .fileData)
+    case let .inlineData(inlineData):
+      try container.encode(inlineData, forKey: .inlineData)
+    case let .fileData(fileData):
+      try container.encode(fileData, forKey: .fileData)
     case let .functionCall(functionCall):
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
@@ -151,11 +193,9 @@ extension ModelContent.InternalPart: Codable {
     if values.contains(.text) {
       self = try .text(values.decode(String.self, forKey: .text))
     } else if values.contains(.inlineData) {
-      let inlineData = try values.decode(InlineData.self, forKey: .inlineData)
-      self = .inlineData(mimetype: inlineData.mimeType, inlineData.data)
+      self = try .inlineData(values.decode(InlineData.self, forKey: .inlineData))
     } else if values.contains(.fileData) {
-      let fileData = try values.decode(FileData.self, forKey: .fileData)
-      self = .fileData(mimetype: fileData.mimeType, uri: fileData.fileURI)
+      self = try .fileData(values.decode(FileData.self, forKey: .fileData))
     } else if values.contains(.functionCall) {
       self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
     } else if values.contains(.functionResponse) {

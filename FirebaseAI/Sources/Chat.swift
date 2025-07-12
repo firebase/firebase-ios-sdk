@@ -146,11 +146,13 @@ public final class Chat: Sendable {
     for aggregate in chunks {
       // Loop through all the parts, aggregating the text and adding the images.
       for part in aggregate.parts {
-        switch part {
-        case let textPart as TextPart:
-          combinedText += textPart.text
+        guard !part.isThought else {
+          continue
+        }
 
-        default:
+        if let textPart = part as? TextPart {
+          combinedText += textPart.text
+        } else {
           // Don't combine it, just add to the content. If there's any text pending, add that as
           // a part.
           if !combinedText.isEmpty {
