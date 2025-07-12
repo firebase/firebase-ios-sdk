@@ -16,7 +16,7 @@ Cloud Functions for Firebase.
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  s.swift_version    = '5.9'
+  s.swift_version    = '6.0'
 
   ios_deployment_target = '15.0'
   osx_deployment_target = '10.15'
