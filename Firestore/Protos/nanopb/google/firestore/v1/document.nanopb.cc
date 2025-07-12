@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ const pb_field_t google_firestore_v1_Document_FieldsEntry_fields[3] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_firestore_v1_Value_fields[12] = {
+const pb_field_t google_firestore_v1_Value_fields[15] = {
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   1, BOOL    , ONEOF, STATIC  , FIRST, google_firestore_v1_Value, boolean_value, boolean_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   2, INT64   , ONEOF, STATIC  , UNION, google_firestore_v1_Value, integer_value, integer_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   3, DOUBLE  , ONEOF, STATIC  , UNION, google_firestore_v1_Value, double_value, double_value, 0),
@@ -63,6 +63,9 @@ const pb_field_t google_firestore_v1_Value_fields[12] = {
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  11, UENUM   , ONEOF, STATIC  , UNION, google_firestore_v1_Value, null_value, null_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  17, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1_Value, string_value, string_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  18, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1_Value, bytes_value, bytes_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(value_type,  19, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1_Value, field_reference_value, field_reference_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(value_type,  20, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_Value, function_value, function_value, &google_firestore_v1_Function_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(value_type,  21, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_Value, pipeline_value, pipeline_value, &google_firestore_v1_Pipeline_fields),
     PB_LAST_FIELD
 };
 
@@ -82,6 +85,37 @@ const pb_field_t google_firestore_v1_MapValue_FieldsEntry_fields[3] = {
     PB_LAST_FIELD
 };
 
+const pb_field_t google_firestore_v1_Function_fields[4] = {
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1_Function, name, name, 0),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1_Function, args, name, &google_firestore_v1_Value_fields),
+    PB_FIELD(  3, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1_Function, options, args, &google_firestore_v1_Function_OptionsEntry_fields),
+    PB_LAST_FIELD
+};
+
+const pb_field_t google_firestore_v1_Function_OptionsEntry_fields[3] = {
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1_Function_OptionsEntry, key, key, 0),
+    PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_Function_OptionsEntry, value, key, &google_firestore_v1_Value_fields),
+    PB_LAST_FIELD
+};
+
+const pb_field_t google_firestore_v1_Pipeline_fields[2] = {
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_firestore_v1_Pipeline, stages, stages, &google_firestore_v1_Pipeline_Stage_fields),
+    PB_LAST_FIELD
+};
+
+const pb_field_t google_firestore_v1_Pipeline_Stage_fields[4] = {
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1_Pipeline_Stage, name, name, 0),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1_Pipeline_Stage, args, name, &google_firestore_v1_Value_fields),
+    PB_FIELD(  3, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1_Pipeline_Stage, options, args, &google_firestore_v1_Pipeline_Stage_OptionsEntry_fields),
+    PB_LAST_FIELD
+};
+
+const pb_field_t google_firestore_v1_Pipeline_Stage_OptionsEntry_fields[3] = {
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1_Pipeline_Stage_OptionsEntry, key, key, 0),
+    PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_Pipeline_Stage_OptionsEntry, value, key, &google_firestore_v1_Value_fields),
+    PB_LAST_FIELD
+};
+
 
 /* Check that field information fits in pb_field_t */
 #if !defined(PB_FIELD_32BIT)
@@ -92,7 +126,7 @@ const pb_field_t google_firestore_v1_MapValue_FieldsEntry_fields[3] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 65536 && pb_membersize(google_firestore_v1_Document, update_time) < 65536 && pb_membersize(google_firestore_v1_Document_FieldsEntry, value) < 65536 && pb_membersize(google_firestore_v1_Value, map_value) < 65536 && pb_membersize(google_firestore_v1_Value, geo_point_value) < 65536 && pb_membersize(google_firestore_v1_Value, array_value) < 65536 && pb_membersize(google_firestore_v1_Value, timestamp_value) < 65536 && pb_membersize(google_firestore_v1_MapValue_FieldsEntry, value) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1_Document_google_firestore_v1_Document_FieldsEntry_google_firestore_v1_Value_google_firestore_v1_ArrayValue_google_firestore_v1_MapValue_google_firestore_v1_MapValue_FieldsEntry)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 65536 && pb_membersize(google_firestore_v1_Document, update_time) < 65536 && pb_membersize(google_firestore_v1_Document_FieldsEntry, value) < 65536 && pb_membersize(google_firestore_v1_Value, map_value) < 65536 && pb_membersize(google_firestore_v1_Value, geo_point_value) < 65536 && pb_membersize(google_firestore_v1_Value, array_value) < 65536 && pb_membersize(google_firestore_v1_Value, timestamp_value) < 65536 && pb_membersize(google_firestore_v1_Value, function_value) < 65536 && pb_membersize(google_firestore_v1_Value, pipeline_value) < 65536 && pb_membersize(google_firestore_v1_MapValue_FieldsEntry, value) < 65536 && pb_membersize(google_firestore_v1_Function_OptionsEntry, value) < 65536 && pb_membersize(google_firestore_v1_Pipeline_Stage_OptionsEntry, value) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1_Document_google_firestore_v1_Document_FieldsEntry_google_firestore_v1_Value_google_firestore_v1_ArrayValue_google_firestore_v1_MapValue_google_firestore_v1_MapValue_FieldsEntry_google_firestore_v1_Function_google_firestore_v1_Function_OptionsEntry_google_firestore_v1_Pipeline_google_firestore_v1_Pipeline_Stage_google_firestore_v1_Pipeline_Stage_OptionsEntry)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -103,7 +137,7 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 655
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 256 && pb_membersize(google_firestore_v1_Document, update_time) < 256 && pb_membersize(google_firestore_v1_Document_FieldsEntry, value) < 256 && pb_membersize(google_firestore_v1_Value, map_value) < 256 && pb_membersize(google_firestore_v1_Value, geo_point_value) < 256 && pb_membersize(google_firestore_v1_Value, array_value) < 256 && pb_membersize(google_firestore_v1_Value, timestamp_value) < 256 && pb_membersize(google_firestore_v1_MapValue_FieldsEntry, value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_Document_google_firestore_v1_Document_FieldsEntry_google_firestore_v1_Value_google_firestore_v1_ArrayValue_google_firestore_v1_MapValue_google_firestore_v1_MapValue_FieldsEntry)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Document, create_time) < 256 && pb_membersize(google_firestore_v1_Document, update_time) < 256 && pb_membersize(google_firestore_v1_Document_FieldsEntry, value) < 256 && pb_membersize(google_firestore_v1_Value, map_value) < 256 && pb_membersize(google_firestore_v1_Value, geo_point_value) < 256 && pb_membersize(google_firestore_v1_Value, array_value) < 256 && pb_membersize(google_firestore_v1_Value, timestamp_value) < 256 && pb_membersize(google_firestore_v1_Value, function_value) < 256 && pb_membersize(google_firestore_v1_Value, pipeline_value) < 256 && pb_membersize(google_firestore_v1_MapValue_FieldsEntry, value) < 256 && pb_membersize(google_firestore_v1_Function_OptionsEntry, value) < 256 && pb_membersize(google_firestore_v1_Pipeline_Stage_OptionsEntry, value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_Document_google_firestore_v1_Document_FieldsEntry_google_firestore_v1_Value_google_firestore_v1_ArrayValue_google_firestore_v1_MapValue_google_firestore_v1_MapValue_FieldsEntry_google_firestore_v1_Function_google_firestore_v1_Function_OptionsEntry_google_firestore_v1_Pipeline_google_firestore_v1_Pipeline_Stage_google_firestore_v1_Pipeline_Stage_OptionsEntry)
 #endif
 
 
@@ -193,6 +227,18 @@ std::string google_firestore_v1_Value::ToString(int indent) const {
         tostring_result += PrintPrimitiveField("bytes_value: ",
             bytes_value, indent + 1, true);
         break;
+    case google_firestore_v1_Value_field_reference_value_tag:
+        tostring_result += PrintPrimitiveField("field_reference_value: ",
+            field_reference_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_function_value_tag:
+        tostring_result += PrintMessageField("function_value ",
+            function_value, indent + 1, true);
+        break;
+    case google_firestore_v1_Value_pipeline_value_tag:
+        tostring_result += PrintMessageField("pipeline_value ",
+            pipeline_value, indent + 1, true);
+        break;
     }
 
     bool is_root = indent == 0;
@@ -242,6 +288,92 @@ std::string google_firestore_v1_MapValue::ToString(int indent) const {
 
 std::string google_firestore_v1_MapValue_FieldsEntry::ToString(int indent) const {
     std::string tostring_header = PrintHeader(indent, "FieldsEntry", this);
+    std::string tostring_result;
+
+    tostring_result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    tostring_result += PrintMessageField("value ", value, indent + 1, false);
+
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
+}
+
+std::string google_firestore_v1_Function::ToString(int indent) const {
+    std::string tostring_header = PrintHeader(indent, "Function", this);
+    std::string tostring_result;
+
+    tostring_result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    for (pb_size_t i = 0; i != args_count; ++i) {
+        tostring_result += PrintMessageField("args ",
+            args[i], indent + 1, true);
+    }
+    for (pb_size_t i = 0; i != options_count; ++i) {
+        tostring_result += PrintMessageField("options ",
+            options[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_Function_OptionsEntry::ToString(int indent) const {
+    std::string tostring_header = PrintHeader(indent, "OptionsEntry", this);
+    std::string tostring_result;
+
+    tostring_result += PrintPrimitiveField("key: ", key, indent + 1, false);
+    tostring_result += PrintMessageField("value ", value, indent + 1, false);
+
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
+}
+
+std::string google_firestore_v1_Pipeline::ToString(int indent) const {
+    std::string tostring_header = PrintHeader(indent, "Pipeline", this);
+    std::string tostring_result;
+
+    for (pb_size_t i = 0; i != stages_count; ++i) {
+        tostring_result += PrintMessageField("stages ",
+            stages[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_Pipeline_Stage::ToString(int indent) const {
+    std::string tostring_header = PrintHeader(indent, "Stage", this);
+    std::string tostring_result;
+
+    tostring_result += PrintPrimitiveField("name: ", name, indent + 1, false);
+    for (pb_size_t i = 0; i != args_count; ++i) {
+        tostring_result += PrintMessageField("args ",
+            args[i], indent + 1, true);
+    }
+    for (pb_size_t i = 0; i != options_count; ++i) {
+        tostring_result += PrintMessageField("options ",
+            options[i], indent + 1, true);
+    }
+
+    bool is_root = indent == 0;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
+    } else {
+      return "";
+    }
+}
+
+std::string google_firestore_v1_Pipeline_Stage_OptionsEntry::ToString(int indent) const {
+    std::string tostring_header = PrintHeader(indent, "OptionsEntry", this);
     std::string tostring_result;
 
     tostring_result += PrintPrimitiveField("key: ", key, indent + 1, false);
