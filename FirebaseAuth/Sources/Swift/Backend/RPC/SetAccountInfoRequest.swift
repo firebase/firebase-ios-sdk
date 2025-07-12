@@ -70,6 +70,8 @@ private let kDeleteAttributesKey = "deleteAttribute"
 /// The key for the "deleteProvider" value in the request.
 private let kDeleteProvidersKey = "deleteProvider"
 
+private let kDeletePasskeysKey = "deletePasskeys"
+
 /// The key for the "returnSecureToken" value in the request.
 private let kReturnSecureTokenKey = "returnSecureToken"
 
@@ -126,6 +128,8 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
 
   /// The list of identity providers to delete.
   var deleteProviders: [String]?
+  
+  var deletePasskeys: [String]?
 
   /// Whether the response should return access token and refresh token directly.
   /// The default value is `true` .
@@ -179,6 +183,9 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
     }
     if let deleteProviders {
       postBody[kDeleteProvidersKey] = deleteProviders
+    }
+    if let deletePasskeys {
+      postBody[kDeletePasskeysKey] = deletePasskeys
     }
     if returnSecureToken {
       postBody[kReturnSecureTokenKey] = true

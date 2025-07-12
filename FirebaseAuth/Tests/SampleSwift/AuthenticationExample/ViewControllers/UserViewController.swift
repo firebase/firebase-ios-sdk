@@ -112,6 +112,9 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
 
     case .refreshUserInfo:
       refreshUserInfo()
+    
+    case .passkey:
+      user?.passkeyName
     }
   }
 
