@@ -1370,7 +1370,7 @@ let package = Package(
       ]
     ),
   ] + firestoreTargets(),
-  cxxLanguageStandard: CXXLanguageStandard.gnucxx14
+  cxxLanguageStandard: CXXLanguageStandard.gnucxx17
 )
 
 // MARK: - Helper Functions
