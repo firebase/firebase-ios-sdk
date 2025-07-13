@@ -99,7 +99,7 @@ final class AuthBackend: AuthBackendProtocol {
   }
 
   private static func generateMFAError(response: AuthRPCResponse, auth: Auth) -> Error? {
-    #if !os(iOS)
+    #if !os(iOS) || !os(macOS)
       return nil
     #else
       if let mfaResponse = response as? AuthMFAResponse,
@@ -124,7 +124,7 @@ final class AuthBackend: AuthBackendProtocol {
       } else {
         return nil
       }
-    #endif // !os(iOS)
+    #endif // !os(iOS) || !os(macOS)
   }
 
   // Check whether or not the successful response is actually the special case phone

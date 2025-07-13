@@ -58,10 +58,10 @@ extension User: NSSecureCoding {}
   /// The tenant ID of the current user. `nil` if none is available.
   @objc public private(set) var tenantID: String?
 
-  #if os(iOS)
+  #if os(iOS) || os(macOS)
     /// Multi factor object associated with the user.
     ///
-    /// This property is available on iOS only.
+    /// This property is available on iOS and macOS.
     @objc public private(set) var multiFactor: MultiFactor
   #endif
 
@@ -1066,7 +1066,7 @@ extension User: NSSecureCoding {}
     isEmailVerified = false
     metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     tenantID = nil
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       multiFactor = MultiFactor(withMFAEnrollments: [])
     #endif
     uid = ""
@@ -1297,7 +1297,7 @@ extension User: NSSecureCoding {}
       }
     }
     providerDataRaw = providerData
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       if let enrollments = user.mfaEnrollments {
         multiFactor = MultiFactor(withMFAEnrollments: enrollments)
       }
@@ -1718,7 +1718,7 @@ extension User: NSSecureCoding {}
       coder.encode(auth.requestConfiguration.appID, forKey: kFirebaseAppIDCodingKey)
     }
     coder.encode(tokenService, forKey: kTokenServiceCodingKey)
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       coder.encode(multiFactor, forKey: kMultiFactorCodingKey)
     #endif
   }
@@ -1747,7 +1747,7 @@ extension User: NSSecureCoding {}
       as? [String: UserInfoImpl]
     let metadata = coder.decodeObject(of: UserMetadata.self, forKey: kMetadataCodingKey)
     let tenantID = coder.decodeObject(of: NSString.self, forKey: kTenantIDCodingKey) as? String
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       let multiFactor = coder.decodeObject(of: MultiFactor.self, forKey: kMultiFactorCodingKey)
     #endif
     self.tokenService = tokenService
@@ -1778,7 +1778,7 @@ extension User: NSSecureCoding {}
     backend = AuthBackend(rpcIssuer: AuthBackendRPCIssuer())
 
     userProfileUpdate = UserProfileUpdate()
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       self.multiFactor = multiFactor ?? MultiFactor()
       super.init()
       multiFactor?.user = self
