@@ -150,6 +150,32 @@ final class AuthBackend: AuthBackendProtocol {
     #endif // !os(iOS)
   }
 
+  // MARK: passkeys
+
+  public func startPasskeyEnrollment(request: StartPasskeyEnrollmentRequest) async throws
+    -> StartPasskeyEnrollmentResponse {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      throw AuthErrorUtils.error(
+        code: AuthErrorCode.operationNotAllowed,
+        message: "OS version is not supported for this action."
+      )
+    }
+    let response = try await call(with: request) as StartPasskeyEnrollmentResponse
+    return response
+  }
+
+  public func finalizePasskeyEnrollment(request: FinalizePasskeyEnrollmentRequest) async throws
+    -> FinalizePasskeyEnrollmentResponse {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      throw AuthErrorUtils.error(
+        code: AuthErrorCode.operationNotAllowed,
+        message: "OS version is not supported for this action."
+      )
+    }
+    let response = try await call(with: request) as FinalizePasskeyEnrollmentResponse
+    return response
+  }
+
   /// Calls the RPC using HTTP request.
   ///
   /// Possible error responses:

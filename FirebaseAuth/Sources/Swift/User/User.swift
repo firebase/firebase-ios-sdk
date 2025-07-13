@@ -1047,6 +1047,65 @@ extension User: NSSecureCoding {}
     }
   }
 
+  // MARK: Passkey Implementation
+
+  /// Current user object.
+  var currentUser: User?
+
+  /// Starts the passkey enrollment flow, creating a platform public key registration request.
+  ///
+  /// - Parameter name: The desired name for the passkey.
+  /// - Returns: The ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest.
+  @available(iOS 15.0, *)
+  public func startPasskeyEnrollmentWithName(withName name: String?) async throws
+    -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
+    let idToken = rawAccessToken()
+    let request = StartPasskeyEnrollmentRequest(
+      idToken: idToken,
+      requestConfiguration: requestConfiguration,
+      tenantId: auth?.tenantID
+    )
+    let response = try await backend.startPasskeyEnrollment(request: request)
+    // Cache the passkey name
+    passkeyName = name
+    let provider =
+      ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: response.rpID)
+    let registrationRequest = provider.createCredentialRegistrationRequest(
+      challenge: response.challenge,
+      name: passkeyName ?? "Unnamed account (Apple)",
+      userID: response.userID
+    )
+    return registrationRequest
+  }
+
+  @available(iOS 15.0, *)
+  public func finalizePasskeyEnrollmentWithPlatformCredentials(platformCredential: ASAuthorizationPlatformPublicKeyCredentialRegistration) async throws
+    -> AuthDataResult {
+    let credentialID = platformCredential.credentialID.base64EncodedString() ?? "nil"
+    let clientDataJson = platformCredential.rawClientDataJSON.base64EncodedString() ?? "nil"
+    let attestationObject = platformCredential.rawAttestationObject!.base64EncodedString()
+
+    let rawAccessToken = self.rawAccessToken
+    let request = FinalizePasskeyEnrollmentRequest(
+      idToken: rawAccessToken(),
+      name: passkeyName!,
+      credentialID: credentialID,
+      clientDataJson: clientDataJson,
+      attestationObject: attestationObject!,
+      requestConfiguration: auth!.requestConfiguration
+    )
+
+    let response = try await backend.finalizePasskeyEnrollment(request: request)
+
+    let user = try await auth!.completeSignIn(
+      withAccessToken: response.idToken,
+      accessTokenExpirationDate: nil,
+      refreshToken: response.refreshToken,
+      anonymous: false
+    )
+    return AuthDataResult(withUser: user, additionalUserInfo: nil)
+  }
+
   // MARK: Internal implementations below
 
   func rawAccessToken() -> String {
