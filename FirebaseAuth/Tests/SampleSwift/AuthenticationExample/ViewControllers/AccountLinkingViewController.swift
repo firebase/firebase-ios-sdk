@@ -523,6 +523,23 @@ extension AccountLinkingViewController: DataSourceProvidable {
   }
 }
 
+// MARK: - Passkey Enrollment
+
+@available(iOS 16.0, *)
+private func handlePasskeyEnrollment(platformCredential: ASAuthorizationPlatformPublicKeyCredentialRegistration) {
+  let user = Auth.auth().currentUser
+  Task {
+    do {
+      let authResult = try await user?.finalizePasskeyEnrollmentWithPlatformCredentials(
+        platformCredential: platformCredential
+      )
+      print("Passkey Enrollment succeeded with uid: \(authResult?.user.uid ?? "empty with uid")")
+    } catch {
+      print("Passkey Enrollment failed with error: \(error)")
+    }
+  }
+}
+
 // MARK: - Implementing Sign in with Apple with Firebase
 
 extension AccountLinkingViewController: ASAuthorizationControllerDelegate,
