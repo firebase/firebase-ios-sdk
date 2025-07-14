@@ -45,6 +45,12 @@ public final class Chat: Sendable {
     }
   }
 
+  private func appendHistory(_ newElement: ModelContent) {
+    historyLock.withLock {
+      _history.append(newElement)
+    }
+  }
+
   /// Sends a message using the existing history of this chat as context. If successful, the message
   /// and response will be added to the history. If unsuccessful, history will remain unchanged.
   /// - Parameter parts: The new content to send as a single chat message.
@@ -82,7 +88,7 @@ public final class Chat: Sendable {
 
     // Append the request and successful result to history, then return the value.
     appendHistory(contentsOf: newContent)
-    history.append(toAdd)
+    appendHistory(toAdd)
     return result
   }
 
@@ -134,7 +140,7 @@ public final class Chat: Sendable {
 
         // Aggregate the content to add it to the history before we finish.
         let aggregated = self.aggregatedChunks(aggregatedContent)
-        self.history.append(aggregated)
+        self.appendHistory(aggregated)
         continuation.finish()
       }
     }
