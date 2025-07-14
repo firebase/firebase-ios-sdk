@@ -69,6 +69,7 @@ NS_SWIFT_NAME(OrderingBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(StageBridge)
 @interface FIRStageBridge : NSObject
+@property(nonatomic, readonly) NSString *name;
 @end
 
 NS_SWIFT_SENDABLE
@@ -76,7 +77,6 @@ NS_SWIFT_NAME(CollectionSourceStageBridge)
 @interface FIRCollectionSourceStageBridge : FIRStageBridge
 
 - (id)initWithRef:(FIRCollectionReference *)ref firestore:(FIRFirestore *)db;
-
 @end
 
 NS_SWIFT_SENDABLE
@@ -84,7 +84,6 @@ NS_SWIFT_NAME(DatabaseSourceStageBridge)
 @interface FIRDatabaseSourceStageBridge : FIRStageBridge
 
 - (id)init;
-
 @end
 
 NS_SWIFT_SENDABLE
@@ -92,7 +91,6 @@ NS_SWIFT_NAME(CollectionGroupSourceStageBridge)
 @interface FIRCollectionGroupSourceStageBridge : FIRStageBridge
 
 - (id)initWithCollectionId:(NSString *)id;
-
 @end
 
 NS_SWIFT_SENDABLE
@@ -100,7 +98,6 @@ NS_SWIFT_NAME(DocumentsSourceStageBridge)
 @interface FIRDocumentsSourceStageBridge : FIRStageBridge
 
 - (id)initWithDocuments:(NSArray<FIRDocumentReference *> *)documents firestore:(FIRFirestore *)db;
-
 @end
 
 NS_SWIFT_SENDABLE
@@ -108,7 +105,6 @@ NS_SWIFT_NAME(WhereStageBridge)
 @interface FIRWhereStageBridge : FIRStageBridge
 
 - (id)initWithExpr:(FIRExprBridge *)expr;
-
 @end
 
 NS_SWIFT_SENDABLE
@@ -116,7 +112,6 @@ NS_SWIFT_NAME(LimitStageBridge)
 @interface FIRLimitStageBridge : FIRStageBridge
 
 - (id)initWithLimit:(NSInteger)value;
-
 @end
 
 NS_SWIFT_SENDABLE
@@ -124,7 +119,6 @@ NS_SWIFT_NAME(OffsetStageBridge)
 @interface FIROffsetStageBridge : FIRStageBridge
 
 - (id)initWithOffset:(NSInteger)value;
-
 @end
 
 NS_SWIFT_SENDABLE
@@ -269,6 +263,7 @@ NS_SWIFT_NAME(PipelineBridge)
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion;
 
++ (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query;
 @end
 
 NS_SWIFT_SENDABLE

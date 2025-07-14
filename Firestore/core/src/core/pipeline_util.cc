@@ -680,7 +680,7 @@ std::shared_ptr<api::Expr> WhereConditionsFromCursor(
   std::string func_inclusive_name = is_before ? "lte" : "gte";
 
   std::vector<std::shared_ptr<api::Expr>> or_conditions;
-  for (size_t sub_end = 1; sub_end <= orderings.size(); ++sub_end) {
+  for (size_t sub_end = 1; sub_end <= cursors.size(); ++sub_end) {
     std::vector<std::shared_ptr<api::Expr>> conditions;
     for (size_t index = 0; index < sub_end; ++index) {
       if (index < sub_end - 1) {
@@ -794,11 +794,11 @@ std::vector<std::shared_ptr<api::EvaluableStage>> ToPipelineStages(
       stages.push_back(std::make_shared<api::SortStage>(api_orderings));
       if (query.start_at()) {
         stages.push_back(std::make_shared<api::Where>(WhereConditionsFromCursor(
-            *query.start_at(), api_orderings, /*is_before=*/true)));
+            *query.start_at(), api_orderings, /*is_before=*/false)));
       }
       if (query.end_at()) {
         stages.push_back(std::make_shared<api::Where>(WhereConditionsFromCursor(
-            *query.end_at(), api_orderings, /*is_before=*/false)));
+            *query.end_at(), api_orderings, /*is_before=*/true)));
       }
       if (query.limit_type() == LimitType::First && query.limit()) {
         stages.push_back(std::make_shared<api::LimitStage>(query.limit()));

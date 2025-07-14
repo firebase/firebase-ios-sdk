@@ -33,26 +33,31 @@ class CollectionSource: Stage {
   let name: String = "collection"
 
   let bridge: StageBridge
-  private var collection: CollectionReference
   private let db: Firestore
 
   init(collection: CollectionReference, db: Firestore) {
-    self.collection = collection
     self.db = db
     bridge = CollectionSourceStageBridge(ref: collection, firestore: db)
+  }
+
+  init(bridge: CollectionSourceStageBridge, db: Firestore) {
+    self.db = db
+    self.bridge = bridge
   }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class CollectionGroupSource: Stage {
-  let name: String = "collectionId"
+  let name: String = "collection_group"
 
   let bridge: StageBridge
-  private var collectionId: String
 
   init(collectionId: String) {
-    self.collectionId = collectionId
     bridge = CollectionGroupSourceStageBridge(collectionId: collectionId)
+  }
+
+  init(bridge: CollectionGroupSourceStageBridge) {
+    self.bridge = bridge
   }
 }
 
@@ -65,6 +70,10 @@ class DatabaseSource: Stage {
   init() {
     bridge = DatabaseSourceStageBridge()
   }
+
+  init(bridge: DatabaseSourceStageBridge) {
+    self.bridge = bridge
+  }
 }
 
 // Represents a list of document references as a source.
@@ -72,42 +81,17 @@ class DatabaseSource: Stage {
 class DocumentsSource: Stage {
   let name: String = "documents"
   let bridge: StageBridge
-  private var docs: [DocumentReference]
   private let db: Firestore
 
   // Initialize with an array of String paths
   init(docs: [DocumentReference], db: Firestore) {
-    self.docs = docs
     self.db = db
     bridge = DocumentsSourceStageBridge(documents: docs, firestore: db)
   }
-}
 
-// Represents an existing Query as a source.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class QuerySource: Stage {
-  let name: String = "query"
-  let bridge: StageBridge
-  private var query: Query
-
-  init(query: Query) {
-    self.query = query
-    bridge = DatabaseSourceStageBridge()
-    // TODO: bridge = QuerySourceStageBridge(query: query.query)
-  }
-}
-
-// Represents an existing AggregateQuery as a source.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AggregateQuerySource: Stage {
-  let name: String = "aggregateQuery"
-  let bridge: StageBridge
-  private var aggregateQuery: AggregateQuery
-
-  init(aggregateQuery: AggregateQuery) {
-    self.aggregateQuery = aggregateQuery
-    bridge = DatabaseSourceStageBridge()
-    // TODO: bridge = AggregateQuerySourceStageBridge(aggregateQuery: aggregateQuery.query)
+  init(bridge: DocumentsSourceStageBridge, db: Firestore) {
+    self.db = db
+    self.bridge = bridge
   }
 }
 
@@ -116,11 +100,13 @@ class Where: Stage {
   let name: String = "where"
 
   let bridge: StageBridge
-  private var condition: BooleanExpr
 
   init(condition: BooleanExpr) {
-    self.condition = condition
     bridge = WhereStageBridge(expr: condition.toBridge())
+  }
+
+  init(bridge: WhereStageBridge) {
+    self.bridge = bridge
   }
 }
 
@@ -129,11 +115,13 @@ class Limit: Stage {
   let name: String = "limit"
 
   let bridge: StageBridge
-  private var limit: Int32
 
   init(_ limit: Int32) {
-    self.limit = limit
     bridge = LimitStageBridge(limit: NSInteger(limit))
+  }
+
+  init(bridge: LimitStageBridge) {
+    self.bridge = bridge
   }
 }
 
@@ -142,17 +130,19 @@ class Offset: Stage {
   let name: String = "offset"
 
   let bridge: StageBridge
-  private var offset: Int32
 
   init(_ offset: Int32) {
-    self.offset = offset
     bridge = OffsetStageBridge(offset: NSInteger(offset))
+  }
+
+  init(bridge: OffsetStageBridge) {
+    self.bridge = bridge
   }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AddFields: Stage {
-  let name: String = "addFields"
+  let name: String = "add_fields"
   let bridge: StageBridge
   private var fields: [Selectable]
 
@@ -171,7 +161,7 @@ class AddFields: Stage {
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class RemoveFieldsStage: Stage {
-  let name: String = "removeFields"
+  let name: String = "remove_fields"
   let bridge: StageBridge
   private var fields: [String]
 
@@ -190,10 +180,8 @@ class RemoveFieldsStage: Stage {
 class Select: Stage {
   let name: String = "select"
   let bridge: StageBridge
-  private var selections: [Selectable]
 
   init(selections: [Selectable]) {
-    self.selections = selections
     let map = Helper.selectablesToMap(selectables: selections)
     bridge = SelectStageBridge(selections: map
       .mapValues { Helper.sendableToExpr($0).toBridge() })
@@ -204,10 +192,8 @@ class Select: Stage {
 class Distinct: Stage {
   let name: String = "distinct"
   let bridge: StageBridge
-  private var groups: [Selectable]
 
   init(groups: [Selectable]) {
-    self.groups = groups
     let map = Helper.selectablesToMap(selectables: groups)
     bridge = DistinctStageBridge(groups: map
       .mapValues { Helper.sendableToExpr($0).toBridge() })
@@ -218,28 +204,26 @@ class Distinct: Stage {
 class Aggregate: Stage {
   let name: String = "aggregate"
   let bridge: StageBridge
-  private var accumulators: [AggregateWithAlias]
-  private var groups: [String: Expr] = [:]
 
   init(accumulators: [AggregateWithAlias], groups: [Selectable]?) {
-    self.accumulators = accumulators
+    var groupsMap: [String: Expr] = [:]
     if groups != nil {
-      self.groups = Helper.selectablesToMap(selectables: groups!)
+      groupsMap = Helper.selectablesToMap(selectables: groups!)
     }
-    let map = accumulators
+    let accumulatorsMap = accumulators
       .reduce(into: [String: AggregateFunctionBridge]()) { result, accumulator in
         result[accumulator.alias] = accumulator.aggregate.bridge
       }
     bridge = AggregateStageBridge(
-      accumulators: map,
-      groups: self.groups.mapValues { Helper.sendableToExpr($0).toBridge() }
+      accumulators: accumulatorsMap,
+      groups: groupsMap.mapValues { Helper.sendableToExpr($0).toBridge() }
     )
   }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FindNearest: Stage {
-  let name: String = "findNearest"
+  let name: String = "find_nearest"
   let bridge: StageBridge
   private var field: Field
   private var vectorValue: [Double]
@@ -271,17 +255,19 @@ class FindNearest: Stage {
 class Sort: Stage {
   let name: String = "sort"
   let bridge: StageBridge
-  private var orderings: [Ordering]
 
   init(orderings: [Ordering]) {
-    self.orderings = orderings
     bridge = SortStageBridge(orderings: orderings.map { $0.bridge })
+  }
+
+  init(bridge: SortStageBridge) {
+    self.bridge = bridge
   }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class ReplaceWith: Stage {
-  let name: String = "replaceWith"
+  let name: String = "replace_with"
   let bridge: StageBridge
   private var expr: Expr
 

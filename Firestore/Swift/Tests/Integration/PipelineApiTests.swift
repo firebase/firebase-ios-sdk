@@ -36,9 +36,6 @@ final class PipelineTests: FSTIntegrationTestCase {
     let query: Query = db.collection("foo").limit(to: 2)
     let _: Pipeline = pipelineSource.create(from: query)
 
-    let aggregateQuery = db.collection("foo").count
-    let _: Pipeline = pipelineSource.create(from: aggregateQuery)
-
     let _: PipelineSnapshot = try await pipeline.execute()
   }
 

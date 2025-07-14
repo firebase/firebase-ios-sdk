@@ -26,6 +26,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
 #import "Firestore/Source/API/FIRPipelineBridge+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FSTUserDataReader.h"
 #import "Firestore/Source/API/FSTUserDataWriter.h"
@@ -256,6 +257,11 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 @end
 
 @implementation FIRStageBridge
+- (NSString *)name {
+  [NSException raise:NSInternalInconsistencyException
+              format:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)];
+  return nil;
+}
 @end
 
 @implementation FIRCollectionSourceStageBridge {
@@ -283,6 +289,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return collection_source;
 }
 
+- (id)initWithCppStage:(std::shared_ptr<const api::CollectionSource>)stage {
+  self = [super init];
+  if (self) {
+    collection_source = std::const_pointer_cast<api::CollectionSource>(stage);
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"collection";
+}
 @end
 
 @implementation FIRDatabaseSourceStageBridge {
@@ -301,6 +318,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_database_source;
 }
 
+- (id)initWithCppStage:(std::shared_ptr<const api::DatabaseSource>)stage {
+  self = [super init];
+  if (self) {
+    cpp_database_source = std::const_pointer_cast<api::DatabaseSource>(stage);
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"database";
+}
 @end
 
 @implementation FIRCollectionGroupSourceStageBridge {
@@ -319,6 +347,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_collection_group_source;
 }
 
+- (id)initWithCppStage:(std::shared_ptr<const api::CollectionGroupSource>)stage {
+  self = [super init];
+  if (self) {
+    cpp_collection_group_source = std::const_pointer_cast<api::CollectionGroupSource>(stage);
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"collection_group";
+}
 @end
 
 @implementation FIRDocumentsSourceStageBridge {
@@ -350,6 +389,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_document_source;
 }
 
+- (id)initWithCppStage:(std::shared_ptr<const api::DocumentsSource>)stage {
+  self = [super init];
+  if (self) {
+    cpp_document_source = std::const_pointer_cast<api::DocumentsSource>(stage);
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"documents";
+}
 @end
 
 @implementation FIRWhereStageBridge {
@@ -376,6 +426,18 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_where;
 }
 
+- (id)initWithCppStage:(std::shared_ptr<const api::Where>)stage {
+  self = [super init];
+  if (self) {
+    cpp_where = std::const_pointer_cast<api::Where>(stage);
+    isUserDataRead = YES;
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"where";
+}
 @end
 
 @implementation FIRLimitStageBridge {
@@ -402,6 +464,18 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_limit_stage;
 }
 
+- (id)initWithCppStage:(std::shared_ptr<const api::LimitStage>)stage {
+  self = [super init];
+  if (self) {
+    cpp_limit_stage = std::const_pointer_cast<api::LimitStage>(stage);
+    isUserDataRead = YES;
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"limit";
+}
 @end
 
 @implementation FIROffsetStageBridge {
@@ -428,6 +502,18 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_offset_stage;
 }
 
+- (id)initWithCppStage:(std::shared_ptr<const api::OffsetStage>)stage {
+  self = [super init];
+  if (self) {
+    cpp_offset_stage = std::const_pointer_cast<api::OffsetStage>(stage);
+    isUserDataRead = YES;
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"offset";
+}
 @end
 
 // TBD
@@ -460,6 +546,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_add_fields;
 }
 
+- (NSString *)name {
+  return @"add_fields";
+}
 @end
 
 @implementation FIRRemoveFieldsStageBridge {
@@ -490,6 +579,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_remove_fields;
 }
 
+- (NSString *)name {
+  return @"remove_fields";
+}
 @end
 
 @implementation FIRSelectStageBridge {
@@ -520,6 +612,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_select;
 }
 
+- (NSString *)name {
+  return @"select";
+}
 @end
 
 @implementation FIRDistinctStageBridge {
@@ -550,6 +645,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_distinct;
 }
 
+- (NSString *)name {
+  return @"distinct";
+}
 @end
 
 @implementation FIRAggregateStageBridge {
@@ -589,6 +687,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_aggregate;
 }
 
+- (NSString *)name {
+  return @"aggregate";
+}
 @end
 
 @implementation FIRFindNearestStageBridge {
@@ -650,6 +751,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_find_nearest;
 }
 
+- (NSString *)name {
+  return @"find_nearest";
+}
 @end
 
 @implementation FIRSorStageBridge {
@@ -680,6 +784,18 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_sort;
 }
 
+- (id)initWithCppStage:(std::shared_ptr<const api::SortStage>)stage {
+  self = [super init];
+  if (self) {
+    cpp_sort = std::const_pointer_cast<api::SortStage>(stage);
+    isUserDataRead = YES;
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"sort";
+}
 @end
 
 @implementation FIRReplaceWithStageBridge {
@@ -706,6 +822,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_replace_with;
 }
 
+- (NSString *)name {
+  return @"replace_with";
+}
 @end
 
 @implementation FIRSampleStageBridge {
@@ -753,6 +872,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_sample;
 }
 
+- (NSString *)name {
+  return @"sample";
+}
 @end
 
 @implementation FIRUnionStageBridge {
@@ -779,6 +901,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_union_stage;
 }
 
+- (NSString *)name {
+  return @"union";
+}
 @end
 
 @implementation FIRUnnestStageBridge {
@@ -818,6 +943,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_unnest;
 }
 
+- (NSString *)name {
+  return @"unnest";
+}
 @end
 
 @implementation FIRRawStageBridge {
@@ -900,6 +1028,9 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_generic_stage;
 }
 
+- (NSString *)name {
+  return _name;
+}
 @end
 
 @interface __FIRPipelineSnapshotBridge ()
@@ -1118,6 +1249,39 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return cpp_pipeline;
 }
 
++ (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query {
+  std::vector<std::shared_ptr<api::EvaluableStage>> evaluable_stages =
+      firebase::firestore::core::ToPipelineStages(query.query);
+  std::vector<std::shared_ptr<api::Stage>> cpp_stages(evaluable_stages.begin(),
+                                                      evaluable_stages.end());
+  NSMutableArray<FIRStageBridge *> *stageBridges = [NSMutableArray array];
+
+  for (const auto &cpp_stage_base : cpp_stages) {
+    if (auto cpp_stage = std::dynamic_pointer_cast<api::CollectionSource>(cpp_stage_base)) {
+      [stageBridges addObject:[[FIRCollectionSourceStageBridge alloc] initWithCppStage:cpp_stage]];
+    } else if (auto cpp_stage =
+                   std::dynamic_pointer_cast<api::CollectionGroupSource>(cpp_stage_base)) {
+      [stageBridges
+          addObject:[[FIRCollectionGroupSourceStageBridge alloc] initWithCppStage:cpp_stage]];
+    } else if (auto cpp_stage = std::dynamic_pointer_cast<api::DocumentsSource>(cpp_stage_base)) {
+      [stageBridges addObject:[[FIRDocumentsSourceStageBridge alloc] initWithCppStage:cpp_stage]];
+    } else if (auto cpp_stage = std::dynamic_pointer_cast<api::Where>(cpp_stage_base)) {
+      [stageBridges addObject:[[FIRWhereStageBridge alloc] initWithCppStage:cpp_stage]];
+    } else if (auto cpp_stage = std::dynamic_pointer_cast<api::LimitStage>(cpp_stage_base)) {
+      [stageBridges addObject:[[FIRLimitStageBridge alloc] initWithCppStage:cpp_stage]];
+    } else if (auto cpp_stage = std::dynamic_pointer_cast<api::SortStage>(cpp_stage_base)) {
+      [stageBridges addObject:[[FIRSorStageBridge alloc] initWithCppStage:cpp_stage]];
+    } else if (auto cpp_stage = std::dynamic_pointer_cast<api::OffsetStage>(cpp_stage_base)) {
+      [stageBridges addObject:[[FIROffsetStageBridge alloc] initWithCppStage:cpp_stage]];
+    } else {
+      ThrowInvalidArgument(
+          "Unknown or unhandled stage type '%s' encountered when converting from FIRQuery.",
+          cpp_stage_base->name().c_str());
+    }
+  }
+  return [stageBridges copy];
+}
+
 @end
 
 @interface __FIRRealtimePipelineSnapshotBridge ()
@@ -1297,7 +1461,7 @@ core::ListenOptions ToListenOptions(__FIRPipelineListenOptionsBridge *_Nullable 
       wrapped_firestore->client()->user_executor(), std::move(view_listener));
 
   std::shared_ptr<core::QueryListener> query_listener = wrapped_firestore->client()->ListenToQuery(
-      *cpp_pipeline, ToListenOptions(options), async_listener);
+      core::QueryOrPipeline(*cpp_pipeline), ToListenOptions(options), async_listener);
 
   return [[FSTListenerRegistration alloc]
       initWithRegistration:absl::make_unique<QueryListenerRegistration>(wrapped_firestore->client(),

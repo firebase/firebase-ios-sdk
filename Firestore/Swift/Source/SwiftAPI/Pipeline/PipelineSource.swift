@@ -49,10 +49,30 @@ public struct PipelineSource<P>: @unchecked Sendable {
   }
 
   public func create(from query: Query) -> P {
-    return factory([QuerySource(query: query)], db)
-  }
-
-  public func create(from aggregateQuery: AggregateQuery) -> P {
-    return factory([AggregateQuerySource(aggregateQuery: aggregateQuery)], db)
+    let stageBridges = PipelineBridge.createStageBridges(from: query)
+    let stages: [Stage] = stageBridges.map { bridge in
+      switch bridge.name {
+      case "collection":
+        return CollectionSource(
+          bridge: bridge as! CollectionSourceStageBridge,
+          db: query.firestore
+        )
+      case "collection_group":
+        return CollectionGroupSource(bridge: bridge as! CollectionGroupSourceStageBridge)
+      case "documents":
+        return DocumentsSource(bridge: bridge as! DocumentsSourceStageBridge, db: query.firestore)
+      case "where":
+        return Where(bridge: bridge as! WhereStageBridge)
+      case "limit":
+        return Limit(bridge: bridge as! LimitStageBridge)
+      case "sort":
+        return Sort(bridge: bridge as! SortStageBridge)
+      case "offset":
+        return Offset(bridge: bridge as! OffsetStageBridge)
+      default:
+        fatalError("Unknown stage type \(bridge.name)")
+      }
+    }
+    return factory(stages, db)
   }
 }

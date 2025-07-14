@@ -50,7 +50,7 @@ CollectionSource::CollectionSource(std::string path)
 google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 
-  result.name = nanopb::MakeBytesArray("collection");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
@@ -68,7 +68,7 @@ google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
 google_firestore_v1_Pipeline_Stage DatabaseSource::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 
-  result.name = nanopb::MakeBytesArray("database");
+  result.name = nanopb::MakeBytesArray(name());
   result.args_count = 0;
   result.args = nullptr;
   result.options_count = 0;
@@ -80,7 +80,7 @@ google_firestore_v1_Pipeline_Stage DatabaseSource::to_proto() const {
 google_firestore_v1_Pipeline_Stage CollectionGroupSource::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 
-  result.name = nanopb::MakeBytesArray("collection_group");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 2;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
@@ -102,7 +102,7 @@ google_firestore_v1_Pipeline_Stage CollectionGroupSource::to_proto() const {
 google_firestore_v1_Pipeline_Stage DocumentsSource::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 
-  result.name = nanopb::MakeBytesArray("documents");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = static_cast<pb_size_t>(documents_.size());
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
@@ -123,7 +123,7 @@ google_firestore_v1_Pipeline_Stage DocumentsSource::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage AddFields::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("add_fields");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
@@ -143,7 +143,7 @@ google_firestore_v1_Pipeline_Stage AddFields::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage AggregateStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("aggregate");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 2;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
@@ -177,7 +177,7 @@ google_firestore_v1_Pipeline_Stage AggregateStage::to_proto() const {
 google_firestore_v1_Pipeline_Stage Where::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 
-  result.name = nanopb::MakeBytesArray("where");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
@@ -208,7 +208,7 @@ google_firestore_v1_Value FindNearestStage::DistanceMeasure::proto() const {
 
 google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("find_nearest");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 3;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(3);
@@ -228,7 +228,7 @@ google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage LimitStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("limit");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
@@ -242,7 +242,7 @@ google_firestore_v1_Pipeline_Stage LimitStage::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage OffsetStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("offset");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
@@ -256,7 +256,7 @@ google_firestore_v1_Pipeline_Stage OffsetStage::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage SelectStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("select");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
@@ -276,7 +276,7 @@ google_firestore_v1_Pipeline_Stage SelectStage::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage SortStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("sort");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = static_cast<pb_size_t>(orders_.size());
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
@@ -292,7 +292,7 @@ google_firestore_v1_Pipeline_Stage SortStage::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage DistinctStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("distinct");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
@@ -312,7 +312,7 @@ google_firestore_v1_Pipeline_Stage DistinctStage::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage RemoveFieldsStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("remove_fields");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = static_cast<pb_size_t>(fields_.size());
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
@@ -342,7 +342,7 @@ google_firestore_v1_Value ReplaceWith::ReplaceMode::to_proto() const {
 
 google_firestore_v1_Pipeline_Stage ReplaceWith::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("replace_with");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 2;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
@@ -379,7 +379,7 @@ Sample::Sample(SampleMode mode, int64_t count, double percentage)
 
 google_firestore_v1_Pipeline_Stage Sample::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("sample");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 2;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
@@ -409,7 +409,7 @@ Union::Union(std::shared_ptr<Pipeline> other) : other_(std::move(other)) {
 
 google_firestore_v1_Pipeline_Stage Union::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("union");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 1;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
@@ -430,7 +430,7 @@ Unnest::Unnest(std::shared_ptr<Expr> field,
 
 google_firestore_v1_Pipeline_Stage Unnest::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray("unnest");
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = 2;
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(2);
@@ -462,7 +462,7 @@ RawStage::RawStage(
 
 google_firestore_v1_Pipeline_Stage RawStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray(name_);
+  result.name = nanopb::MakeBytesArray(name());
 
   result.args_count = static_cast<pb_size_t>(params_.size());
   result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
