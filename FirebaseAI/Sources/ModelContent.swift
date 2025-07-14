@@ -45,9 +45,12 @@ struct InternalPart: Equatable, Sendable {
 
   let isThought: Bool?
 
-  init(_ data: OneOfData, isThought: Bool?) {
+  let thoughtSignature: String?
+
+  init(_ data: OneOfData, isThought: Bool?, thoughtSignature: String?) {
     self.data = data
     self.isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -66,15 +69,27 @@ public struct ModelContent: Equatable, Sendable {
     for part in internalParts {
       switch part.data {
       case let .text(text):
-        convertedParts.append(TextPart(text, isThought: part.isThought))
+        convertedParts.append(
+          TextPart(text, isThought: part.isThought, thoughtSignature: part.thoughtSignature)
+        )
       case let .inlineData(inlineData):
-        convertedParts.append(InlineDataPart(inlineData, isThought: part.isThought))
+        convertedParts.append(InlineDataPart(
+          inlineData, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+        ))
       case let .fileData(fileData):
-        convertedParts.append(FileDataPart(fileData, isThought: part.isThought))
+        convertedParts.append(FileDataPart(
+          fileData,
+          isThought: part.isThought,
+          thoughtSignature: part.thoughtSignature
+        ))
       case let .functionCall(functionCall):
-        convertedParts.append(FunctionCallPart(functionCall, isThought: part.isThought))
+        convertedParts.append(FunctionCallPart(
+          functionCall, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+        ))
       case let .functionResponse(functionResponse):
-        convertedParts.append(FunctionResponsePart(functionResponse, isThought: part.isThought))
+        convertedParts.append(FunctionResponsePart(
+          functionResponse, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+        ))
       }
     }
     return convertedParts
@@ -90,28 +105,35 @@ public struct ModelContent: Equatable, Sendable {
     for part in parts {
       switch part {
       case let textPart as TextPart:
-        convertedParts.append(InternalPart(.text(textPart.text), isThought: textPart._isThought))
+        convertedParts.append(InternalPart(
+          .text(textPart.text),
+          isThought: textPart._isThought,
+          thoughtSignature: textPart.thoughtSignature
+        ))
       case let inlineDataPart as InlineDataPart:
-        convertedParts.append(
-          InternalPart(.inlineData(inlineDataPart.inlineData), isThought: inlineDataPart._isThought)
-        )
+        convertedParts.append(InternalPart(
+          .inlineData(inlineDataPart.inlineData),
+          isThought: inlineDataPart._isThought,
+          thoughtSignature: inlineDataPart.thoughtSignature
+        ))
       case let fileDataPart as FileDataPart:
-        convertedParts.append(
-          InternalPart(.fileData(fileDataPart.fileData), isThought: fileDataPart._isThought)
-        )
+        convertedParts.append(InternalPart(
+          .fileData(fileDataPart.fileData),
+          isThought: fileDataPart._isThought,
+          thoughtSignature: fileDataPart.thoughtSignature
+        ))
       case let functionCallPart as FunctionCallPart:
-        convertedParts.append(
-          InternalPart(
-            .functionCall(functionCallPart.functionCall), isThought: functionCallPart._isThought
-          )
-        )
+        convertedParts.append(InternalPart(
+          .functionCall(functionCallPart.functionCall),
+          isThought: functionCallPart._isThought,
+          thoughtSignature: functionCallPart.thoughtSignature
+        ))
       case let functionResponsePart as FunctionResponsePart:
-        convertedParts.append(
-          InternalPart(
-            .functionResponse(functionResponsePart.functionResponse),
-            isThought: functionResponsePart._isThought
-          )
-        )
+        convertedParts.append(InternalPart(
+          .functionResponse(functionResponsePart.functionResponse),
+          isThought: functionResponsePart._isThought,
+          thoughtSignature: functionResponsePart.thoughtSignature
+        ))
       default:
         fatalError()
       }
@@ -147,18 +169,21 @@ extension ModelContent: Codable {
 extension InternalPart: Codable {
   enum CodingKeys: String, CodingKey {
     case isThought = "thought"
+    case thoughtSignature
   }
 
   public func encode(to encoder: Encoder) throws {
     try data.encode(to: encoder)
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(isThought, forKey: .isThought)
+    try container.encodeIfPresent(thoughtSignature, forKey: .thoughtSignature)
   }
 
   public init(from decoder: Decoder) throws {
     data = try OneOfData(from: decoder)
     let container = try decoder.container(keyedBy: CodingKeys.self)
     isThought = try container.decodeIfPresent(Bool.self, forKey: .isThought)
+    thoughtSignature = try container.decodeIfPresent(String.self, forKey: .thoughtSignature)
   }
 }
 

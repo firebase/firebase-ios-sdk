@@ -20,6 +20,7 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
   var isThought: Bool { get }
+  var thoughtSignature: String? { get }
 }
 
 /// A text part containing a string value.
@@ -30,15 +31,18 @@ public struct TextPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
+  public let thoughtSignature: String?
+
   let _isThought: Bool?
 
   public init(_ text: String) {
-    self.init(text, isThought: nil)
+    self.init(text, isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ text: String, isThought: Bool?) {
+  init(_ text: String, isThought: Bool?, thoughtSignature: String?) {
     self.text = text
     _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -66,6 +70,8 @@ public struct InlineDataPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
+  public let thoughtSignature: String?
+
   /// Creates an inline data part from data and a MIME type.
   ///
   /// > Important: Supported input types depend on the model on the model being used; see [input
@@ -81,12 +87,13 @@ public struct InlineDataPart: Part {
   ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
   ///     supported values.
   public init(data: Data, mimeType: String) {
-    self.init(InlineData(data: data, mimeType: mimeType), isThought: nil)
+    self.init(InlineData(data: data, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ inlineData: InlineData, isThought: Bool?) {
+  init(_ inlineData: InlineData, isThought: Bool?, thoughtSignature: String?) {
     self.inlineData = inlineData
     _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -99,6 +106,7 @@ public struct FileDataPart: Part {
   public var uri: String { fileData.fileURI }
   public var mimeType: String { fileData.mimeType }
   public var isThought: Bool { _isThought ?? false }
+  public let thoughtSignature: String?
 
   /// Constructs a new file data part.
   ///
@@ -110,12 +118,13 @@ public struct FileDataPart: Part {
   ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
   ///     supported values.
   public init(uri: String, mimeType: String) {
-    self.init(FileData(fileURI: uri, mimeType: mimeType), isThought: nil)
+    self.init(FileData(fileURI: uri, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ fileData: FileData, isThought: Bool?) {
+  init(_ fileData: FileData, isThought: Bool?, thoughtSignature: String?) {
     self.fileData = fileData
     _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -133,6 +142,8 @@ public struct FunctionCallPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
+  public let thoughtSignature: String?
+
   /// Constructs a new function call part.
   ///
   /// > Note: A `FunctionCallPart` is typically received from the model, rather than created
@@ -142,12 +153,13 @@ public struct FunctionCallPart: Part {
   ///   - name: The name of the function to call.
   ///   - args: The function parameters and values.
   public init(name: String, args: JSONObject) {
-    self.init(FunctionCall(name: name, args: args), isThought: nil)
+    self.init(FunctionCall(name: name, args: args), isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ functionCall: FunctionCall, isThought: Bool?) {
+  init(_ functionCall: FunctionCall, isThought: Bool?, thoughtSignature: String?) {
     self.functionCall = functionCall
     _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -169,17 +181,22 @@ public struct FunctionResponsePart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
+  public let thoughtSignature: String?
+
   /// Constructs a new `FunctionResponse`.
   ///
   /// - Parameters:
   ///   - name: The name of the function that was called.
   ///   - response: The function's response.
   public init(name: String, response: JSONObject) {
-    self.init(FunctionResponse(name: name, response: response), isThought: nil)
+    self.init(
+      FunctionResponse(name: name, response: response), isThought: nil, thoughtSignature: nil
+    )
   }
 
-  init(_ functionResponse: FunctionResponse, isThought: Bool?) {
+  init(_ functionResponse: FunctionResponse, isThought: Bool?, thoughtSignature: String?) {
     self.functionResponse = functionResponse
     _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }

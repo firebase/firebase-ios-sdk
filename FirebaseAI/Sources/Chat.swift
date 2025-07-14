@@ -150,7 +150,9 @@ public final class Chat: Sendable {
           continue
         }
 
-        if let textPart = part as? TextPart {
+        if let textPart = part as? TextPart,
+           // Parts with thought signatures must not be concatenated together.
+           part.thoughtSignature == nil {
           combinedText += textPart.text
         } else {
           // Don't combine it, just add to the content. If there's any text pending, add that as
