@@ -67,13 +67,12 @@ public extension Expression {
 
   // MARK: Array Operations
 
-  func arrayConcat(_ secondArray: Expression, _ otherArrays: Expression...) -> FunctionExpression {
-    return FunctionExpression("array_concat", [self, secondArray] + otherArrays)
+  func arrayConcat(_ arrays: [Expression]) -> FunctionExpression {
+    return FunctionExpression("array_concat", [self] + arrays)
   }
 
-  func arrayConcat(_ secondArray: [Sendable], _ otherArrays: [Sendable]...) -> FunctionExpression {
-    let exprs = [self] + [Helper.sendableToExpr(secondArray)] + otherArrays
-      .map { Helper.sendableToExpr($0) }
+  func arrayConcat(_ arrays: [[Sendable]]) -> FunctionExpression {
+    let exprs = [self] + arrays.map { Helper.sendableToExpr($0) }
     return FunctionExpression("array_concat", exprs)
   }
 
@@ -198,7 +197,7 @@ public extension Expression {
     return BooleanExpr("is_nan", [self])
   }
 
-  func isNull() -> BooleanExpr {
+  func isNil() -> BooleanExpr {
     return BooleanExpr("is_null", [self])
   }
 
@@ -214,7 +213,7 @@ public extension Expression {
     return BooleanExpr("is_absent", [self])
   }
 
-  func isNotNull() -> BooleanExpr {
+  func isNotNil() -> BooleanExpr {
     return BooleanExpr("is_not_null", [self])
   }
 
@@ -288,13 +287,12 @@ public extension Expression {
     return FunctionExpression("trim", [self])
   }
 
-  func strConcat(_ secondString: Expression, _ otherStrings: Expression...) -> FunctionExpression {
-    return FunctionExpression("str_concat", [self, secondString] + otherStrings)
+  func strConcat(_ strings: [Expression]) -> FunctionExpression {
+    return FunctionExpression("str_concat", [self] + strings)
   }
 
-  func strConcat(_ secondString: String, _ otherStrings: String...) -> FunctionExpression {
-    let exprs = [self] + [Helper.sendableToExpr(secondString)] + otherStrings
-      .map { Helper.sendableToExpr($0) }
+  func strConcat(_ strings: [String]) -> FunctionExpression {
+    let exprs = [self] + strings.map { Helper.sendableToExpr($0) }
     return FunctionExpression("str_concat", exprs)
   }
 
@@ -359,15 +357,13 @@ public extension Expression {
     return FunctionExpression("map_remove", [self, keyExpr])
   }
 
-  func mapMerge(_ secondMap: [String: Sendable],
-                _ otherMaps: [String: Sendable]...) -> FunctionExpression {
-    let secondMapExpr = Helper.sendableToExpr(secondMap)
-    let otherMapExprs = otherMaps.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("map_merge", [self, secondMapExpr] + otherMapExprs)
+  func mapMerge(_ maps: [[String: Sendable]]) -> FunctionExpression {
+    let mapExprs = maps.map { Helper.sendableToExpr($0) }
+    return FunctionExpression("map_merge", [self] + mapExprs)
   }
 
-  func mapMerge(_ secondMap: Expression, _ otherMaps: Expression...) -> FunctionExpression {
-    return FunctionExpression("map_merge", [self, secondMap] + otherMaps)
+  func mapMerge(_ maps: [Expression]) -> FunctionExpression {
+    return FunctionExpression("map_merge", [self] + maps)
   }
 
   // --- Added Aggregate Operations (on Expr) ---
@@ -394,23 +390,21 @@ public extension Expression {
 
   // MARK: Logical min/max
 
-  func logicalMaximum(_ second: Expression, _ others: Expression...) -> FunctionExpression {
-    return FunctionExpression("logical_maximum", [self, second] + others)
+  func logicalMaximum(_ expressions: [Expression]) -> FunctionExpression {
+    return FunctionExpression("logical_maximum", [self] + expressions)
   }
 
-  func logicalMaximum(_ second: Sendable, _ others: Sendable...) -> FunctionExpression {
-    let exprs = [self] + [Helper.sendableToExpr(second)] + others
-      .map { Helper.sendableToExpr($0) }
+  func logicalMaximum(_ values: [Sendable]) -> FunctionExpression {
+    let exprs = [self] + values.map { Helper.sendableToExpr($0) }
     return FunctionExpression("logical_maximum", exprs)
   }
 
-  func logicalMinimum(_ second: Expression, _ others: Expression...) -> FunctionExpression {
-    return FunctionExpression("logical_minimum", [self, second] + others)
+  func logicalMinimum(_ expressions: [Expression]) -> FunctionExpression {
+    return FunctionExpression("logical_minimum", [self] + expressions)
   }
 
-  func logicalMinimum(_ second: Sendable, _ others: Sendable...) -> FunctionExpression {
-    let exprs = [self] + [Helper.sendableToExpr(second)] + others
-      .map { Helper.sendableToExpr($0) }
+  func logicalMinimum(_ values: [Sendable]) -> FunctionExpression {
+    let exprs = [self] + values.map { Helper.sendableToExpr($0) }
     return FunctionExpression("logical_minimum", exprs)
   }
 
