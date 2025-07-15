@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2019 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,4 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import "FIRAuth.h"
-#import "FIRAuthErrors.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRFederatedAuthProvider.h"
-#import "FIRGameCenterAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRMultiFactor.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRTOTPSecret.h"
-#import "FIRTwitterAuthProvider.h"
+@class FIRTOTPSecret;
