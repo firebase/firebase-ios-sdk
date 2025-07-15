@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '12.0.0'
+  s.version          = '12.1.0'
   s.summary          = 'Firebase Messaging'
 
   s.description      = <<-DESC
@@ -61,7 +61,7 @@ device, and it is completely free.
   s.osx.framework = 'SystemConfiguration'
   s.weak_framework = 'UserNotifications'
   s.dependency 'FirebaseInstallations', '~> 12.0.0'
-  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseCore', '~> 12.1.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/Reachability', '~> 8.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'

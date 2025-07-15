@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCombineSwift'
-  s.version          = '12.0.0'
+  s.version          = '12.1.0'
   s.summary          = 'Swift extensions with Combine support for Firebase'
 
   s.description      = <<-DESC
@@ -51,7 +51,7 @@ for internal testing only. It should not be published.
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '~> 12.0.0'
+  s.dependency 'FirebaseCore', '~> 12.1.0'
   s.dependency 'FirebaseAuth', '~> 12.0.0'
   s.dependency 'FirebaseFunctions', '~> 12.0.0'
   s.dependency 'FirebaseFirestore', '~> 12.0.0'
