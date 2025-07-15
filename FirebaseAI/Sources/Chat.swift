@@ -142,31 +142,47 @@ public final class Chat: Sendable {
 
   private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
     var parts: [any Part] = []
+    var previousPart = chunks.first?.parts.first
     var combinedText = ""
+    var combinedThoughts = ""
     for aggregate in chunks {
       // Loop through all the parts, aggregating the text and adding the images.
       for part in aggregate.parts {
-        guard !part.isThought else {
-          continue
-        }
-
         if let textPart = part as? TextPart,
+           // Thought summaries must not be combined with regular output.
+           (previousPart?.isThought ?? false) == part.isThought,
            // Parts with thought signatures must not be concatenated together.
            part.thoughtSignature == nil {
-          combinedText += textPart.text
+          if part.isThought {
+            combinedThoughts += textPart.text
+          } else {
+            combinedText += textPart.text
+          }
         } else {
-          // Don't combine it, just add to the content. If there's any text pending, add that as
-          // a part.
+          // This is a non-text part (e.g., inline data or a function call).
+
+          // 1. Append any thought summaries we've accumulated so far.
+          if !combinedThoughts.isEmpty {
+            parts.append(TextPart(combinedThoughts))
+            combinedThoughts = ""
+          }
+          // 2. Append any text we've accumulated so far.
           if !combinedText.isEmpty {
             parts.append(TextPart(combinedText))
             combinedText = ""
           }
 
+          // Then append the non-text part itself.
           parts.append(part)
         }
+
+        previousPart = part
       }
     }
 
+    if !combinedThoughts.isEmpty {
+      parts.append(TextPart(combinedThoughts))
+    }
     if !combinedText.isEmpty {
       parts.append(TextPart(combinedText))
     }
