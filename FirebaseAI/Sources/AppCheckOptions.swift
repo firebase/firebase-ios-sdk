@@ -16,7 +16,7 @@
 ///
 /// Can be set when creating a ``FirebaseAI.Config``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct AppCheckOptions: Sendable, Hashable, Encodable {
+public struct AppCheckOptions: Sendable, Hashable {
   /// Use `limitedUseTokens`, instead of the standard cached tokens, when sending requests
   /// to the backend.
   let requireLimitedUseTokens: Bool
