@@ -142,50 +142,47 @@ public final class Chat: Sendable {
 
   private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
     var parts: [any Part] = []
-    var previousPart = chunks.first?.parts.first
     var combinedText = ""
     var combinedThoughts = ""
-    for aggregate in chunks {
-      // Loop through all the parts, aggregating the text and adding the images.
-      for part in aggregate.parts {
-        if let textPart = part as? TextPart,
-           // Thought summaries must not be combined with regular output.
-           (previousPart?.isThought ?? false) == part.isThought,
-           // Parts with thought signatures must not be concatenated together.
-           part.thoughtSignature == nil {
-          if part.isThought {
-            combinedThoughts += textPart.text
-          } else {
-            combinedText += textPart.text
-          }
-        } else {
-          // This is a non-text part (e.g., inline data or a function call).
 
-          // 1. Append any thought summaries we've accumulated so far.
-          if !combinedThoughts.isEmpty {
-            parts.append(TextPart(combinedThoughts))
-            combinedThoughts = ""
-          }
-          // 2. Append any text we've accumulated so far.
-          if !combinedText.isEmpty {
-            parts.append(TextPart(combinedText))
-            combinedText = ""
-          }
-
-          // Then append the non-text part itself.
-          parts.append(part)
-        }
-
-        previousPart = part
+    func flush() {
+      if !combinedThoughts.isEmpty {
+        parts.append(TextPart(combinedThoughts))
+        combinedThoughts = ""
+      }
+      if !combinedText.isEmpty {
+        parts.append(TextPart(combinedText))
+        combinedText = ""
       }
     }
 
-    if !combinedThoughts.isEmpty {
-      parts.append(TextPart(combinedThoughts))
+    // Loop through all the parts, aggregating the text.
+    for part in chunks.flatMap({ $0.parts }) {
+      // Only text parts may be combined.
+      if let textPart = part as? TextPart, part.thoughtSignature == nil {
+        // Thought summaries must not be combined with regular text.
+        if textPart.isThought {
+          // If we were combining regular text, flush it before handling "thoughts".
+          if !combinedText.isEmpty {
+            flush()
+          }
+          combinedThoughts += textPart.text
+        } else {
+          // If we were combining "thoughts", flush it before handling regular text.
+          if !combinedThoughts.isEmpty {
+            flush()
+          }
+          combinedText += textPart.text
+        }
+      } else {
+        // This is a non-combinable part (not text), flush any pending text.
+        flush()
+        parts.append(part)
+      }
     }
-    if !combinedText.isEmpty {
-      parts.append(TextPart(combinedText))
-    }
+
+    // Flush any remaining text.
+    flush()
 
     return ModelContent(role: "model", parts: parts)
   }
