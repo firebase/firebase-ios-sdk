@@ -55,8 +55,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
-  s.dependency 'FirebaseAuthInterop', '~> 12.0.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.0.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.1.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.1.0'
   s.dependency 'FirebaseCore', '~> 12.1.0'
   s.dependency 'FirebaseCoreExtension', '~> 12.1.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'

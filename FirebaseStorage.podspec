@@ -37,8 +37,8 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     'FirebaseStorage/Typedefs/*.h',
   ]
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.0.0'
-  s.dependency 'FirebaseAuthInterop', '~> 12.0.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.1.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.1.0'
   s.dependency 'FirebaseCore', '~> 12.1.0'
   s.dependency 'FirebaseCoreExtension', '~> 12.1.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 6.0'
@@ -57,7 +57,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     objc_tests.requires_app_host = true
     objc_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist'
-    objc_tests.dependency 'FirebaseAuth', '~> 12.0.0'
+    objc_tests.dependency 'FirebaseAuth', '~> 12.1.0'
     objc_tests.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
     }
@@ -86,6 +86,6 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 12.0.0'
+    int_tests.dependency 'FirebaseAuth', '~> 12.1.0'
   end
 end

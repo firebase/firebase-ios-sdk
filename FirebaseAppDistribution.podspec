@@ -33,7 +33,7 @@ iOS SDK for App Distribution for Firebase.
   s.dependency 'FirebaseCore', '~> 12.1.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
-  s.dependency 'FirebaseInstallations', '~> 12.0.0'
+  s.dependency 'FirebaseInstallations', '~> 12.1.0'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
