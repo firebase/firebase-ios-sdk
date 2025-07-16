@@ -216,7 +216,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter element: The `Expression` representing the element to search for in the array.
   /// - Returns: A new `BooleanExpr` representing the "array_contains" comparison.
-  func arrayContains(_ element: Expression) -> BooleanExpr
+  func arrayContains(_ element: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if an array (from `self`) contains a specific literal
   /// element.
@@ -229,7 +229,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter element: The `Sendable` literal element to search for in the array.
   /// - Returns: A new `BooleanExpr` representing the "array_contains" comparison.
-  func arrayContains(_ element: Sendable) -> BooleanExpr
+  func arrayContains(_ element: Sendable) -> BooleanExpression
 
   /// Creates an expression that checks if an array (from `self`) contains all the specified element
   /// expressions.
@@ -244,7 +244,7 @@ public protocol Expression: Sendable {
   /// - Parameter values: A list of `Expression` elements to check for in the array represented
   /// by `self`.
   /// - Returns: A new `BooleanExpr` representing the "array_contains_all" comparison.
-  func arrayContainsAll(_ values: [Expression]) -> BooleanExpr
+  func arrayContainsAll(_ values: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if an array (from `self`) contains all the specified literal
   /// elements.
@@ -258,7 +258,7 @@ public protocol Expression: Sendable {
   /// - Parameter values: A list of `Sendable` literal elements to check for in the array
   /// represented by `self`.
   /// - Returns: A new `BooleanExpr` representing the "array_contains_all" comparison.
-  func arrayContainsAll(_ values: [Sendable]) -> BooleanExpr
+  func arrayContainsAll(_ values: [Sendable]) -> BooleanExpression
 
   /// Creates an expression that checks if an array (from `self`) contains any of the specified
   /// element expressions.
@@ -272,7 +272,7 @@ public protocol Expression: Sendable {
   /// - Parameter values: A list of `Expression` elements to check for in the array represented
   /// by `self`.
   /// - Returns: A new `BooleanExpr` representing the "array_contains_any" comparison.
-  func arrayContainsAny(_ values: [Expression]) -> BooleanExpr
+  func arrayContainsAny(_ values: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if an array (from `self`) contains any of the specified
   /// literal elements.
@@ -286,7 +286,7 @@ public protocol Expression: Sendable {
   /// - Parameter values: A list of `Sendable` literal elements to check for in the array
   /// represented by `self`.
   /// - Returns: A new `BooleanExpr` representing the "array_contains_any" comparison.
-  func arrayContainsAny(_ values: [Sendable]) -> BooleanExpr
+  func arrayContainsAny(_ values: [Sendable]) -> BooleanExpression
 
   /// Creates an expression that calculates the length of an array.
   /// Assumes `self` evaluates to an array.
@@ -332,37 +332,37 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
   func arrayGet(_ offsetExpr: Expression) -> FunctionExpression
 
-  func gt(_ other: Expression) -> BooleanExpr
+  func gt(_ other: Expression) -> BooleanExpression
 
-  func gt(_ other: Sendable) -> BooleanExpr
+  func gt(_ other: Sendable) -> BooleanExpression
 
   // MARK: - Greater Than or Equal (gte)
 
-  func gte(_ other: Expression) -> BooleanExpr
+  func gte(_ other: Expression) -> BooleanExpression
 
-  func gte(_ other: Sendable) -> BooleanExpr
+  func gte(_ other: Sendable) -> BooleanExpression
 
   // MARK: - Less Than (lt)
 
-  func lt(_ other: Expression) -> BooleanExpr
+  func lt(_ other: Expression) -> BooleanExpression
 
-  func lt(_ other: Sendable) -> BooleanExpr
+  func lt(_ other: Sendable) -> BooleanExpression
 
   // MARK: - Less Than or Equal (lte)
 
-  func lte(_ other: Expression) -> BooleanExpr
+  func lte(_ other: Expression) -> BooleanExpression
 
-  func lte(_ other: Sendable) -> BooleanExpr
+  func lte(_ other: Sendable) -> BooleanExpression
 
   // MARK: - Equal (eq)
 
-  func eq(_ other: Expression) -> BooleanExpr
+  func eq(_ other: Expression) -> BooleanExpression
 
-  func eq(_ other: Sendable) -> BooleanExpr
+  func eq(_ other: Sendable) -> BooleanExpression
 
-  func neq(_ other: Expression) -> BooleanExpr
+  func neq(_ other: Expression) -> BooleanExpression
 
-  func neq(_ other: Sendable) -> BooleanExpr
+  func neq(_ other: Sendable) -> BooleanExpression
 
   // MARK: Equality with Sendable
 
@@ -377,7 +377,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter others: A list of `Expression` values to check against.
   /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
-  func eqAny(_ others: [Expression]) -> BooleanExpr
+  func eqAny(_ others: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided literal
   /// values.
@@ -390,7 +390,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter others: A list of `Sendable` literal values to check against.
   /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
-  func eqAny(_ others: [Sendable]) -> BooleanExpr
+  func eqAny(_ others: [Sendable]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// expression values.
@@ -403,7 +403,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter others: A list of `Expression` values to check against.
   /// - Returns: A new `BooleanExpr` representing the "NOT IN" comparison (not_eq_any).
-  func notEqAny(_ others: [Expression]) -> BooleanExpr
+  func notEqAny(_ others: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// literal values.
@@ -416,7 +416,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter others: A list of `Sendable` literal values to check against.
   /// - Returns: A new `BooleanExpr` representing the "NOT IN" comparison (not_eq_any).
-  func notEqAny(_ others: [Sendable]) -> BooleanExpr
+  func notEqAny(_ others: [Sendable]) -> BooleanExpression
 
   // MARK: Checks
 
@@ -429,7 +429,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Returns: A new `BooleanExpr` representing the "isNaN" check.
-  func isNan() -> BooleanExpr
+  func isNan() -> BooleanExpression
 
   /// Creates an expression that checks if this expression evaluates to "Nil".
   ///
@@ -439,7 +439,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Returns: A new `BooleanExpr` representing the "isNil" check.
-  func isNil() -> BooleanExpr
+  func isNil() -> BooleanExpression
 
   /// Creates an expression that checks if a field exists in the document.
   ///
@@ -451,7 +451,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Returns: A new `BooleanExpr` representing the "exists" check.
-  func exists() -> BooleanExpr
+  func exists() -> BooleanExpression
 
   /// Creates an expression that checks if this expression produces an error during evaluation.
   ///
@@ -463,7 +463,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Returns: A new `BooleanExpr` representing the "isError" check.
-  func isError() -> BooleanExpr
+  func isError() -> BooleanExpression
 
   /// Creates an expression that returns `true` if the result of this expression
   /// is absent (e.g., a field does not exist in a map). Otherwise, returns `false`, even if the
@@ -478,7 +478,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Returns: A new `BooleanExpr` representing the "isAbsent" check.
-  func isAbsent() -> BooleanExpr
+  func isAbsent() -> BooleanExpression
 
   /// Creates an expression that checks if the result of this expression is not null.
   ///
@@ -488,7 +488,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Returns: A new `BooleanExpr` representing the "isNotNil" check.
-  func isNotNil() -> BooleanExpr
+  func isNotNil() -> BooleanExpression
 
   /// Creates an expression that checks if the results of this expression is NOT "NaN" (Not a
   /// Number).
@@ -500,7 +500,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Returns: A new `BooleanExpr` representing the "isNotNaN" check.
-  func isNotNan() -> BooleanExpr
+  func isNotNan() -> BooleanExpression
 
   // MARK: String Operations
 
@@ -526,7 +526,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter pattern: The literal string pattern to search for. Use "%" as a wildcard.
   /// - Returns: A new `BooleanExpr` representing the "like" comparison.
-  func like(_ pattern: String) -> BooleanExpr
+  func like(_ pattern: String) -> BooleanExpression
 
   /// Creates an expression that performs a case-sensitive string comparison using wildcards against
   /// an expression pattern.
@@ -541,7 +541,7 @@ public protocol Expression: Sendable {
   /// search
   /// for.
   /// - Returns: A new `BooleanExpr` representing the "like" comparison.
-  func like(_ pattern: Expression) -> BooleanExpr
+  func like(_ pattern: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified regular
   /// expression literal as a substring.
@@ -554,7 +554,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter pattern: The literal string regular expression to use for the search.
   /// - Returns: A new `BooleanExpr` representing the "regex_contains" comparison.
-  func regexContains(_ pattern: String) -> BooleanExpr
+  func regexContains(_ pattern: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified regular
   /// expression (from an expression) as a substring.
@@ -569,7 +569,7 @@ public protocol Expression: Sendable {
   /// expression to
   /// use for the search.
   /// - Returns: A new `BooleanExpr` representing the "regex_contains" comparison.
-  func regexContains(_ pattern: Expression) -> BooleanExpr
+  func regexContains(_ pattern: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) matches a specified regular
   /// expression literal entirely.
@@ -582,7 +582,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter pattern: The literal string regular expression to use for the match.
   /// - Returns: A new `BooleanExpr` representing the regular expression match.
-  func regexMatch(_ pattern: String) -> BooleanExpr
+  func regexMatch(_ pattern: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) matches a specified regular
   /// expression (from an expression) entirely.
@@ -597,7 +597,7 @@ public protocol Expression: Sendable {
   /// expression to
   /// use for the match.
   /// - Returns: A new `BooleanExpr` representing the regular expression match.
-  func regexMatch(_ pattern: Expression) -> BooleanExpr
+  func regexMatch(_ pattern: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified literal
   /// substring (case-sensitive).
@@ -610,7 +610,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter substring: The literal string substring to search for.
   /// - Returns: A new `BooleanExpr` representing the "str_contains" comparison.
-  func strContains(_ substring: String) -> BooleanExpr
+  func strContains(_ substring: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified substring
   /// from an expression (case-sensitive).
@@ -624,7 +624,7 @@ public protocol Expression: Sendable {
   /// - Parameter expr: An `Expression` (evaluating to a string) representing the substring to
   /// search for.
   /// - Returns: A new `BooleanExpr` representing the "str_contains" comparison.
-  func strContains(_ expr: Expression) -> BooleanExpr
+  func strContains(_ expr: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) starts with a given literal prefix
   /// (case-sensitive).
@@ -637,7 +637,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter prefix: The literal string prefix to check for.
   /// - Returns: A new `BooleanExpr` representing the "starts_with" comparison.
-  func startsWith(_ prefix: String) -> BooleanExpr
+  func startsWith(_ prefix: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) starts with a given prefix from an
   /// expression (case-sensitive).
@@ -651,7 +651,7 @@ public protocol Expression: Sendable {
   /// - Parameter prefix: An `Expression` (evaluating to a string) representing the prefix to check
   /// for.
   /// - Returns: A new `BooleanExpr` representing the "starts_with" comparison.
-  func startsWith(_ prefix: Expression) -> BooleanExpr
+  func startsWith(_ prefix: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) ends with a given literal suffix
   /// (case-sensitive).
@@ -664,7 +664,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter suffix: The literal string suffix to check for.
   /// - Returns: A new `BooleanExpr` representing the "ends_with" comparison.
-  func endsWith(_ suffix: String) -> BooleanExpr
+  func endsWith(_ suffix: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) ends with a given suffix from an
   /// expression (case-sensitive).
@@ -678,7 +678,7 @@ public protocol Expression: Sendable {
   /// - Parameter suffix: An `Expression` (evaluating to a string) representing the suffix to check
   /// for.
   /// - Returns: A new `BooleanExpr` representing the "ends_with" comparison.
-  func endsWith(_ suffix: Expression) -> BooleanExpr
+  func endsWith(_ suffix: Expression) -> BooleanExpression
 
   /// Creates an expression that converts a string (from `self`) to lowercase.
   /// Assumes `self` evaluates to a string.
@@ -764,7 +764,7 @@ public protocol Expression: Sendable {
   /// - Parameter find: The literal string substring to search for.
   /// - Parameter replace: The literal string substring to replace the first occurrence with.
   /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
-  func replaceFirst(_ find: String, _ replace: String) -> FunctionExpression
+  func replaceFirst(_ find: String, with replace: String) -> FunctionExpression
 
   /// Creates an expression that replaces the first occurrence of a substring (from an expression)
   /// within this string expression with another substring (from an expression).
@@ -779,7 +779,7 @@ public protocol Expression: Sendable {
   /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace the first
   /// occurrence with.
   /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
-  func replaceFirst(_ find: Expression, _ replace: Expression) -> FunctionExpression
+  func replaceFirst(_ find: Expression, with replace: Expression) -> FunctionExpression
 
   /// Creates an expression that replaces all occurrences of a literal substring within this string
   /// expression with another literal substring.
@@ -793,7 +793,7 @@ public protocol Expression: Sendable {
   /// - Parameter find: The literal string substring to search for.
   /// - Parameter replace: The literal string substring to replace all occurrences with.
   /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
-  func replaceAll(_ find: String, _ replace: String) -> FunctionExpression
+  func replaceAll(_ find: String, with replace: String) -> FunctionExpression
 
   /// Creates an expression that replaces all occurrences of a substring (from an expression) within
   /// this string expression with another substring (from an expression).
@@ -808,7 +808,7 @@ public protocol Expression: Sendable {
   /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace all
   /// occurrences with.
   /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
-  func replaceAll(_ find: Expression, _ replace: Expression) -> FunctionExpression
+  func replaceAll(_ find: Expression, with replace: Expression) -> FunctionExpression
 
   /// Creates an expression that calculates the length of this string or bytes expression in bytes.
   /// Assumes `self` evaluates to a string or bytes.
@@ -841,7 +841,7 @@ public protocol Expression: Sendable {
   /// - Parameter position: Literal `Int` index of the first character/byte.
   /// - Parameter length: Optional literal `Int` length of the substring. If `nil`, goes to the end.
   /// - Returns: A new `FunctionExpr` representing the substring.
-  func substr(_ position: Int, _ length: Int?) -> FunctionExpression
+  func substr(position: Int, length: Int?) -> FunctionExpression
 
   /// Creates an expression that returns a substring of this expression (String or Bytes) using
   /// expressions for position and optional length.
@@ -863,7 +863,7 @@ public protocol Expression: Sendable {
   /// - Parameter length: Optional `Expr` (evaluating to an Int) for the length of the substring. If
   /// `nil`, goes to the end.
   /// - Returns: A new `FunctionExpr` representing the substring.
-  func substr(_ position: Expression, _ length: Expression?) -> FunctionExpression
+  func substr(position: Expression, length: Expression?) -> FunctionExpression
 
   // MARK: Map Operations
 
@@ -1305,7 +1305,7 @@ public protocol Expression: Sendable {
   /// "day".
   /// - Parameter amount: An `Expr` evaluating to the amount (Int) of the unit to add.
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
-  func timestampAdd(_ unit: Expression, _ amount: Expression) -> FunctionExpression
+  func timestampAdd(amount: Expression, unit: Expression) -> FunctionExpression
 
   /// Creates an expression that adds a specified amount of time to this timestamp expression,
   /// where unit and amount are provided as literals.
@@ -1319,7 +1319,7 @@ public protocol Expression: Sendable {
   /// - Parameter unit: The `TimeUnit` enum representing the unit of time.
   /// - Parameter amount: The literal `Int` amount of the unit to add.
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
-  func timestampAdd(_ unit: TimeUnit, _ amount: Int) -> FunctionExpression
+  func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression
 
   /// Creates an expression that subtracts a specified amount of time from this timestamp
   /// expression,
@@ -1337,7 +1337,7 @@ public protocol Expression: Sendable {
   /// "day".
   /// - Parameter amount: An `Expr` evaluating to the amount (Int) of the unit to subtract.
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
-  func timestampSub(_ unit: Expression, _ amount: Expression) -> FunctionExpression
+  func timestampSub(amount: Expression, unit: Expression) -> FunctionExpression
 
   /// Creates an expression that subtracts a specified amount of time from this timestamp
   /// expression,
@@ -1352,7 +1352,7 @@ public protocol Expression: Sendable {
   /// - Parameter unit: The `TimeUnit` enum representing the unit of time.
   /// - Parameter amount: The literal `Int` amount of the unit to subtract.
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
-  func timestampSub(_ unit: TimeUnit, _ amount: Int) -> FunctionExpression
+  func timestampSub(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression
 
   // MARK: - Bitwise operations
 

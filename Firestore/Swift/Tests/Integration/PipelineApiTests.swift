@@ -17,7 +17,7 @@ import XCTest
 
 import FirebaseFirestore
 
-final class PipelineTests: FSTIntegrationTestCase {
+final class PipelineApiTests: FSTIntegrationTestCase {
   override func setUp() {
     FSTIntegrationTestCase.switchToEnterpriseMode()
     super.setUp()
@@ -45,10 +45,8 @@ final class PipelineTests: FSTIntegrationTestCase {
   func testWhereStage() async throws {
     _ = db.pipeline().collection("books")
       .where(
-        Field("rating").gt(4.0) && Field("genre").eq("Science Fiction") || ArrayContains(
-          fieldName: "fieldName",
-          values: "rating"
-        )
+        Field("rating").gt(4.0) && Field("genre").eq("Science Fiction") || Field("tags")
+          .arrayContains("comedy")
       )
   }
 
@@ -92,7 +90,7 @@ final class PipelineTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books").removeFields(["rating", "cost"])
 
     // removes field 'rating'.
-    _ = db.pipeline().collection("books").removeFields([Field("rating")])
+    _ = db.pipeline().collection("books").removeFields(["rating"])
   }
 
   func testSelectStage() async throws {
@@ -125,7 +123,7 @@ final class PipelineTests: FSTIntegrationTestCase {
       .sort(
         [
           Field("rating").descending(),
-          Ascending("title"), // alternative API offered
+          Field("title").ascending(), // alternative API offered
         ]
       )
   }
@@ -213,11 +211,11 @@ final class PipelineTests: FSTIntegrationTestCase {
   func testReplaceStage() async throws {
     // Input.
     // {
-//  "name": "John Doe Jr.",
-//  "parents": {
-//    "father": "John Doe Sr.",
-//    "mother": "Jane Doe"
-//    }
+    //  "name": "John Doe Jr.",
+    //  "parents": {
+    //    "father": "John Doe Sr.",
+    //    "mother": "Jane Doe"
+    //    }
     // }
 
     // Emit field parents as the document.
@@ -226,8 +224,8 @@ final class PipelineTests: FSTIntegrationTestCase {
 
     // Output
     // {
-//  "father": "John Doe Sr.",
-//  "mother": "Jane Doe"
+    //  "father": "John Doe Sr.",
+    //  "mother": "Jane Doe"
     // }
   }
 
@@ -242,7 +240,7 @@ final class PipelineTests: FSTIntegrationTestCase {
   func testUnionStage() async throws {
     // Emit documents from books collection and magazines collection.
     _ = db.pipeline().collection("books")
-      .union(db.pipeline().collection("magazines"))
+      .union(with: db.pipeline().collection("magazines"))
   }
 
   func testUnnestStage() async throws {
@@ -277,27 +275,31 @@ final class PipelineTests: FSTIntegrationTestCase {
     // add this stage by calling rawStage, passing the name of the stage "where",
     // and providing positional argument values.
     _ = db.pipeline().collection("books")
-      .rawStage(name: "where",
-                params: [Field("published").lt(1900)])
+      .rawStage(
+        name: "where",
+        params: [Field("published").lt(1900)]
+      )
       .select(["title", "author"])
 
     // In cases where the stage also supports named argument values, then these can be
     // provided with a third argument that maps the argument name to value.
     // Note that these named arguments are always optional in the stage definition.
     _ = db.pipeline().collection("books")
-      .rawStage(name: "where",
-                params: [Field("published").lt(1900)],
-                options: ["someOptionalParamName": "the argument value for this param"])
+      .rawStage(
+        name: "where",
+        params: [Field("published").lt(1900)],
+        options: ["someOptionalParamName": "the argument value for this param"]
+      )
       .select(["title", "author"])
   }
 
   func testField() async throws {
     // An expression that will return the value of the field `name` in the document
-    let nameField = Field("name")
+    _ = Field("name")
 
     // An expression that will return the value of the field `description` in the document
     // Field is a sub-type of Expr, so we can also declare our var of type Expr
-    let descriptionField = Field("description")
+    _ = Field("description")
 
     // USAGE: anywhere an Expr type is accepted
     // Use a field in a pipeline
@@ -311,21 +313,21 @@ final class PipelineTests: FSTIntegrationTestCase {
     // One special Field value is conveniently exposed as static function to help the user reference
     // reserved field values of __name__.
     // TBD
-//    _ = db.pipeline().collection("books")
-//      .addFields(
-//        DocumentId()
-//      )
+    //    _ = db.pipeline().collection("books")
+    //      .addFields(
+    //        FieldPath.documentID()
+    //      )
   }
 
   func testConstant() async throws {
     // A constant for a number
-    let three = Constant(3)
+    _ = Constant(3)
 
     // A constant for a string
-    let name = Constant("Expressions API")
+    _ = Constant("Expressions API")
 
     // Const is a sub-type of Expr, so we can also declare our var of type Expr
-    let nothing = Constant.nil
+    _ = Constant.nil
 
     // USAGE: Anywhere an Expr type is accepted
     // Add field `fromTheLibraryOf: 'Rafi'` to every document in the collection.
@@ -340,21 +342,21 @@ final class PipelineTests: FSTIntegrationTestCase {
     let milliseconds: FunctionExpression = secondsField.multiply(1000)
 
     // A firestore function is also a sub-type of Expr
-    let myExpr = milliseconds
+    _ = milliseconds
   }
 
   func testBooleanExpr() async throws {
-    let isApple: BooleanExpr = Field("type").eq("apple")
+    let isApple: BooleanExpression = Field("type").eq("apple")
 
     // USAGE: stage where requires an expression of type BooleanExpr
-    let allAppleOptions: Pipeline = db.pipeline().collection("fruitOptions").where(isApple)
+    let _: Pipeline = db.pipeline().collection("fruitOptions").where(isApple)
   }
 
   func testSelectableExpr() async throws {
     let secondsField = Field("seconds")
 
     // Create a selectable from our milliseconds expression.
-    let millisecondsSelectable: Selectable = secondsField.multiply(1000).as("milliseconds")
+    let _: Selectable = secondsField.multiply(1000).as("milliseconds")
 
     // USAGE: stages addFields and select accept expressions of type Selectable
     // Add (or overwrite) the 'milliseconds` field to each of our documents using the
@@ -363,13 +365,13 @@ final class PipelineTests: FSTIntegrationTestCase {
       .addFields([secondsField.multiply(1000).as("milliseconds")])
 
     // NOTE: Field implements Selectable, the alias is the same as the name
-    let secondsSelectable: Selectable = secondsField
+    let _: Selectable = secondsField
   }
 
   func testAggregateExpr() async throws {
     let lapTimeSum: AggregateFunction = Field("seconds").sum()
 
-    let lapTimeSumTarget: AliasedAggregate = lapTimeSum.as("totalTrackTime")
+    let _: AliasedAggregate = lapTimeSum.as("totalTrackTime")
 
     // USAGE: stage aggregate accepts expressions of type AggregateWithAlias
     // A pipeline that will return one document with one field `totalTrackTime` that
@@ -391,7 +393,7 @@ final class PipelineTests: FSTIntegrationTestCase {
     // by chaining together two calls to the multiply function
     let radiusField = Field("radius")
     let radiusSq = radiusField.multiply(Field("radius"))
-    let areaExpr = radiusSq.multiply(3.14)
+    _ = radiusSq.multiply(3.14)
 
     // Or define this expression in one clean, fluent statement
     let areaOfCircle = Field("radius")
@@ -405,12 +407,12 @@ final class PipelineTests: FSTIntegrationTestCase {
 
   func testGeneric() async throws {
     // This is the same of the logicalMin('price', 0)', if it did not exist
-    let myLm = FunctionExpression("logicalMin", [Field("price"), Constant(0)])
+    _ = FunctionExpression("logicalMin", [Field("price"), Constant(0)])
 
     // Create a generic BooleanExpr for use where BooleanExpr is required
-    let myEq = BooleanExpr("eq", [Field("price"), Constant(10)])
+    _ = BooleanExpression("eq", [Field("price"), Constant(10)])
 
     // Create a generic AggregateFunction for use where AggregateFunction is required
-    let mySum = AggregateFunction("sum", [Field("price")])
+    _ = AggregateFunction("sum", [Field("price")])
   }
 }

@@ -264,7 +264,7 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Parameter condition: The `BooleanExpr` to apply.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func `where`(_ condition: BooleanExpr) -> Pipeline {
+  public func `where`(_ condition: BooleanExpression) -> Pipeline {
     return Pipeline(stages: stages + [Where(condition: condition)], db: db)
   }
 
@@ -390,7 +390,7 @@ public struct Pipeline: @unchecked Sendable {
   /// ```
   ///
   /// - Parameters:
-  ///   - accumulator: An array of `AggregateWithAlias` expressions for calculations.
+  ///   - accumulator: An array of at least one `AggregateWithAlias` expressions for calculations.
   ///   - groups: Optional array of `Selectable` expressions for grouping. If `nil` or empty,
   /// aggregates across all documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
@@ -573,7 +573,7 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Parameter other: The other `Pipeline` whose documents will be unioned.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func union(_ other: Pipeline) -> Pipeline {
+  public func union(with other: Pipeline) -> Pipeline {
     return Pipeline(stages: stages + [Union(other: other)], db: db)
   }
 

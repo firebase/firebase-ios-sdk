@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class BooleanExpr: FunctionExpression, @unchecked Sendable {
+public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   override public init(_ functionName: String, _ agrs: [Expression]) {
     super.init(functionName, agrs)
   }
@@ -25,22 +25,25 @@ public class BooleanExpr: FunctionExpression, @unchecked Sendable {
     return FunctionExpression("cond", [self, thenExpr, elseExpr])
   }
 
-  public static func && (lhs: BooleanExpr,
-                         rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
-    try BooleanExpr("and", [lhs, rhs()])
+  public static func && (lhs: BooleanExpression,
+                         rhs: @autoclosure () throws -> BooleanExpression) rethrows
+    -> BooleanExpression {
+    try BooleanExpression("and", [lhs, rhs()])
   }
 
-  public static func || (lhs: BooleanExpr,
-                         rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
-    try BooleanExpr("or", [lhs, rhs()])
+  public static func || (lhs: BooleanExpression,
+                         rhs: @autoclosure () throws -> BooleanExpression) rethrows
+    -> BooleanExpression {
+    try BooleanExpression("or", [lhs, rhs()])
   }
 
-  public static func ^ (lhs: BooleanExpr,
-                        rhs: @autoclosure () throws -> BooleanExpr) rethrows -> BooleanExpr {
-    try BooleanExpr("xor", [lhs, rhs()])
+  public static func ^ (lhs: BooleanExpression,
+                        rhs: @autoclosure () throws -> BooleanExpression) rethrows
+    -> BooleanExpression {
+    try BooleanExpression("xor", [lhs, rhs()])
   }
 
-  public static prefix func ! (lhs: BooleanExpr) -> BooleanExpr {
-    return BooleanExpr("not", [lhs])
+  public static prefix func ! (lhs: BooleanExpression) -> BooleanExpression {
+    return BooleanExpression("not", [lhs])
   }
 }

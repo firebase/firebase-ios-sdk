@@ -76,28 +76,28 @@ public extension Expression {
     return FunctionExpression("array_concat", exprs)
   }
 
-  func arrayContains(_ element: Expression) -> BooleanExpr {
-    return BooleanExpr("array_contains", [self, element])
+  func arrayContains(_ element: Expression) -> BooleanExpression {
+    return BooleanExpression("array_contains", [self, element])
   }
 
-  func arrayContains(_ element: Sendable) -> BooleanExpr {
-    return BooleanExpr("array_contains", [self, Helper.sendableToExpr(element)])
+  func arrayContains(_ element: Sendable) -> BooleanExpression {
+    return BooleanExpression("array_contains", [self, Helper.sendableToExpr(element)])
   }
 
-  func arrayContainsAll(_ values: [Expression]) -> BooleanExpr {
-    return BooleanExpr("array_contains_all", [self, Helper.array(values)])
+  func arrayContainsAll(_ values: [Expression]) -> BooleanExpression {
+    return BooleanExpression("array_contains_all", [self, Helper.array(values)])
   }
 
-  func arrayContainsAll(_ values: [Sendable]) -> BooleanExpr {
-    return BooleanExpr("array_contains_all", [self, Helper.array(values)])
+  func arrayContainsAll(_ values: [Sendable]) -> BooleanExpression {
+    return BooleanExpression("array_contains_all", [self, Helper.array(values)])
   }
 
-  func arrayContainsAny(_ values: [Expression]) -> BooleanExpr {
-    return BooleanExpr("array_contains_any", [self, Helper.array(values)])
+  func arrayContainsAny(_ values: [Expression]) -> BooleanExpression {
+    return BooleanExpression("array_contains_any", [self, Helper.array(values)])
   }
 
-  func arrayContainsAny(_ values: [Sendable]) -> BooleanExpr {
-    return BooleanExpr("array_contains_any", [self, Helper.array(values)])
+  func arrayContainsAny(_ values: [Sendable]) -> BooleanExpression {
+    return BooleanExpression("array_contains_any", [self, Helper.array(values)])
   }
 
   func arrayLength() -> FunctionExpression {
@@ -112,113 +112,113 @@ public extension Expression {
     return FunctionExpression("array_get", [self, offsetExpr])
   }
 
-  func gt(_ other: Expression) -> BooleanExpr {
-    return BooleanExpr("gt", [self, other])
+  func gt(_ other: Expression) -> BooleanExpression {
+    return BooleanExpression("gt", [self, other])
   }
 
-  func gt(_ other: Sendable) -> BooleanExpr {
+  func gt(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpr("gt", [self, exprOther])
+    return BooleanExpression("gt", [self, exprOther])
   }
 
   // MARK: - Greater Than or Equal (gte)
 
-  func gte(_ other: Expression) -> BooleanExpr {
-    return BooleanExpr("gte", [self, other])
+  func gte(_ other: Expression) -> BooleanExpression {
+    return BooleanExpression("gte", [self, other])
   }
 
-  func gte(_ other: Sendable) -> BooleanExpr {
+  func gte(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpr("gte", [self, exprOther])
+    return BooleanExpression("gte", [self, exprOther])
   }
 
   // MARK: - Less Than (lt)
 
-  func lt(_ other: Expression) -> BooleanExpr {
-    return BooleanExpr("lt", [self, other])
+  func lt(_ other: Expression) -> BooleanExpression {
+    return BooleanExpression("lt", [self, other])
   }
 
-  func lt(_ other: Sendable) -> BooleanExpr {
+  func lt(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpr("lt", [self, exprOther])
+    return BooleanExpression("lt", [self, exprOther])
   }
 
   // MARK: - Less Than or Equal (lte)
 
-  func lte(_ other: Expression) -> BooleanExpr {
-    return BooleanExpr("lte", [self, other])
+  func lte(_ other: Expression) -> BooleanExpression {
+    return BooleanExpression("lte", [self, other])
   }
 
-  func lte(_ other: Sendable) -> BooleanExpr {
+  func lte(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpr("lte", [self, exprOther])
+    return BooleanExpression("lte", [self, exprOther])
   }
 
   // MARK: - Equal (eq)
 
-  func eq(_ other: Expression) -> BooleanExpr {
-    return BooleanExpr("eq", [self, other])
+  func eq(_ other: Expression) -> BooleanExpression {
+    return BooleanExpression("eq", [self, other])
   }
 
-  func eq(_ other: Sendable) -> BooleanExpr {
+  func eq(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpr("eq", [self, exprOther])
+    return BooleanExpression("eq", [self, exprOther])
   }
 
-  func neq(_ other: Expression) -> BooleanExpr {
-    return BooleanExpr("neq", [self, other])
+  func neq(_ other: Expression) -> BooleanExpression {
+    return BooleanExpression("neq", [self, other])
   }
 
-  func neq(_ other: Sendable) -> BooleanExpr {
-    return BooleanExpr("neq", [self, Helper.sendableToExpr(other)])
+  func neq(_ other: Sendable) -> BooleanExpression {
+    return BooleanExpression("neq", [self, Helper.sendableToExpr(other)])
   }
 
-  func eqAny(_ others: [Expression]) -> BooleanExpr {
-    return BooleanExpr("eq_any", [self, Helper.array(others)])
+  func eqAny(_ others: [Expression]) -> BooleanExpression {
+    return BooleanExpression("eq_any", [self, Helper.array(others)])
   }
 
-  func eqAny(_ others: [Sendable]) -> BooleanExpr {
-    return BooleanExpr("eq_any", [self, Helper.array(others)])
+  func eqAny(_ others: [Sendable]) -> BooleanExpression {
+    return BooleanExpression("eq_any", [self, Helper.array(others)])
   }
 
-  func notEqAny(_ others: [Expression]) -> BooleanExpr {
-    return BooleanExpr("not_eq_any", [self, Helper.array(others)])
+  func notEqAny(_ others: [Expression]) -> BooleanExpression {
+    return BooleanExpression("not_eq_any", [self, Helper.array(others)])
   }
 
-  func notEqAny(_ others: [Sendable]) -> BooleanExpr {
-    return BooleanExpr("not_eq_any", [self, Helper.array(others)])
+  func notEqAny(_ others: [Sendable]) -> BooleanExpression {
+    return BooleanExpression("not_eq_any", [self, Helper.array(others)])
   }
 
   // MARK: Checks
 
   // --- Added Type Check Operations ---
 
-  func isNan() -> BooleanExpr {
-    return BooleanExpr("is_nan", [self])
+  func isNan() -> BooleanExpression {
+    return BooleanExpression("is_nan", [self])
   }
 
-  func isNil() -> BooleanExpr {
-    return BooleanExpr("is_null", [self])
+  func isNil() -> BooleanExpression {
+    return BooleanExpression("is_null", [self])
   }
 
-  func exists() -> BooleanExpr {
-    return BooleanExpr("exists", [self])
+  func exists() -> BooleanExpression {
+    return BooleanExpression("exists", [self])
   }
 
-  func isError() -> BooleanExpr {
-    return BooleanExpr("is_error", [self])
+  func isError() -> BooleanExpression {
+    return BooleanExpression("is_error", [self])
   }
 
-  func isAbsent() -> BooleanExpr {
-    return BooleanExpr("is_absent", [self])
+  func isAbsent() -> BooleanExpression {
+    return BooleanExpression("is_absent", [self])
   }
 
-  func isNotNil() -> BooleanExpr {
-    return BooleanExpr("is_not_null", [self])
+  func isNotNil() -> BooleanExpression {
+    return BooleanExpression("is_not_null", [self])
   }
 
-  func isNotNan() -> BooleanExpr {
-    return BooleanExpr("is_not_nan", [self])
+  func isNotNan() -> BooleanExpression {
+    return BooleanExpression("is_not_nan", [self])
   }
 
   // --- Added String Operations ---
@@ -227,52 +227,52 @@ public extension Expression {
     return FunctionExpression("char_length", [self])
   }
 
-  func like(_ pattern: String) -> BooleanExpr {
-    return BooleanExpr("like", [self, Helper.sendableToExpr(pattern)])
+  func like(_ pattern: String) -> BooleanExpression {
+    return BooleanExpression("like", [self, Helper.sendableToExpr(pattern)])
   }
 
-  func like(_ pattern: Expression) -> BooleanExpr {
-    return BooleanExpr("like", [self, pattern])
+  func like(_ pattern: Expression) -> BooleanExpression {
+    return BooleanExpression("like", [self, pattern])
   }
 
-  func regexContains(_ pattern: String) -> BooleanExpr {
-    return BooleanExpr("regex_contains", [self, Helper.sendableToExpr(pattern)])
+  func regexContains(_ pattern: String) -> BooleanExpression {
+    return BooleanExpression("regex_contains", [self, Helper.sendableToExpr(pattern)])
   }
 
-  func regexContains(_ pattern: Expression) -> BooleanExpr {
-    return BooleanExpr("regex_contains", [self, pattern])
+  func regexContains(_ pattern: Expression) -> BooleanExpression {
+    return BooleanExpression("regex_contains", [self, pattern])
   }
 
-  func regexMatch(_ pattern: String) -> BooleanExpr {
-    return BooleanExpr("regex_match", [self, Helper.sendableToExpr(pattern)])
+  func regexMatch(_ pattern: String) -> BooleanExpression {
+    return BooleanExpression("regex_match", [self, Helper.sendableToExpr(pattern)])
   }
 
-  func regexMatch(_ pattern: Expression) -> BooleanExpr {
-    return BooleanExpr("regex_match", [self, pattern])
+  func regexMatch(_ pattern: Expression) -> BooleanExpression {
+    return BooleanExpression("regex_match", [self, pattern])
   }
 
-  func strContains(_ substring: String) -> BooleanExpr {
-    return BooleanExpr("str_contains", [self, Helper.sendableToExpr(substring)])
+  func strContains(_ substring: String) -> BooleanExpression {
+    return BooleanExpression("str_contains", [self, Helper.sendableToExpr(substring)])
   }
 
-  func strContains(_ expr: Expression) -> BooleanExpr {
-    return BooleanExpr("str_contains", [self, expr])
+  func strContains(_ expr: Expression) -> BooleanExpression {
+    return BooleanExpression("str_contains", [self, expr])
   }
 
-  func startsWith(_ prefix: String) -> BooleanExpr {
-    return BooleanExpr("starts_with", [self, Helper.sendableToExpr(prefix)])
+  func startsWith(_ prefix: String) -> BooleanExpression {
+    return BooleanExpression("starts_with", [self, Helper.sendableToExpr(prefix)])
   }
 
-  func startsWith(_ prefix: Expression) -> BooleanExpr {
-    return BooleanExpr("starts_with", [self, prefix])
+  func startsWith(_ prefix: Expression) -> BooleanExpression {
+    return BooleanExpression("starts_with", [self, prefix])
   }
 
-  func endsWith(_ suffix: String) -> BooleanExpr {
-    return BooleanExpr("ends_with", [self, Helper.sendableToExpr(suffix)])
+  func endsWith(_ suffix: String) -> BooleanExpression {
+    return BooleanExpression("ends_with", [self, Helper.sendableToExpr(suffix)])
   }
 
-  func endsWith(_ suffix: Expression) -> BooleanExpr {
-    return BooleanExpr("ends_with", [self, suffix])
+  func endsWith(_ suffix: Expression) -> BooleanExpression {
+    return BooleanExpression("ends_with", [self, suffix])
   }
 
   func lowercased() -> FunctionExpression {
@@ -300,25 +300,25 @@ public extension Expression {
     return FunctionExpression("reverse", [self])
   }
 
-  func replaceFirst(_ find: String, _ replace: String) -> FunctionExpression {
+  func replaceFirst(_ find: String, with replace: String) -> FunctionExpression {
     return FunctionExpression(
       "replace_first",
       [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
     )
   }
 
-  func replaceFirst(_ find: Expression, _ replace: Expression) -> FunctionExpression {
+  func replaceFirst(_ find: Expression, with replace: Expression) -> FunctionExpression {
     return FunctionExpression("replace_first", [self, find, replace])
   }
 
-  func replaceAll(_ find: String, _ replace: String) -> FunctionExpression {
+  func replaceAll(_ find: String, with replace: String) -> FunctionExpression {
     return FunctionExpression(
       "replace_all",
       [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
     )
   }
 
-  func replaceAll(_ find: Expression, _ replace: Expression) -> FunctionExpression {
+  func replaceAll(_ find: Expression, with replace: Expression) -> FunctionExpression {
     return FunctionExpression("replace_all", [self, find, replace])
   }
 
@@ -326,7 +326,7 @@ public extension Expression {
     return FunctionExpression("byte_length", [self])
   }
 
-  func substr(_ position: Int, _ length: Int? = nil) -> FunctionExpression {
+  func substr(position: Int, length: Int? = nil) -> FunctionExpression {
     let positionExpr = Helper.sendableToExpr(position)
     if let length = length {
       return FunctionExpression("substr", [self, positionExpr, Helper.sendableToExpr(length)])
@@ -335,7 +335,7 @@ public extension Expression {
     }
   }
 
-  func substr(_ position: Expression, _ length: Expression? = nil) -> FunctionExpression {
+  func substr(position: Expression, length: Expression? = nil) -> FunctionExpression {
     if let length = length {
       return FunctionExpression("substr", [self, position, length])
     } else {
@@ -488,22 +488,22 @@ public extension Expression {
     return FunctionExpression("timestamp_to_unix_seconds", [self])
   }
 
-  func timestampAdd(_ unit: Expression, _ amount: Expression) -> FunctionExpression {
+  func timestampAdd(amount: Expression, unit: Expression) -> FunctionExpression {
     return FunctionExpression("timestamp_add", [self, unit, amount])
   }
 
-  func timestampAdd(_ unit: TimeUnit, _ amount: Int) -> FunctionExpression {
+  func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
       "timestamp_add",
       [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
     )
   }
 
-  func timestampSub(_ unit: Expression, _ amount: Expression) -> FunctionExpression {
+  func timestampSub(amount: Expression, unit: Expression) -> FunctionExpression {
     return FunctionExpression("timestamp_sub", [self, unit, amount])
   }
 
-  func timestampSub(_ unit: TimeUnit, _ amount: Int) -> FunctionExpression {
+  func timestampSub(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
       "timestamp_sub",
       [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]

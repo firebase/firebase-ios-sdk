@@ -116,9 +116,9 @@ class Where: Stage {
   let name: String = "where"
 
   let bridge: StageBridge
-  private var condition: BooleanExpr
+  private var condition: BooleanExpression
 
-  init(condition: BooleanExpr) {
+  init(condition: BooleanExpression) {
     self.condition = condition
     bridge = WhereStageBridge(expr: condition.toBridge())
   }
