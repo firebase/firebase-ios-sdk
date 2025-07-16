@@ -267,7 +267,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate([Field("rating").avg().as("avgRating")])
+      .aggregate([Field("rating").average().as("avgRating")])
     let snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "Aggregate query should return a single result")
@@ -283,7 +283,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .aggregate(
-        [Field("rating").avg().as("avgRating")],
+        [Field("rating").average().as("avgRating")],
         groups: [Field("genre")]
       ) // Make sure 'groupBy' and 'average' are correct
     let snapshot = try await pipeline.execute()
@@ -447,7 +447,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .database() // Source is the entire database
-      .where(Field("randomId").eq(randomIDValue))
+      .where(Field("randomId").equal(randomIDValue))
       .sort([Field("order").ascending()])
     let snapshot = try await pipeline.execute()
 
@@ -672,8 +672,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         ]).as("metadata"),
       ])
       .where(
-        Field("metadataArray").eq(metadataArrayElements) &&
-          Field("metadata").eq(metadataMapElements)
+        Field("metadataArray").equal(metadataArrayElements) &&
+          Field("metadata").equal(metadataMapElements)
       )
 
     let snapshot = try await pipeline.execute()
@@ -717,10 +717,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("genre").eq("Science Fiction"))
+      .where(Field("genre").equal("Science Fiction"))
       .aggregate([
         CountAll().as("count"),
-        Field("rating").avg().as("avgRating"),
+        Field("rating").average().as("avgRating"),
         Field("rating").maximum().as("maxRating"),
       ])
     snapshot = try await pipeline.execute()
@@ -748,7 +748,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     do {
       _ = try await db.pipeline()
         .collection(collRef.path)
-        .where(Field("published").lt(1900))
+        .where(Field("published").lessThan(1900))
         .aggregate([], groups: [Field("genre")])
         .execute()
 
@@ -767,12 +767,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("published").lt(1984))
+      .where(Field("published").lessThan(1984))
       .aggregate(
-        [Field("rating").avg().as("avgRating")],
+        [Field("rating").average().as("avgRating")],
         groups: [Field("genre")]
       )
-      .where(Field("avgRating").gt(4.3))
+      .where(Field("avgRating").greaterThan(4.3))
       .sort([Field("avgRating").descending()])
 
     let snapshot = try await pipeline.execute()
@@ -830,7 +830,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let expectedCount = 3
     let expectedResults: [String: Sendable] = ["count": expectedCount]
-    let condition = Field("rating").gt(4.3)
+    let condition = Field("rating").greaterThan(4.3)
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
@@ -983,7 +983,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     // Test Case 1: Two AND conditions
     var pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("rating").gt(4.5)
+      .where(Field("rating").greaterThan(4.5)
         && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"]))
     var snapshot = try await pipeline.execute()
     var expectedIDs = ["book10", "book4"] // Dune (SF, 4.6), LOTR (Fantasy, 4.7)
@@ -993,9 +993,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        Field("rating").gt(4.5)
+        Field("rating").greaterThan(4.5)
           && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"])
-          && Field("published").lt(1965)
+          && Field("published").lessThan(1965)
       )
     snapshot = try await pipeline.execute()
     expectedIDs = ["book4"] // LOTR (Fantasy, 4.7, published 1954)
@@ -1010,9 +1010,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     var pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        Field("genre").eq("Romance")
-          || Field("genre").eq("Dystopian")
-          || Field("genre").eq("Fantasy")
+        Field("genre").equal("Romance")
+          || Field("genre").equal("Dystopian")
+          || Field("genre").equal("Fantasy")
       )
       .select([Field("title")])
       .sort([Field("title").ascending()])
@@ -1037,10 +1037,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        Field("genre").eq("Romance") // Book2 (T), Book5 (F), Book4 (F), Book8 (F)
-          ^ Field("genre").eq("Dystopian") // Book2 (F), Book5 (T), Book4 (F), Book8 (T)
-          ^ Field("genre").eq("Fantasy") // Book2 (F), Book5 (F), Book4 (T), Book8 (F)
-          ^ Field("published").eq(1949) // Book2 (F), Book5 (F), Book4 (F), Book8 (T)
+        Field("genre").equal("Romance") // Book2 (T), Book5 (F), Book4 (F), Book8 (F)
+          ^ Field("genre").equal("Dystopian") // Book2 (F), Book5 (T), Book4 (F), Book8 (T)
+          ^ Field("genre").equal("Fantasy") // Book2 (F), Book5 (F), Book4 (T), Book8 (F)
+          ^ Field("published").equal(1949) // Book2 (F), Book5 (F), Book4 (F), Book8 (T)
       )
       .select([Field("title")])
       .sort([Field("title").ascending()])
@@ -1198,7 +1198,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         name: "aggregate",
         params: [
           [
-            "averageRating": Field("rating").avg(),
+            "averageRating": Field("rating").average(),
           ],
           emptySendableDictionary,
         ]
@@ -1226,7 +1226,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select(["title", "author"])
       .rawStage(
         name: "where",
-        params: [Field("author").eq("Douglas Adams")]
+        params: [Field("author").equal("Douglas Adams")]
       )
 
     let snapshot = try await pipeline.execute()
@@ -1284,7 +1284,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .replace(with: "awards")
 
     let snapshot = try await pipeline.execute()
@@ -1311,7 +1311,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .replace(with:
         MapExpression([
           "foo": "bar",
@@ -1409,7 +1409,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .unnest(Field("tags").as("tag"), indexField: "tagsIndex")
       .select([
         "title",
@@ -1470,7 +1470,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .unnest(ArrayExpression([1, 2, 3]).as("copy"))
       .select([
         "title",
@@ -1634,7 +1634,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .select([
         Field("title"),
-        Field("published").lt(1960).then(Constant(1960), else: Field("published"))
+        Field("published").lessThan(1960).then(Constant(1960), else: Field("published"))
           .as("published-safe"),
       ])
       .sort([Field("title").ascending()])
@@ -1753,7 +1753,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .select([Field("tags").arrayLength().as("tagsCount")])
-      .where(Field("tagsCount").eq(3))
+      .where(Field("tagsCount").equal(3))
 
     let snapshot = try await pipeline.execute()
 
@@ -1851,7 +1851,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         Field("title").charLength().as("titleLength"),
         Field("title"),
       ])
-      .where(Field("titleLength").gt(20))
+      .where(Field("titleLength").greaterThan(20))
       .sort([Field("title").ascending()])
 
     let snapshot = try await pipeline.execute()
@@ -1916,7 +1916,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("To Kill a Mockingbird"))
+      .where(Field("title").equal("To Kill a Mockingbird"))
       .select([
         Field("rating").add(1).as("ratingPlusOne"),
         Field("published").subtract(1900).as("yearsSince1900"),
@@ -1955,9 +1955,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        Field("rating").gt(4.2) &&
-          Field("rating").lte(4.5) &&
-          Field("genre").neq("Science Fiction")
+        Field("rating").greaterThan(4.2) &&
+          Field("rating").lessThanOrEqualTo(4.5) &&
+          Field("genre").notEqual("Science Fiction")
       )
       .select(["rating", "title"])
       .sort([Field("title").ascending()])
@@ -1980,8 +1980,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        (Field("rating").gt(4.5) && Field("genre").eq("Science Fiction")) ||
-          Field("published").lt(1900)
+        (Field("rating").greaterThan(4.5) && Field("genre").equal("Science Fiction")) ||
+          Field("published").lessThan(1900)
       )
       .select(["title"])
       .sort([Field("title").ascending()])
@@ -2090,7 +2090,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           Field("title"),
         ]
       )
-      .where(Field("hugoAward").eq(true))
+      .where(Field("hugoAward").equal(true))
 
     let snapshot = try await pipeline.execute()
 
@@ -2203,7 +2203,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("awards.hugo").eq(true))
+      .where(Field("awards.hugo").equal(true))
       .sort([Field("title").descending()])
       .select([Field("title"), Field("awards.hugo")])
 
@@ -2223,7 +2223,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("awards.hugo").eq(true)) // Filters to book1 and book10
+      .where(Field("awards.hugo").equal(true)) // Filters to book1 and book10
       .select([
         Field("title"),
         Field("nestedField.level.1"),
@@ -2292,8 +2292,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        BooleanExpression("and", [Field("rating").gt(0),
-                                  Field("title").charLength().lt(5),
+        BooleanExpression("and", [Field("rating").greaterThan(0),
+                                  Field("title").charLength().lessThan(5),
                                   Field("tags").arrayContains("propaganda")])
       )
       .select(["title"])
@@ -2338,7 +2338,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate([AggregateFunction("count_if", [Field("rating").gte(4.5)]).as("countOfBest")])
+      .aggregate([AggregateFunction("count_if", [Field("rating").greaterThanOrEqualTo(4.5)])
+          .as("countOfBest")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2736,7 +2737,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select(
         [
           Field("trueField"),
-          (!(Field("trueField").eq(true))).as("falseField"),
+          (!(Field("trueField").equal(true))).as("falseField"),
         ]
       )
 
@@ -2762,7 +2763,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Lord of the Rings"))
+      .where(Field("title").equal("The Lord of the Rings"))
       .limit(1)
       .select([Field("title").replaceFirst("o", with: "0").as("newName")])
     let snapshot = try await pipeline.execute()
@@ -2780,7 +2781,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Lord of the Rings"))
+      .where(Field("title").equal("The Lord of the Rings"))
       .limit(1)
       .select([Field("title").replaceAll("o", with: "0").as("newName")])
     let snapshot = try await pipeline.execute()
@@ -3063,7 +3064,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("1984"))
+      .where(Field("title").equal("1984"))
       .limit(1)
       .select([Field("title").reverse().as("reverseTitle")])
     let snapshot = try await pipeline.execute()
@@ -3137,9 +3138,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let lastDoc = snapshot.results.last!
 
     snapshot = try await pipeline.where(
-      (Field("rating").eq(lastDoc.get("rating")!)
-        && Field("rating").lt(lastDoc.get("rating")!))
-        || Field("rating").lt(lastDoc.get("rating")!)
+      (Field("rating").equal(lastDoc.get("rating")!)
+        && Field("rating").lessThan(lastDoc.get("rating")!))
+        || Field("rating").lessThan(lastDoc.get("rating")!)
     ).limit(Int32(pageSize)).execute()
 
     TestHelper.compare(

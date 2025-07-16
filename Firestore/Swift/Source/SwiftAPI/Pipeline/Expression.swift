@@ -332,39 +332,89 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
   func arrayGet(_ offsetExpr: Expression) -> FunctionExpression
 
-  func gt(_ other: Expression) -> BooleanExpression
+  /// Creates a `BooleanExpr` that returns `true` if this expression is greater
+  /// than the given expression.
+  ///
+  /// - Parameter other: The expression to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func greaterThan(_ other: Expression) -> BooleanExpression
 
-  func gt(_ other: Sendable) -> BooleanExpression
+  /// Creates a `BooleanExpr` that returns `true` if this expression is greater
+  /// than the given value.
+  ///
+  /// - Parameter other: The value to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func greaterThan(_ other: Sendable) -> BooleanExpression
 
-  // MARK: - Greater Than or Equal (gte)
+  /// Creates a `BooleanExpr` that returns `true` if this expression is
+  /// greater than or equal to the given expression.
+  ///
+  /// - Parameter other: The expression to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func greaterThanOrEqualTo(_ other: Expression) -> BooleanExpression
 
-  func gte(_ other: Expression) -> BooleanExpression
+  /// Creates a `BooleanExpr` that returns `true` if this expression is
+  /// greater than or equal to the given value.
+  ///
+  /// - Parameter other: The value to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func greaterThanOrEqualTo(_ other: Sendable) -> BooleanExpression
 
-  func gte(_ other: Sendable) -> BooleanExpression
+  /// Creates a `BooleanExpr` that returns `true` if this expression is less
+  /// than the given expression.
+  ///
+  /// - Parameter other: The expression to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func lessThan(_ other: Expression) -> BooleanExpression
 
-  // MARK: - Less Than (lt)
+  /// Creates a `BooleanExpr` that returns `true` if this expression is less
+  /// than the given value.
+  ///
+  /// - Parameter other: The value to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func lessThan(_ other: Sendable) -> BooleanExpression
 
-  func lt(_ other: Expression) -> BooleanExpression
+  /// Creates a `BooleanExpr` that returns `true` if this expression is less
+  /// than or equal to the given expression.
+  ///
+  /// - Parameter other: The expression to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func lessThanOrEqualTo(_ other: Expression) -> BooleanExpression
 
-  func lt(_ other: Sendable) -> BooleanExpression
+  /// Creates a `BooleanExpr` that returns `true` if this expression is less
+  /// than or equal to the given value.
+  ///
+  /// - Parameter other: The value to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func lessThanOrEqualTo(_ other: Sendable) -> BooleanExpression
 
-  // MARK: - Less Than or Equal (lte)
+  /// Creates a `BooleanExpr` that returns `true` if this expression is equal
+  /// to the given expression.
+  ///
+  /// - Parameter other: The expression to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func equal(_ other: Expression) -> BooleanExpression
 
-  func lte(_ other: Expression) -> BooleanExpression
+  /// Creates a `BooleanExpr` that returns `true` if this expression is equal
+  /// to the given value.
+  ///
+  /// - Parameter other: The value to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func equal(_ other: Sendable) -> BooleanExpression
 
-  func lte(_ other: Sendable) -> BooleanExpression
+  /// Creates a `BooleanExpr` that returns `true` if this expression is not
+  /// equal to the given expression.
+  ///
+  /// - Parameter other: The expression to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func notEqual(_ other: Expression) -> BooleanExpression
 
-  // MARK: - Equal (eq)
-
-  func eq(_ other: Expression) -> BooleanExpression
-
-  func eq(_ other: Sendable) -> BooleanExpression
-
-  func neq(_ other: Expression) -> BooleanExpression
-
-  func neq(_ other: Sendable) -> BooleanExpression
-
-  // MARK: Equality with Sendable
+  /// Creates a `BooleanExpr` that returns `true` if this expression is not
+  /// equal to the given value.
+  ///
+  /// - Parameter other: The value to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func notEqual(_ other: Sendable) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided
   /// expression values.
@@ -972,11 +1022,11 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Calculate the average age of users
-  /// Field("age").avg().alias("averageAge")
+  /// Field("age").average().alias("averageAge")
   /// ```
   ///
-  /// - Returns: A new `AggregateFunction` representing the "avg" aggregation.
-  func avg() -> AggregateFunction
+  /// - Returns: A new `AggregateFunction` representing the "average" aggregation.
+  func average() -> AggregateFunction
 
   /// Creates an aggregation that finds the minimum value of this expression across multiple stage
   /// inputs.

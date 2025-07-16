@@ -45,7 +45,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
   func testWhereStage() async throws {
     _ = db.pipeline().collection("books")
       .where(
-        Field("rating").gt(4.0) && Field("genre").eq("Science Fiction") || Field("tags")
+        Field("rating").greaterThan(4.0) && Field("genre").equal("Science Fiction") || Field("tags")
           .arrayContains("comedy")
       )
   }
@@ -174,7 +174,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books")
       .aggregate(
         [
-          Field("rating").avg().as("averageRating"),
+          Field("rating").average().as("averageRating"),
           CountAll().as("totalBooks"),
         ]
       )
@@ -190,7 +190,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     // Calculate the average rating and the total number of books and group by field 'genre'
     _ = db.pipeline().collection("books")
       .aggregate([
-        Field("rating").avg().as("averageRating"),
+        Field("rating").average().as("averageRating"),
         CountAll().as("totalBooks"),
       ],
       groups: [Field("genre")])
@@ -277,7 +277,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books")
       .rawStage(
         name: "where",
-        params: [Field("published").lt(1900)]
+        params: [Field("published").lessThan(1900)]
       )
       .select(["title", "author"])
 
@@ -287,7 +287,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books")
       .rawStage(
         name: "where",
-        params: [Field("published").lt(1900)],
+        params: [Field("published").lessThan(1900)],
         options: ["someOptionalParamName": "the argument value for this param"]
       )
       .select(["title", "author"])
@@ -346,7 +346,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
   }
 
   func testBooleanExpr() async throws {
-    let isApple: BooleanExpression = Field("type").eq("apple")
+    let isApple: BooleanExpression = Field("type").equal("apple")
 
     // USAGE: stage where requires an expression of type BooleanExpr
     let _: Pipeline = db.pipeline().collection("fruitOptions").where(isApple)

@@ -112,64 +112,56 @@ public extension Expression {
     return FunctionExpression("array_get", [self, offsetExpr])
   }
 
-  func gt(_ other: Expression) -> BooleanExpression {
+  func greaterThan(_ other: Expression) -> BooleanExpression {
     return BooleanExpression("gt", [self, other])
   }
 
-  func gt(_ other: Sendable) -> BooleanExpression {
+  func greaterThan(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
     return BooleanExpression("gt", [self, exprOther])
   }
 
-  // MARK: - Greater Than or Equal (gte)
-
-  func gte(_ other: Expression) -> BooleanExpression {
+  func greaterThanOrEqualTo(_ other: Expression) -> BooleanExpression {
     return BooleanExpression("gte", [self, other])
   }
 
-  func gte(_ other: Sendable) -> BooleanExpression {
+  func greaterThanOrEqualTo(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
     return BooleanExpression("gte", [self, exprOther])
   }
 
-  // MARK: - Less Than (lt)
-
-  func lt(_ other: Expression) -> BooleanExpression {
+  func lessThan(_ other: Expression) -> BooleanExpression {
     return BooleanExpression("lt", [self, other])
   }
 
-  func lt(_ other: Sendable) -> BooleanExpression {
+  func lessThan(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
     return BooleanExpression("lt", [self, exprOther])
   }
 
-  // MARK: - Less Than or Equal (lte)
-
-  func lte(_ other: Expression) -> BooleanExpression {
+  func lessThanOrEqualTo(_ other: Expression) -> BooleanExpression {
     return BooleanExpression("lte", [self, other])
   }
 
-  func lte(_ other: Sendable) -> BooleanExpression {
+  func lessThanOrEqualTo(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
     return BooleanExpression("lte", [self, exprOther])
   }
 
-  // MARK: - Equal (eq)
-
-  func eq(_ other: Expression) -> BooleanExpression {
+  func equal(_ other: Expression) -> BooleanExpression {
     return BooleanExpression("eq", [self, other])
   }
 
-  func eq(_ other: Sendable) -> BooleanExpression {
+  func equal(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
     return BooleanExpression("eq", [self, exprOther])
   }
 
-  func neq(_ other: Expression) -> BooleanExpression {
+  func notEqual(_ other: Expression) -> BooleanExpression {
     return BooleanExpression("neq", [self, other])
   }
 
-  func neq(_ other: Sendable) -> BooleanExpression {
+  func notEqual(_ other: Sendable) -> BooleanExpression {
     return BooleanExpression("neq", [self, Helper.sendableToExpr(other)])
   }
 
@@ -376,7 +368,7 @@ public extension Expression {
     return AggregateFunction("sum", [self])
   }
 
-  func avg() -> AggregateFunction {
+  func average() -> AggregateFunction {
     return AggregateFunction("avg", [self])
   }
 

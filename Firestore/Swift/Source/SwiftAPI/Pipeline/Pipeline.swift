@@ -44,36 +44,34 @@ import Foundation
 /// // Example 1: Select specific fields and rename 'rating' to 'bookRating'.
 /// // Assumes `Field("rating").as("bookRating")` is a valid `Selectable` expression.
 /// do {
-/// let results1 = try await db.pipeline().collection("books")
+/// let snapshot1 = try await db.pipeline().collection("books")
 /// .select(Field("title"), Field("author"), Field("rating").as("bookRating"))
 /// .execute()
-/// print("Results 1: \(results1.documents)")
+/// print("Results 1: \(snapshot1.results)")
 /// } catch {
 /// print("Error in example 1: \(error)")
 /// }
 ///
 /// // Example 2: Filter documents where 'genre' is "Science Fiction" and 'published' is after 1950.
-/// // Assumes `Function.eq`, `Function.gt`, and `Function.and` create `BooleanExpr`.
 /// do {
-/// let results2 = try await db.pipeline().collection("books")
-/// .where(Function.and(
-/// Function.eq(Field("genre"), "Science Fiction"),
-/// Function.gt(Field("published"), 1950)
-/// ))
+/// let snapshot2 = try await db.pipeline().collection("books")
+/// .where(
+/// Field("genre").equal("Science Fiction")
+/// && Field("published").greaterThan(1950)
+/// )
 /// .execute()
-/// print("Results 2: \(results2.documents)")
+/// print("Results 2: \(snapshot2.results)")
 /// } catch {
 /// print("Error in example 2: \(error)")
 /// }
 ///
 /// // Example 3: Calculate the average rating of books published after 1980.
-/// // Assumes `avg()` creates an `Accumulator` and `AggregateWithAlias` is used correctly.
 /// do {
-/// let results3 = try await db.pipeline().collection("books")
-/// .where(Function.gt(Field("published"), 1980))
-/// .aggregate(AggregateWithas(avg(Field("rating")), alias: "averageRating"))
+/// let snapshot3 = try await db.pipeline().collection("books")
+/// .where(Field("published").greaterThan(1980))
+/// .aggregate(Field("rating").average().as("averageRating"))
 /// .execute()
-/// print("Results 3: \(results3.documents)")
+/// print("Results 3: \(snapshot3.results)")
 /// } catch {
 /// print("Error in example 3: \(error)")
 /// }
@@ -249,7 +247,8 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// This stage applies conditions similar to a "WHERE" clause in SQL.
   /// Filter documents based on field values using `BooleanExpr` implementations, such as:
-  /// - Field comparators: `Function.eq`, `Function.lt` (less than), `Function.gt` (greater than).
+  /// - Field comparators: `Function.equal`, `Function.lessThan` (less than), `Function.gt` (greater
+  /// than).
   /// - Logical operators: `Function.and`, `Function.or`, `Function.not`.
   /// - Advanced functions: `Function.regexMatch`, `Function.arrayContains`.
   ///
@@ -257,7 +256,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// let filteredPipeline = pipeline.where(
   ///     Field("rating").gt(4.0)   // Rating greater than 4.0.
-  ///     && Field("genre").eq("Science Fiction") // Genre is "Science Fiction".
+  ///     && Field("genre").equal("Science Fiction") // Genre is "Science Fiction".
   /// )
   /// // let results = try await filteredPipeline.execute()
   /// ```
@@ -378,7 +377,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume pipeline from "books" collection.
   /// // Calculate the average rating for each genre.
   /// let groupedAggregationPipeline = pipeline.aggregate(
-  ///   [AggregateWithas(aggregate: avg(Field("rating")), alias: "avg_rating")],
+  ///   [AggregateWithas(aggregate: average(Field("rating")), alias: "avg_rating")],
   ///   groups: [Field("genre")] // Group by the "genre" field.
   /// )
   /// // let results = try await groupedAggregationPipeline.execute()
