@@ -895,7 +895,7 @@ class IntegrationTests: XCTestCase {
 /// indicate the callable function does not accept parameters.
 private struct EmptyRequest: Encodable, Sendable {}
 
-@available(macOS 12.0, watchOS 8.0, *)
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 extension IntegrationTests {
   func testStream_NoArgs() async throws {
     // 1. Custom `EmptyRequest` struct is passed as a placeholder generic arg.
