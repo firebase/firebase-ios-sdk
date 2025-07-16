@@ -1022,7 +1022,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Calculate the average age of users
-  /// Field("age").average().alias("averageAge")
+  /// Field("age").average().as("averageAge")
   /// ```
   ///
   /// - Returns: A new `AggregateFunction` representing the "average" aggregation.
@@ -1600,7 +1600,7 @@ public protocol Expression: Sendable {
   /// Field("a").divide(Field("b")).ifError(Field("fallbackValue"))
   /// ```
   ///
-  /// - Parameter catchExpr: The `Expr` to evaluate and return if this expression errors.
+  /// - Parameter catchExpr: The `Expression` to evaluate and return if this expression errors.
   /// - Returns: A new "FunctionExpression" representing the "ifError" operation.
   func ifError(_ catchExpr: Expression) -> FunctionExpression
 

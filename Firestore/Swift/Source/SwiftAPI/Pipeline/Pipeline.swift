@@ -125,25 +125,18 @@ public struct Pipeline: @unchecked Sendable {
   /// stages or constants. You can use this to create new fields or overwrite existing ones
   /// (if there is a name overlap).
   ///
-  /// The added fields are defined using `Selectable`s, which can be:
-  /// - `Field`: References an existing document field.
-  /// - `Function`: Performs a calculation using functions like `Function.add` or
-  /// `Function.multiply`,
-  ///   typically with an assigned alias (e.g., `Function.multiply(Field("price"),
-  /// 1.1).as("priceWithTax")`).
-  ///
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline from a collection.
-  /// let updatedPipeline = pipeline.addFields(
+  /// let updatedPipeline = pipeline.addFields([
   ///   Field("rating").as("bookRating"), // Rename 'rating' to 'bookRating'.
-  ///   Function.add(5, Field("quantity")).as("totalQuantityPlusFive") // Calculate
-  /// 'totalQuantityPlusFive'.
-  /// )
+  ///   Field("quantity").add(5).as("totalQuantityPlusFive") // Calculate
+  /// // 'totalQuantityPlusFive'.
+  /// ])
   /// // let results = try await updatedPipeline.execute()
   /// ```
   ///
-  /// - Parameter field: The first field to add to the documents, specified as a `Selectable`.
-  /// - Parameter additionalFields: Optional additional fields to add, specified as `Selectable`s.
+  /// - Parameter fields: The fields to add to the documents, specified as an array of
+  /// `AliasedExpression`.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func addFields(_ fields: [AliasedExpression]) -> Pipeline {
     return Pipeline(stages: stages + [AddFields(fields: fields)], db: db)
@@ -153,12 +146,12 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
-  /// let updatedPipeline = pipeline.removeFields(Field("confidentialData"), Field("internalNotes"))
+  /// let updatedPipeline = pipeline.removeFields([Field("confidentialData"),
+  /// Field("internalNotes")])
   /// // let results = try await updatedPipeline.execute()
   /// ```
   ///
-  /// - Parameter field: The first field to remove, specified as a `Field` instance.
-  /// - Parameter additionalFields: Optional additional fields to remove.
+  /// - Parameter fields: An array of `Field` instances to remove.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func removeFields(_ fields: [Field]) -> Pipeline {
     return Pipeline(
@@ -172,12 +165,11 @@ public struct Pipeline: @unchecked Sendable {
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Removes fields 'rating' and 'cost' from the previous stage outputs.
-  /// let updatedPipeline = pipeline.removeFields("rating", "cost")
+  /// let updatedPipeline = pipeline.removeFields(["rating", "cost"])
   /// // let results = try await updatedPipeline.execute()
   /// ```
   ///
-  /// - Parameter field: The name of the first field to remove.
-  /// - Parameter additionalFields: Optional additional field names to remove.
+  /// - Parameter fields: An array of field names to remove.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func removeFields(_ fields: [String]) -> Pipeline {
     return Pipeline(
@@ -191,8 +183,8 @@ public struct Pipeline: @unchecked Sendable {
   /// The selected fields are defined using `Selectable` expressions, which can be:
   /// - `String`: Name of an existing field (implicitly converted to `Field`).
   /// - `Field`: References an existing field.
-  /// - `Function`: Represents the result of a function with an assigned alias
-  ///   (e.g., `Function.toUppercase(Field("address")).as("upperAddress")`).
+  /// - `FunctionExpression`: Represents the result of a function with an assigned alias
+  ///   (e.g., `Field("address").uppercased().as("upperAddress")`).
   ///
   /// If no selections are provided, the output of this stage is typically empty.
   /// Use `addFields` if only additions are desired without replacing the existing document
@@ -200,18 +192,16 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
-  /// let projectedPipeline = pipeline.select(
+  /// let projectedPipeline = pipeline.select([
   ///   Field("firstName"),
   ///   Field("lastName"),
-  ///   Function.toUppercase(Field("address")).as("upperAddress")
-  /// )
+  ///   Field("address").uppercased().as("upperAddress")
+  /// ])
   /// // let results = try await projectedPipeline.execute()
   /// ```
   ///
-  /// - Parameter selection: The first field to include in the output documents, specified as a
-  /// `Selectable`.
-  /// - Parameter additionalSelections: Optional additional fields to include, specified as
-  /// `Selectable`s.
+  /// - Parameter selections: An array of `Selectable` expressions to include in the output
+  /// documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func select(_ selections: [Selectable]) -> Pipeline {
     return Pipeline(
@@ -227,12 +217,11 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
-  /// let projectedPipeline = pipeline.select("title", "author", "yearPublished")
+  /// let projectedPipeline = pipeline.select(["title", "author", "yearPublished"])
   /// // let results = try await projectedPipeline.execute()
   /// ```
   ///
-  /// - Parameter selection: The name of the first field to include in the output documents.
-  /// - Parameter additionalSelections: Optional additional field names to include.
+  /// - Parameter selections: An array of field names to include in the output documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func select(_ selections: [String]) -> Pipeline {
     let selections = selections.map { Field($0) }
@@ -243,25 +232,24 @@ public struct Pipeline: @unchecked Sendable {
   }
 
   /// Filters documents from previous stages, including only those matching the specified
-  /// `BooleanExpr`.
+  /// `BooleanExpression`.
   ///
   /// This stage applies conditions similar to a "WHERE" clause in SQL.
-  /// Filter documents based on field values using `BooleanExpr` implementations, such as:
-  /// - Field comparators: `Function.equal`, `Function.lessThan` (less than), `Function.gt` (greater
-  /// than).
-  /// - Logical operators: `Function.and`, `Function.or`, `Function.not`.
-  /// - Advanced functions: `Function.regexMatch`, `Function.arrayContains`.
+  /// Filter documents based on field values using `BooleanExpression` implementations, such as:
+  /// - Field comparators: `equal`, `lessThan`, `greaterThan`.
+  /// - Logical operators: `&&` (and), `||` (or), `!` (not).
+  /// - Advanced functions: `regexMatch`, `arrayContains`.
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// let filteredPipeline = pipeline.where(
-  ///     Field("rating").gt(4.0)   // Rating greater than 4.0.
+  ///     Field("rating").greaterThan(4.0)   // Rating greater than 4.0.
   ///     && Field("genre").equal("Science Fiction") // Genre is "Science Fiction".
   /// )
   /// // let results = try await filteredPipeline.execute()
   /// ```
   ///
-  /// - Parameter condition: The `BooleanExpr` to apply.
+  /// - Parameter condition: The `BooleanExpression` to apply.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func `where`(_ condition: BooleanExpression) -> Pipeline {
     return Pipeline(stages: stages + [Where(condition: condition)], db: db)
@@ -451,16 +439,14 @@ public struct Pipeline: @unchecked Sendable {
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Sort books by rating (descending), then by title (ascending).
-  /// let sortedPipeline = pipeline.sort(
-  ///   Ascending("rating"),
-  ///   Descending("title")  // or Field("title").ascending() for ascending.
-  /// )
+  /// let sortedPipeline = pipeline.sort([
+  ///   Field("rating").descending(),
+  ///   Field("title").ascending()
+  /// ])
   /// // let results = try await sortedPipeline.execute()
   /// ```
   ///
-  /// - Parameter ordering: The primary `Ordering` criterion.
-  /// - Parameter additionalOrdering: Optional additional `Ordering` criteria for secondary sorting,
-  /// etc.
+  /// - Parameter orderings: An array of `Ordering` criteria.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func sort(_ orderings: [Ordering]) -> Pipeline {
     return Pipeline(stages: stages + [Sort(orderings: orderings)], db: db)
@@ -561,12 +547,12 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// ```swift
   /// // let db: Firestore = ...
-  /// // let booksPipeline = db.collection("books").pipeline().select("title", "category")
-  /// // let magazinesPipeline = db.collection("magazines").pipeline().select("title",
-  /// Field("topic").as("category"))
+  /// // let booksPipeline = db.pipeline().collection("books").select(["title", "category"])
+  /// // let magazinesPipeline = db.pipeline().collection("magazines").select(["title",
+  /// // Field("topic").as("category")])
   ///
   /// // Emit documents from both "books" and "magazines" collections.
-  /// let combinedPipeline = booksPipeline.union(magazinesPipeline)
+  /// let combinedPipeline = booksPipeline.union(with: [magazinesPipeline])
   /// // let results = try await combinedPipeline.execute()
   /// ```
   ///
