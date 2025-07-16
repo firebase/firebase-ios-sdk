@@ -144,7 +144,7 @@ public final class FirebaseAI: Sendable {
 
   /// Configuration options for ``FirebaseAI``, which persists across all models.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public struct Config: Sendable, Hashable {
+  public struct Config: Sendable, Hashable, Equatable {
     /// Options for App Check specific behavior within a ``FirebaseAI`` instance.
     let appCheck: AppCheckOptions
 
