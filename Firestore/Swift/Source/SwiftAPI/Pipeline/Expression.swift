@@ -185,8 +185,7 @@ public protocol Expression: Sendable {
   /// // Combine the "items" array with "otherItems" and "archiveItems" array fields.
   /// Field("items").arrayConcat(Field("otherItems"), Field("archiveItems"))
   /// ```
-  /// - Parameter secondArray: An `Expression` (evaluating to an array) to concatenate.
-  /// - Parameter otherArrays: Optional additional `Expression` values (evaluating to arrays) to
+  /// - Parameter arrays: An array of at least one `Expression` (evaluating to an array) to
   /// concatenate.
   /// - Returns: A new `FunctionExpression` representing the concatenated array.
   func arrayConcat(_ arrays: [Expression]) -> FunctionExpression
@@ -199,9 +198,7 @@ public protocol Expression: Sendable {
   /// // Combine "tags" (an array field) with ["new", "featured"] and ["urgent"]
   /// Field("tags").arrayConcat(["new", "featured"], ["urgent"])
   /// ```
-  /// - Parameter secondArray: An array literal of `Sendable` values to concatenate.
-  /// - Parameter otherArrays: Optional additional array literals of `Sendable` values to
-  /// concatenate.
+  /// - Parameter arrays: An array of at least one `Sendable` values to concatenate.
   /// - Returns: A new `FunctionExpression` representing the concatenated array.
   func arrayConcat(_ arrays: [[Sendable]]) -> FunctionExpression
 
@@ -255,8 +252,7 @@ public protocol Expression: Sendable {
   /// Field("tags").arrayContainsAll(["urgent", "review"])
   /// ```
   ///
-  /// - Parameter values: A list of `Sendable` literal elements to check for in the array
-  /// represented by `self`.
+  /// - Parameter values: An array of at least one `Sendable` element to check for in the array.
   /// - Returns: A new `BooleanExpr` representing the "array_contains_all" comparison.
   func arrayContainsAll(_ values: [Sendable]) -> BooleanExpression
 
@@ -269,8 +265,7 @@ public protocol Expression: Sendable {
   /// Field("userGroups").arrayContainsAny([Field("allowedGroup1"), Field("allowedGroup2")])
   /// ```
   ///
-  /// - Parameter values: A list of `Expression` elements to check for in the array represented
-  /// by `self`.
+  /// - Parameter values: A list of `Expression` elements to check for in the array.
   /// - Returns: A new `BooleanExpr` representing the "array_contains_any" comparison.
   func arrayContainsAny(_ values: [Expression]) -> BooleanExpression
 
@@ -283,8 +278,7 @@ public protocol Expression: Sendable {
   /// Field("categories").arrayContainsAny(["electronics", "books"])
   /// ```
   ///
-  /// - Parameter values: A list of `Sendable` literal elements to check for in the array
-  /// represented by `self`.
+  /// - Parameter values: An array of at least one `Sendable` element to check for in the array.
   /// - Returns: A new `BooleanExpr` representing the "array_contains_any" comparison.
   func arrayContainsAny(_ values: [Sendable]) -> BooleanExpression
 
@@ -425,7 +419,7 @@ public protocol Expression: Sendable {
   /// Field("categoryID").eqAny([Field("featuredCategory"), Field("popularCategory")])
   /// ```
   ///
-  /// - Parameter others: A list of `Expression` values to check against.
+  /// - Parameter others: An array of at least one `Expression` value to check against.
   /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
   func eqAny(_ others: [Expression]) -> BooleanExpression
 
@@ -438,7 +432,7 @@ public protocol Expression: Sendable {
   /// Field("category").eqAny(["Electronics", "Books", "Home Goods"])
   /// ```
   ///
-  /// - Parameter others: A list of `Sendable` literal values to check against.
+  /// - Parameter others: An array of at least one `Sendable` literal value to check against.
   /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
   func eqAny(_ others: [Sendable]) -> BooleanExpression
 
@@ -451,7 +445,7 @@ public protocol Expression: Sendable {
   /// Field("statusValue").notEqAny([Field("archivedStatus"), Field("deletedStatus")])
   /// ```
   ///
-  /// - Parameter others: A list of `Expression` values to check against.
+  /// - Parameter others: An array of at least one `Expression` value to check against.
   /// - Returns: A new `BooleanExpr` representing the "NOT IN" comparison (not_eq_any).
   func notEqAny(_ others: [Expression]) -> BooleanExpression
 
@@ -464,7 +458,7 @@ public protocol Expression: Sendable {
   /// Field("status").notEqAny(["pending", "archived"])
   /// ```
   ///
-  /// - Parameter others: A list of `Sendable` literal values to check against.
+  /// - Parameter others: An array of at least one `Sendable` literal value to check against.
   /// - Returns: A new `BooleanExpr` representing the "NOT IN" comparison (not_eq_any).
   func notEqAny(_ others: [Sendable]) -> BooleanExpression
 
@@ -1060,8 +1054,7 @@ public protocol Expression: Sendable {
   /// Field("val1").logicalMaximum(Field("val2"), Field("val3"))
   /// ```
   ///
-  /// - Parameter second: The second `Expr` to compare with.
-  /// - Parameter others: Optional additional `Expr` values to compare with.
+  /// - Parameter expressions: An array of at least one `Expression` to compare with.
   /// - Returns: A new `FunctionExpression` representing the logical max operation.
   func logicalMaximum(_ expressions: [Expression]) -> FunctionExpression
 
@@ -1073,8 +1066,7 @@ public protocol Expression: Sendable {
   /// Field("val1").logicalMaximum(100, 200.0)
   /// ```
   ///
-  /// - Parameter second: The second literal `Sendable` value to compare with.
-  /// - Parameter others: Optional additional literal `Sendable` values to compare with.
+  /// - Parameter values: An array of at least one `Sendable` value to compare with.
   /// - Returns: A new `FunctionExpression` representing the logical max operation.
   func logicalMaximum(_ values: [Sendable]) -> FunctionExpression
 
@@ -1086,8 +1078,7 @@ public protocol Expression: Sendable {
   /// Field("val1").logicalMinimum(Field("val2"), Field("val3"))
   /// ```
   ///
-  /// - Parameter second: The second `Expr` to compare with.
-  /// - Parameter others: Optional additional `Expr` values to compare with.
+  /// - Parameter expressions: An array of at least one `Expression` to compare with.
   /// - Returns: A new `FunctionExpression` representing the logical min operation.
   func logicalMinimum(_ expressions: [Expression]) -> FunctionExpression
 
@@ -1099,8 +1090,7 @@ public protocol Expression: Sendable {
   /// Field("val1").logicalMinimum(0, -5.5)
   /// ```
   ///
-  /// - Parameter second: The second literal `Sendable` value to compare with.
-  /// - Parameter others: Optional additional literal `Sendable` values to compare with.
+  /// - Parameter values: An array of at least one `Sendable` value to compare with.
   /// - Returns: A new `FunctionExpression` representing the logical min operation.
   func logicalMinimum(_ values: [Sendable]) -> FunctionExpression
 

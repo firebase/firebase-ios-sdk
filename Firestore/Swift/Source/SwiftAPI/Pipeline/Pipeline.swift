@@ -135,8 +135,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await updatedPipeline.execute()
   /// ```
   ///
-  /// - Parameter fields: The fields to add to the documents, specified as an array of
-  /// `AliasedExpression`.
+  /// - Parameter fields: An array of at least one `AliasedExpression` to add to the documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func addFields(_ fields: [AliasedExpression]) -> Pipeline {
     return Pipeline(stages: stages + [AddFields(fields: fields)], db: db)
@@ -151,7 +150,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await updatedPipeline.execute()
   /// ```
   ///
-  /// - Parameter fields: An array of `Field` instances to remove.
+  /// - Parameter fields: An array of at least one `Field` instance to remove.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func removeFields(_ fields: [Field]) -> Pipeline {
     return Pipeline(
@@ -169,7 +168,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await updatedPipeline.execute()
   /// ```
   ///
-  /// - Parameter fields: An array of field names to remove.
+  /// - Parameter fields: An array of at least one field name to remove.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func removeFields(_ fields: [String]) -> Pipeline {
     return Pipeline(
@@ -200,8 +199,8 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await projectedPipeline.execute()
   /// ```
   ///
-  /// - Parameter selections: An array of `Selectable` expressions to include in the output
-  /// documents.
+  /// - Parameter selections: An array of at least one `Selectable` expression to include in the
+  /// output documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func select(_ selections: [Selectable]) -> Pipeline {
     return Pipeline(
@@ -221,7 +220,8 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await projectedPipeline.execute()
   /// ```
   ///
-  /// - Parameter selections: An array of field names to include in the output documents.
+  /// - Parameter selections: An array of at least one field name to include in the output
+  /// documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func select(_ selections: [String]) -> Pipeline {
     let selections = selections.map { Field($0) }
@@ -314,8 +314,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await distinctAuthorsGenresPipeline.execute()
   /// ```
   ///
-  /// - Parameter group: The name of the first field for distinct value combinations.
-  /// - Parameter additionalGroups: Optional additional field names.
+  /// - Parameter groups: An array of at least one field name for distinct value combinations.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func distinct(_ groups: [String]) -> Pipeline {
     let selections = groups.map { Field($0) }
@@ -344,8 +343,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await distinctPipeline.execute()
   /// ```
   ///
-  /// - Parameter group: The first `Selectable` expression to consider.
-  /// - Parameter additionalGroups: Optional additional `Selectable` expressions.
+  /// - Parameter groups: An array of at least one `Selectable` expression to consider.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func distinct(_ groups: [Selectable]) -> Pipeline {
     return Pipeline(stages: stages + [Distinct(groups: groups)], db: db)
@@ -377,7 +375,7 @@ public struct Pipeline: @unchecked Sendable {
   /// ```
   ///
   /// - Parameters:
-  ///   - accumulator: An array of at least one `AggregateWithAlias` expressions for calculations.
+  ///   - aggregates: An array of at least one `AliasedAggregate` expression for calculations.
   ///   - groups: Optional array of `Selectable` expressions for grouping. If `nil` or empty,
   /// aggregates across all documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
@@ -446,7 +444,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await sortedPipeline.execute()
   /// ```
   ///
-  /// - Parameter orderings: An array of `Ordering` criteria.
+  /// - Parameter orderings: An array of at least one `Ordering` criterion.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func sort(_ orderings: [Ordering]) -> Pipeline {
     return Pipeline(stages: stages + [Sort(orderings: orderings)], db: db)
@@ -556,7 +554,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await combinedPipeline.execute()
   /// ```
   ///
-  /// - Parameter other: The other `Pipeline` whose documents will be unioned.
+  /// - Parameter other: An array of at least one `Pipeline` whose documents will be unioned.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func union(with other: Pipeline) -> Pipeline {
     return Pipeline(stages: stages + [Union(other: other)], db: db)
