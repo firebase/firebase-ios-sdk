@@ -86,6 +86,7 @@ static const double kPrimingTimeout = 45.0;
 
 static NSString *defaultProjectId;
 static NSString *defaultDatabaseId = @"(default)";
+static NSString *enterpriseDatabaseId = @"enterprise";
 static FIRFirestoreSettings *defaultSettings;
 
 static bool runningAgainstEmulator = false;
@@ -271,6 +272,10 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     return @"(default)";
   }
   return defaultDatabaseId;
+}
+
++ (void)switchToEnterpriseMode {
+  defaultDatabaseId = enterpriseDatabaseId;
 }
 
 + (bool)isRunningAgainstEmulator {
