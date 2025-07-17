@@ -14,7 +14,7 @@
 
 import Foundation
 
-internal import FirebaseCoreExtension
+import FirebaseCoreExtension
 
 /// Enum of log messages.
 enum LoggerMessageCode: Int {

@@ -15,13 +15,13 @@
  */
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
+  @_exported public import FirebaseFirestoreInternalWrapper
 #else
-  @_exported import FirebaseFirestoreInternal
+  @_exported public import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-internal import FirebaseCoreExtension
-import FirebaseSharedSwift
+import FirebaseCoreExtension
+public import FirebaseSharedSwift
 
 extension CodingUserInfoKey {
   static let documentRefUserInfoKey =

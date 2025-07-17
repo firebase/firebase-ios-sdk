@@ -15,7 +15,7 @@
 #if os(iOS) || os(tvOS) || os(visionOS)
 
   import Foundation
-  import UIKit
+  public import UIKit
 
   /// A protocol to handle user interface interactions for Firebase Auth.
   ///

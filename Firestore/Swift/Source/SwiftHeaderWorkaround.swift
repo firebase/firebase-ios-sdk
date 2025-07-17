@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
+  @_exported public import FirebaseFirestoreInternalWrapper
 #else
-  @_exported import FirebaseFirestoreInternal
+  @_exported public import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
 // This is a trick to force generate a `FirebaseFirestore-Swift.h`

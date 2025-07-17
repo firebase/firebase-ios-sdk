@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// A model object representing a payload of heartbeat data intended for sending in network
 /// requests.

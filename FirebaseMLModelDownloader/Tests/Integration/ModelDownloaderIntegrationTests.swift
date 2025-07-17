@@ -23,9 +23,9 @@
   @testable import FirebaseMLModelDownloader
   import XCTest
   #if SWIFT_PACKAGE
-    internal import GoogleUtilities_UserDefaults
+    import GoogleUtilities_UserDefaults
   #else
-    internal import GoogleUtilities
+    import GoogleUtilities
   #endif // SWIFT_PACKAGE
 
   extension GULUserDefaults {
