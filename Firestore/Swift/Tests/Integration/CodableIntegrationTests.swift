@@ -76,6 +76,33 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
     awaitExpectations()
   }
 
+  private struct ModelWithTestField<T: Codable & Equatable>: Codable {
+    var name: String
+    var testField: T
+  }
+
+  private func assertCanWriteAndReadCodableValueWithAllFlavors<T: Codable &
+    Equatable>(value: T) throws {
+    let model = ModelWithTestField(
+      name: "name",
+      testField: value
+    )
+
+    let docToWrite = documentRef()
+
+    for flavor in allFlavors {
+      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
+
+      let data = try readDocument(forRef: docToWrite).data(as: ModelWithTestField<T>.self)
+
+      XCTAssertEqual(
+        data.testField,
+        value,
+        "Failed with flavor \(flavor)"
+      )
+    }
+  }
+
   func testCodableRoundTrip() throws {
     struct Model: Codable, Equatable {
       var name: String
@@ -84,6 +111,14 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
       var geoPoint: GeoPoint
       var docRef: DocumentReference
       var vector: VectorValue
+      var regex: RegexValue
+      var int32: Int32Value
+      var decimal128: Decimal128Value
+      var minKey: MinKey
+      var maxKey: MaxKey
+      var bsonOjectId: BSONObjectId
+      var bsonTimestamp: BSONTimestamp
+      var bsonBinaryData: BSONBinaryData
     }
     let docToWrite = documentRef()
     let model = Model(name: "test",
@@ -91,7 +126,15 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
                       ts: Timestamp(seconds: 987_654_321, nanoseconds: 0),
                       geoPoint: GeoPoint(latitude: 45, longitude: 54),
                       docRef: docToWrite,
-                      vector: FieldValue.vector([0.7, 0.6]))
+                      vector: FieldValue.vector([0.7, 0.6]),
+                      regex: RegexValue(pattern: "^foo", options: "i"),
+                      int32: Int32Value(1),
+                      decimal128: Decimal128Value("1.5"),
+                      minKey: MinKey.shared,
+                      maxKey: MaxKey.shared,
+                      bsonOjectId: BSONObjectId("507f191e810c19729de860ec"),
+                      bsonTimestamp: BSONTimestamp(seconds: 123, increment: 456),
+                      bsonBinaryData: BSONBinaryData(subtype: 128, data: Data([1, 2])))
 
     for flavor in allFlavors {
       try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
@@ -188,28 +231,48 @@ class CodableIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testVectorValue() throws {
-    struct Model: Codable {
-      var name: String
-      var embedding: VectorValue
-    }
-    let model = Model(
-      name: "name",
-      embedding: VectorValue([0.1, 0.3, 0.4])
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: VectorValue([0.1, 0.3, 0.4]))
+  }
+
+  func testMinKey() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: MinKey.shared)
+  }
+
+  func testMaxKey() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: MaxKey.shared)
+  }
+
+  func testRegexValue() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: RegexValue(
+      pattern: "^foo",
+      options: "i"
+    ))
+  }
+
+  func testInt32Value() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: Int32Value(123))
+  }
+
+  func testDecimal128Value() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(value: Decimal128Value("1.2e3"))
+  }
+
+  func testBsonObjectId() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(
+      value: BSONObjectId("507f191e810c19729de860ec")
     )
+  }
 
-    let docToWrite = documentRef()
+  func testBsonTimestamp() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(
+      value: BSONTimestamp(seconds: 123, increment: 456)
+    )
+  }
 
-    for flavor in allFlavors {
-      try setData(from: model, forDocument: docToWrite, withFlavor: flavor)
-
-      let data = try readDocument(forRef: docToWrite).data(as: Model.self)
-
-      XCTAssertEqual(
-        data.embedding,
-        VectorValue([0.1, 0.3, 0.4]),
-        "Failed with flavor \(flavor)"
-      )
-    }
+  func testBsonBinaryData() throws {
+    try assertCanWriteAndReadCodableValueWithAllFlavors(
+      value: BSONBinaryData(subtype: 128, data: Data([1, 2, 3]))
+    )
   }
 
   func testDataBlob() throws {
