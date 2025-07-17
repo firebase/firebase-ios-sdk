@@ -35,4 +35,6 @@ import Foundation
   ///
   /// This property is only available for users authenticated via phone number auth.
   var phoneNumber: String? { get }
+  
+  var passkeyName: String? { get }
 }
