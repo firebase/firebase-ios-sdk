@@ -17,8 +17,25 @@
 
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 
+// Test-only category to allow setting the root path
+@interface FIRCLSFileManager (Testing)
+- (void)test_setRootPath:(NSString *)newRootPath;
+@end
+
+@implementation FIRCLSFileManager (Testing)
+- (void)test_setRootPath:(NSString *)newRootPath {
+  // Access the private _rootPath ivar. This requires the test to be linked such that
+  // it can see the ivar layout of FIRCLSFileManager.
+  // This is a common, if somewhat fragile, pattern for testing Objective-C.
+  // An alternative would be to modify FIRCLSFileManager to allow injection for testing,
+  // or use a more complex mocking strategy.
+  [self setValue:newRootPath forKey:@"_rootPath"];
+}
+@end
+
 @interface FIRCLSFileManagerTests : XCTestCase {
   FIRCLSFileManager* _manager;
+  NSString *_testSpecificRootPath;
 }
 
 @property(nonatomic, retain, readonly) FIRCLSFileManager* manager;
@@ -30,22 +47,39 @@
 - (void)setUp {
   [super setUp];
 
-  _manager = [[FIRCLSFileManager alloc] init];
+  // Generate a unique path for this test instance
+  _testSpecificRootPath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
 
-  [self removeRootDirectory];
+  _manager = [[FIRCLSFileManager alloc] init];
+  // Override the root path to our unique one
+  [_manager test_setRootPath:_testSpecificRootPath];
+
+  // Ensure the unique directory exists before any test operations
+  // and remove any potential leftovers from a previous failed run (though UUID should make it unique).
+  [self removeTestSpecificRootDirectory]; // Clean up if it exists
+  [[NSFileManager defaultManager] createDirectoryAtPath:_testSpecificRootPath
+                            withIntermediateDirectories:YES
+                                             attributes:nil
+                                                  error:nil];
 }
 
 - (void)tearDown {
-  [self removeRootDirectory];
+  [self removeTestSpecificRootDirectory];
+  _manager = nil; // Release the manager
+  _testSpecificRootPath = nil; // Release the path
 
   [super tearDown];
 }
 
-- (BOOL)removeRootDirectory {
-  if ([self doesFileExist:[_manager rootPath]]) {
-    assert([_manager removeItemAtPath:[_manager rootPath]]);
+- (BOOL)removeTestSpecificRootDirectory {
+  if (_testSpecificRootPath && [[NSFileManager defaultManager] fileExistsAtPath:_testSpecificRootPath]) {
+    NSError *error = nil;
+    BOOL success = [[NSFileManager defaultManager] removeItemAtPath:_testSpecificRootPath error:&error];
+    if (!success) {
+        NSLog(@"[FIRCLSFileManagerTests] Error removing test root directory %@: %@", _testSpecificRootPath, error);
+    }
+    return success;
   }
-
   return YES;
 }
 
