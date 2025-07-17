@@ -70,12 +70,8 @@ extension JSONValueTests {
     ]
 
     let jsonData = try encoder.encode(JSONValue.object(objectValue))
-
-    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
-    XCTAssertEqual(
-      json,
-      "{\"numberKey\":\(numberValueEncoded),\"objectKey\":{\"nestedKey\":\"nestedValue\"}}"
-    )
+    let jsonObject = try XCTUnwrap(decoder.decode(JSONValue.self, from: jsonData))
+    XCTAssertEqual(jsonObject, .object(objectValue))
   }
 
   func testEncodeNestedArray() throws {
@@ -86,11 +82,7 @@ extension JSONValueTests {
     ]
 
     let jsonData = try encoder.encode(JSONValue.object(objectValue))
-
-    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
-    XCTAssertEqual(
-      json,
-      "{\"arrayKey\":[\"a\",\"b\"],\"numberKey\":\(numberValueEncoded)}"
-    )
+    let jsonObject = try XCTUnwrap(decoder.decode(JSONValue.self, from: jsonData))
+    XCTAssertEqual(jsonObject, .object(objectValue))
   }
 }

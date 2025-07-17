@@ -119,7 +119,8 @@ final class ChatTests: XCTestCase {
     let response = try await chat.sendMessage(expectedInput)
 
     XCTAssertNotNil(response.text)
-    XCTAssertFalse(response.text!.isEmpty)
+    let text = try XCTUnwrap(response.text)
+    XCTAssertFalse(text.isEmpty)
 
     // Post-condition: History should have the user's message and the model's response.
     XCTAssertEqual(chat.history.count, 2)
