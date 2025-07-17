@@ -128,7 +128,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.dependency 'FirebaseFirestore', '~> 12.1.0'
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
-    ss.ios.deployment_target = '15.0'
+    ss.tvos.deployment_target = '15.0'
   end
 
   s.subspec 'Functions' do |ss|
