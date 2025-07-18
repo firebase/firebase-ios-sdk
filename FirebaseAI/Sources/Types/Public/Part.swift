@@ -18,7 +18,9 @@ import Foundation
 ///
 /// Within a single value of ``Part``, different data types may not mix.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {}
+public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
+  var isThought: Bool { get }
+}
 
 /// A text part containing a string value.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -26,8 +28,20 @@ public struct TextPart: Part {
   /// Text value.
   public let text: String
 
+  public var isThought: Bool { _isThought ?? false }
+
+  let thoughtSignature: String?
+
+  let _isThought: Bool?
+
   public init(_ text: String) {
+    self.init(text, isThought: nil, thoughtSignature: nil)
+  }
+
+  init(_ text: String, isThought: Bool?, thoughtSignature: String?) {
     self.text = text
+    _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -45,12 +59,17 @@ public struct TextPart: Part {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct InlineDataPart: Part {
   let inlineData: InlineData
+  let _isThought: Bool?
 
   /// The data provided in the inline data part.
   public var data: Data { inlineData.data }
 
   /// The IANA standard MIME type of the data.
   public var mimeType: String { inlineData.mimeType }
+
+  public var isThought: Bool { _isThought ?? false }
+
+  let thoughtSignature: String?
 
   /// Creates an inline data part from data and a MIME type.
   ///
@@ -67,11 +86,13 @@ public struct InlineDataPart: Part {
   ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
   ///     supported values.
   public init(data: Data, mimeType: String) {
-    self.init(InlineData(data: data, mimeType: mimeType))
+    self.init(InlineData(data: data, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ inlineData: InlineData) {
+  init(_ inlineData: InlineData, isThought: Bool?, thoughtSignature: String?) {
     self.inlineData = inlineData
+    _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -79,9 +100,12 @@ public struct InlineDataPart: Part {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FileDataPart: Part {
   let fileData: FileData
+  let _isThought: Bool?
+  let thoughtSignature: String?
 
   public var uri: String { fileData.fileURI }
   public var mimeType: String { fileData.mimeType }
+  public var isThought: Bool { _isThought ?? false }
 
   /// Constructs a new file data part.
   ///
@@ -93,11 +117,13 @@ public struct FileDataPart: Part {
   ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
   ///     supported values.
   public init(uri: String, mimeType: String) {
-    self.init(FileData(fileURI: uri, mimeType: mimeType))
+    self.init(FileData(fileURI: uri, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ fileData: FileData) {
+  init(_ fileData: FileData, isThought: Bool?, thoughtSignature: String?) {
     self.fileData = fileData
+    _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -105,12 +131,16 @@ public struct FileDataPart: Part {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallPart: Part {
   let functionCall: FunctionCall
+  let _isThought: Bool?
+  let thoughtSignature: String?
 
   /// The name of the function to call.
   public var name: String { functionCall.name }
 
   /// The function parameters and values.
   public var args: JSONObject { functionCall.args }
+
+  public var isThought: Bool { _isThought ?? false }
 
   /// Constructs a new function call part.
   ///
@@ -121,11 +151,13 @@ public struct FunctionCallPart: Part {
   ///   - name: The name of the function to call.
   ///   - args: The function parameters and values.
   public init(name: String, args: JSONObject) {
-    self.init(FunctionCall(name: name, args: args))
+    self.init(FunctionCall(name: name, args: args), isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ functionCall: FunctionCall) {
+  init(_ functionCall: FunctionCall, isThought: Bool?, thoughtSignature: String?) {
     self.functionCall = functionCall
+    _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
 
@@ -137,6 +169,8 @@ public struct FunctionCallPart: Part {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionResponsePart: Part {
   let functionResponse: FunctionResponse
+  let _isThought: Bool?
+  let thoughtSignature: String?
 
   /// The name of the function that was called.
   public var name: String { functionResponse.name }
@@ -144,16 +178,22 @@ public struct FunctionResponsePart: Part {
   /// The function's response or return value.
   public var response: JSONObject { functionResponse.response }
 
+  public var isThought: Bool { _isThought ?? false }
+
   /// Constructs a new `FunctionResponse`.
   ///
   /// - Parameters:
   ///   - name: The name of the function that was called.
   ///   - response: The function's response.
   public init(name: String, response: JSONObject) {
-    self.init(FunctionResponse(name: name, response: response))
+    self.init(
+      FunctionResponse(name: name, response: response), isThought: nil, thoughtSignature: nil
+    )
   }
 
-  init(_ functionResponse: FunctionResponse) {
+  init(_ functionResponse: FunctionResponse, isThought: Bool?, thoughtSignature: String?) {
     self.functionResponse = functionResponse
+    _isThought = isThought
+    self.thoughtSignature = thoughtSignature
   }
 }
