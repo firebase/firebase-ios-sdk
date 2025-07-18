@@ -87,12 +87,13 @@ final class SafetyTests: XCTestCase {
       threshold: .blockMediumAndAbove,
       method: .severity
     )
+    encoder.outputFormatting = .sortedKeys
     let jsonData = try encoder.encode(setting)
-    let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: jsonData) as? [String: Any])
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
 
-    XCTAssertEqual(jsonObject["category"] as? String, "HARM_CATEGORY_HATE_SPEECH")
-    XCTAssertEqual(jsonObject["threshold"] as? String, "BLOCK_MEDIUM_AND_ABOVE")
-    XCTAssertEqual(jsonObject["method"] as? String, "SEVERITY")
+    XCTAssertEqual(jsonString, """
+    {"category":"HARM_CATEGORY_HATE_SPEECH","method":"SEVERITY","threshold":"BLOCK_MEDIUM_AND_ABOVE"}
+    """)
   }
 
   func testEncodeSafetySetting_nilMethod() throws {
@@ -100,11 +101,12 @@ final class SafetyTests: XCTestCase {
       harmCategory: .sexuallyExplicit,
       threshold: .blockOnlyHigh
     )
+    encoder.outputFormatting = .sortedKeys
     let jsonData = try encoder.encode(setting)
-    let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: jsonData) as? [String: Any])
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
 
-    XCTAssertEqual(jsonObject["category"] as? String, "HARM_CATEGORY_SEXUALLY_EXPLICIT")
-    XCTAssertEqual(jsonObject["threshold"] as? String, "BLOCK_ONLY_HIGH")
-    XCTAssertNil(jsonObject["method"])
+    XCTAssertEqual(jsonString, """
+    {"category":"HARM_CATEGORY_SEXUALLY_EXPLICIT","threshold":"BLOCK_ONLY_HIGH"}
+    """)
   }
 }

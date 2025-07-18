@@ -38,7 +38,7 @@ extension PartsRepresentableTests {
     XCTAssertEqual(dataPart, inlineData)
   }
 
-  #if canImport(UIKit) && !os(visionOS)
+  #if canImport(UIKit)
     func testMixedParts_withImage() throws {
       let text = "This is a test"
       let image = try XCTUnwrap(UIImage(systemName: "star"))
@@ -51,6 +51,19 @@ extension PartsRepresentableTests {
       let imagePart = try XCTUnwrap(modelContent.parts[1] as? InlineDataPart)
       XCTAssertEqual(imagePart.mimeType, "image/jpeg")
       XCTAssertFalse(imagePart.data.isEmpty)
+    }
+
+    func testMixedParts_withInvalidImage() throws {
+      let text = "This is a test"
+      let invalidImage = UIImage()
+      let parts: [any PartsRepresentable] = [text, invalidImage]
+      let modelContent = ModelContent(parts: parts)
+
+      XCTAssertEqual(modelContent.parts.count, 2)
+      let textPart = try XCTUnwrap(modelContent.parts[0] as? TextPart)
+      XCTAssertEqual(textPart.text, text)
+      let errorPart = try XCTUnwrap(modelContent.parts[1] as? ErrorPart)
+      XCTAssert(errorPart.error is ImageConversionError)
     }
 
   #elseif canImport(AppKit)
