@@ -47,7 +47,7 @@ import Foundation
         return ""
       }
       return "otpauth://totp/\(issuer):\(accountName)?secret=\(secretKey)&issuer=\(issuer)" +
-        "&algorithm=%\(hashingAlgorithm)&digits=\(codeLength)"
+        "&algorithm=\(hashingAlgorithm)&digits=\(codeLength)"
     }
 
     /// Opens the specified QR Code URL in a password manager like iCloud Keychain.
