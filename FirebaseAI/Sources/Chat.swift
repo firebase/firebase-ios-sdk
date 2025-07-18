@@ -147,38 +147,38 @@ public final class Chat: Sendable {
   }
 
   private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [any Part] = []
+    var parts: [InternalPart] = []
     var combinedText = ""
     var combinedThoughts = ""
 
     func flush() {
       if !combinedThoughts.isEmpty {
-        parts.append(TextPart(combinedThoughts))
+        parts.append(InternalPart(.text(combinedThoughts), isThought: true, thoughtSignature: nil))
         combinedThoughts = ""
       }
       if !combinedText.isEmpty {
-        parts.append(TextPart(combinedText))
+        parts.append(InternalPart(.text(combinedText), isThought: nil, thoughtSignature: nil))
         combinedText = ""
       }
     }
 
     // Loop through all the parts, aggregating the text.
-    for part in chunks.flatMap({ $0.parts }) {
+    for part in chunks.flatMap({ $0.internalParts }) {
       // Only text parts may be combined.
-      if let textPart = part as? TextPart, part.thoughtSignature == nil {
+      if case let .text(text) = part.data, part.thoughtSignature == nil {
         // Thought summaries must not be combined with regular text.
-        if textPart.isThought {
+        if part.isThought ?? false {
           // If we were combining regular text, flush it before handling "thoughts".
           if !combinedText.isEmpty {
             flush()
           }
-          combinedThoughts += textPart.text
+          combinedThoughts += text
         } else {
           // If we were combining "thoughts", flush it before handling regular text.
           if !combinedThoughts.isEmpty {
             flush()
           }
-          combinedText += textPart.text
+          combinedText += text
         }
       } else {
         // This is a non-combinable part (not text), flush any pending text.

@@ -20,7 +20,6 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
   var isThought: Bool { get }
-  var thoughtSignature: String? { get }
 }
 
 /// A text part containing a string value.
@@ -31,7 +30,7 @@ public struct TextPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
-  public let thoughtSignature: String?
+  let thoughtSignature: String?
 
   let _isThought: Bool?
 
@@ -70,7 +69,7 @@ public struct InlineDataPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
-  public let thoughtSignature: String?
+  let thoughtSignature: String?
 
   /// Creates an inline data part from data and a MIME type.
   ///
@@ -102,11 +101,11 @@ public struct InlineDataPart: Part {
 public struct FileDataPart: Part {
   let fileData: FileData
   let _isThought: Bool?
+  let thoughtSignature: String?
 
   public var uri: String { fileData.fileURI }
   public var mimeType: String { fileData.mimeType }
   public var isThought: Bool { _isThought ?? false }
-  public let thoughtSignature: String?
 
   /// Constructs a new file data part.
   ///
@@ -133,6 +132,7 @@ public struct FileDataPart: Part {
 public struct FunctionCallPart: Part {
   let functionCall: FunctionCall
   let _isThought: Bool?
+  let thoughtSignature: String?
 
   /// The name of the function to call.
   public var name: String { functionCall.name }
@@ -141,8 +141,6 @@ public struct FunctionCallPart: Part {
   public var args: JSONObject { functionCall.args }
 
   public var isThought: Bool { _isThought ?? false }
-
-  public let thoughtSignature: String?
 
   /// Constructs a new function call part.
   ///
@@ -172,6 +170,7 @@ public struct FunctionCallPart: Part {
 public struct FunctionResponsePart: Part {
   let functionResponse: FunctionResponse
   let _isThought: Bool?
+  let thoughtSignature: String?
 
   /// The name of the function that was called.
   public var name: String { functionResponse.name }
@@ -180,8 +179,6 @@ public struct FunctionResponsePart: Part {
   public var response: JSONObject { functionResponse.response }
 
   public var isThought: Bool { _isThought ?? false }
-
-  public let thoughtSignature: String?
 
   /// Constructs a new `FunctionResponse`.
   ///

@@ -147,6 +147,11 @@ public struct ModelContent: Equatable, Sendable {
     let content = parts.flatMap { $0.partsValue }
     self.init(role: role, parts: content)
   }
+
+  init(role: String?, parts: [InternalPart]) {
+    self.role = role
+    internalParts = parts
+  }
 }
 
 // MARK: Codable Conformances
