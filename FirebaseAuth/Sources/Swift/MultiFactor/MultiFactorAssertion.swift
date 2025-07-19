@@ -14,12 +14,12 @@
 
 import Foundation
 
-#if os(iOS)
+#if os(iOS) || os(macOS)
 
   /// The base class for asserting ownership of a second factor. This is equivalent to the
   ///    AuthCredential class.
   ///
-  /// This class is available on iOS only.
+  /// This class is available on iOS and macOS.
   @objc(FIRMultiFactorAssertion) open class MultiFactorAssertion: NSObject {
     /// The second factor identifier for this opaque object asserting a second factor.
     @objc open var factorID: String
