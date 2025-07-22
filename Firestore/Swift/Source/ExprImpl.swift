@@ -283,11 +283,6 @@ public extension Expression {
     return FunctionExpression("str_concat", [self] + strings)
   }
 
-  func strConcat(_ strings: [String]) -> FunctionExpression {
-    let exprs = [self] + strings.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("str_concat", exprs)
-  }
-
   func reverse() -> FunctionExpression {
     return FunctionExpression("reverse", [self])
   }

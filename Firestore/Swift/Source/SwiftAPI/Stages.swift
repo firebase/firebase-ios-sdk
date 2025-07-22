@@ -349,10 +349,10 @@ class Unnest: Stage {
 class RawStage: Stage {
   let name: String
   let bridge: StageBridge
-  private var params: [Sendable?]
+  private var params: [Sendable]
   private var options: [String: Sendable]?
 
-  init(name: String, params: [Sendable?], options: [String: Sendable]? = nil) {
+  init(name: String, params: [Sendable], options: [String: Sendable]? = nil) {
     self.name = name
     self.params = params
     self.options = options

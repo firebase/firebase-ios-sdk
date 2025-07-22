@@ -739,7 +739,7 @@ public protocol Expression: Sendable {
   /// Assumes `self` evaluates to a string.
   ///
   /// ```swift
-  /// // Convert the "title" field to uppercase
+  /// // Convert the "title" field to uppercase3
   /// Field("title").uppercased()
   /// ```
   ///
@@ -771,19 +771,6 @@ public protocol Expression: Sendable {
   /// concatenate.
   /// - Returns: A new `FunctionExpression` representing the concatenated string.
   func strConcat(_ strings: [Expression]) -> FunctionExpression
-
-  /// Creates an expression that concatenates this string expression with other string literals.
-  /// Assumes `self` evaluates to a string.
-  ///
-  /// ```swift
-  /// // Combine "firstName" field with " " and "lastName"
-  /// Field("firstName").strConcat(" ", "lastName")
-  /// ```
-  ///
-  /// - Parameter secondString: A string literal to concatenate.
-  /// - Parameter otherStrings: Optional additional string literals to concatenate.
-  /// - Returns: A new `FunctionExpression` representing the concatenated string.
-  func strConcat(_ strings: [String]) -> FunctionExpression
 
   /// Creates an expression that reverses this string expression.
   /// Assumes `self` evaluates to a string.

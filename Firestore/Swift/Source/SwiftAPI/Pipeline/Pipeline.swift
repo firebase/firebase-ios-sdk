@@ -265,7 +265,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume initial pipeline, possibly sorted.
   /// // Retrieve the second page of 20 results (skip first 20, limit to next 20).
   /// let pagedPipeline = pipeline
-  ///                     .sort(Ascending("published")) // Example sort.
+  ///                     .sort(Field("published").ascending()) // Example sort.
   ///                     .offset(20)  // Skip the first 20 results.
   ///                     .limit(20)   // Take the next 20 results.
   /// // let results = try await pagedPipeline.execute()
@@ -627,7 +627,7 @@ public struct Pipeline: @unchecked Sendable {
   ///   - params: An array of ordered, `Sendable` parameters for the stage.
   ///   - options: Optional dictionary of named, `Sendable` parameters.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func rawStage(name: String, params: [Sendable?],
+  public func rawStage(name: String, params: [Sendable],
                        options: [String: Sendable]? = nil) -> Pipeline {
     return Pipeline(
       stages: stages + [RawStage(name: name, params: params, options: options)],

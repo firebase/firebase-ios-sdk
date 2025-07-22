@@ -21,8 +21,9 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
     return AggregateFunction("count_if", [self])
   }
 
-  public func then(_ thenExpr: Expression, else elseExpr: Expression) -> FunctionExpression {
-    return FunctionExpression("cond", [self, thenExpr, elseExpr])
+  public func then(_ thenExpression: Expression,
+                   else elseExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("cond", [self, thenExpression, elseExpression])
   }
 
   public static func && (lhs: BooleanExpression,
