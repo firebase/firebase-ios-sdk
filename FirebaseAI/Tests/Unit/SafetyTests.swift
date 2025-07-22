@@ -21,6 +21,12 @@ final class SafetyTests: XCTestCase {
   let decoder = JSONDecoder()
   let encoder = JSONEncoder()
 
+  override func setUp() {
+    encoder.outputFormatting = .init(
+      arrayLiteral: .prettyPrinted, .sortedKeys, .withoutEscapingSlashes
+    )
+  }
+
   // MARK: - SafetyRating Decoding
 
   func testDecodeSafetyRating_allFieldsPresent() throws {
@@ -87,12 +93,15 @@ final class SafetyTests: XCTestCase {
       threshold: .blockMediumAndAbove,
       method: .severity
     )
-    encoder.outputFormatting = .sortedKeys
     let jsonData = try encoder.encode(setting)
     let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
 
     XCTAssertEqual(jsonString, """
-    {"category":"HARM_CATEGORY_HATE_SPEECH","method":"SEVERITY","threshold":"BLOCK_MEDIUM_AND_ABOVE"}
+    {
+      "category" : "HARM_CATEGORY_HATE_SPEECH",
+      "method" : "SEVERITY",
+      "threshold" : "BLOCK_MEDIUM_AND_ABOVE"
+    }
     """)
   }
 
@@ -101,12 +110,14 @@ final class SafetyTests: XCTestCase {
       harmCategory: .sexuallyExplicit,
       threshold: .blockOnlyHigh
     )
-    encoder.outputFormatting = .sortedKeys
     let jsonData = try encoder.encode(setting)
     let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
 
     XCTAssertEqual(jsonString, """
-    {"category":"HARM_CATEGORY_SEXUALLY_EXPLICIT","threshold":"BLOCK_ONLY_HIGH"}
+    {
+      "category" : "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      "threshold" : "BLOCK_ONLY_HIGH"
+    }
     """)
   }
 }
