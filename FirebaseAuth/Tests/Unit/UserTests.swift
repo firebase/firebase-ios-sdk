@@ -135,6 +135,27 @@ class UserTests: RPCBaseTests {
       ])
     #endif
 
+    var mfaInfo: [[AnyHashable: AnyHashable]] = []
+
+    #if os(iOS)
+      mfaInfo.append([
+        "phoneInfo": kPhoneInfo,
+        "mfaEnrollmentId": kEnrollmentID,
+        "displayName": kDisplayName,
+        "enrolledAt": kEnrolledAt,
+      ])
+    #endif
+
+    #if os(iOS) || os(macOS)
+      mfaInfo.append([
+        // In practice, this will be an empty dictionary.
+        "totpInfo": [AnyHashable: AnyHashable](),
+        "mfaEnrollmentId": kEnrollmentID,
+        "displayName": kDisplayName,
+        "enrolledAt": kEnrolledAt,
+      ])
+    #endif
+
     rpcIssuer?.fakeGetAccountProviderJSON = [[
       kProviderUserInfoKey: providerUserInfos,
       kLocalIDKey: kLocalID,
@@ -146,21 +167,7 @@ class UserTests: RPCBaseTests {
       "phoneNumber": kPhoneNumber,
       "createdAt": String(Int(kCreationDateTimeIntervalInSeconds) * 1000), // to nanoseconds
       "lastLoginAt": String(Int(kLastSignInDateTimeIntervalInSeconds) * 1000),
-      "mfaInfo": [
-        [
-          "phoneInfo": kPhoneInfo,
-          "mfaEnrollmentId": kEnrollmentID,
-          "displayName": kDisplayName,
-          "enrolledAt": kEnrolledAt,
-        ],
-        [
-          // In practice, this will be an empty dictionary.
-          "totpInfo": [AnyHashable: AnyHashable](),
-          "mfaEnrollmentId": kEnrollmentID,
-          "displayName": kDisplayName,
-          "enrolledAt": kEnrolledAt,
-        ] as [AnyHashable: AnyHashable],
-      ],
+      "mfaInfo": mfaInfo,
     ]]
 
     let expectation = self.expectation(description: #function)
@@ -247,9 +254,12 @@ class UserTests: RPCBaseTests {
         var encodedClasses = [User.self, NSDictionary.self, NSURL.self, SecureTokenService.self,
                               UserInfoImpl.self, NSDate.self, UserMetadata.self, NSString.self,
                               NSArray.self]
-        #if os(iOS)
+        #if os(iOS) || os(macOS)
           encodedClasses.append(MultiFactor.self)
-          encodedClasses.append(PhoneMultiFactorInfo.self)
+          encodedClasses.append(TOTPMultiFactorInfo.self)
+          #if os(iOS)
+            encodedClasses.append(PhoneMultiFactorInfo.self)
+          #endif
         #endif
 
         let unarchivedUser = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
@@ -369,6 +379,17 @@ class UserTests: RPCBaseTests {
             let date = try XCTUnwrap(enrolledFactor.enrollmentDate)
             XCTAssertEqual("\(date)", kEnrolledAtMatch)
           }
+        #endif
+
+        #if os(macOS)
+          // Verify TOTP MultiFactorInfo properties.
+          let enrolledFactors = try XCTUnwrap(user.multiFactor.enrolledFactors)
+          XCTAssertEqual(enrolledFactors.count, 1)
+          XCTAssertEqual(enrolledFactors[0].factorID, PhoneMultiFactorInfo.TOTPMultiFactorID)
+          XCTAssertEqual(enrolledFactors[0].uid, kEnrollmentID)
+          XCTAssertEqual(enrolledFactors[0].displayName, self.kDisplayName)
+          let date = try XCTUnwrap(enrolledFactors[0].enrollmentDate)
+          XCTAssertEqual("\(date)", kEnrolledAtMatch)
         #endif
       } catch {
         XCTFail("Caught an error in \(#function): \(error)")
