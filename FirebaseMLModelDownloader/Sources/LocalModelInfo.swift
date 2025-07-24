@@ -14,9 +14,9 @@
 
 import Foundation
 #if SWIFT_PACKAGE
-  internal import GoogleUtilities_UserDefaults
+  import GoogleUtilities_UserDefaults
 #else
-  internal import GoogleUtilities
+  import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// Model info object with details about downloaded and locally available model.

@@ -15,16 +15,16 @@
 import Foundation
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
-internal import FirebaseCoreExtension
-internal import FirebaseInstallations
-internal import GoogleDataTransport
+import FirebaseCoreExtension
+import FirebaseInstallations
+import GoogleDataTransport
 
 #if swift(>=6.0)
-  internal import Promises
+  import Promises
 #elseif swift(>=5.10)
   import Promises
 #else
-  internal import Promises
+  import Promises
 #endif
 
 private enum GoogleDataTransportConfig {

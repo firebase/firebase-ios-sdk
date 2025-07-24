@@ -14,7 +14,7 @@
 
 #if DEBUG
 
-  import Foundation
+  public import Foundation
 
   /// A utility class intended to be used only in testing contexts.
   @objc(FIRHeartbeatLoggingTestUtils)

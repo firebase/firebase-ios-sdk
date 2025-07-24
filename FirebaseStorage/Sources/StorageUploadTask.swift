@@ -15,9 +15,9 @@
 import Foundation
 
 #if COCOAPODS
-  internal import GoogleUtilities
+  import GoogleUtilities
 #else
-  internal import GoogleUtilities_Environment
+  import GoogleUtilities_Environment
 #endif // COCOAPODS
 
 #if COCOAPODS

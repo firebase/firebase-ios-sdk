@@ -17,9 +17,9 @@
 import SwiftUI
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
+  @_exported public import FirebaseFirestoreInternalWrapper
 #else
-  @_exported import FirebaseFirestoreInternal
+  @_exported public import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)

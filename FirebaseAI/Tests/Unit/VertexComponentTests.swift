@@ -13,7 +13,7 @@
 // limitations under the License.
 
 @preconcurrency import FirebaseCore
-internal import FirebaseCoreExtension
+import FirebaseCoreExtension
 import Foundation
 import XCTest
 
