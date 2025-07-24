@@ -26,4 +26,5 @@ enum UserAction: String {
   case updatePhoneNumber = "Phone Number"
   case refreshUserInfo = "Refresh User Info"
   case updatePassword = "Update Password"
+  case passkey = "Passkeys"
 }
