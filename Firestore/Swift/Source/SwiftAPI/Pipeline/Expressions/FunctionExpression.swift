@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class MapExpression: FunctionExpr, @unchecked Sendable {
-  var result: [Expr] = []
-  public init(_ elements: [String: Sendable]) {
-    for element in elements {
-      result.append(Constant(element.key))
-      result.append(Helper.sendableToExpr(element.value))
-    }
+public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable {
+  let bridge: ExprBridge
 
-    super.init("map", result)
+  let functionName: String
+  let agrs: [Expression]
+
+  public init(_ functionName: String, _ agrs: [Expression]) {
+    self.functionName = functionName
+    self.agrs = agrs
+    bridge = FunctionExprBridge(
+      name: functionName,
+      args: self.agrs.map { $0.toBridge()
+      }
+    )
   }
 }
