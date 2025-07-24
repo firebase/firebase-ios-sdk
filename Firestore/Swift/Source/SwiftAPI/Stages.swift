@@ -154,16 +154,16 @@ class Offset: Stage {
 class AddFields: Stage {
   let name: String = "addFields"
   let bridge: StageBridge
-  private var fields: [Selectable]
+  private var selectables: [Selectable]
 
-  init(fields: [Selectable]) {
-    self.fields = fields
-    let objc_accumulators = fields.reduce(into: [String: ExprBridge]()) {
+  init(selectables: [Selectable]) {
+    self.selectables = selectables
+    let objc_accumulators = selectables.reduce(into: [String: ExprBridge]()) {
       result,
-        field
+        selectable
       in
-      let seletable = field as! SelectableWrapper
-      result[seletable.alias] = seletable.expr.toBridge()
+      let selectableWrapper = selectable as! SelectableWrapper
+      result[selectableWrapper.alias] = selectableWrapper.expr.toBridge()
     }
     bridge = AddFieldsStageBridge(fields: objc_accumulators)
   }

@@ -92,12 +92,20 @@ public extension Expression {
     return BooleanExpression("array_contains_all", [self, Helper.array(values)])
   }
 
+  func arrayContainsAll(_ arrayExpression: Expression) -> BooleanExpression {
+    return BooleanExpression("array_contains_all", [self, arrayExpression])
+  }
+
   func arrayContainsAny(_ values: [Expression]) -> BooleanExpression {
     return BooleanExpression("array_contains_any", [self, Helper.array(values)])
   }
 
   func arrayContainsAny(_ values: [Sendable]) -> BooleanExpression {
     return BooleanExpression("array_contains_any", [self, Helper.array(values)])
+  }
+
+  func arrayContainsAny(_ arrayExpression: Expression) -> BooleanExpression {
+    return BooleanExpression("array_contains_any", [self, arrayExpression])
   }
 
   func arrayLength() -> FunctionExpression {
@@ -165,20 +173,28 @@ public extension Expression {
     return BooleanExpression("neq", [self, Helper.sendableToExpr(other)])
   }
 
-  func eqAny(_ others: [Expression]) -> BooleanExpression {
+  func equalAny(_ others: [Expression]) -> BooleanExpression {
     return BooleanExpression("eq_any", [self, Helper.array(others)])
   }
 
-  func eqAny(_ others: [Sendable]) -> BooleanExpression {
+  func equalAny(_ others: [Sendable]) -> BooleanExpression {
     return BooleanExpression("eq_any", [self, Helper.array(others)])
   }
 
-  func notEqAny(_ others: [Expression]) -> BooleanExpression {
+  func equalAny(_ arrayExpression: Expression) -> BooleanExpression {
+    return BooleanExpression("eq_any", [self, arrayExpression])
+  }
+
+  func notEqualAny(_ others: [Expression]) -> BooleanExpression {
     return BooleanExpression("not_eq_any", [self, Helper.array(others)])
   }
 
-  func notEqAny(_ others: [Sendable]) -> BooleanExpression {
+  func notEqualAny(_ others: [Sendable]) -> BooleanExpression {
     return BooleanExpression("not_eq_any", [self, Helper.array(others)])
+  }
+
+  func notEqualAny(_ arrayExpression: Expression) -> BooleanExpression {
+    return BooleanExpression("not_eq_any", [self, arrayExpression])
   }
 
   // MARK: Checks
@@ -401,52 +417,52 @@ public extension Expression {
     return FunctionExpression("vector_length", [self])
   }
 
-  func cosineDistance(_ other: Expression) -> FunctionExpression {
-    return FunctionExpression("cosine_distance", [self, other])
+  func cosineDistance(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression("cosine_distance", [self, expression])
   }
 
-  func cosineDistance(_ other: VectorValue) -> FunctionExpression {
-    return FunctionExpression("cosine_distance", [self, Helper.sendableToExpr(other)])
+  func cosineDistance(_ vector: VectorValue) -> FunctionExpression {
+    return FunctionExpression("cosine_distance", [self, Helper.sendableToExpr(vector)])
   }
 
-  func cosineDistance(_ other: [Double]) -> FunctionExpression {
-    return FunctionExpression("cosine_distance", [self, Helper.sendableToExpr(other)])
+  func cosineDistance(_ vector: [Double]) -> FunctionExpression {
+    return FunctionExpression("cosine_distance", [self, Helper.sendableToExpr(vector)])
   }
 
-  func dotProduct(_ other: Expression) -> FunctionExpression {
-    return FunctionExpression("dot_product", [self, other])
+  func dotProduct(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression("dot_product", [self, expression])
   }
 
-  func dotProduct(_ other: VectorValue) -> FunctionExpression {
-    return FunctionExpression("dot_product", [self, Helper.sendableToExpr(other)])
+  func dotProduct(_ vector: VectorValue) -> FunctionExpression {
+    return FunctionExpression("dot_product", [self, Helper.sendableToExpr(vector)])
   }
 
-  func dotProduct(_ other: [Double]) -> FunctionExpression {
-    return FunctionExpression("dot_product", [self, Helper.sendableToExpr(other)])
+  func dotProduct(_ vector: [Double]) -> FunctionExpression {
+    return FunctionExpression("dot_product", [self, Helper.sendableToExpr(vector)])
   }
 
-  func euclideanDistance(_ other: Expression) -> FunctionExpression {
-    return FunctionExpression("euclidean_distance", [self, other])
+  func euclideanDistance(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression("euclidean_distance", [self, expression])
   }
 
-  func euclideanDistance(_ other: VectorValue) -> FunctionExpression {
-    return FunctionExpression("euclidean_distance", [self, Helper.sendableToExpr(other)])
+  func euclideanDistance(_ vector: VectorValue) -> FunctionExpression {
+    return FunctionExpression("euclidean_distance", [self, Helper.sendableToExpr(vector)])
   }
 
-  func euclideanDistance(_ other: [Double]) -> FunctionExpression {
-    return FunctionExpression("euclidean_distance", [self, Helper.sendableToExpr(other)])
+  func euclideanDistance(_ vector: [Double]) -> FunctionExpression {
+    return FunctionExpression("euclidean_distance", [self, Helper.sendableToExpr(vector)])
   }
 
-  func manhattanDistance(_ other: Expression) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, other])
+  func manhattanDistance(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression("manhattan_distance", [self, expression])
   }
 
-  func manhattanDistance(_ other: VectorValue) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(other)])
+  func manhattanDistance(_ vector: VectorValue) -> FunctionExpression {
+    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
   }
 
-  func manhattanDistance(_ other: [Double]) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(other)])
+  func manhattanDistance(_ vector: [Double]) -> FunctionExpression {
+    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
   }
 
   // MARK: Timestamp operations

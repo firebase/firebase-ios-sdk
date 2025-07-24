@@ -256,6 +256,19 @@ public protocol Expression: Sendable {
   /// - Returns: A new `BooleanExpr` representing the "array_contains_all" comparison.
   func arrayContainsAll(_ values: [Sendable]) -> BooleanExpression
 
+  /// Creates an expression that checks if an array (from `self`) contains all the specified element
+  /// expressions.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Check if the "tags" array contains "foo", "bar", and "baz"
+  /// Field("tags").arrayContainsAll(Constant(["foo", "bar", "baz"]))
+  /// ```
+  ///
+  /// - Parameter values: An `Expression` elements evaluated to be array.
+  /// - Returns: A new `BooleanExpr` representing the "array_contains_all" comparison.
+  func arrayContainsAll(_ arrayExpression: Expression) -> BooleanExpression
+
   /// Creates an expression that checks if an array (from `self`) contains any of the specified
   /// element expressions.
   /// Assumes `self` evaluates to an array.
@@ -281,6 +294,19 @@ public protocol Expression: Sendable {
   /// - Parameter values: An array of at least one `Sendable` element to check for in the array.
   /// - Returns: A new `BooleanExpr` representing the "array_contains_any" comparison.
   func arrayContainsAny(_ values: [Sendable]) -> BooleanExpression
+
+  /// Creates an expression that checks if an array (from `self`) contains any of the specified
+  /// element expressions.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Check if "groups" array contains any of the values from the "userGroup" field
+  /// Field("groups").arrayContainsAny(Field("userGroup"))
+  /// ```
+  ///
+  /// - Parameter arrayExpression: An `Expression` elements evaluated to be array.
+  /// - Returns: A new `BooleanExpr` representing the "array_contains_any" comparison.
+  func arrayContainsAny(_ arrayExpression: Expression) -> BooleanExpression
 
   /// Creates an expression that calculates the length of an array.
   /// Assumes `self` evaluates to an array.
@@ -416,12 +442,12 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Check if "categoryID" field is equal to "featuredCategory" or "popularCategory" fields
-  /// Field("categoryID").eqAny([Field("featuredCategory"), Field("popularCategory")])
+  /// Field("categoryID").equalAny([Field("featuredCategory"), Field("popularCategory")])
   /// ```
   ///
   /// - Parameter others: An array of at least one `Expression` value to check against.
   /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
-  func eqAny(_ others: [Expression]) -> BooleanExpression
+  func equalAny(_ others: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided literal
   /// values.
@@ -429,12 +455,25 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Check if "category" is "Electronics", "Books", or "Home Goods"
-  /// Field("category").eqAny(["Electronics", "Books", "Home Goods"])
+  /// Field("category").equalAny(["Electronics", "Books", "Home Goods"])
   /// ```
   ///
   /// - Parameter others: An array of at least one `Sendable` literal value to check against.
   /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
-  func eqAny(_ others: [Sendable]) -> BooleanExpression
+  func equalAny(_ others: [Sendable]) -> BooleanExpression
+
+  /// Creates an expression that checks if this expression is equal to any of the provided
+  /// expression values.
+  /// This is similar to an "IN" operator in SQL.
+  ///
+  /// ```swift
+  /// // Check if "categoryID" field is equal to any of "categoryIDs" fields
+  /// Field("categoryID").equalAny(Field("categoryIDs"))
+  /// ```
+  ///
+  /// - Parameter arrayExpression: An `Expression` elements evaluated to be array.
+  /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
+  func equalAny(_ arrayExpression: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// expression values.
@@ -442,12 +481,12 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Check if "statusValue" is not equal to "archivedStatus" or "deletedStatus" fields
-  /// Field("statusValue").notEqAny([Field("archivedStatus"), Field("deletedStatus")])
+  /// Field("statusValue").notEqualAny([Field("archivedStatus"), Field("deletedStatus")])
   /// ```
   ///
   /// - Parameter others: An array of at least one `Expression` value to check against.
   /// - Returns: A new `BooleanExpr` representing the "NOT IN" comparison (not_eq_any).
-  func notEqAny(_ others: [Expression]) -> BooleanExpression
+  func notEqualAny(_ others: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// literal values.
@@ -455,14 +494,25 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Check if "status" is neither "pending" nor "archived"
-  /// Field("status").notEqAny(["pending", "archived"])
+  /// Field("status").notEqualAny(["pending", "archived"])
   /// ```
   ///
   /// - Parameter others: An array of at least one `Sendable` literal value to check against.
   /// - Returns: A new `BooleanExpr` representing the "NOT IN" comparison (not_eq_any).
-  func notEqAny(_ others: [Sendable]) -> BooleanExpression
+  func notEqualAny(_ others: [Sendable]) -> BooleanExpression
 
-  // MARK: Checks
+  /// Creates an expression that checks if this expression is equal to any of the provided
+  /// expression values.
+  /// This is similar to an "IN" operator in SQL.
+  ///
+  /// ```swift
+  /// // Check if "categoryID" field is not equal to any of "categoryIDs" fields
+  /// Field("categoryID").equalAny(Field("categoryIDs"))
+  /// ```
+  ///
+  /// - Parameter arrayExpression: An `Expression` elements evaluated to be array.
+  /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
+  func notEqualAny(_ arrayExpression: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if this expression evaluates to "NaN" (Not a Number).
   /// Assumes `self` evaluates to a numeric type.
@@ -1103,9 +1153,9 @@ public protocol Expression: Sendable {
   /// Field("userVector").cosineDistance(Field("itemVector"))
   /// ```
   ///
-  /// - Parameter other: The other vector as an `Expr` to compare against.
+  /// - Parameter expression: The other vector as an `Expr` to compare against.
   /// - Returns: A new `FunctionExpression` representing the cosine distance.
-  func cosineDistance(_ other: Expression) -> FunctionExpression
+  func cosineDistance(_ expression: Expression) -> FunctionExpression
 
   /// Calculates the cosine distance between this vector expression and another vector literal
   /// (`VectorValue`).
@@ -1116,9 +1166,9 @@ public protocol Expression: Sendable {
   /// let targetVector = VectorValue(vector: [0.1, 0.2, 0.3])
   /// Field("docVector").cosineDistance(targetVector)
   /// ```
-  /// - Parameter other: The other vector as a `VectorValue` to compare against.
+  /// - Parameter vector: The other vector as a `VectorValue` to compare against.
   /// - Returns: A new `FunctionExpression` representing the cosine distance.
-  func cosineDistance(_ other: VectorValue) -> FunctionExpression
+  func cosineDistance(_ vector: VectorValue) -> FunctionExpression
 
   /// Calculates the cosine distance between this vector expression and another vector literal
   /// (`[Double]`).
@@ -1128,9 +1178,9 @@ public protocol Expression: Sendable {
   /// // Cosine distance between "location" field and a target location
   /// Field("location").cosineDistance([37.7749, -122.4194])
   /// ```
-  /// - Parameter other: The other vector as `[Double]` to compare against.
+  /// - Parameter vector: The other vector as `[Double]` to compare against.
   /// - Returns: A new `FunctionExpression` representing the cosine distance.
-  func cosineDistance(_ other: [Double]) -> FunctionExpression
+  func cosineDistance(_ vector: [Double]) -> FunctionExpression
 
   /// Calculates the dot product between this vector expression and another vector expression.
   /// Assumes both `self` and `other` evaluate to Vectors.
@@ -1140,9 +1190,9 @@ public protocol Expression: Sendable {
   /// Field("vectorA").dotProduct(Field("vectorB"))
   /// ```
   ///
-  /// - Parameter other: The other vector as an `Expr` to calculate with.
+  /// - Parameter expression: The other vector as an `Expr` to calculate with.
   /// - Returns: A new `FunctionExpression` representing the dot product.
-  func dotProduct(_ other: Expression) -> FunctionExpression
+  func dotProduct(_ expression: Expression) -> FunctionExpression
 
   /// Calculates the dot product between this vector expression and another vector literal
   /// (`VectorValue`).
@@ -1153,9 +1203,9 @@ public protocol Expression: Sendable {
   /// let weightVector = VectorValue(vector: [0.5, -0.5])
   /// Field("features").dotProduct(weightVector)
   /// ```
-  /// - Parameter other: The other vector as a `VectorValue` to calculate with.
+  /// - Parameter vector: The other vector as a `VectorValue` to calculate with.
   /// - Returns: A new `FunctionExpression` representing the dot product.
-  func dotProduct(_ other: VectorValue) -> FunctionExpression
+  func dotProduct(_ vector: VectorValue) -> FunctionExpression
 
   /// Calculates the dot product between this vector expression and another vector literal
   /// (`[Double]`).
@@ -1165,9 +1215,9 @@ public protocol Expression: Sendable {
   /// // Dot product between a feature vector and a target vector literal
   /// Field("features").dotProduct([0.5, 0.8, 0.2])
   /// ```
-  /// - Parameter other: The other vector as `[Double]` to calculate with.
+  /// - Parameter vector: The other vector as `[Double]` to calculate with.
   /// - Returns: A new `FunctionExpression` representing the dot product.
-  func dotProduct(_ other: [Double]) -> FunctionExpression
+  func dotProduct(_ vector: [Double]) -> FunctionExpression
 
   /// Calculates the Euclidean distance between this vector expression and another vector
   /// expression.
@@ -1178,9 +1228,9 @@ public protocol Expression: Sendable {
   /// Field("pointA").euclideanDistance(Field("pointB"))
   /// ```
   ///
-  /// - Parameter other: The other vector as an `Expr` to compare against.
+  /// - Parameter expression: The other vector as an `Expr` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Euclidean distance.
-  func euclideanDistance(_ other: Expression) -> FunctionExpression
+  func euclideanDistance(_ expression: Expression) -> FunctionExpression
 
   /// Calculates the Euclidean distance between this vector expression and another vector literal
   /// (`VectorValue`).
@@ -1190,9 +1240,9 @@ public protocol Expression: Sendable {
   /// let targetPoint = VectorValue(vector: [1.0, 2.0])
   /// Field("currentLocation").euclideanDistance(targetPoint)
   /// ```
-  /// - Parameter other: The other vector as a `VectorValue` to compare against.
+  /// - Parameter vector: The other vector as a `VectorValue` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Euclidean distance.
-  func euclideanDistance(_ other: VectorValue) -> FunctionExpression
+  func euclideanDistance(_ vector: VectorValue) -> FunctionExpression
 
   /// Calculates the Euclidean distance between this vector expression and another vector literal
   /// (`[Double]`).
@@ -1202,9 +1252,9 @@ public protocol Expression: Sendable {
   /// // Euclidean distance between "location" field and a target location literal
   /// Field("location").euclideanDistance([37.7749, -122.4194])
   /// ```
-  /// - Parameter other: The other vector as `[Double]` to compare against.
+  /// - Parameter vector: The other vector as `[Double]` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Euclidean distance.
-  func euclideanDistance(_ other: [Double]) -> FunctionExpression
+  func euclideanDistance(_ vector: [Double]) -> FunctionExpression
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// expression.
@@ -1217,9 +1267,9 @@ public protocol Expression: Sendable {
   /// Field("vector1").manhattanDistance(Field("vector2"))
   /// ```
   ///
-  /// - Parameter other: The other vector as an `Expr` to compare against.
+  /// - Parameter expression: The other vector as an `Expr` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
-  func manhattanDistance(_ other: Expression) -> FunctionExpression
+  func manhattanDistance(_ expression: Expression) -> FunctionExpression
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// literal (`VectorValue`).
@@ -1229,9 +1279,9 @@ public protocol Expression: Sendable {
   /// let referencePoint = VectorValue(vector: [5.0, 10.0])
   /// Field("dataPoint").manhattanDistance(referencePoint)
   /// ```
-  /// - Parameter other: The other vector as a `VectorValue` to compare against.
+  /// - Parameter vector: The other vector as a `VectorValue` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
-  func manhattanDistance(_ other: VectorValue) -> FunctionExpression
+  func manhattanDistance(_ vector: VectorValue) -> FunctionExpression
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// literal (`[Double]`).
@@ -1242,9 +1292,9 @@ public protocol Expression: Sendable {
   /// // Manhattan distance between "point" field and a target point
   /// Field("point").manhattanDistance([10.0, 20.0])
   /// ```
-  /// - Parameter other: The other vector as `[Double]` to compare against.
+  /// - Parameter vector: The other vector as `[Double]` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
-  func manhattanDistance(_ other: [Double]) -> FunctionExpression
+  func manhattanDistance(_ vector: [Double]) -> FunctionExpression
 
   // MARK: Timestamp operations
 
@@ -1324,7 +1374,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Add duration from "unitField"/"amountField" to "timestamp"
-  /// Field("timestamp").timestampAdd(Field("unitField"), Field("amountField"))
+  /// Field("timestamp").timestampAdd(amount: Field("amountField"), unit: Field("unitField"))
   /// ```
   ///
   /// - Parameter unit: An `Expr` evaluating to the unit of time string (e.g., "day", "hour").
@@ -1340,7 +1390,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Add 1 day to the "timestamp" field.
-  /// Field("timestamp").timestampAdd(.day, 1)
+  /// Field("timestamp").timestampAdd(1, .day)
   /// ```
   ///
   /// - Parameter unit: The `TimeUnit` enum representing the unit of time.
@@ -1356,7 +1406,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Subtract duration from "unitField"/"amountField" from "timestamp"
-  /// Field("timestamp").timestampSub(Field("unitField"), Field("amountField"))
+  /// Field("timestamp").timestampSub(amount: Field("amountField"), unit: Field("unitField"))
   /// ```
   ///
   /// - Parameter unit: An `Expr` evaluating to the unit of time string (e.g., "day", "hour").
@@ -1373,7 +1423,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Subtract 1 day from the "timestamp" field.
-  /// Field("timestamp").timestampSub(.day, 1)
+  /// Field("timestamp").timestampSub(1, .day)
   /// ```
   ///
   /// - Parameter unit: The `TimeUnit` enum representing the unit of time.

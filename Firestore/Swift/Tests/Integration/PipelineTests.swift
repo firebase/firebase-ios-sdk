@@ -984,7 +984,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     var pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("rating").greaterThan(4.5)
-        && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"]))
+        && Field("genre").equalAny(["Science Fiction", "Romance", "Fantasy"]))
     var snapshot = try await pipeline.execute()
     var expectedIDs = ["book10", "book4"] // Dune (SF, 4.6), LOTR (Fantasy, 4.7)
     TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: expectedIDs, enforceOrder: false)
@@ -994,7 +994,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .where(
         Field("rating").greaterThan(4.5)
-          && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"])
+          && Field("genre").equalAny(["Science Fiction", "Romance", "Fantasy"])
           && Field("published").lessThan(1965)
       )
     snapshot = try await pipeline.execute()
@@ -1657,7 +1657,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("published").eqAny([1979, 1999, 1967]))
+      .where(Field("published").equalAny([1979, 1999, 1967]))
       .sort([Field("title").descending()])
       .select(["title"])
 
@@ -1678,7 +1678,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("published")
-        .notEqAny([1965, 1925, 1949, 1960, 1866, 1985, 1954, 1967, 1979]))
+        .notEqualAny([1965, 1925, 1949, 1960, 1866, 1985, 1954, 1967, 1979]))
       .select(["title"])
 
     let snapshot = try await pipeline.execute()

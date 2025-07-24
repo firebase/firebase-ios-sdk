@@ -135,10 +135,10 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await updatedPipeline.execute()
   /// ```
   ///
-  /// - Parameter fields: An array of at least one `AliasedExpression` to add to the documents.
+  /// - Parameter selectables: An array of at least one `Selectable` to add to the documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func addFields(_ fields: [AliasedExpression]) -> Pipeline {
-    return Pipeline(stages: stages + [AddFields(fields: fields)], db: db)
+  public func addFields(_ selectables: [Selectable]) -> Pipeline {
+    return Pipeline(stages: stages + [AddFields(selectables: selectables)], db: db)
   }
 
   /// Removes fields from outputs of previous stages.
