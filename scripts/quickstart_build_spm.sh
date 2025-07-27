@@ -38,3 +38,5 @@ source "$scripts_dir/quickstart_spm_xcodeproj.sh" "$SAMPLE"
 cp ./mock-GoogleService-Info.plist ./firebaseai/GoogleService-Info.plist
 
 SAMPLE=$1 DIR=$1 SPM="true" TEST="false" ./scripts/test.sh
+
+# Done 
