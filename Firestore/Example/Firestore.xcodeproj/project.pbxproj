@@ -2662,7 +2662,6 @@
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				AAEA2A72CFD1FA5AD34462F7 /* Pods */,
-				623E20B12E26FA8000614431 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
