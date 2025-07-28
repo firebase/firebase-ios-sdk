@@ -12,14 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class MapExpression: FunctionExpr, @unchecked Sendable {
-  var result: [Expr] = []
-  public init(_ elements: [String: Sendable]) {
-    for element in elements {
-      result.append(Constant(element.key))
-      result.append(Helper.sendableToExpr(element.value))
-    }
-
-    super.init("map", result)
+public class RandomExpression: FunctionExpression, @unchecked Sendable {
+  public init() {
+    super.init("rand", [])
   }
 }

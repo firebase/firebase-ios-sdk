@@ -12,7 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct AggregateWithAlias {
-  public let aggregate: AggregateFunction
-  public let alias: String
+public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable {
+  let bridge: ExprBridge
+
+  let functionName: String
+  let agrs: [Expression]
+
+  public init(_ functionName: String, _ agrs: [Expression]) {
+    self.functionName = functionName
+    self.agrs = agrs
+    bridge = FunctionExprBridge(
+      name: functionName,
+      args: self.agrs.map { $0.toBridge()
+      }
+    )
+  }
 }

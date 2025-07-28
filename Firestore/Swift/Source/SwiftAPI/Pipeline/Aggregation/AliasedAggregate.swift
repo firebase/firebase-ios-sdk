@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class Descending: Ordering, @unchecked Sendable {
-  public init(_ fieldName: String) {
-    super.init(expr: Field(fieldName), direction: .descending)
-  }
+public struct AliasedAggregate {
+  public let aggregate: AggregateFunction
+  public let alias: String
 }
