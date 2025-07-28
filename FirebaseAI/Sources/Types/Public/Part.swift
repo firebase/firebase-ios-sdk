@@ -19,6 +19,11 @@ import Foundation
 /// Within a single value of ``Part``, different data types may not mix.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
+  /// Indicates whether this `Part` is a summary of the model's internal thinking process.
+  ///
+  /// When `includeThoughts` is set to `true` in ``ThinkingConfig``, the model may return one or
+  /// more "thought" parts that provide insight into how it reasoned through the prompt to arrive
+  /// at the final answer. These parts will have `isThought` set to `true`.
   var isThought: Bool { get }
 }
 

@@ -37,12 +37,21 @@ public struct ThinkingConfig: Sendable {
   /// feature or if the specified budget is not within the model's supported range.
   let thinkingBudget: Int?
 
+  /// Whether summaries of the model's "thoughts" are included in responses.
+  ///
+  /// When `includeThoughts` is set to `true`, the model will return a summary of its internal
+  /// thinking process alongside the final answer. This can provide valuable insight into how the
+  /// model arrived at its conclusion, which is particularly useful for complex or creative tasks.
+  ///
+  /// If you don't specify a value for `includeThoughts` (`nil`), the model will use its default
+  /// behavior (which is typically to not include thought summaries).
   let includeThoughts: Bool?
 
   /// Initializes a new `ThinkingConfig`.
   ///
   /// - Parameters:
   ///   - thinkingBudget: The maximum number of tokens to be used for the model's thinking process.
+  ///   - includeThoughts: If true, summaries of the model's "thoughts" are included in responses.
   public init(thinkingBudget: Int? = nil, includeThoughts: Bool? = nil) {
     self.thinkingBudget = thinkingBudget
     self.includeThoughts = includeThoughts
