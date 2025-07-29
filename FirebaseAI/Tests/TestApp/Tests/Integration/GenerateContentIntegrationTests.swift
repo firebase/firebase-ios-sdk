@@ -231,6 +231,128 @@ struct GenerateContentIntegrationTests {
     ))
   }
 
+  @Test(
+    arguments: [
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(
+        thinkingBudget: 24576, includeThoughts: true
+      )),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
+        thinkingBudget: 32768, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+        thinkingBudget: 24576, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
+        thinkingBudget: 32768, includeThoughts: true
+      )),
+    ] as [(InstanceConfig, String, ThinkingConfig)]
+  )
+  func generateContentThinkingFunctionCalling(_ config: InstanceConfig, modelName: String,
+                                              thinkingConfig: ThinkingConfig) async throws {
+    let currentLocationDeclaration = FunctionDeclaration(
+      name: "currentLocation",
+      description: "Returns the user's current city, province or state, and country",
+      parameters: [:]
+    )
+    let getTemperatureDeclaration = FunctionDeclaration(
+      name: "getTemperature",
+      description: "Returns the current temperature in Celsius for the specified location",
+      parameters: [
+        "city": .string(),
+        "region": .string(description: "The province or state"),
+        "country": .string(),
+      ]
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: GenerationConfig(
+        temperature: 0.0,
+        topP: 0.0,
+        topK: 1,
+        thinkingConfig: thinkingConfig
+      ),
+      safetySettings: safetySettings,
+      tools: [.functionDeclarations([currentLocationDeclaration, getTemperatureDeclaration])]
+    )
+    let chat = model.startChat()
+    let prompt = """
+    What is the temperature outside right now? Respond in the format:
+    - Location: City, Province/State, Country
+    - Temperature: #C
+
+    Example Output:
+    - Location: Vancouver, British Columbia, Canada
+    - Temperature: 15C
+    """
+
+    let response = try await chat.sendMessage(prompt)
+
+    var thoughtSignatureCount = 0
+    #expect(response.functionCalls.count == 1)
+    let locationFunctionCall = try #require(response.functionCalls.first)
+    try #require(locationFunctionCall.name == currentLocationDeclaration.name)
+    #expect(locationFunctionCall.args.isEmpty)
+    #expect(locationFunctionCall.isThought == false)
+    if locationFunctionCall.thoughtSignature != nil {
+      thoughtSignatureCount += 1
+    }
+
+    let locationFunctionResponse = FunctionResponsePart(
+      name: locationFunctionCall.name,
+      response: [
+        "city": .string("Waterloo"),
+        "province": .string("Ontario"),
+        "country": .string("Canada"),
+      ]
+    )
+
+    let response2 = try await chat.sendMessage(locationFunctionResponse)
+
+    #expect(response2.functionCalls.count == 1)
+    let temperatureFunctionCall = try #require(response2.functionCalls.first)
+    try #require(temperatureFunctionCall.name == getTemperatureDeclaration.name)
+    #expect(temperatureFunctionCall.args == [
+      "city": .string("Waterloo"),
+      "region": .string("Ontario"),
+      "country": .string("Canada"),
+    ])
+    #expect(temperatureFunctionCall.isThought == false)
+    if temperatureFunctionCall.thoughtSignature != nil {
+      thoughtSignatureCount += 1
+    }
+
+    let temperatureFunctionResponse = FunctionResponsePart(
+      name: locationFunctionCall.name,
+      response: [
+        "temperature": .number(25),
+        "units": .string("Celsius"),
+      ]
+    )
+
+    let response3 = try await chat.sendMessage(temperatureFunctionResponse)
+
+    #expect(response3.functionCalls.isEmpty)
+    let finalText = try #require(response3.text).trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(finalText == """
+    - Location: Waterloo, Ontario, Canada
+    - Temperature: 25C
+    """)
+
+    if let _ = thinkingConfig.includeThoughts, case .googleAI = config.apiConfig.service {
+      #expect(thoughtSignatureCount > 0)
+    } else {
+      #expect(thoughtSignatureCount == 0)
+    }
+  }
+
   @Test(arguments: [
     InstanceConfig.vertexAI_v1beta,
     InstanceConfig.vertexAI_v1beta_global,
