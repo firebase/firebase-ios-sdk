@@ -234,24 +234,23 @@ struct GenerateContentIntegrationTests {
   @Test(
     arguments: [
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576, includeThoughts: true
+        thinkingBudget: -1, includeThoughts: true
       )),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
+      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
+        thinkingBudget: -1, includeThoughts: true
       )),
       (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576, includeThoughts: true
+        thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
+        thinkingBudget: -1, includeThoughts: true
       )),
     ] as [(InstanceConfig, String, ThinkingConfig)]
   )
