@@ -1,4 +1,4 @@
-# Unreleased
+# 12.1.0
 - [fixed] Fix a formatting issue with generated TOTP URLs that prevented them
   from working with the Google Authenticator app. (#15128)
 

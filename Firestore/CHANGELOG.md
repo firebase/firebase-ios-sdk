@@ -1,4 +1,4 @@
-# Unreleased
+# 12.1.0
 - [fixed] Fixed accidental removal of `pod "Firebase/Firestore"` for tvOS in 12.0.0.
 
 # 11.12.0
