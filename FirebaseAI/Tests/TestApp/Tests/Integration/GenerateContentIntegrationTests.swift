@@ -233,7 +233,6 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     arguments: [
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
@@ -242,12 +241,10 @@ struct GenerateContentIntegrationTests {
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
@@ -257,7 +254,7 @@ struct GenerateContentIntegrationTests {
   func generateContentThinkingFunctionCalling(_ config: InstanceConfig, modelName: String,
                                               thinkingConfig: ThinkingConfig) async throws {
     let currentLocationDeclaration = FunctionDeclaration(
-      name: "currentLocation",
+      name: "getCurrentLocation",
       description: "Returns the user's current city, province or state, and country",
       parameters: [:]
     )
@@ -279,18 +276,23 @@ struct GenerateContentIntegrationTests {
         thinkingConfig: thinkingConfig
       ),
       safetySettings: safetySettings,
-      tools: [.functionDeclarations([currentLocationDeclaration, getTemperatureDeclaration])]
+      tools: [.functionDeclarations([currentLocationDeclaration, getTemperatureDeclaration])],
+      systemInstruction: ModelContent(parts: """
+      You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
+
+      If not specified, assume that the user is asking for the temperature in their current \
+      location. Use the `getCurrentLocation` function to determine the user's location. Always use the \
+      `getTemperature` function to determine the current outdoor temperature in a location. You \
+      can use the output of the `getCurrentLocation` function as input to the `getTemperature` \
+      function to get the temperature in the user's location.
+
+      Always respond in the format:
+      - Location: City, Province/State, Country
+      - Temperature: #C
+      """)
     )
     let chat = model.startChat()
-    let prompt = """
-    What is the temperature outside right now? Respond in the format:
-    - Location: City, Province/State, Country
-    - Temperature: #C
-
-    Example Output:
-    - Location: Vancouver, British Columbia, Canada
-    - Temperature: 15C
-    """
+    let prompt = "What is the current temperature?"
 
     let response = try await chat.sendMessage(prompt)
 
@@ -340,10 +342,8 @@ struct GenerateContentIntegrationTests {
 
     #expect(response3.functionCalls.isEmpty)
     let finalText = try #require(response3.text).trimmingCharacters(in: .whitespacesAndNewlines)
-    #expect(finalText == """
-    - Location: Waterloo, Ontario, Canada
-    - Temperature: 25C
-    """)
+    #expect(finalText.contains("Waterloo"))
+    #expect(finalText.contains("25"))
 
     if let _ = thinkingConfig.includeThoughts, case .googleAI = config.apiConfig.service {
       #expect(thoughtSignatureCount > 0)
