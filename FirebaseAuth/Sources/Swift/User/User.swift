@@ -1062,7 +1062,7 @@ extension User: NSSecureCoding {}
               /// If auth is nil, this User object is in an invalid state for this operation.
               fatalError("Firebase Auth Internal Error: Set user's auth property with non-nil instance. Cannot start passkey enrollment.")
           }
-    let enrollmentIdToken = try await rawAccessToken()
+    let enrollmentIdToken = rawAccessToken()
     let request = StartPasskeyEnrollmentRequest(
       idToken: enrollmentIdToken,
       requestConfiguration: self.requestConfiguration
