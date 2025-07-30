@@ -1,5 +1,5 @@
 name: generate_notices
-
+#din
 permissions:
   pull-requests: write
   contents: write
