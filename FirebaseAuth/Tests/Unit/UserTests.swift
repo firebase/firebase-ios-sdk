@@ -1891,3 +1891,111 @@ class UserTests: RPCBaseTests {
     }
   }
 }
+
+#if os(iOS)
+  import AuthenticationServices
+
+  @available(iOS 15.0, *)
+extension UserTests {
+  func testStartPasskeyEnrollmentSuccess() async throws {
+    setFakeGetAccountProvider()
+    let expectation = expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        // Mock backend response for StartPasskeyEnrollment
+        self.rpcIssuer.respondBlock = {
+          let request = try XCTUnwrap(self.rpcIssuer?.request as? StartPasskeyEnrollmentRequest)
+          XCTAssertEqual(request.idToken, RPCBaseTests.kFakeAccessToken)
+          return try self.rpcIssuer.respond(
+            withJSON: [
+              "credentialCreationOptions": [
+                "rp": ["id": "example.com"],
+                "user": ["id": "VXNlcklE"], // Base64 userID
+                "challenge": "Q2hhbGxlbmdl", // Base64 challenge
+              ],
+            ]
+          )
+        }
+        Task {
+          let request = try await user.startPasskeyEnrollment(withName: "MyPasskey")
+          XCTAssertEqual(request.name, "MyPasskey")
+          XCTAssertNotNil(request.challenge)
+          XCTAssertNotNil(request.userID)
+          expectation.fulfill()
+        }
+      } catch {
+        XCTFail("Unexpected error: \(error)")
+      }
+    }
+    await fulfillment(of: [expectation], timeout: 5)
+  }
+  
+  func testStartPasskeyEnrollmentWithNilNameSuccess() async throws {
+    setFakeGetAccountProvider()
+    let expectation = expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(
+          withJSON: [
+            "credentialCreationOptions": [
+              "rp": ["id": "example.com"],
+              "user": ["id": "VXNlcklE"],
+              "challenge": "Q2hhbGxlbmdl",
+            ],
+          ]
+        )
+      }
+      Task {
+        let request = try await user.startPasskeyEnrollment(withName: nil)
+        XCTAssertEqual(request.name, "Unnamed account (Apple)")
+        expectation.fulfill()
+      }
+    }
+    await fulfillment(of: [expectation], timeout: 5)
+  }
+  
+  func testStartPasskeyEnrollmentWithEmptyNameSuccess() async throws {
+    setFakeGetAccountProvider()
+    let expectation = expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(
+          withJSON: [
+            "credentialCreationOptions": [
+              "rp": ["id": "example.com"],
+              "user": ["id": "VXNlcklE"],
+              "challenge": "Q2hhbGxlbmdl",
+            ],
+          ]
+        )
+      }
+      Task {
+        let request = try await user.startPasskeyEnrollment(withName: "")
+        XCTAssertEqual(request.name, "Unnamed account (Apple)")
+        expectation.fulfill()
+      }
+    }
+    await fulfillment(of: [expectation], timeout: 5)
+  }
+  
+  func testStartPasskeyEnrollmentFailure() async throws {
+    setFakeGetAccountProvider()
+    let expectation = expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
+      }
+      Task {
+        do {
+          _ = try await user.startPasskeyEnrollment(withName: "FailCase")
+          XCTFail("Expected to throw error")
+        } catch let error as NSError {
+          XCTAssertEqual(error.code, AuthErrorCode.operationNotAllowed.rawValue)
+          expectation.fulfill()
+        }
+      }
+    }
+    await fulfillment(of: [expectation], timeout: 5)
+  }
+}
+#endif
