@@ -13,7 +13,10 @@
 // limitations under the License.
 
 import Foundation
-import AuthenticationServices
+
+#if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+  import AuthenticationServices
+#endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension User: NSSecureCoding {}
@@ -1049,6 +1052,7 @@ extension User: NSSecureCoding {}
   }
 
   // MARK: Passkey Implementation
+#if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
 
   /// A cached passkey name being passed from startPasskeyEnrollment(withName:) call and consumed at finalizePasskeyEnrollment(withPlatformCredential:) call
   private var passkeyName: String?
@@ -1085,6 +1089,7 @@ extension User: NSSecureCoding {}
     )
     return registrationRequest
   }
+#endif
 
   // MARK: Internal implementations below
 

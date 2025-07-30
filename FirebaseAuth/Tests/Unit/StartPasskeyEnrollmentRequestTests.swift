@@ -58,7 +58,7 @@ class StartPasskeyEnrollmentRequestTests: XCTestCase {
   }
 
   func testUnencodedHTTPRequestBodyWithTenantId() {
-    //setting up fake auth to set tenantId
+    // setting up fake auth to set tenantId
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.apiKey = AuthTests.kFakeAPIKey
