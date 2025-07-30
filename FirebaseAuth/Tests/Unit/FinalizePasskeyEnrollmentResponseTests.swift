@@ -12,45 +12,49 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseAuth
-import XCTest
+#if os(iOS) || os(tvOS) || os(macOS)
 
-@available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
-class FinalizePasskeyEnrollmentResponseTests: XCTestCase {
-  private func makeValidDictionary() -> [String: AnyHashable] {
-    return [
-      "idToken": "FAKE_ID_TOKEN" as AnyHashable,
-      "refreshToken": "FAKE_REFRESH_TOKEN" as AnyHashable,
-    ]
+  @testable import FirebaseAuth
+  import XCTest
+
+  @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+  class FinalizePasskeyEnrollmentResponseTests: XCTestCase {
+    private func makeValidDictionary() -> [String: AnyHashable] {
+      return [
+        "idToken": "FAKE_ID_TOKEN" as AnyHashable,
+        "refreshToken": "FAKE_REFRESH_TOKEN" as AnyHashable,
+      ]
+    }
+
+    func testInitWithValidDictionary() throws {
+      let response = try FinalizePasskeyEnrollmentResponse(
+        dictionary: makeValidDictionary()
+      )
+      XCTAssertEqual(response.idToken, "FAKE_ID_TOKEN")
+      XCTAssertEqual(response.refreshToken, "FAKE_REFRESH_TOKEN")
+    }
+
+    func testInitWithMissingIdTokenThrowsError() {
+      var dict = makeValidDictionary()
+      dict.removeValue(forKey: "idToken")
+      XCTAssertThrowsError(
+        try FinalizePasskeyEnrollmentResponse(dictionary: dict)
+      )
+    }
+
+    func testInitWithMissingRefreshTokenThrowsError() {
+      var dict = makeValidDictionary()
+      dict.removeValue(forKey: "refreshToken")
+      XCTAssertThrowsError(
+        try FinalizePasskeyEnrollmentResponse(dictionary: dict)
+      )
+    }
+
+    func testInitWithEmptyDictionaryThrowsError() {
+      XCTAssertThrowsError(
+        try FinalizePasskeyEnrollmentResponse(dictionary: [:])
+      )
+    }
   }
 
-  func testInitWithValidDictionary() throws {
-    let response = try FinalizePasskeyEnrollmentResponse(
-      dictionary: makeValidDictionary()
-    )
-    XCTAssertEqual(response.idToken, "FAKE_ID_TOKEN")
-    XCTAssertEqual(response.refreshToken, "FAKE_REFRESH_TOKEN")
-  }
-
-  func testInitWithMissingIdTokenThrowsError() {
-    var dict = makeValidDictionary()
-    dict.removeValue(forKey: "idToken")
-    XCTAssertThrowsError(
-      try FinalizePasskeyEnrollmentResponse(dictionary: dict)
-    )
-  }
-
-  func testInitWithMissingRefreshTokenThrowsError() {
-    var dict = makeValidDictionary()
-    dict.removeValue(forKey: "refreshToken")
-    XCTAssertThrowsError(
-      try FinalizePasskeyEnrollmentResponse(dictionary: dict)
-    )
-  }
-
-  func testInitWithEmptyDictionaryThrowsError() {
-    XCTAssertThrowsError(
-      try FinalizePasskeyEnrollmentResponse(dictionary: [:])
-    )
-  }
-}
+#endif
