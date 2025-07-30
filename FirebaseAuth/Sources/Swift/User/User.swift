@@ -1102,6 +1102,33 @@ extension User: NSSecureCoding {}
       )
       return registrationRequest
     }
+
+    /// Finalize the passkey enrollment with the platfrom public key credential.
+    /// - Parameter platformCredential: The name for the passkey to be created.
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    public func finalizePasskeyEnrollment(withPlatformCredential platformCredential: ASAuthorizationPlatformPublicKeyCredentialRegistration) async throws
+      -> AuthDataResult {
+      let credentialID = platformCredential.credentialID.base64EncodedString()
+      let clientDataJSON = platformCredential.rawClientDataJSON.base64EncodedString()
+      let attestationObject = platformCredential.rawAttestationObject!.base64EncodedString()
+
+      let request = FinalizePasskeyEnrollmentRequest(
+        idToken: rawAccessToken(),
+        name: passkeyName ?? "Unnamed account (Apple)",
+        credentialID: credentialID,
+        clientDataJSON: clientDataJSON,
+        attestationObject: attestationObject,
+        requestConfiguration: auth!.requestConfiguration
+      )
+      let response = try await backend.call(with: request)
+      let user = try await auth!.completeSignIn(
+        withAccessToken: response.idToken,
+        accessTokenExpirationDate: nil,
+        refreshToken: response.refreshToken,
+        anonymous: false
+      )
+      return AuthDataResult(withUser: user, additionalUserInfo: nil)
+    }
   #endif
 
   // MARK: Internal implementations below
