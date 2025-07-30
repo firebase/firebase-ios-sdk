@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if os(iOS) || os(tvOS) || os(macOS)
+
 @testable import FirebaseAuth
 import XCTest
 
@@ -89,3 +91,5 @@ class StartPasskeyEnrollmentResponseTests: XCTestCase {
     XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict))
   }
 }
+
+#endif

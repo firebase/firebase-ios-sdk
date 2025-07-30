@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if os(iOS) || os(tvOS) || os(macOS)
+
 @testable import FirebaseAuth
 import Foundation
 import FirebaseCore
@@ -82,3 +84,5 @@ class StartPasskeyEnrollmentRequestTests: XCTestCase {
     XCTAssertEqual(body?["tenantId"] as? String, "TEST_TENANT")
   }
 }
+
+#endif
