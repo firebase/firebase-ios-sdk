@@ -14,6 +14,10 @@
 
 import Foundation
 
+#if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+  import AuthenticationServices
+#endif
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension User: NSSecureCoding {}
 
@@ -1046,6 +1050,59 @@ extension User: NSSecureCoding {}
       }
     }
   }
+
+  // MARK: Passkey Implementation
+
+  #if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+    /// A cached passkey name being passed from startPasskeyEnrollment(withName:) call and consumed
+    /// at finalizePasskeyEnrollment(withPlatformCredential:) call
+    private var passkeyName: String?
+
+    /// Start the passkey enrollment creating a plaform public key creation request with the
+    /// challenge from GCIP backend.
+    /// - Parameter name: The name for the passkey to be created.
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    public func startPasskeyEnrollment(withName name: String?) async throws
+      -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
+      guard auth != nil else {
+        /// If auth is nil, this User object is in an invalid state for this operation.
+        fatalError(
+          "Firebase Auth Internal Error: Set user's auth property with non-nil instance. Cannot start passkey enrollment."
+        )
+      }
+      let enrollmentIdToken = rawAccessToken()
+      let request = StartPasskeyEnrollmentRequest(
+        idToken: enrollmentIdToken,
+        requestConfiguration: requestConfiguration
+      )
+      let response = try await backend.call(with: request)
+      passkeyName = (name?.isEmpty ?? true) ? "Unnamed account (Apple)" : name!
+      guard let challengeInData = Data(base64Encoded: response.challenge) else {
+        throw NSError(
+          domain: AuthErrorDomain,
+          code: AuthInternalErrorCode.RPCResponseDecodingError.rawValue,
+          userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 challenge from response."]
+        )
+      }
+      guard let userIdInData = Data(base64Encoded: response.userID) else {
+        throw NSError(
+          domain: AuthErrorDomain,
+          code: AuthInternalErrorCode.RPCResponseDecodingError.rawValue,
+          userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 userId from response."]
+        )
+      }
+      let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+        relyingPartyIdentifier: response.rpID
+      )
+      let registrationRequest = provider.createCredentialRegistrationRequest(
+        challenge: challengeInData,
+        name: passkeyName ?? "Unnamed account (Apple)",
+        userID: userIdInData
+      )
+      return registrationRequest
+    }
+  #endif
 
   // MARK: Internal implementations below
 
