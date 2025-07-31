@@ -1,3 +1,7 @@
+# 12.1.0
+- [fixed] Fix Xcode 26 crash from missing `NSUserActivityTypeBrowsingWeb`
+  symbol. The fix will apply to the Firebase.zip in the next release. (#15159)
+
 # 11.14.0
 - [fixed] Fix a potential SQL injection issue. (#14846).
 
