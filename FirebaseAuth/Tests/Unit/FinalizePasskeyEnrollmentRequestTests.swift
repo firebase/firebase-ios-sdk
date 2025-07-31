@@ -107,7 +107,7 @@
         requestConfiguration: configWithTenant
       )
       let body = request.unencodedHTTPRequestBody
-      XCTAssertEqual(body?["tenantId"] as? String, "TENANT_ID")
+      XCTAssertEqual(body?["tenantId"] as? String, "TEST_TENANT")
     }
   }
 
