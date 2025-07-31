@@ -1058,6 +1058,7 @@ extension User: NSSecureCoding {}
     /// A cached passkey name being passed from startPasskeyEnrollment(withName:) call and consumed
     /// at finalizePasskeyEnrollment(withPlatformCredential:) call
     private var passkeyName: String?
+    private let defaultPasskeyName: String = "Unnamed account (Apple)"
 
     /// Start the passkey enrollment creating a plaform public key creation request with the
     /// challenge from GCIP backend.
@@ -1077,7 +1078,12 @@ extension User: NSSecureCoding {}
         requestConfiguration: requestConfiguration
       )
       let response = try await backend.call(with: request)
-      passkeyName = (name?.isEmpty ?? true) ? "Unnamed account (Apple)" : name!
+      guard let passkeyName = (name?.isEmpty ?? true) ? defaultPasskeyName : name
+      else { throw NSError(
+        domain: AuthErrorDomain,
+        code: AuthErrorCode.internalError.rawValue,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to unwrap passkey name"]
+      ) }
       guard let challengeInData = Data(base64Encoded: response.challenge) else {
         throw NSError(
           domain: AuthErrorDomain,
@@ -1095,12 +1101,11 @@ extension User: NSSecureCoding {}
       let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
         relyingPartyIdentifier: response.rpID
       )
-      let registrationRequest = provider.createCredentialRegistrationRequest(
+      return provider.createCredentialRegistrationRequest(
         challenge: challengeInData,
-        name: passkeyName ?? "Unnamed account (Apple)",
+        name: passkeyName,
         userID: userIdInData
       )
-      return registrationRequest
     }
 
     /// Finalize the passkey enrollment with the platfrom public key credential.
