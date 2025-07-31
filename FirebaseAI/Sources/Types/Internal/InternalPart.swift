@@ -44,26 +44,26 @@ struct FileData: Codable, Equatable, Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FunctionCall: Equatable, Sendable {
   let name: String
-  let id: String?
   let args: JSONObject
+  let id: String?
 
-  init(name: String, id: String?, args: JSONObject) {
+  init(name: String, args: JSONObject, id: String?) {
     self.name = name
-    self.id = id
     self.args = args
+    self.id = id
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FunctionResponse: Codable, Equatable, Sendable {
   let name: String
-  let id: String?
   let response: JSONObject
+  let id: String?
 
-  init(name: String, id: String?, response: JSONObject) {
+  init(name: String, response: JSONObject, id: String?) {
     self.name = name
-    self.id = id
     self.response = response
+    self.id = id
   }
 }
 
