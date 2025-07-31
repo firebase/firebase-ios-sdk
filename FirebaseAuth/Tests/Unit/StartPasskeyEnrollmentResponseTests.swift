@@ -18,7 +18,7 @@
   import XCTest
 
   @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
-  class StartPasskeyEnrollmentResponseTests: XCTestCase {
+  class StartPasskeyEnrollmentResponseTests: RPCBaseTests {
     private func makeValidDictionary() -> [String: AnyHashable] {
       return [
         "credentialCreationOptions": [
@@ -41,7 +41,7 @@
       XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: invalidDict))
     }
 
-    func testInitWithMissingRpThrowsError() {
+    func testInitWithMissingRp() {
       var dict = makeValidDictionary()
       if var options = dict["credentialCreationOptions"] as? [String: Any] {
         options.removeValue(forKey: "rp")
@@ -50,7 +50,7 @@
       XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict))
     }
 
-    func testInitWithMissingRpIdThrowsError() {
+    func testInitWithMissingRpId() {
       var dict = makeValidDictionary()
       if var options = dict["credentialCreationOptions"] as? [String: Any],
          var rp = options["rp"] as? [String: Any] {
@@ -61,7 +61,7 @@
       XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict))
     }
 
-    func testInitWithMissingUserThrowsError() {
+    func testInitWithMissingUser() {
       var dict = makeValidDictionary()
       if var options = dict["credentialCreationOptions"] as? [String: Any] {
         options.removeValue(forKey: "user")
@@ -70,7 +70,7 @@
       XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict))
     }
 
-    func testInitWithMissingUserIdThrowsError() {
+    func testInitWithMissingUserId() {
       var dict = makeValidDictionary()
       if var options = dict["credentialCreationOptions"] as? [String: Any],
          var user = options["user"] as? [String: Any] {
@@ -81,13 +81,43 @@
       XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict))
     }
 
-    func testInitWithMissingChallengeThrowsError() {
+    func testInitWithMissingChallenge() {
       var dict = makeValidDictionary()
-      if var options = dict["credentialCreationOptions"] as? [String: Any] {
+      if var options = dict["credentialCreationOptions"] as? [String: AnyHashable] {
         options.removeValue(forKey: "challenge")
-        dict["credentialCreationOptions"] = options as? AnyHashable
+        dict["credentialCreationOptions"] = options as [String: AnyHashable]
       }
-      XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict))
+      XCTAssertThrowsError(
+        try StartPasskeyEnrollmentResponse(dictionary: dict)
+      ) { error in
+        let nsError = error as NSError
+        XCTAssertEqual(nsError.domain, AuthErrorDomain)
+        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
+      }
+    }
+
+    func testSuccessfulStartPasskeyEnrollmentResponse() async throws {
+      let expectedRpID = "example.com"
+      let expectedUserID = "USER_123"
+      let expectedChallenge = "FAKE_CHALLENGE"
+
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(withJSON: [
+          "credentialCreationOptions": [
+            "rp": ["id": expectedRpID],
+            "user": ["id": expectedUserID],
+            "challenge": expectedChallenge,
+          ],
+        ])
+      }
+      let request = StartPasskeyEnrollmentRequest(
+        idToken: "DUMMY_ID_TOKEN",
+        requestConfiguration: AuthRequestConfiguration(apiKey: "API_KEY", appID: "APP_ID")
+      )
+      let response = try await authBackend.call(with: request)
+      XCTAssertEqual(response.rpID, expectedRpID)
+      XCTAssertEqual(response.userID, expectedUserID)
+      XCTAssertEqual(response.challenge, expectedChallenge)
     }
   }
 
