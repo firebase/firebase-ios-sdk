@@ -109,6 +109,10 @@ public struct FunctionCallPart: Part {
   /// The name of the function to call.
   public var name: String { functionCall.name }
 
+  /// The unique ID of the function call. If specified, this identifier should be included in the
+  /// ``FunctionResponsePart``.
+  public var id: String? { functionCall.id }
+
   /// The function parameters and values.
   public var args: JSONObject { functionCall.args }
 
@@ -121,7 +125,7 @@ public struct FunctionCallPart: Part {
   ///   - name: The name of the function to call.
   ///   - args: The function parameters and values.
   public init(name: String, args: JSONObject) {
-    self.init(FunctionCall(name: name, args: args))
+    self.init(FunctionCall(name: name, id: nil, args: args))
   }
 
   init(_ functionCall: FunctionCall) {
@@ -148,9 +152,11 @@ public struct FunctionResponsePart: Part {
   ///
   /// - Parameters:
   ///   - name: The name of the function that was called.
+  ///   - id: The unique ID of the function call, if specified, that this response corresponds with;
+  ///     see ``FunctionCallPart/id`` for more details.
   ///   - response: The function's response.
-  public init(name: String, response: JSONObject) {
-    self.init(FunctionResponse(name: name, response: response))
+  public init(name: String, id: String? = nil, response: JSONObject) {
+    self.init(FunctionResponse(name: name, id: id, response: response))
   }
 
   init(_ functionResponse: FunctionResponse) {

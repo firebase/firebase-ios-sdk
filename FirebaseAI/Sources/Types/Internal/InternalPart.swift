@@ -44,10 +44,12 @@ struct FileData: Codable, Equatable, Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FunctionCall: Equatable, Sendable {
   let name: String
+  let id: String?
   let args: JSONObject
 
-  init(name: String, args: JSONObject) {
+  init(name: String, id: String?, args: JSONObject) {
     self.name = name
+    self.id = id
     self.args = args
   }
 }
@@ -55,10 +57,12 @@ struct FunctionCall: Equatable, Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FunctionResponse: Codable, Equatable, Sendable {
   let name: String
+  let id: String?
   let response: JSONObject
 
-  init(name: String, response: JSONObject) {
+  init(name: String, id: String?, response: JSONObject) {
     self.name = name
+    self.id = id
     self.response = response
   }
 }
@@ -79,6 +83,7 @@ extension FunctionCall: Codable {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     name = try container.decode(String.self, forKey: .name)
+    id = try container.decodeIfPresent(String.self, forKey: .id)
     if let args = try container.decodeIfPresent(JSONObject.self, forKey: .args) {
       self.args = args
     } else {

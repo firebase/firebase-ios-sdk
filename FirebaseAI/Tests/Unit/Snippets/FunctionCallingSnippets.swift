@@ -92,6 +92,7 @@ final class FunctionCallingSnippets: XCTestCase {
 
         functionResponses.append(FunctionResponsePart(
           name: functionCall.name,
+          id: functionCall.id,
           response: fetchWeather(city: city, state: state, date: date)
         ))
       }
