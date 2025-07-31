@@ -177,8 +177,7 @@ NS_EXTENSION_UNAVAILABLE("Firebase In App Messaging is not supported for iOS ext
                  "Simulating action url opening from a web browser.");
     // Use string literal to ensure compatibility with Xcode 26 and iOS 18
     NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
-    NSUserActivity *userActivity =
-        [[NSUserActivity alloc] initWithActivityType:browsingWebType];
+    NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
     userActivity.webpageURL = url;
     BOOL handled = [self.appDelegate application:self.mainApplication
                             continueUserActivity:userActivity

@@ -86,8 +86,7 @@
                            NSUserActivity *activity = (NSUserActivity *)userActivity;
                            // Use string literal to ensure compatibility with Xcode 26 and iOS 18
                            NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
-                           return [activity.activityType
-                                      isEqualToString:browsingWebType] &&
+                           return [activity.activityType isEqualToString:browsingWebType] &&
                                   [activity.webpageURL isEqual:url];
                          }]
                            restorationHandler:[OCMArg any]])

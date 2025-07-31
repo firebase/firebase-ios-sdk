@@ -402,8 +402,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       [appDelegate respondsToSelector:continueUserActivitySelector]) {
     // Use string literal to ensure compatibility with Xcode 26 and iOS 18
     NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
-    NSUserActivity *userActivity =
-        [[NSUserActivity alloc] initWithActivityType:browsingWebType];
+    NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
     userActivity.webpageURL = url;
     [appDelegate application:application
         continueUserActivity:userActivity
