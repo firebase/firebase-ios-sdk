@@ -14,17 +14,19 @@
 
 @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
 struct StartPasskeySignInResponse: AuthRPCResponse {
+  /// The RP ID of the FIDO Relying Party
   let rpID: String
+  /// The FIDO challenge
   let challenge: String
+
   init(dictionary: [String: AnyHashable]) throws {
-    guard let options = dictionary["credentialCreationOptions"] as? [String: Any] else {
+    guard let options = dictionary["credentialRequestOptions"] as? [String: Any] else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }
-    guard
-      let options = dictionary["options"] as? [String: Any],
-      let rpID = options["rpId"] as? String,
-      let challenge = options["challenge"] as? String
-    else { throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary) }
+    guard let rpID = options["rpId"] as? String,
+          let challenge = options["challenge"] as? String else {
+      throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
+    }
     self.rpID = rpID
     self.challenge = challenge
   }

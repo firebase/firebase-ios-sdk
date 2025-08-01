@@ -1647,6 +1647,7 @@ extension Auth: AuthInterop {
 
   // MARK: Passkey Implementation
 
+  /// starts sign in with passkey retrieving challenge from GCIP and create an assertion request.
   public func startPasskeySignIn() async throws ->
     ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
     let request = StartPasskeySignInRequest(requestConfiguration: requestConfiguration)

@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// The GCIP endpoint for startPasskeySignIn rpc
+private let startPasskeySignInEndpoint = "accounts/passkeySignIn:start"
+
 @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
 class StartPasskeySignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = StartPasskeySignInResponse
   init(requestConfiguration: AuthRequestConfiguration) {
     super.init(
-      endpoint: "accounts/passkeySignIn:start",
+      endpoint: startPasskeySignInEndpoint,
       requestConfiguration: requestConfiguration,
       useIdentityPlatform: true
     )
