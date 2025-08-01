@@ -27,6 +27,7 @@ final class InternalPartTests: XCTestCase {
     }
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
     let part = try decoder.decode(InternalPart.self, from: jsonData)
 
     XCTAssertEqual(part.isThought, true)
@@ -44,6 +45,7 @@ final class InternalPartTests: XCTestCase {
     }
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
     let part = try decoder.decode(InternalPart.self, from: jsonData)
 
     XCTAssertNil(part.isThought)
@@ -68,6 +70,7 @@ final class InternalPartTests: XCTestCase {
     }
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
     let part = try decoder.decode(InternalPart.self, from: jsonData)
 
     XCTAssertEqual(part.isThought, true)
@@ -79,8 +82,205 @@ final class InternalPartTests: XCTestCase {
     XCTAssertEqual(inlineData.data, Data(base64Encoded: imageBase64))
   }
 
-  // TODO(andrewheard): Add testDecodeInlineDataPartWithoutThought
-  // TODO(andrewheard): Add testDecodeFunctionCallPartWithThought
-  // TODO(andrewheard): Add testDecodeFunctionCallPartWithThoughtSignature
-  // TODO(andrewheard): Add testDecodeFunctionCallPartWithoutThought
+  func testDecodeInlineDataPartWithoutThought() throws {
+    let imageBase64 = "aGVsbG8="
+    let mimeType = "image/png"
+    let json = """
+    {
+      "inlineData": {
+        "mimeType": "\(mimeType)",
+        "data": "\(imageBase64)"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    guard case let .inlineData(inlineData) = part.data else {
+      XCTFail("Decoded part is not an inlineData part.")
+      return
+    }
+    XCTAssertEqual(inlineData.mimeType, mimeType)
+    XCTAssertEqual(inlineData.data, Data(base64Encoded: imageBase64))
+  }
+
+  func testDecodeFileDataPartWithThought() throws {
+    let uri = "file:///path/to/file.mp3"
+    let mimeType = "audio/mpeg"
+    let json = """
+    {
+      "fileData": {
+        "fileUri": "\(uri)",
+        "mimeType": "\(mimeType)"
+      },
+      "thought": true
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertEqual(part.isThought, true)
+    guard case let .fileData(fileData) = part.data else {
+      XCTFail("Decoded part is not a fileData part.")
+      return
+    }
+    XCTAssertEqual(fileData.fileURI, uri)
+    XCTAssertEqual(fileData.mimeType, mimeType)
+  }
+
+  func testDecodeFileDataPartWithoutThought() throws {
+    let uri = "file:///path/to/file.mp3"
+    let mimeType = "audio/mpeg"
+    let json = """
+    {
+      "fileData": {
+        "fileUri": "\(uri)",
+        "mimeType": "\(mimeType)"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    guard case let .fileData(fileData) = part.data else {
+      XCTFail("Decoded part is not a fileData part.")
+      return
+    }
+    XCTAssertEqual(fileData.fileURI, uri)
+    XCTAssertEqual(fileData.mimeType, mimeType)
+  }
+
+  func testDecodeFunctionCallPartWithThoughtSignature() throws {
+    let functionName = "someFunction"
+    let expectedThoughtSignature = "some_signature"
+    let json = """
+    {
+      "functionCall": {
+        "name": "\(functionName)",
+        "args": {
+          "arg1": "value1"
+        },
+      },
+      "thoughtSignature": "\(expectedThoughtSignature)"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    let thoughtSignature = try XCTUnwrap(part.thoughtSignature)
+    XCTAssertEqual(thoughtSignature, expectedThoughtSignature)
+    XCTAssertNil(part.isThought)
+    guard case let .functionCall(functionCall) = part.data else {
+      XCTFail("Decoded part is not a functionCall part.")
+      return
+    }
+    XCTAssertEqual(functionCall.name, functionName)
+    XCTAssertEqual(functionCall.args, ["arg1": .string("value1")])
+  }
+
+  func testDecodeFunctionCallPartWithoutThoughtSignature() throws {
+    let functionName = "someFunction"
+    let json = """
+    {
+      "functionCall": {
+        "name": "\(functionName)",
+        "args": {
+          "arg1": "value1"
+        }
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    XCTAssertNil(part.thoughtSignature)
+    guard case let .functionCall(functionCall) = part.data else {
+      XCTFail("Decoded part is not a functionCall part.")
+      return
+    }
+    XCTAssertEqual(functionCall.name, functionName)
+    XCTAssertEqual(functionCall.args, ["arg1": .string("value1")])
+  }
+
+  func testDecodeFunctionCallPartWithoutArgs() throws {
+    let functionName = "someFunction"
+    let json = """
+    {
+      "functionCall": {
+        "name": "\(functionName)"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    XCTAssertNil(part.thoughtSignature)
+    guard case let .functionCall(functionCall) = part.data else {
+      XCTFail("Decoded part is not a functionCall part.")
+      return
+    }
+    XCTAssertEqual(functionCall.name, functionName)
+    XCTAssertEqual(functionCall.args, JSONObject())
+  }
+
+  func testDecodeFunctionResponsePartWithThought() throws {
+    let functionName = "someFunction"
+    let json = """
+    {
+      "functionResponse": {
+        "name": "\(functionName)",
+        "response": {
+          "output": "someValue"
+        }
+      },
+      "thought": true
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertEqual(part.isThought, true)
+    guard case let .functionResponse(functionResponse) = part.data else {
+      XCTFail("Decoded part is not a functionResponse part.")
+      return
+    }
+    XCTAssertEqual(functionResponse.name, functionName)
+    XCTAssertEqual(functionResponse.response, ["output": .string("someValue")])
+  }
+
+  func testDecodeFunctionResponsePartWithoutThought() throws {
+    let functionName = "someFunction"
+    let json = """
+    {
+      "functionResponse": {
+        "name": "\(functionName)",
+        "response": {
+          "output": "someValue"
+        }
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    guard case let .functionResponse(functionResponse) = part.data else {
+      XCTFail("Decoded part is not a functionResponse part.")
+      return
+    }
+    XCTAssertEqual(functionResponse.name, functionName)
+    XCTAssertEqual(functionResponse.response, ["output": .string("someValue")])
+  }
 }
