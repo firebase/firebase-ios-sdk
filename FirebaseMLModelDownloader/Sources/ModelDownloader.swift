@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
+public import FirebaseCore
 import FirebaseInstallations
 import Foundation
 #if SWIFT_PACKAGE
-  internal import GoogleUtilities_UserDefaults
+  import GoogleUtilities_UserDefaults
 #else
-  internal import GoogleUtilities
+  import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// Possible ways to get a custom model.

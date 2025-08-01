@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseRemoteConfigInternal
+  @_exported public import FirebaseRemoteConfigInternal
 
   // This is a trick to force generate a `FirebaseRemoteConfig-Swift.h` header
   // that re-exports `FirebaseRemoteConfigInternal` for Objective-C clients. It

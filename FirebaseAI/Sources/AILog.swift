@@ -15,7 +15,7 @@
 import Foundation
 import os.log
 
-internal import FirebaseCoreExtension
+import FirebaseCoreExtension
 
 enum AILog {
   /// Log message codes for the Firebase AI SDK

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-private import UniformTypeIdentifiers
+import UniformTypeIdentifiers
 
 #if os(iOS) || os(tvOS) || os(visionOS)
   import MobileCoreServices
