@@ -29,6 +29,10 @@ import FirebaseCoreExtension
   import UIKit
 #endif
 
+#if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+  import AuthenticationServices
+#endif
+
 // Export the deprecated Objective-C defined globals and typedefs.
 #if SWIFT_PACKAGE
   @_exported import FirebaseAuthInternal
@@ -1640,6 +1644,27 @@ extension Auth: AuthInterop {
   /// The object parameter of the notification is the sender `Auth` instance.
   public static let authStateDidChangeNotification =
     NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
+
+  // MARK: Passkey Implementation
+
+  public func startPasskeySignIn() async throws ->
+    ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
+    let request = StartPasskeySignInRequest(requestConfiguration: requestConfiguration)
+    let response = try await backend.call(with: request)
+    guard let challengeInData = Data(base64Encoded: response.challenge) else {
+      throw NSError(
+        domain: AuthErrorDomain,
+        code: AuthInternalErrorCode.RPCResponseDecodingError.rawValue,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 challenge from response."]
+      )
+    }
+    let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+      relyingPartyIdentifier: response.rpID
+    )
+    return provider.createCredentialAssertionRequest(
+      challenge: challengeInData
+    )
+  }
 
   // MARK: Internal methods
 
