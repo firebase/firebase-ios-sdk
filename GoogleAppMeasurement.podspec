@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
     s.subspec 'Default' do |ss|
         ss.dependency 'GoogleAppMeasurement/Core', '12.1.0'
         ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.1.0'
-        ss.ios.dependency 'GoogleAdsOnDeviceConversion', '2.2.0'
+        ss.ios.dependency 'GoogleAdsOnDeviceConversion', '2.2.1'
     end
 
     s.subspec 'Core' do |ss|
