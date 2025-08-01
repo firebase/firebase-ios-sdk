@@ -333,6 +333,11 @@ struct GenerateContentIntegrationTests {
       topK: 1,
       responseModalities: [.text, .image]
     )
+    let safetySettings = safetySettings.filter {
+      // HARM_CATEGORY_CIVIC_INTEGRITY is deprecated in Vertex AI but only rejected when using the
+      // 'gemini-2.0-flash-preview-image-generation' model.
+      $0.harmCategory != .civicIntegrity
+    }
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashPreviewImageGeneration,
       generationConfig: generationConfig,
