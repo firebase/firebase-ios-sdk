@@ -58,29 +58,11 @@ public struct GenerateContentResponse: Sendable {
 
   /// The response's content as text, if it exists.
   public var text: String? {
-    guard let candidate = candidates.first else {
-      AILog.error(
-        code: .generateContentResponseNoCandidates,
-        "Could not get text from a response that had no candidates."
-      )
-      return nil
-    }
-    let textValues: [String] = candidate.content.parts.compactMap { part in
-      switch part {
-      case let textPart as TextPart:
-        return textPart.text
-      default:
-        return nil
-      }
-    }
-    guard textValues.count > 0 else {
-      AILog.error(
-        code: .generateContentResponseNoText,
-        "Could not get a text part from the first candidate."
-      )
-      return nil
-    }
-    return textValues.joined(separator: " ")
+    return text(isThought: false)
+  }
+
+  public var thoughtSummary: String? {
+    return text(isThought: true)
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
@@ -89,12 +71,10 @@ public struct GenerateContentResponse: Sendable {
       return []
     }
     return candidate.content.parts.compactMap { part in
-      switch part {
-      case let functionCallPart as FunctionCallPart:
-        return functionCallPart
-      default:
+      guard let functionCallPart = part as? FunctionCallPart, !part.isThought else {
         return nil
       }
+      return functionCallPart
     }
   }
 
@@ -107,7 +87,12 @@ public struct GenerateContentResponse: Sendable {
       """)
       return []
     }
-    return candidate.content.parts.compactMap { $0 as? InlineDataPart }
+    return candidate.content.parts.compactMap { part in
+      guard let inlineDataPart = part as? InlineDataPart, !part.isThought else {
+        return nil
+      }
+      return inlineDataPart
+    }
   }
 
   /// Initializer for SwiftUI previews or tests.
@@ -116,6 +101,30 @@ public struct GenerateContentResponse: Sendable {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
+  }
+
+  func text(isThought: Bool) -> String? {
+    guard let candidate = candidates.first else {
+      AILog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
+      )
+      return nil
+    }
+    let textValues: [String] = candidate.content.parts.compactMap { part in
+      guard let textPart = part as? TextPart, part.isThought == isThought else {
+        return nil
+      }
+      return textPart.text
+    }
+    guard textValues.count > 0 else {
+      AILog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from the first candidate."
+      )
+      return nil
+    }
+    return textValues.joined(separator: " ")
   }
 }
 

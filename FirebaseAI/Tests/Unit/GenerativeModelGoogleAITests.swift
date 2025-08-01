@@ -262,6 +262,52 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     )
   }
 
+  func testGenerateContent_success_thinking_thoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-thinking-reply-thought-summary",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let thoughtPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+    XCTAssertTrue(thoughtPart.isThought)
+    XCTAssertTrue(thoughtPart.text.hasPrefix("**Thinking About Google's Headquarters**"))
+    XCTAssertEqual(thoughtPart.text, response.thoughtSummary)
+    let textPart = try XCTUnwrap(candidate.content.parts.last as? TextPart)
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(textPart.text, "Mountain View")
+    XCTAssertEqual(textPart.text, response.text)
+  }
+
+  func testGenerateContent_success_thinking_functionCall_thoughtSummaryAndSignature() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-thinking-function-call-thought-summary-signature",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.finishReason, .stop)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let thoughtPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+    XCTAssertTrue(thoughtPart.isThought)
+    XCTAssertTrue(thoughtPart.text.hasPrefix("**Thinking Through the New Year's Eve Calculation**"))
+    let functionCallPart = try XCTUnwrap(candidate.content.parts.last as? FunctionCallPart)
+    XCTAssertFalse(functionCallPart.isThought)
+    XCTAssertEqual(functionCallPart.name, "now")
+    XCTAssertTrue(functionCallPart.args.isEmpty)
+    let thoughtSignature = try XCTUnwrap(functionCallPart.thoughtSignature)
+    XCTAssertTrue(thoughtSignature.hasPrefix("CtQOAVSoXO74PmYr9AFu"))
+  }
+
   func testGenerateContent_failure_invalidAPIKey() async throws {
     let expectedStatusCode = 400
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -395,6 +441,72 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertNil(citation.license)
     XCTAssertNil(citation.title)
     XCTAssertNil(citation.publicationDate)
+  }
+
+  func testGenerateContentStream_successWithThoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-thinking-reply-thought-summary",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var thoughtSummary = ""
+    var text = ""
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.content.parts.count, 1)
+      let textPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+      if textPart.isThought {
+        let newThought = try XCTUnwrap(response.thoughtSummary)
+        XCTAssertEqual(textPart.text, newThought)
+        thoughtSummary.append(newThought)
+      } else {
+        let newText = try XCTUnwrap(response.text)
+        XCTAssertEqual(textPart.text, newText)
+        text.append(newText)
+      }
+    }
+
+    XCTAssertTrue(thoughtSummary.hasPrefix("**Exploring Sky Color**"))
+    XCTAssertTrue(text.hasPrefix("The sky is blue because"))
+  }
+
+  func testGenerateContentStream_success_thinking_functionCall_thoughtSummary_signature() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-thinking-function-call-thought-summary-signature",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var thoughtSummary = ""
+    var functionCalls: [FunctionCallPart] = []
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.content.parts.count, 1)
+      let part = try XCTUnwrap(candidate.content.parts.first)
+      if part.isThought {
+        let textPart = try XCTUnwrap(part as? TextPart)
+        let newThought = try XCTUnwrap(response.thoughtSummary)
+        XCTAssertEqual(textPart.text, newThought)
+        thoughtSummary.append(newThought)
+      } else {
+        let functionCallPart = try XCTUnwrap(part as? FunctionCallPart)
+        XCTAssertEqual(response.functionCalls.count, 1)
+        let newFunctionCall = try XCTUnwrap(response.functionCalls.first)
+        XCTAssertEqual(functionCallPart, newFunctionCall)
+        functionCalls.append(newFunctionCall)
+      }
+    }
+
+    XCTAssertTrue(thoughtSummary.hasPrefix("**Calculating the Days**"))
+    XCTAssertEqual(functionCalls.count, 1)
+    let functionCall = try XCTUnwrap(functionCalls.first)
+    XCTAssertEqual(functionCall.name, "now")
+    XCTAssertTrue(functionCall.args.isEmpty)
+    let thoughtSignature = try XCTUnwrap(functionCall.thoughtSignature)
+    XCTAssertTrue(thoughtSignature.hasPrefix("CiIBVKhc7vB+vaaq6rA"))
   }
 
   func testGenerateContentStream_failureInvalidAPIKey() async throws {
