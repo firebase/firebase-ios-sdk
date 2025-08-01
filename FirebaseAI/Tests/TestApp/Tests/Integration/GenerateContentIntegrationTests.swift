@@ -253,11 +253,6 @@ struct GenerateContentIntegrationTests {
   )
   func generateContentThinkingFunctionCalling(_ config: InstanceConfig, modelName: String,
                                               thinkingConfig: ThinkingConfig) async throws {
-    let currentLocationDeclaration = FunctionDeclaration(
-      name: "getCurrentLocation",
-      description: "Returns the user's current city, province or state, and country",
-      parameters: [:]
-    )
     let getTemperatureDeclaration = FunctionDeclaration(
       name: "getTemperature",
       description: "Returns the current temperature in Celsius for the specified location",
@@ -276,15 +271,11 @@ struct GenerateContentIntegrationTests {
         thinkingConfig: thinkingConfig
       ),
       safetySettings: safetySettings,
-      tools: [.functionDeclarations([currentLocationDeclaration, getTemperatureDeclaration])],
+      tools: [.functionDeclarations([getTemperatureDeclaration])],
       systemInstruction: ModelContent(parts: """
       You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
 
-      If not specified, assume that the user is asking for the temperature in their current \
-      location. Use the `getCurrentLocation` function to determine the user's location. Always use the \
-      `getTemperature` function to determine the current outdoor temperature in a location. You \
-      can use the output of the `getCurrentLocation` function as input to the `getTemperature` \
-      function to get the temperature in the user's location.
+      Always use the `getTemperature` function to determine the current temperature in a location.
 
       Always respond in the format:
       - Location: City, Province/State, Country
@@ -292,33 +283,12 @@ struct GenerateContentIntegrationTests {
       """)
     )
     let chat = model.startChat()
-    let prompt = "What is the current temperature?"
+    let prompt = "What is the current temperature in Waterloo, Ontario, Canada?"
 
     let response = try await chat.sendMessage(prompt)
 
-    var thoughtSignatureCount = 0
     #expect(response.functionCalls.count == 1)
-    let locationFunctionCall = try #require(response.functionCalls.first)
-    try #require(locationFunctionCall.name == currentLocationDeclaration.name)
-    #expect(locationFunctionCall.args.isEmpty)
-    #expect(locationFunctionCall.isThought == false)
-    if locationFunctionCall.thoughtSignature != nil {
-      thoughtSignatureCount += 1
-    }
-
-    let locationFunctionResponse = FunctionResponsePart(
-      name: locationFunctionCall.name,
-      response: [
-        "city": .string("Waterloo"),
-        "province": .string("Ontario"),
-        "country": .string("Canada"),
-      ]
-    )
-
-    let response2 = try await chat.sendMessage(locationFunctionResponse)
-
-    #expect(response2.functionCalls.count == 1)
-    let temperatureFunctionCall = try #require(response2.functionCalls.first)
+    let temperatureFunctionCall = try #require(response.functionCalls.first)
     try #require(temperatureFunctionCall.name == getTemperatureDeclaration.name)
     #expect(temperatureFunctionCall.args == [
       "city": .string("Waterloo"),
@@ -326,30 +296,27 @@ struct GenerateContentIntegrationTests {
       "country": .string("Canada"),
     ])
     #expect(temperatureFunctionCall.isThought == false)
-    if temperatureFunctionCall.thoughtSignature != nil {
-      thoughtSignatureCount += 1
+    if let _ = thinkingConfig.includeThoughts, case .googleAI = config.apiConfig.service {
+      let thoughtSignature = try #require(temperatureFunctionCall.thoughtSignature)
+      #expect(!thoughtSignature.isEmpty)
+    } else {
+      #expect(temperatureFunctionCall.thoughtSignature == nil)
     }
 
     let temperatureFunctionResponse = FunctionResponsePart(
-      name: locationFunctionCall.name,
+      name: temperatureFunctionCall.name,
       response: [
         "temperature": .number(25),
         "units": .string("Celsius"),
       ]
     )
 
-    let response3 = try await chat.sendMessage(temperatureFunctionResponse)
+    let response2 = try await chat.sendMessage(temperatureFunctionResponse)
 
-    #expect(response3.functionCalls.isEmpty)
-    let finalText = try #require(response3.text).trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(response2.functionCalls.isEmpty)
+    let finalText = try #require(response2.text).trimmingCharacters(in: .whitespacesAndNewlines)
     #expect(finalText.contains("Waterloo"))
     #expect(finalText.contains("25"))
-
-    if let _ = thinkingConfig.includeThoughts, case .googleAI = config.apiConfig.service {
-      #expect(thoughtSignatureCount > 0)
-    } else {
-      #expect(thoughtSignatureCount == 0)
-    }
   }
 
   @Test(arguments: [
