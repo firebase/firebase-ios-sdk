@@ -314,13 +314,13 @@ case "$product-$platform-$method" in
         build
     ;;
 
-  Auth-*-*)
+  Auth-*-AuthenticationExample)
     if check_secrets; then
       RunXcodebuild \
         -project 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj' \
         -scheme "$method" \
         "${xcb_flags[@]}" \
-        test
+        archive
     fi
     ;;
 

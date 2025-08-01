@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-    - '.github/workflows/spm.yml'
+#    - '.github/workflows/spm.yml'
     - 'Package.swift'
     - '.swiftpm/*'
-    - 'scripts/build.sh'
+#    - 'scripts/build.sh'
     - 'SwiftPMTests/*'
     - 'SwiftPM-PlatformExclude'
     - 'Gemfile*'

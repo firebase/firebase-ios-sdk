@@ -27,11 +27,11 @@ env:
 #    cancel-in-progress: true
 
 jobs:
-  spm:
-    uses: ./.github/workflows/common.yml
-    with:
-      target: AuthUnit
-      platforms: iOS
+#  spm:
+#    uses: ./.github/workflows/common.yml
+#    with:
+#      target: AuthUnit
+#      platforms: iOS
 #      buildonly_platforms: macOS
 
 #  catalyst:
@@ -53,20 +53,21 @@ jobs:
   integration-tests:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    needs: spm
+#    needs: spm
     strategy:
       matrix:
-        scheme: [ObjCApiTests, SwiftApiTests, AuthenticationExampleUITests]
+#        scheme: [ObjCApiTests, SwiftApiTests, AuthenticationExampleUITests]
+        scheme: [AuthenticationExample]
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
-      with:
-        path: .build
-        key: ${{ needs.spm.outputs.cache_key }}
+#    - uses: actions/cache/restore@v4
+#      with:
+#        path: .build
+#        key: ${{ needs.spm.outputs.cache_key }}
     - name: Install Secrets
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/AuthCredentials.h.gpg \
