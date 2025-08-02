@@ -27,6 +27,8 @@ class AuthTests: RPCBaseTests {
   static let kFakeAPIKey = "FAKE_API_KEY"
   static let kFakeRecaptchaResponse = "RecaptchaResponse"
   static let kFakeRecaptchaVersion = "RecaptchaVersion"
+  static let kRpId = "FAKE_RP_ID"
+  static let kChallenge = "Y2hhbGxlbmdl"
   var auth: Auth!
   static var testNum = 0
   var authDispatcherCallback: (() -> Void)?
@@ -2455,3 +2457,58 @@ class AuthTests: RPCBaseTests {
     XCTAssertEqual(user.providerData.count, 0)
   }
 }
+
+// MARK: Passkey Sign-In Tests
+
+#if os(iOS)
+  import AuthenticationServices
+
+  @available(iOS 15.0, *)
+  extension AuthTests {
+    func testStartPasskeySignInSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      let expectedChallenge = AuthTests.kChallenge // base64 string
+      let expectedRpId = AuthTests.kRpId
+      let expectedChallengeData = Data(base64Encoded: expectedChallenge)!
+      rpcIssuer.respondBlock = {
+        let request = try XCTUnwrap(self.rpcIssuer.request as? StartPasskeySignInRequest)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        return try self.rpcIssuer.respond(withJSON: [
+          "credentialRequestOptions": [
+            "rpId": expectedRpId,
+            "challenge": expectedChallenge,
+          ],
+        ])
+      }
+      Task {
+        do {
+          let assertionRequest = try await self.auth.startPasskeySignIn()
+          XCTAssertEqual(assertionRequest.challenge, expectedChallengeData)
+          XCTAssertEqual(assertionRequest.relyingPartyIdentifier, expectedRpId)
+          expectation.fulfill()
+        } catch {
+          XCTFail("Unexpected error: \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    func testStartPasskeySignInFailure() throws {
+      let expectation = self.expectation(description: #function)
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
+      }
+      Task {
+        do {
+          _ = try await self.auth.startPasskeySignIn()
+          XCTFail("Expected error from backend but got success")
+        } catch {
+          let nsError = error as NSError
+          XCTAssertEqual(nsError.code, AuthErrorCode.operationNotAllowed.rawValue)
+          expectation.fulfill()
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+  }
+#endif
