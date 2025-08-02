@@ -191,6 +191,18 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .multifactorUnenroll:
       mfaUnenroll()
+      
+    case .passkeySignUp:
+      passkeySignUp()
+      
+    case .passkeySignIn:
+      passkeySignIn()
+      
+    case .passkeyEnroll:
+      passkeyEnroll()
+      
+    case .passkeyUnenroll:
+      passkeyUnenroll()
     }
   }
 
@@ -917,6 +929,96 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         } else {
           self.showAlert(for: "Successfully unenrolled: \(displayName)")
           print("Multi factor unenroll succeeded.")
+        }
+      }
+    }
+  }
+  
+  private func passkeySignUp(){
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      print("OS version is not supported for this action.")
+      return
+    }
+    // Sign in anonymously
+    AppManager.shared.auth().signInAnonymously { [weak self] result, error in
+      guard let self = self else { return }
+      if let error = error {
+        self.showAlert(for:"sign-in anonymously failed")
+        print("Sign in anonymously first")
+      } else {
+        print("sign-in anonymously succeeded.")
+        if let user = result?.user {
+          print("User ID : \(user.uid)")
+          self.passkeyEnroll()
+        }else{
+          self.showAlert(for: "sign-in anonymously failed: User is nil")
+          print("sign-in anonymously failed: User is nil")
+        }
+      }
+    }
+  }
+  
+  func passkeySignIn() {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      print("OS version is not supported for this action.")
+      return
+    }
+    Task {
+      do {
+        let request = try await AppManager.shared.auth().startPasskeySignIn()
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        controller.performRequests(options: .preferImmediatelyAvailableCredentials)
+      } catch {
+        print("Passkey sign-in failed with error: \(error)")
+      }
+    }
+  }
+  
+  func passkeyEnroll() {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      print("OS version is not supported for this action.")
+      return
+    }
+    guard let user = Auth.auth().currentUser else {
+      print("Please sign in first.")
+      return
+    }
+    showTextInputPrompt(with: "Passkey name") { [weak self] passkeyName in
+      let passkeyName: String = passkeyName
+      print ("Passkey Name is \(passkeyName)")
+      Task {
+        do {
+          let regRequest = try await user.startPasskeyEnrollmentWithName(withName: passkeyName)
+          print("request done \(regRequest)")
+          let controller = ASAuthorizationController(authorizationRequests: [regRequest])
+          controller.delegate = self
+          controller.presentationContextProvider = self
+          controller.performRequests()
+        } catch {
+          print("Error during passkey enrollment: \(error)")
+        }
+      }
+    }
+  }
+  
+  func passkeyUnenroll() {
+    guard let user = Auth.auth().currentUser else {
+      print("Please sign in first.")
+      return
+    }
+    Task {
+      guard let credentialID = await showTextInputPrompt(with: "passkey credential ID") else {
+        print("User cancelled or didn't provide credential ID.")
+        return
+      }
+      user.unenrollPasskey(with: credentialID) { [weak self] error in
+        guard let self = self else { return }
+        if let error = error {
+          print("Withdraw passkey with credential ID: \(credentialID) failed with error: \(error)")
+        } else {
+          print("Withdraw passkey with credential ID: \(credentialID) succeeded")
         }
       }
     }
