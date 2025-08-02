@@ -1647,25 +1647,28 @@ extension Auth: AuthInterop {
 
   // MARK: Passkey Implementation
 
-  /// starts sign in with passkey retrieving challenge from GCIP and create an assertion request.
-  public func startPasskeySignIn() async throws ->
-    ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
-    let request = StartPasskeySignInRequest(requestConfiguration: requestConfiguration)
-    let response = try await backend.call(with: request)
-    guard let challengeInData = Data(base64Encoded: response.challenge) else {
-      throw NSError(
-        domain: AuthErrorDomain,
-        code: AuthInternalErrorCode.RPCResponseDecodingError.rawValue,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 challenge from response."]
+  #if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+    /// starts sign in with passkey retrieving challenge from GCIP and create an assertion request.
+    public func startPasskeySignIn() async throws ->
+      ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
+      let request = StartPasskeySignInRequest(requestConfiguration: requestConfiguration)
+      let response = try await backend.call(with: request)
+      guard let challengeInData = Data(base64Encoded: response.challenge) else {
+        throw NSError(
+          domain: AuthErrorDomain,
+          code: AuthInternalErrorCode.RPCResponseDecodingError.rawValue,
+          userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 challenge from response."]
+        )
+      }
+      let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+        relyingPartyIdentifier: response.rpID
+      )
+      return provider.createCredentialAssertionRequest(
+        challenge: challengeInData
       )
     }
-    let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
-      relyingPartyIdentifier: response.rpID
-    )
-    return provider.createCredentialAssertionRequest(
-      challenge: challengeInData
-    )
-  }
+  #endif
 
   // MARK: Internal methods
 
