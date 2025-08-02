@@ -18,6 +18,7 @@ private let startPasskeySignInEndpoint = "accounts/passkeySignIn:start"
 @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
 class StartPasskeySignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = StartPasskeySignInResponse
+
   init(requestConfiguration: AuthRequestConfiguration) {
     super.init(
       endpoint: startPasskeySignInEndpoint,

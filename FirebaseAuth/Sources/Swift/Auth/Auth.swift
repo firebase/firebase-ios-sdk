@@ -1650,6 +1650,7 @@ extension Auth: AuthInterop {
   #if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
 
     /// starts sign in with passkey retrieving challenge from GCIP and create an assertion request.
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
     public func startPasskeySignIn() async throws ->
       ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
       let request = StartPasskeySignInRequest(requestConfiguration: requestConfiguration)
