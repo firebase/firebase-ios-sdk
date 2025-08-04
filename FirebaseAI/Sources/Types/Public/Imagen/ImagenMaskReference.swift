@@ -35,19 +35,33 @@ public struct ImagenMaskReference: ImagenReferenceImage, Encodable {
     try container.encode(data.base64EncodedString(), forKey: .data)
   }
 
+  /// Errors that can occur during outpainting.
+  public enum OutpaintingError: Error {
+    /// The provided image data could not be decoded.
+    case invalidImageData
+    /// The new dimensions are smaller than the original image.
+    case dimensionsTooSmall
+    /// The image context could not be created.
+    case contextCreationFailed
+    /// The image could not be created from the context.
+    case imageCreationFailed
+    /// The image data could not be created from the image.
+    case dataCreationFailed
+  }
+
   static func generateMaskAndPadForOutpainting(image: ImagenInlineImage,
                                                newDimensions: Dimensions,
                                                newPosition: ImagenImagePlacement) throws
     -> [ImagenReferenceImage] {
     guard let cgImage = CGImage.fromData(image.data) else {
-      throw NSError(domain: "com.google.firebase.ai", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not create image from data."])
+      throw OutpaintingError.invalidImageData
     }
 
     let originalWidth = cgImage.width
     let originalHeight = cgImage.height
 
     guard newDimensions.width >= originalWidth, newDimensions.height >= originalHeight else {
-      throw NSError(domain: "com.google.firebase.ai", code: 0, userInfo: [NSLocalizedDescriptionKey: "New dimensions must be larger than the original image."])
+      throw OutpaintingError.dimensionsTooSmall
     }
 
     let offsetX: Int
@@ -90,24 +104,44 @@ public struct ImagenMaskReference: ImagenReferenceImage, Encodable {
     let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
 
     // Create padded image
-    guard let paddedContext = CGContext(data: nil, width: newDimensions.width, height: newDimensions.height, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo) else {
-      throw NSError(domain: "com.google.firebase.ai", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not create padded image context."])
+    guard let paddedContext = CGContext(
+      data: nil,
+      width: newDimensions.width,
+      height: newDimensions.height,
+      bitsPerComponent: 8,
+      bytesPerRow: 0,
+      space: colorSpace,
+      bitmapInfo: bitmapInfo
+    ) else {
+      throw OutpaintingError.contextCreationFailed
     }
-    paddedContext.draw(cgImage, in: CGRect(x: offsetX, y: offsetY, width: originalWidth, height: originalHeight))
-    guard let paddedCGImage = paddedContext.makeImage(), let paddedImageData = paddedCGImage.toData() else {
-      throw NSError(domain: "com.google.firebase.ai", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not get padded image data."])
+    paddedContext.draw(
+      cgImage,
+      in: CGRect(x: offsetX, y: offsetY, width: originalWidth, height: originalHeight)
+    )
+    guard let paddedCGImage = paddedContext.makeImage(),
+          let paddedImageData = paddedCGImage.toData() else {
+      throw OutpaintingError.imageCreationFailed
     }
 
     // Create mask
-    guard let maskContext = CGContext(data: nil, width: newDimensions.width, height: newDimensions.height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue) else {
-      throw NSError(domain: "com.google.firebase.ai", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not create mask context."])
+    guard let maskContext = CGContext(
+      data: nil,
+      width: newDimensions.width,
+      height: newDimensions.height,
+      bitsPerComponent: 8,
+      bytesPerRow: 0,
+      space: CGColorSpaceCreateDeviceGray(),
+      bitmapInfo: CGImageAlphaInfo.none.rawValue
+    ) else {
+      throw OutpaintingError.contextCreationFailed
     }
     maskContext.setFillColor(gray: 1.0, alpha: 1.0)
     maskContext.fill(CGRect(x: 0, y: 0, width: newDimensions.width, height: newDimensions.height))
     maskContext.setFillColor(gray: 0.0, alpha: 1.0)
     maskContext.fill(CGRect(x: offsetX, y: offsetY, width: originalWidth, height: originalHeight))
     guard let maskCGImage = maskContext.makeImage(), let maskData = maskCGImage.toData() else {
-      throw NSError(domain: "com.google.firebase.ai", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not get mask data."])
+      throw OutpaintingError.dataCreationFailed
     }
 
     return [ImagenRawImage(data: paddedImageData), ImagenMaskReference(data: maskData)]
@@ -115,16 +149,21 @@ public struct ImagenMaskReference: ImagenReferenceImage, Encodable {
 }
 
 extension CGImage {
-    static func fromData(_ data: Data) -> CGImage? {
-        guard let provider = CGDataProvider(data: data as CFData) else { return nil }
-        return CGImage(pngDataProviderSource: provider, decode: nil, shouldInterpolate: true, intent: .defaultIntent)
-    }
+  static func fromData(_ data: Data) -> CGImage? {
+    guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+    return CGImageSourceCreateImageAtIndex(source, 0, nil)
+  }
 
-    func toData() -> Data? {
-        guard let mutableData = CFDataCreateMutable(nil, 0),
-              let destination = CGImageDestinationCreateWithData(mutableData, "public.png" as CFString, 1, nil) else { return nil }
-        CGImageDestinationAddImage(destination, self, nil)
-        guard CGImageDestinationFinalize(destination) else { return nil }
-        return mutableData as Data
-    }
+  func toData() -> Data? {
+    guard let mutableData = CFDataCreateMutable(nil, 0),
+          let destination = CGImageDestinationCreateWithData(
+            mutableData,
+            "public.png" as CFString,
+            1,
+            nil
+          ) else { return nil }
+    CGImageDestinationAddImage(destination, self, nil)
+    guard CGImageDestinationFinalize(destination) else { return nil }
+    return mutableData as Data
+  }
 }

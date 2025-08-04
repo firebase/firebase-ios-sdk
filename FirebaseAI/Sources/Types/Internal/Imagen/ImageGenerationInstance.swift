@@ -45,10 +45,16 @@ extension ImageGenerationInstance: Encodable {
     if let referenceImages = referenceImages {
       var imagesContainer = container.nestedUnkeyedContainer(forKey: .referenceImages)
       for image in referenceImages {
-        if let rawImage = image as? ImagenRawImage {
+        switch image {
+        case let rawImage as ImagenRawImage:
           try imagesContainer.encode(rawImage)
-        } else if let mask = image as? ImagenMaskReference {
+        case let mask as ImagenMaskReference:
           try imagesContainer.encode(mask)
+        default:
+          throw EncodingError.invalidValue(image, EncodingError.Context(
+            codingPath: imagesContainer.codingPath,
+            debugDescription: "Unknown ImagenReferenceImage type."
+          ))
         }
       }
     }

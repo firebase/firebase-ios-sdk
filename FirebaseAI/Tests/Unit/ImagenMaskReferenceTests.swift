@@ -52,10 +52,51 @@ final class ImagenMaskReferenceTests: XCTestCase {
     XCTAssertEqual(maskCGImage.height, newHeight)
   }
 
+  func testGenerateMaskAndPadForOutpainting_invalidData() {
+    // Setup
+    let newDimensions = Dimensions(width: 200, height: 200)
+    let image = ImagenInlineImage(mimeType: "dummy-mime", data: Data())
+
+    // Act & Assert
+    XCTAssertThrowsError(try ImagenMaskReference.generateMaskAndPadForOutpainting(
+      image: image,
+      newDimensions: newDimensions,
+      newPosition: .center
+    )) { error in
+      XCTAssertEqual(error as? ImagenMaskReference.OutpaintingError, .invalidImageData)
+    }
+  }
+
+  func testGenerateMaskAndPadForOutpainting_dimensionsTooSmall() {
+    // Setup
+    let newDimensions = Dimensions(width: 50, height: 50)
+    let image = ImagenInlineImage(
+      mimeType: "dummy-mime",
+      data: createDummyImageData(width: 100, height: 100)
+    )
+
+    // Act & Assert
+    XCTAssertThrowsError(try ImagenMaskReference.generateMaskAndPadForOutpainting(
+      image: image,
+      newDimensions: newDimensions,
+      newPosition: .center
+    )) { error in
+      XCTAssertEqual(error as? ImagenMaskReference.OutpaintingError, .dimensionsTooSmall)
+    }
+  }
+
   private func createDummyImageData(width: Int, height: Int) -> Data {
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-    let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo)!
+    let context = CGContext(
+      data: nil,
+      width: width,
+      height: height,
+      bitsPerComponent: 8,
+      bytesPerRow: 0,
+      space: colorSpace,
+      bitmapInfo: bitmapInfo
+    )!
     context.setFillColor(red: 1, green: 1, blue: 1, alpha: 1)
     context.fill(CGRect(x: 0, y: 0, width: width, height: height))
     let cgImage = context.makeImage()!

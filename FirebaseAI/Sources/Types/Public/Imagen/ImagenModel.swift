@@ -167,12 +167,12 @@ public final class ImagenModel {
   public func inpaintImage(image: ImagenInlineImage,
                            prompt: String,
                            mask: ImagenMaskReference,
-                           config: ImagenEditingConfig) async throws
+                           editSteps: Int? = nil) async throws
     -> ImagenGenerationResponse<ImagenInlineImage> {
     return try await editImage(
       referenceImages: [ImagenRawImage(data: image.data), mask],
       prompt: prompt,
-      config: config
+      config: ImagenEditingConfig(editMode: .inpaint, editSteps: editSteps)
     )
   }
 
@@ -195,7 +195,7 @@ public final class ImagenModel {
                             newDimensions: Dimensions,
                             newPosition: ImagenImagePlacement = .center,
                             prompt: String = "",
-                            config: ImagenEditingConfig? = nil) async throws
+                            editSteps: Int? = nil) async throws
     -> ImagenGenerationResponse<ImagenInlineImage> {
     let referenceImages = try ImagenMaskReference.generateMaskAndPadForOutpainting(
       image: image,
@@ -205,7 +205,7 @@ public final class ImagenModel {
     return try await editImage(
       referenceImages: referenceImages,
       prompt: prompt,
-      config: ImagenEditingConfig(editMode: .outpaint, editSteps: config?.editSteps)
+      config: ImagenEditingConfig(editMode: .outpaint, editSteps: editSteps)
     )
   }
 
