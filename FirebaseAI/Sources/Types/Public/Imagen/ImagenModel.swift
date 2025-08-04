@@ -86,7 +86,8 @@ public final class ImagenModel {
       parameters: ImagenModel.imageGenerationParameters(
         storageURI: nil,
         generationConfig: generationConfig,
-        safetySettings: safetySettings
+        safetySettings: safetySettings,
+        editingConfig: nil
       )
     )
   }
@@ -122,8 +123,89 @@ public final class ImagenModel {
       parameters: ImagenModel.imageGenerationParameters(
         storageURI: gcsURI,
         generationConfig: generationConfig,
-        safetySettings: safetySettings
+        safetySettings: safetySettings,
+        editingConfig: nil
       )
+    )
+  }
+
+  /// **[Public Preview]** Generates an image from a single or set of base images.
+  ///
+  /// - Parameters:
+  ///   - referenceImages: The image inputs given to the model as a prompt.
+  ///   - prompt: The text input given to the model as a prompt.
+  ///   - config: The editing configuration settings.
+  public func editImage(referenceImages: [ImagenReferenceImage],
+                        prompt: String,
+                        config: ImagenEditingConfig? = nil) async throws
+    -> ImagenGenerationResponse<ImagenInlineImage> {
+    let request = ImagenGenerationRequest<ImagenInlineImage>(
+      model: modelResourceName,
+      apiConfig: apiConfig,
+      options: requestOptions,
+      instances: [ImageGenerationInstance(prompt: prompt, referenceImages: referenceImages)],
+      parameters: ImagenModel.imageGenerationParameters(
+        storageURI: nil,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings,
+        editingConfig: config
+      )
+    )
+    return try await generativeAIService.loadRequest(request: request)
+  }
+
+  /// **[Public Preview]** Generates an image by inpainting a masked off part of a base image.
+  ///
+  /// Inpainting is the process of filling in missing or masked off parts of the image using
+  /// context from the original image and prompt.
+  ///
+  /// - Parameters:
+  ///   - image: The base image.
+  ///   - prompt: The text input given to the model as a prompt.
+  ///   - mask: The mask which defines where in the image can be painted by Imagen.
+  ///   - config: The editing configuration settings, it should include an ``ImagenEditMode``.
+  public func inpaintImage(image: ImagenInlineImage,
+                           prompt: String,
+                           mask: ImagenMaskReference,
+                           config: ImagenEditingConfig) async throws
+    -> ImagenGenerationResponse<ImagenInlineImage> {
+    return try await editImage(
+      referenceImages: [ImagenRawImage(data: image.data), mask],
+      prompt: prompt,
+      config: config
+    )
+  }
+
+  /// **[Public Preview]** Generates an image by outpainting the given image.
+  ///
+  /// Outpainting extends the image content beyond the original borders using context from the
+  /// original image, and optionally, the prompt.
+  ///
+  /// - Parameters:
+  ///   - image: The base image.
+  ///   - newDimensions: The new dimensions for the image, *must* be larger than the original
+  ///     image.
+  ///   - newPosition: The placement of the base image within the new image. This can either be
+  ///     coordinates (0,0 is the top left corner) or an alignment (ex:
+  ///     ``ImagenImagePlacement/bottomCenter``).
+  ///   - prompt: Optional, can be used to specify the background generated if context is
+  ///     insufficient.
+  ///   - config: The editing configuration settings.
+  public func outpaintImage(image: ImagenInlineImage,
+                            newDimensions: Dimensions,
+                            newPosition: ImagenImagePlacement = .center,
+                            prompt: String = "",
+                            config: ImagenEditingConfig? = nil) async throws
+    -> ImagenGenerationResponse<ImagenInlineImage> {
+    let referenceImages = try ImagenMaskReference.generateMaskAndPadForOutpainting(
+      image: image,
+      newDimensions: newDimensions,
+      newPosition: newPosition
+    )
+    return try await editImage(
+      referenceImages: referenceImages,
+      prompt: prompt,
+      config: ImagenEditingConfig(editMode: .outpaint, editSteps: config?.editSteps)
     )
   }
 
@@ -134,7 +216,7 @@ public final class ImagenModel {
       model: modelResourceName,
       apiConfig: apiConfig,
       options: requestOptions,
-      instances: [ImageGenerationInstance(prompt: prompt)],
+      instances: [ImageGenerationInstance(prompt: prompt, referenceImages: nil)],
       parameters: parameters
     )
 
@@ -143,7 +225,8 @@ public final class ImagenModel {
 
   static func imageGenerationParameters(storageURI: String?,
                                         generationConfig: ImagenGenerationConfig?,
-                                        safetySettings: ImagenSafetySettings?)
+                                        safetySettings: ImagenSafetySettings?,
+                                        editingConfig: ImagenEditingConfig? = nil)
     -> ImageGenerationParameters {
     return ImageGenerationParameters(
       sampleCount: generationConfig?.numberOfImages ?? 1,
@@ -159,7 +242,11 @@ public final class ImagenModel {
         )
       },
       addWatermark: generationConfig?.addWatermark,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: true,
+      editMode: editingConfig?.editMode.rawValue,
+      editConfig: editingConfig.map {
+        ImageEditingParameters(editSteps: $0.editSteps)
+      }
     )
   }
 }

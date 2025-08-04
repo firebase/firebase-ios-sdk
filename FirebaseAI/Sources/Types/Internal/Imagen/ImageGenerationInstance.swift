@@ -15,12 +15,42 @@
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ImageGenerationInstance {
   let prompt: String
+  let referenceImages: [ImagenReferenceImage]?
+
+  init(prompt: String, referenceImages: [ImagenReferenceImage]? = nil) {
+    self.prompt = prompt
+    self.referenceImages = referenceImages
+  }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationInstance: Equatable {}
+extension ImageGenerationInstance: Equatable {
+  static func == (lhs: ImageGenerationInstance, rhs: ImageGenerationInstance) -> Bool {
+    return lhs.prompt == rhs.prompt && lhs.referenceImages?.count == rhs.referenceImages?.count
+  }
+}
 
 // MARK: - Codable Conformance
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageGenerationInstance: Encodable {}
+extension ImageGenerationInstance: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case prompt
+    case referenceImages = "image"
+  }
+
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(prompt, forKey: .prompt)
+    if let referenceImages = referenceImages {
+      var imagesContainer = container.nestedUnkeyedContainer(forKey: .referenceImages)
+      for image in referenceImages {
+        if let rawImage = image as? ImagenRawImage {
+          try imagesContainer.encode(rawImage)
+        } else if let mask = image as? ImagenMaskReference {
+          try imagesContainer.encode(mask)
+        }
+      }
+    }
+  }
+}
