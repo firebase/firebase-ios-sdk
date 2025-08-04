@@ -1995,5 +1995,130 @@ class UserTests: RPCBaseTests {
       }
       await fulfillment(of: [expectation], timeout: 5)
     }
+
+    /// Helper mock to simulate platform credential fields
+    struct MockPlatformCredential {
+      let credentialID: Data
+      let rawClientDataJSON: Data
+      let rawAttestationObject: Data?
+    }
+
+    /// Helper to build FinalizePasskeyEnrollmentRequest manually
+    private func buildFinalizeRequest(user: User,
+                                      mock: MockPlatformCredential)
+      -> FinalizePasskeyEnrollmentRequest {
+      return FinalizePasskeyEnrollmentRequest(
+        idToken: RPCBaseTests.kFakeAccessToken,
+        name: "MyPasskey",
+        credentialID: mock.credentialID.base64EncodedString(),
+        clientDataJSON: mock.rawClientDataJSON.base64EncodedString(),
+        attestationObject: mock.rawAttestationObject?.base64EncodedString() ?? "",
+        requestConfiguration: auth!.requestConfiguration
+      )
+    }
+
+    func testFinalizePasskeyEnrollmentSuccess() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+
+      signInWithEmailPasswordReturnFakeUser { user in
+        // Mock backend response
+        self.rpcIssuer.respondBlock = {
+          let request = try XCTUnwrap(self.rpcIssuer?.request as? FinalizePasskeyEnrollmentRequest)
+          XCTAssertEqual(request.idToken, RPCBaseTests.kFakeAccessToken)
+          XCTAssertNotNil(request.credentialID)
+          XCTAssertNotNil(request.clientDataJSON)
+          XCTAssertNotNil(request.attestationObject)
+          return try self.rpcIssuer.respond(
+            withJSON: [
+              "idToken": RPCBaseTests.kFakeAccessToken,
+              "refreshToken": self.kRefreshToken,
+            ]
+          )
+        }
+
+        let mock = MockPlatformCredential(
+          credentialID: Data("credentialID".utf8),
+          rawClientDataJSON: Data("clientData".utf8),
+          rawAttestationObject: Data("attestation".utf8)
+        )
+
+        Task {
+          let request = self.buildFinalizeRequest(user: user, mock: mock)
+          let response = try await self.authBackend.call(with: request)
+          let userResult = try await self.auth!.completeSignIn(
+            withAccessToken: response.idToken,
+            accessTokenExpirationDate: nil,
+            refreshToken: response.refreshToken,
+            anonymous: false
+          )
+          XCTAssertEqual(userResult.refreshToken, self.kRefreshToken)
+          expectation.fulfill()
+        }
+      }
+
+      await fulfillment(of: [expectation], timeout: 5)
+    }
+
+    func testFinalizePasskeyEnrollmentFailureWithInvalidToken() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+
+      signInWithEmailPasswordReturnFakeUser { user in
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer.respond(serverErrorMessage: "INVALID_ID_TOKEN")
+        }
+
+        let mock = MockPlatformCredential(
+          credentialID: Data("credentialID".utf8),
+          rawClientDataJSON: Data("clientData".utf8),
+          rawAttestationObject: Data("attestation".utf8)
+        )
+
+        Task {
+          do {
+            let request = self.buildFinalizeRequest(user: user, mock: mock)
+            _ = try await self.authBackend.call(with: request)
+            XCTFail("Expected error")
+          } catch let error as NSError {
+            XCTAssertEqual(error.code, AuthErrorCode.invalidUserToken.rawValue)
+            expectation.fulfill()
+          }
+        }
+      }
+
+      await fulfillment(of: [expectation], timeout: 5)
+    }
+
+    func testFinalizePasskeyEnrollmentFailureWithoutAttestation() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+
+      signInWithEmailPasswordReturnFakeUser { user in
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer.respond(serverErrorMessage: "MISSING_ATTESTATION_OBJECT")
+        }
+
+        // Missing attestationObject
+        let mock = MockPlatformCredential(
+          credentialID: Data("credentialID".utf8),
+          rawClientDataJSON: Data("clientData".utf8),
+          rawAttestationObject: nil
+        )
+
+        Task {
+          do {
+            let request = self.buildFinalizeRequest(user: user, mock: mock)
+            _ = try await self.authBackend.call(with: request)
+            XCTFail("Expected error")
+          } catch let error as NSError {
+            XCTAssertEqual(error.code, AuthErrorCode.internalError.rawValue)
+            expectation.fulfill()
+          }
+        }
+      }
+
+      await fulfillment(of: [expectation], timeout: 5)
+    }
   }
 #endif
