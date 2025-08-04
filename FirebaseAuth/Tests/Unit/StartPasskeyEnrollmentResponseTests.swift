@@ -22,103 +22,59 @@
     private func makeValidDictionary() -> [String: AnyHashable] {
       return [
         "credentialCreationOptions": [
-          "rp": ["id": "example.com"] as [String: AnyHashable],
-          "user": ["id": "USER_123"] as [String: AnyHashable],
+          "rp": ["id": "FAKE_RP_ID"] as [String: AnyHashable],
+          "user": ["id": "FAKE_USER_ID"] as [String: AnyHashable],
           "challenge": "FAKE_CHALLENGE" as String,
         ] as [String: AnyHashable],
       ]
     }
 
+    /// Helper function to remove a nested key from a dictionary
+    private func removeField(_ dict: inout [String: AnyHashable], keyPath: [String]) {
+      guard let first = keyPath.first else { return }
+      if keyPath.count == 1 {
+        dict.removeValue(forKey: first)
+      } else if var inDict = dict[first] as? [String: AnyHashable] {
+        removeField(&inDict, keyPath: Array(keyPath.dropFirst()))
+        dict[first] = inDict
+      }
+    }
+
     func testInitWithValidDictionary() throws {
       let response = try StartPasskeyEnrollmentResponse(dictionary: makeValidDictionary())
-      XCTAssertEqual(response.rpID, "example.com")
-      XCTAssertEqual(response.userID, "USER_123")
+      XCTAssertEqual(response.rpID, "FAKE_RP_ID")
+      XCTAssertEqual(response.userID, "FAKE_USER_ID")
       XCTAssertEqual(response.challenge, "FAKE_CHALLENGE")
     }
 
-    func testInitWithMissingCredentialCreationOptions() {
-      let invalidDict: [String: AnyHashable] = [:]
-      XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: invalidDict)) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
+    func testInitWithMissingFields() throws {
+      struct TestCase {
+        let name: String
+        let removeFieldPath: [String]
       }
-    }
-
-    func testInitWithMissingRp() {
-      var dict = makeValidDictionary()
-      if var options = dict["credentialCreationOptions"] as? [String: Any] {
-        options.removeValue(forKey: "rp")
-        dict["credentialCreationOptions"] = options as? AnyHashable
-      }
-      XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict)) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
-      }
-    }
-
-    func testInitWithMissingRpId() {
-      var dict = makeValidDictionary()
-      if var options = dict["credentialCreationOptions"] as? [String: Any],
-         var rp = options["rp"] as? [String: Any] {
-        rp.removeValue(forKey: "id")
-        options["rp"] = rp
-        dict["credentialCreationOptions"] = options as? AnyHashable
-      }
-      XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict)) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
-      }
-    }
-
-    func testInitWithMissingUser() {
-      var dict = makeValidDictionary()
-      if var options = dict["credentialCreationOptions"] as? [String: Any] {
-        options.removeValue(forKey: "user")
-        dict["credentialCreationOptions"] = options as? AnyHashable
-      }
-      XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict)) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
-      }
-    }
-
-    func testInitWithMissingUserId() {
-      var dict = makeValidDictionary()
-      if var options = dict["credentialCreationOptions"] as? [String: Any],
-         var user = options["user"] as? [String: Any] {
-        user.removeValue(forKey: "id")
-        options["user"] = user
-        dict["credentialCreationOptions"] = options as? AnyHashable
-      }
-      XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict)) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
-      }
-    }
-
-    func testInitWithMissingChallenge() {
-      var dict = makeValidDictionary()
-      if var options = dict["credentialCreationOptions"] as? [String: AnyHashable] {
-        options.removeValue(forKey: "challenge")
-        dict["credentialCreationOptions"] = options as [String: AnyHashable]
-      }
-      XCTAssertThrowsError(
-        try StartPasskeyEnrollmentResponse(dictionary: dict)
-      ) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
+      let cases: [TestCase] = [
+        .init(name: "Missing rpId", removeFieldPath: ["credentialCreationOptions", "rp", "id"]),
+        .init(name: "Missing userId", removeFieldPath: ["credentialCreationOptions", "user", "id"]),
+        .init(
+          name: "Missing Challenge",
+          removeFieldPath: ["credentialCreationOptions", "challenge"]
+        ),
+      ]
+      for testCase in cases {
+        var dict = makeValidDictionary()
+        removeField(&dict, keyPath: testCase.removeFieldPath)
+        XCTAssertThrowsError(try StartPasskeyEnrollmentResponse(dictionary: dict),
+                             testCase.name) { error in
+          let nsError = error as NSError
+          XCTAssertEqual(nsError.domain, AuthErrorDomain)
+          XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
+        }
       }
     }
 
     func testSuccessfulStartPasskeyEnrollmentResponse() async throws {
-      let expectedRpID = "example.com"
-      let expectedUserID = "USER_123"
+      let expectedRpID = "FAKE_RP_ID"
+      let expectedUserID = "FAKE_USER_ID"
       let expectedChallenge = "FAKE_CHALLENGE"
       rpcIssuer.respondBlock = {
         try self.rpcIssuer.respond(withJSON: [
@@ -130,7 +86,7 @@
         ])
       }
       let request = StartPasskeyEnrollmentRequest(
-        idToken: "DUMMY_ID_TOKEN",
+        idToken: "FAKE_ID_TOKEN",
         requestConfiguration: AuthRequestConfiguration(apiKey: "API_KEY", appID: "APP_ID")
       )
       let response = try await authBackend.call(with: request)
