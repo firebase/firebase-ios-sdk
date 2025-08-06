@@ -23,6 +23,32 @@ struct ImageGenerationParameters {
   let outputOptions: ImageGenerationOutputOptions?
   let addWatermark: Bool?
   let includeResponsibleAIFilterReason: Bool?
+  let editMode: String?
+  let editConfig: ImageEditingParameters?
+
+  init(sampleCount: Int?,
+       storageURI: String?,
+       negativePrompt: String?,
+       aspectRatio: String?,
+       safetyFilterLevel: String?,
+       personGeneration: String?,
+       outputOptions: ImageGenerationOutputOptions?,
+       addWatermark: Bool?,
+       includeResponsibleAIFilterReason: Bool?,
+       editMode: String? = nil,
+       editConfig: ImageEditingParameters? = nil) {
+    self.sampleCount = sampleCount
+    self.storageURI = storageURI
+    self.negativePrompt = negativePrompt
+    self.aspectRatio = aspectRatio
+    self.safetyFilterLevel = safetyFilterLevel
+    self.personGeneration = personGeneration
+    self.outputOptions = outputOptions
+    self.addWatermark = addWatermark
+    self.includeResponsibleAIFilterReason = includeResponsibleAIFilterReason
+    self.editMode = editMode
+    self.editConfig = editConfig
+  }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -42,6 +68,8 @@ extension ImageGenerationParameters: Encodable {
     case outputOptions
     case addWatermark
     case includeResponsibleAIFilterReason = "includeRaiReason"
+    case editMode
+    case editConfig
   }
 
   func encode(to encoder: any Encoder) throws {
@@ -58,5 +86,12 @@ extension ImageGenerationParameters: Encodable {
       includeResponsibleAIFilterReason,
       forKey: .includeResponsibleAIFilterReason
     )
+    try container.encodeIfPresent(editMode, forKey: .editMode)
+    try container.encodeIfPresent(editConfig, forKey: .editConfig)
   }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct ImageEditingParameters: Codable, Equatable {
+  let editSteps: Int?
 }
