@@ -521,6 +521,8 @@ case "$product-$platform-$method" in
       -scheme "FirebaseAITestApp-SPM" \
       "${xcb_flags[@]}" \
       -parallel-testing-enabled NO \
+      -retry-tests-on-failure \
+      -test-iterations 3 \
       test
     ;;
 
