@@ -39,6 +39,9 @@ struct GetAccountInfoResponse: AuthRPCResponse {
     /// A phone number associated with the user.
     let phoneNumber: String?
 
+    /// Information on which passkeys are enrolled for this account
+    let enrolledPasskeys: [PasskeyInfo]?
+
     /// Designated initializer.
     /// - Parameter dictionary: The provider user info data from endpoint.
     init(dictionary: [String: Any]) {
@@ -53,6 +56,17 @@ struct GetAccountInfoResponse: AuthRPCResponse {
         dictionary["federatedId"] as? String
       email = dictionary["email"] as? String
       phoneNumber = dictionary["phoneNumber"] as? String
+      if let enrolledPasskeysInfo = dictionary["passkeyInfo"] as? [[String: Any]] {
+        var passkeys: [PasskeyInfo] = []
+        for passkeyDict in enrolledPasskeysInfo {
+          if let info = PasskeyInfo(dictionary: passkeyDict) {
+            passkeys.append(info)
+          }
+        }
+        enrolledPasskeys = passkeys
+      } else {
+        enrolledPasskeys = nil
+      }
     }
   }
 

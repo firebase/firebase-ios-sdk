@@ -2120,5 +2120,54 @@ class UserTests: RPCBaseTests {
 
       await fulfillment(of: [expectation], timeout: 5)
     }
+
+    func testUnenrollPasskeySuccess() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+      signInWithEmailPasswordReturnFakeUser { user in
+        // Mock backend response
+        self.rpcIssuer.respondBlock = {
+          let request = try XCTUnwrap(self.rpcIssuer?.request as? SetAccountInfoRequest)
+          XCTAssertEqual(request.deletePasskeys, ["someCredentialID"])
+          XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
+          return try self.rpcIssuer.respond(
+            withJSON: [
+              "idToken": RPCBaseTests.kFakeAccessToken,
+              "refreshToken": self.kRefreshToken,
+              "approximateExpirationDate": "\(Date().timeIntervalSince1970 * 1000)",
+            ]
+          )
+        }
+        Task {
+          do {
+            try await user.unenrollPasskey(withCredentialID: "someCredentialID")
+            expectation.fulfill()
+          } catch {
+            XCTFail("Should not throw error: \(error)")
+          }
+        }
+      }
+      await fulfillment(of: [expectation], timeout: 5)
+    }
+
+    func testUnenrollPasskeyFailure() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+      signInWithEmailPasswordReturnFakeUser { user in
+        self.rpcIssuer.respondBlock = {
+          throw AuthErrorCode.networkError as NSError
+        }
+        Task {
+          do {
+            try await user.unenrollPasskey(withCredentialID: "someCredentialID")
+            XCTFail("Expected error to be thrown")
+          } catch let error as NSError {
+            XCTAssertEqual(error.code, AuthErrorCode.networkError.rawValue)
+            expectation.fulfill()
+          }
+        }
+      }
+      await fulfillment(of: [expectation], timeout: 5)
+    }
   }
 #endif

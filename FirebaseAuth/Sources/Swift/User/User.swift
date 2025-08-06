@@ -1053,6 +1053,8 @@ extension User: NSSecureCoding {}
 
   // MARK: Passkey Implementation
 
+  public var enrolledPasskeys: [PasskeyInfo] = []
+
   #if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
 
     /// A cached passkey name being passed from startPasskeyEnrollment(withName:) call and consumed
@@ -1134,6 +1136,22 @@ extension User: NSSecureCoding {}
       )
       return AuthDataResult(withUser: user, additionalUserInfo: nil)
     }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    public func unenrollPasskey(withCredentialID credentialID: String) async throws {
+      var request = SetAccountInfoRequest(
+        requestConfiguration: auth!.requestConfiguration
+      )
+      request.deletePasskeys = [credentialID]
+      request.accessToken = rawAccessToken()
+      let response = try await backend.call(with: request)
+      _ = try await auth!.completeSignIn(
+        withAccessToken: response.idToken,
+        accessTokenExpirationDate: response.approximateExpirationDate,
+        refreshToken: response.refreshToken,
+        anonymous: false
+      )
+    }
   #endif
 
   // MARK: Internal implementations below
@@ -1157,6 +1175,7 @@ extension User: NSSecureCoding {}
     tenantID = nil
     #if os(iOS)
       multiFactor = MultiFactor(withMFAEnrollments: [])
+      enrolledPasskeys = []
     #endif
     uid = ""
     hasEmailPasswordCredential = false
@@ -1787,6 +1806,7 @@ extension User: NSSecureCoding {}
   private let kMetadataCodingKey = "metadata"
   private let kMultiFactorCodingKey = "multiFactor"
   private let kTenantIDCodingKey = "tenantID"
+  private let kEnrolledPasskeysKey = "enrolledPasskeys"
 
   public static let supportsSecureCoding = true
 
@@ -1809,6 +1829,7 @@ extension User: NSSecureCoding {}
     coder.encode(tokenService, forKey: kTokenServiceCodingKey)
     #if os(iOS)
       coder.encode(multiFactor, forKey: kMultiFactorCodingKey)
+      coder.encode(enrolledPasskeys, forKey: kEnrolledPasskeysKey)
     #endif
   }
 
@@ -1838,6 +1859,7 @@ extension User: NSSecureCoding {}
     let tenantID = coder.decodeObject(of: NSString.self, forKey: kTenantIDCodingKey) as? String
     #if os(iOS)
       let multiFactor = coder.decodeObject(of: MultiFactor.self, forKey: kMultiFactorCodingKey)
+      let enrolledPasskeys = coder.decodeObject(forKey: "enrolledPasskeys") as? [PasskeyInfo] ?? []
     #endif
     self.tokenService = tokenService
     uid = userID
@@ -1851,6 +1873,7 @@ extension User: NSSecureCoding {}
     self.phoneNumber = phoneNumber
     self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
+    self.enrolledPasskeys = enrolledPasskeys
 
     // Note, in practice, the caller will set the `auth` property of this user
     // instance which will as a side-effect overwrite the request configuration.
