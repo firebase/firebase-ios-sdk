@@ -35,38 +35,39 @@
       XCTAssertEqual(response.challenge, "FAKE_CHALLENGE")
     }
 
-    func testInitWithMissingCredentialRequestOptions() {
-      let dict: [String: AnyHashable] = [:]
-      XCTAssertThrowsError(try StartPasskeySignInResponse(dictionary: dict)) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
+    /// Helper function to remove nested field from dictionary
+    private func removeField(_ dict: inout [String: AnyHashable], keyPath: [String]) {
+      guard let first = keyPath.first else { return }
+      if keyPath.count == 1 {
+        dict.removeValue(forKey: first)
+      } else if var inDict = dict[first] as? [String: AnyHashable] {
+        removeField(&inDict, keyPath: Array(keyPath.dropFirst()))
+        dict[first] = inDict
       }
     }
 
-    func testInitWithMissingRpId() {
-      var dict = makeValidDictionary()
-      if var options = dict["credentialRequestOptions"] as? [String: AnyHashable] {
-        options.removeValue(forKey: "rpId")
-        dict["credentialRequestOptions"] = options
+    func testInitWithInvalidDictionary() throws {
+      struct TestCase {
+        let name: String
+        let removeFieldPath: [String]
       }
-      XCTAssertThrowsError(try StartPasskeySignInResponse(dictionary: dict)) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
-      }
-    }
-
-    func testInitWithMissingChallenge() {
-      var dict = makeValidDictionary()
-      if var options = dict["credentialRequestOptions"] as? [String: AnyHashable] {
-        options.removeValue(forKey: "challenge")
-        dict["credentialRequestOptions"] = options
-      }
-      XCTAssertThrowsError(try StartPasskeySignInResponse(dictionary: dict)) { error in
-        let nsError = error as NSError
-        XCTAssertEqual(nsError.domain, AuthErrorDomain)
-        XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
+      let cases: [TestCase] = [
+        .init(name: "Missing credential options", removeFieldPath: ["credentialRequestOptions"]),
+        .init(name: "Missing rpId", removeFieldPath: ["credentialRequestOptions", "rpId"]),
+        .init(
+          name: "Missing challenge",
+          removeFieldPath: ["credentialRequestOptions", "challenge"]
+        ),
+      ]
+      for testCase in cases {
+        var dict = makeValidDictionary()
+        removeField(&dict, keyPath: testCase.removeFieldPath)
+        XCTAssertThrowsError(try StartPasskeySignInResponse(dictionary: dict),
+                             testCase.name) { error in
+          let nsError = error as NSError
+          XCTAssertEqual(nsError.domain, AuthErrorDomain)
+          XCTAssertEqual(nsError.code, AuthErrorCode.internalError.rawValue)
+        }
       }
     }
   }
