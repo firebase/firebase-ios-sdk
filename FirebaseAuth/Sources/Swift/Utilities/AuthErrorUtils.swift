@@ -207,6 +207,10 @@ class AuthErrorUtils {
     error(code: .invalidRecaptchaToken)
   }
 
+  static func invalidAuthenticatorResponse() -> Error {
+    error(code: .invalidAuthenticatorResponse)
+  }
+
   static func unauthorizedDomainError(message: String?) -> Error {
     error(code: .unauthorizedDomain, message: message)
   }
