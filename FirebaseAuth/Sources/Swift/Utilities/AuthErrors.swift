@@ -336,7 +336,7 @@ import Foundation
   /// Indicates that the reCAPTCHA SDK actions class failed to create.
   case recaptchaActionCreationFailed = 17210
 
-  case missingPasskeyEnrollment = 172_212
+  case missingPasskeyEnrollment = 17212
 
   /// Indicates an error occurred while attempting to access the keychain.
   case keychainError = 17995

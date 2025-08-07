@@ -134,7 +134,7 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   var returnSecureToken: Bool = true
 
   /// The list of credential IDs of the passkeys to be deleted.
-  public var deletePasskeys: [String]? = nil
+  var deletePasskeys: [String]? = nil
 
   init(accessToken: String? = nil, requestConfiguration: AuthRequestConfiguration) {
     self.accessToken = accessToken

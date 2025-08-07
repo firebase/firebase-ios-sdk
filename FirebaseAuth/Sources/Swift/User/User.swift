@@ -67,6 +67,7 @@ extension User: NSSecureCoding {}
     ///
     /// This property is available on iOS only.
     @objc public private(set) var multiFactor: MultiFactor
+    public private(set) var enrolledPasskeys: [PasskeyInfo]?
   #endif
 
   /// [Deprecated] Updates the email address for the user.
@@ -1053,8 +1054,6 @@ extension User: NSSecureCoding {}
 
   // MARK: Passkey Implementation
 
-  public var enrolledPasskeys: [PasskeyInfo] = []
-
   #if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
 
     /// A cached passkey name being passed from startPasskeyEnrollment(withName:) call and consumed
@@ -1411,6 +1410,7 @@ extension User: NSSecureCoding {}
       }
       multiFactor.user = self
     #endif
+    self.enrolledPasskeys = user.enrolledPasskeys ?? []
   }
 
   #if os(iOS)
@@ -1806,7 +1806,7 @@ extension User: NSSecureCoding {}
   private let kMetadataCodingKey = "metadata"
   private let kMultiFactorCodingKey = "multiFactor"
   private let kTenantIDCodingKey = "tenantID"
-  private let kEnrolledPasskeysKey = "enrolledPasskeys"
+  private let kEnrolledPasskeysKey = "passkeys"
 
   public static let supportsSecureCoding = true
 
@@ -1859,7 +1859,7 @@ extension User: NSSecureCoding {}
     let tenantID = coder.decodeObject(of: NSString.self, forKey: kTenantIDCodingKey) as? String
     #if os(iOS)
       let multiFactor = coder.decodeObject(of: MultiFactor.self, forKey: kMultiFactorCodingKey)
-      let enrolledPasskeys = coder.decodeObject(forKey: "enrolledPasskeys") as? [PasskeyInfo] ?? []
+      let enrolledPasskeys = coder.decodeObject(forKey: "passkeys") as? [PasskeyInfo]
     #endif
     self.tokenService = tokenService
     uid = userID
