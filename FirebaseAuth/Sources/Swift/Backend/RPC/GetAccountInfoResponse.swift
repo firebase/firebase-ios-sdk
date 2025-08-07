@@ -91,7 +91,7 @@ struct GetAccountInfoResponse: AuthRPCResponse {
     let phoneNumber: String?
 
     let mfaEnrollments: [AuthProtoMFAEnrollment]?
-    
+
     /// A list of the user’s enrolled passkeys (may be nil if none).
     public private(set) var enrolledPasskeys: [PasskeyInfo]?
 

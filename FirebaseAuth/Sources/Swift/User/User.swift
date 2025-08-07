@@ -1410,7 +1410,7 @@ extension User: NSSecureCoding {}
       }
       multiFactor.user = self
     #endif
-    self.enrolledPasskeys = user.enrolledPasskeys ?? []
+    enrolledPasskeys = user.enrolledPasskeys ?? []
   }
 
   #if os(iOS)
