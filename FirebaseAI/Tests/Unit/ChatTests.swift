@@ -94,4 +94,104 @@ final class ChatTests: XCTestCase {
       XCTAssertEqual(chat.history[1], assembledExpectation)
     #endif // os(watchOS)
   }
+
+  func testSendMessage_unary_appendsHistory() async throws {
+    let expectedInput = "Test input"
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-basic-reply-short",
+      withExtension: "json",
+      subdirectory: "mock-responses/googleai"
+    )
+    let model = GenerativeModel(
+      modelName: modelName,
+      modelResourceName: modelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      tools: nil,
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
+    )
+    let chat = model.startChat()
+
+    // Pre-condition: History should be empty.
+    XCTAssertTrue(chat.history.isEmpty)
+
+    let response = try await chat.sendMessage(expectedInput)
+
+    XCTAssertNotNil(response.text)
+    let text = try XCTUnwrap(response.text)
+    XCTAssertFalse(text.isEmpty)
+
+    // Post-condition: History should have the user's message and the model's response.
+    XCTAssertEqual(chat.history.count, 2)
+    let userInput = try XCTUnwrap(chat.history.first)
+    XCTAssertEqual(userInput.role, "user")
+    XCTAssertEqual(userInput.parts.count, 1)
+    let userInputText = try XCTUnwrap(userInput.parts.first as? TextPart)
+    XCTAssertEqual(userInputText.text, expectedInput)
+
+    let modelResponse = try XCTUnwrap(chat.history.last)
+    XCTAssertEqual(modelResponse.role, "model")
+    XCTAssertEqual(modelResponse.parts.count, 1)
+    let modelResponseText = try XCTUnwrap(modelResponse.parts.first as? TextPart)
+    XCTAssertFalse(modelResponseText.text.isEmpty)
+  }
+
+  func testSendMessageStream_error_doesNotAppendHistory() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-failure-finish-reason-safety",
+      withExtension: "txt",
+      subdirectory: "mock-responses/vertexai"
+    )
+    let model = GenerativeModel(
+      modelName: modelName,
+      modelResourceName: modelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      tools: nil,
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
+    )
+    let chat = model.startChat()
+    let input = "Test input"
+
+    // Pre-condition: History should be empty.
+    XCTAssertTrue(chat.history.isEmpty)
+
+    do {
+      let stream = try chat.sendMessageStream(input)
+      for try await _ in stream {
+        // Consume the stream.
+      }
+      XCTFail("Should have thrown a responseStoppedEarly error.")
+    } catch let GenerateContentError.responseStoppedEarly(reason, _) {
+      XCTAssertEqual(reason, .safety)
+    } catch {
+      XCTFail("Unexpected error thrown: \(error)")
+    }
+
+    // Post-condition: History should still be empty.
+    XCTAssertEqual(chat.history.count, 0)
+  }
+
+  func testStartChat_withHistory_initializesCorrectly() async throws {
+    let history = [
+      ModelContent(role: "user", parts: "Question 1"),
+      ModelContent(role: "model", parts: "Answer 1"),
+    ]
+    let model = GenerativeModel(
+      modelName: modelName,
+      modelResourceName: modelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      tools: nil,
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
+    )
+
+    let chat = model.startChat(history: history)
+
+    XCTAssertEqual(chat.history.count, 2)
+    XCTAssertEqual(chat.history, history)
+  }
 }

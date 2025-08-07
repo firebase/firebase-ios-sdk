@@ -129,7 +129,7 @@ final class SettingsCache: SettingsCacheClient {
     guard let duration = cacheContent[Self.flagCacheDuration] as? Double else {
       return Self.cacheDurationSecondsDefault
     }
-    print("Duration: \(duration)")
+    Logger.logDebug("[Settings] Cache duration: \(duration)")
     return duration
   }
 }

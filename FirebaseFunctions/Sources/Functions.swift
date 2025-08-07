@@ -386,7 +386,6 @@ enum FunctionsConstants {
     return URL(string: "https://\(region)-\(projectID).cloudfunctions.net/\(name)")
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   func callFunction(at url: URL,
                     withObject data: Any?,
                     options: HTTPSCallableOptions?,
@@ -405,49 +404,6 @@ enum FunctionsConstants {
       return try callableResult(fromResponseData: rawData, endpointURL: url)
     } catch {
       throw processedError(fromResponseError: error, endpointURL: url)
-    }
-  }
-
-  private func callFunction(url: URL,
-                            withObject data: Any?,
-                            options: HTTPSCallableOptions?,
-                            timeout: TimeInterval,
-                            context: FunctionsContext,
-                            completion: @escaping @MainActor (Result<HTTPSCallableResult, Error>)
-                              -> Void) {
-    let fetcher: GTMSessionFetcher
-    do {
-      fetcher = try makeFetcher(
-        url: url,
-        data: data,
-        options: options,
-        timeout: timeout,
-        context: context
-      )
-    } catch {
-      DispatchQueue.main.async {
-        completion(.failure(error))
-      }
-      return
-    }
-
-    fetcher.beginFetch { [self] data, error in
-      let result: Result<HTTPSCallableResult, any Error>
-      if let error {
-        result = .failure(processedError(fromResponseError: error, endpointURL: url))
-      } else if let data {
-        do {
-          result = try .success(callableResult(fromResponseData: data, endpointURL: url))
-        } catch {
-          result = .failure(error)
-        }
-      } else {
-        result = .failure(FunctionsError(.internal))
-      }
-
-      DispatchQueue.main.async {
-        completion(result)
-      }
     }
   }
 
@@ -556,7 +512,7 @@ enum FunctionsConstants {
     }
   }
 
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  @available(macOS 12.0, watchOS 8.0, *)
   private func callableStreamResult(fromResponseData data: Data,
                                     endpointURL url: URL) throws -> sending JSONStreamResponse {
     let data = try processedData(fromResponseData: data, endpointURL: url)
