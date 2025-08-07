@@ -62,8 +62,7 @@ import Foundation
     open func openInOTPApp(withQRCodeURL qrCodeURL: String) {
       if GULAppEnvironmentUtil.isAppExtension() {
         // App extensions should not call [UIApplication sharedApplication] or [NSWorkspace
-        // sharedWorkspace],
-        // even if they respond to it.
+        // sharedWorkspace], even if they respond to it.
         return
       }
 
