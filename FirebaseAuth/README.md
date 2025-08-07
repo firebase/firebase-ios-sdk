@@ -1,4 +1,4 @@
-# Firebase Auth for iOS
+# Firebase Auth for iOS and macOS
 
 Firebase Auth enables apps to easily support multiple authentication options
 for their end users.
