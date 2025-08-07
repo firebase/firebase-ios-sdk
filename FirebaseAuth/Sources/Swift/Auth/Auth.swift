@@ -1632,6 +1632,25 @@ extension Auth: AuthInterop {
         return authURLPresenter.canHandle(url: url)
       }
     }
+
+    /// Handles the given URL if it is recognized by `Auth`.
+    ///
+    /// This method should be called when a URL is received by the scene delegate, ensuring that
+    /// authentication-related URLs are properly processed. It ensures that URLs passed from
+    /// `openURLContexts` are handled by the authentication system.
+    ///
+    /// - Note: This method is available on iOS only.
+    ///
+    /// - Parameter url: The URL received by the application delegate from any of the `openURL`
+    /// methods.
+    @objc open func handle(_ url: URL) throws {
+      guard canHandle(url) else {
+        throw AuthErrorUtils.error(
+          code: AuthErrorCode.internalError,
+          userInfo: [NSLocalizedDescriptionKey: "The URL can't be handled"]
+        )
+      }
+    }
   #endif
 
   /// The name of the `NSNotificationCenter` notification which is posted when the auth state
