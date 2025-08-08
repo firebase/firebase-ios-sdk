@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
+#import <Foundation/Foundation.h>
 
-#import <Core/FIRAppCheck.h>
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
+#import "Core/FIRAppCheck.h"
 
-@implementation FIRDeviceCheckProviderFactory
+NS_ASSUME_NONNULL_BEGIN
 
-+ (void)load {
-  [FIRAppCheck setAppCheckProviderFactory:[[self alloc] init]];
-}
+@interface FIRAppCheck ()
 
-- (nullable id<FIRAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
-  return [[FIRDeviceCheckProvider alloc] initWithApp:app];
-}
+- (nullable instancetype)initWithApp:(FIRApp *)app;
 
 @end
+
+NS_ASSUME_NONNULL_END

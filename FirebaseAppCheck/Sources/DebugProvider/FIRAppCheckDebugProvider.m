@@ -18,11 +18,11 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 
-#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
-#import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
+#import "Core/FIRApp+AppCheck.h"
+#import <Core/FIRAppCheckLogger.h>
+#import <Core/FIRAppCheckToken+Internal.h>
+#import <Core/FIRAppCheckValidator.h>
+#import <Core/FIRHeartbeatLogger+AppCheck.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 

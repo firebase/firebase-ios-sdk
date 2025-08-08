@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
+#import "Public/Core/FIRHeartbeatLogger+AppCheck.h"
 
 /// The HTTP request header key for a heartbeat logging payload.
 static NSString *const kFIRHeartbeatLoggerPayloadHeaderKey = @"X-firebase-client";

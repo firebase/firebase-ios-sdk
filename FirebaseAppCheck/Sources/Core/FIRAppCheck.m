@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
+#import "Public/Core/FIRAppCheck.h"
 
 #import <AppCheckCore/AppCheckCore.h>
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
+#import "Public/Core/FIRAppCheckErrors.h"
+#import "Public/Core/FIRAppCheckProvider.h"
+#import "Public/Core/FIRAppCheckProviderFactory.h"
 
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheck+Internal.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
-#import "FirebaseAppCheck/Sources/Core/FIRInternalAppCheckProvider.h"
+#import "Public/Core/FIRAppCheckErrorUtil.h"
+#import "Public/Core/FIRAppCheck+Internal.h"
+#import "Public/Core/FIRAppCheckLogger.h"
+#import "Public/Core/FIRAppCheckSettings.h"
+#import "Public/Core/FIRAppCheckToken+Internal.h"
+#import "Public/Core/FIRAppCheckTokenResult.h"
+#import "Public/Core/FIRInternalAppCheckProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

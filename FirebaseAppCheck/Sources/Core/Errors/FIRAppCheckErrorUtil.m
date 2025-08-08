@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "Core/FIRAppCheckErrorUtil.h"
 
 #import <AppCheckCore/AppCheckCore.h>
 

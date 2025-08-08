@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
+#import "Core/FIRAppCheckToken+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+import Foundation
+import RecaptchaEnterpriseProvider
+import FirebaseAppCheckCore
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
+@objc(FIRRecaptchaEnterpriseProviderFactory)
+public final class RecaptchaEnterpriseProviderFactory: NSObject, AppCheckProviderFactory{
+  let siteKey:String;
+  
+  public init (siteKey:String){
+    self.siteKey=siteKey;
+  }
+public  func createProvider(with app: FirebaseApp) -> (any AppCheckProvider)? {
+  return AppCheckRecaptchaEnterpriseProvider(app:app, siteKey:siteKey)
+  }
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRAppCheck ()
-
-- (nullable instancetype)initWithApp:(FIRApp *)app;
-
-@end
-
-NS_ASSUME_NONNULL_END
+  
+  
+}
