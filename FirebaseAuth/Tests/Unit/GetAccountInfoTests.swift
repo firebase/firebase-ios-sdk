@@ -80,6 +80,15 @@ class GetAccountInfoTests: RPCBaseTests {
     let kEmailVerifiedKey = "emailVerified"
     let kLocalIDKey = "localId"
     let kTestLocalID = "testLocalId"
+    let kPasskeysKey = "passkeys"
+
+    // Fake PasskeyInfo
+    let testCredentialId = "credential_id"
+    let testPasskeyName = "Test Passkey"
+    let passkeys = [[
+      "credentialId": testCredentialId,
+      "name": testPasskeyName,
+    ]]
 
     let usersIn = [[
       kProviderUserInfoKey: [[
@@ -95,6 +104,7 @@ class GetAccountInfoTests: RPCBaseTests {
       kPhotoUrlKey: kTestPhotoURL,
       kEmailVerifiedKey: true,
       kPasswordHashKey: kTestPasswordHash,
+      kPasskeysKey: passkeys,
     ] as [String: Any]]
     let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
 
@@ -119,6 +129,43 @@ class GetAccountInfoTests: RPCBaseTests {
     XCTAssertEqual(firstProviderUser.email, kTestEmail)
     XCTAssertEqual(firstProviderUser.providerID, kTestProviderID)
     XCTAssertEqual(firstProviderUser.federatedID, kTestFederatedID)
+    let enrolledPasskeys = try XCTUnwrap(firstUser.enrolledPasskeys)
+    XCTAssertEqual(enrolledPasskeys.count, 1)
+    XCTAssertEqual(enrolledPasskeys[0].credentialID, testCredentialId)
+    XCTAssertEqual(enrolledPasskeys[0].name, testPasskeyName)
+  }
+
+  func testInitWithMultipleEnrolledPasskeys() throws {
+    let passkey1: [String: AnyHashable] = ["name": "passkey1", "credentialId": "cred1"]
+    let passkey2: [String: AnyHashable] = ["name": "passkey2", "credentialId": "cred2"]
+    let userDict: [String: AnyHashable] = [
+      "localId": "user123",
+      "email": "user@example.com",
+      "passkeys": [passkey1, passkey2],
+    ]
+    let dict: [String: AnyHashable] = ["users": [userDict]]
+    let response = try GetAccountInfoResponse(dictionary: dict)
+    let users = try XCTUnwrap(response.users)
+    let firstUser = try XCTUnwrap(users.first)
+    let enrolledPasskeys = try XCTUnwrap(firstUser.enrolledPasskeys)
+    XCTAssertEqual(enrolledPasskeys.count, 2)
+    XCTAssertEqual(enrolledPasskeys[0].name, "passkey1")
+    XCTAssertEqual(enrolledPasskeys[0].credentialID, "cred1")
+    XCTAssertEqual(enrolledPasskeys[1].name, "passkey2")
+    XCTAssertEqual(enrolledPasskeys[1].credentialID, "cred2")
+  }
+
+  func testInitWithNoEnrolledPasskeys() throws {
+    let userDict: [String: AnyHashable] = [
+      "localId": "user123",
+      "email": "user@example.com",
+      // No "passkeys" present
+    ]
+    let dict: [String: AnyHashable] = ["users": [userDict]]
+    let response = try GetAccountInfoResponse(dictionary: dict)
+    let users = try XCTUnwrap(response.users)
+    let firstUser = try XCTUnwrap(users.first)
+    XCTAssertNil(firstUser.enrolledPasskeys)
   }
 
   private func makeGetAccountInfoRequest() -> GetAccountInfoRequest {

@@ -1138,7 +1138,10 @@ extension User: NSSecureCoding {}
 
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
     public func unenrollPasskey(withCredentialID credentialID: String) async throws {
-      var request = SetAccountInfoRequest(
+      guard !credentialID.isEmpty else {
+        throw AuthErrorCode.missingPasskeyEnrollment
+      }
+      let request = SetAccountInfoRequest(
         requestConfiguration: auth!.requestConfiguration
       )
       request.deletePasskeys = [credentialID]
