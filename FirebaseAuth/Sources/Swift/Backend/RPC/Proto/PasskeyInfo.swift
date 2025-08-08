@@ -14,18 +14,14 @@
 
 import Foundation
 
-public class PasskeyInfo: NSObject, @unchecked Sendable {
+public class PasskeyInfo: AuthProto {
   /// The display name for this passkey.
   public let name: String
   /// The credential ID used by the server.
   public let credentialID: String
 
-  public init?(dictionary: [String: Any]) {
-    guard let name = dictionary["name"] as? String,
-          let credentialID = dictionary["credentialId"] as? String else {
-      return nil
-    }
-    self.name = name
-    self.credentialID = credentialID
+  public required init(dictionary: [String: AnyHashable]) {
+    name = dictionary["name"] as! String
+    credentialID = dictionary["credentialId"] as! String
   }
 }
