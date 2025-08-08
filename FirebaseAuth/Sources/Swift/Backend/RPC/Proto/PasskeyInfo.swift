@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class PasskeyInfo: NSObject {
+public class PasskeyInfo: Sendable {
   /// The display name for this passkey.
   public let name: String
   /// The credential ID used by the server.
