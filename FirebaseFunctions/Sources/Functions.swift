@@ -14,9 +14,9 @@
 
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
-import FirebaseCore
+public import FirebaseCore
 import FirebaseMessagingInterop
-import FirebaseSharedSwift
+public import FirebaseSharedSwift
 import Foundation
 #if COCOAPODS
   @preconcurrency import GTMSessionFetcher
@@ -24,8 +24,8 @@ import Foundation
   @preconcurrency import GTMSessionFetcherCore
 #endif
 
-internal import FirebaseCoreExtension
-private import FirebaseCoreInternal
+import FirebaseCoreExtension
+import FirebaseCoreInternal
 
 /// File specific constants.
 private enum Constants {

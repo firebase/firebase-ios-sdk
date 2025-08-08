@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// Configuration options for a ``HTTPSCallable`` instance.
 @objc(FIRHTTPSCallableOptions) public final class HTTPSCallableOptions: NSObject, Sendable {

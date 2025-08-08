@@ -185,7 +185,10 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseAI/Sources"
+      path: "FirebaseAI/Sources",
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+      ]
     ),
     .testTarget(
       name: "FirebaseAIUnit",
@@ -264,7 +267,10 @@ let package = Package(
         .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
       path: "FirebaseCore/Internal/Sources",
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")]
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+      ]
     ),
     .testTarget(
       name: "FirebaseCoreInternalTests",
@@ -463,6 +469,7 @@ let package = Package(
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -689,7 +696,10 @@ let package = Package(
     .target(
       name: "FirebaseDatabase",
       dependencies: ["FirebaseDatabaseInternal", "FirebaseSharedSwift"],
-      path: "FirebaseDatabase/Swift/Sources"
+      path: "FirebaseDatabase/Swift/Sources",
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+      ]
     ),
     .target(
       name: "FirebaseSharedSwift",
@@ -724,7 +734,10 @@ let package = Package(
         "FirebaseSharedSwift",
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
       ],
-      path: "FirebaseFunctions/Sources"
+      path: "FirebaseFunctions/Sources",
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
+      ]
     ),
     .testTarget(
       name: "FirebaseFunctionsUnit",
@@ -822,6 +835,7 @@ let package = Package(
       path: "FirebaseInAppMessaging/Swift/Source",
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ]
     ),
 
@@ -863,6 +877,7 @@ let package = Package(
       ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ]
     ),
     .testTarget(
@@ -1050,6 +1065,7 @@ let package = Package(
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ]
     ),
     .testTarget(
@@ -1112,6 +1128,9 @@ let package = Package(
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      swiftSettings: [
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -1180,6 +1199,7 @@ let package = Package(
       path: "FirebaseStorage/Sources",
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ]
     ),
     .testTarget(
@@ -1542,6 +1562,7 @@ func firestoreTargets() -> [Target] {
         resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")],
         swiftSettings: [
           .swiftLanguageMode(SwiftLanguageMode.v5),
+          .enableUpcomingFeature("InternalImportsByDefault"),
         ]
       ),
     ]
@@ -1593,6 +1614,7 @@ func firestoreTargets() -> [Target] {
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
+        .enableUpcomingFeature("InternalImportsByDefault"),
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),

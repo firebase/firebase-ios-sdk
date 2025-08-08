@@ -17,7 +17,7 @@ import FirebaseInstallations
 import Foundation
 import UIKit
 
-internal import FirebaseCoreInternal
+import FirebaseCoreInternal
 
 enum Strings {
   static let errorDomain = "com.firebase.appdistribution.api"

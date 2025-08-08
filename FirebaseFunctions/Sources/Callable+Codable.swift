@@ -13,7 +13,7 @@
 // limitations under the License.
 
 @preconcurrency import FirebaseSharedSwift
-import Foundation
+public import Foundation
 
 /// A `Callable` is a reference to a particular Callable HTTPS trigger in Cloud Functions.
 ///

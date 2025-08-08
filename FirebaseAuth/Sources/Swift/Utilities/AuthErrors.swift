@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// Error Codes common to all API Methods:
 @objc(FIRAuthErrors) open class AuthErrors: NSObject {

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import FirebaseCoreInternal
-import Foundation
+public import Foundation
 
 // TODO(Swift 6 Breaking): Consider breaking up into a checked Sendable Swift
 // type and unchecked Sendable ObjC wrapper class.
