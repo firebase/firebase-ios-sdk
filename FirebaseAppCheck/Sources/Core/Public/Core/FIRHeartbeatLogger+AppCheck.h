@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "../../FirebaseCore/Extension/FIRHeartbeatLogger.h"
+
+#import <AppCheckCore/AppCheckCore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRApp (AppCheck)
+@interface FIRHeartbeatLogger (AppCheck)
 
-/// The resource name for the Firebase App in the format "projects/{project_id}/apps/{app_id}".
-/// See https://google.aip.dev/122 for more details about resource names.
-@property(nonatomic, readonly, copy) NSString *resourceName;
+/// Returns a closure that adds a heartbeat logging header to a `URLRequest`.
+- (GACAppCheckAPIRequestHook)requestHook;
 
 @end
 

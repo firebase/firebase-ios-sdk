@@ -16,7 +16,7 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
+#import <Core/FIRAppCheck.h>
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
 @implementation FIRDeviceCheckProviderFactory

@@ -50,7 +50,7 @@ let package = Package(
     ),
     .library(
       name: "FirebaseAppCheck",
-      targets: ["FirebaseAppCheck"]
+      targets: ["FirebaseAppCheck","FirebaseAppCheckRecaptchaEnterpriseProvider"]
     ),
     .library(
       name: "FirebaseAppDistribution-Beta",
@@ -165,8 +165,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "101.0.0" ..< "102.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git",
-             "11.0.1" ..< "12.0.0"),
+    .package(path:"../app-check"),
   ],
   targets: [
     .target(
@@ -1296,11 +1295,13 @@ let package = Package(
             dependencies: [
               "FirebaseAppCheckInterop",
               "FirebaseCore",
+              "FirebaseAppCheckCore",
               .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),
             ],
             path: "FirebaseAppCheck/Sources",
+            exclude:["RecaptchaEnterpriseProvider","Core"],
             publicHeadersPath: "Public",
             cSettings: [
               .headerSearchPath("../.."),
@@ -1348,6 +1349,38 @@ let package = Package(
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
+    
+      .target(
+        name:"FirebaseAppCheckCore",
+        dependencies:[
+          "FirebaseAppCheckInterop",
+          "FirebaseCore",
+          "FirebaseCoreExtension",
+          .product(name: "AppCheckCore", package: "app-check"),
+        ],
+        path:"FirebaseAppCheck/Sources/Core",
+        publicHeadersPath: "Public",
+        cSettings: [
+          .headerSearchPath("../.."),
+        ],
+        linkerSettings: [
+          .linkedFramework(
+            "DeviceCheck",
+            .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+          ),
+        ]
+      ),
+      .target(
+        name:"FirebaseAppCheckRecaptchaEnterpriseProvider",
+        dependencies:[
+          "FirebaseAppCheck",
+          "FirebaseAppCheckInterop",
+          "FirebaseCore",
+          "FirebaseCoreExtension",
+            .product(name: "AppCheckCore", package: "app-check"),
+        ],
+        path: "FirebaseAppCheck/Sources/RecaptchaEnterpriseProvider",
+      ),
 
     // MARK: Testing support
 

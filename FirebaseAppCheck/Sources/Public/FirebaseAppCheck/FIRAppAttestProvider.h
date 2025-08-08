@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAppCheckProvider.h"
+#import <Core/FIRAppCheckProvider.h>
 
 #import "FIRAppCheckAvailability.h"
 

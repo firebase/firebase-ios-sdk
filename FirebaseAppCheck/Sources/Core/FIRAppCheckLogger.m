@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+#import "Core/FIRAppCheckLogger.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "../FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

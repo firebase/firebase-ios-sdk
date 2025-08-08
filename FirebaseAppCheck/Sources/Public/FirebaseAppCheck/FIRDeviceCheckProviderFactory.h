@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAppCheckAvailability.h"
-#import "FIRAppCheckProviderFactory.h"
+#import <Core/FIRAppCheckProviderFactory.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

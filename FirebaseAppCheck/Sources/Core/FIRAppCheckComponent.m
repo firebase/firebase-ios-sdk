@@ -18,10 +18,10 @@
 
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheck+Internal.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
+#import "Public/Core/FIRAppCheck+Internal.h"
+#import "Public/Core/FIRAppCheck.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "../../FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

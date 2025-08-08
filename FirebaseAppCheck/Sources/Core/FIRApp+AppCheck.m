@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
+#import "Core/FIRApp+AppCheck.h"
 
 @implementation FIRApp (AppCheck)
 

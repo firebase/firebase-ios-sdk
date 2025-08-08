@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
+#import <Foundation/Foundation.h>
 
-#import <AppCheckCore/AppCheckCore.h>
+#import "Core/FIRAppCheckErrors.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRHeartbeatLogger (AppCheck)
+@interface FIRAppCheckErrorUtil : NSObject
 
-/// Returns a closure that adds a heartbeat logging header to a `URLRequest`.
-- (GACAppCheckAPIRequestHook)requestHook;
++ (NSError *)publicDomainErrorWithError:(NSError *)error;
 
 @end
 

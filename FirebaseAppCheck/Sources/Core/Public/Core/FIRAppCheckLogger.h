@@ -18,7 +18,7 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "../../FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 extern FIRLoggerService kFIRLoggerAppCheck;
 

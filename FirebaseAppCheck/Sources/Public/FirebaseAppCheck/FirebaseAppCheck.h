@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
-#import "FIRAppCheckErrors.h"
-#import "FIRAppCheckProvider.h"
-#import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
+#import <Core/FIRAppCheck.h>
+#import <Core/FIRAppCheckErrors.h>
+#import <Core/FIRAppCheckProvider.h>
+#import <Core/FIRAppCheckProviderFactory.h>
+#import <Core/FIRAppCheckToken.h>
 
 // Debug provider
 #import "FIRAppCheckDebugProvider.h"
