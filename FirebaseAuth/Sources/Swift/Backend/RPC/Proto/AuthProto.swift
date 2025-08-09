@@ -15,5 +15,5 @@
 import Foundation
 
 protocol AuthProto {
-  init?(dictionary: [String: AnyHashable])
+  init(dictionary: [String: AnyHashable])
 }

@@ -1862,7 +1862,11 @@ extension User: NSSecureCoding {}
     let tenantID = coder.decodeObject(of: NSString.self, forKey: kTenantIDCodingKey) as? String
     #if os(iOS)
       let multiFactor = coder.decodeObject(of: MultiFactor.self, forKey: kMultiFactorCodingKey)
-      let enrolledPasskeys = coder.decodeObject(forKey: "passkeys") as? [PasskeyInfo]
+      let passkeyClasses: [AnyClass] = [NSArray.self, PasskeyInfo.self, NSString.self]
+      let enrolledPasskeys = coder.decodeObject(
+        of: passkeyClasses,
+        forKey: kEnrolledPasskeysKey
+      ) as? [PasskeyInfo]
     #endif
     self.tokenService = tokenService
     uid = userID
