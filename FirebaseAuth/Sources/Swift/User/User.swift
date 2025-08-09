@@ -1876,7 +1876,6 @@ extension User: NSSecureCoding {}
     self.phoneNumber = phoneNumber
     self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
-    self.enrolledPasskeys = enrolledPasskeys
 
     // Note, in practice, the caller will set the `auth` property of this user
     // instance which will as a side-effect overwrite the request configuration.
@@ -1897,6 +1896,7 @@ extension User: NSSecureCoding {}
       self.multiFactor = multiFactor ?? MultiFactor()
       super.init()
       multiFactor?.user = self
+      self.enrolledPasskeys = enrolledPasskeys
     #endif
   }
 }
