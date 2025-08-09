@@ -1412,8 +1412,8 @@ extension User: NSSecureCoding {}
         multiFactor = MultiFactor(withMFAEnrollments: enrollments)
       }
       multiFactor.user = self
+      enrolledPasskeys = user.enrolledPasskeys ?? []
     #endif
-    enrolledPasskeys = user.enrolledPasskeys ?? []
   }
 
   #if os(iOS)
