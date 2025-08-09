@@ -73,6 +73,8 @@ private let kDeleteProvidersKey = "deleteProvider"
 /// The key for the "returnSecureToken" value in the request.
 private let kReturnSecureTokenKey = "returnSecureToken"
 
+private let kDeletePasskeysKey = "deletePasskey"
+
 /// The key for the tenant id value in the request.
 private let kTenantIDKey = "tenantId"
 
@@ -131,6 +133,9 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The default value is `true` .
   var returnSecureToken: Bool = true
 
+  /// The list of credential IDs of the passkeys to be deleted.
+  var deletePasskeys: [String]? = nil
+
   init(accessToken: String? = nil, requestConfiguration: AuthRequestConfiguration) {
     self.accessToken = accessToken
     super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
@@ -182,6 +187,9 @@ class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
     }
     if returnSecureToken {
       postBody[kReturnSecureTokenKey] = true
+    }
+    if let deletePasskeys {
+      postBody[kDeletePasskeysKey] = deletePasskeys
     }
     if let tenantID {
       postBody[kTenantIDKey] = tenantID
