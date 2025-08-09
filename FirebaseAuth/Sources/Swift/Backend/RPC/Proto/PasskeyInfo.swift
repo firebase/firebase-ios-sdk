@@ -20,8 +20,13 @@ public class PasskeyInfo: AuthProto {
   /// The credential ID used by the server.
   public let credentialID: String
 
-  public required init(dictionary: [String: AnyHashable]) {
-    name = dictionary["name"] as! String
-    credentialID = dictionary["credentialId"] as! String
+  public required init?(dictionary: [String: AnyHashable]) {
+    guard
+      let name = dictionary["name"] as? String,
+      let credentialID = dictionary["credentialId"] as? String
+    else { return nil }
+
+    self.name = name
+    self.credentialID = credentialID
   }
 }
