@@ -12,17 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAI
 import SwiftUI
 
 struct ContentView: View {
+  // TODO: Revert changes in this file. For prototyping purposes only.
+  let liveModel: LiveGenerativeModel = {
+    // let firebaseAI = FirebaseAI.firebaseAI(backend: .vertexAI())
+    let firebaseAI = FirebaseAI.firebaseAI()
+    return firebaseAI.liveModel(
+      modelName: "gemini-2.0-flash-live-001",
+      generationConfig: LiveGenerationConfig(responseModalities: [.text])
+    )
+  }()
+
+  @State private var responses: [String] = []
+
   var body: some View {
     VStack {
-      Image(systemName: "globe")
-        .imageScale(.large)
-        .foregroundStyle(.tint)
-      Text("Hello, world!")
+      List(responses, id: \.self) {
+        Text($0)
+      }
     }
     .padding()
+    .task {
+      do {
+        let liveSession = try await liveModel.connect()
+        try await liveSession.sendMessage("Why is the sky blue?")
+        for try await response in liveSession.responses {
+          responses.append(String(describing: response))
+        }
+      } catch {
+        print(error)
+      }
+    }
   }
 }
 
