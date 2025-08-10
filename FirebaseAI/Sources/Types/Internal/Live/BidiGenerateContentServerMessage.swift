@@ -15,6 +15,7 @@
 import Foundation
 
 /// Response message for BidiGenerateContent RPC call.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct BidiGenerateContentServerMessage: Sendable {
   // TODO: Make this type `internal`
 

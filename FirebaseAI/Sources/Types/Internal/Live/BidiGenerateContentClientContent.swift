@@ -19,6 +19,7 @@ import Foundation
 /// history and used as part of the prompt to the model to generate content.
 ///
 /// A message here will interrupt any current model generation.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct BidiGenerateContentClientContent: Encodable {
   /// The content appended to the current conversation with the model.
   ///
