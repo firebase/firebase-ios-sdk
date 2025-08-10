@@ -37,7 +37,7 @@ struct ContentView: View {
     .padding()
     .task {
       do {
-        let liveSession = try await liveModel.connect()
+        let liveSession = liveModel.connect()
         try await liveSession.sendMessage("Why is the sky blue?")
         for try await response in liveSession.responses {
           responses.append(String(describing: response))
