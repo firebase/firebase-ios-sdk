@@ -32,10 +32,17 @@ public final class LiveSession: NSObject, URLSessionWebSocketDelegate, URLSessio
   let generationConfig: LiveGenerationConfig?
   let webSocket: URLSessionWebSocketTask
 
+  // TODO: Refactor this property, potentially returning responses after `connect`.
+  public let responses: AsyncThrowingStream<BidiGenerateContentServerMessage, Error>
+
   private var state: State = .notConnected
   private var pendingMessages: [(String, CheckedContinuation<Void, Error>)] = []
   private let jsonEncoder = JSONEncoder()
   private let jsonDecoder = JSONDecoder()
+
+  // TODO: Properly wrap callback code using `withCheckedContinuation` or similar.
+  private let responseContinuation: AsyncThrowingStream<BidiGenerateContentServerMessage, Error>
+    .Continuation
 
   init(modelResourceName: String,
        generationConfig: LiveGenerationConfig?,
@@ -44,6 +51,7 @@ public final class LiveSession: NSObject, URLSessionWebSocketDelegate, URLSessio
     self.modelResourceName = modelResourceName
     self.generationConfig = generationConfig
     webSocket = urlSession.webSocketTask(with: url)
+    (responses, responseContinuation) = AsyncThrowingStream.makeStream()
   }
 
   func open() async throws {
@@ -64,6 +72,7 @@ public final class LiveSession: NSObject, URLSessionWebSocketDelegate, URLSessio
       continuation.resume(throwing: error)
     }
     pendingMessages.removeAll()
+    responseContinuation.finish(throwing: error)
   }
 
   private func processPendingMessages() {
@@ -144,6 +153,7 @@ public final class LiveSession: NSObject, URLSessionWebSocketDelegate, URLSessio
     print("Web Socket closed.")
     state = .closed
     failPendingMessages(with: WebSocketError.connectionClosed)
+    responseContinuation.finish()
   }
 
   func setReceiveHandler() {
@@ -172,7 +182,6 @@ public final class LiveSession: NSObject, URLSessionWebSocketDelegate, URLSessio
             self.state = .ready
             self.processPendingMessages()
           case .serverContent:
-            // TODO: Return the serverContent to the developer
             print("Server Content: \(responseJSON)")
           case .toolCall:
             // TODO: Tool calls not yet implemented
@@ -188,6 +197,8 @@ public final class LiveSession: NSObject, URLSessionWebSocketDelegate, URLSessio
             }
           }
 
+          self.responseContinuation.yield(response)
+
           if self.state == .closed {
             print("Web socket is closed, not listening for more messages.")
           } else {
@@ -201,6 +212,7 @@ public final class LiveSession: NSObject, URLSessionWebSocketDelegate, URLSessio
         // handle the error
         print(error)
         self.state = .closed
+        self.responseContinuation.finish(throwing: error)
       }
     }
   }

@@ -15,7 +15,9 @@
 import Foundation
 
 /// Response message for BidiGenerateContent RPC call.
-struct BidiGenerateContentServerMessage {
+public struct BidiGenerateContentServerMessage {
+  // TODO: Make this type `internal`
+
   /// The type of the message.
   enum MessageType {
     /// Sent in response to a `BidiGenerateContentSetup` message from the client.
@@ -56,7 +58,7 @@ extension BidiGenerateContentServerMessage: Decodable {
     case usageMetadata
   }
 
-  init(from decoder: any Decoder) throws {
+  public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     if let setupComplete = try container.decodeIfPresent(
