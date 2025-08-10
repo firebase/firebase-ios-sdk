@@ -16,6 +16,7 @@ import Foundation
 
 /// Request for the client to execute the `function_calls` and return the
 /// responses with the matching `id`s.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct BidiGenerateContentToolCall: Decodable {
   /// The function call to be executed.
   let functionCalls: [FunctionCall]?

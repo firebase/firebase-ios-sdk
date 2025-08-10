@@ -19,6 +19,7 @@ import Foundation
 ///
 /// Content is generated as quickly as possible, and not in realtime. Clients
 /// may choose to buffer and play it out in realtime.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct BidiGenerateContentServerContent: Decodable {
   /// The content that the model has generated as part of the current
   /// conversation with the user.

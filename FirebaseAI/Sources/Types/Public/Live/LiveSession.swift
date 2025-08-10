@@ -15,6 +15,7 @@
 import Foundation
 
 // TODO: Extract most of this file into a service class similar to `GenerativeAIService`.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class LiveSession: Sendable {
   let modelResourceName: String
   let generationConfig: LiveGenerationConfig?

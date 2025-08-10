@@ -15,6 +15,7 @@
 import Foundation
 
 /// Server will not be able to service client soon.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct GoAway: Decodable {
   /// The remaining time before the connection will be terminated as ABORTED.
   /// The minimal time returned here is specified differently together with

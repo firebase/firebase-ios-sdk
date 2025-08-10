@@ -28,6 +28,7 @@ import Foundation
 ///   to optimize for a fast start of the response from the model.
 /// - Is always assumed to be the user's input (cannot be used to populate
 ///   conversation history).
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct BidiGenerateContentRealtimeInput: Encodable {
   /// These form the realtime audio input stream.
   let audio: Data?
