@@ -15,9 +15,9 @@
 import Foundation
 
 /// Response message for BidiGenerateContent RPC call.
-struct BidiGenerateContentServerMessage: Decodable {
+struct BidiGenerateContentServerMessage {
   /// The type of the message.
-  enum MessageType: Decodable {
+  enum MessageType {
     /// Sent in response to a `BidiGenerateContentSetup` message from the client.
     case setupComplete(BidiGenerateContentSetupComplete)
 
@@ -42,4 +42,56 @@ struct BidiGenerateContentServerMessage: Decodable {
 
   /// Usage metadata about the response(s).
   let usageMetadata: GenerateContentResponse.UsageMetadata?
+}
+
+// MARK: - Decodable
+
+extension BidiGenerateContentServerMessage: Decodable {
+  enum CodingKeys: String, CodingKey {
+    case setupComplete
+    case serverContent
+    case toolCall
+    case toolCallCancellation
+    case goAway
+    case usageMetadata
+  }
+
+  init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    if let setupComplete = try container.decodeIfPresent(
+      BidiGenerateContentSetupComplete.self,
+      forKey: .setupComplete
+    ) {
+      messageType = .setupComplete(setupComplete)
+    } else if let serverContent = try container.decodeIfPresent(
+      BidiGenerateContentServerContent.self,
+      forKey: .serverContent
+    ) {
+      messageType = .serverContent(serverContent)
+    } else if let toolCall = try container.decodeIfPresent(
+      BidiGenerateContentToolCall.self,
+      forKey: .toolCall
+    ) {
+      messageType = .toolCall(toolCall)
+    } else if let toolCallCancellation = try container.decodeIfPresent(
+      BidiGenerateContentToolCallCancellation.self,
+      forKey: .toolCallCancellation
+    ) {
+      messageType = .toolCallCancellation(toolCallCancellation)
+    } else if let goAway = try container.decodeIfPresent(GoAway.self, forKey: .goAway) {
+      messageType = .goAway(goAway)
+    } else {
+      let context = DecodingError.Context(
+        codingPath: decoder.codingPath,
+        debugDescription: "Could not decode server message."
+      )
+      throw DecodingError.dataCorrupted(context)
+    }
+
+    usageMetadata = try container.decodeIfPresent(
+      GenerateContentResponse.UsageMetadata.self,
+      forKey: .usageMetadata
+    )
+  }
 }
