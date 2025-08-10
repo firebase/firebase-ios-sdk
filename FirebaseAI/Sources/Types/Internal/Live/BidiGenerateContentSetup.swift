@@ -28,17 +28,7 @@ struct BidiGenerateContentSetup: Encodable {
   let model: String
 
   /// Generation config.
-  ///
-  /// The following fields aren't supported:
-  ///
-  ///  - `response_logprobs`
-  ///  - `response_mime_type`
-  ///  - `logprobs`
-  ///  - `response_schema`
-  ///  - `stop_sequence`
-  ///  - `routing_config`
-  ///  - `audio_timestamp`
-  let generationConfig: GenerationConfig?
+  let generationConfig: LiveGenerationConfig?
 
   /// The user provided system instructions for the model.
   /// Note: only text should be used in parts and content in each part will be
@@ -54,4 +44,16 @@ struct BidiGenerateContentSetup: Encodable {
 
   /// Configures the handling of realtime input.
   let realtimeInputConfig: RealtimeInputConfig?
+
+  init(model: String,
+       generationConfig: LiveGenerationConfig? = nil,
+       systemInstruction: ModelContent? = nil,
+       tools: [Tool]? = nil,
+       realtimeInputConfig: RealtimeInputConfig? = nil) {
+    self.model = model
+    self.generationConfig = generationConfig
+    self.systemInstruction = systemInstruction
+    self.tools = tools
+    self.realtimeInputConfig = realtimeInputConfig
+  }
 }
