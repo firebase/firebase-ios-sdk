@@ -40,7 +40,7 @@ public final class LiveGenerativeModel {
     self.urlSession = urlSession
   }
 
-  public func connect() async throws -> LiveSession {
+  public func connect() -> LiveSession {
     let liveSession = LiveSession(
       modelResourceName: modelResourceName,
       generationConfig: generationConfig,
@@ -48,7 +48,7 @@ public final class LiveGenerativeModel {
       urlSession: urlSession
     )
     print("Opening Live Session...")
-    try await liveSession.open()
+    liveSession.openConnection()
     return liveSession
   }
 

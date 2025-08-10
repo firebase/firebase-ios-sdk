@@ -15,7 +15,7 @@
 import Foundation
 
 /// Response message for BidiGenerateContent RPC call.
-public struct BidiGenerateContentServerMessage {
+public struct BidiGenerateContentServerMessage: Sendable {
   // TODO: Make this type `internal`
 
   /// The type of the message.
