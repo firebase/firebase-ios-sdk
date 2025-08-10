@@ -17,25 +17,52 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class LiveGenerativeModel {
   let modelResourceName: String
+  let firebaseInfo: FirebaseInfo
   let apiConfig: APIConfig
+  let generationConfig: LiveGenerationConfig?
   let requestOptions: RequestOptions
+  let urlSession: URLSession
 
   init(modelResourceName: String,
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
+       generationConfig: LiveGenerationConfig? = nil,
        requestOptions: RequestOptions,
        urlSession: URLSession = GenAIURLSession.default) {
     self.modelResourceName = modelResourceName
+    self.firebaseInfo = firebaseInfo
     self.apiConfig = apiConfig
-    // TODO: Add LiveGenerationConfig
+    self.generationConfig = generationConfig
     // TODO: Add tools
     // TODO: Add tool config
     // TODO: Add system instruction
     self.requestOptions = requestOptions
+    self.urlSession = urlSession
   }
 
   public func connect() async throws -> LiveSession {
-    // TODO: Implement connection
-    return LiveSession()
+    let liveSession = LiveSession(
+      modelResourceName: modelResourceName,
+      generationConfig: generationConfig,
+      url: webSocketURL(),
+      urlSession: urlSession
+    )
+    print("Opening Live Session...")
+    try await liveSession.open()
+    return liveSession
+  }
+
+  func webSocketURL() -> URL {
+    let urlString = switch apiConfig.service {
+    case .vertexAI:
+      "wss://firebasevertexai.googleapis.com/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/us-central1?key=\(firebaseInfo.apiKey)"
+    case .googleAI:
+      "wss://firebasevertexai.googleapis.com/ws/google.firebase.vertexai.v1beta.GenerativeService/BidiGenerateContent?key=\(firebaseInfo.apiKey)"
+    }
+    guard let url = URL(string: urlString) else {
+      // TODO: Add error handling
+      fatalError()
+    }
+    return url
   }
 }
