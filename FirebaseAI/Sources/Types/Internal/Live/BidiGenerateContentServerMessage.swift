@@ -49,6 +49,7 @@ public struct BidiGenerateContentServerMessage: Sendable {
 
 // MARK: - Decodable
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension BidiGenerateContentServerMessage: Decodable {
   enum CodingKeys: String, CodingKey {
     case setupComplete
