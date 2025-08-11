@@ -26,7 +26,7 @@ final class ImagenMaskReferenceTests: XCTestCase {
     let newHeight = 200
     let newDimensions = Dimensions(width: newWidth, height: newHeight)
     let image = ImagenInlineImage(
-      mimeType: "dummy-mime",
+      mimeType: "image/png",
       data: createDummyImageData(width: originalWidth, height: originalHeight)
     )
 
@@ -55,7 +55,7 @@ final class ImagenMaskReferenceTests: XCTestCase {
   func testGenerateMaskAndPadForOutpainting_invalidData() {
     // Setup
     let newDimensions = Dimensions(width: 200, height: 200)
-    let image = ImagenInlineImage(mimeType: "dummy-mime", data: Data())
+    let image = ImagenInlineImage(mimeType: "image/png", data: Data())
 
     // Act & Assert
     XCTAssertThrowsError(try ImagenMaskReference.generateMaskAndPadForOutpainting(
@@ -71,7 +71,7 @@ final class ImagenMaskReferenceTests: XCTestCase {
     // Setup
     let newDimensions = Dimensions(width: 50, height: 50)
     let image = ImagenInlineImage(
-      mimeType: "dummy-mime",
+      mimeType: "image/png",
       data: createDummyImageData(width: 100, height: 100)
     )
 

@@ -169,11 +169,19 @@ public final class ImagenModel {
                            mask: ImagenMaskReference,
                            editSteps: Int? = nil) async throws
     -> ImagenGenerationResponse<ImagenInlineImage> {
-    return try await editImage(
-      referenceImages: [ImagenRawImage(data: image.data), mask],
-      prompt: prompt,
-      config: ImagenEditingConfig(editMode: .inpaint, editSteps: editSteps)
-    )
+    do {
+      return try await editImage(
+        referenceImages: [ImagenRawImage(data: image.data), mask],
+        prompt: prompt,
+        config: ImagenEditingConfig(editMode: .inpaint, editSteps: editSteps)
+      )
+    } catch let backendError as BackendError {
+      if backendError.message.contains("not supported for this model") {
+        throw APINotAvailableOnModelError(message: backendError.message)
+      } else {
+        throw backendError
+      }
+    }
   }
 
   /// **[Public Preview]** Generates an image by outpainting the given image.
@@ -197,16 +205,24 @@ public final class ImagenModel {
                             prompt: String = "",
                             editSteps: Int? = nil) async throws
     -> ImagenGenerationResponse<ImagenInlineImage> {
-    let referenceImages = try ImagenMaskReference.generateMaskAndPadForOutpainting(
-      image: image,
-      newDimensions: newDimensions,
-      newPosition: newPosition
-    )
-    return try await editImage(
-      referenceImages: referenceImages,
-      prompt: prompt,
-      config: ImagenEditingConfig(editMode: .outpaint, editSteps: editSteps)
-    )
+    do {
+      let referenceImages = try ImagenMaskReference.generateMaskAndPadForOutpainting(
+        image: image,
+        newDimensions: newDimensions,
+        newPosition: newPosition
+      )
+      return try await editImage(
+        referenceImages: referenceImages,
+        prompt: prompt,
+        config: ImagenEditingConfig(editMode: .outpaint, editSteps: editSteps)
+      )
+    } catch let backendError as BackendError {
+      if backendError.message.contains("not supported for this model") {
+        throw APINotAvailableOnModelError(message: backendError.message)
+      } else {
+        throw backendError
+      }
+    }
   }
 
   func generateImages<T>(prompt: String,

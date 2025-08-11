@@ -26,7 +26,7 @@ public struct ImagenInlineImage: Sendable {
   /// The image data in PNG or JPEG format.
   public let data: Data
 
-  init(mimeType: String, data: Data) {
+  public init(mimeType: String, data: Data) {
     self.mimeType = mimeType
     self.data = data
   }
