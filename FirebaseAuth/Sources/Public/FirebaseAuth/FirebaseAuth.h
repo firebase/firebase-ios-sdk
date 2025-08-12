@@ -26,5 +26,4 @@
 #import "FIRGoogleAuthProvider.h"
 #import "FIRMultiFactor.h"
 #import "FIRPhoneAuthProvider.h"
-#import "FIRTOTPSecret.h"
 #import "FIRTwitterAuthProvider.h"
