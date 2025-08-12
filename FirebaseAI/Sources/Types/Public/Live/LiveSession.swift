@@ -19,7 +19,7 @@ import Foundation
 public final class LiveSession: Sendable {
   let modelResourceName: String
   let generationConfig: LiveGenerationConfig?
-  let webSocket: URLSessionWebSocketTask
+  let webSocket: AsyncWebSocket
 
   public let responses: AsyncThrowingStream<BidiGenerateContentServerMessage, Error>
   private let responseContinuation: AsyncThrowingStream<BidiGenerateContentServerMessage, Error>
@@ -34,12 +34,12 @@ public final class LiveSession: Sendable {
        urlSession: URLSession) {
     self.modelResourceName = modelResourceName
     self.generationConfig = generationConfig
-    webSocket = urlSession.webSocketTask(with: url)
+    webSocket = AsyncWebSocket(urlSession: urlSession, urlRequest: URLRequest(url: url))
     (responses, responseContinuation) = AsyncThrowingStream.makeStream()
   }
 
   deinit {
-    webSocket.cancel(with: .goingAway, reason: nil)
+    webSocket.disconnect()
   }
 
   public func sendMessage(_ message: String) async throws {
@@ -51,40 +51,29 @@ public final class LiveSession: Sendable {
   }
 
   func openConnection() {
-    webSocket.resume()
-    // TODO: Verify that this task gets cancelled on deinit
     Task {
-      await startEventLoop()
-    }
-  }
-
-  private func startEventLoop() async {
-    defer {
-      webSocket.cancel(with: .goingAway, reason: nil)
-    }
-
-    do {
-      try await sendSetupMessage()
-
-      while !Task.isCancelled {
-        let message = try await webSocket.receive()
-        switch message {
-        case let .string(string):
-          print("Unexpected string response: \(string)")
-        case let .data(data):
-          let response = try jsonDecoder.decode(
-            BidiGenerateContentServerMessage.self,
-            from: data
-          )
-          responseContinuation.yield(response)
-        @unknown default:
-          print("Unknown message received")
+      do {
+        let stream = webSocket.connect()
+        try await sendSetupMessage()
+        for try await message in stream {
+          switch message {
+          case let .string(string):
+            print("Unexpected string response: \(string)")
+          case let .data(data):
+            let response = try jsonDecoder.decode(
+              BidiGenerateContentServerMessage.self,
+              from: data
+            )
+            responseContinuation.yield(response)
+          @unknown default:
+            print("Unknown message received")
+          }
         }
+      } catch {
+        responseContinuation.finish(throwing: error)
       }
-    } catch {
-      responseContinuation.finish(throwing: error)
+      responseContinuation.finish()
     }
-    responseContinuation.finish()
   }
 
   private func sendSetupMessage() async throws {
