@@ -235,6 +235,10 @@ class AuthErrorUtils {
     error(code: .missingVerificationCode, message: message)
   }
 
+  static func missingPasskeyEnrollment() -> Error {
+    error(code: .missingPasskeyEnrollment)
+  }
+
   static func invalidVerificationCodeError(message: String?) -> Error {
     error(code: .invalidVerificationCode, message: message)
   }
