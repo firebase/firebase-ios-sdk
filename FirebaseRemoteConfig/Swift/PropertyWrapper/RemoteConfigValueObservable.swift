@@ -15,7 +15,7 @@
  */
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseRemoteConfigInternal
+  @_exported public import FirebaseRemoteConfigInternal
 #endif // SWIFT_PACKAGE
 import FirebaseCore
 import SwiftUI

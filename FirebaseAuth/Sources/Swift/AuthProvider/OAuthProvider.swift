@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import CommonCrypto
-import Foundation
+public import Foundation
 
 /// Utility class for constructing OAuth Sign In credentials.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

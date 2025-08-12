@@ -15,8 +15,8 @@
 
 import Foundation
 
-internal import FirebaseInstallations
-internal import FirebaseCoreInternal
+import FirebaseCoreInternal
+import FirebaseInstallations
 
 protocol InstallationsProtocol: Sendable {
   var installationsWaitTimeInSecond: Int { get }

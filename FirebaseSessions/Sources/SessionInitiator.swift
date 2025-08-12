@@ -23,9 +23,9 @@ import Foundation
 #endif // os(iOS) || os(tvOS)
 
 #if SWIFT_PACKAGE
-  internal import GoogleUtilities_Environment
+  import GoogleUtilities_Environment
 #else
-  internal import GoogleUtilities
+  import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// The SessionInitiator is responsible for:

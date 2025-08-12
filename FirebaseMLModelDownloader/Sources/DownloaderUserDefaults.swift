@@ -14,9 +14,9 @@
 
 import Foundation
 #if SWIFT_PACKAGE
-  internal import GoogleUtilities_UserDefaults
+  import GoogleUtilities_UserDefaults
 #else
-  internal import GoogleUtilities
+  import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// Protocol to save or delete model info in user defaults.

@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
-import FirebaseCore
+public import FirebaseCore
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
-internal import FirebaseCoreExtension
+import FirebaseCoreExtension
 
 /// Firebase Storage is a service that supports uploading and downloading binary objects,
 /// such as images, videos, and other files to Google Cloud Storage. Instances of `Storage`

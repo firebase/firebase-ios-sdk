@@ -15,11 +15,11 @@
  */
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
+  @_exported public import FirebaseFirestoreInternalWrapper
 #else
-  @_exported import FirebaseFirestoreInternal
+  @_exported public import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
-import FirebaseSharedSwift
+public import FirebaseSharedSwift
 import Foundation
 
 public extension Firestore {

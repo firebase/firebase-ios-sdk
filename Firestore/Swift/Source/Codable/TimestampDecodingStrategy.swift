@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-@_exported import class FirebaseCore.Timestamp
+@_exported public import class FirebaseCore.Timestamp
 
-import FirebaseSharedSwift
+public import FirebaseSharedSwift
 
 public extension FirebaseDataDecoder.DateDecodingStrategy {
   /// Decode the `Date` from a Firestore `Timestamp`

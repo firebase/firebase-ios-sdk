@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 #if os(iOS)
+  public import Foundation
 
   /// Opaque object that identifies the current session to enroll a second factor or to
   /// complete sign in when previously enrolled.

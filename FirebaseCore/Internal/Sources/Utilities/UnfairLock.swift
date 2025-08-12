@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-private import os.lock
+import os.lock
 
 /// A reference wrapper around `os_unfair_lock`. Replace this class with
 /// `OSAllocatedUnfairLock` once we support only iOS 16+. For an explanation

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-@_exported import class FirebaseCore.Timestamp
+@_exported public import class FirebaseCore.Timestamp
 
 import FirebaseSharedSwift
 import Foundation
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
+  @_exported public import FirebaseFirestoreInternalWrapper
 #else
-  @_exported import FirebaseFirestoreInternal
+  @_exported public import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
 struct FirestorePassthroughTypes: StructureCodingPassthroughTypeResolver {

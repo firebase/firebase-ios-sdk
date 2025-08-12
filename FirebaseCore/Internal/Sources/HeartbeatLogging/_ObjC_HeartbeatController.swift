@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 /// An object that provides API to log and flush heartbeats from a synchronized storage container.
 @objc(FIRHeartbeatController)

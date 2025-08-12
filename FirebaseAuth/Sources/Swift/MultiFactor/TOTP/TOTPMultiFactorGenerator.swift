@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 #if os(iOS)
+  public import Foundation
 
   /// The data structure used to help initialize an assertion for a second factor entity to the
   /// Firebase Auth/CICP server. Depending on the type of second factor, this will help generate

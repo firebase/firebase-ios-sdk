@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
+public import Foundation
 
 // TODO(Swift 6 Breaking): This type is immutable. Consider removing `open` at
 // breaking change so checked Sendable can be used.

@@ -15,10 +15,10 @@
  */
 
 #if SWIFT_PACKAGE
-  @_exported import FirebaseRemoteConfigInternal
+  @_exported public import FirebaseRemoteConfigInternal
 #endif // SWIFT_PACKAGE
 
-import SwiftUI
+public import SwiftUI
 
 /// A property wrapper that listens to a Remote Config value.
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)

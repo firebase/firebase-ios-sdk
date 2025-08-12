@@ -15,7 +15,7 @@
 
 import Foundation
 
-internal import GoogleDataTransport
+import GoogleDataTransport
 
 protocol EventGDTLoggerProtocol: Sendable {
   func logEvent(event: SessionStartEvent,

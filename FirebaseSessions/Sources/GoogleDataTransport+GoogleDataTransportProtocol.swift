@@ -15,7 +15,7 @@
 
 import Foundation
 
-@preconcurrency internal import GoogleDataTransport
+@preconcurrency import GoogleDataTransport
 
 enum GoogleDataTransportProtocolErrors: Error {
   case writeFailure
