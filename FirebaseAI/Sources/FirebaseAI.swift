@@ -38,8 +38,7 @@ public final class FirebaseAI: Sendable {
   /// - Returns: A `FirebaseAI` instance, configured with the custom `FirebaseApp`.
   public static func firebaseAI(app: FirebaseApp? = nil,
                                 backend: Backend = .googleAI(),
-                                config: FirebaseAI
-                                  .Config = .config(appCheck: AppCheckOptions())) -> FirebaseAI {
+                                config: FirebaseAI.Config = .config()) -> FirebaseAI {
     let instance = createInstance(
       app: app,
       location: backend.location,
