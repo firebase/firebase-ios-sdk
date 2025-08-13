@@ -14,41 +14,27 @@
 
 import Foundation
 
-public final class PasskeyInfo: NSObject, NSSecureCoding, Sendable {
-  public static var supportsSecureCoding: Bool { true }
+public class PasskeyInfo: NSObject, AuthProto, NSSecureCoding, @unchecked Sendable {
   /// The display name for this passkey.
-  public let name: String
+  public let name: String?
   /// The credential ID used by the server.
-  public let credentialID: String
-
-  public convenience init?(dictionary: [String: AnyHashable]) {
-    guard
-      let name = dictionary["name"] as? String,
-      let credentialID = dictionary["credentialId"] as? String
-    else { return nil }
-    self.init(name: name, credentialID: credentialID)
+  public let credentialID: String?
+  required init(dictionary: [String: AnyHashable]) {
+    name = dictionary["name"] as? String
+    credentialID = dictionary["credentialId"] as? String
   }
 
-  public init(name: String, credentialID: String) {
-    self.name = name
-    self.credentialID = credentialID
-    super.init()
-  }
-
-  // MARK: NSSecureCoding
+  // NSSecureCoding
+  public static var supportsSecureCoding: Bool { true }
 
   public func encode(with coder: NSCoder) {
-    coder.encode(name as NSString, forKey: "name")
-    coder.encode(credentialID as NSString, forKey: "credentialId")
+    coder.encode(name, forKey: "name")
+    coder.encode(credentialID, forKey: "credentialId")
   }
 
   public required init?(coder: NSCoder) {
-    guard
-      let name = coder.decodeObject(of: NSString.self, forKey: "name") as String?,
-      let credentialID = coder.decodeObject(of: NSString.self, forKey: "credentialId") as String?
-    else { return nil }
-    self.name = name
-    self.credentialID = credentialID
+    name = coder.decodeObject(of: NSString.self, forKey: "name") as String?
+    credentialID = coder.decodeObject(of: NSString.self, forKey: "credentialId") as String?
     super.init()
   }
 }
