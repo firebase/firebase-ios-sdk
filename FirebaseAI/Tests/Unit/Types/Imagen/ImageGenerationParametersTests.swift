@@ -205,6 +205,7 @@ final class ImageGenerationParametersTests: XCTestCase {
     let outputOptions = ImageGenerationOutputOptions(mimeType: mimeType, compressionQuality: nil)
     let addWatermark = false
     let includeRAIReason = true
+    let includeSafetyAttributes = true
     let parameters = ImageGenerationParameters(
       sampleCount: sampleCount,
       storageURI: storageURI,
@@ -215,7 +216,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       outputOptions: outputOptions,
       addWatermark: addWatermark,
       includeResponsibleAIFilterReason: includeRAIReason,
-      includeSafetyAttributes: true
+      includeSafetyAttributes: includeSafetyAttributes
     )
 
     let jsonData = try encoder.encode(parameters)
@@ -226,7 +227,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       "addWatermark" : \(addWatermark),
       "aspectRatio" : "\(aspectRatio)",
       "includeRaiReason" : \(includeRAIReason),
-      "includeSafetyAttributes" : true,
+      "includeSafetyAttributes" : \(includeSafetyAttributes),
       "negativePrompt" : "\(negativePrompt)",
       "outputOptions" : {
         "mimeType" : "\(mimeType)"
@@ -253,7 +254,8 @@ final class ImageGenerationParametersTests: XCTestCase {
       personGeneration: nil,
       outputOptions: nil,
       addWatermark: addWatermark,
-      includeResponsibleAIFilterReason: nil
+      includeResponsibleAIFilterReason: nil,
+      includeSafetyAttributes: nil
     )
 
     let jsonData = try encoder.encode(parameters)
@@ -279,7 +281,8 @@ final class ImageGenerationParametersTests: XCTestCase {
       personGeneration: nil,
       outputOptions: nil,
       addWatermark: nil,
-      includeResponsibleAIFilterReason: nil
+      includeResponsibleAIFilterReason: nil,
+      includeSafetyAttributes: nil
     )
 
     let jsonData = try encoder.encode(parameters)
