@@ -34,7 +34,8 @@ final class ImageGenerationParametersTests: XCTestCase {
       personGeneration: nil,
       outputOptions: nil,
       addWatermark: nil,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
     )
 
     let parameters = ImagenModel.imageGenerationParameters(
@@ -57,7 +58,8 @@ final class ImageGenerationParametersTests: XCTestCase {
       personGeneration: nil,
       outputOptions: nil,
       addWatermark: nil,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
     )
 
     let parameters = ImagenModel.imageGenerationParameters(
@@ -95,7 +97,8 @@ final class ImageGenerationParametersTests: XCTestCase {
         compressionQuality: imageFormat.compressionQuality
       ),
       addWatermark: addWatermark,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
     )
 
     let parameters = ImagenModel.imageGenerationParameters(
@@ -124,7 +127,8 @@ final class ImageGenerationParametersTests: XCTestCase {
       personGeneration: personFilterLevel.rawValue,
       outputOptions: nil,
       addWatermark: nil,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
     )
 
     let parameters = ImagenModel.imageGenerationParameters(
@@ -170,7 +174,8 @@ final class ImageGenerationParametersTests: XCTestCase {
         compressionQuality: imageFormat.compressionQuality
       ),
       addWatermark: addWatermark,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
     )
 
     let parameters = ImagenModel.imageGenerationParameters(
@@ -209,7 +214,8 @@ final class ImageGenerationParametersTests: XCTestCase {
       personGeneration: personGeneration,
       outputOptions: outputOptions,
       addWatermark: addWatermark,
-      includeResponsibleAIFilterReason: includeRAIReason
+      includeResponsibleAIFilterReason: includeRAIReason,
+      includeSafetyAttributes: true
     )
 
     let jsonData = try encoder.encode(parameters)
@@ -220,6 +226,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       "addWatermark" : \(addWatermark),
       "aspectRatio" : "\(aspectRatio)",
       "includeRaiReason" : \(includeRAIReason),
+      "includeSafetyAttributes" : true,
       "negativePrompt" : "\(negativePrompt)",
       "outputOptions" : {
         "mimeType" : "\(mimeType)"
