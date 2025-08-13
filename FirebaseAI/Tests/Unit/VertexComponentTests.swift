@@ -211,7 +211,12 @@ class VertexComponentTests: XCTestCase {
   func testModelResourceName_developerAPI_generativeLanguage() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
-    let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig, aiConfig: .config())
+    let vertex = FirebaseAI.createInstance(
+      app: app,
+      location: nil,
+      apiConfig: apiConfig,
+      aiConfig: .config()
+    )
     let model = "test-model-name"
 
     let modelResourceName = vertex.modelResourceName(modelName: model)
@@ -225,7 +230,12 @@ class VertexComponentTests: XCTestCase {
       service: .googleAI(endpoint: .firebaseProxyStaging),
       version: .v1beta
     )
-    let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig, aiConfig: .config())
+    let vertex = FirebaseAI.createInstance(
+      app: app,
+      location: nil,
+      apiConfig: apiConfig,
+      aiConfig: .config()
+    )
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
 
@@ -256,7 +266,12 @@ class VertexComponentTests: XCTestCase {
       service: .googleAI(endpoint: .firebaseProxyStaging),
       version: .v1beta
     )
-    let vertex = FirebaseAI.createInstance(app: app, location: nil, apiConfig: apiConfig, aiConfig: .config())
+    let vertex = FirebaseAI.createInstance(
+      app: app,
+      location: nil,
+      apiConfig: apiConfig,
+      aiConfig: .config()
+    )
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
