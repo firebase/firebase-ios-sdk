@@ -1,3 +1,11 @@
+# Unreleased
+- [feature] Added support for using App Check's `limitedUseTokens` feature when generating tokens.
+This must be explicitly enabled via the new `FirebaseAI.Config` struct, when initializing an
+instance of `FirebaseAI`. While [replay protection](https://firebase.google.com/docs/app-check/custom-resource-backend#replay-protection)
+is not currently supported for the Firebase AI Logic SDK, we plan to roll it out in the future. As
+such, consumers should migrate to using `limitedUseTokens` _now_, so that when replay protection
+support is added, consumers can enable it without breaking their app for users.
+
 # 12.0.0
 - [added] Added support for Grounding with Google Search. (#15014)
 - [removed] Removed `CountTokensResponse.totalBillableCharacters` which was
