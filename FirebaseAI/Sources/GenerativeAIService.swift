@@ -180,7 +180,7 @@ struct GenerativeAIService {
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     if let appCheck = firebaseInfo.appCheck {
-      let tokenResult = await fetchAppCheckToken(appCheck: appCheck)
+      let tokenResult = try await fetchAppCheckToken(appCheck: appCheck)
       urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
       if let error = tokenResult.error {
         AILog.error(
@@ -210,18 +210,24 @@ struct GenerativeAIService {
     return urlRequest
   }
 
-  private func fetchAppCheckToken(appCheck: AppCheckInterop) async
+  private func fetchAppCheckToken(appCheck: AppCheckInterop) async throws
     -> FIRAppCheckTokenResultInterop {
-    if aiConfig.appCheck.requireLimitedUseTokens {
-      if let token = await appCheck.getLimitedUseToken?() {
-        return token
-      }
+      if aiConfig.appCheck.requireLimitedUseTokens {
+        if let token = await appCheck.getLimitedUseToken?() {
+          return token
+        }
 
-      AILog.error(
-        code: .appCheckTokenFetchFailed,
-        "Missing getLimitedUseToken() function, but requireLimitedUseTokens was enabled."
-      )
-      // falls back to standard token
+        let errorMessage = "The provided App Check token provider doesn't implement getLimitedUseToken(), but requireLimitedUseTokens was enabled.";
+
+        #if Debug
+          fatalError(errorMessage)
+        #else
+          throw NSError(
+            domain: "com.google.firebase.ai.GenerativeAIService",
+            code: AILog.MessageCode.appCheckTokenFetchFailed.rawValue,
+            userInfo: [NSLocalizedDescriptionKey: errorMessage]
+          )
+        #endif
     }
 
     return await appCheck.getToken(forcingRefresh: false)
