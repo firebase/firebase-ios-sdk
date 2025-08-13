@@ -32,7 +32,7 @@ public struct AppCheckOptions: Sendable, Hashable, Equatable {
   ///     `limitedUseTokens` are also _consumed_ after each request, ensuring they can't be used
   ///     again.
   ///
-  ///     _To prevent breakage, this flag is set to `false` by default._
+  ///     _This flag is set to `false` by default._
   ///
   ///     > Important: Replay protection is not currently supported for the FirebaseAI backend.
   ///     > While this feature is being developed, you can still migrate to using
