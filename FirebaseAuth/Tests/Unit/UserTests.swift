@@ -2120,5 +2120,77 @@ class UserTests: RPCBaseTests {
 
       await fulfillment(of: [expectation], timeout: 5)
     }
+
+    func testUnenrollPasskeySuccess() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+      signInWithEmailPasswordReturnFakeUser { user in
+        self.rpcIssuer.respondBlock = {
+          let request = try XCTUnwrap(self.rpcIssuer?.request as? SetAccountInfoRequest)
+          XCTAssertEqual(request.deletePasskeys, ["testCredentialID"])
+          XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
+          return try self.rpcIssuer.respond(
+            withJSON: [
+              "idToken": RPCBaseTests.kFakeAccessToken,
+              "refreshToken": self.kRefreshToken,
+              "approximateExpirationDate": "\(Date().timeIntervalSince1970 * 1000)",
+            ]
+          )
+        }
+        Task {
+          do {
+            try await user.unenrollPasskey(withCredentialID: "testCredentialID")
+            expectation.fulfill()
+          } catch {
+            XCTFail("Should not throw error: \(error)")
+          }
+        }
+      }
+      await fulfillment(of: [expectation], timeout: 5)
+    }
+
+    func testUnenrollPasskeyNotFoundFailure() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+      signInWithEmailPasswordReturnFakeUser { user in
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer
+            .respond(
+              serverErrorMessage: "PASSKEY_ENROLLMENT_NOT_FOUND"
+            )
+        }
+        Task {
+          do {
+            try await user.unenrollPasskey(withCredentialID: "invalidCredentialID")
+            XCTFail("Expected error not thrown")
+          } catch let error as NSError {
+            XCTAssertEqual(error.domain, AuthErrorDomain)
+            XCTAssertEqual(
+              error.localizedDescription,
+              "Cannot find the passkey linked to the current account."
+            )
+            expectation.fulfill()
+          }
+        }
+      }
+      await fulfillment(of: [expectation], timeout: 5)
+    }
+
+    func testUnenrollPasskeyFailure_EmptyCredentialID() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+      signInWithEmailPasswordReturnFakeUser { user in
+        Task {
+          do {
+            try await user.unenrollPasskey(withCredentialID: "")
+            XCTFail("Expected error for empty credentialID")
+          } catch let error as NSError {
+            XCTAssertEqual(error.code, AuthErrorCode.missingPasskeyEnrollment.rawValue)
+            expectation.fulfill()
+          }
+        }
+      }
+      await fulfillment(of: [expectation], timeout: 2)
+    }
   }
 #endif
