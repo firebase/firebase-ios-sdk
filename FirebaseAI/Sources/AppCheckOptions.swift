@@ -27,7 +27,7 @@ public struct AppCheckOptions: Sendable, Hashable, Equatable {
   ///   - requireLimitedUseTokens: When sending tokens to the backend, this option enables
   ///     the usage of App Check's `limitedUseTokens` instead of the standard cached tokens.
   ///
-  ///     A new `limitedUseToken` will be generated for each request; providing a lower attack
+  ///     A new `limitedUseToken` will be generated for each request; providing a smaller attack
   ///     surface for malicious parties to hijack tokens. When used alongside [replay protection](https://firebase.google.com/docs/app-check/custom-resource-backend#replay-protection),
   ///     `limitedUseTokens` are also _consumed_ after each request, ensuring they can't be used
   ///     again.
