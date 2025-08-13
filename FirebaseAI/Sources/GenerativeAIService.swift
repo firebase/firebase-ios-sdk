@@ -224,7 +224,7 @@ struct GenerativeAIService {
         fatalError(errorMessage)
       #else
         throw NSError(
-          domain: "com.google.firebase.ai.GenerativeAIService",
+          domain: "\(Constants.baseErrorDomain).\(Self.self)",
           code: AILog.MessageCode.appCheckTokenFetchFailed.rawValue,
           userInfo: [NSLocalizedDescriptionKey: errorMessage]
         )
