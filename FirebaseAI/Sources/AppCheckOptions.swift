@@ -40,8 +40,8 @@ public struct AppCheckOptions: Sendable, Hashable, Equatable {
   ///     > use them without replay protection. Due to their shorter TTL over standard App Check
   ///     > tokens, they still provide a security benefit.
   ///     >
-  ///     > Migrating to limited-use tokens ahead of time will also allow you to enable replay
-  ///     > protection down the road (when support is added), without breaking your users.
+  ///   > Migrating to limited-use tokens sooner minimizes disruption when support for replay
+  ///   > protection is added.
   public init(requireLimitedUseTokens: Bool = false) {
     self.requireLimitedUseTokens = requireLimitedUseTokens
   }
