@@ -36,11 +36,11 @@ public struct AppCheckOptions: Sendable, Hashable, Equatable {
   ///
   ///     > Important: Replay protection is not currently supported for the FirebaseAI backend.
   ///     > While this feature is being developed, you can still migrate to using
-  ///     > `limitedUseTokens`. Because `limitedUseTokens` are backwards compatible, you can still
+  ///     > limited-use tokens. Because limited-use tokens are backwards compatible, you can still
   ///     > use them without replay protection. Due to their shorter TTL over standard App Check
   ///     > tokens, they still provide a security benefit.
   ///     >
-  ///     > Migrating to `limitedUseTokens` ahead of time will also allow you to enable replay
+  ///     > Migrating to limited-use tokens ahead of time will also allow you to enable replay
   ///     > protection down the road (when support is added), without breaking your users.
   public init(requireLimitedUseTokens: Bool = false) {
     self.requireLimitedUseTokens = requireLimitedUseTokens
