@@ -114,9 +114,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.2
-          # - os: macos-15
-          #   xcode: Xcode_16.4
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -176,7 +174,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -226,9 +224,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.2
-          # - os: macos-15
-          #   xcode: Xcode_16.4
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -277,9 +273,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.2
-          # - os: macos-15
-          #   xcode: Xcode_16.4
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -403,9 +397,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.2
-          # - os: macos-15
-          #   xcode: Xcode_16.4
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -487,9 +479,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.2
-          # - os: macos-15
-          #   xcode: Xcode_16.4
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -542,9 +532,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.2
-          # - os: macos-15
-          #   xcode: Xcode_16.4
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
@@ -597,9 +585,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.2
-          # - os: macos-15
-          #   xcode: Xcode_16.4
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4

@@ -67,7 +67,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
       - name: Generate Swift Package.resolved
         id: swift_package_resolve
         run: swift package resolve
@@ -106,8 +106,8 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Install visionOS, if needed.
       if: matrix.platform == 'visionOS'
-      run: ls $(xcode-select -p)/Platforms/XROS.platform || \
-        { xcodebuild -downloadPlatform visionOS }
+      run:
+        xcodebuild -downloadPlatform visionOS
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
       run: ${{ inputs.setup_command }}
