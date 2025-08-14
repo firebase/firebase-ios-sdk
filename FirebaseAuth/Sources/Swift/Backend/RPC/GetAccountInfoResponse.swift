@@ -92,6 +92,9 @@ struct GetAccountInfoResponse: AuthRPCResponse {
 
     let mfaEnrollments: [AuthProtoMFAEnrollment]?
 
+    /// A list of the user’s enrolled passkeys.
+    let enrolledPasskeys: [PasskeyInfo]?
+
     /// Designated initializer.
     /// - Parameter dictionary: The provider user info data from endpoint.
     init(dictionary: [String: Any]) {
@@ -132,6 +135,11 @@ struct GetAccountInfoResponse: AuthRPCResponse {
         }
       } else {
         mfaEnrollments = nil
+      }
+      if let passkeyEnrollmentData = dictionary["passkeys"] as? [[String: AnyHashable]] {
+        enrolledPasskeys = passkeyEnrollmentData.map { PasskeyInfo(dictionary: $0) }
+      } else {
+        enrolledPasskeys = nil
       }
     }
   }

@@ -14,6 +14,10 @@
 
 import Foundation
 
+#if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+  import AuthenticationServices
+#endif
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension User: NSSecureCoding {}
 
@@ -63,6 +67,7 @@ extension User: NSSecureCoding {}
     ///
     /// This property is available on iOS only.
     @objc public private(set) var multiFactor: MultiFactor
+    public private(set) var enrolledPasskeys: [PasskeyInfo]?
   #endif
 
   /// [Deprecated] Updates the email address for the user.
@@ -1047,6 +1052,110 @@ extension User: NSSecureCoding {}
     }
   }
 
+  // MARK: Passkey Implementation
+
+  #if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+    /// A cached passkey name being passed from startPasskeyEnrollment(withName:) call and consumed
+    /// at finalizePasskeyEnrollment(withPlatformCredential:) call
+    private var passkeyName: String?
+    private let defaultPasskeyName: String = "Unnamed account (Apple)"
+
+    /// Start the passkey enrollment creating a plaform public key creation request with the
+    /// challenge from GCIP backend.
+    /// - Parameter name: The name for the passkey to be created.
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    public func startPasskeyEnrollment(withName name: String?) async throws
+      -> ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest {
+      guard auth != nil else {
+        /// If auth is nil, this User object is in an invalid state for this operation.
+        fatalError(
+          "Firebase Auth Internal Error: Set user's auth property with non-nil instance. Cannot start passkey enrollment."
+        )
+      }
+      let enrollmentIdToken = rawAccessToken()
+      let request = StartPasskeyEnrollmentRequest(
+        idToken: enrollmentIdToken,
+        requestConfiguration: requestConfiguration
+      )
+      let response = try await backend.call(with: request)
+      guard let passkeyName = (name?.isEmpty ?? true) ? defaultPasskeyName : name
+      else { throw NSError(
+        domain: AuthErrorDomain,
+        code: AuthErrorCode.internalError.rawValue,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to unwrap passkey name"]
+      ) }
+      guard let challengeInData = Data(base64Encoded: response.challenge) else {
+        throw NSError(
+          domain: AuthErrorDomain,
+          code: AuthInternalErrorCode.RPCResponseDecodingError.rawValue,
+          userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 challenge from response."]
+        )
+      }
+      guard let userIdInData = Data(base64Encoded: response.userID) else {
+        throw NSError(
+          domain: AuthErrorDomain,
+          code: AuthInternalErrorCode.RPCResponseDecodingError.rawValue,
+          userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 userId from response."]
+        )
+      }
+      let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+        relyingPartyIdentifier: response.rpID
+      )
+      return provider.createCredentialRegistrationRequest(
+        challenge: challengeInData,
+        name: passkeyName,
+        userID: userIdInData
+      )
+    }
+
+    /// Finalize the passkey enrollment with the platfrom public key credential.
+    /// - Parameter platformCredential: The name for the passkey to be created.
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    public func finalizePasskeyEnrollment(withPlatformCredential platformCredential: ASAuthorizationPlatformPublicKeyCredentialRegistration) async throws
+      -> AuthDataResult {
+      let credentialID = platformCredential.credentialID.base64EncodedString()
+      let clientDataJSON = platformCredential.rawClientDataJSON.base64EncodedString()
+      let attestationObject = platformCredential.rawAttestationObject!.base64EncodedString()
+
+      let request = FinalizePasskeyEnrollmentRequest(
+        idToken: rawAccessToken(),
+        name: passkeyName ?? "Unnamed account (Apple)",
+        credentialID: credentialID,
+        clientDataJSON: clientDataJSON,
+        attestationObject: attestationObject,
+        requestConfiguration: auth!.requestConfiguration
+      )
+      let response = try await backend.call(with: request)
+      let user = try await auth!.completeSignIn(
+        withAccessToken: response.idToken,
+        accessTokenExpirationDate: nil,
+        refreshToken: response.refreshToken,
+        anonymous: false
+      )
+      return AuthDataResult(withUser: user, additionalUserInfo: nil)
+    }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    public func unenrollPasskey(withCredentialID credentialID: String) async throws {
+      guard !credentialID.isEmpty else {
+        throw AuthErrorCode.missingPasskeyEnrollment
+      }
+      let request = SetAccountInfoRequest(
+        requestConfiguration: auth!.requestConfiguration
+      )
+      request.deletePasskeys = [credentialID]
+      request.accessToken = rawAccessToken()
+      let response = try await backend.call(with: request)
+      _ = try await auth!.completeSignIn(
+        withAccessToken: response.idToken,
+        accessTokenExpirationDate: response.approximateExpirationDate,
+        refreshToken: response.refreshToken,
+        anonymous: false
+      )
+    }
+  #endif
+
   // MARK: Internal implementations below
 
   func rawAccessToken() -> String {
@@ -1068,6 +1177,7 @@ extension User: NSSecureCoding {}
     tenantID = nil
     #if os(iOS)
       multiFactor = MultiFactor(withMFAEnrollments: [])
+      enrolledPasskeys = []
     #endif
     uid = ""
     hasEmailPasswordCredential = false
@@ -1302,6 +1412,7 @@ extension User: NSSecureCoding {}
         multiFactor = MultiFactor(withMFAEnrollments: enrollments)
       }
       multiFactor.user = self
+      enrolledPasskeys = user.enrolledPasskeys ?? []
     #endif
   }
 
@@ -1698,6 +1809,7 @@ extension User: NSSecureCoding {}
   private let kMetadataCodingKey = "metadata"
   private let kMultiFactorCodingKey = "multiFactor"
   private let kTenantIDCodingKey = "tenantID"
+  private let kEnrolledPasskeysKey = "passkeys"
 
   public static let supportsSecureCoding = true
 
@@ -1720,6 +1832,7 @@ extension User: NSSecureCoding {}
     coder.encode(tokenService, forKey: kTokenServiceCodingKey)
     #if os(iOS)
       coder.encode(multiFactor, forKey: kMultiFactorCodingKey)
+      coder.encode(enrolledPasskeys, forKey: kEnrolledPasskeysKey)
     #endif
   }
 
@@ -1749,6 +1862,9 @@ extension User: NSSecureCoding {}
     let tenantID = coder.decodeObject(of: NSString.self, forKey: kTenantIDCodingKey) as? String
     #if os(iOS)
       let multiFactor = coder.decodeObject(of: MultiFactor.self, forKey: kMultiFactorCodingKey)
+      let passkeyAllowed: [AnyClass] = [NSArray.self, PasskeyInfo.self]
+      let passkeys = coder.decodeObject(of: passkeyAllowed,
+                                        forKey: kEnrolledPasskeysKey) as? [PasskeyInfo]
     #endif
     self.tokenService = tokenService
     uid = userID
@@ -1782,6 +1898,7 @@ extension User: NSSecureCoding {}
       self.multiFactor = multiFactor ?? MultiFactor()
       super.init()
       multiFactor?.user = self
+      enrolledPasskeys = passkeys ?? []
     #endif
   }
 }
