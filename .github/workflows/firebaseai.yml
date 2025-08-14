@@ -86,7 +86,7 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            xcode: Xcode_16.3
+            xcode: Xcode_16.2
     runs-on: ${{ matrix.os }}
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}
