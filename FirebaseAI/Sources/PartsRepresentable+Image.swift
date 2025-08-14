@@ -50,8 +50,8 @@ enum ImageConversionError: Error {
 #elseif canImport(AppKit)
   /// Enables images to be representable as ``PartsRepresentable``.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  extension NSImage: PartsRepresentable {
-    public var partsValue: [any Part] {
+  public extension NSImage {
+    var partsValue: [any Part] {
       guard let cgImage = cgImage(forProposedRect: nil, context: nil, hints: nil) else {
         return [ErrorPart(ImageConversionError.invalidUnderlyingImage)]
       }
@@ -63,13 +63,22 @@ enum ImageConversionError: Error {
       return [InlineDataPart(data: data, mimeType: "image/jpeg")]
     }
   }
-#endif
+
+  #if swift(>=6.2)
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+    extension NSImage: PartsRepresentable {}
+  #else // swift(>=6.2)
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+    extension NSImage: @unchecked @retroactive Sendable, PartsRepresentable {}
+  #endif
+
+#endif // canImport(UIKit)
 
 #if !os(watchOS) // This code does not build on watchOS.
   /// Enables `CGImages` to be representable as model content.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
-  extension CGImage: PartsRepresentable {
-    public var partsValue: [any Part] {
+  public extension CGImage {
+    var partsValue: [any Part] {
       let output = NSMutableData()
       guard let imageDestination = CGImageDestinationCreateWithData(
         output, UTType.jpeg.identifier as CFString, 1, nil
@@ -86,13 +95,22 @@ enum ImageConversionError: Error {
       return [ErrorPart(ImageConversionError.couldNotConvertToJPEG)]
     }
   }
+
+  #if swift(>=6.1)
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+    extension CGImage: PartsRepresentable {}
+  #else // swift(>=6.1)
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+    extension CGImage: @unchecked @retroactive Sendable, PartsRepresentable {}
+  #endif // swift(>=6.1)
+
 #endif // !os(watchOS)
 
 #if canImport(CoreImage)
   /// Enables `CIImages` to be representable as model content.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
-  extension CIImage: PartsRepresentable {
-    public var partsValue: [any Part] {
+  public extension CIImage {
+    var partsValue: [any Part] {
       let context = CIContext()
       let jpegData = (colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB))
         .flatMap {
@@ -107,4 +125,13 @@ enum ImageConversionError: Error {
       return [ErrorPart(ImageConversionError.couldNotConvertToJPEG)]
     }
   }
+
+  #if swift(>=6.2)
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+    extension CIImage: PartsRepresentable {}
+  #else // swift(>=6.2)
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+    extension CIImage: @unchecked @retroactive Sendable, PartsRepresentable {}
+  #endif // swift(>=6.2)
+
 #endif // canImport(CoreImage)
