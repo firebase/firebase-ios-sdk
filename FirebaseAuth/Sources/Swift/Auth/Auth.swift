@@ -29,6 +29,10 @@ import FirebaseCoreExtension
   import UIKit
 #endif
 
+#if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+  import AuthenticationServices
+#endif
+
 // Export the deprecated Objective-C defined globals and typedefs.
 #if SWIFT_PACKAGE
   @_exported import FirebaseAuthInternal
@@ -1640,6 +1644,60 @@ extension Auth: AuthInterop {
   /// The object parameter of the notification is the sender `Auth` instance.
   public static let authStateDidChangeNotification =
     NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
+
+  // MARK: Passkey Implementation
+
+  #if os(iOS) || os(tvOS) || os(macOS) || targetEnvironment(macCatalyst)
+
+    /// starts sign in with passkey retrieving challenge from GCIP and create an assertion request.
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    public func startPasskeySignIn() async throws ->
+      ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
+      let request = StartPasskeySignInRequest(requestConfiguration: requestConfiguration)
+      let response = try await backend.call(with: request)
+      guard let challengeInData = Data(base64Encoded: response.challenge) else {
+        throw NSError(
+          domain: AuthErrorDomain,
+          code: AuthInternalErrorCode.RPCResponseDecodingError.rawValue,
+          userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 challenge from response."]
+        )
+      }
+      let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+        relyingPartyIdentifier: response.rpID
+      )
+      return provider.createCredentialAssertionRequest(
+        challenge: challengeInData
+      )
+    }
+
+    ///  finalize sign in with passkey with existing credential assertion.
+    ///  - Parameter platformCredential The existing credential  assertion created by device.
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    public func finalizePasskeySignIn(withPlatformCredential platformCredential: ASAuthorizationPlatformPublicKeyCredentialAssertion) async throws
+      -> AuthDataResult {
+      let credentialID = platformCredential.credentialID.base64EncodedString()
+      let clientDataJSON = platformCredential.rawClientDataJSON.base64EncodedString()
+      let authenticatorData = platformCredential.rawAuthenticatorData.base64EncodedString()
+      let signature = platformCredential.signature.base64EncodedString()
+      let userID = platformCredential.userID.base64EncodedString()
+      let request = FinalizePasskeySignInRequest(
+        credentialID: credentialID,
+        clientDataJSON: clientDataJSON,
+        authenticatorData: authenticatorData,
+        signature: signature,
+        userId: userID,
+        requestConfiguration: requestConfiguration
+      )
+      let response = try await backend.call(with: request)
+      let user = try await Auth.auth().completeSignIn(
+        withAccessToken: response.idToken,
+        accessTokenExpirationDate: nil,
+        refreshToken: response.refreshToken,
+        anonymous: false
+      )
+      return AuthDataResult(withUser: user, additionalUserInfo: nil)
+    }
+  #endif
 
   // MARK: Internal methods
 
