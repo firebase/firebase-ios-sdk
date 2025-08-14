@@ -17,6 +17,7 @@
 /// The GCIP endpoint for finalizePasskeySignIn rpc
 private let finalizePasskeySignInEndPoint = "accounts/passkeySignIn:finalize"
 
+@available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
 class FinalizePasskeySignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = FinalizePasskeySignInResponse
   /// The credential ID
