@@ -32,13 +32,18 @@ public final class FirebaseAI: Sendable {
   ///     ``FirebaseApp``.
   ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
   ///     ``Backend/googleAI()`` (Gemini Developer API).
+  ///   - config: Configuration options for the Firebase AI SDK that propogate across all models
+  ///     created. Uses default options when not specified, see the ``FirebaseAI.Config``
+  ///     documentation for more information.
   /// - Returns: A `FirebaseAI` instance, configured with the custom `FirebaseApp`.
   public static func firebaseAI(app: FirebaseApp? = nil,
-                                backend: Backend = .googleAI()) -> FirebaseAI {
+                                backend: Backend = .googleAI(),
+                                config: FirebaseAI.Config = .config()) -> FirebaseAI {
     let instance = createInstance(
       app: app,
       location: backend.location,
-      apiConfig: backend.apiConfig
+      apiConfig: backend.apiConfig,
+      aiConfig: config
     )
     // Verify that the `FirebaseAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
@@ -90,7 +95,8 @@ public final class FirebaseAI: Sendable {
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      requestOptions: requestOptions
+      requestOptions: requestOptions,
+      aiConfig: aiConfig
     )
   }
 
@@ -126,7 +132,8 @@ public final class FirebaseAI: Sendable {
       apiConfig: apiConfig,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
-      requestOptions: requestOptions
+      requestOptions: requestOptions,
+      aiConfig: aiConfig
     )
   }
 
@@ -134,12 +141,29 @@ public final class FirebaseAI: Sendable {
   /// to include FirebaseAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
 
+  /// Configuration options for ``FirebaseAI``, which persists across all models.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public struct Config: Sendable, Hashable, Equatable {
+    /// Options for App Check specific behavior within a ``FirebaseAI`` instance.
+    let appCheck: AppCheckOptions
+
+    /// Creates a new ``FirebaseAI.Config`` value.
+    ///
+    /// - Parameters:
+    ///   - appCheck: Optionally configure certain behavior with how App Check is used.
+    public static func config(appCheck: AppCheckOptions = AppCheckOptions()) -> Config {
+      Config(appCheck: appCheck)
+    }
+  }
+
   // MARK: - Private
 
   /// Firebase data relevant to Firebase AI.
   let firebaseInfo: FirebaseInfo
 
   let apiConfig: APIConfig
+
+  let aiConfig: FirebaseAI.Config
 
   /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp` name and the `location`,
   /// in the format `appName:location`.
@@ -156,7 +180,7 @@ public final class FirebaseAI: Sendable {
   )
 
   static func createInstance(app: FirebaseApp?, location: String?,
-                             apiConfig: APIConfig) -> FirebaseAI {
+                             apiConfig: APIConfig, aiConfig: FirebaseAI.Config) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -166,16 +190,26 @@ public final class FirebaseAI: Sendable {
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
 
-    let instanceKey = InstanceKey(appName: app.name, location: location, apiConfig: apiConfig)
+    let instanceKey = InstanceKey(
+      appName: app.name,
+      location: location,
+      apiConfig: apiConfig,
+      aiConfig: aiConfig
+    )
     if let instance = instances[instanceKey] {
       return instance
     }
-    let newInstance = FirebaseAI(app: app, location: location, apiConfig: apiConfig)
+    let newInstance = FirebaseAI(
+      app: app,
+      location: location,
+      apiConfig: apiConfig,
+      aiConfig: aiConfig
+    )
     instances[instanceKey] = newInstance
     return newInstance
   }
 
-  init(app: FirebaseApp, location: String?, apiConfig: APIConfig) {
+  init(app: FirebaseApp, location: String?, apiConfig: APIConfig, aiConfig: FirebaseAI.Config) {
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
     }
@@ -195,6 +229,7 @@ public final class FirebaseAI: Sendable {
     )
     self.apiConfig = apiConfig
     self.location = location
+    self.aiConfig = aiConfig
   }
 
   func modelResourceName(modelName: String) -> String {
@@ -249,5 +284,6 @@ public final class FirebaseAI: Sendable {
     let appName: String
     let location: String?
     let apiConfig: APIConfig
+    let aiConfig: FirebaseAI.Config
   }
 }
