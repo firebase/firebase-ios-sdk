@@ -23,6 +23,7 @@ struct ImageGenerationParameters {
   let outputOptions: ImageGenerationOutputOptions?
   let addWatermark: Bool?
   let includeResponsibleAIFilterReason: Bool?
+  let includeSafetyAttributes: Bool?
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -42,6 +43,7 @@ extension ImageGenerationParameters: Encodable {
     case outputOptions
     case addWatermark
     case includeResponsibleAIFilterReason = "includeRaiReason"
+    case includeSafetyAttributes
   }
 
   func encode(to encoder: any Encoder) throws {
@@ -58,5 +60,6 @@ extension ImageGenerationParameters: Encodable {
       includeResponsibleAIFilterReason,
       forKey: .includeResponsibleAIFilterReason
     )
+    try container.encodeIfPresent(includeSafetyAttributes, forKey: .includeSafetyAttributes)
   }
 }

@@ -25,6 +25,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   let aspectRatio = "16:9"
   let safetyFilterLevel = "block_low_and_above"
   let includeResponsibleAIFilterReason = true
+  let includeSafetyAttributes = true
   lazy var parameters = ImageGenerationParameters(
     sampleCount: sampleCount,
     storageURI: nil,
@@ -34,7 +35,8 @@ final class ImagenGenerationRequestTests: XCTestCase {
     personGeneration: nil,
     outputOptions: nil,
     addWatermark: nil,
-    includeResponsibleAIFilterReason: includeResponsibleAIFilterReason
+    includeResponsibleAIFilterReason: includeResponsibleAIFilterReason,
+    includeSafetyAttributes: includeSafetyAttributes
   )
   let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
@@ -108,6 +110,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
       "parameters" : {
         "aspectRatio" : "\(aspectRatio)",
         "includeRaiReason" : \(includeResponsibleAIFilterReason),
+        "includeSafetyAttributes" : \(includeSafetyAttributes),
         "safetySetting" : "\(safetyFilterLevel)",
         "sampleCount" : \(sampleCount)
       }
@@ -137,6 +140,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
       "parameters" : {
         "aspectRatio" : "\(aspectRatio)",
         "includeRaiReason" : \(includeResponsibleAIFilterReason),
+        "includeSafetyAttributes" : \(includeSafetyAttributes),
         "safetySetting" : "\(safetyFilterLevel)",
         "sampleCount" : \(sampleCount)
       }

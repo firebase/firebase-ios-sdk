@@ -82,10 +82,17 @@ jobs:
       setup_command: scripts/update_vertexai_responses.sh
 
   quickstart:
-    runs-on: macos-15
+    strategy:
+      matrix:
+        include:
+          - os: macos-15
+            xcode: Xcode_16.4
+    runs-on: ${{ matrix.os }}
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}
     steps:
     - uses: actions/checkout@v4
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Build Quickstart
       run: scripts/quickstart_build_spm.sh FirebaseAI
