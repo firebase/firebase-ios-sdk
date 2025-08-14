@@ -1124,6 +1124,27 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
 
   func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithAuthorization authorization: ASAuthorization) {
+    if #available(iOS 16.0, macOS 12.0, tvOS 16.0, *),
+       let regCred = authorization.credential
+       as? ASAuthorizationPlatformPublicKeyCredentialRegistration {
+      Task { @MainActor [weak self] in
+        guard let self else { return }
+        do {
+          guard let user = AppManager.shared.auth().currentUser else {
+            self.showAlert(for: "Finalize failed", message: "No signed-in user.")
+            return
+          }
+          _ = try await user.finalizePasskeyEnrollment(withPlatformCredential: regCred)
+          self.showAlert(for: "Passkey Enrollment", message: "Succeeded")
+          print("Passkey Enrollment succeeded.")
+        } catch {
+          self.showAlert(for: "Passkey Enrollment failed", message: error.localizedDescription)
+          print("Finalize enrollment failed: \(error.localizedDescription)")
+        }
+      }
+      return
+    }
+
     guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential
     else {
       print("Unable to retrieve AppleIDCredential")
@@ -1171,10 +1192,10 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
 
   func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithError error: any Error) {
-    // Ensure that you have:
+    print("ASAuthorization failed: \(error)")
+    // for Sign In with Apple, ensure that you have:
     //  - enabled `Sign in with Apple` on the Firebase console
     //  - added the `Sign in with Apple` capability for this project
-    print("Sign in with Apple failed: \(error)")
   }
 
   // MARK: ASAuthorizationControllerPresentationContextProviding
