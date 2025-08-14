@@ -335,7 +335,7 @@ import Foundation
 
   /// Indicates that the reCAPTCHA SDK actions class failed to create.
   case recaptchaActionCreationFailed = 17210
-  
+
   /// the authenticator response for passkey signin or enrollment is not parseable, missing required
   /// fields, or certain fields are invalid values
   case invalidAuthenticatorResponse = 17211
