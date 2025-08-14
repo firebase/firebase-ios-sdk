@@ -27,6 +27,13 @@ class AuthTests: RPCBaseTests {
   static let kFakeAPIKey = "FAKE_API_KEY"
   static let kFakeRecaptchaResponse = "RecaptchaResponse"
   static let kFakeRecaptchaVersion = "RecaptchaVersion"
+  static let kRpId = "FAKE_RP_ID"
+  static let kChallenge = "Y2hhbGxlbmdl"
+  private let kCredentialID = "FAKE_CREDENTIAL_ID"
+  private let kClientDataJSON = "FAKE_CLIENT_DATA"
+  private let kAuthenticatorData = "FAKE_AUTHENTICATOR_DATA"
+  private let kSignature = "FAKE_SIGNATURE"
+  private let kUserId = "FAKE_USERID"
   var auth: Auth!
   static var testNum = 0
   var authDispatcherCallback: (() -> Void)?
@@ -2455,3 +2462,172 @@ class AuthTests: RPCBaseTests {
     XCTAssertEqual(user.providerData.count, 0)
   }
 }
+
+// MARK: Passkey Sign-In Tests
+
+#if os(iOS)
+  import AuthenticationServices
+
+  @available(iOS 15.0, *)
+  extension AuthTests {
+    func testStartPasskeySignInSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      let expectedChallenge = AuthTests.kChallenge // base64 string
+      let expectedRpId = AuthTests.kRpId
+      let expectedChallengeData = Data(base64Encoded: expectedChallenge)!
+      rpcIssuer.respondBlock = {
+        let request = try XCTUnwrap(self.rpcIssuer.request as? StartPasskeySignInRequest)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        return try self.rpcIssuer.respond(withJSON: [
+          "credentialRequestOptions": [
+            "rpId": expectedRpId,
+            "challenge": expectedChallenge,
+          ],
+        ])
+      }
+      Task {
+        do {
+          let assertionRequest = try await self.auth.startPasskeySignIn()
+          XCTAssertEqual(assertionRequest.challenge, expectedChallengeData)
+          XCTAssertEqual(assertionRequest.relyingPartyIdentifier, expectedRpId)
+          expectation.fulfill()
+        } catch {
+          XCTFail("Unexpected error: \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    func testStartPasskeySignInFailure() throws {
+      let expectation = self.expectation(description: #function)
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
+      }
+      Task {
+        do {
+          _ = try await self.auth.startPasskeySignIn()
+          XCTFail("Expected error from backend but got success")
+        } catch {
+          let nsError = error as NSError
+          XCTAssertEqual(nsError.code, AuthErrorCode.operationNotAllowed.rawValue)
+          expectation.fulfill()
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    /// Helper mock to simulate platform credential fields
+    struct MockPlatformCredential {
+      let credentialID: Data
+      let clientDataJSON: Data
+      let authenticatorData: Data
+      let signature: Data
+      let userID: Data
+    }
+
+    private func buildFinalizeRequest(mock: MockPlatformCredential)
+      -> FinalizePasskeySignInRequest {
+      return FinalizePasskeySignInRequest(
+        credentialID: kCredentialID,
+        clientDataJSON: kClientDataJSON,
+        authenticatorData: kAuthenticatorData,
+        signature: kSignature,
+        userId: kUserId,
+        requestConfiguration: auth!.requestConfiguration
+      )
+    }
+
+    func testFinalizePasskeysigninSuccess() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+      rpcIssuer.respondBlock = {
+        let request = try XCTUnwrap(self.rpcIssuer?.request as? FinalizePasskeySignInRequest)
+        XCTAssertEqual(request.credentialID, self.kCredentialID)
+        XCTAssertNotNil(request.credentialID)
+        XCTAssertEqual(request.clientDataJSON, self.kClientDataJSON)
+        XCTAssertNotNil(request.clientDataJSON)
+        XCTAssertEqual(request.authenticatorData, self.kAuthenticatorData)
+        XCTAssertNotNil(request.authenticatorData)
+        XCTAssertEqual(request.signature, self.kSignature)
+        XCTAssertNotNil(request.signature)
+        XCTAssertEqual(request.userId, self.kUserId)
+        XCTAssertNotNil(request.userId)
+        return try self.rpcIssuer.respond(
+          withJSON: [
+            "idToken": RPCBaseTests.kFakeAccessToken,
+            "refreshToken": self.kRefreshToken,
+          ]
+        )
+      }
+      let mock = MockPlatformCredential(
+        credentialID: Data(kCredentialID.utf8),
+        clientDataJSON: Data(kClientDataJSON.utf8),
+        authenticatorData: Data(kAuthenticatorData.utf8),
+        signature: Data(kSignature.utf8),
+        userID: Data(kUserId.utf8)
+      )
+      Task {
+        let request = self.buildFinalizeRequest(mock: mock)
+        _ = try await self.authBackend.call(with: request)
+        expectation.fulfill()
+      }
+      XCTAssertNotNil(AuthTests.kFakeAccessToken)
+      await fulfillment(of: [expectation], timeout: 5)
+    }
+
+    func testFinalizePasskeySignInFailure() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+      rpcIssuer.respondBlock = {
+        // Simulate backend error (e.g., OperationNotAllowed)
+        try self.rpcIssuer.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
+      }
+      let mock = MockPlatformCredential(
+        credentialID: Data(kCredentialID.utf8),
+        clientDataJSON: Data(kClientDataJSON.utf8),
+        authenticatorData: Data(kAuthenticatorData.utf8),
+        signature: Data(kSignature.utf8),
+        userID: Data(kUserId.utf8)
+      )
+      Task {
+        let request = self.buildFinalizeRequest(mock: mock)
+        do {
+          _ = try await self.authBackend.call(with: request)
+          XCTFail("Expected error but got success")
+        } catch {
+          let nsError = error as NSError
+          XCTAssertEqual(nsError.code, AuthErrorCode.operationNotAllowed.rawValue)
+          expectation.fulfill()
+        }
+      }
+      await fulfillment(of: [expectation], timeout: 5)
+    }
+
+    func testFinalizePasskeySignInFailureWithoutAssertion() async throws {
+      setFakeGetAccountProvider()
+      let expectation = expectation(description: #function)
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(serverErrorMessage: "INVALID_AUTHENTICATOR_RESPONSE")
+      }
+      let mock = MockPlatformCredential(
+        credentialID: Data(kCredentialID.utf8),
+        clientDataJSON: Data(), // Empty or missing data
+        authenticatorData: Data(kAuthenticatorData.utf8),
+        signature: Data(), // Empty or missing data
+        userID: Data(kUserId.utf8)
+      )
+      Task {
+        let request = self.buildFinalizeRequest(mock: mock)
+        do {
+          _ = try await self.authBackend.call(with: request)
+          XCTFail("Expected invalid_authenticator_response error")
+        } catch {
+          let nsError = error as NSError
+          XCTAssertEqual(nsError.code, AuthErrorCode.invalidAuthenticatorResponse.rawValue)
+          expectation.fulfill()
+        }
+      }
+      await fulfillment(of: [expectation], timeout: 5)
+    }
+  }
+#endif

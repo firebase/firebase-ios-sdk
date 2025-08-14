@@ -441,6 +441,7 @@ final class AuthBackend: AuthBackendProtocol {
       return AuthErrorUtils.credentialAlreadyInUseError(
         message: serverDetailErrorMessage, credential: credential, email: email
       )
+    case "INVALID_AUTHENTICATOR_RESPONSE": return AuthErrorUtils.invalidAuthenticatorResponse()
     default:
       if let underlyingErrors = errorDictionary["errors"] as? [[String: String]] {
         for underlyingError in underlyingErrors {
