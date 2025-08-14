@@ -203,7 +203,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
   func testFindNearestStage() async throws {
     _ = db.pipeline().collection("books").findNearest(
       field: Field("embedding"),
-      vectorValue: [5.0],
+      vectorValue: VectorValue([5.0]),
       distanceMeasure: .cosine,
       limit: 3)
   }

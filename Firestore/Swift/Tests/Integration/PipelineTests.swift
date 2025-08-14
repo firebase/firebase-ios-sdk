@@ -1541,7 +1541,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         .collection(collRef.path)
         .findNearest(
           field: Field("embedding"),
-          vectorValue: [10, 1, 3, 1, 2, 1, 1, 1, 1, 1],
+          vectorValue: VectorValue([10, 1, 3, 1, 2, 1, 1, 1, 1, 1]),
           distanceMeasure: measure, limit: 3
         )
         .select(["title"])
@@ -1569,7 +1569,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .findNearest(
         field: Field("embedding"),
-        vectorValue: [10, 1, 2, 1, 1, 1, 1, 1, 1, 1],
+        vectorValue: VectorValue([10, 1, 2, 1, 1, 1, 1, 1, 1, 1]),
         distanceMeasure: .euclidean, limit: 2,
         distanceField: "computedDistance"
       )

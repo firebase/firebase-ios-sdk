@@ -242,13 +242,13 @@ class FindNearest: Stage {
   let name: String = "findNearest"
   let bridge: StageBridge
   private var field: Field
-  private var vectorValue: [Double]
+  private var vectorValue: VectorValue
   private var distanceMeasure: DistanceMeasure
   private var limit: Int?
   private var distanceField: String?
 
   init(field: Field,
-       vectorValue: [Double],
+       vectorValue: VectorValue,
        distanceMeasure: DistanceMeasure,
        limit: Int? = nil,
        distanceField: String? = nil) {
@@ -259,7 +259,7 @@ class FindNearest: Stage {
     self.distanceField = distanceField
     bridge = FindNearestStageBridge(
       field: field.bridge as! FieldBridge,
-      vectorValue: VectorValue(vectorValue),
+      vectorValue: vectorValue,
       distanceMeasure: distanceMeasure.kind.rawValue,
       limit: limit as NSNumber?,
       distanceField: distanceField.map { Field($0).toBridge() } ?? nil

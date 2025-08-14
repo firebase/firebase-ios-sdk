@@ -35,13 +35,9 @@ struct Direction: Sendable, Equatable, Hashable {
     case descending
   }
 
-  static var ascending: Direction {
-    return self.init(kind: .ascending, rawValue: "ascending")
-  }
+  static let ascending = Direction(kind: .ascending, rawValue: "ascending")
 
-  static var descending: Direction {
-    return self.init(kind: .descending, rawValue: "descending")
-  }
+  static let descending = Direction(kind: .descending, rawValue: "descending")
 
   init(kind: Kind, rawValue: String) {
     self.kind = kind

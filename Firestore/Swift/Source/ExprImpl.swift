@@ -384,31 +384,31 @@ public extension Expression {
   }
 
   func minimum() -> AggregateFunction {
-    return AggregateFunction("minimum", [self])
+    return AggregateFunction("min", [self])
   }
 
   func maximum() -> AggregateFunction {
-    return AggregateFunction("maximum", [self])
+    return AggregateFunction("max", [self])
   }
 
   // MARK: Logical min/max
 
   func logicalMaximum(_ expressions: [Expression]) -> FunctionExpression {
-    return FunctionExpression("logical_maximum", [self] + expressions)
+    return FunctionExpression("max", [self] + expressions)
   }
 
   func logicalMaximum(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("logical_maximum", exprs)
+    return FunctionExpression("max", exprs)
   }
 
   func logicalMinimum(_ expressions: [Expression]) -> FunctionExpression {
-    return FunctionExpression("logical_minimum", [self] + expressions)
+    return FunctionExpression("min", [self] + expressions)
   }
 
   func logicalMinimum(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("logical_minimum", exprs)
+    return FunctionExpression("min", exprs)
   }
 
   // MARK: Vector Operations

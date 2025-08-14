@@ -391,11 +391,11 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume pipeline from a collection with vector embeddings.
-  /// let queryVector: [Double] = [0.1, 0.2, ..., 0.8] // Example query vector.
+  /// let queryVector = VectorValue([0.1, 0.2, ..., 0.8]) // Example query vector.
   /// let nearestNeighborsPipeline = pipeline.findNearest(
   ///   field: Field("embedding_field"),       // Field containing the vector.
   ///   vectorValue: queryVector,              // Query vector for comparison.
-  ///   distanceMeasure: .COSINE,              // Distance metric.
+  ///   distanceMeasure: .cosine,              // Distance metric.
   ///   limit: 10,                             // Return top 10 nearest neighbors.
   ///   distanceField: "similarityScore"       // Optional: field for distance score.
   /// )
@@ -404,13 +404,13 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - field: The `Field` containing vector embeddings.
-  ///   - vectorValue: An array of `Double` representing the query vector.
-  ///   - distanceMeasure: The `DistanceMeasure` (e.g., `.EUCLIDEAN`, `.COSINE`) for comparison.
+  ///   - vectorValue: A `VectorValue` instance representing the query vector.
+  ///   - distanceMeasure: The `DistanceMeasure` (e.g., `.euclidean`, `.cosine`) for comparison.
   ///   - limit: Optional. Maximum number of similar documents to return.
   ///   - distanceField: Optional. Name for a new field to store the calculated distance.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func findNearest(field: Field,
-                          vectorValue: [Double],
+                          vectorValue: VectorValue,
                           distanceMeasure: DistanceMeasure,
                           limit: Int? = nil,
                           distanceField: String? = nil) -> Pipeline {
