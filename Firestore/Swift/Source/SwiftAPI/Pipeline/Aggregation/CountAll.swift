@@ -12,7 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///
+/// Represents an aggregation that counts all documents in the input set.
+///
+/// `CountAll` is used within the `aggregate` pipeline stage to get the total number of documents
+/// that match the query criteria up to that point.
+///
+/// Example usage:
+/// ```swift
+/// // Count all books in the collection
+/// firestore.pipeline()
+///   .collection("books")
+///   .aggregate([
+///     CountAll().as("totalBooks")
+///   ])
+///
+/// // Count all sci-fi books published after 1960
+/// firestore.pipeline()
+///   .collection("books")
+///   .where(Field("genre").equal("Science Fiction") && Field("published").greaterThan(1960))
+///   .aggregate([
+///     CountAll().as("sciFiBooksCount")
+///   ])
+/// ```
 public class CountAll: AggregateFunction, @unchecked Sendable {
+  /// Initializes a new `CountAll` aggregation.
   public init() {
     super.init("count", [])
   }

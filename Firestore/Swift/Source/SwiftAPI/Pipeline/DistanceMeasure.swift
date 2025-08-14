@@ -29,17 +29,11 @@ public struct DistanceMeasure: Sendable, Equatable, Hashable {
     case dotProduct = "dot_product"
   }
 
-  public static var euclidean: DistanceMeasure {
-    return self.init(kind: .euclidean)
-  }
+  public static let euclidean: DistanceMeasure = DistanceMeasure(kind: .euclidean)
 
-  public static var cosine: DistanceMeasure {
-    return self.init(kind: .cosine)
-  }
+  public static let cosine: DistanceMeasure = DistanceMeasure(kind: .cosine)
 
-  public static var dotProduct: DistanceMeasure {
-    return self.init(kind: .dotProduct)
-  }
+  public static let dotProduct: DistanceMeasure = DistanceMeasure(kind: .dotProduct)
 
   init(kind: Kind) {
     self.kind = kind
