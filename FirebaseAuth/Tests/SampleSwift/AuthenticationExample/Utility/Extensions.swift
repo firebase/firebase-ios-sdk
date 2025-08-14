@@ -41,6 +41,20 @@ extension User: DataSourceProvidable {
     return Section(headerDescription: "Firebase Metadata", items: metadataRows)
   }
 
+  private var passkeysSection: Section {
+    let passkeys = enrolledPasskeys ?? []
+    guard !passkeys.isEmpty else {
+      return Section(
+        headerDescription: "Passkeys",
+        items: [Item(title: "None", detailTitle: "No passkeys enrolled")]
+      )
+    }
+    let items: [Item] = passkeys.map { info in
+      Item(title: info.name, detailTitle: info.credentialID)
+    }
+    return Section(headerDescription: "Passkeys", items: items)
+  }
+
   private var otherSection: Section {
     let otherRows = [Item(title: isAnonymous ? "Yes" : "No", detailTitle: "Is User Anonymous?"),
                      Item(title: isEmailVerified ? "Yes" : "No", detailTitle: "Is Email Verified?")]
@@ -62,7 +76,7 @@ extension User: DataSourceProvidable {
   }
 
   var sections: [Section] {
-    [infoSection, metaDataSection, otherSection, actionSection]
+    [infoSection, metaDataSection, passkeysSection, otherSection, actionSection]
   }
 }
 
