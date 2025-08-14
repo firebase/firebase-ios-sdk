@@ -1192,7 +1192,7 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
 
   func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithError error: any Error) {
-    print("ASAuthorization failed: \(error)")
+    print("Apple authorization failed: \(error)")
     // for Sign In with Apple, ensure that you have:
     //  - enabled `Sign in with Apple` on the Firebase console
     //  - added the `Sign in with Apple` capability for this project
