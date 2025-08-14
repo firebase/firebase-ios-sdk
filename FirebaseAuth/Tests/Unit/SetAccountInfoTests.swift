@@ -64,6 +64,8 @@ class SetAccountInfoTests: RPCBaseTests {
     let kTestDeleteProviders = "TestDeleteProviders"
     let kReturnSecureTokenKey = "returnSecureToken"
     let kTestAccessToken = "accessToken"
+    let kDeletePasskeysKey = "deletePasskey"
+    let kDeletePasskey = "credential_id"
     let kExpectedAPIURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/setAccountInfo?key=APIKey"
 
@@ -82,6 +84,7 @@ class SetAccountInfoTests: RPCBaseTests {
     request.captchaResponse = kTestCaptchaResponse
     request.deleteAttributes = [kTestDeleteAttributes]
     request.deleteProviders = [kTestDeleteProviders]
+    request.deletePasskeys = [kDeletePasskey]
 
     try await checkRequest(
       request: request,
@@ -105,6 +108,7 @@ class SetAccountInfoTests: RPCBaseTests {
     XCTAssertEqual(decodedRequest[kDeleteAttributesKey] as? [String], [kTestDeleteAttributes])
     XCTAssertEqual(decodedRequest[kDeleteProvidersKey] as? [String], [kTestDeleteProviders])
     XCTAssertEqual(decodedRequest[kReturnSecureTokenKey] as? Bool, true)
+    XCTAssertEqual(decodedRequest[kDeletePasskeysKey] as? [String], [kDeletePasskey])
   }
 
   func testSetAccountInfoErrors() async throws {
@@ -122,6 +126,7 @@ class SetAccountInfoTests: RPCBaseTests {
     let kInvalidRecipientEmailErrorMessage = "INVALID_RECIPIENT_EMAIL"
     let kWeakPasswordErrorMessage = "WEAK_PASSWORD : Password should be at least 6 characters"
     let kWeakPasswordClientErrorMessage = "Password should be at least 6 characters"
+    let kInvalidCredentialIdForPasskeyUnenroll = "PASSKEY_ENROLLMENT_NOT_FOUND"
 
     try await checkBackendError(
       request: setAccountInfoRequest(),
@@ -188,6 +193,11 @@ class SetAccountInfoTests: RPCBaseTests {
       request: setAccountInfoRequest(),
       message: kInvalidRecipientEmailErrorMessage,
       errorCode: AuthErrorCode.invalidRecipientEmail
+    )
+    try await checkBackendError(
+      request: setAccountInfoRequest(),
+      message: kInvalidCredentialIdForPasskeyUnenroll,
+      errorCode: AuthErrorCode.missingPasskeyEnrollment
     )
   }
 

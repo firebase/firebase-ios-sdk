@@ -335,10 +335,12 @@ import Foundation
 
   /// Indicates that the reCAPTCHA SDK actions class failed to create.
   case recaptchaActionCreationFailed = 17210
-
+  
   /// the authenticator response for passkey signin or enrollment is not parseable, missing required
   /// fields, or certain fields are invalid values
   case invalidAuthenticatorResponse = 17211
+
+  case missingPasskeyEnrollment = 17212
 
   /// Indicates an error occurred while attempting to access the keychain.
   case keychainError = 17995
@@ -534,6 +536,8 @@ import Foundation
       return kErrorRecaptchaActionCreationFailed
     case .invalidAuthenticatorResponse:
       return kErrorInvalidAuthenticatorResponse
+    case .missingPasskeyEnrollment:
+      return kErrorMissingPasskeyEnrollment
     }
   }
 
@@ -727,6 +731,8 @@ import Foundation
       return "ERROR_RECAPTCHA_ACTION_CREATION_FAILED"
     case .invalidAuthenticatorResponse:
       return "ERROR_INVALID_AUTHENTICATOR_RESPONSE"
+    case .missingPasskeyEnrollment:
+      return "ERROR_PASSKEY_ENROLLMENT_NOT_FOUND"
     }
   }
 }
@@ -1007,3 +1013,6 @@ private let kErrorRecaptchaActionCreationFailed =
 
 private let kErrorInvalidAuthenticatorResponse =
   "During passkey enrollment and sign in, the authenticator response is not parseable, missing required fields, or certain fields are invalid values that compromise the security of the sign-in or enrollment."
+
+private let kErrorMissingPasskeyEnrollment =
+  "Cannot find the passkey linked to the current account."
