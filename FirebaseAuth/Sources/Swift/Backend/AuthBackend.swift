@@ -355,6 +355,7 @@ final class AuthBackend: AuthBackendProtocol {
       .missingIosBundleIDError(message: serverDetailErrorMessage)
     case "MISSING_ANDROID_PACKAGE_NAME": return AuthErrorUtils
       .missingAndroidPackageNameError(message: serverDetailErrorMessage)
+    case "PASSKEY_ENROLLMENT_NOT_FOUND": return AuthErrorUtils.missingPasskeyEnrollment()
     case "UNAUTHORIZED_DOMAIN": return AuthErrorUtils
       .unauthorizedDomainError(message: serverDetailErrorMessage)
     case "INVALID_CONTINUE_URI": return AuthErrorUtils
