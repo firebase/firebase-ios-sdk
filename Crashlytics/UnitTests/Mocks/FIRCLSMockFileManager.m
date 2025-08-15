@@ -41,9 +41,7 @@
   // If we set up the expectation, and we went over the expected count or removes, fulfill the
   // expectation
   if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [self.removeExpectation fulfill];
-    });
+    [self.removeExpectation fulfill];
   }
 
   return YES;
