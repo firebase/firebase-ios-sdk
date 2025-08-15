@@ -924,6 +924,8 @@ let package = Package(
     .target(
       name: "FirebasePerformanceTarget",
       dependencies: [.target(name: "FirebasePerformance",
+                             condition: .when(platforms: [.iOS, .tvOS, .visionOS])),
+                     .target(name: "FirebasePerformanceSwift",
                              condition: .when(platforms: [.iOS, .tvOS, .visionOS]))],
       path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
     ),
@@ -943,7 +945,12 @@ let package = Package(
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
         .product(name: "nanopb", package: "nanopb"),
       ],
-      path: "FirebasePerformance/Sources",
+      path: "FirebasePerformance",
+      source: [
+        "Sources/",
+      ],
+      exclude:
+      ["Sources/SwiftUI/"],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
@@ -956,6 +963,11 @@ let package = Package(
         .linkedFramework("MobileCoreServices", .when(platforms: [.iOS, .tvOS])),
         .linkedFramework("QuartzCore", .when(platforms: [.iOS, .tvOS])),
       ]
+    ),
+    .tartget(
+      name: "FirebasePerformanceSwift",
+      dependencies: ["FirebasePerformance"],
+      path: "FirebasePerformance/Sources/SwiftUI/"
     ),
     .testTarget(
       name: "PerformanceUnit",
