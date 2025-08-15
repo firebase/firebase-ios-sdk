@@ -130,6 +130,18 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  public func liveModel(modelName: String,
+                        generationConfig: LiveGenerationConfig? = nil,
+                        requestOptions: RequestOptions = RequestOptions()) -> LiveGenerativeModel {
+    return LiveGenerativeModel(
+      modelResourceName: modelResourceName(modelName: modelName),
+      firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
+      generationConfig: generationConfig,
+      requestOptions: requestOptions
+    )
+  }
+
   /// Class to enable FirebaseAI to register via the Objective-C based Firebase component system
   /// to include FirebaseAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
