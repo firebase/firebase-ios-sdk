@@ -492,7 +492,6 @@ case "$product-$platform-$method" in
       ../../../FirebaseRemoteConfig/Tests/Swift/AccessToken.json
 
     # Integration tests are only run on iOS to minimize flake failures.
-    # TODO(ncooke3): Remove -sdk and -destination flags and replace with "${xcb_flags[@]}"
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
       -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
