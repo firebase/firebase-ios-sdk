@@ -19,7 +19,7 @@
 @class FIROptions;
 
 NS_ASSUME_NONNULL_BEGIN
-
+NS_SWIFT_NAME(AppCheckValidator)
 @interface FIRAppCheckValidator : NSObject
 
 // `FIRAppCheckValidator` doesn’t provide any instance methods.

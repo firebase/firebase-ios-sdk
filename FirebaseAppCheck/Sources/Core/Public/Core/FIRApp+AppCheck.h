@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
+#import "../../FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppCheckErrorUtil : NSObject
+@interface FIRApp (AppCheck)
 
-+ (NSError *)publicDomainErrorWithError:(NSError *)error;
+/// The resource name for the Firebase App in the format "projects/{project_id}/apps/{app_id}".
+/// See https://google.aip.dev/122 for more details about resource names.
+@property(nonatomic, readonly, copy) NSString *resourceName;
 
 @end
 
