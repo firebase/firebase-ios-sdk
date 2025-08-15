@@ -187,6 +187,9 @@ tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 visionos_flags=(
+  # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
+  # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
+  # explicitly specifying OS=2.5 in destination as a workaround.
   -sdk 'xrsimulator'
   -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
 )
