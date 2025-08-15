@@ -104,10 +104,6 @@ jobs:
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Install visionOS, if needed.
-      if: matrix.platform == 'visionOS'
-      run:
-        xcodebuild -downloadPlatform visionOS
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
       run: ${{ inputs.setup_command }}
