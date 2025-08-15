@@ -188,7 +188,7 @@ tvos_flags=(
 )
 visionos_flags=(
   -sdk 'xrsimulator'
-  -destination 'platform=visionOS Simulator,OS:2.5,name=Apple Vision Pro'
+  -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
 )
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
