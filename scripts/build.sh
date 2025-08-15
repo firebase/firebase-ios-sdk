@@ -496,8 +496,8 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
       -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
-      -sdk 'iphonesimulator' \
-      -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+      "${ios_flags[@]}" \
+      "${xcb_flags[@]}" \
       build \
       test
     ;;
@@ -575,12 +575,10 @@ case "$product-$platform-$method" in
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
-      # TODO(ncooke3): Add back "${ios_flags[@]}". See #14657.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-integration" \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+        "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         test
     fi
@@ -596,12 +594,10 @@ case "$product-$platform-$method" in
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
-      # TODO(ncooke3): Add back "${ios_flags[@]}". See #14657.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-ObjCIntegration" \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+        "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         test
       fi
@@ -620,8 +616,8 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
         -scheme "FirebaseCombineSwift-Unit-integration" \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
         test
       fi
     ;;
