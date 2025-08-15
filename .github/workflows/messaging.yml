@@ -89,7 +89,7 @@ jobs:
       matrix:
         include:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -122,7 +122,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh messaging
     - name: Install Secret GoogleService-Info.plist
@@ -150,7 +150,7 @@ jobs:
         os: [macos-14, macos-15]
         include:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.4
             tests: --test-specs=unit
           - os: macos-14
             xcode: Xcode_16.2
@@ -187,7 +187,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSample iOS)
 
@@ -212,7 +212,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh SwiftUISample iOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh SwiftUISample iOS)
 
@@ -237,7 +237,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSampleStandaloneWatchApp watchOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSampleStandaloneWatchApp watchOS)
 
