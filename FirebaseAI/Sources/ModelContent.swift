@@ -169,3 +169,55 @@ extension ModelContent.InternalPart: Codable {
     }
   }
 }
+
+// MARK: - ModelContentBuilder
+
+@resultBuilder
+public struct ModelContentBuilder {
+  typealias Expression = PartsRepresentable
+  typealias Component = [PartsRepresentable]
+  typealias Result = ModelContent
+
+  public static func buildExpression(_ expression: PartsRepresentable) -> [any PartsRepresentable] {
+    return [expression]
+  }
+
+  public static func buildBlock(_ components: [any PartsRepresentable]...)
+    -> [any PartsRepresentable] {
+    return components
+  }
+
+  public static func buildEither(first component: [any PartsRepresentable])
+    -> [any PartsRepresentable] {
+    return component
+  }
+
+  public static func buildEither(second component: [any PartsRepresentable])
+    -> [any PartsRepresentable] {
+    return component
+  }
+
+  public static func buildArray(_ components: [any PartsRepresentable])
+    -> [any PartsRepresentable] {
+    return components
+  }
+
+  public static func buildArray(_ components: [[any PartsRepresentable]])
+    -> [any PartsRepresentable] {
+    return components.flatMap { $0 }
+  }
+
+  public static func buildOptional(_ component: [any PartsRepresentable]?)
+    -> [any PartsRepresentable] {
+    return component ?? []
+  }
+
+  public static func buildLimitedAvailability(_ component: [any PartsRepresentable])
+    -> [any PartsRepresentable] {
+    return component
+  }
+
+  public static func buildFinalResult(_ component: [any PartsRepresentable]) -> ModelContent {
+    return ModelContent(parts: component)
+  }
+}
