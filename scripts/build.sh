@@ -495,7 +495,6 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
       -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
-      "${ios_flags[@]}" \
       "${xcb_flags[@]}" \
       build \
       test
