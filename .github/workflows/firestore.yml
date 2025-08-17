@@ -386,13 +386,6 @@ jobs:
         export EXPERIMENTAL_MODE=true
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
-    - name: Upload xcodebuild logs
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: xcodebuild-logs-${{ matrix.target }}
-        path: xcodebuild-*.log
-
   pod_lib_lint:
     needs: check
     strategy:
