@@ -419,6 +419,12 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Upload build logs on failure
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: build_logs_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
+        path: sdk_zip/build_logs/
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Install Secret GoogleService-Info.plist
