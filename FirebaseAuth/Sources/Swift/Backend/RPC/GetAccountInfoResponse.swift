@@ -136,7 +136,7 @@ struct GetAccountInfoResponse: AuthRPCResponse {
       } else {
         mfaEnrollments = nil
       }
-      if let passkeyEnrollmentData = dictionary["passkeys"] as? [[String: AnyHashable]] {
+      if let passkeyEnrollmentData = dictionary["passkeyInfo"] as? [[String: AnyHashable]] {
         enrolledPasskeys = passkeyEnrollmentData.map { PasskeyInfo(dictionary: $0) }
       } else {
         enrolledPasskeys = nil

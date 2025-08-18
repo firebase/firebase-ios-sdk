@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import Foundation
+
 @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
 struct FinalizePasskeySignInResponse: AuthRPCResponse {
   /// The user raw access token.

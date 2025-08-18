@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
 struct StartPasskeySignInResponse: AuthRPCResponse {
   /// The RP ID of the FIDO Relying Party

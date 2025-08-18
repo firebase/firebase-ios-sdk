@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 /// The GCIP endpoint for startPasskeySignIn rpc
 private let startPasskeySignInEndpoint = "accounts/passkeySignIn:start"
 
@@ -29,7 +31,7 @@ class StartPasskeySignInRequest: IdentityToolkitRequest, AuthRPCRequest {
 
   var unencodedHTTPRequestBody: [String: AnyHashable]? {
     guard let tenantID = tenantID else {
-      return nil
+      return [:]
     }
     return ["tenantId": tenantID]
   }

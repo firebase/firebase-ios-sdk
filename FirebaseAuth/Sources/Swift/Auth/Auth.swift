@@ -1695,6 +1695,8 @@ extension Auth: AuthInterop {
         refreshToken: response.refreshToken,
         anonymous: false
       )
+      try await user.reload()
+      try await updateCurrentUser(user)
       return AuthDataResult(withUser: user, additionalUserInfo: nil)
     }
   #endif
