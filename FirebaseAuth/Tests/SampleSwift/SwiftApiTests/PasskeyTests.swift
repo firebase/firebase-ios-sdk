@@ -24,7 +24,7 @@
   @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
   class PasskeyTests: TestsBase {
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
-    func testStartPasskeyEnrollmentSuccess() async throws {
+    func testStartPasskeyEnrollmentResponseSuccess() async throws {
       try await signInAnonymouslyAsync()
       guard let user = Auth.auth().currentUser else {
         XCTFail("Expected a signed-in user")
@@ -35,22 +35,39 @@
       XCTAssertFalse(request.relyingPartyIdentifier.isEmpty, "rpID should be non-empty")
       XCTAssertFalse(request.challenge.isEmpty, "challenge should be non-empty")
       XCTAssertNotNil(request.userID, "userID should be present")
+      XCTAssertNotNil(request as ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest)
       try? await deleteCurrentUserAsync()
     }
 
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
-    func DRAFTtestStartPasskeyEnrollmentFailureWithInvalidToken() async throws {
+    func testStartPasskeyEnrollmentFailureWithInvalidToken() async throws {
       try await signInAnonymouslyAsync()
       guard let user = Auth.auth().currentUser else {
         XCTFail("Expected a signed-in user")
         return
       }
-      // user not reloaded hence id token not updated
-      let request = try await user.startPasskeyEnrollment(withName: "Test2Passkey")
-      XCTAssertFalse(request.relyingPartyIdentifier.isEmpty, "rpID should be non-empty")
-      XCTAssertFalse(request.challenge.isEmpty, "challenge should be non-empty")
-      XCTAssertNotNil(request.userID, "userID should be present")
-      try? await deleteCurrentUserAsync()
+      let config = user.requestConfiguration
+      let token = "invalidToken"
+      let badRequest = StartPasskeyEnrollmentRequest(idToken: token, requestConfiguration: config)
+      do {
+        _ = try await user.backend.call(with: badRequest)
+        XCTFail("Expected .invalidUserToken")
+      } catch {
+        let ns = error as NSError
+        if let code = AuthErrorCode(rawValue: ns.code) {
+          XCTAssertEqual(code, .invalidUserToken, "Expected .invalidUserToken, got \(code)")
+        } else {
+          XCTFail("Unexpected error: \(error)")
+        }
+        let message = (ns.userInfo[NSLocalizedDescriptionKey] as? String ?? "").uppercased()
+        XCTAssertTrue(
+          message
+            .contains(
+              "THIS USER'S CREDENTIAL ISN'T VALID FOR THIS PROJECT. THIS CAN HAPPEN IF THE USER'S TOKEN HAS BEEN TAMPERED WITH, OR IF THE USER DOESN’T BELONG TO THE PROJECT ASSOCIATED WITH THE API KEY USED IN YOUR REQUEST."
+            ),
+          "Expected invalidUserToken, got: \(message)"
+        )
+      }
     }
 
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
@@ -76,6 +93,14 @@
         if let code = AuthErrorCode(rawValue: ns.code) {
           XCTAssertEqual(code, .invalidUserToken, "Expected .invalidUserToken, got \(code)")
         }
+        let message = (ns.userInfo[NSLocalizedDescriptionKey] as? String ?? "").uppercased()
+        XCTAssertTrue(
+          message
+            .contains(
+              "THIS USER'S CREDENTIAL ISN'T VALID FOR THIS PROJECT. THIS CAN HAPPEN IF THE USER'S TOKEN HAS BEEN TAMPERED WITH, OR IF THE USER DOESN’T BELONG TO THE PROJECT ASSOCIATED WITH THE API KEY USED IN YOUR REQUEST."
+            ),
+          "Expected invalidUserToken, got: \(message)"
+        )
       }
       try? await deleteCurrentUserAsync()
     }
@@ -125,8 +150,9 @@
                      "rpID should be non-empty")
       XCTAssertFalse(assertionRequest.challenge.isEmpty,
                      "challenge should be non-empty")
-      XCTAssertTrue(assertionRequest
-        is ASAuthorizationPlatformPublicKeyCredentialAssertionRequest)
+      XCTAssertNotNil(
+        assertionRequest as ASAuthorizationPlatformPublicKeyCredentialAssertionRequest
+      )
     }
 
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
@@ -152,7 +178,7 @@
     }
 
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
-    func testFinalizePasskeySignInFailureWithoutAttestation() async throws {
+    func testFinalizePasskeySignInFailureIncorrectAttestation() async throws {
       let auth = Auth.auth()
       let config = auth.requestConfiguration
       let badRequest = FinalizePasskeySignInRequest(
