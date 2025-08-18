@@ -131,6 +131,8 @@ jobs:
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Update SpecsTesting repo
       run: |
         [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
@@ -170,6 +172,8 @@ jobs:
            scripts/release_testing_setup.sh prerelease_testing
       env:
          BOT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Push updated podspecs
       run: |
         # Changes in post submit tests will be fetched by getting diff between
