@@ -33,6 +33,22 @@ jobs:
       target: AuthUnit
       buildonly_platforms: macOS
 
+  catalyst:
+    uses: ./.github/workflows/common_catalyst.yml
+    with:
+      product: FirebaseAuth
+      target: FirebaseAuth-Unit-unit
+      buildonly: true
+
+  pod_lib_lint:
+    strategy:
+      matrix:
+        product: [FirebaseAuthInterop, FirebaseAuth]
+    uses: ./.github/workflows/common_cocoapods.yml
+    with:
+      product: ${{  matrix.product }}
+      buildonly_platforms: macOS
+
   integration-tests:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -136,6 +152,7 @@ jobs:
         flags: [
           '--use-static-frameworks'
         ]
+    needs: pod_lib_lint
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
