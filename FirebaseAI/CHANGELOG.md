@@ -1,11 +1,11 @@
 # Unreleased
-- [feature] Added a new configuration option to require limited-use App
+- [feature] Added a new configuration option to use limited-use App
   Check tokens for attesting Firebase AI Logic requests. This enhances
   security against replay attacks. To use this feature, configure it
-  explicitly via the new `FirebaseAI.Config` struct when initializing
-  `FirebaseAI`. We recommend migrating to limited-use tokens now, so
-  your app will be ready to take advantage of replay protection when
-  it becomes available for Firebase AI Logic.
+  explicitly via the new `useLimitedUseAppCheckTokens` parameter when 
+  initializing `FirebaseAI`. We recommend migrating to limited-use 
+  tokens now, so your app will be ready to take advantage of replay 
+  protection when it becomes available for Firebase AI Logic.
 
 # 12.0.0
 - [added] Added support for Grounding with Google Search. (#15014)
