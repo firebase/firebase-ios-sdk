@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
   pull_request:
   schedule:
-    # Run every day at 12am (PST) - cron uses UTC times
+    # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
     - cron:  '0 8 * * *'
 
 concurrency:

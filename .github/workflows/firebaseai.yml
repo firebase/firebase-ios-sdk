@@ -13,7 +13,7 @@ on:
     # Do not run for documentation-only PRs.
     - '!**.md'
   schedule:
-    # Run every day at 11pm (PST) - cron uses UTC times
+    # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
     - cron:  '0 7 * * *'
   workflow_dispatch:
 
