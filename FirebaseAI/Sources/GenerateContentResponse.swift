@@ -57,10 +57,17 @@ public struct GenerateContentResponse: Sendable {
   public let usageMetadata: UsageMetadata?
 
   /// The response's content as text, if it exists.
+  ///
+  /// - Note: This does not include thought summaries; see ``thoughtSummary`` for more details.
   public var text: String? {
     return text(isThought: false)
   }
 
+  /// A summary of the model's thinking process, if available.
+  ///
+  /// - Important: Thought summaries are only available when `includeThoughts` is enabled in the
+  ///   ``ThinkingConfig``. For more information, see the
+  ///   [Thinking](https://firebase.google.com/docs/ai-logic/thinking) documentation.
   public var thoughtSummary: String? {
     return text(isThought: true)
   }
