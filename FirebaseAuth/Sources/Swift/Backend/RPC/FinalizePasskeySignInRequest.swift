@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import Foundation
 
 /// The GCIP endpoint for finalizePasskeySignIn rpc
 private let finalizePasskeySignInEndPoint = "accounts/passkeySignIn:finalize"
@@ -50,19 +51,21 @@ class FinalizePasskeySignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   }
 
   var unencodedHTTPRequestBody: [String: AnyHashable]? {
-    var postBody: [String: AnyHashable] = [
-      "authenticatorAssertionResponse": [
-        "credentialId": credentialID,
-        "authenticatorAssertionResponse": [
-          "clientDataJSON": clientDataJSON,
-          "authenticatorData": authenticatorData,
-          "signature": signature,
-          "userHandle": userId,
-        ],
-      ] as [String: AnyHashable],
+    let assertion: [String: AnyHashable] = [
+      "clientDataJSON": clientDataJSON,
+      "authenticatorData": authenticatorData,
+      "signature": signature,
+      "userHandle": userId,
     ]
-    if let tenantID = tenantID {
-      postBody["tenantId"] = tenantID
+    let authResponse: [String: AnyHashable] = [
+      "id": credentialID,
+      "response": assertion,
+    ]
+    var postBody: [String: AnyHashable] = [
+      "authenticatorAuthenticationResponse": authResponse,
+    ]
+    if let tenant = tenantID {
+      postBody["tenantId"] = tenant
     }
     return postBody
   }
