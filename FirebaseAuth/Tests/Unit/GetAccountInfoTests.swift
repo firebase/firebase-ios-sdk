@@ -80,11 +80,11 @@ class GetAccountInfoTests: RPCBaseTests {
     let kEmailVerifiedKey = "emailVerified"
     let kLocalIDKey = "localId"
     let kTestLocalID = "testLocalId"
-    let kPasskeysKey = "passkeys"
+    let kPasskeysKey = "passkeyInfo"
 
     // Fake PasskeyInfo
     let testCredentialId = "credential_id"
-    let testPasskeyName = "Test Passkey"
+    let testPasskeyName = "testPasskey"
     let passkeys = [[
       "credentialId": testCredentialId,
       "name": testPasskeyName,
@@ -141,7 +141,7 @@ class GetAccountInfoTests: RPCBaseTests {
     let userDict: [String: AnyHashable] = [
       "localId": "user123",
       "email": "user@example.com",
-      "passkeys": [passkey1, passkey2],
+      "passkeyInfo": [passkey1, passkey2],
     ]
     let dict: [String: AnyHashable] = ["users": [userDict]]
     let response = try GetAccountInfoResponse(dictionary: dict)
