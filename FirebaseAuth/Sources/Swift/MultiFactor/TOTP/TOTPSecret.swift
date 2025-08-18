@@ -19,13 +19,17 @@ import Foundation
   internal import GoogleUtilities_Environment
 #endif
 
-#if os(iOS)
-  import UIKit
+#if os(iOS) || os(macOS)
+  #if os(iOS)
+    import UIKit
+  #elseif os(macOS)
+    import AppKit
+  #endif
 
   /// The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
   /// (Time-based One Time Password) second factor.
   ///
-  /// This class is available on iOS only.
+  /// This class is available on iOS and macOS.
   @objc(FIRTOTPSecret) open class TOTPSecret: NSObject {
     /// Returns the shared secret key/seed used to generate time-based one-time passwords.
     @objc open func sharedSecretKey() -> String {
@@ -57,24 +61,33 @@ import Foundation
     @MainActor @objc(openInOTPAppWithQRCodeURL:)
     open func openInOTPApp(withQRCodeURL qrCodeURL: String) {
       if GULAppEnvironmentUtil.isAppExtension() {
-        // iOS App extensions should not call [UIApplication sharedApplication], even if
-        // UIApplication responds to it.
+        // App extensions should not call [UIApplication sharedApplication] or [NSWorkspace
+        // sharedWorkspace], even if they respond to it.
         return
       }
 
-      // Using reflection here to avoid build errors in extensions.
-      let sel = NSSelectorFromString("sharedApplication")
-      guard UIApplication.responds(to: sel),
-            let rawApplication = UIApplication.perform(sel),
-            let application = rawApplication.takeUnretainedValue() as? UIApplication else {
-        return
-      }
-      if let url = URL(string: qrCodeURL), application.canOpenURL(url) {
-        application.open(url, options: [:], completionHandler: nil)
-      } else {
-        AuthLog.logError(code: "I-AUT000019",
-                         message: "URL: \(qrCodeURL) cannot be opened")
-      }
+      #if os(iOS)
+        // Using reflection here to avoid build errors in extensions.
+        let sel = NSSelectorFromString("sharedApplication")
+        guard UIApplication.responds(to: sel),
+              let rawApplication = UIApplication.perform(sel),
+              let application = rawApplication.takeUnretainedValue() as? UIApplication else {
+          return
+        }
+        if let url = URL(string: qrCodeURL), application.canOpenURL(url) {
+          application.open(url, options: [:], completionHandler: nil)
+        } else {
+          AuthLog.logError(code: "I-AUT000019",
+                           message: "URL: \(qrCodeURL) cannot be opened")
+        }
+      #elseif os(macOS)
+        if let url = URL(string: qrCodeURL) {
+          NSWorkspace.shared.open(url)
+        } else {
+          AuthLog.logError(code: "I-AUT000019",
+                           message: "URL: \(qrCodeURL) cannot be opened")
+        }
+      #endif
     }
 
     /// Shared secret key/seed used for enrolling in TOTP MFA and generating OTPs.
