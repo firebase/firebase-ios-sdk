@@ -309,6 +309,37 @@ class AuthenticationExampleUITests: XCTestCase {
     )
   }
 
+  func testPasskeyList() {
+    signOut()
+    let testEmail = "sample.ios.auth@gmail.com"
+    let testPassword = "sample.ios.auth"
+    let testPasskeyName = "sampleiosauth"
+    app.staticTexts["Email & Password Login"].tap()
+    app.textFields["Email"].tap()
+    app.textFields["Email"].typeText(testEmail)
+    app.textFields["Password"].tap()
+    app.textFields["Password"].typeText(testPassword)
+    app.buttons["Login"].tap()
+    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    XCTAssertTrue(app.navigationBars["User"].exists)
+    XCTAssertTrue(
+      app.staticTexts[testEmail].exists,
+      "The user should be signed in and the email field should display their email."
+    )
+    let userTable = app.tables.firstMatch
+    XCTAssertTrue(userTable.waitForExistence(timeout: 5.0), "User detail list should exist")
+    let passkeyLabel = userTable.staticTexts[testPasskeyName]
+    if !passkeyLabel.exists {
+      for _ in 0 ..< 5 where !passkeyLabel.exists {
+        userTable.swipeUp()
+      }
+    }
+    XCTAssertTrue(
+      passkeyLabel.waitForExistence(timeout: 5.0),
+      "Passkey named '\(testPasskeyName)' should be visible in the Passkeys section."
+    )
+  }
+
   // MARK: - Private Helpers
 
   private func signOut() {
