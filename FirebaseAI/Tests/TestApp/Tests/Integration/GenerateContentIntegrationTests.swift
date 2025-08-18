@@ -296,12 +296,8 @@ struct GenerateContentIntegrationTests {
       "country": .string("Canada"),
     ])
     #expect(temperatureFunctionCall.isThought == false)
-    if let _ = thinkingConfig.includeThoughts, case .googleAI = config.apiConfig.service {
-      let thoughtSignature = try #require(temperatureFunctionCall.thoughtSignature)
-      #expect(!thoughtSignature.isEmpty)
-    } else {
-      #expect(temperatureFunctionCall.thoughtSignature == nil)
-    }
+    let thoughtSignature = try #require(temperatureFunctionCall.thoughtSignature)
+    #expect(!thoughtSignature.isEmpty)
 
     let temperatureFunctionResponse = FunctionResponsePart(
       name: temperatureFunctionCall.name,
