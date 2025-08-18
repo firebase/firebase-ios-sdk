@@ -1,5 +1,9 @@
+# 12.2.0
+- [feature] Added support for returning thought summaries, which are synthesized
+  versions of a model's internal reasoning process. (#15096)
+
 # 12.0.0
-- [added] Added support for Grounding with Google Search. (#15014)
+- [feature] Added support for Grounding with Google Search. (#15014)
 - [removed] Removed `CountTokensResponse.totalBillableCharacters` which was
   deprecated in 11.15.0. Use `totalTokens` instead. (#15056)
 

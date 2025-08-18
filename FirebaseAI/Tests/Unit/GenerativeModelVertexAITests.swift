@@ -434,6 +434,29 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(text, "The sum of [1, 2, 3] is")
   }
 
+  func testGenerateContent_success_thinking_thoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-thinking-reply-thought-summary",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.finishReason, .stop)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let thoughtPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+    XCTAssertTrue(thoughtPart.isThought)
+    XCTAssertTrue(thoughtPart.text.hasPrefix("Right, someone needs the city where Google"))
+    XCTAssertEqual(response.thoughtSummary, thoughtPart.text)
+    let textPart = try XCTUnwrap(candidate.content.parts.last as? TextPart)
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(textPart.text, "Mountain View")
+    XCTAssertEqual(response.text, textPart.text)
+  }
+
   func testGenerateContent_success_image_invalidSafetyRatingsIgnored() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-image-invalid-safety-ratings",
@@ -1328,6 +1351,33 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertFalse(citations.contains { $0.uri?.isEmpty ?? false })
     XCTAssertFalse(citations.contains { $0.title?.isEmpty ?? false })
     XCTAssertFalse(citations.contains { $0.license?.isEmpty ?? false })
+  }
+
+  func testGenerateContentStream_successWithThinking_thoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-thinking-reply-thought-summary",
+      withExtension: "txt",
+      subdirectory: vertexSubdirectory
+    )
+
+    var thoughtSummary = ""
+    var text = ""
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.content.parts.count, 1)
+      let part = try XCTUnwrap(candidate.content.parts.first)
+      let textPart = try XCTUnwrap(part as? TextPart)
+      if textPart.isThought {
+        let newThought = try XCTUnwrap(response.thoughtSummary)
+        thoughtSummary.append(newThought)
+      } else {
+        text.append(textPart.text)
+      }
+    }
+
+    XCTAssertTrue(thoughtSummary.hasPrefix("**Understanding the Core Question**"))
+    XCTAssertTrue(text.hasPrefix("The sky is blue due to a phenomenon"))
   }
 
   func testGenerateContentStream_successWithInvalidSafetyRatingsIgnored() async throws {
