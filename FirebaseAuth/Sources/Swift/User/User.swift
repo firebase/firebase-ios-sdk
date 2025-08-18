@@ -1122,15 +1122,15 @@ extension User: NSSecureCoding {}
             "Invalid platform credential: missing credentialID, clientDataJSON, or attestationObject."]
         )
       }
-      let credentialID = platformCredential.credentialID.base64EncodedString()
-      let clientDataJSON = platformCredential.rawClientDataJSON.base64EncodedString()
+      let credentialId = platformCredential.credentialID.base64EncodedString()
+      let clientDataJson = platformCredential.rawClientDataJSON.base64EncodedString()
       let attestationObject = platformCredential.rawAttestationObject!.base64EncodedString()
 
       let request = FinalizePasskeyEnrollmentRequest(
         idToken: rawAccessToken(),
         name: passkeyName ?? defaultPasskeyName,
-        credentialID: credentialID,
-        clientDataJSON: clientDataJSON,
+        credentialID: credentialId,
+        clientDataJSON: clientDataJson,
         attestationObject: attestationObject,
         requestConfiguration: auth!.requestConfiguration
       )
