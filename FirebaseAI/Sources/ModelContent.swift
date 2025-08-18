@@ -65,34 +65,28 @@ public struct ModelContent: Equatable, Sendable {
 
   /// The data parts comprising this ``ModelContent`` value.
   public var parts: [any Part] {
-    var convertedParts = [any Part]()
-    for part in internalParts {
+    return internalParts.map { part -> any Part in
       switch part.data {
       case let .text(text):
-        convertedParts.append(
-          TextPart(text, isThought: part.isThought, thoughtSignature: part.thoughtSignature)
-        )
+        return TextPart(text, isThought: part.isThought, thoughtSignature: part.thoughtSignature)
       case let .inlineData(inlineData):
-        convertedParts.append(InlineDataPart(
+        return InlineDataPart(
           inlineData, isThought: part.isThought, thoughtSignature: part.thoughtSignature
-        ))
+        )
       case let .fileData(fileData):
-        convertedParts.append(FileDataPart(
-          fileData,
-          isThought: part.isThought,
-          thoughtSignature: part.thoughtSignature
-        ))
+        return FileDataPart(
+          fileData, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+        )
       case let .functionCall(functionCall):
-        convertedParts.append(FunctionCallPart(
+        return FunctionCallPart(
           functionCall, isThought: part.isThought, thoughtSignature: part.thoughtSignature
-        ))
+        )
       case let .functionResponse(functionResponse):
-        convertedParts.append(FunctionResponsePart(
+        return FunctionResponsePart(
           functionResponse, isThought: part.isThought, thoughtSignature: part.thoughtSignature
-        ))
+        )
       }
     }
-    return convertedParts
   }
 
   // TODO: Refactor this
