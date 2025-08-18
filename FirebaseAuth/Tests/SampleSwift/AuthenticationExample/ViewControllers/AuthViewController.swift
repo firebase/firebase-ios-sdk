@@ -962,10 +962,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       showAlert(for: "Please sign in first.")
       return
     }
-    guard let passkeyName = await showTextInputPrompt(with: "Passkey name") else {
-      print("Passkey enrollment cancelled: no name entered.")
-      return
-    }
+    let passkeyName = await showTextInputPrompt(with: "Passkey name")
     guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
       showAlert(for: "Not Supported", message: "This OS version does not support passkeys.")
       return
@@ -989,16 +986,15 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       print("OS version is not supported for this action.")
       return
     }
-    Task {
-      do {
-        let request = try await AppManager.shared.auth().startPasskeySignIn()
-        let controller = ASAuthorizationController(authorizationRequests: [request])
-        controller.delegate = self
-        controller.presentationContextProvider = self
-        controller.performRequests(options: .preferImmediatelyAvailableCredentials)
-      } catch {
-        print("Passkey sign-in failed with error: \(error)")
-      }
+    do {
+      let request = try await AppManager.shared.auth().startPasskeySignIn()
+      let controller = ASAuthorizationController(authorizationRequests: [request])
+      controller.delegate = self
+      controller.presentationContextProvider = self
+      controller.performRequests()
+      print("Started passkey sign in (challenge created).")
+    } catch {
+      print("Passkey sign-in failed with error: \(error)")
     }
   }
 
@@ -1144,7 +1140,23 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
       }
       return
     }
-
+    if let assertion = authorization
+      .credential as? ASAuthorizationPlatformPublicKeyCredentialAssertion {
+      Task { @MainActor [weak self] in
+        guard let self else { return }
+        do {
+          let _ = try await AppManager.shared.auth()
+            .finalizePasskeySignIn(withPlatformCredential: assertion)
+          self.showAlert(for: "Passkey Sign-In", message: "Succeeded")
+          print("Passkey sign-in succeeded.")
+          self.transitionToUserViewController()
+        } catch {
+          self.showAlert(for: "Passkey Sign-In failed", message: error.localizedDescription)
+          print("Finalize passkey sign-in failed: \(error.localizedDescription)")
+        }
+      }
+      return
+    }
     guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential
     else {
       print("Unable to retrieve AppleIDCredential")
