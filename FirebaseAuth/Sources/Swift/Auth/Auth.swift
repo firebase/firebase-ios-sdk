@@ -1675,17 +1675,17 @@ extension Auth: AuthInterop {
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
     public func finalizePasskeySignIn(withPlatformCredential platformCredential: ASAuthorizationPlatformPublicKeyCredentialAssertion) async throws
       -> AuthDataResult {
-      let credentialID = platformCredential.credentialID.base64EncodedString()
-      let clientDataJSON = platformCredential.rawClientDataJSON.base64EncodedString()
+      let credentialId = platformCredential.credentialID.base64EncodedString()
+      let clientDataJson = platformCredential.rawClientDataJSON.base64EncodedString()
       let authenticatorData = platformCredential.rawAuthenticatorData.base64EncodedString()
       let signature = platformCredential.signature.base64EncodedString()
-      let userID = platformCredential.userID.base64EncodedString()
+      let userId = platformCredential.userID.base64EncodedString()
       let request = FinalizePasskeySignInRequest(
-        credentialID: credentialID,
-        clientDataJSON: clientDataJSON,
+        credentialID: credentialId,
+        clientDataJSON: clientDataJson,
         authenticatorData: authenticatorData,
         signature: signature,
-        userId: userID,
+        userId: userId,
         requestConfiguration: requestConfiguration
       )
       let response = try await backend.call(with: request)
