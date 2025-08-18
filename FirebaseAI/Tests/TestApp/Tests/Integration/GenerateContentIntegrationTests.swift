@@ -198,7 +198,7 @@ struct GenerateContentIntegrationTests {
 
     let candidate = try #require(response.candidates.first)
     let thoughtParts = candidate.content.parts.compactMap { $0.isThought ? $0 : nil }
-    #expect(thoughtParts.isEmpty != thinkingConfig.includeThoughts)
+    #expect(thoughtParts.isEmpty != (thinkingConfig.includeThoughts ?? false))
 
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
