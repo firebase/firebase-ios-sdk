@@ -68,7 +68,7 @@
 
     func testUnencodedHTTPRequestBody_WithoutTenantId() {
       let request = StartPasskeySignInRequest(requestConfiguration: config)
-      XCTAssertNil(request.unencodedHTTPRequestBody)
+      XCTAssertEqual(request.unencodedHTTPRequestBody, [:])
     }
   }
 
