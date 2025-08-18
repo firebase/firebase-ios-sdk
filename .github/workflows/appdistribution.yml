@@ -14,7 +14,7 @@ on:
     - '.github/workflows/common_catalyst.yml'
     - 'Gemfile*'
   schedule:
-    # Run every day at 1am (PST) - cron uses UTC times
+    # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
     - cron: '0 9 * * *'
 
 concurrency:

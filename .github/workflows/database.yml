@@ -19,7 +19,7 @@ on:
     - 'Gemfile*'
     - 'scripts/run_database_emulator.sh'
   schedule:
-    # Run every day at 2am (PST) - cron uses UTC times
+    # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
     - cron:  '0 10 * * *'
 
 concurrency:

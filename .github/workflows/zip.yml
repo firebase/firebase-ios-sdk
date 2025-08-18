@@ -12,7 +12,7 @@ on:
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
   schedule:
-    # Run every day at 8pm(PST) - cron uses UTC times
+    # Run every day at 9pm (PDT) / 12am (EDT) - cron uses UTC times
     - cron:  '0 4 * * *'
 
   workflow_dispatch:

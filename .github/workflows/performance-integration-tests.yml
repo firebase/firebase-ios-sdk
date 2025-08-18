@@ -13,7 +13,6 @@ on:
   #   - https://crontab.guru/
   schedule:
     # Runs every 4 hours.
-    # TODO: Validate when the timer starts after job is triggered.
     - cron:  '0 */4 * * *'
 
 concurrency:
