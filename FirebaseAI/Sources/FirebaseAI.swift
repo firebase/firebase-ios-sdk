@@ -183,7 +183,8 @@ public final class FirebaseAI: Sendable {
   )
 
   static func createInstance(app: FirebaseApp?, location: String?,
-                             apiConfig: APIConfig, useLimitedUseAppCheckTokens: Bool) -> FirebaseAI {
+                             apiConfig: APIConfig,
+                             useLimitedUseAppCheckTokens: Bool) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -212,7 +213,8 @@ public final class FirebaseAI: Sendable {
     return newInstance
   }
 
-  init(app: FirebaseApp, location: String?, apiConfig: APIConfig, useLimitedUseAppCheckTokens: Bool) {
+  init(app: FirebaseApp, location: String?, apiConfig: APIConfig,
+       useLimitedUseAppCheckTokens: Bool) {
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
     }

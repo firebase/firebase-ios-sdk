@@ -76,7 +76,8 @@ public final class GenerativeModel: Sendable {
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
-  ///   - useLimitedUseAppCheckTokens: Use App Check's limited-use tokens instead of the standard cached tokens.
+  ///   - useLimitedUseAppCheckTokens: Use App Check's limited-use tokens instead of the standard
+  /// cached tokens.
   init(modelName: String,
        modelResourceName: String,
        firebaseInfo: FirebaseInfo,
