@@ -63,6 +63,11 @@ public struct GoogleSearch: Sendable {
   public init() {}
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct URLContext: Sendable {
+  public init() {}
+}
+
 /// A helper tool that the model may use when generating responses.
 ///
 /// A `Tool` is a piece of code that enables the system to interact with external systems to perform
@@ -76,14 +81,17 @@ public struct Tool: Sendable {
   let googleSearch: GoogleSearch?
 
   let codeExecution: CodeExecution?
+  let urlContext: URLContext?
 
-  init(functionDeclarations: [FunctionDeclaration]? = nil,
-       googleSearch: GoogleSearch? = nil,
-       codeExecution: CodeExecution? = nil) {
-    self.functionDeclarations = functionDeclarations
-    self.googleSearch = googleSearch
-    self.codeExecution = codeExecution
-  }
+init(functionDeclarations: [FunctionDeclaration]? = nil,
+googleSearch: GoogleSearch? = nil,
+urlContext: URLContext? = nil,
+codeExecution: CodeExecution? = nil) {
+self.functionDeclarations = functionDeclarations
+self.googleSearch = googleSearch
+self.urlContext = urlContext
+self.codeExecution = codeExecution
+}
 
   /// Creates a tool that allows the model to perform function calling.
   ///
@@ -126,6 +134,11 @@ public struct Tool: Sendable {
   /// - Returns: A `Tool` configured for Google Search.
   public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
     return self.init(googleSearch: googleSearch)
+  }
+
+
+  public static func urlContext(_ urlContext: URLContext = URLContext()) -> Tool {
+    return self.init(urlContext: urlContext)
   }
 
   /// Creates a tool that allows the model to execute code.
@@ -221,6 +234,9 @@ extension FunctionCallingConfig.Mode: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleSearch: Encodable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension URLContext: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {}
