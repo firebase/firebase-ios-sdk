@@ -156,13 +156,13 @@ class VertexComponentTests: XCTestCase {
       app: VertexComponentTests.app,
       location: location,
       apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta),
-      aiConfig: .config()
+      useLimitedUseAppCheckTokens: false
     )
     let vertex2 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
       location: location,
       apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1),
-      aiConfig: .config()
+      useLimitedUseAppCheckTokens: false
     )
 
     // Ensure they are different instances.
@@ -215,7 +215,7 @@ class VertexComponentTests: XCTestCase {
       app: app,
       location: nil,
       apiConfig: apiConfig,
-      aiConfig: .config()
+      useLimitedUseAppCheckTokens: false
     )
     let model = "test-model-name"
 
@@ -234,7 +234,7 @@ class VertexComponentTests: XCTestCase {
       app: app,
       location: nil,
       apiConfig: apiConfig,
-      aiConfig: .config()
+      useLimitedUseAppCheckTokens: false
     )
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
@@ -270,7 +270,7 @@ class VertexComponentTests: XCTestCase {
       app: app,
       location: nil,
       apiConfig: apiConfig,
-      aiConfig: .config()
+      useLimitedUseAppCheckTokens: false
     )
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)

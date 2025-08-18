@@ -30,12 +30,12 @@ struct GenerativeAIService {
 
   private let urlSession: URLSession
 
-  private let aiConfig: FirebaseAI.Config
+  private let useLimitedUseAppCheckTokens: Bool
 
-  init(firebaseInfo: FirebaseInfo, urlSession: URLSession, aiConfig: FirebaseAI.Config) {
+  init(firebaseInfo: FirebaseInfo, urlSession: URLSession, useLimitedUseAppCheckTokens: Bool) {
     self.firebaseInfo = firebaseInfo
     self.urlSession = urlSession
-    self.aiConfig = aiConfig
+    self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
   }
 
   func loadRequest<T: GenerativeAIRequest>(request: T) async throws -> T.Response {
@@ -212,7 +212,7 @@ struct GenerativeAIService {
 
   private func fetchAppCheckToken(appCheck: AppCheckInterop) async throws
     -> FIRAppCheckTokenResultInterop {
-    if aiConfig.appCheck.requireLimitedUseTokens {
+    if useLimitedUseAppCheckTokens {
       if let token = await appCheck.getLimitedUseToken?() {
         return token
       }

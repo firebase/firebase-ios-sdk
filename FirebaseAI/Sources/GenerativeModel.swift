@@ -76,7 +76,7 @@ public final class GenerativeModel: Sendable {
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
-  ///   - aiConfig: Configuration for various behavior shared across models.
+  ///   - useLimitedUseAppCheckTokens: Use App Check's limited-use tokens instead of the standard cached tokens.
   init(modelName: String,
        modelResourceName: String,
        firebaseInfo: FirebaseInfo,
@@ -88,14 +88,14 @@ public final class GenerativeModel: Sendable {
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
        urlSession: URLSession = GenAIURLSession.default,
-       aiConfig: FirebaseAI.Config = .config()) {
+       useLimitedUseAppCheckTokens: Bool) {
     self.modelName = modelName
     self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
       urlSession: urlSession,
-      aiConfig: aiConfig
+      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
     self.generationConfig = generationConfig
     self.safetySettings = safetySettings
