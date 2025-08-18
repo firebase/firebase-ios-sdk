@@ -187,8 +187,11 @@ tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 visionos_flags=(
+  # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
+  # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
+  # explicitly specifying OS=2.5 in destination as a workaround.
   -sdk 'xrsimulator'
-  -destination 'platform=visionOS Simulator,name=Apple Vision Pro'
+  -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
 )
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
@@ -489,12 +492,10 @@ case "$product-$platform-$method" in
       ../../../FirebaseRemoteConfig/Tests/Swift/AccessToken.json
 
     # Integration tests are only run on iOS to minimize flake failures.
-    # TODO(ncooke3): Remove -sdk and -destination flags and replace with "${xcb_flags[@]}"
     RunXcodebuild \
       -workspace 'gen/FirebaseRemoteConfig/FirebaseRemoteConfig.xcworkspace' \
       -scheme "FirebaseRemoteConfig-Unit-swift-api-tests" \
-      -sdk 'iphonesimulator' \
-      -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+      "${xcb_flags[@]}" \
       build \
       test
     ;;
@@ -572,12 +573,10 @@ case "$product-$platform-$method" in
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
-      # TODO(ncooke3): Add back "${ios_flags[@]}". See #14657.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-integration" \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+        "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         test
     fi
@@ -593,12 +592,10 @@ case "$product-$platform-$method" in
 
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
-      # TODO(ncooke3): Add back "${ios_flags[@]}". See #14657.
       RunXcodebuild \
         -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
         -scheme "FirebaseStorage-Unit-ObjCIntegration" \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+        "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
         test
       fi
@@ -617,8 +614,8 @@ case "$product-$platform-$method" in
       RunXcodebuild \
         -workspace 'gen/FirebaseCombineSwift/FirebaseCombineSwift.xcworkspace' \
         -scheme "FirebaseCombineSwift-Unit-integration" \
-        -sdk 'iphonesimulator' \
-        -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.3.1' \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
         test
       fi
     ;;
