@@ -60,113 +60,117 @@ class GetAccountInfoTests: RPCBaseTests {
     )
   }
 
-  /** @fn testSuccessfulGetAccountInfoResponse
-      @brief This test simulates a successful @c GetAccountInfo flow.
-   */
-  func testSuccessfulGetAccountInfoResponse() async throws {
-    let kProviderUserInfoKey = "providerUserInfo"
-    let kPhotoUrlKey = "photoUrl"
-    let kTestPhotoURL = "testPhotoURL"
-    let kProviderIDkey = "providerId"
-    let kDisplayNameKey = "displayName"
-    let kTestDisplayName = "DisplayName"
-    let kFederatedIDKey = "federatedId"
-    let kTestFederatedID = "testFederatedId"
-    let kEmailKey = "email"
-    let kTestEmail = "testEmail"
-    let kPasswordHashKey = "passwordHash"
-    let kTestPasswordHash = "testPasswordHash"
-    let kTestProviderID = "testProviderID"
-    let kEmailVerifiedKey = "emailVerified"
-    let kLocalIDKey = "localId"
-    let kTestLocalID = "testLocalId"
-    let kPasskeysKey = "passkeyInfo"
+  #if os(iOS) || os(tvOS) || os(macOS)
 
-    // Fake PasskeyInfo
-    let testCredentialId = "credential_id"
-    let testPasskeyName = "testPasskey"
-    let passkeys = [[
-      "credentialId": testCredentialId,
-      "name": testPasskeyName,
-    ]]
+    /** @fn testSuccessfulGetAccountInfoResponse
+        @brief This test simulates a successful @c GetAccountInfo flow.
+     */
+    func testSuccessfulGetAccountInfoResponse() async throws {
+      let kProviderUserInfoKey = "providerUserInfo"
+      let kPhotoUrlKey = "photoUrl"
+      let kTestPhotoURL = "testPhotoURL"
+      let kProviderIDkey = "providerId"
+      let kDisplayNameKey = "displayName"
+      let kTestDisplayName = "DisplayName"
+      let kFederatedIDKey = "federatedId"
+      let kTestFederatedID = "testFederatedId"
+      let kEmailKey = "email"
+      let kTestEmail = "testEmail"
+      let kPasswordHashKey = "passwordHash"
+      let kTestPasswordHash = "testPasswordHash"
+      let kTestProviderID = "testProviderID"
+      let kEmailVerifiedKey = "emailVerified"
+      let kLocalIDKey = "localId"
+      let kTestLocalID = "testLocalId"
+      let kPasskeysKey = "passkeyInfo"
 
-    let usersIn = [[
-      kProviderUserInfoKey: [[
-        kProviderIDkey: kTestProviderID,
+      // Fake PasskeyInfo
+      let testCredentialId = "credential_id"
+      let testPasskeyName = "testPasskey"
+      let passkeys = [[
+        "credentialId": testCredentialId,
+        "name": testPasskeyName,
+      ]]
+
+      let usersIn = [[
+        kProviderUserInfoKey: [[
+          kProviderIDkey: kTestProviderID,
+          kDisplayNameKey: kTestDisplayName,
+          kPhotoUrlKey: kTestPhotoURL,
+          kFederatedIDKey: kTestFederatedID,
+          kEmailKey: kTestEmail,
+        ]],
+        kLocalIDKey: kTestLocalID,
         kDisplayNameKey: kTestDisplayName,
-        kPhotoUrlKey: kTestPhotoURL,
-        kFederatedIDKey: kTestFederatedID,
         kEmailKey: kTestEmail,
-      ]],
-      kLocalIDKey: kTestLocalID,
-      kDisplayNameKey: kTestDisplayName,
-      kEmailKey: kTestEmail,
-      kPhotoUrlKey: kTestPhotoURL,
-      kEmailVerifiedKey: true,
-      kPasswordHashKey: kTestPasswordHash,
-      kPasskeysKey: passkeys,
-    ] as [String: Any]]
-    let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
+        kPhotoUrlKey: kTestPhotoURL,
+        kEmailVerifiedKey: true,
+        kPasswordHashKey: kTestPasswordHash,
+        kPasskeysKey: passkeys,
+      ] as [String: Any]]
+      let rpcIssuer = try XCTUnwrap(self.rpcIssuer)
 
-    rpcIssuer.respondBlock = {
-      try self.rpcIssuer.respond(withJSON: ["users": usersIn])
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(withJSON: ["users": usersIn])
+      }
+      let rpcResponse = try await authBackend.call(with: makeGetAccountInfoRequest())
+
+      let users = try XCTUnwrap(rpcResponse.users)
+      XCTAssertGreaterThan(users.count, 0)
+      let firstUser = try XCTUnwrap(users.first)
+      XCTAssertEqual(firstUser.photoURL?.absoluteString, kTestPhotoURL)
+      XCTAssertEqual(firstUser.displayName, kTestDisplayName)
+      XCTAssertEqual(firstUser.email, kTestEmail)
+      XCTAssertEqual(firstUser.localID, kTestLocalID)
+      XCTAssertTrue(firstUser.emailVerified)
+      let providerUserInfo = try XCTUnwrap(firstUser.providerUserInfo)
+      XCTAssertGreaterThan(providerUserInfo.count, 0)
+      let firstProviderUser = try XCTUnwrap(providerUserInfo.first)
+      XCTAssertEqual(firstProviderUser.photoURL?.absoluteString, kTestPhotoURL)
+      XCTAssertEqual(firstProviderUser.displayName, kTestDisplayName)
+      XCTAssertEqual(firstProviderUser.email, kTestEmail)
+      XCTAssertEqual(firstProviderUser.providerID, kTestProviderID)
+      XCTAssertEqual(firstProviderUser.federatedID, kTestFederatedID)
+      let enrolledPasskeys = try XCTUnwrap(firstUser.enrolledPasskeys)
+      XCTAssertEqual(enrolledPasskeys.count, 1)
+      XCTAssertEqual(enrolledPasskeys[0].credentialID, testCredentialId)
+      XCTAssertEqual(enrolledPasskeys[0].name, testPasskeyName)
     }
-    let rpcResponse = try await authBackend.call(with: makeGetAccountInfoRequest())
 
-    let users = try XCTUnwrap(rpcResponse.users)
-    XCTAssertGreaterThan(users.count, 0)
-    let firstUser = try XCTUnwrap(users.first)
-    XCTAssertEqual(firstUser.photoURL?.absoluteString, kTestPhotoURL)
-    XCTAssertEqual(firstUser.displayName, kTestDisplayName)
-    XCTAssertEqual(firstUser.email, kTestEmail)
-    XCTAssertEqual(firstUser.localID, kTestLocalID)
-    XCTAssertTrue(firstUser.emailVerified)
-    let providerUserInfo = try XCTUnwrap(firstUser.providerUserInfo)
-    XCTAssertGreaterThan(providerUserInfo.count, 0)
-    let firstProviderUser = try XCTUnwrap(providerUserInfo.first)
-    XCTAssertEqual(firstProviderUser.photoURL?.absoluteString, kTestPhotoURL)
-    XCTAssertEqual(firstProviderUser.displayName, kTestDisplayName)
-    XCTAssertEqual(firstProviderUser.email, kTestEmail)
-    XCTAssertEqual(firstProviderUser.providerID, kTestProviderID)
-    XCTAssertEqual(firstProviderUser.federatedID, kTestFederatedID)
-    let enrolledPasskeys = try XCTUnwrap(firstUser.enrolledPasskeys)
-    XCTAssertEqual(enrolledPasskeys.count, 1)
-    XCTAssertEqual(enrolledPasskeys[0].credentialID, testCredentialId)
-    XCTAssertEqual(enrolledPasskeys[0].name, testPasskeyName)
-  }
+    func testInitWithMultipleEnrolledPasskeys() throws {
+      let passkey1: [String: AnyHashable] = ["name": "passkey1", "credentialId": "cred1"]
+      let passkey2: [String: AnyHashable] = ["name": "passkey2", "credentialId": "cred2"]
+      let userDict: [String: AnyHashable] = [
+        "localId": "user123",
+        "email": "user@example.com",
+        "passkeyInfo": [passkey1, passkey2],
+      ]
+      let dict: [String: AnyHashable] = ["users": [userDict]]
+      let response = try GetAccountInfoResponse(dictionary: dict)
+      let users = try XCTUnwrap(response.users)
+      let firstUser = try XCTUnwrap(users.first)
+      let enrolledPasskeys = try XCTUnwrap(firstUser.enrolledPasskeys)
+      XCTAssertEqual(enrolledPasskeys.count, 2)
+      XCTAssertEqual(enrolledPasskeys[0].name, "passkey1")
+      XCTAssertEqual(enrolledPasskeys[0].credentialID, "cred1")
+      XCTAssertEqual(enrolledPasskeys[1].name, "passkey2")
+      XCTAssertEqual(enrolledPasskeys[1].credentialID, "cred2")
+    }
 
-  func testInitWithMultipleEnrolledPasskeys() throws {
-    let passkey1: [String: AnyHashable] = ["name": "passkey1", "credentialId": "cred1"]
-    let passkey2: [String: AnyHashable] = ["name": "passkey2", "credentialId": "cred2"]
-    let userDict: [String: AnyHashable] = [
-      "localId": "user123",
-      "email": "user@example.com",
-      "passkeyInfo": [passkey1, passkey2],
-    ]
-    let dict: [String: AnyHashable] = ["users": [userDict]]
-    let response = try GetAccountInfoResponse(dictionary: dict)
-    let users = try XCTUnwrap(response.users)
-    let firstUser = try XCTUnwrap(users.first)
-    let enrolledPasskeys = try XCTUnwrap(firstUser.enrolledPasskeys)
-    XCTAssertEqual(enrolledPasskeys.count, 2)
-    XCTAssertEqual(enrolledPasskeys[0].name, "passkey1")
-    XCTAssertEqual(enrolledPasskeys[0].credentialID, "cred1")
-    XCTAssertEqual(enrolledPasskeys[1].name, "passkey2")
-    XCTAssertEqual(enrolledPasskeys[1].credentialID, "cred2")
-  }
+    func testInitWithNoEnrolledPasskeys() throws {
+      let userDict: [String: AnyHashable] = [
+        "localId": "user123",
+        "email": "user@example.com",
+        // No "passkeys" present
+      ]
+      let dict: [String: AnyHashable] = ["users": [userDict]]
+      let response = try GetAccountInfoResponse(dictionary: dict)
+      let users = try XCTUnwrap(response.users)
+      let firstUser = try XCTUnwrap(users.first)
+      XCTAssertNil(firstUser.enrolledPasskeys)
+    }
 
-  func testInitWithNoEnrolledPasskeys() throws {
-    let userDict: [String: AnyHashable] = [
-      "localId": "user123",
-      "email": "user@example.com",
-      // No "passkeys" present
-    ]
-    let dict: [String: AnyHashable] = ["users": [userDict]]
-    let response = try GetAccountInfoResponse(dictionary: dict)
-    let users = try XCTUnwrap(response.users)
-    let firstUser = try XCTUnwrap(users.first)
-    XCTAssertNil(firstUser.enrolledPasskeys)
-  }
+  #endif
 
   private func makeGetAccountInfoRequest() -> GetAccountInfoRequest {
     return GetAccountInfoRequest(accessToken: kTestAccessToken,
