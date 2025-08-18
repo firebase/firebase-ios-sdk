@@ -424,6 +424,44 @@ struct GenerateContentIntegrationTests {
     }
   }
 
+  @Test(
+    "generateContent with URL Context",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_Flash,
+      tools: [.urlContext()]
+    )
+    let prompt = """
+    Write a one paragraph summary of this blog post: \
+    https://developers.googleblog.com/en/introducing-gemma-3-270m/
+    """
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let groundingMetadata = try #require(candidate.groundingMetadata)
+    #expect(!groundingMetadata.groundingChunks.isEmpty)
+    #expect(!groundingMetadata.groundingSupports.isEmpty)
+
+    for chunk in groundingMetadata.groundingChunks {
+      #expect(chunk.web != nil)
+    }
+
+    for support in groundingMetadata.groundingSupports {
+      let segment = support.segment
+      #expect(segment.endIndex > segment.startIndex)
+      #expect(!segment.text.isEmpty)
+      #expect(!support.groundingChunkIndices.isEmpty)
+
+      // Ensure indices point to valid chunks
+      for index in support.groundingChunkIndices {
+        #expect(index < groundingMetadata.groundingChunks.count)
+      }
+    }
+  }
+
   @Test(arguments: InstanceConfig.allConfigs)
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
