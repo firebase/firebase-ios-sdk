@@ -33,14 +33,6 @@ extension User: DataSourceProvidable {
     return Section(headerDescription: "Info", items: items)
   }
 
-  private var metaDataSection: Section {
-    let metadataRows = [
-      Item(title: metadata.lastSignInDate?.description, detailTitle: "Last Sign-in Date"),
-      Item(title: metadata.creationDate?.description, detailTitle: "Creation Date"),
-    ]
-    return Section(headerDescription: "Firebase Metadata", items: metadataRows)
-  }
-
   private var passkeysSection: Section {
     let passkeys = enrolledPasskeys ?? []
     guard !passkeys.isEmpty else {
@@ -53,6 +45,14 @@ extension User: DataSourceProvidable {
       Item(title: info.name, detailTitle: info.credentialID)
     }
     return Section(headerDescription: "Passkeys", items: items)
+  }
+
+  private var metaDataSection: Section {
+    let metadataRows = [
+      Item(title: metadata.lastSignInDate?.description, detailTitle: "Last Sign-in Date"),
+      Item(title: metadata.creationDate?.description, detailTitle: "Creation Date"),
+    ]
+    return Section(headerDescription: "Firebase Metadata", items: metadataRows)
   }
 
   private var otherSection: Section {
@@ -76,7 +76,7 @@ extension User: DataSourceProvidable {
   }
 
   var sections: [Section] {
-    [infoSection, metaDataSection, passkeysSection, otherSection, actionSection]
+    [infoSection, passkeysSection, metaDataSection, otherSection, actionSection]
   }
 }
 

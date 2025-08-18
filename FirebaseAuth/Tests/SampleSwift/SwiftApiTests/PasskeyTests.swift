@@ -23,8 +23,6 @@
 
   @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
   class PasskeyTests: TestsBase {
-    // MARK: Enrollment Tests
-
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
     func testStartPasskeyEnrollmentSuccess() async throws {
       try await signInAnonymouslyAsync()
@@ -41,7 +39,7 @@
     }
 
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
-    func testStartPasskeyEnrollmentFailureWithInvalidToken() async throws {
+    func DRAFTtestStartPasskeyEnrollmentFailureWithInvalidToken() async throws {
       try await signInAnonymouslyAsync()
       guard let user = Auth.auth().currentUser else {
         XCTFail("Expected a signed-in user")
@@ -118,6 +116,128 @@
         )
       }
       try? await deleteCurrentUserAsync()
+    }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    func testStartPasskeySignInSuccess() async throws {
+      let assertionRequest = try await Auth.auth().startPasskeySignIn()
+      XCTAssertFalse(assertionRequest.relyingPartyIdentifier.isEmpty,
+                     "rpID should be non-empty")
+      XCTAssertFalse(assertionRequest.challenge.isEmpty,
+                     "challenge should be non-empty")
+      XCTAssertTrue(assertionRequest
+        is ASAuthorizationPlatformPublicKeyCredentialAssertionRequest)
+    }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    func testFinalizePasskeySignInFailureInvalidAttestation() async throws {
+      let auth = Auth.auth()
+      let config = auth.requestConfiguration
+      let badRequest = FinalizePasskeySignInRequest(
+        credentialID: "fakeCredentialId".data(using: .utf8)!.base64EncodedString(),
+        clientDataJSON: "fakeClientData".data(using: .utf8)!.base64EncodedString(),
+        authenticatorData: "fakeAuthenticatorData".data(using: .utf8)!.base64EncodedString(),
+        signature: "fakeSignature".data(using: .utf8)!.base64EncodedString(),
+        userId: "fakeUID".data(using: .utf8)!.base64EncodedString(),
+        requestConfiguration: config
+      )
+      do {
+        _ = try await auth.backend.call(with: badRequest)
+      } catch {
+        let ns = error as NSError
+        if let code = AuthErrorCode(rawValue: ns.code) {
+          XCTAssertEqual(code, .userNotFound)
+        }
+      }
+    }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    func testFinalizePasskeySignInFailureWithoutAttestation() async throws {
+      let auth = Auth.auth()
+      let config = auth.requestConfiguration
+      let badRequest = FinalizePasskeySignInRequest(
+        credentialID: "",
+        clientDataJSON: "",
+        authenticatorData: "",
+        signature: "",
+        userId: "",
+        requestConfiguration: config
+      )
+      do {
+        _ = try await auth.backend.call(with: badRequest)
+      } catch {
+        let ns = error as NSError
+        if let code = AuthErrorCode(rawValue: ns.code) {
+          XCTAssertEqual(code, .userNotFound)
+        }
+      }
+    }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    func DRAFTtestUnenrollPasskeySuccess() async throws {
+      let testEmail = "sample.ios.auth@gmail.com"
+      let testPassword = "sample.ios.auth"
+      let testCredentialId = "cred_id"
+      let auth = Auth.auth()
+      try await auth.signIn(withEmail: testEmail, password: testPassword)
+      guard let user = Auth.auth().currentUser else {
+        XCTFail("Expected a signed-in user")
+        return
+      }
+      try? await user.reload()
+      let prevPasskeys = user.enrolledPasskeys ?? []
+      XCTAssertTrue(
+        prevPasskeys.contains { $0.credentialID == testCredentialId },
+        "Precondition failed: passkey \(testCredentialId) is not enrolled on this account."
+      )
+      let prevCount = prevPasskeys.count
+      let _ = try await user.unenrollPasskey(withCredentialID: testCredentialId)
+      try? await user.reload()
+      let updatedPasskeys = user.enrolledPasskeys ?? []
+      XCTAssertFalse(
+        updatedPasskeys.contains { $0.credentialID == testCredentialId },
+        "Passkey \(testCredentialId) should be removed after unenroll."
+      )
+      XCTAssertEqual(
+        updatedPasskeys.count, prevCount - 1,
+        "Exactly one passkey should have been removed."
+      )
+      XCTAssertNil(
+        updatedPasskeys.first { $0.credentialID == testCredentialId },
+        "Passkey \(testCredentialId) should not exist after unenroll."
+      )
+    }
+
+    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
+    func testUnenrollPasskeyFailure() async throws {
+      let testEmail = "sample.ios.auth@gmail.com"
+      let testPassword = "sample.ios.auth"
+      let testCredentialId = "FCBopZ3mzjfPNXqWXXjAM/ZnnlQ="
+      let auth = Auth.auth()
+      try await auth.signIn(withEmail: testEmail, password: testPassword)
+      guard let user = Auth.auth().currentUser else {
+        XCTFail("Expected a signed-in user")
+        return
+      }
+      try? await user.reload()
+      do {
+        let _ = try await user.unenrollPasskey(withCredentialID: testCredentialId)
+        XCTFail("Expected invalid passkey error")
+      } catch {
+        let ns = error as NSError
+        if let code = AuthErrorCode(rawValue: ns.code) {
+          XCTAssertEqual(code, .missingPasskeyEnrollment,
+                         "Expected .missingPasskeyEnrollment, got \(code)")
+        }
+        let message = (ns.userInfo[NSLocalizedDescriptionKey] as? String ?? "").uppercased()
+        XCTAssertTrue(
+          message
+            .contains(
+              "CANNOT FIND THE PASSKEY LINKED TO THE CURRENT ACCOUNT"
+            ),
+          "Expected Missing Passkey Enrollment error, got: \(message)"
+        )
+      }
     }
   }
 

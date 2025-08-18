@@ -1079,12 +1079,7 @@ extension User: NSSecureCoding {}
         requestConfiguration: requestConfiguration
       )
       let response = try await backend.call(with: request)
-      guard let passkeyName = (name?.isEmpty ?? true) ? defaultPasskeyName : name
-      else { throw NSError(
-        domain: AuthErrorDomain,
-        code: AuthErrorCode.internalError.rawValue,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to unwrap passkey name"]
-      ) }
+      passkeyName = (name?.isEmpty ?? true) ? defaultPasskeyName : name
       guard let challengeInData = Data(base64Encoded: response.challenge) else {
         throw NSError(
           domain: AuthErrorDomain,
@@ -1104,7 +1099,7 @@ extension User: NSSecureCoding {}
       )
       return provider.createCredentialRegistrationRequest(
         challenge: challengeInData,
-        name: passkeyName,
+        name: passkeyName ?? defaultPasskeyName,
         userID: userIdInData
       )
     }
@@ -1114,13 +1109,26 @@ extension User: NSSecureCoding {}
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
     public func finalizePasskeyEnrollment(withPlatformCredential platformCredential: ASAuthorizationPlatformPublicKeyCredentialRegistration) async throws
       -> AuthDataResult {
+      guard
+        !platformCredential.credentialID.isEmpty,
+        !platformCredential.rawClientDataJSON.isEmpty,
+        let attestation = platformCredential.rawAttestationObject,
+        !attestation.isEmpty
+      else {
+        throw NSError(
+          domain: AuthErrorDomain,
+          code: AuthErrorCode.internalError.rawValue,
+          userInfo: [NSLocalizedDescriptionKey:
+            "Invalid platform credential: missing credentialID, clientDataJSON, or attestationObject."]
+        )
+      }
       let credentialID = platformCredential.credentialID.base64EncodedString()
       let clientDataJSON = platformCredential.rawClientDataJSON.base64EncodedString()
       let attestationObject = platformCredential.rawAttestationObject!.base64EncodedString()
 
       let request = FinalizePasskeyEnrollmentRequest(
         idToken: rawAccessToken(),
-        name: passkeyName ?? "Unnamed account (Apple)",
+        name: passkeyName ?? defaultPasskeyName,
         credentialID: credentialID,
         clientDataJSON: clientDataJSON,
         attestationObject: attestationObject,
@@ -1133,6 +1141,9 @@ extension User: NSSecureCoding {}
         refreshToken: response.refreshToken,
         anonymous: false
       )
+      defer { self.passkeyName = nil }
+      try await user.reload()
+      try await auth!.updateCurrentUser(user)
       return AuthDataResult(withUser: user, additionalUserInfo: nil)
     }
 
@@ -1147,12 +1158,14 @@ extension User: NSSecureCoding {}
       request.deletePasskeys = [credentialID]
       request.accessToken = rawAccessToken()
       let response = try await backend.call(with: request)
-      _ = try await auth!.completeSignIn(
+      let user = try await auth!.completeSignIn(
         withAccessToken: response.idToken,
         accessTokenExpirationDate: response.approximateExpirationDate,
         refreshToken: response.refreshToken,
         anonymous: false
       )
+      try await user.reload()
+      try await auth!.updateCurrentUser(user)
     }
   #endif
 

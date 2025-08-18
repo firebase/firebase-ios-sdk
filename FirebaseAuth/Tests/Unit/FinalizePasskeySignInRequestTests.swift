@@ -71,33 +71,38 @@
         userId: kUserId,
         requestConfiguration: fakeConfig
       )
-      let body = request.unencodedHTTPRequestBody
-      XCTAssertNotNil(body)
-      let authnAssertionResp = body?["authenticatorAssertionResponse"] as? [String: AnyHashable]
-      XCTAssertNotNil(authnAssertionResp)
-      XCTAssertEqual(authnAssertionResp?["credentialId"] as? String, kCredentialID)
-      let innerResponse =
-        authnAssertionResp?["authenticatorAssertionResponse"] as? [String: AnyHashable]
-      XCTAssertNotNil(innerResponse)
-      XCTAssertEqual(innerResponse?["clientDataJSON"] as? String, kClientDataJSON)
-      XCTAssertEqual(innerResponse?["authenticatorData"] as? String, kAuthenticatorData)
-      XCTAssertEqual(innerResponse?["signature"] as? String, kSignature)
-      XCTAssertEqual(innerResponse?["userHandle"] as? String, kUserId)
-      XCTAssertNil(body?["tenantId"])
+      guard let postBody = request.unencodedHTTPRequestBody else {
+        return XCTFail("Body should not be nil")
+      }
+      guard let authnAssertionResp =
+        postBody["authenticatorAuthenticationResponse"] as? [String: AnyHashable] else {
+        return XCTFail("Missing authenticatorAuthenticationResponse")
+      }
+      XCTAssertEqual(authnAssertionResp["id"] as? String, kCredentialID)
+      guard let response = authnAssertionResp["response"] as? [String: AnyHashable] else {
+        return XCTFail("Missing nested response dictionary")
+      }
+      XCTAssertEqual(response["clientDataJSON"] as? String, kClientDataJSON)
+      XCTAssertEqual(response["authenticatorData"] as? String, kAuthenticatorData)
+      XCTAssertEqual(response["signature"] as? String, kSignature)
+      XCTAssertEqual(response["userHandle"] as? String, kUserId)
+      XCTAssertNil(postBody["tenantId"]) // no tenant by default
     }
 
     func testUnencodedHTTPRequestBodyWithTenantId() {
-      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                    gcmSenderID: "00000000000000000-00000000000-000000000")
+      let options = FirebaseOptions(
+        googleAppID: "0:0000000000000:ios:0000000000000000",
+        gcmSenderID: "00000000000000000-00000000000-000000000"
+      )
       options.apiKey = "FAKE_API_KEY"
       options.projectID = "myProjectID"
-      let fakeApp = FirebaseApp(instanceWithName: "testApp", options: options)
-      let fakeAuth = Auth(app: fakeApp)
-      fakeAuth.tenantID = "TEST_TENANT"
+      let app = FirebaseApp(instanceWithName: "testApp", options: options)
+      let auth = Auth(app: app)
+      auth.tenantID = "TEST_TENANT"
       let configWithTenant = AuthRequestConfiguration(
         apiKey: "FAKE_API_KEY",
         appID: "FAKE_APP_ID",
-        auth: fakeAuth
+        auth: auth
       )
       request = FinalizePasskeySignInRequest(
         credentialID: kCredentialID,
@@ -107,9 +112,22 @@
         userId: kUserId,
         requestConfiguration: configWithTenant
       )
-
-      let body = request.unencodedHTTPRequestBody
-      XCTAssertEqual(body?["tenantId"] as? String, "TEST_TENANT")
+      guard let body = request.unencodedHTTPRequestBody else {
+        return XCTFail("Body should not be nil")
+      }
+      XCTAssertEqual(body["tenantId"] as? String, "TEST_TENANT")
+      // also checking structure remains same with tenant
+      guard let top = body["authenticatorAuthenticationResponse"] as? [String: AnyHashable] else {
+        return XCTFail("Missing authenticatorAuthenticationResponse")
+      }
+      XCTAssertEqual(top["id"] as? String, kCredentialID)
+      guard let response = top["response"] as? [String: AnyHashable] else {
+        return XCTFail("Missing nested response dictionary")
+      }
+      XCTAssertEqual(response["clientDataJSON"] as? String, kClientDataJSON)
+      XCTAssertEqual(response["authenticatorData"] as? String, kAuthenticatorData)
+      XCTAssertEqual(response["signature"] as? String, kSignature)
+      XCTAssertEqual(response["userHandle"] as? String, kUserId)
     }
   }
 
