@@ -27,6 +27,8 @@ jobs:
         pod: ["FirebaseAppDistribution", "FirebaseInAppMessaging", "FirebasePerformance"]
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: cron-${{ matrix.os }}
@@ -50,6 +52,8 @@ jobs:
         pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage"]
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: pods-${{ matrix.os }}
