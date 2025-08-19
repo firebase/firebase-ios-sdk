@@ -40,6 +40,10 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
     return AppCheckTokenResultInteropFake(token: token, error: error)
   }
 
+  func getLimitedUseToken() async -> any FIRAppCheckTokenResultInterop {
+    return AppCheckTokenResultInteropFake(token: "limited_use_\(token)", error: error)
+  }
+
   func tokenDidChangeNotificationName() -> String {
     fatalError("\(#function) not implemented.")
   }
@@ -52,9 +56,10 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
     fatalError("\(#function) not implemented.")
   }
 
-  private class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop {
-    var token: String
-    var error: Error?
+  private class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop,
+    @unchecked Sendable {
+    let token: String
+    let error: Error?
 
     init(token: String, error: Error?) {
       self.token = token
