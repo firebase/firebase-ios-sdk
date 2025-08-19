@@ -153,11 +153,11 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       env:
@@ -189,11 +189,11 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication nightly_release_testing
@@ -221,11 +221,11 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       env:
@@ -264,11 +264,11 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database nightly_release_testing
@@ -298,11 +298,11 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore nightly_release_testing
@@ -369,11 +369,11 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging nightly_release_testing
@@ -405,11 +405,11 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging nightly_release_testing
@@ -439,11 +439,11 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config nightly_release_testing
@@ -472,11 +472,11 @@ jobs:
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
       LEGACY: true
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage nightly_release_testing
@@ -504,11 +504,11 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Performance nightly_release_testing
