@@ -178,6 +178,8 @@ jobs:
       with:
         cache_key: sample${{ matrix.os }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install Secret GoogleService-Info.plist
@@ -186,8 +188,6 @@ jobs:
           FirebaseMessaging/Apps/Shared/GoogleService-Info.plist "$plist_secret"
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSample iOS)
 
