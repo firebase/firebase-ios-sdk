@@ -1654,6 +1654,7 @@ extension Auth: AuthInterop {
     public func startPasskeySignIn() async throws ->
       ASAuthorizationPlatformPublicKeyCredentialAssertionRequest {
       let request = StartPasskeySignInRequest(requestConfiguration: requestConfiguration)
+      print("invoking StartPasskeySignIn\n")
       let response = try await backend.call(with: request)
       guard let challengeInData = Data(base64Encoded: response.challenge) else {
         throw NSError(
@@ -1662,6 +1663,7 @@ extension Auth: AuthInterop {
           userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 challenge from response."]
         )
       }
+      print("StartPasskeySignIn Succeed!\n")
       let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
         relyingPartyIdentifier: response.rpID
       )
@@ -1688,6 +1690,7 @@ extension Auth: AuthInterop {
         userId: userId,
         requestConfiguration: requestConfiguration
       )
+      print("invoking finalizePasskeySignIn for Passkey credentialId: \(credentialId)\n\n")
       let response = try await backend.call(with: request)
       let user = try await Auth.auth().completeSignIn(
         withAccessToken: response.idToken,
@@ -1697,6 +1700,7 @@ extension Auth: AuthInterop {
       )
       try await user.reload()
       try await updateCurrentUser(user)
+      print("FinalizePasskeySignIn Succeed!\nidToken: \(response.idToken)\n")
       return AuthDataResult(withUser: user, additionalUserInfo: nil)
     }
   #endif

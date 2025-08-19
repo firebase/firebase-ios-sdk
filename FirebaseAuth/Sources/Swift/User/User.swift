@@ -1078,6 +1078,7 @@ extension User: NSSecureCoding {}
         idToken: enrollmentIdToken,
         requestConfiguration: requestConfiguration
       )
+      print("invoking startPasskeyEnrollemt with idToken: \(enrollmentIdToken)\n")
       let response = try await backend.call(with: request)
       passkeyName = (name?.isEmpty ?? true) ? defaultPasskeyName : name
       guard let challengeInData = Data(base64Encoded: response.challenge) else {
@@ -1087,6 +1088,7 @@ extension User: NSSecureCoding {}
           userInfo: [NSLocalizedDescriptionKey: "Failed to decode base64 challenge from response."]
         )
       }
+      print("StartPasskeyEnrollemt Succeed!\n")
       guard let userIdInData = Data(base64Encoded: response.userID) else {
         throw NSError(
           domain: AuthErrorDomain,
@@ -1125,7 +1127,9 @@ extension User: NSSecureCoding {}
       let credentialId = platformCredential.credentialID.base64EncodedString()
       let clientDataJson = platformCredential.rawClientDataJSON.base64EncodedString()
       let attestationObject = platformCredential.rawAttestationObject!.base64EncodedString()
-
+      print(
+        "invoking finalizePasskeyEnrollemt for Passkey:\nname: \(passkeyName)\ncredentialId: \(credentialId)\n"
+      )
       let request = FinalizePasskeyEnrollmentRequest(
         idToken: rawAccessToken(),
         name: passkeyName ?? defaultPasskeyName,
@@ -1144,6 +1148,7 @@ extension User: NSSecureCoding {}
       defer { self.passkeyName = nil }
       try await user.reload()
       try await auth!.updateCurrentUser(user)
+      print("FinalizePasskeyEnrollemt Succeed!\nidToken: \(response.idToken)\n")
       return AuthDataResult(withUser: user, additionalUserInfo: nil)
     }
 
@@ -1155,8 +1160,10 @@ extension User: NSSecureCoding {}
       let request = SetAccountInfoRequest(
         requestConfiguration: auth!.requestConfiguration
       )
+      let token = rawAccessToken()
       request.deletePasskeys = [credentialID]
-      request.accessToken = rawAccessToken()
+      request.accessToken = token
+      print("invoking UnenrollPasskey for credentialId: \(credentialID) with IdToken: \(token)\n")
       let response = try await backend.call(with: request)
       let user = try await auth!.completeSignIn(
         withAccessToken: response.idToken,
@@ -1166,6 +1173,7 @@ extension User: NSSecureCoding {}
       )
       try await user.reload()
       try await auth!.updateCurrentUser(user)
+      print("UnenrollPasskey Succeed!\nidToken: \(response.idToken)\n")
     }
   #endif
 

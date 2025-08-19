@@ -941,33 +941,39 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       print("OS version is not supported for this action.")
       return
     }
+    guard AppManager.shared.auth().currentUser == nil else {
+      presentPasskeyAlert("User Already Signed In", message: "Please sign out first.")
+      print("User Already Signed In. Sign out first.")
+      return
+    }
     Task {
       do {
         _ = try await AppManager.shared.auth().signInAnonymously()
-        print("sign-in anonymously succeeded.")
+        print("sign-in anonymously succeeded.\n")
         if let uid = AppManager.shared.auth().currentUser?.uid {
-          print("User ID: \(uid)")
+          print("User ID: \(uid)\n")
         }
-        // Continue to enroll a passkey.
         await passkeyEnroll()
       } catch {
         print("sign-in anonymously failed: \(error.localizedDescription)")
-        self.showAlert(for: "Anonymous Sign-In Failed")
+        presentPasskeyAlert("Anonymous Sign-In Failed",
+                            message: "Anonymous Sign-In Failed while Passkey Sign Up")
       }
     }
   }
 
   private func passkeyEnroll() async {
     guard let user = AppManager.shared.auth().currentUser else {
-      showAlert(for: "Please sign in first.")
+      presentPasskeyAlert("Signed In User needed", message: "Please sign in first.")
+      print("Please sign in first.")
       return
     }
     let passkeyName = await showTextInputPrompt(with: "Passkey name")
     guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
-      showAlert(for: "Not Supported", message: "This OS version does not support passkeys.")
+      presentPasskeyAlert("Not Supported", message: "This OS version does not support passkeys.")
       return
     }
-
+    print("Enrolling Passkey with Name: \(passkeyName)\n")
     do {
       let request = try await user.startPasskeyEnrollment(withName: passkeyName)
       let controller = ASAuthorizationController(authorizationRequests: [request])
@@ -976,7 +982,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       controller.performRequests()
       print("Started passkey enrollment (challenge created).")
     } catch {
-      showAlert(for: "Passkey enrollment failed", message: error.localizedDescription)
+      presentPasskeyAlert("Passkey enrollment failed", message: error.localizedDescription)
       print("startPasskeyEnrollment failed: \(error.localizedDescription)")
     }
   }
@@ -984,6 +990,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   private func passkeySignIn() async {
     guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
       print("OS version is not supported for this action.")
+      presentPasskeyAlert("Not Supported", message: "This OS version does not support passkeys.")
       return
     }
     do {
@@ -994,13 +1001,14 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       controller.performRequests()
       print("Started passkey sign in (challenge created).")
     } catch {
+      presentPasskeyAlert("Passkey Sign-In Failed", message: error.localizedDescription)
       print("Passkey sign-in failed with error: \(error)")
     }
   }
 
   private func passkeyUnenroll() async {
     guard let user = AppManager.shared.auth().currentUser else {
-      showAlert(for: "Please sign in first.")
+      presentPasskeyAlert("Signed In User needed", message: "Please sign in first.")
       return
     }
     guard let credentialId = await showTextInputPrompt(with: "Credential Id") else {
@@ -1009,10 +1017,19 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
     do {
       let _ = try await user.unenrollPasskey(withCredentialID: credentialId)
+      presentPasskeyAlert("Passkey Unenrollment", message: "Succeeded")
     } catch {
-      showAlert(for: "Passkey unenrollment failed", message: error.localizedDescription)
       print("unenrollPasskey failed: \(error.localizedDescription)")
+      presentPasskeyAlert("Passkey unenrollment failed", message: error.localizedDescription)
     }
+  }
+
+  /// passkey helper to present alerts
+  @MainActor
+  private func presentPasskeyAlert(_ title: String, message: String? = nil) {
+    let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+    present(alert, animated: true)
   }
 
   // MARK: - Private Helpers
@@ -1134,8 +1151,8 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
           self.showAlert(for: "Passkey Enrollment", message: "Succeeded")
           print("Passkey Enrollment succeeded.")
         } catch {
-          self.showAlert(for: "Passkey Enrollment failed", message: error.localizedDescription)
-          print("Finalize enrollment failed: \(error.localizedDescription)")
+          print("Passkey Enrollment failed: \(error.localizedDescription)")
+          presentPasskeyAlert("Passkey Enrollment failed", message: error.localizedDescription)
         }
       }
       return
@@ -1151,8 +1168,8 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
           print("Passkey sign-in succeeded.")
           self.transitionToUserViewController()
         } catch {
-          self.showAlert(for: "Passkey Sign-In failed", message: error.localizedDescription)
-          print("Finalize passkey sign-in failed: \(error.localizedDescription)")
+          presentPasskeyAlert("Passkey Sign-In failed", message: error.localizedDescription)
+          print("Passkey sign-in failed: \(error.localizedDescription)")
         }
       }
       return
