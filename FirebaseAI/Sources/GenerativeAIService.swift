@@ -234,9 +234,13 @@ struct GenerativeAIService {
     return await appCheck.getToken(forcingRefresh: false)
   }
 
-  private func getLimitedUseAppCheckToken(appCheck: AppCheckInterop) async -> FIRAppCheckTokenResultInterop? {
+  private func getLimitedUseAppCheckToken(appCheck: AppCheckInterop) async
+    -> FIRAppCheckTokenResultInterop? {
     // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
-    await withCheckedContinuation { (continuation: CheckedContinuation<FIRAppCheckTokenResultInterop?, Never>) in
+    await withCheckedContinuation { (continuation: CheckedContinuation<
+      FIRAppCheckTokenResultInterop?,
+      Never
+    >) in
       guard
         useLimitedUseAppCheckTokens,
         // `getLimitedUseToken(completion:)` is an optional protocol method. Optional binding

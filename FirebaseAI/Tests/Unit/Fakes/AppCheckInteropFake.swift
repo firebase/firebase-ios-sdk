@@ -52,7 +52,8 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
     fatalError("\(#function) not implemented.")
   }
 
-  private class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop, @unchecked Sendable {
+  private class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop,
+    @unchecked Sendable {
     let token: String
     let error: Error?
 
