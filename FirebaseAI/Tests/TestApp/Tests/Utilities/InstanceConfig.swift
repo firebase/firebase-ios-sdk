@@ -121,7 +121,8 @@ extension FirebaseAI {
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
         location: location,
-        apiConfig: instanceConfig.apiConfig
+        apiConfig: instanceConfig.apiConfig,
+        useLimitedUseAppCheckTokens: false
       )
     case .googleAI:
       assert(
@@ -131,7 +132,8 @@ extension FirebaseAI {
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
         location: nil,
-        apiConfig: instanceConfig.apiConfig
+        apiConfig: instanceConfig.apiConfig,
+        useLimitedUseAppCheckTokens: false
       )
     }
   }
