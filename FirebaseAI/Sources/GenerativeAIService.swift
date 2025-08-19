@@ -213,7 +213,7 @@ struct GenerativeAIService {
   private func fetchAppCheckToken(appCheck: AppCheckInterop) async throws
     -> FIRAppCheckTokenResultInterop {
     if useLimitedUseAppCheckTokens {
-      if let token = await appCheck.getLimitedUseToken?() {
+      if let token = await getLimitedUseAppCheckToken(appCheck: appCheck) {
         return token
       }
 
@@ -232,6 +232,25 @@ struct GenerativeAIService {
     }
 
     return await appCheck.getToken(forcingRefresh: false)
+  }
+
+  private func getLimitedUseAppCheckToken(appCheck: AppCheckInterop) async -> FIRAppCheckTokenResultInterop? {
+    // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
+    await withCheckedContinuation { (continuation: CheckedContinuation<FIRAppCheckTokenResultInterop?, Never>) in
+      guard
+        useLimitedUseAppCheckTokens,
+        // `getLimitedUseToken(completion:)` is an optional protocol method. Optional binding
+        // is performed to make sure `continuation` is called even if the method’s not implemented.
+        let limitedUseTokenClosure = appCheck.getLimitedUseToken
+      else {
+        return continuation.resume(returning: nil)
+      }
+
+      limitedUseTokenClosure { tokenResult in
+        // The placeholder token should be used in the case of App Check error.
+        continuation.resume(returning: tokenResult)
+      }
+    }
   }
 
   private func httpResponse(urlResponse: URLResponse) throws -> HTTPURLResponse {

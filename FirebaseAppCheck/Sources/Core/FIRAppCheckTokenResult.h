@@ -20,6 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_SENDABLE
 @interface FIRAppCheckTokenResult : NSObject <FIRAppCheckTokenResultInterop>
 
 - (instancetype)initWithToken:(NSString *)token error:(nullable NSError *)error;
