@@ -89,7 +89,7 @@ struct InstanceConfig: Equatable, Encodable {
     vertexAI_v1beta_appCheckNotConfigured,
     vertexAI_v1beta_appCheckNotConfigured_limitedUseTokens,
     googleAI_v1beta_appCheckNotConfigured,
-    googleAI_v1beta_appCheckNotConfigured_limitedUseTokens
+    googleAI_v1beta_appCheckNotConfigured_limitedUseTokens,
   ]
 
   let appName: String?
@@ -97,12 +97,10 @@ struct InstanceConfig: Equatable, Encodable {
   let useLimitedUseAppCheckTokens: Bool
   let apiConfig: APIConfig
 
-  init(
-    appName: String? = nil,
-    location: String? = nil,
-    useLimitedUseAppCheckTokens: Bool = false,
-    apiConfig: APIConfig
-  ) {
+  init(appName: String? = nil,
+       location: String? = nil,
+       useLimitedUseAppCheckTokens: Bool = false,
+       apiConfig: APIConfig) {
     self.appName = appName
     self.location = location
     self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
