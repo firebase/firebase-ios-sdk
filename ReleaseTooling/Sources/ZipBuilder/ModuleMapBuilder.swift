@@ -248,6 +248,11 @@ struct ModuleMapBuilder {
     installedPods[name]?.transitiveFrameworks = transitiveFrameworkDeps
     installedPods[name]?.transitiveLibraries = transitiveLibraryDeps
 
-    return ModuleMapContents(module: name, frameworks: myFrameworkDeps, libraries: myLibraryDeps)
+    let moduleName = FrameworkBuilder.frameworkBuildName(name)
+    return ModuleMapContents(
+      module: moduleName,
+      frameworks: myFrameworkDeps,
+      libraries: myLibraryDeps
+    )
   }
 }
