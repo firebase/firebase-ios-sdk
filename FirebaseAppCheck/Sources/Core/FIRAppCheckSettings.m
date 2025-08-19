@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
+#import "Core/FIRAppCheckSettings.h"
 
 #import <GoogleUtilities/GULUserDefaults.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "../FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
