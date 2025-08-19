@@ -51,7 +51,9 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
@@ -165,15 +167,16 @@ struct GenerateContentIntegrationTests {
       (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(
         thinkingBudget: 24576, includeThoughts: true
       )),
-      (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 0
-      )),
-      (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576
-      )),
-      (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576, includeThoughts: true
-      )),
+      // Note: The following configs are commented out for easy one-off manual testing.
+      // (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      //   thinkingBudget: 0
+      // )),
+      // (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      //   thinkingBudget: 24576
+      // )),
+      // (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      //   thinkingBudget: 24576, includeThoughts: true
+      // )),
     ] as [(InstanceConfig, String, ThinkingConfig)]
   )
   func generateContentThinking(_ config: InstanceConfig, modelName: String,
