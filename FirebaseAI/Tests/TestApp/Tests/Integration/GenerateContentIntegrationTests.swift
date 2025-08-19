@@ -50,15 +50,18 @@ struct GenerateContentIntegrationTests {
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
-    (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
-    (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+    // Note: The following configs are commented out for easy one-off manual testing.
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+    // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -322,8 +325,9 @@ struct GenerateContentIntegrationTests {
     InstanceConfig.vertexAI_v1beta,
     InstanceConfig.vertexAI_v1beta_global,
     InstanceConfig.googleAI_v1beta,
-    InstanceConfig.googleAI_v1beta_staging,
-    InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
+    // Note: The following configs are commented out for easy one-off manual testing.
+    // InstanceConfig.googleAI_v1beta_staging,
+    // InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
   ])
   func generateImage(_ config: InstanceConfig) async throws {
     let generationConfig = GenerationConfig(
@@ -419,13 +423,18 @@ struct GenerateContentIntegrationTests {
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
-    (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
-    (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+    // Note: The following configs are commented out for easy one-off manual testing.
+    // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])
   func generateContentStream(_ config: InstanceConfig, modelName: String) async throws {
     let expectedResponse = [
