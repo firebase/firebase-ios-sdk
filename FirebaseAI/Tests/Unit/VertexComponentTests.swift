@@ -184,7 +184,7 @@ class VertexComponentTests: XCTestCase {
         app: app1,
         location: "transitory location",
         apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
-        aiConfig: .config()
+        useLimitedUseAppCheckTokens: false
       )
       weakVertex = vertex
       XCTAssertNotNil(weakVertex)

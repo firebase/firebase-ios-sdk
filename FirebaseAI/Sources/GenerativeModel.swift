@@ -89,7 +89,7 @@ public final class GenerativeModel: Sendable {
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
        urlSession: URLSession = GenAIURLSession.default,
-       useLimitedUseAppCheckTokens: Bool) {
+       useLimitedUseAppCheckTokens: Bool = false) {
     self.modelName = modelName
     self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig

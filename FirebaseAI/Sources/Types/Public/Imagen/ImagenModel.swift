@@ -54,7 +54,7 @@ public final class ImagenModel {
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
        urlSession: URLSession = GenAIURLSession.default,
-       useLimitedUseAppCheckTokens: Bool) {
+       useLimitedUseAppCheckTokens: Bool = false) {
     self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
