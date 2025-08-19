@@ -1,3 +1,6 @@
+# 12.1.0
+- [fixed] Do not log using raw print in an internal class. (#15138)
+
 # 12.0.0
 - [fixed] Resolved compiler warnings related to constant definitions. (#15059)
 

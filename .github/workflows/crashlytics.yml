@@ -16,7 +16,7 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile*'
   schedule:
-    # Run every day at 10am (PST) - cron uses UTC times
+    # Run every day at 7pm (PDT) / 10pm (EDT) - cron uses UTC times
     - cron:  '0 2 * * *'
 
 concurrency:
@@ -53,7 +53,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh crashlytics
       env:
@@ -86,7 +86,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh crashlytics
       env:
@@ -130,7 +130,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 120

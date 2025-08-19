@@ -8,7 +8,7 @@ on:
     - 'Gemfile*'
   workflow_dispatch:
   schedule:
-    # Run every day at 9pm (PST) - cron uses UTC times
+    # Run every day at 10pm (PDT) / 1am (EDT) - cron uses UTC times
     - cron:  '0 5 * * *'
 
 env:
@@ -86,6 +86,8 @@ jobs:
       targeted_pod: FirebaseCore
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: actions/download-artifact@v4.1.7
       with:
         name: firebase-ios-sdk
@@ -119,6 +121,8 @@ jobs:
       targeted_pod: ${{ matrix.podspec }}
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: actions/download-artifact@v4.1.7
       with:
         name: firebase-ios-sdk
@@ -152,6 +156,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       env:
@@ -186,9 +192,9 @@ jobs:
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
@@ -218,6 +224,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       env:
@@ -259,6 +267,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh database nightly_release_testing
@@ -291,6 +301,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh firestore nightly_release_testing
@@ -360,6 +372,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh inappmessaging nightly_release_testing
@@ -394,6 +408,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh messaging nightly_release_testing
@@ -426,6 +442,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh config nightly_release_testing
@@ -457,6 +475,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh storage nightly_release_testing
@@ -487,6 +507,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Performance nightly_release_testing

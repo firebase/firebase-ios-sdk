@@ -12,7 +12,7 @@ on:
     - 'SwiftPM-PlatformExclude'
     - 'Gemfile*'
   schedule:
-    # Run every day at 12am (PST) - cron uses UTC times
+    # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
     - cron:  '0 8 * * *'
 
 # This workflow builds and tests the Swift Package Manager. Only iOS runs on PRs
@@ -98,7 +98,7 @@ jobs:
           - os: macos-14
             xcode: Xcode_16.2
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.4
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -127,7 +127,7 @@ jobs:
         target: [tvOS, macOS, catalyst]
         include:
           - os: macos-15
-            xcode: Xcode_16.2
+            xcode: Xcode_16.4
           - os: macos-14
             xcode: Xcode_16.2
     runs-on: ${{ matrix.os }}

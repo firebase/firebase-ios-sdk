@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.0.0"
+let firebaseVersion = "12.2.0"
 
 let package = Package(
   name: "Firebase",
@@ -141,7 +141,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "3.4.1" ..< "5.0.0"
+      "3.4.1" ..< "6.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
@@ -329,8 +329,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/11.15.0/FirebaseAnalytics.zip",
-      checksum: "b535a4eb74ddb2786b0e65bbd14e08d11a925c525f9d3e73c1e4fa37963e6b85"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.1.0/FirebaseAnalytics.zip",
+      checksum: "57ab43b31bc0b804bb09db48d77d713fa7834085bc5aa7e2cd1b5369e63a697d"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1384,7 +1384,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "11.15.0")
+  return .package(url: appMeasurementURL, exact: "12.1.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1558,8 +1558,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/11.14.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "c653dfa7f51fc54629bf38ef743831fedeaed251d1b02c0bbb6ecf86dad03929"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.0.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "e7add08e9044ef45f7923d0b9ea5518ddc66b090d3f7e9455382f769e74c48c4"
       )
     }
   }()

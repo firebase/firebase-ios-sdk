@@ -161,7 +161,8 @@ public final class ImagenModel {
         )
       },
       addWatermark: generationConfig?.addWatermark,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
     )
   }
 }

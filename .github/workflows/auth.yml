@@ -16,7 +16,7 @@ on:
     - 'scripts/gha-encrypted/AuthSample/SwiftApplication.plist.gpg'
     - 'Gemfile*'
   schedule:
-    # Run every day at 1am (PST) - cron uses UTC times
+    # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
     - cron:  '0 9 * * *'
 
 env:
@@ -156,6 +156,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Configure test keychain

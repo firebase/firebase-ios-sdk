@@ -50,29 +50,12 @@ enum InitializeRelease {
         updateFirebasePodspec(path: path, manifest: manifest)
       } else {
         updatePodspecVersion(pod: pod, version: version, path: path)
-
-        // Pods dependencies to update to latest.
-        if pod.name.hasPrefix("GoogleAppMeasurement") ||
-          pod.name == "FirebaseCore" ||
-          pod.name == "FirebaseCoreExtension" ||
-          pod.name == "FirebaseCoreInternal" ||
-          pod.name == "FirebaseFirestoreInternal" ||
-          pod.name == "FirebaseAI" {
-          updateDependenciesToLatest(
-            dependency: pod.name,
-            pods: manifest.pods,
-            version: version,
-            path: path
-          )
-        } else if version.hasSuffix(".0.0") {
-          let patchlessVersion = String(version[..<version.lastIndex(of: ".")!])
-          updateDependenciesToLatest(
-            dependency: pod.name,
-            pods: manifest.pods,
-            version: patchlessVersion,
-            path: path
-          )
-        }
+        updateDependenciesToLatest(
+          dependency: pod.name,
+          pods: manifest.pods,
+          version: version,
+          path: path
+        )
       }
     }
   }

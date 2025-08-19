@@ -1,3 +1,10 @@
+# Unreleased
+- [added] Added TOTP support for macOS.
+
+# 12.1.0
+- [fixed] Fix a formatting issue with generated TOTP URLs that prevented them
+  from working with the Google Authenticator app. (#15128)
+
 # 12.0.0
 - [removed] **Breaking Change**: Removed the following Dynamic Links related
   APIs:

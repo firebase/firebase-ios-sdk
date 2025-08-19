@@ -14,7 +14,7 @@ on:
     - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
   schedule:
-    # Run every day at 10pm (PST) - cron uses UTC times
+    # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
     - cron:  '0 6 * * *'
 
 concurrency:
@@ -46,7 +46,7 @@ jobs:
 # TODO(#8682): Reenable iPad after fixing Xcode 13 test failures.
 #        platform: [iOS, iPad]
         platform: [iOS]
-        xcode: [Xcode_16.2]
+        xcode: [Xcode_16.4]
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -78,7 +78,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: PodLibLint InAppMessaging Cron
@@ -98,7 +98,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh inappmessaging
     - name: install secret googleservice-info.plist

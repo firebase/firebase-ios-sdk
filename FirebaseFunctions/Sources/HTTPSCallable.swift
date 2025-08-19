@@ -43,7 +43,7 @@ public final class HTTPSCallable: NSObject, Sendable {
 
   private let options: HTTPSCallableOptions?
 
-  private let _timeoutInterval: AtomicBox<TimeInterval> = .init(70)
+  private let _timeoutInterval: UnfairLock<TimeInterval> = .init(70)
 
   // MARK: - Public Properties
 
@@ -160,7 +160,6 @@ public final class HTTPSCallable: NSObject, Sendable {
   /// - Parameter data: Parameters to pass to the trigger.
   /// - Throws: An error if the Cloud Functions invocation failed.
   /// - Returns: The result of the call.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func call(_ data: Any? = nil) async throws -> sending HTTPSCallableResult {
     try await functions
       .callFunction(at: url, withObject: data, options: options, timeout: timeoutInterval)

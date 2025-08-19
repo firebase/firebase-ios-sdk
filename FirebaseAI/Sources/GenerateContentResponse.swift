@@ -57,30 +57,19 @@ public struct GenerateContentResponse: Sendable {
   public let usageMetadata: UsageMetadata?
 
   /// The response's content as text, if it exists.
+  ///
+  /// - Note: This does not include thought summaries; see ``thoughtSummary`` for more details.
   public var text: String? {
-    guard let candidate = candidates.first else {
-      AILog.error(
-        code: .generateContentResponseNoCandidates,
-        "Could not get text from a response that had no candidates."
-      )
-      return nil
-    }
-    let textValues: [String] = candidate.content.parts.compactMap { part in
-      switch part {
-      case let textPart as TextPart:
-        return textPart.text
-      default:
-        return nil
-      }
-    }
-    guard textValues.count > 0 else {
-      AILog.error(
-        code: .generateContentResponseNoText,
-        "Could not get a text part from the first candidate."
-      )
-      return nil
-    }
-    return textValues.joined(separator: " ")
+    return text(isThought: false)
+  }
+
+  /// A summary of the model's thinking process, if available.
+  ///
+  /// - Important: Thought summaries are only available when `includeThoughts` is enabled in the
+  ///   ``ThinkingConfig``. For more information, see the
+  ///   [Thinking](https://firebase.google.com/docs/ai-logic/thinking) documentation.
+  public var thoughtSummary: String? {
+    return text(isThought: true)
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
@@ -89,12 +78,10 @@ public struct GenerateContentResponse: Sendable {
       return []
     }
     return candidate.content.parts.compactMap { part in
-      switch part {
-      case let functionCallPart as FunctionCallPart:
-        return functionCallPart
-      default:
+      guard let functionCallPart = part as? FunctionCallPart, !part.isThought else {
         return nil
       }
+      return functionCallPart
     }
   }
 
@@ -107,7 +94,12 @@ public struct GenerateContentResponse: Sendable {
       """)
       return []
     }
-    return candidate.content.parts.compactMap { $0 as? InlineDataPart }
+    return candidate.content.parts.compactMap { part in
+      guard let inlineDataPart = part as? InlineDataPart, !part.isThought else {
+        return nil
+      }
+      return inlineDataPart
+    }
   }
 
   /// Initializer for SwiftUI previews or tests.
@@ -116,6 +108,30 @@ public struct GenerateContentResponse: Sendable {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
+  }
+
+  func text(isThought: Bool) -> String? {
+    guard let candidate = candidates.first else {
+      AILog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
+      )
+      return nil
+    }
+    let textValues: [String] = candidate.content.parts.compactMap { part in
+      guard let textPart = part as? TextPart, part.isThought == isThought else {
+        return nil
+      }
+      return textPart.text
+    }
+    guard textValues.count > 0 else {
+      AILog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from the first candidate."
+      )
+      return nil
+    }
+    return textValues.joined(separator: " ")
   }
 }
 
@@ -310,7 +326,7 @@ public struct PromptFeedback: Sendable {
 /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct GroundingMetadata: Sendable {
+public struct GroundingMetadata: Sendable, Equatable, Hashable {
   /// A list of web search queries that the model performed to gather the grounding information.
   /// These can be used to allow users to explore the search results themselves.
   public let webSearchQueries: [String]
@@ -327,7 +343,7 @@ public struct GroundingMetadata: Sendable {
 
   /// A struct representing the Google Search entry point.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public struct SearchEntryPoint: Sendable {
+  public struct SearchEntryPoint: Sendable, Equatable, Hashable {
     /// An HTML/CSS snippet that can be embedded in your app.
     ///
     /// To ensure proper rendering, it's recommended to display this content within a `WKWebView`.
@@ -337,14 +353,14 @@ public struct GroundingMetadata: Sendable {
   /// Represents a chunk of retrieved data that supports a claim in the model's response. This is
   /// part of the grounding information provided when grounding is enabled.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public struct GroundingChunk: Sendable {
+  public struct GroundingChunk: Sendable, Equatable, Hashable {
     /// Contains details if the grounding chunk is from a web source.
     public let web: WebGroundingChunk?
   }
 
   /// A grounding chunk sourced from the web.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public struct WebGroundingChunk: Sendable {
+  public struct WebGroundingChunk: Sendable, Equatable, Hashable {
     /// The URI of the retrieved web page.
     public let uri: String?
     /// The title of the retrieved web page.
@@ -358,7 +374,7 @@ public struct GroundingMetadata: Sendable {
   /// Provides information about how a specific segment of the model's response is supported by the
   /// retrieved grounding chunks.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public struct GroundingSupport: Sendable {
+  public struct GroundingSupport: Sendable, Equatable, Hashable {
     /// Specifies the segment of the model's response content that this grounding support pertains
     /// to.
     public let segment: Segment
@@ -391,7 +407,7 @@ public struct GroundingMetadata: Sendable {
 /// Represents a specific segment within a ``ModelContent`` struct, often used to pinpoint the
 /// exact location of text or data that grounding information refers to.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct Segment: Sendable {
+public struct Segment: Sendable, Equatable, Hashable {
   /// The zero-based index of the ``Part`` object within the `parts` array of its parent
   /// ``ModelContent`` object. This identifies which part of the content the segment belongs to.
   public let partIndex: Int

@@ -67,6 +67,9 @@ struct FunctionResponse: Codable, Equatable, Sendable {
 struct ErrorPart: Part, Error {
   let error: Error
 
+  let isThought = false
+  let thoughtSignature: String? = nil
+
   init(_ error: Error) {
     self.error = error
   }
