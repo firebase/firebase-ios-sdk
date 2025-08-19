@@ -501,6 +501,31 @@ final class GenerativeModelVertexAITests: XCTestCase {
     _ = try await model.generateContent(testPrompt)
   }
 
+  func testGenerateContent_appCheck_validToken_limitedUse() async throws {
+    let appCheckToken = "test-valid-token"
+    model = GenerativeModel(
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        appCheck: AppCheckInteropFake(token: appCheckToken)
+      ),
+      apiConfig: apiConfig,
+      tools: nil,
+      requestOptions: RequestOptions(),
+      urlSession: urlSession,
+      useLimitedUseAppCheckTokens: true
+    )
+    MockURLProtocol
+      .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+        forResource: "unary-success-basic-reply-short",
+        withExtension: "json",
+        subdirectory: vertexSubdirectory,
+        appCheckToken: "limited_use_\(appCheckToken)"
+      )
+
+    _ = try await model.generateContent(testPrompt)
+  }
+
   func testGenerateContent_dataCollectionOff() async throws {
     let appCheckToken = "test-valid-token"
     model = GenerativeModel(
