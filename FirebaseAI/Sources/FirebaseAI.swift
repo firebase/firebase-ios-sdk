@@ -110,8 +110,7 @@ public final class FirebaseAI: Sendable {
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      requestOptions: requestOptions,
-      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
+      requestOptions: requestOptions
     )
   }
 
@@ -147,8 +146,7 @@ public final class FirebaseAI: Sendable {
       apiConfig: apiConfig,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
-      requestOptions: requestOptions,
-      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
+      requestOptions: requestOptions
     )
   }
 
@@ -162,8 +160,6 @@ public final class FirebaseAI: Sendable {
   let firebaseInfo: FirebaseInfo
 
   let apiConfig: APIConfig
-
-  let useLimitedUseAppCheckTokens: Bool
 
   /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp` name and the `location`,
   /// in the format `appName:location`.
@@ -227,11 +223,11 @@ public final class FirebaseAI: Sendable {
       projectID: projectID,
       apiKey: apiKey,
       firebaseAppID: app.options.googleAppID,
-      firebaseApp: app
+      firebaseApp: app,
+      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
     self.apiConfig = apiConfig
     self.location = location
-    self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
   }
 
   func modelResourceName(modelName: String) -> String {
