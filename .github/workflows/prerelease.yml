@@ -138,6 +138,11 @@ jobs:
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
+    # Addresses flaky pushes due to missing git config on runner.
+    - name: Set git config
+      run: |
+        git config --global user.email "google-oss-bot@example.com"
+        git config --global user.name "google-oss-bot"
     - name: Update SpecsTesting repo
       run: |
         [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
