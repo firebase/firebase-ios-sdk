@@ -127,6 +127,11 @@ jobs:
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
+    # Addresses flaky pushes due to missing git config on runner.
+    - name: Set git config
+      run: |
+        git config --global user.email "google-oss-bot@example.com"
+        git config --global user.name "google-oss-bot"
     - name: Update SpecsReleasing repo
       run: |
         [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
@@ -153,7 +158,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
@@ -221,7 +226,7 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
@@ -264,7 +269,7 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
@@ -298,7 +303,7 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
@@ -369,7 +374,7 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
@@ -405,7 +410,7 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
@@ -439,7 +444,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
@@ -472,7 +477,7 @@ jobs:
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
       LEGACY: true
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
@@ -504,7 +509,7 @@ jobs:
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
       testing_repo_dir: "/tmp/test/"
       testing_repo: "firebase-ios-sdk"
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - name: Set Xcode version
