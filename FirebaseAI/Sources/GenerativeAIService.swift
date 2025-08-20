@@ -209,7 +209,7 @@ struct GenerativeAIService {
 
   private func fetchAppCheckToken(appCheck: AppCheckInterop) async throws
     -> FIRAppCheckTokenResultInterop {
-      if firebaseInfo.useLimitedUseAppCheckTokens {
+    if firebaseInfo.useLimitedUseAppCheckTokens {
       if let token = await getLimitedUseAppCheckToken(appCheck: appCheck) {
         return token
       }
