@@ -15,6 +15,9 @@
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
@@ -162,6 +165,30 @@ public final class GenerativeModel: Sendable {
       apiMethod: .generateContent,
       options: requestOptions
     )
+
+    // TODO: Extract into Foundation Models service class
+    #if os(iOS) || os(macOS) || os(visionOS)
+      if #available(iOS 26.0, macOS 26.0, macCatalyst 26.0, visionOS 26.0, *) {
+        if SystemLanguageModel.default.isAvailable {
+          let session = try LanguageModelSession(
+            model: .default,
+            tools: [],
+            transcript: asTranscript(content)
+          )
+          let response = try await session.respond(to: content.asFoundationModelsPrompt())
+
+          return GenerateContentResponse(candidates: [
+            Candidate(
+              content: ModelContent(role: "model", parts: response.content),
+              safetyRatings: [],
+              finishReason: .stop,
+              citationMetadata: nil
+            ),
+          ])
+        }
+      }
+    #endif // os(iOS) || os(macOS) || os(visionOS)
+
     do {
       response = try await generativeAIService.loadRequest(request: generateContentRequest)
     } catch {
@@ -222,6 +249,43 @@ public final class GenerativeModel: Sendable {
       apiMethod: .streamGenerateContent,
       options: requestOptions
     )
+
+    // TODO: Extract into Foundation Models service class
+    #if os(iOS) || os(macOS) || os(visionOS)
+      if #available(iOS 26.0, macOS 26.0, macCatalyst 26.0, visionOS 26.0, *) {
+        let session = try LanguageModelSession(
+          model: .default,
+          tools: [],
+          transcript: asTranscript(content)
+        )
+        return AsyncThrowingStream { continuation in
+          Task {
+            do {
+              var previousContentLength = 0
+              let responseStream = try session
+                .streamResponse(to: content.asFoundationModelsPrompt())
+              for try await response in responseStream {
+                let newContent = response.content.dropFirst(previousContentLength)
+                previousContentLength = response.content.count
+                let contentResponse = GenerateContentResponse(candidates: [
+                  Candidate(
+                    content: ModelContent(role: "model", parts: [TextPart(String(newContent))]),
+                    safetyRatings: [],
+                    finishReason: .stop,
+                    citationMetadata: nil
+                  ),
+                ])
+                continuation.yield(contentResponse)
+              }
+              continuation.finish()
+            } catch {
+              continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
+              return
+            }
+          }
+        }
+      }
+    #endif // os(iOS) || os(macOS) || os(visionOS)
 
     return AsyncThrowingStream { continuation in
       let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
@@ -332,4 +396,83 @@ public final class GenerativeModel: Sendable {
     }
     return GenerateContentError.internalError(underlying: error)
   }
+
+  // MARK: - Foundation Models Helpers
+
+  #if canImport(FoundationModels)
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func foundationModelsInstructions() throws -> Instructions? {
+      guard let systemInstruction else {
+        return nil
+      }
+      return try Instructions {
+        try systemInstruction.parts.map { part in
+          guard let textPart = part as? TextPart else {
+            throw FoundationModelsError(message: """
+              Unexpected system instruction part type: \(part); only text parts are supported.
+            """)
+          }
+          guard !textPart.isThought else {
+            throw FoundationModelsError(message: """
+            Unsupported "thought" part in system instruction: \(part)
+            """)
+          }
+          return textPart.text
+        }
+      }
+    }
+
+    // TODO: Use `foundationModelsInstructions` helper
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func asTranscriptInstructions() throws -> Transcript.Instructions? {
+      guard let systemInstruction else {
+        return nil
+      }
+      let instructions = try systemInstruction.parts.map { part in
+        guard let textPart = part as? TextPart, !textPart.isThought else {
+          throw FoundationModelsError(message: "invalid system instruction part type")
+        }
+        return Transcript.Segment.text(Transcript.TextSegment(content: textPart.text))
+      }
+      guard !instructions.isEmpty else {
+        return nil
+      }
+      return Transcript.Instructions(segments: instructions, toolDefinitions: [])
+    }
+
+    // TODO: Move to `ModelContent` and use helpers
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func asTranscript(_ content: [ModelContent]) throws -> Transcript {
+      var transcriptEntries = [Transcript.Entry]()
+      if let instructions = try asTranscriptInstructions() {
+        transcriptEntries.append(.instructions(instructions))
+      }
+      let content = content.dropLast()
+      let historyEntries = try content.map { contentEntry in
+        let segments = try contentEntry.parts.map { part in
+          guard let textPart = part as? TextPart, !textPart.isThought else {
+            throw FoundationModelsError(message: "invalid part type")
+          }
+          return Transcript.Segment.text(Transcript.TextSegment(content: textPart.text))
+        }
+        switch contentEntry.role {
+        case "model":
+          return Transcript.Entry.response(Transcript.Response(assetIDs: [], segments: segments))
+        case "user", nil:
+          return Transcript.Entry.prompt(Transcript.Prompt(segments: segments))
+        default:
+          throw FoundationModelsError(message: "Unexpected role: \(contentEntry.role ?? "nil")")
+        }
+      }
+      transcriptEntries.append(contentsOf: historyEntries)
+
+      return Transcript(entries: transcriptEntries)
+    }
+  #endif // canImport(FoundationModels)
 }

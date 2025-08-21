@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension [ModelContent] {
@@ -233,3 +236,51 @@ extension InternalPart.OneOfData: Codable {
     }
   }
 }
+
+// MARK: - Foundation Models Helpers
+
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension ModelContent {
+    func asFoundationModelsPrompt() throws -> Prompt {
+      return try Prompt {
+        try parts.map { part in
+          guard let textPart = part as? TextPart else {
+            throw FoundationModelsError(message: """
+            Unexpected prompt part type: \(part); only text parts are supported.
+            """)
+          }
+          guard !textPart.isThought else {
+            throw FoundationModelsError(message: """
+            Unsupported "thought" part in prompt: \(part)
+            """)
+          }
+          return textPart.text
+        }
+      }
+    }
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension [ModelContent] {
+    func asFoundationModelsPrompt() throws -> Prompt {
+      // The last `ModelContent` object in the array is the current prompt. Any others would need to
+      // go in a `Transcript` for history.
+      guard let content = self.last else {
+        throw FoundationModelsError(message: "Empty prompt content.")
+      }
+      if let role = content.role, role != "user" {
+        throw FoundationModelsError(message:
+          "The prompt content must be a user message; found role: \(role)")
+      }
+      return try Prompt {
+        try content.asFoundationModelsPrompt()
+      }
+    }
+  }
+
+#endif // canImport(FoundationModels)
