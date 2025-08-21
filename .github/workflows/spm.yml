@@ -149,3 +149,9 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh version-test ${{ matrix.target }} spm
     - name: Analytics Build Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh analytics-import-test ${{ matrix.target }} spm
+    - name: Upload xcodebuild logs
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: xcodebuild-logs-${{ matrix.target }}
+        path: xcodebuild-*.log
