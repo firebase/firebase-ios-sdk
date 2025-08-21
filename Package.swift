@@ -1408,17 +1408,18 @@ func abseilDependency() -> Package.Dependency {
 }
 
 func grpcDependency() -> Package.Dependency {
-  let packageInfo: (url: String, range: Range<Version>)
+  return .package(url: "https://github.com/google/grpc-binary.git", branch: "ncooke3-patch-3")
+  // let packageInfo: (url: String, range: Range<Version>)
 
-  // If building Firestore from source, abseil will need to be built as source
-  // as the headers in the binary version of abseil are unusable.
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
-  } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
-  }
+  // // If building Firestore from source, abseil will need to be built as source
+  // // as the headers in the binary version of abseil are unusable.
+  // if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  //   packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
+  // } else {
+  //   packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
+  // }
 
-  return .package(url: packageInfo.url, packageInfo.range)
+  // return .package(url: packageInfo.url, packageInfo.range)
 }
 
 func firestoreWrapperTarget() -> Target {
