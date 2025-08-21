@@ -1415,11 +1415,8 @@ func grpcDependency() -> Package.Dependency {
   if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
     return .package(url: packageInfo.url, packageInfo.range)
-  } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
-    return .package(url: "https://github.com/google/grpc-binary.git", branch: "ncooke3-patch-3")
   }
-
+  return .package(url: "https://github.com/google/grpc-binary.git", branch: "ncooke3-patch-3")
 }
 
 func firestoreWrapperTarget() -> Target {
