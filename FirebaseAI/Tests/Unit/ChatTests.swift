@@ -68,7 +68,8 @@ final class ChatTests: XCTestCase {
           projectID: "my-project-id",
           apiKey: "API_KEY",
           firebaseAppID: "My app ID",
-          firebaseApp: app
+          firebaseApp: app,
+          useLimitedUseAppCheckTokens: false
         ),
         apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
         tools: nil,
