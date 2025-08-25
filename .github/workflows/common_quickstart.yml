@@ -33,10 +33,10 @@ on:
         type: string
         required: true
 
+      # TODO: What does this mean?
       is_legacy:
         type: boolean
-        required: false
-        default: false
+        required: true
 
       plist_src_path:
         type: string
@@ -45,6 +45,9 @@ on:
       plist_dst_path:
         type: string
         required: true
+
+      # quickstart_type:
+      #   type: string
 
       # A command to execute before testing.
       #
