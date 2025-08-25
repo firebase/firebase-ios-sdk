@@ -73,11 +73,11 @@ jobs:
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         # timeout_minutes: 120
-        timeout_seconds: 1
         max_attempts: 3
         # retry_wait_seconds: 120
         retry_wait_seconds: 1
-        command: ([ -z $plist_secret ] || scripts/build.sh Storage${{ matrix.language }} all)
+        # command: ([ -z $plist_secret ] || scripts/build.sh Storage${{ matrix.language }} all)
+        command: exit 1 
 
   # quickstart:
   #   # Don't run on private repo unless it is a PR.
