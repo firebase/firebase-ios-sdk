@@ -75,7 +75,6 @@ jobs:
         # timeout_minutes: 120
         timeout_seconds: 1
         max_attempts: 3
-        retry_on: error
         # retry_wait_seconds: 120
         retry_wait_seconds: 1
         command: ([ -z $plist_secret ] || scripts/build.sh Storage${{ matrix.language }} all)
