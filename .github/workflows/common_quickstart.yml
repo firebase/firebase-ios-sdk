@@ -46,8 +46,16 @@ on:
         type: string
         required: true
 
-      # quickstart_type:
-      #   type: string
+      # swift or objc
+      quickstart_type:
+        type: string
+        required: false
+        default: objc
+
+      run_tests:
+        type: boolean
+        required: false
+        default: true
 
       # A command to execute before testing.
       #
@@ -86,7 +94,7 @@ jobs:
             ${{ inputs.plist_src_path }} \
             ${{ inputs.plist_dst_path }} \
             "$plist_secret"
-    - name: Build ${{ inputs.product }} Quickstart
+    - name: Build ${{ inputs.product }} Quickstart (${{ inputs.quickstart_type }} / ${{ inputs.is_legacy && "Legacy" || "Non-Legacy" }})
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       env:
         LEGACY: ${{ inputs.is_legacy }}
@@ -94,7 +102,11 @@ jobs:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
-        command: scripts/test_quickstart.sh ${{ inputs.product }} true
+        command: |
+          scripts/test_quickstart.sh \
+            ${{ inputs.product }} \
+            ${{ inputs.run_tests }} \
+            ${{ inputs.quickstart_type }}
     # TODO: Add upload on fialure.
     # - name: Upload raw logs if failed.
     #   if: ${{ failure() }}
