@@ -73,7 +73,6 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
