@@ -53,6 +53,10 @@ enum AuthMenu: String {
   case phoneEnroll
   case totpEnroll
   case multifactorUnenroll
+  case passkeySignUp
+  case passkeyEnroll
+  case passkeySignIn
+  case passkeyUnenroll
 
   // More intuitively named getter for `rawValue`.
   var id: String { rawValue }
@@ -139,6 +143,15 @@ enum AuthMenu: String {
       return "TOTP Enroll"
     case .multifactorUnenroll:
       return "Multifactor unenroll"
+    // Passkey
+    case .passkeySignUp:
+      return "Sign Up with Passkey"
+    case .passkeyEnroll:
+      return "Enroll with Passkey"
+    case .passkeySignIn:
+      return "Sign In with Passkey"
+    case .passkeyUnenroll:
+      return "Unenroll Passkey"
     }
   }
 
@@ -220,6 +233,14 @@ enum AuthMenu: String {
       self = .totpEnroll
     case "Multifactor unenroll":
       self = .multifactorUnenroll
+    case "Sign Up with Passkey":
+      self = .passkeySignUp
+    case "Enroll with Passkey":
+      self = .passkeyEnroll
+    case "Sign In with Passkey":
+      self = .passkeySignIn
+    case "Unenroll Passkey":
+      self = .passkeyUnenroll
     default:
       return nil
     }
@@ -354,9 +375,20 @@ class AuthMenuData: DataSourceProvidable {
     return Section(headerDescription: header, items: items)
   }
 
+  static var passkeySection: Section {
+    let header = "Passkey"
+    let items: [Item] = [
+      Item(title: AuthMenu.passkeySignUp.name),
+      Item(title: AuthMenu.passkeyEnroll.name),
+      Item(title: AuthMenu.passkeySignIn.name),
+      Item(title: AuthMenu.passkeyUnenroll.name),
+    ]
+    return Section(headerDescription: header, items: items)
+  }
+
   static let sections: [Section] =
     [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
-     customAuthDomainSection, appSection, oobSection, multifactorSection]
+     customAuthDomainSection, appSection, oobSection, multifactorSection, passkeySection]
 
   static var authLinkSections: [Section] {
     let allItems = [providerSection, emailPasswordSection, otherSection].flatMap { $0.items }
