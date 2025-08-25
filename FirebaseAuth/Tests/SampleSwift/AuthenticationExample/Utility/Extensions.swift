@@ -33,6 +33,20 @@ extension User: DataSourceProvidable {
     return Section(headerDescription: "Info", items: items)
   }
 
+  private var passkeysSection: Section {
+    let passkeys = enrolledPasskeys ?? []
+    guard !passkeys.isEmpty else {
+      return Section(
+        headerDescription: "Passkeys",
+        items: [Item(title: "None", detailTitle: "No passkeys enrolled")]
+      )
+    }
+    let items: [Item] = passkeys.map { info in
+      Item(title: info.name, detailTitle: info.credentialID)
+    }
+    return Section(headerDescription: "Passkeys", items: items)
+  }
+
   private var metaDataSection: Section {
     let metadataRows = [
       Item(title: metadata.lastSignInDate?.description, detailTitle: "Last Sign-in Date"),
@@ -62,7 +76,7 @@ extension User: DataSourceProvidable {
   }
 
   var sections: [Section] {
-    [infoSection, metaDataSection, otherSection, actionSection]
+    [infoSection, passkeysSection, metaDataSection, otherSection, actionSection]
   }
 }
 

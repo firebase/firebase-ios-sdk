@@ -355,6 +355,7 @@ final class AuthBackend: AuthBackendProtocol {
       .missingIosBundleIDError(message: serverDetailErrorMessage)
     case "MISSING_ANDROID_PACKAGE_NAME": return AuthErrorUtils
       .missingAndroidPackageNameError(message: serverDetailErrorMessage)
+    case "PASSKEY_ENROLLMENT_NOT_FOUND": return AuthErrorUtils.missingPasskeyEnrollment()
     case "UNAUTHORIZED_DOMAIN": return AuthErrorUtils
       .unauthorizedDomainError(message: serverDetailErrorMessage)
     case "INVALID_CONTINUE_URI": return AuthErrorUtils
@@ -440,6 +441,7 @@ final class AuthBackend: AuthBackendProtocol {
       return AuthErrorUtils.credentialAlreadyInUseError(
         message: serverDetailErrorMessage, credential: credential, email: email
       )
+    case "INVALID_AUTHENTICATOR_RESPONSE": return AuthErrorUtils.invalidAuthenticatorResponse()
     default:
       if let underlyingErrors = errorDictionary["errors"] as? [[String: String]] {
         for underlyingError in underlyingErrors {
