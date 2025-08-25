@@ -81,7 +81,7 @@ jobs:
       run: FirebaseFunctions/Backend/start.sh synchronous
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        timeout_minutes: 120
+        timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
         command: scripts/build.sh Firebase-Package iOS ${{ matrix.test }}
