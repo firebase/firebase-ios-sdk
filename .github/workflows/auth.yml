@@ -88,7 +88,6 @@ jobs:
       with:
         timeout_minutes: 120
         max_attempts: 3
-        retry_on: error
         retry_wait_seconds: 120
         command: ([ -z $plist_secret ] || scripts/build.sh Auth iOS ${{ matrix.scheme }})
 
@@ -166,6 +165,5 @@ jobs:
       with:
         timeout_minutes: 120
         max_attempts: 3
-        retry_on: error
         retry_wait_seconds: 120
         command: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
