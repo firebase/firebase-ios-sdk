@@ -507,13 +507,13 @@ final class GenerativeModelVertexAITests: XCTestCase {
       modelName: testModelName,
       modelResourceName: testModelResourceName,
       firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
-        appCheck: AppCheckInteropFake(token: appCheckToken)
+        appCheck: AppCheckInteropFake(token: appCheckToken),
+        useLimitedUseAppCheckTokens: true
       ),
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession,
-      useLimitedUseAppCheckTokens: true
+      urlSession: urlSession
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(

@@ -53,14 +53,12 @@ public final class ImagenModel {
        generationConfig: ImagenGenerationConfig?,
        safetySettings: ImagenSafetySettings?,
        requestOptions: RequestOptions,
-       urlSession: URLSession = GenAIURLSession.default,
-       useLimitedUseAppCheckTokens: Bool = false) {
+       urlSession: URLSession = GenAIURLSession.default) {
     self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
-      urlSession: urlSession,
-      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
+      urlSession: urlSession
     )
     self.generationConfig = generationConfig
     self.safetySettings = safetySettings

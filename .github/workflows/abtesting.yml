@@ -56,7 +56,6 @@ jobs:
 
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #   runs-on: macos-15
   #   steps:
   #   - uses: actions/checkout@v4

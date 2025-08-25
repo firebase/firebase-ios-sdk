@@ -27,6 +27,7 @@ struct FirebaseInfo: Sendable {
   let projectID: String
   let apiKey: String
   let firebaseAppID: String
+  let useLimitedUseAppCheckTokens: Bool
   let app: FirebaseApp
 
   init(appCheck: AppCheckInterop? = nil,
@@ -34,12 +35,14 @@ struct FirebaseInfo: Sendable {
        projectID: String,
        apiKey: String,
        firebaseAppID: String,
-       firebaseApp: FirebaseApp) {
+       firebaseApp: FirebaseApp,
+       useLimitedUseAppCheckTokens: Bool) {
     self.appCheck = appCheck
     self.auth = auth
     self.projectID = projectID
     self.apiKey = apiKey
     self.firebaseAppID = firebaseAppID
+    self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
     app = firebaseApp
   }
 }

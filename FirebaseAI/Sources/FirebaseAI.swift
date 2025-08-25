@@ -33,21 +33,12 @@ public final class FirebaseAI: Sendable {
   ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
   ///     ``Backend/googleAI()`` (Gemini Developer API).
   ///   - useLimitedUseAppCheckTokens: When sending tokens to the backend, this option enables
-  ///     the usage of App Check's limited-use tokens instead of the standard cached tokens.
-  ///
-  ///     A new limited-use tokens will be generated for each request; providing a smaller attack
-  ///     surface for malicious parties to hijack tokens. When used alongside replay protection,
-  ///     limited-use tokens are also _consumed_ after each request, ensuring they can't be used
-  ///     again.
+  ///     the usage of App Check's limited-use tokens instead of the standard cached tokens. Learn
+  ///     more about [limited-use tokens](https://firebase.google.com/docs/ai-logic/app-check),
+  ///     including their nuances, when to use them, and best practices for integrating them into
+  ///     your app.
   ///
   ///     _This flag is set to `false` by default._
-  ///
-  ///     > Important: Replay protection is not currently supported for the FirebaseAI backend.
-  ///     > While this feature is being developed, you can still migrate to using
-  ///     > limited-use tokens. Because limited-use tokens are backwards compatible, you can still
-  ///     > use them without replay protection. Due to their shorter TTL over standard App Check
-  ///     > tokens, they still provide a security benefit.
-  ///     >
   ///   > Migrating to limited-use tokens sooner minimizes disruption when support for replay
   ///   > protection is added.
   /// - Returns: A `FirebaseAI` instance, configured with the custom `FirebaseApp`.
@@ -110,8 +101,7 @@ public final class FirebaseAI: Sendable {
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      requestOptions: requestOptions,
-      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
+      requestOptions: requestOptions
     )
   }
 
@@ -147,8 +137,7 @@ public final class FirebaseAI: Sendable {
       apiConfig: apiConfig,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
-      requestOptions: requestOptions,
-      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
+      requestOptions: requestOptions
     )
   }
 
@@ -162,8 +151,6 @@ public final class FirebaseAI: Sendable {
   let firebaseInfo: FirebaseInfo
 
   let apiConfig: APIConfig
-
-  let useLimitedUseAppCheckTokens: Bool
 
   /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp` name and the `location`,
   /// in the format `appName:location`.
@@ -227,11 +214,11 @@ public final class FirebaseAI: Sendable {
       projectID: projectID,
       apiKey: apiKey,
       firebaseAppID: app.options.googleAppID,
-      firebaseApp: app
+      firebaseApp: app,
+      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
     self.apiConfig = apiConfig
     self.location = location
-    self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
   }
 
   func modelResourceName(modelName: String) -> String {

@@ -30,12 +30,9 @@ struct GenerativeAIService {
 
   private let urlSession: URLSession
 
-  private let useLimitedUseAppCheckTokens: Bool
-
-  init(firebaseInfo: FirebaseInfo, urlSession: URLSession, useLimitedUseAppCheckTokens: Bool) {
+  init(firebaseInfo: FirebaseInfo, urlSession: URLSession) {
     self.firebaseInfo = firebaseInfo
     self.urlSession = urlSession
-    self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
   }
 
   func loadRequest<T: GenerativeAIRequest>(request: T) async throws -> T.Response {
@@ -212,7 +209,7 @@ struct GenerativeAIService {
 
   private func fetchAppCheckToken(appCheck: AppCheckInterop) async throws
     -> FIRAppCheckTokenResultInterop {
-    if useLimitedUseAppCheckTokens {
+    if firebaseInfo.useLimitedUseAppCheckTokens {
       if let token = await getLimitedUseAppCheckToken(appCheck: appCheck) {
         return token
       }
@@ -242,7 +239,7 @@ struct GenerativeAIService {
       Never
     >) in
       guard
-        useLimitedUseAppCheckTokens,
+        firebaseInfo.useLimitedUseAppCheckTokens,
         // `getLimitedUseToken(completion:)` is an optional protocol method. Optional binding
         // is performed to make sure `continuation` is called even if the method’s not implemented.
         let limitedUseTokenClosure = appCheck.getLimitedUseToken

@@ -107,7 +107,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "ABTesting"
     strategy:
       matrix:
@@ -166,7 +165,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK:  "Authentication"
     strategy:
       matrix:
@@ -217,7 +215,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Config"
     strategy:
       matrix:
@@ -266,7 +263,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Crashlytics"
     strategy:
       matrix:
@@ -338,7 +334,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Database"
     strategy:
       matrix:
@@ -390,7 +385,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Firestore"
     strategy:
       matrix:
@@ -478,7 +472,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "InAppMessaging"
     strategy:
       matrix:
@@ -531,7 +524,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Messaging"
     strategy:
       matrix:
@@ -584,7 +576,6 @@ jobs:
     needs: package-head
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Storage"
     strategy:
       matrix:

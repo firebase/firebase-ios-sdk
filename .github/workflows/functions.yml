@@ -56,7 +56,6 @@ jobs:
   #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     LEGACY: true
   #   # TODO: Move to macos-14 and Xcode 15. The legacy quickstart uses material which doesn't build on Xcode 15.
   #   runs-on: macos-12
@@ -83,7 +82,6 @@ jobs:
   #   if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     LEGACY: true
   #   # TODO: Move to macos-14 and Xcode 15. The legacy quickstart uses material which doesn't build on Xcode 15.
   #   runs-on: macos-12
