@@ -46,8 +46,8 @@ jobs:
       setup_command: scripts/setup_quickstart.sh abtesting
       plist_src_path: scripts/gha-encrypted/qs-database.plist.gpg
       plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
-    # secrets:
-    #   plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   # quickstart-ftl-cron-only:
   #   # Don't run on private repo.
