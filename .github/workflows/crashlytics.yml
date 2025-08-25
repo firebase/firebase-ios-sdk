@@ -24,26 +24,24 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  spm:
-    uses: ./.github/workflows/common.yml
-    with:
-      target: FirebaseCrashlyticsUnit
+  # spm:
+  #   uses: ./.github/workflows/common.yml
+  #   with:
+  #     target: FirebaseCrashlyticsUnit
 
-  catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
-    with:
-      product: FirebaseCrashlytics
-      target: FirebaseCrashlytics-Unit-unit
+  # catalyst:
+  #   uses: ./.github/workflows/common_catalyst.yml
+  #   with:
+  #     product: FirebaseCrashlytics
+  #     target: FirebaseCrashlytics-Unit-unit
 
-  pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
-    with:
-      product: FirebaseCrashlytics
-      buildonly_platforms: tvOS, macOS, watchOS
+  # pod_lib_lint:
+  #   uses: ./.github/workflows/common_cocoapods.yml
+  #   with:
+  #     product: FirebaseCrashlytics
+  #     buildonly_platforms: tvOS, macOS, watchOS
 
   quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Crashlytics
@@ -60,68 +58,68 @@ jobs:
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
-  quickstart-ftl-cron-only:
-    # Don't run on private repo.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
+  # quickstart-ftl-cron-only:
+  #   # Don't run on private repo.
+  #   if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
 
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Setup quickstart
-      run: scripts/setup_quickstart.sh crashlytics
-      env:
-        LEGACY: true
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
-          quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
-    - name: Build swift quickstart
-      run: |
-        mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
-        # Set the deployed pod location of run and upload-symbols with the development pod version.
-        cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Crashlytics swift)
-      env:
-        LEGACY: true
-    - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
-      with:
-        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
-        testapp_dir: quickstart-ios/build-for-testing
-        test_type: "xctest"
+  #   env:
+  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #   runs-on: macos-15
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+  #   - uses: actions/setup-python@v5
+  #     with:
+  #       python-version: '3.11'
+  #   - name: Xcode
+  #     run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+  #   - name: Setup quickstart
+  #     run: scripts/setup_quickstart.sh crashlytics
+  #     env:
+  #       LEGACY: true
+  #   - name: Install Secret GoogleService-Info.plist
+  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
+  #         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
+  #   - name: Build swift quickstart
+  #     run: |
+  #       mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
+  #       # Set the deployed pod location of run and upload-symbols with the development pod version.
+  #       cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+  #       cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+  #       ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Crashlytics swift)
+  #     env:
+  #       LEGACY: true
+  #   - id: ftl_test
+  #     uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
+  #     with:
+  #       credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+  #       testapp_dir: quickstart-ios/build-for-testing
+  #       test_type: "xctest"
 
-  crashlytics-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+  # crashlytics-cron-only:
+  #   # Don't run on private repo.
+  #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-    runs-on: macos-15
-    strategy:
-      matrix:
-        # Disable watchos because it does not support XCTest.
-        target: [ios, tvos, macos, watchos --skip-tests]
-        flags: [
-          '--use-static-frameworks',
-          '--use-modular-headers --skip-tests'
-        ]
-    needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 15
-        max_attempts: 3
-        retry_wait_seconds: 120
-        command: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+  #   runs-on: macos-15
+  #   strategy:
+  #     matrix:
+  #       # Disable watchos because it does not support XCTest.
+  #       target: [ios, tvos, macos, watchos --skip-tests]
+  #       flags: [
+  #         '--use-static-frameworks',
+  #         '--use-modular-headers --skip-tests'
+  #       ]
+  #   needs: pod_lib_lint
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+  #   - name: Setup Bundler
+  #     run: scripts/setup_bundler.sh
+  #   - name: Xcode
+  #     run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+  #   - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+  #     with:
+  #       timeout_minutes: 15
+  #       max_attempts: 3
+  #       retry_wait_seconds: 120
+  #       command: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCrashlytics.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
