@@ -72,7 +72,7 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        # timeout_minutes: 120
+        timeout_minutes: 120
         max_attempts: 3
         # retry_wait_seconds: 120
         retry_wait_seconds: 1
