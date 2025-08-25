@@ -77,7 +77,7 @@ jobs:
   #     buildonly_platforms: iOS, tvOS
 
   # TODO: The legacy ObjC quickstarts don't run with Xcode 15, re-able if we get these working.
-  quickstart:  
+  quickstart:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Performance
