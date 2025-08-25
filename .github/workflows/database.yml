@@ -81,6 +81,8 @@ jobs:
       plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
       quickstart_type: ${{ matrix.quickstart_type }}
       run_tests: false
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   # database-cron-only:
   #   # Don't run on private repo.
