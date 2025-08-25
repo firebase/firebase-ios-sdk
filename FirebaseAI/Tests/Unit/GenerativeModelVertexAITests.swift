@@ -513,7 +513,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession,
+      urlSession: urlSession
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
