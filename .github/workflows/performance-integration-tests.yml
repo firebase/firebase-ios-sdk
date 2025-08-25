@@ -12,8 +12,8 @@ on:
   #   - https://docs.github.com/en/actions/reference/events-that-trigger-workflows#scheduled-events-schedule
   #   - https://crontab.guru/
   schedule:
-    # Runs every 4 hours.
-    - cron:  '0 */4 * * *'
+    # Runs once a day.
+    - cron:  '0 0 * * *'
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
