@@ -200,41 +200,6 @@
     }
 
     @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
-    func DRAFTtestUnenrollPasskeySuccess() async throws {
-      let testEmail = "sample.ios.auth@gmail.com"
-      let testPassword = "sample.ios.auth"
-      let testCredentialId = "cred_id"
-      let auth = Auth.auth()
-      try await auth.signIn(withEmail: testEmail, password: testPassword)
-      guard let user = Auth.auth().currentUser else {
-        XCTFail("Expected a signed-in user")
-        return
-      }
-      try? await user.reload()
-      let prevPasskeys = user.enrolledPasskeys ?? []
-      XCTAssertTrue(
-        prevPasskeys.contains { $0.credentialID == testCredentialId },
-        "Precondition failed: passkey \(testCredentialId) is not enrolled on this account."
-      )
-      let prevCount = prevPasskeys.count
-      let _ = try await user.unenrollPasskey(withCredentialID: testCredentialId)
-      try? await user.reload()
-      let updatedPasskeys = user.enrolledPasskeys ?? []
-      XCTAssertFalse(
-        updatedPasskeys.contains { $0.credentialID == testCredentialId },
-        "Passkey \(testCredentialId) should be removed after unenroll."
-      )
-      XCTAssertEqual(
-        updatedPasskeys.count, prevCount - 1,
-        "Exactly one passkey should have been removed."
-      )
-      XCTAssertNil(
-        updatedPasskeys.first { $0.credentialID == testCredentialId },
-        "Passkey \(testCredentialId) should not exist after unenroll."
-      )
-    }
-
-    @available(iOS 15.0, macOS 12.0, tvOS 16.0, *)
     func testUnenrollPasskeyFailure() async throws {
       let testEmail = "sample.ios.auth@gmail.com"
       let testPassword = "sample.ios.auth"
