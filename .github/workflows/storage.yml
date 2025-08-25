@@ -90,7 +90,6 @@ jobs:
             xcode: Xcode_16.4
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       LEGACY: true
     runs-on: ${{ matrix.os }}
     steps:
@@ -111,7 +110,6 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       LEGACY: true
     runs-on: macos-15
     steps:
