@@ -94,7 +94,7 @@ jobs:
             ${{ inputs.plist_src_path }} \
             ${{ inputs.plist_dst_path }} \
             "$plist_secret"
-    - name: Build ${{ inputs.product }} Quickstart (${{ inputs.quickstart_type }} / ${{ inputs.is_legacy && "Legacy" || "Non-Legacy" }})
+    - name: Build ${{ inputs.product }} Quickstart (${{ inputs.quickstart_type }} / ${{ inputs.is_legacy && 'Legacy' || 'Non-Legacy' }})
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       env:
         LEGACY: ${{ inputs.is_legacy }}
