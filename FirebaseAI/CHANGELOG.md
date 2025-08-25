@@ -1,8 +1,8 @@
 # 12.2.0
 - [feature] Added support for returning thought summaries, which are synthesized
   versions of a model's internal reasoning process. (#15096)
-- [feature] Added support for limited-use tokens with Firebase App Check. These short-lived tokens 
-  provide greater protection for the APIs that give you access to Gemini and Imagen models. Learn 
+- [feature] Added support for limited-use tokens with Firebase App Check. These short-lived tokens
+  provide greater protection for the APIs that give you access to Gemini and Imagen models. Learn
   how to [enable usage of limited-use tokens](https://firebase.google.com/docs/ai-logic/app-check).
   (#15099)
 
