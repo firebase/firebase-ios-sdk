@@ -23,9 +23,9 @@ on:
     #     secrets:
     #       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     #
-    # secrets:
-    #   plist_secret:
-    #     required: false
+    secrets:
+      plist_secret:
+        required: true
 
     inputs:
       # The product to test be tested (e.g. `FirebaseABTesting`).
@@ -66,7 +66,7 @@ jobs:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      plist_secret: ${{ secrets.plist_secret }}
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -91,8 +91,7 @@ jobs:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
-        command: |
-          ([ -z $plist_secret ] || scripts/test_quickstart.sh ${{ inputs.product }} true)
+        command: scripts/test_quickstart.sh ${{ inputs.product }} true
     # TODO: Add upload on fialure.
     # - name: Upload raw logs if failed.
     #   if: ${{ failure() }}
@@ -100,6 +99,3 @@ jobs:
     #   with:
     #     name:
     #     path:
-
-
-
