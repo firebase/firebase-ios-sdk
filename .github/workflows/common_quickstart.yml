@@ -1,33 +1,4 @@
-name: common_cocoapods
-
-permissions:
-  contents: read
-
-on:
-  workflow_call:
-    # Re-usable workflows do not automatically inherit the caller's secrets.
-    #
-    # If the calling workflow uses a secret in the `setup_command` input, then
-    # it also must pass the secret to the re-usable workflow.
-    #
-    # Example:
-    #
-    #   pod_lib_lint:
-    #     uses: ./.github/workflows/common_cocoapods.yml
-    #     with:
-    #       product: FirebaseFoo
-    #       setup_command: |
-    #         scripts/decrypt_gha_secret.sh \
-    #           /path/to/GoogleService-Info.plist.gpg \
-    #           /path/to/dest/GoogleService-Info.plist "$plist_secret"
-    #     secrets:
-    #       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    #
-    secrets:
-      plist_secret:
-        required: true
-
-name: common_cocoapods
+name: common_quickstart
 
 permissions:
   contents: read
