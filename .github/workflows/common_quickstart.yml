@@ -75,7 +75,7 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Run setup command.
       env:
-        LEGACY: inputs.is_legacy == true
+        LEGACY: inputs.is_legacy
       run: ${{ inputs.setup_command }}
     - name: Install Secret GoogleService-Info.plist
       run: |
@@ -83,13 +83,14 @@ jobs:
             ${{ inputs.plist_src_path }} \
             ${{ inputs.plist_dst_path }} \
             "$plist_secret"
-    - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+    - name: Build ${{ inputs.product }} Quickstart
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       env:
-        LEGACY: ${{ inputs.is_legacy == true }}
+        LEGACY: inputs.is_legacy
       with:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
         command: |
-          ([ -z $plist_secret ] ||  == true && 'LEGACY=true' || '' }} scripts/test_quickstart.sh ${{ inputs.product }} true)
+          ([ -z $plist_secret ] || scripts/test_quickstart.sh ${{ inputs.product }} true)
 
