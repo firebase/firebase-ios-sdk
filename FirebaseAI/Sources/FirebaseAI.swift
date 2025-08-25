@@ -33,7 +33,8 @@ public final class FirebaseAI: Sendable {
   ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
   ///     ``Backend/googleAI()`` (Gemini Developer API).
   ///   - useLimitedUseAppCheckTokens: When sending tokens to the backend, this option enables
-  ///     the usage of App Check's limited-use tokens instead of the standard cached tokens. To learn more, see the docs for
+  ///     the usage of App Check's limited-use tokens instead of the standard cached tokens. To
+  /// learn more, see the docs for
   ///     [App Check in Firebase AI Logic](https://firebase.google.com/docs/ai-logic/app-check).
   ///
   ///     _This flag is set to `false` by default._
