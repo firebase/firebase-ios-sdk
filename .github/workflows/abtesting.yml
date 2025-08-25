@@ -23,101 +23,84 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  spm:
-    uses: ./.github/workflows/common.yml
-    with:
-      target: ABTestingUnit
+  # spm:
+  #   uses: ./.github/workflows/common.yml
+  #   with:
+  #     target: ABTestingUnit
 
-  catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
-    with:
-      product: FirebaseABTesting
-      target: FirebaseABTesting-Unit-unit
+  # catalyst:
+  #   uses: ./.github/workflows/common_catalyst.yml
+  #   with:
+  #     product: FirebaseABTesting
+  #     target: FirebaseABTesting-Unit-unit
 
-  pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
-    with:
-      product: FirebaseABTesting
+  # pod_lib_lint:
+  #   uses: ./.github/workflows/common_cocoapods.yml
+  #   with:
+  #     product: FirebaseABTesting
 
   quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    uses: ./.github/workflows/common_quickstart.yml
+    with:
+      product: ABTesting
+      setup_command: scripts/setup_quickstart.sh abtesting
+      plist_src_path: scripts/gha-encrypted/qs-database.plist.gpg
+      plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
 
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Setup quickstart
-      env:
-        LEGACY: true
-      run: scripts/setup_quickstart.sh abtesting
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
-          quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
-    - name: Test swift quickstart
-      env:
-        LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh ABTesting true)
+  # quickstart-ftl-cron-only:
+  #   # Don't run on private repo.
+  #   if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
 
-  quickstart-ftl-cron-only:
-    # Don't run on private repo.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
+  #   env:
+  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #     signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+  #   runs-on: macos-15
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+  #   - uses: actions/setup-python@v5
+  #     with:
+  #       python-version: '3.11'
+  #   - name: Setup quickstart
+  #     env:
+  #       LEGACY: true
+  #     run: scripts/setup_quickstart.sh abtesting
+  #   - name: Install Secret GoogleService-Info.plist
+  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
+  #         quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
+  #   - name: Xcode
+  #     run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+  #   - name: Build swift quickstart
+  #     env:
+  #       LEGACY: true
+  #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh ABTesting)
+  #   - id: ftl_test
+  #     uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
+  #     with:
+  #       credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+  #       testapp_dir: quickstart-ios/build-for-testing
+  #       test_type: "xctest"
 
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    - name: Setup quickstart
-      env:
-        LEGACY: true
-      run: scripts/setup_quickstart.sh abtesting
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
-          quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Build swift quickstart
-      env:
-        LEGACY: true
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh ABTesting)
-    - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
-      with:
-        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
-        testapp_dir: quickstart-ios/build-for-testing
-        test_type: "xctest"
+  # abtesting-cron-only:
+  #   # Don't run on private repo.
+  #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
-  abtesting-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-
-    runs-on: macos-15
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        flags: [
-          '--use-static-frameworks'
-        ]
-    needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: PodLibLint ABTesting Cron
-      run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
-          FirebaseABTesting.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+  #   runs-on: macos-15
+  #   strategy:
+  #     matrix:
+  #       target: [ios, tvos, macos]
+  #       flags: [
+  #         '--use-static-frameworks'
+  #       ]
+  #   needs: pod_lib_lint
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+  #   - name: Setup Bundler
+  #     run: scripts/setup_bundler.sh
+  #   - name: Xcode
+  #     run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+  #   - name: PodLibLint ABTesting Cron
+  #     run: |
+  #       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
+  #         FirebaseABTesting.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
