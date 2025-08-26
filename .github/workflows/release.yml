@@ -323,7 +323,6 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-  #     testing_repo: "firebase-ios-sdk"
   #     LEGACY: true
   #   runs-on: macos-12
   #   steps:
