@@ -29,29 +29,30 @@ on:
         type: string
         required: true
 
-      # TODO(docs): What does this mean?
+      # Whether to test the legacy version of the quickstart.
       is_legacy:
         type: boolean
         required: true
 
-      # TODO(docs): 
+      # The path to the encrypted `GoogleService-Info.plist` file.
       plist_src_path:
         type: string
         required: true
 
-      # TODO(docs): 
+      # The destination path for the decrypted `GoogleService-Info.plist` file.
       plist_dst_path:
         type: string
         required: true
 
-      # TODO(docs):       
-      # swift or objc
+      # The type of quickstart to test.
+      #
+      # Options: [swift, objc]
       quickstart_type:
         type: string
         required: false
         default: objc
 
-      # TODO(docs): 
+      # Whether to run tests or just build. Defaults to true.
       run_tests:
         type: boolean
         required: false
