@@ -598,23 +598,16 @@ jobs:
         if: needs.*.result == 'failure'
         run: exit 1
 
-  # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
-  # Firebase UI 12
+  # TODO: Disable until FirebaseUI is updated to accept Firebase 9 and
+  # quickstart is updated to accept Firebase UI 12
   # quickstart:
-  #   # Don't run on private repo unless it is a PR.
-  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-  #   env:
+  #   uses: ./.github/workflows/common_quickstart.yml
+  #   with:
+  #     product: Firestore
+  #     is_legacy: true
+  #     setup_command: scripts/setup_quickstart.sh firestore
+  #     plist_src_path: scripts/gha-encrypted/qs-firestore.plist.gpg
+  #     plist_dst_path: quickstart-ios/firestore/GoogleService-Info.plist
+  #     run_tests: false
+  #   secrets:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-14
-  #   needs: check
-
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - name: Setup quickstart
-  #     run: scripts/setup_quickstart.sh firestore
-  #   - name: Install Secret GoogleService-Info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
-  #         quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
-  #   - name: Test swift quickstart
-  #     run: ([ -z $plist_secret ] ||
-  #           scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
