@@ -261,51 +261,33 @@ jobs:
       matrix:
         include:
           - product: Performance
-            plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
-            plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
             run_tests: true
             swift: true
           - product: Storage
-            plist_src_path: scripts/gha-encrypted/qs-storage.plist.gpg
-            plist_dst_path: quickstart-ios/storage/GoogleService-Info.plist
             is_legacy: true
             run_tests: true
             swift: true
           - product: Config
-            plist_src_path: scripts/gha-encrypted/qs-config.plist.gpg
-            plist_dst_path: quickstart-ios/config/GoogleService-Info.plist
             run_tests: true
             objc: true
           - product: Messaging
-            plist_src_path: scripts/gha-encrypted/qs-messaging.plist.gpg
-            plist_dst_path: quickstart-ios/messaging/GoogleService-Info.plist
             run_tests: false
             swift: true
             objc: true
           - product: InAppMessaging
-            plist_src_path: scripts/gha-encrypted/qs-inappmessaging.plist.gpg
-            plist_dst_path: quickstart-ios/inappmessaging/GoogleService-Info.plist
             run_tests: true
             swift: true
             objc: true
           - product: Firestore
-            plist_src_path: scripts/gha-encrypted/qs-firestore.plist.gpg
-            plist_dst_path: quickstart-ios/firestore/GoogleService-Info.plist
             run_tests: false
           - product: Database
-            plist_src_path: scripts/gha-encrypted/qs-database.plist.gpg
-            plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
             run_tests: false
             swift: true
             objc: true
           - product: Authentication
-            plist_src_path: scripts/gha-encrypted/qs-auth.plist.gpg
-            plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
             run_tests: false
             objc: true
           - product: Crashlytics
-            plist_src_path: scripts/gha-encrypted/qs-crashlytics.plist.gpg
-            plist_dst_path: quickstart-ios/crashlytics/GoogleService-Info.plist
             is_legacy: true
             run_tests: true
             objc: false
@@ -316,8 +298,6 @@ jobs:
               cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
               cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
           - product: ABTesting
-            plist_src_path: scripts/gha-encrypted/qs-abtesting.plist.gpg
-            plist_dst_path: quickstart-ios/abtesting/GoogleService-Info.plist
             is_legacy: true
             run_tests: true
             objc: true
@@ -327,37 +307,45 @@ jobs:
       LEGACY: ${{ matrix.is_legacy && true || '' }}
     runs-on: macos-15
     steps:
-    - id: lowercase_product
-      run: |
-        lowercase_product=$(echo "${{ matrix.product }}" | tr '[:upper:]' '[:lower:]')
-        echo "lowercase_product=$lowercase_product" >> $GITHUB_OUTPUT
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+    - name: Get lowercase product name.
+      id: lowercase_product
+      run: |
+        lowercase_product=$(echo "${{ matrix.product }}" | tr '[:upper:]' '[:lower:]')
+        echo "lowercase_product=$lowercase_product" >> $GITHUB_OUTPUT
     - name: Setup testing repo and quickstart
       run: |
-        BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh \
-          ${{ steps.lowercase_product.outputs.lowercase_product }} \
-          prerelease_testing
+        lowercase_product=${{ steps.lowercase_product.outputs.lowercase_product }}
+        BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh $lowercase_product prerelease_testing
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh ${{ matrix.plist_src_path }} ${{ matrix.plist_dst_path }} "$plist_secret"
+      run: |
+        lowercase_product = ${{ steps.lowercase_product.outputs.lowercase_product }}
+        scripts/decrypt_gha_secret.sh \
+          scripts/gha-encrypted/qs-$lowercase_product.plist.gpg \
+          quickstart-ios/$lowercase_product/GoogleService-Info.plist \
+          "$plist_secret"
     - name: Run setup command, if needed.
       if: matrix.setup_command != ''
       run: ${{ matrix.setup_command }}
-    - name: Test Swift quickstart
+    - name: Build Swift quickstart
       if: matrix.swift == true
-      run: |
-        scripts/third_party/travis/retry.sh scripts/test_quickstart.sh \
-          ${{ matrix.product }} \
-          ${{ matrix.run_tests }} \
-          swift
-    - name: Test Obj-C quickstart
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 3
+        retry_wait_seconds: 120
+        command: scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }} swift
+    - name: Build Obj-C quickstart
       if: matrix.objc == true
-      run: |
-        scripts/third_party/travis/retry.sh scripts/test_quickstart.sh \
-          ${{ matrix.product }} \
-          ${{ matrix.run_tests }}
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 3
+        retry_wait_seconds: 120
+        command: scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
     # Failure sequence to upload artifact.
     - name: Remove data before upload.
       if: ${{ failure() }}
