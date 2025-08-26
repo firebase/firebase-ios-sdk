@@ -7,19 +7,15 @@ on:
   workflow_call:
     # Re-usable workflows do not automatically inherit the caller's secrets.
     #
-    # If the calling workflow uses a secret in the `setup_command` input, then
-    # it also must pass the secret to the re-usable workflow.
+    # This workflow decrypts encrypted files, so the calling workflow needs to
+    # pass the secret to the re-usable workflow.
     #
     # Example:
     #
-    #   pod_lib_lint:
-    #     uses: ./.github/workflows/common_cocoapods.yml
+    #   quickstart:
+    #     uses: ./.github/workflows/common_quickstart.yml
     #     with:
-    #       product: FirebaseFoo
-    #       setup_command: |
-    #         scripts/decrypt_gha_secret.sh \
-    #           /path/to/GoogleService-Info.plist.gpg \
-    #           /path/to/dest/GoogleService-Info.plist "$plist_secret"
+    #       # ...
     #     secrets:
     #       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     #
@@ -28,30 +24,34 @@ on:
         required: true
 
     inputs:
-      # The product to test be tested (e.g. `FirebaseABTesting`).
+      # The product to test be tested (e.g. `ABTesting`).
       product:
         type: string
         required: true
 
-      # TODO: What does this mean?
+      # TODO(docs): What does this mean?
       is_legacy:
         type: boolean
         required: true
 
+      # TODO(docs): 
       plist_src_path:
         type: string
         required: true
 
+      # TODO(docs): 
       plist_dst_path:
         type: string
         required: true
 
+      # TODO(docs):       
       # swift or objc
       quickstart_type:
         type: string
         required: false
         default: objc
 
+      # TODO(docs): 
       run_tests:
         type: boolean
         required: false
@@ -59,14 +59,7 @@ on:
 
       # A command to execute before testing.
       #
-      # This is useful for additional set up, like starting an emulator or
-      # downloading test data.
-      #
-      # Note, this step has an env var set to decrypt plists. Use
-      # "$plist_secret" in the given command. See `secrets` documentation
-      # at top of this file.
-      #
-      # Example: `FirebaseFunctions/Backend/start.sh synchronous`
+      # Example: `scripts/setup_quickstart.sh functions`
       setup_command:
         type: string
         required: false
@@ -108,6 +101,7 @@ jobs:
             ${{ inputs.run_tests }} \
             ${{ inputs.quickstart_type }}
     # TODO: Add upload on fialure.
+    # TODO: Remove the decrypted repo secret.
     # - name: Upload raw logs if failed.
     #   if: ${{ failure() }}
     #   uses: actions/upload-artifact@v4
