@@ -16,6 +16,7 @@ on:
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
+    - '.github/workflows/common_quickstart.yml'
     - 'Gemfile*'
     - 'scripts/run_database_emulator.sh'
   schedule:

@@ -19,6 +19,7 @@ on:
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
+    - '.github/workflows/common_quickstart.yml'
     # Rebuild on Ruby infrastructure changes
     - 'Gemfile*'
   schedule:

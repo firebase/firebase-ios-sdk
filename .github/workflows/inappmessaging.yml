@@ -12,6 +12,7 @@ on:
     - '.github/workflows/inappmessaging.yml'
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_quickstart.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
