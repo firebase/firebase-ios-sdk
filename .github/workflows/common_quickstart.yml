@@ -75,7 +75,7 @@ jobs:
     runs-on: macos-15
     steps:
     - id: lowercase_product
-      run: echo "lowercase_product=${${{ inputs.product }},,}" >> $GITHUB_OUTPUT
+      run: echo "lowercase_product=${"${{ inputs.product }}",,}" >> $GITHUB_OUTPUT
     - name: Remove data before upload.
       run: echo hello_${{ steps.lowercase_product.outputs.lowercase_product }}
     - uses: actions/checkout@v4
