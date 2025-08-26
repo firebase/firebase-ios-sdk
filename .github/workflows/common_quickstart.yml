@@ -74,6 +74,10 @@ jobs:
       plist_secret: ${{ secrets.plist_secret }}
     runs-on: macos-15
     steps:
+    - id: lowercase_product
+      run: echo "lowercase_product=${${{ inputs.product }},,}" >> $GITHUB_OUTPUT
+    - name: Remove data before upload.
+      run: echo hello_${{ steps.lowercase_product.outputs.lowercase_product }}
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -101,11 +105,11 @@ jobs:
             ${{ inputs.product }} \
             ${{ inputs.run_tests }} \
             ${{ inputs.quickstart_type }}
-    # TODO: Add upload on fialure.
-    # TODO: Remove the decrypted repo secret.
-    # - name: Upload raw logs if failed.
-    #   if: ${{ failure() }}
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name:
-    #     path:
+    - name: Remove data before upload.
+      if: ${{ failure() }}
+      run: scripts/remove_data.sh ${{ steps.lowercase_product.outputs.lowercase_product }}
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_${{ steps.lowercase_product.outputs.lowercase_product }}
+        path: quickstart-ios/
