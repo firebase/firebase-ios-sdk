@@ -50,32 +50,23 @@ jobs:
     with:
       target: FirebaseFunctionsUnit
 
-  # TODO: Move to macos-14 and Xcode 15. The legacy quickstart uses material which doesn't build on Xcode 15.
+  # TODO: The legacy quickstart uses material which doesn't build on Xcode 15.
   # quickstart:
-  #   # Don't run on private repo unless it is a PR.
-  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-  #   env:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     LEGACY: true
-  #   # TODO: Move to macos-14 and Xcode 15. The legacy quickstart uses material which doesn't build on Xcode 15.
-  #   runs-on: macos-12
-
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-  #   - name: Setup quickstart
-  #     run: scripts/setup_quickstart.sh functions
-  #   - name: install secret googleservice-info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-functions.plist.gpg \
-  #         quickstart-ios/functions/GoogleService-Info.plist "$plist_secret"
-  #   - name: Setup custom URL scheme
-  #     run: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
-  #   - name: Test objc quickstart
-  #     run: ([ -z $plist_secret ] ||
-  #           scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true)
-  #   - name: Test swift quickstart
-  #     run: ([ -z $plist_secret ] ||
-  #           scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
+  #     uses: ./.github/workflows/common_quickstart.yml
+  #     strategy:
+  #       matrix:
+  #         quickstart_type: [objc, swift]
+  #     with:
+  #       product: Functions
+  #       is_legacy: true
+  #       setup_command: |
+  #         scripts/setup_quickstart.sh functions
+  #         sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
+  #       plist_src_path: scripts/gha-encrypted/qs-functions.plist.gpg
+  #       plist_dst_path: quickstart-ios/functions/GoogleService-Info.plist
+  #       quickstart_type: ${{ matrix.quickstart_type }}
+  #     secrets:
+  #       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   # quickstart-ftl-cron-only:
   #   # Don't run on private repo
