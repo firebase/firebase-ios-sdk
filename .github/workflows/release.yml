@@ -221,8 +221,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -263,8 +261,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -296,8 +292,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -329,8 +323,6 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-  #     testing_repo_dir: "/tmp/test/"
-  #     testing_repo: "firebase-ios-sdk"
   #     LEGACY: true
   #   runs-on: macos-12
   #   steps:
@@ -365,8 +357,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -400,8 +390,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -464,8 +452,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
       LEGACY: true
     runs-on: macos-15
     steps:
@@ -496,8 +482,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-      testing_repo_dir: "/tmp/test/"
-      testing_repo: "firebase-ios-sdk"
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
