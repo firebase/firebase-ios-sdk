@@ -336,7 +336,7 @@ jobs:
           ${{ steps.lowercase_product.outputs.lowercase_product }} \
           prerelease_testing
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh ${{ plist_src_path }} ${{ plist_dst_path }} "$plist_secret"
+      run: scripts/decrypt_gha_secret.sh ${{ matrix.plist_src_path }} ${{ matrix.plist_dst_path }} "$plist_secret"
     - name: Setup
       if: matrix.product == "Crashlytics"
       run: |
