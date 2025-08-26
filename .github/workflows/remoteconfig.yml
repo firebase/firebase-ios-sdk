@@ -72,7 +72,12 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Fake Console API Tests
-      run: scripts/third_party/travis/retry.sh scripts/build.sh RemoteConfig ${{ matrix.target }} fakeconsole
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 3
+        retry_wait_seconds: 120
+        command: scripts/build.sh RemoteConfig ${{ matrix.target }} fakeconsole
     - name: IntegrationTest
       if: matrix.target == 'iOS'
       # No retry to avoid exhausting AccessToken quota.
