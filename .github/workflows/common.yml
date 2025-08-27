@@ -87,6 +87,7 @@ jobs:
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     needs: [spm-package-resolved]
     strategy:
+      max-parallel: 1 # ${{ inputs.parallel_testing_enabled == true && 99 || 1 }}
       matrix:
         os: [macos-15]
         xcode: [Xcode_16.4]
