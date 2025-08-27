@@ -166,28 +166,31 @@ public final class GenerativeModel: Sendable {
       options: requestOptions
     )
 
-    // TODO: Extract into Foundation Models service class
-    #if os(iOS) || os(macOS) || os(visionOS)
-      if #available(iOS 26.0, macOS 26.0, macCatalyst 26.0, visionOS 26.0, *) {
-        if SystemLanguageModel.default.isAvailable {
-          let session = try LanguageModelSession(
-            model: .default,
-            tools: [],
-            transcript: asTranscript(content)
-          )
-          let response = try await session.respond(to: content.asFoundationModelsPrompt())
+    let inferenceMode = generationConfig?.inferenceMode ?? .onlyCloud
+    if inferenceMode == .preferOnDevice {
+      // TODO: Extract into Foundation Models service class
+      #if os(iOS) || os(macOS) || os(visionOS)
+        if #available(iOS 26.0, macOS 26.0, macCatalyst 26.0, visionOS 26.0, *) {
+          if SystemLanguageModel.default.isAvailable {
+            let session = try LanguageModelSession(
+              model: .default,
+              tools: [],
+              transcript: asTranscript(content)
+            )
+            let response = try await session.respond(to: content.asFoundationModelsPrompt())
 
-          return GenerateContentResponse(candidates: [
-            Candidate(
-              content: ModelContent(role: "model", parts: response.content),
-              safetyRatings: [],
-              finishReason: .stop,
-              citationMetadata: nil
-            ),
-          ])
+            return GenerateContentResponse(candidates: [
+              Candidate(
+                content: ModelContent(role: "model", parts: response.content),
+                safetyRatings: [],
+                finishReason: .stop,
+                citationMetadata: nil
+              ),
+            ])
+          }
         }
-      }
-    #endif // os(iOS) || os(macOS) || os(visionOS)
+      #endif // os(iOS) || os(macOS) || os(visionOS)
+    }
 
     do {
       response = try await generativeAIService.loadRequest(request: generateContentRequest)
@@ -250,42 +253,45 @@ public final class GenerativeModel: Sendable {
       options: requestOptions
     )
 
-    // TODO: Extract into Foundation Models service class
-    #if os(iOS) || os(macOS) || os(visionOS)
-      if #available(iOS 26.0, macOS 26.0, macCatalyst 26.0, visionOS 26.0, *) {
-        let session = try LanguageModelSession(
-          model: .default,
-          tools: [],
-          transcript: asTranscript(content)
-        )
-        return AsyncThrowingStream { continuation in
-          Task {
-            do {
-              var previousContentLength = 0
-              let responseStream = try session
-                .streamResponse(to: content.asFoundationModelsPrompt())
-              for try await response in responseStream {
-                let newContent = response.content.dropFirst(previousContentLength)
-                previousContentLength = response.content.count
-                let contentResponse = GenerateContentResponse(candidates: [
-                  Candidate(
-                    content: ModelContent(role: "model", parts: [TextPart(String(newContent))]),
-                    safetyRatings: [],
-                    finishReason: .stop,
-                    citationMetadata: nil
-                  ),
-                ])
-                continuation.yield(contentResponse)
+    let inferenceMode = generationConfig?.inferenceMode ?? .onlyCloud
+    if inferenceMode == .preferOnDevice {
+      // TODO: Extract into Foundation Models service class
+      #if os(iOS) || os(macOS) || os(visionOS)
+        if #available(iOS 26.0, macOS 26.0, macCatalyst 26.0, visionOS 26.0, *) {
+          let session = try LanguageModelSession(
+            model: .default,
+            tools: [],
+            transcript: asTranscript(content)
+          )
+          return AsyncThrowingStream { continuation in
+            Task {
+              do {
+                var previousContentLength = 0
+                let responseStream = try session
+                  .streamResponse(to: content.asFoundationModelsPrompt())
+                for try await response in responseStream {
+                  let newContent = response.content.dropFirst(previousContentLength)
+                  previousContentLength = response.content.count
+                  let contentResponse = GenerateContentResponse(candidates: [
+                    Candidate(
+                      content: ModelContent(role: "model", parts: [TextPart(String(newContent))]),
+                      safetyRatings: [],
+                      finishReason: .stop,
+                      citationMetadata: nil
+                    ),
+                  ])
+                  continuation.yield(contentResponse)
+                }
+                continuation.finish()
+              } catch {
+                continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
+                return
               }
-              continuation.finish()
-            } catch {
-              continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
-              return
             }
           }
         }
-      }
-    #endif // os(iOS) || os(macOS) || os(visionOS)
+      #endif // os(iOS) || os(macOS) || os(visionOS)
+    }
 
     return AsyncThrowingStream { continuation in
       let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)

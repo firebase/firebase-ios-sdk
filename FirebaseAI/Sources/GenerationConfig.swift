@@ -54,6 +54,8 @@ public struct GenerationConfig: Sendable {
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
   let thinkingConfig: ThinkingConfig?
 
+  let inferenceMode: InferenceMode
+
   /// Creates a new `GenerationConfig` value.
   ///
   /// See the
@@ -162,7 +164,7 @@ public struct GenerationConfig: Sendable {
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,
-              thinkingConfig: ThinkingConfig? = nil) {
+              thinkingConfig: ThinkingConfig? = nil, inferenceMode: InferenceMode? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -177,6 +179,7 @@ public struct GenerationConfig: Sendable {
     self.responseSchema = responseSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
+    self.inferenceMode = inferenceMode ?? .onlyCloud
   }
 }
 
