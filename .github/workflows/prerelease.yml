@@ -88,7 +88,7 @@ jobs:
   buildup_SpecsTesting_repo_FirebaseCore:
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
     runs-on: macos-15
     env:
       botaccess: ${{ secrets.PRERELEASE_TESTING_PAT }}
