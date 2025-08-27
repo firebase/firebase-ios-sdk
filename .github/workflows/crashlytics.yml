@@ -9,8 +9,8 @@ on:
     paths:
     - 'Crashlytics**'
     - 'FirebaseCrashlytics.podspec'
-   - '.github/workflows/crashlytics.yml'
-   - '.github/workflows/common.yml'
+    - '.github/workflows/crashlytics.yml'
+    - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - '.github/workflows/common_quickstart.yml'
