@@ -189,16 +189,16 @@ NSString *const AppVersion = @"app_version";
 }
 
 - (void)deleteCachedSettings {
-  __weak FIRCLSSettings *weakSelf = self;
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-    __strong FIRCLSSettings *strongSelf = weakSelf;
+//  __weak FIRCLSSettings *weakSelf = self;
+//  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+  __strong FIRCLSSettings *strongSelf = self; //weakSelf;
     if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsFilePath]) {
       [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsFilePath];
     }
     if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsCacheKeyPath]) {
       [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsCacheKeyPath];
     }
-  });
+//  });
 
   @synchronized(self) {
     self.isCacheKeyExpired = YES;
