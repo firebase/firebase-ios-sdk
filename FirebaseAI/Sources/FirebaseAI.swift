@@ -27,7 +27,7 @@ public final class FirebaseAI: Sendable {
 
   /// Creates an instance of `FirebaseAI`.
   ///
-  ///  - Parameters:
+  /// - Parameters:
   ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
   ///     ``FirebaseApp``.
   ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
