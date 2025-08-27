@@ -9,8 +9,8 @@ on:
     paths:
     - 'FirebaseCoreExtension.podspec'
     - 'FirebaseCore/Extension/**'
-    - '.github/workflows/core_extension.yml'
-    - '.github/workflows/common.yml'
+#    - '.github/workflows/.*'
+#    - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - 'Gemfile*'
   schedule:
