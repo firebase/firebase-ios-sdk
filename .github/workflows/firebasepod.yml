@@ -39,3 +39,8 @@ jobs:
       run: scripts/install_prereqs.sh FirebasePod iOS
     - name: Build
       run: scripts/build.sh FirebasePod iOS
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: firebasepod-xcodebuild-build.log
+        path: xcodebuild-build.log
