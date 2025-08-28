@@ -175,7 +175,7 @@ public final class GenerativeModel: Sendable {
     }
 
     // If all candidates are empty (contain no information that a developer could act on) then throw
-    if response.candidates.allSatisfy { $0.isEmpty } {
+    if response.candidates.allSatisfy({ $0.isEmpty }) {
       throw GenerateContentError.internalError(underlying: InvalidCandidateError.emptyContent(
         underlyingError: Candidate.EmptyContentError()
       ))
@@ -246,7 +246,7 @@ public final class GenerativeModel: Sendable {
 
             // Skip returning the response if all candidates are empty (i.e., they contain no
             // information that a developer could act on).
-            if response.candidates.allSatisfy { $0.isEmpty } {
+            if response.candidates.allSatisfy({ $0.isEmpty }) {
               AILog.log(
                 level: .debug,
                 code: .generateContentResponseNoCandidates,
