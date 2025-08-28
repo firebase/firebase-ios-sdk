@@ -196,7 +196,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-authentication.plist.gpg \
         quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")

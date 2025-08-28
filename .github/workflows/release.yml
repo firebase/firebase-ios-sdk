@@ -201,7 +201,7 @@ jobs:
     - name: Setup testing repo and quickstart
       run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh Authentication nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-authentication.plist.gpg \
           quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)

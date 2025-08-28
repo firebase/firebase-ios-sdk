@@ -98,7 +98,7 @@ jobs:
       product: Authentication
       is_legacy: false
       setup_command: scripts/setup_quickstart.sh authentication
-      plist_src_path: scripts/gha-encrypted/qs-auth.plist.gpg
+      plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
       plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
       run_tests: false
     secrets:
@@ -122,7 +122,7 @@ jobs:
   #   - name: Setup quickstart
   #     run: scripts/setup_quickstart.sh authentication
   #   - name: Install Secret GoogleService-Info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-authentication.plist.gpg \
   #         quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
   #   - name: Build swift quickstart
   #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Authentication)
