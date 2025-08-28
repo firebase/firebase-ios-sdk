@@ -189,6 +189,7 @@ NSString *const AppVersion = @"app_version";
 }
 
 - (void)deleteCachedSettings {
+
 //  __weak FIRCLSSettings *weakSelf = self;
 //  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
   __strong FIRCLSSettings *strongSelf = self; //weakSelf;
