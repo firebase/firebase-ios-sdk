@@ -68,6 +68,7 @@ enum AILog {
     case generateContentResponseNoCandidates = 4000
     case generateContentResponseNoText = 4001
     case appCheckTokenFetchFailed = 4002
+    case generateContentResponseEmptyCandidates = 4003
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
