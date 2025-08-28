@@ -311,21 +311,13 @@ jobs:
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Get lowercase product name.
-      id: lowercase_product
-      run: |
-        lowercase_product=$(echo "${{ matrix.product }}" | tr '[:upper:]' '[:lower:]')
-        echo "lowercase_product=$lowercase_product" >> $GITHUB_OUTPUT
     - name: Setup testing repo and quickstart
-      run: |
-        lowercase_product=${{ steps.lowercase_product.outputs.lowercase_product }}
-        BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh $lowercase_product prerelease_testing
+      run: BOT_TOKEN="${botaccess}" scripts/setup_quickstart.sh ${{ matrix.product }} prerelease_testing
     - name: Install Secret GoogleService-Info.plist
       run: |
-        lowercase_product = ${{ steps.lowercase_product.outputs.lowercase_product }}
         scripts/decrypt_gha_secret.sh \
-          scripts/gha-encrypted/qs-$lowercase_product.plist.gpg \
-          quickstart-ios/$lowercase_product/GoogleService-Info.plist \
+          scripts/gha-encrypted/qs-${{ matrix.product }}.plist.gpg \
+          quickstart-ios/${{ matrix.product }}/GoogleService-Info.plist \
           "$plist_secret"
     - name: Run setup command, if needed.
       if: matrix.setup_command != ''
@@ -349,9 +341,9 @@ jobs:
     # Failure sequence to upload artifact.
     - name: Remove data before upload.
       if: ${{ failure() }}
-      run: scripts/remove_data.sh ${{ steps.lowercase_product.outputs.lowercase_product }}
+      run: scripts/remove_data.sh ${{ matrix.product }}
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: quickstart_artifacts_${{ steps.lowercase_product.outputs.lowercase_product }}
+        name: quickstart_artifacts_${{ matrix.product }}
         path: quickstart-ios/
