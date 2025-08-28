@@ -69,8 +69,8 @@ jobs:
         LEGACY: true
       run: scripts/setup_quickstart.sh abtesting
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
-          quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-ABTeStInG.plist.gpg \
+          quickstart-ios/abTESTING/GoogleService-Info.plist "$plist_secret"
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Build swift quickstart
@@ -88,12 +88,10 @@ jobs:
 #        testapp_dir: quickstart-ios/build-for-testing
 #        test_type: "xctest"
     - name: Remove data before upload
-      env:
-        LEGACY: true
       run: |
-        ls quickstart-ios/ABTesting/LegacyABTestingQuickstart/GoogleService-Info.plist
-        scripts/remove_data.sh ABTesting
-        ls quickstart-ios/ABTesting/LegacyABTestingQuickstart/GoogleService-Info.plist
+        ls quickstart-ios/ABTesting/GoogleService-Info.plist
+        scripts/remove_data.sh ABTesTING
+        ls quickstart-ios/ABTesting/GoogleService-Info.plist
 
 
 #
