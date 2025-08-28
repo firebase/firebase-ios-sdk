@@ -786,12 +786,12 @@ final class GenerativeModelVertexAITests: XCTestCase {
       XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
     } catch let GenerateContentError
       .internalError(underlying: invalidCandidateError as InvalidCandidateError) {
-      guard case let .emptyContent(decodingError) = invalidCandidateError else {
+      guard case let .emptyContent(underlyingError) = invalidCandidateError else {
         XCTFail("Not an InvalidCandidateError.emptyContent error: \(invalidCandidateError)")
         return
       }
-      _ = try XCTUnwrap(decodingError as? DecodingError,
-                        "Not a DecodingError: \(decodingError)")
+      _ = try XCTUnwrap(underlyingError as? Candidate.EmptyContentError,
+                        "Not an empty content error: \(underlyingError)")
     } catch {
       XCTFail("Should throw GenerateContentError.internalError; error thrown: \(error)")
     }
@@ -1047,8 +1047,8 @@ final class GenerativeModelVertexAITests: XCTestCase {
       return
     }
     _ = try XCTUnwrap(
-      emptyContentUnderlyingError as? DecodingError,
-      "Not a decoding error: \(emptyContentUnderlyingError)"
+      emptyContentUnderlyingError as? Candidate.EmptyContentError,
+      "Not an empty content error: \(emptyContentUnderlyingError)"
     )
   }
 
@@ -1595,7 +1595,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
         return
       }
 
-      XCTAssert(contentError is DecodingError)
+      XCTAssert(contentError is Candidate.EmptyContentError)
       return
     }
 
