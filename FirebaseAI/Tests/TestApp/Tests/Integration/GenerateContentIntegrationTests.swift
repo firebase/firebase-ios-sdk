@@ -322,14 +322,20 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    InstanceConfig.vertexAI_v1beta,
-    InstanceConfig.vertexAI_v1beta_global,
-    InstanceConfig.googleAI_v1beta,
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImagePreview),
     // Note: The following configs are commented out for easy one-off manual testing.
-    // InstanceConfig.googleAI_v1beta_staging,
-    // InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashPreviewImageGeneration)
+    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashPreviewImageGeneration),
+    // (
+    //  InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
+    //  ModelNames.gemini2FlashPreviewImageGeneration
+    // ),
   ])
-  func generateImage(_ config: InstanceConfig) async throws {
+  func generateImage(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
       temperature: 0.0,
       topP: 0.0,
@@ -342,7 +348,7 @@ struct GenerateContentIntegrationTests {
       $0.harmCategory != .civicIntegrity
     }
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2FlashPreviewImageGeneration,
+      modelName: modelName,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
