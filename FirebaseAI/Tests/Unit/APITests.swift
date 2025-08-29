@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseCore
 import XCTest
 #if canImport(AppKit)
@@ -42,16 +42,16 @@ final class APITests: XCTestCase {
     let _ = RequestOptions(timeout: 30.0)
 
     // Instantiate Firebase AI SDK - Default App
-    let firebaseAI = FirebaseAI.firebaseAI()
-    let _ = FirebaseAI.firebaseAI(backend: .googleAI())
-    let _ = FirebaseAI.firebaseAI(backend: .vertexAI())
-    let _ = FirebaseAI.firebaseAI(backend: .vertexAI(location: "my-location"))
+    let firebaseAI = AILogic.aiLogic()
+    let _ = AILogic.aiLogic(backend: .googleAI())
+    let _ = AILogic.aiLogic(backend: .vertexAI())
+    let _ = AILogic.aiLogic(backend: .vertexAI(location: "my-location"))
 
     // Instantiate Firebase AI SDK - Custom App
-    let _ = FirebaseAI.firebaseAI(app: app!)
-    let _ = FirebaseAI.firebaseAI(app: app!, backend: .googleAI())
-    let _ = FirebaseAI.firebaseAI(app: app!, backend: .vertexAI())
-    let _ = FirebaseAI.firebaseAI(app: app!, backend: .vertexAI(location: "my-location"))
+    let _ = AILogic.aiLogic(app: app!)
+    let _ = AILogic.aiLogic(app: app!, backend: .googleAI())
+    let _ = AILogic.aiLogic(app: app!, backend: .vertexAI())
+    let _ = AILogic.aiLogic(app: app!, backend: .vertexAI(location: "my-location"))
 
     // Permutations without optional arguments.
 

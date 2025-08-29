@@ -14,7 +14,7 @@
 
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ImagenGenerationRequestTests: XCTestCase {
@@ -38,7 +38,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     includeResponsibleAIFilterReason: includeResponsibleAIFilterReason,
     includeSafetyAttributes: includeSafetyAttributes
   )
-  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
+  let apiConfig = AILogic.defaultVertexAIAPIConfig
 
   let instance = ImageGenerationInstance(prompt: "test-prompt")
 

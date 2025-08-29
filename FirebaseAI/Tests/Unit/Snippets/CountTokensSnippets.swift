@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseCore
 import XCTest
 
@@ -22,7 +22,7 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class CountTokensSnippets: XCTestCase {
   let bundle = BundleTestUtil.bundle()
-  lazy var model = FirebaseAI.firebaseAI().generativeModel(modelName: "gemini-2.0-flash")
+  lazy var model = AILogic.aiLogic().generativeModel(modelName: "gemini-2.0-flash")
   lazy var imageURL = {
     guard let url = bundle.url(forResource: "blue", withExtension: "png") else {
       fatalError("Image file blue.png not found in Resources.")

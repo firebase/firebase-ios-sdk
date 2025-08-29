@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseCore
 import XCTest
 
@@ -50,7 +50,7 @@ final class StructuredOutputSnippets: XCTestCase {
 
     // Initialize the Vertex AI service and the generative model.
     // Use a model that supports `responseSchema`, like one of the Gemini 1.5 models.
-    let model = FirebaseAI.firebaseAI().generativeModel(
+    let model = AILogic.aiLogic().generativeModel(
       modelName: "gemini-2.0-flash",
       // In the generation config, set the `responseMimeType` to `application/json`
       // and pass the JSON schema object into `responseSchema`.
@@ -73,7 +73,7 @@ final class StructuredOutputSnippets: XCTestCase {
 
     // Initialize the Vertex AI service and the generative model.
     // Use a model that supports `responseSchema`, like one of the Gemini 1.5 models.
-    let model = FirebaseAI.firebaseAI().generativeModel(
+    let model = AILogic.aiLogic().generativeModel(
       modelName: "gemini-2.0-flash",
       // In the generation config, set the `responseMimeType` to `text/x.enum`
       // and pass the enum schema object into `responseSchema`.

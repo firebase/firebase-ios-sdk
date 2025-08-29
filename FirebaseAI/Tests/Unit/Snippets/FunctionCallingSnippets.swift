@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseCore
 import XCTest
 
@@ -67,7 +67,7 @@ final class FunctionCallingSnippets: XCTestCase {
 
     // Initialize the Vertex AI service and the generative model.
     // Use a model that supports function calling, like a Gemini 1.5 model.
-    let model = FirebaseAI.firebaseAI().generativeModel(
+    let model = AILogic.aiLogic().generativeModel(
       modelName: "gemini-2.0-flash",
       // Provide the function declaration to the model.
       tools: [.functionDeclarations([fetchWeatherTool])]
