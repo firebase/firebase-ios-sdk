@@ -509,6 +509,23 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertTrue(thoughtSignature.hasPrefix("CiIBVKhc7vB+vaaq6rA"))
   }
 
+  func testGenerateContentStream_success_ignoresEmptyParts() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-empty-parts",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertGreaterThan(candidate.content.parts.count, 0)
+      let text = response.text
+      let inlineData = response.inlineDataParts.first
+      XCTAssertTrue(text != nil || inlineData != nil, "Response did not contain text or data")
+    }
+  }
+
   func testGenerateContentStream_failureInvalidAPIKey() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-failure-api-key",
