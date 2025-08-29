@@ -1,5 +1,9 @@
 name: zip
 
+permissions:
+  actions: read
+  contents: read
+
 on:
   pull_request:
     paths:
