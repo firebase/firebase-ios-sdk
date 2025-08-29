@@ -128,7 +128,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
@@ -187,7 +187,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -236,7 +236,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
@@ -284,7 +284,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
@@ -354,7 +354,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -406,7 +406,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
@@ -457,7 +457,7 @@ jobs:
         uses: actions/download-artifact@v4.1.7
         with:
           name: Firebase-actions-dir
-          run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+          run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
       - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
@@ -493,7 +493,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
@@ -545,7 +545,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
@@ -597,7 +597,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run_id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
