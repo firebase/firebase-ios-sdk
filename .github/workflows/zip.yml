@@ -26,9 +26,11 @@ on:
         required: true
         default: 'https://github.com/firebase/SpecsStaging.git'
       zip_run_id:
+        # For example, in the below URL, `17335533279` is the run ID:
+        # - https://github.com/firebase/firebase-ios-sdk/actions/runs/17335533279
         description: 'Run ID of a previous successful zip workflow to use for quickstart testing'
         required: false
-        default: '17314248036'
+        default: ''
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
