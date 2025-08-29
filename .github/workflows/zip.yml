@@ -111,7 +111,7 @@ jobs:
 
   quickstart_framework_abtesting:
     needs: package-head
-    if: ${{ !cancelled() }} # || (cancelled() && github.event.inputs.zip_run_id != '')
+    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "ABTesting"
