@@ -180,7 +180,7 @@ ipad_flags=(
 
 macos_flags=(
   -sdk 'macosx'
-  -destination 'platform=OS X,arch=x86_64'
+  -destination 'platform=OS X,arch=arm64'
 )
 tvos_flags=(
   -sdk "appletvsimulator"
@@ -195,7 +195,7 @@ visionos_flags=(
 )
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
-  -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
+  -destination platform="macOS,variant=Mac Catalyst,arch=arm64" TARGETED_DEVICE_FAMILY=2
   CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 )
 
