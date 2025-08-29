@@ -79,9 +79,8 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Build
       run: |
-        exit 1
         cd ReleaseTooling
-        swift build -v
+#        swift build -v
 
   package-head:
     needs: build
@@ -101,6 +100,7 @@ jobs:
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
       run: |
+         exit 1
          mkdir -p zip_output_dir
          sh -x scripts/build_zip.sh \
            zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}" \
