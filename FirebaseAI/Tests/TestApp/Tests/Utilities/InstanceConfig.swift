@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseCore
 import Testing
 
-@testable import struct FirebaseAI.APIConfig
+@testable import struct FirebaseAILogic.APIConfig
 
 struct InstanceConfig: Equatable, Encodable {
   static let vertexAI_v1beta = InstanceConfig(
@@ -146,12 +146,12 @@ extension InstanceConfig: CustomTestStringConvertible {
   }
 }
 
-extension FirebaseAI {
-  static func componentInstance(_ instanceConfig: InstanceConfig) -> FirebaseAI {
+extension AILogic {
+  static func componentInstance(_ instanceConfig: InstanceConfig) -> AILogic {
     switch instanceConfig.apiConfig.service {
     case .vertexAI:
       let location = instanceConfig.location ?? "us-central1"
-      return FirebaseAI.createInstance(
+      return AILogic.createInstance(
         app: instanceConfig.app,
         location: location,
         apiConfig: instanceConfig.apiConfig,
@@ -162,7 +162,7 @@ extension FirebaseAI {
         instanceConfig.location == nil,
         "The Developer API is global and does not support `location`."
       )
-      return FirebaseAI.createInstance(
+      return AILogic.createInstance(
         app: instanceConfig.app,
         location: nil,
         apiConfig: instanceConfig.apiConfig,

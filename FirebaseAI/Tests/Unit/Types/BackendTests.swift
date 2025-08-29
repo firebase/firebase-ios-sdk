@@ -14,7 +14,7 @@
 
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
 final class BackendTests: XCTestCase {
   func testVertexAI_defaultLocation() {

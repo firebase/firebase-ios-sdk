@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
@@ -24,7 +24,7 @@ import Testing
 #endif // canImport(UIKit)
 
 // TODO(#14452): Remove `@testable import` when `generateImages(prompt:gcsURI:)` is public.
-@testable import class FirebaseAI.ImagenModel
+@testable import class FirebaseAILogic.ImagenModel
 
 @Suite(
   .enabled(
@@ -34,13 +34,13 @@ import Testing
   .serialized
 )
 struct ImagenIntegrationTests {
-  var vertex: FirebaseAI
+  var vertex: AILogic
   var storage: Storage
   var userID1: String
 
   init() async throws {
     userID1 = try await TestHelpers.getUserID()
-    vertex = FirebaseAI.firebaseAI(backend: .vertexAI())
+    vertex = AILogic.aiLogic(backend: .vertexAI())
     storage = Storage.storage()
   }
 

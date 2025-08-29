@@ -22,10 +22,10 @@ internal import FirebaseCoreExtension
 
 /// The Firebase AI SDK provides access to Gemini models directly from your app.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public final class FirebaseAI: Sendable {
+public final class AILogic: Sendable {
   // MARK: - Public APIs
 
-  /// Creates an instance of `FirebaseAI`.
+  /// Creates an instance of `AILogic`.
   ///
   /// - Parameters:
   ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
@@ -41,17 +41,16 @@ public final class FirebaseAI: Sendable {
   ///     _This flag is set to `false` by default._
   ///   > Migrating to limited-use tokens sooner minimizes disruption when support for replay
   ///   > protection is added.
-  /// - Returns: A `FirebaseAI` instance, configured with the custom `FirebaseApp`.
-  public static func firebaseAI(app: FirebaseApp? = nil,
-                                backend: Backend = .googleAI(),
-                                useLimitedUseAppCheckTokens: Bool = false) -> FirebaseAI {
+  /// - Returns: An `AILogic` instance, configured with the custom `FirebaseApp`.
+  public static func aiLogic(app: FirebaseApp? = nil, backend: Backend = .googleAI(),
+                             useLimitedUseAppCheckTokens: Bool = false) -> AILogic {
     let instance = createInstance(
       app: app,
       location: backend.location,
       apiConfig: backend.apiConfig,
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
-    // Verify that the `FirebaseAI` instance is always configured with the production endpoint since
+    // Verify that the `AILogic` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
     assert(instance.apiConfig.service.endpoint == .firebaseProxyProd)
     assert(instance.apiConfig.version == .v1beta)
@@ -152,9 +151,9 @@ public final class FirebaseAI: Sendable {
 
   let apiConfig: APIConfig
 
-  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp` name and the `location`,
+  /// A map of active `AILogic` instances keyed by the `FirebaseApp` name and the `location`,
   /// in the format `appName:location`.
-  private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
+  private nonisolated(unsafe) static var instances: [InstanceKey: AILogic] = [:]
 
   /// Lock to manage access to the `instances` array to avoid race conditions.
   private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
@@ -168,7 +167,7 @@ public final class FirebaseAI: Sendable {
 
   static func createInstance(app: FirebaseApp?, location: String?,
                              apiConfig: APIConfig,
-                             useLimitedUseAppCheckTokens: Bool) -> FirebaseAI {
+                             useLimitedUseAppCheckTokens: Bool) -> AILogic {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -187,7 +186,7 @@ public final class FirebaseAI: Sendable {
     if let instance = instances[instanceKey] {
       return instance
     }
-    let newInstance = FirebaseAI(
+    let newInstance = AILogic(
       app: app,
       location: location,
       apiConfig: apiConfig,
@@ -266,7 +265,7 @@ public final class FirebaseAI: Sendable {
     }
   }
 
-  /// Identifier for a unique instance of ``FirebaseAI``.
+  /// Identifier for a unique instance of ``AILogic``.
   ///
   /// This type is `Hashable` so that it can be used as a key in the `instances` dictionary.
   private struct InstanceKey: Sendable, Hashable {

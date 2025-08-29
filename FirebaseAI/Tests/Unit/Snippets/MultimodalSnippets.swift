@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseCore
 import XCTest
 
@@ -26,7 +26,7 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class MultimodalSnippets: XCTestCase {
   let bundle = BundleTestUtil.bundle()
-  lazy var model = FirebaseAI.firebaseAI(backend: .vertexAI()).generativeModel(
+  lazy var model = AILogic.aiLogic(backend: .vertexAI()).generativeModel(
     modelName: "gemini-2.0-flash"
   )
   lazy var videoURL = {

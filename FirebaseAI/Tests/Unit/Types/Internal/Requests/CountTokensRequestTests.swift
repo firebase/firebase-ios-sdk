@@ -15,7 +15,7 @@
 import Foundation
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class CountTokensRequestTests: XCTestCase {
@@ -23,7 +23,7 @@ final class CountTokensRequestTests: XCTestCase {
 
   let modelResourceName = "models/test-model-name"
   let textPart = TextPart("test-prompt")
-  let vertexAPIConfig = FirebaseAI.defaultVertexAIAPIConfig
+  let vertexAPIConfig = AILogic.defaultVertexAIAPIConfig
   let developerAPIConfig = APIConfig(
     service: .googleAI(endpoint: .firebaseProxyProd),
     version: .v1beta

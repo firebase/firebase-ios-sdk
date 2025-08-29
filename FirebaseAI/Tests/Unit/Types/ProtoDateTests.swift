@@ -14,7 +14,7 @@
 
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
 final class ProtoDateTests: XCTestCase {
   let decoder = JSONDecoder()
