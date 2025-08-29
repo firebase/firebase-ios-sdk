@@ -24,7 +24,7 @@ on:
       zip_run_id:
         description: 'Run ID of a previous successful zip workflow to use for quickstart testing'
         required: false
-        default: ''
+        default: '17314248036'
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
