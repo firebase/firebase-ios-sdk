@@ -110,7 +110,8 @@ jobs:
         path: zip_output_dir
 
   quickstart_framework_abtesting:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "ABTesting"
@@ -167,7 +168,8 @@ jobs:
         path: quickstart-ios/
 
   quickstart_framework_auth:
-    needs: ${{ event.inputs.zip_run_id == '' && 'package-head' || '' }}
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK:  "Authentication"
@@ -216,7 +218,8 @@ jobs:
         path: quickstart-ios/
 
   quickstart_framework_config:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Config"
@@ -263,7 +266,8 @@ jobs:
         path: quickstart-ios/
 
   quickstart_framework_crashlytics:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Crashlytics"
@@ -333,7 +337,8 @@ jobs:
         path: quickstart-ios/
 
   quickstart_framework_database:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Database"
@@ -383,7 +388,8 @@ jobs:
         path: quickstart-ios/
 
   quickstart_framework_firestore:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Firestore"
@@ -438,7 +444,8 @@ jobs:
         path: quickstart_artifacts_firestore.zip
 
   check_framework_firestore_symbols:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
@@ -468,7 +475,8 @@ jobs:
             "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/FirebaseFirestoreInternal.xcframework
 
   quickstart_framework_inappmessaging:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "InAppMessaging"
@@ -519,7 +527,8 @@ jobs:
         path: quickstart-ios/
 
   quickstart_framework_messaging:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Messaging"
@@ -570,7 +579,8 @@ jobs:
         path: quickstart-ios/
 
   quickstart_framework_storage:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: package-head
+    if: success() || (cancelled() && github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Storage"
