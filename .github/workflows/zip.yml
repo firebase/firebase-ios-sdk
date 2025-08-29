@@ -79,6 +79,7 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Build
       run: |
+        exit 1
         cd ReleaseTooling
         swift build -v
 
