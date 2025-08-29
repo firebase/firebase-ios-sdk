@@ -167,7 +167,7 @@ jobs:
         path: quickstart-ios/
 
   quickstart_framework_auth:
-    needs: github.event.inputs.zip_run_id == '' && 'package-head' || ''
+    needs: ${{ event.inputs.zip_run_id == '' && 'package-head' || '' }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK:  "Authentication"
