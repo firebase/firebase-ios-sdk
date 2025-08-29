@@ -4,8 +4,8 @@ on:
   pull_request:
     paths:
     - 'FirebaseAI**'
-    - '.github/workflows/firebaseai.yml'
-    - '.github/workflows/common.yml'
+#    - '.github/workflows/.*'
+#    - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - 'scripts/quickstart_build_spm.sh'
     - 'scripts/quickstart_spm_xcodeproj.sh'
