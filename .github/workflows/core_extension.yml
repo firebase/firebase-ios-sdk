@@ -12,6 +12,7 @@ on:
     - '.github/workflows/core_extension.yml'
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_cocoapods_cron.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times

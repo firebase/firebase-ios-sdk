@@ -14,6 +14,7 @@ on:
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - '.github/workflows/common_quickstart.yml'
+    - '.github/workflows/common_cocoapods_cron.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
