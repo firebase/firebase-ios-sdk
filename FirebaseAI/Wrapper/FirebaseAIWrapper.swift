@@ -16,6 +16,7 @@ import FirebaseCore
 
 @_exported import FirebaseAILogic
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public typealias FirebaseAI = AILogic
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
