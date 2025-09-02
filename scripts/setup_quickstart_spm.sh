@@ -26,7 +26,6 @@ source $scripts_dir/check_secrets.sh
 # Arguments:
 #   SAMPLE: The name of the quickstart sample directory.
 #   RELEASE_TESTING: Optional. Can be "nightly_release_testing" or "prerelease_testing".
-#   VERSION: Required when RELEASE_TESTING is "nightly_release_testing".
 #
 # Environment Variable:
 #   QUICKSTART_REPO: Optional. Path to a local clone of the quickstart-ios repo.
@@ -35,7 +34,6 @@ source $scripts_dir/check_secrets.sh
 #                    QUICKSTART_REPO=/path/to/my/quickstart-ios ./scripts/setup_quickstart_spm.sh AppName
 SAMPLE=$1
 RELEASE_TESTING=${2-}
-VERSION=${3-}
 
 QUICKSTART_PROJECT_DIR="quickstart-ios/${SAMPLE}"
 
@@ -80,12 +78,14 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ ${SAMPLE} == "installa
   # (cd "$QUICKSTART_DIR"; git checkout {BRANCH_NAME})
 
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
-    if [[ -z "$VERSION" ]]; then
-      echo "Error: VERSION (arg 3) is required for nightly_release_testing."
+    # For release testing, find the latest CocoaPods tag and extract the version.
+    LATEST_TAG=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
+    if [[ -z "$LATEST_TAG" ]]; then
+      echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag."
       exit 1
     fi
-    # For release testing, point to the specific version tag.
-    echo "Setting SPM dependency to version ${VERSION}"
+    VERSION=$(echo "$LATEST_TAG" | sed 's/CocoaPods-//')
+    echo "Setting SPM dependency to latest version: ${VERSION}"
     swift run --package-path "$scripts_dir/spm-localizer" SPMLocalize "$ABSOLUTE_PROJECT_FILE" --version "$VERSION"
 
   elif [ "$RELEASE_TESTING" == "prerelease_testing" ]; then
