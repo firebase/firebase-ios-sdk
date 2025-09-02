@@ -71,17 +71,18 @@ public struct GoogleSearch: Sendable {
 public struct Tool: Sendable {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
+
   /// Specifies the Google Search configuration.
   let googleSearch: GoogleSearch?
 
-  init(functionDeclarations: [FunctionDeclaration]?) {
-    self.functionDeclarations = functionDeclarations
-    googleSearch = nil
-  }
+  let codeExecution: CodeExecution?
 
-  init(googleSearch: GoogleSearch) {
+  init(functionDeclarations: [FunctionDeclaration]? = nil,
+       googleSearch: GoogleSearch? = nil,
+       codeExecution: CodeExecution? = nil) {
+    self.functionDeclarations = functionDeclarations
     self.googleSearch = googleSearch
-    functionDeclarations = nil
+    self.codeExecution = codeExecution
   }
 
   /// Creates a tool that allows the model to perform function calling.
@@ -125,6 +126,10 @@ public struct Tool: Sendable {
   /// - Returns: A `Tool` configured for Google Search.
   public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
     return self.init(googleSearch: googleSearch)
+  }
+
+  public static func codeExecution() -> Tool {
+    return self.init(codeExecution: CodeExecution())
   }
 }
 

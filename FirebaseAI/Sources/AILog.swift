@@ -62,6 +62,7 @@ enum AILog {
     case decodedInvalidCitationPublicationDate = 3011
     case generateContentResponseUnrecognizedContentModality = 3012
     case decodedUnsupportedImagenPredictionType = 3013
+    case codeExecutionResultUnrecognizedOutcome = 3014
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000

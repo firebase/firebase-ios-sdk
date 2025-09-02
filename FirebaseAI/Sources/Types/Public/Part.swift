@@ -202,3 +202,76 @@ public struct FunctionResponsePart: Part {
     self.thoughtSignature = thoughtSignature
   }
 }
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct ExecutableCodePart: Part {
+  let executableCode: ExecutableCode
+  let _isThought: Bool?
+  let thoughtSignature: String?
+
+  public var language: String { executableCode.language }
+
+  public var code: String { executableCode.code }
+
+  public var isThought: Bool { _isThought ?? false }
+
+  public init(language: String, code: String) {
+    self.init(ExecutableCode(language: language, code: code), isThought: nil, thoughtSignature: nil)
+  }
+
+  init(_ executableCode: ExecutableCode, isThought: Bool?, thoughtSignature: String?) {
+    self.executableCode = executableCode
+    _isThought = isThought
+    self.thoughtSignature = thoughtSignature
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct CodeExecutionResultPart: Part {
+  let codeExecutionResult: CodeExecutionResult
+  let _isThought: Bool?
+  let thoughtSignature: String?
+
+  public var outcome: CodeExecutionResultPart.Outcome {
+    CodeExecutionResultPart.Outcome(codeExecutionResult.outcome)
+  }
+
+  public var output: String { codeExecutionResult.output ?? "" }
+
+  public var isThought: Bool { _isThought ?? false }
+
+  public init(outcome: CodeExecutionResultPart.Outcome, output: String) {
+    self.init(
+      codeExecutionResult: CodeExecutionResult(outcome: outcome.internalOutcome, output: output),
+      _isThought: nil,
+      thoughtSignature: nil
+    )
+  }
+
+  init(codeExecutionResult: CodeExecutionResult, _isThought: Bool?, thoughtSignature: String?) {
+    self.codeExecutionResult = codeExecutionResult
+    self._isThought = _isThought
+    self.thoughtSignature = thoughtSignature
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension CodeExecutionResultPart {
+  struct Outcome: Sendable, Equatable {
+    let internalOutcome: CodeExecutionResult.Outcome
+
+    public static let ok = CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .ok))
+
+    public static let failed =
+      CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .failed))
+
+    public static let deadlineExceeded =
+      CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .deadlineExceeded))
+
+    public var rawValue: String { internalOutcome.rawValue }
+
+    init(_ outcome: CodeExecutionResult.Outcome) {
+      internalOutcome = outcome
+    }
+  }
+}
