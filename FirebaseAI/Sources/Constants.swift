@@ -19,6 +19,6 @@ enum Constants {
   /// The base reverse-DNS name for `NSError` or `CustomNSError` error domains.
   ///
   /// - Important: A suffix must be appended to produce an error domain (e.g.,
-  ///   "com.google.firebase.firebaseai.ExampleError").
-  static let baseErrorDomain = "com.google.firebase.firebaseai"
+  ///   "com.google.firebase.ai-logic.ExampleError").
+  static let baseErrorDomain = "com.google.firebase.ai-logic"
 }

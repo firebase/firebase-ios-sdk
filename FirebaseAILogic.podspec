@@ -1,10 +1,10 @@
 Pod::Spec.new do |s|
-  s.name             = 'FirebaseAI'
+  s.name             = 'FirebaseAILogic'
   s.version          = '12.3.0'
-  s.summary          = 'Firebase AI SDK'
+  s.summary          = 'Firebase AI Logic SDK'
 
   s.description      = <<-DESC
-Build AI-powered apps and features with the Gemini API using the Firebase AI SDK.
+Build AI-powered apps and features with the Gemini API using the Firebase AI Logic SDK.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -32,7 +32,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
   s.prefix_header_file = false
 
   s.source_files = [
-    'FirebaseAI/Wrapper/**/*.swift',
+    'FirebaseAI/Sources/**/*.swift',
   ]
 
   s.swift_version = '5.9'
@@ -43,6 +43,28 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAILogic', '12.3.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.3.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.3.0'
   s.dependency 'FirebaseCore', '~> 12.3.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.3.0'
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests_dir = 'FirebaseAI/Tests/Unit/'
+    unit_tests.scheme = { :code_coverage => true }
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    unit_tests.source_files = [
+      unit_tests_dir + '**/*.swift',
+    ]
+    unit_tests.exclude_files = [
+      unit_tests_dir + 'Snippets/**/*.swift',
+    ]
+    unit_tests.resources = [
+      unit_tests_dir + 'vertexai-sdk-test-data/mock-responses',
+      unit_tests_dir + 'Resources/**/*',
+    ]
+  end
 end
