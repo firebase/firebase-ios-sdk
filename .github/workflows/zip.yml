@@ -82,7 +82,7 @@ jobs:
     - name: Build
       run: |
         cd ReleaseTooling
-#        swift build -v
+        swift build -v
 
   package-head:
     needs: build
