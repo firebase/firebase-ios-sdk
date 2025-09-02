@@ -127,24 +127,9 @@ jobs:
       test_specs: unit
 
   storage-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    strategy:
-      matrix:
-        target: [ios, tvos, macos, watchos]
-        build-env:
-          - os: macos-14
-            xcode: Xcode_16.2
-          - os: macos-15
-            xcode: Xcode_16.4
-    runs-on: ${{ matrix.build-env.os }}
     needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
-    - name: PodLibLint Storage Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} --use-static-frameworks --skip-tests
+    uses: ./.github/workflows/common_cocoapods_cron.yml
+    with:
+      product: FirebaseStorage
+      platforms: '[ "ios", "tvos", "macos", "watchos" ]'
+      flags: '[ "--use-static-frameworks --skip-tests" ]'
