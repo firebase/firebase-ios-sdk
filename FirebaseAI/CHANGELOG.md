@@ -1,3 +1,8 @@
+# 12.3.0
+- [feature] Added support for the Code Execution tool, which enables the model
+  to generate and run code to perform complex tasks like solving mathematical
+  equations or visualizing data. (#15280)
+
 # 12.2.0
 - [feature] Added support for returning thought summaries, which are synthesized
   versions of a model's internal reasoning process. (#15096)
