@@ -203,11 +203,14 @@ public struct FunctionResponsePart: Part {
   }
 }
 
+/// A part containing code that was executed by the model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ExecutableCodePart: Part {
+  /// The language of the code in an ``ExecutableCodePart``.
   public struct Language: Sendable, Equatable {
     let internalLanguage: ExecutableCode.Language
 
+    /// The Python programming language.
     public static let python = ExecutableCodePart.Language(ExecutableCode.Language(kind: .python))
 
     init(_ language: ExecutableCode.Language) {
@@ -219,6 +222,7 @@ public struct ExecutableCodePart: Part {
   let _isThought: Bool?
   let thoughtSignature: String?
 
+  /// The language of the code.
   public var language: ExecutableCodePart.Language {
     ExecutableCodePart.Language(
       // Fallback to "LANGUAGE_UNSPECIFIED" if the value is ever omitted by the backend; this should
@@ -227,6 +231,7 @@ public struct ExecutableCodePart: Part {
     )
   }
 
+  /// The code that was executed.
   public var code: String {
     // Fallback to empty string if `code` is ever omitted by the backend; this should never happen.
     executableCode.code ?? ""
@@ -249,16 +254,21 @@ public struct ExecutableCodePart: Part {
   }
 }
 
+/// The result of executing code.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CodeExecutionResultPart: Part {
+  /// The outcome of a code execution.
   public struct Outcome: Sendable, Equatable {
     let internalOutcome: CodeExecutionResult.Outcome
 
+    /// The code executed without errors.
     public static let ok = CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .ok))
 
+    /// The code failed to execute.
     public static let failed =
       CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .failed))
 
+    /// The code took too long to execute.
     public static let deadlineExceeded =
       CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .deadlineExceeded))
 
@@ -273,6 +283,7 @@ public struct CodeExecutionResultPart: Part {
   let _isThought: Bool?
   let thoughtSignature: String?
 
+  /// The outcome of the code execution.
   public var outcome: CodeExecutionResultPart.Outcome {
     CodeExecutionResultPart.Outcome(
       // Fallback to "OUTCOME_UNSPECIFIED" if this value is ever omitted by the backend; this should
@@ -281,6 +292,7 @@ public struct CodeExecutionResultPart: Part {
     )
   }
 
+  /// The output of the code execution.
   public var output: String {
     // Fallback to empty string if `output` is omitted by the backend; this should never happen.
     codeExecutionResult.output ?? ""

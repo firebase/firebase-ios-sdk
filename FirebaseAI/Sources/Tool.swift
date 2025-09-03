@@ -128,6 +128,9 @@ public struct Tool: Sendable {
     return self.init(googleSearch: googleSearch)
   }
 
+  /// Creates a tool that allows the model to execute code.
+  ///
+  /// For more details, see ``CodeExecution``.
   public static func codeExecution() -> Tool {
     return self.init(codeExecution: CodeExecution())
   }

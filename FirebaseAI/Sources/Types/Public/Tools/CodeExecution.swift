@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// A tool that allows the model to execute code.
+///
+/// This tool can be used to solve complex problems, for example, by generating and executing Python
+/// code to solve a math problem.
 public struct CodeExecution: Sendable, Encodable {
   init() {}
 }
