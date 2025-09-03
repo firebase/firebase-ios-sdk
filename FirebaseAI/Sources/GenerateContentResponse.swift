@@ -163,6 +163,12 @@ public struct Candidate: Sendable {
     self.citationMetadata = citationMetadata
     self.groundingMetadata = groundingMetadata
   }
+
+  // Returns `true` if the candidate contains no information that a developer could use.
+  var isEmpty: Bool {
+    content.parts
+      .isEmpty && finishReason == nil && citationMetadata == nil && groundingMetadata == nil
+  }
 }
 
 /// A collection of source attributions for a piece of content.
@@ -524,15 +530,6 @@ extension Candidate: Decodable {
     }
 
     finishReason = try container.decodeIfPresent(FinishReason.self, forKey: .finishReason)
-
-    // The `content` may only be empty if a `finishReason` is included; if neither are included in
-    // the response then this is likely the `"content": {}` bug.
-    guard !content.parts.isEmpty || finishReason != nil else {
-      throw InvalidCandidateError.emptyContent(underlyingError: DecodingError.dataCorrupted(.init(
-        codingPath: [CodingKeys.content, CodingKeys.finishReason],
-        debugDescription: "Invalid Candidate: empty content and no finish reason"
-      )))
-    }
 
     citationMetadata = try container.decodeIfPresent(
       CitationMetadata.self,

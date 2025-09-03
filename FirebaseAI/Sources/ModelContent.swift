@@ -41,9 +41,17 @@ struct InternalPart: Equatable, Sendable {
     case functionResponse(FunctionResponse)
     case executableCode(ExecutableCode)
     case codeExecutionResult(CodeExecutionResult)
+
+    struct UnsupportedDataError: Error {
+      let decodingError: DecodingError
+
+      var localizedDescription: String {
+        decodingError.localizedDescription
+      }
+    }
   }
 
-  let data: OneOfData
+  let data: OneOfData?
 
   let isThought: Bool?
 
@@ -67,7 +75,7 @@ public struct ModelContent: Equatable, Sendable {
 
   /// The data parts comprising this ``ModelContent`` value.
   public var parts: [any Part] {
-    return internalParts.map { part -> any Part in
+    return internalParts.compactMap { part -> (any Part)? in
       switch part.data {
       case let .text(text):
         return TextPart(text, isThought: part.isThought, thoughtSignature: part.thoughtSignature)
@@ -97,6 +105,9 @@ public struct ModelContent: Equatable, Sendable {
           isThought: part.isThought,
           thoughtSignature: part.thoughtSignature
         )
+      case .none:
+        // Filter out parts that contain missing or unrecognized data
+        return nil
       }
     }
   }
@@ -191,7 +202,14 @@ extension InternalPart: Codable {
   }
 
   public init(from decoder: Decoder) throws {
-    data = try OneOfData(from: decoder)
+    do {
+      data = try OneOfData(from: decoder)
+    } catch let error as OneOfData.UnsupportedDataError {
+      AILog.error(code: .decodedUnsupportedPartData, error.localizedDescription)
+      data = nil
+    } catch { // Re-throw any other error types
+      throw error
+    }
     let container = try decoder.container(keyedBy: CodingKeys.self)
     isThought = try container.decodeIfPresent(Bool.self, forKey: .isThought)
     thoughtSignature = try container.decodeIfPresent(String.self, forKey: .thoughtSignature)
@@ -250,9 +268,11 @@ extension InternalPart.OneOfData: Codable {
       )
     } else {
       let unexpectedKeys = values.allKeys.map { $0.stringValue }
-      throw DecodingError.dataCorrupted(DecodingError.Context(
-        codingPath: values.codingPath,
-        debugDescription: "Unexpected Part type(s): \(unexpectedKeys)"
+      throw UnsupportedDataError(decodingError: DecodingError.dataCorrupted(
+        DecodingError.Context(
+          codingPath: values.codingPath,
+          debugDescription: "Unexpected Part type(s): \(unexpectedKeys)"
+        )
       ))
     }
   }
