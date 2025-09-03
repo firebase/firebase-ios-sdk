@@ -1,3 +1,8 @@
+# 12.3.0
+- [fixed] Fixed a decoding error when generating images with the
+  `gemini-2.5-flash-image-preview` model using `generateContentStream` or
+  `sendMessageStream` with the Gemini Developer API. (#15262)
+
 # 12.2.0
 - [feature] Added support for returning thought summaries, which are synthesized
   versions of a model's internal reasoning process. (#15096)
