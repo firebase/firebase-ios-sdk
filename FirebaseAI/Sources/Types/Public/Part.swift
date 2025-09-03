@@ -207,11 +207,13 @@ public struct FunctionResponsePart: Part {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ExecutableCodePart: Part {
   /// The language of the code in an ``ExecutableCodePart``.
-  public struct Language: Sendable, Equatable {
+  public struct Language: Sendable, Equatable, CustomStringConvertible {
     let internalLanguage: ExecutableCode.Language
 
     /// The Python programming language.
     public static let python = ExecutableCodePart.Language(ExecutableCode.Language(kind: .python))
+
+    public var description: String { internalLanguage.rawValue }
 
     init(_ language: ExecutableCode.Language) {
       internalLanguage = language
@@ -258,7 +260,7 @@ public struct ExecutableCodePart: Part {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CodeExecutionResultPart: Part {
   /// The outcome of a code execution.
-  public struct Outcome: Sendable, Equatable {
+  public struct Outcome: Sendable, Equatable, CustomStringConvertible {
     let internalOutcome: CodeExecutionResult.Outcome
 
     /// The code executed without errors.
@@ -272,7 +274,7 @@ public struct CodeExecutionResultPart: Part {
     public static let deadlineExceeded =
       CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .deadlineExceeded))
 
-    public var rawValue: String { internalOutcome.rawValue }
+    public var description: String { internalOutcome.rawValue }
 
     init(_ outcome: CodeExecutionResult.Outcome) {
       internalOutcome = outcome
