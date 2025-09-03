@@ -312,7 +312,7 @@ public struct CodeExecutionResultPart: Part {
 
   init(codeExecutionResult: CodeExecutionResult, isThought: Bool?, thoughtSignature: String?) {
     self.codeExecutionResult = codeExecutionResult
-    self._isThought = isThought
+    _isThought = isThought
     self.thoughtSignature = thoughtSignature
   }
 }
