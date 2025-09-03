@@ -86,6 +86,40 @@ final class PartTests: XCTestCase {
     XCTAssertEqual(functionResponse.response, [resultParameter: .string(resultValue)])
   }
 
+  func testDecodeExecutableCodePart() throws {
+    let json = """
+    {
+      "executableCode": {
+        "language": "PYTHON",
+        "code": "print('hello')"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(ExecutableCodePart.self, from: jsonData)
+
+    XCTAssertEqual(part.language, .python)
+    XCTAssertEqual(part.code, "print('hello')")
+  }
+
+  func testDecodeCodeExecutionResultPart() throws {
+    let json = """
+    {
+      "codeExecutionResult": {
+        "outcome": "OUTCOME_OK",
+        "output": "hello"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(CodeExecutionResultPart.self, from: jsonData)
+
+    XCTAssertEqual(part.outcome, .ok)
+    XCTAssertEqual(part.output, "hello")
+  }
+
   // MARK: - Part Encoding
 
   func testEncodeTextPart() throws {
@@ -134,6 +168,38 @@ final class PartTests: XCTestCase {
       "fileData" : {
         "fileUri" : "\(fileURI)",
         "mimeType" : "\(mimeType)"
+      }
+    }
+    """)
+  }
+
+  func testEncodeExecutableCodePart() throws {
+    let executableCodePart = ExecutableCodePart(language: .python, code: "print('hello')")
+
+    let jsonData = try encoder.encode(executableCodePart)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "executableCode" : {
+        "code" : "print('hello')",
+        "language" : "PYTHON"
+      }
+    }
+    """)
+  }
+
+  func testEncodeCodeExecutionResultPart() throws {
+    let codeExecutionResultPart = CodeExecutionResultPart(outcome: .ok, output: "hello")
+
+    let jsonData = try encoder.encode(codeExecutionResultPart)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "codeExecutionResult" : {
+        "outcome" : "OUTCOME_OK",
+        "output" : "hello"
       }
     }
     """)
