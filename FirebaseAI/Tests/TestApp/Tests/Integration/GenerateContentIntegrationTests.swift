@@ -435,7 +435,7 @@ struct GenerateContentIntegrationTests {
     let executableCodeParts = candidate.content.parts.compactMap { $0 as? ExecutableCodePart }
     #expect(executableCodeParts.count == 1)
     let executableCodePart = try #require(executableCodeParts.first)
-    #expect(executableCodePart.language == "PYTHON")
+    #expect(executableCodePart.language == .python)
     #expect(executableCodePart.code.contains("sum"))
     let codeExecutionResults = candidate.content.parts.compactMap { $0 as? CodeExecutionResultPart }
     #expect(codeExecutionResults.count == 1)
