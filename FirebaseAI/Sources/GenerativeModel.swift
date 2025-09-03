@@ -250,7 +250,7 @@ public final class GenerativeModel: Sendable {
             if response.candidates.allSatisfy({ $0.isEmpty }) {
               AILog.log(
                 level: .debug,
-                code: .generateContentResponseNoCandidates,
+                code: .generateContentResponseEmptyCandidates,
                 "Skipped response with all empty candidates: \(response)"
               )
             } else {
