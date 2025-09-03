@@ -94,7 +94,7 @@ public struct ModelContent: Equatable, Sendable {
       case let .codeExecutionResult(codeExecutionResult):
         return CodeExecutionResultPart(
           codeExecutionResult: codeExecutionResult,
-          _isThought: part.isThought,
+          isThought: part.isThought,
           thoughtSignature: part.thoughtSignature
         )
       }

@@ -305,14 +305,14 @@ public struct CodeExecutionResultPart: Part {
   public init(outcome: CodeExecutionResultPart.Outcome, output: String) {
     self.init(
       codeExecutionResult: CodeExecutionResult(outcome: outcome.internalOutcome, output: output),
-      _isThought: nil,
+      isThought: nil,
       thoughtSignature: nil
     )
   }
 
-  init(codeExecutionResult: CodeExecutionResult, _isThought: Bool?, thoughtSignature: String?) {
+  init(codeExecutionResult: CodeExecutionResult, isThought: Bool?, thoughtSignature: String?) {
     self.codeExecutionResult = codeExecutionResult
-    self._isThought = _isThought
+    self._isThought = isThought
     self.thoughtSignature = thoughtSignature
   }
 }
