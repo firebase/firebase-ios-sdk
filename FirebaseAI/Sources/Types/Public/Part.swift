@@ -205,18 +205,41 @@ public struct FunctionResponsePart: Part {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ExecutableCodePart: Part {
+  public struct Language: Sendable, Equatable {
+    let internalLanguage: ExecutableCode.Language
+
+    public static let python = ExecutableCodePart.Language(ExecutableCode.Language(kind: .python))
+
+    init(_ language: ExecutableCode.Language) {
+      internalLanguage = language
+    }
+  }
+
   let executableCode: ExecutableCode
   let _isThought: Bool?
   let thoughtSignature: String?
 
-  public var language: String { executableCode.language }
+  public var language: ExecutableCodePart.Language {
+    ExecutableCodePart.Language(
+      // Fallback to "LANGUAGE_UNSPECIFIED" if the value is ever omitted by the backend; this should
+      // never happen.
+      executableCode.language ?? ExecutableCode.Language(kind: .unspecified)
+    )
+  }
 
-  public var code: String { executableCode.code }
+  public var code: String {
+    // Fallback to empty string if `code` is ever omitted by the backend; this should never happen.
+    executableCode.code ?? ""
+  }
 
   public var isThought: Bool { _isThought ?? false }
 
-  public init(language: String, code: String) {
-    self.init(ExecutableCode(language: language, code: code), isThought: nil, thoughtSignature: nil)
+  public init(language: ExecutableCodePart.Language, code: String) {
+    self.init(
+      ExecutableCode(language: language.internalLanguage, code: code),
+      isThought: nil,
+      thoughtSignature: nil
+    )
   }
 
   init(_ executableCode: ExecutableCode, isThought: Bool?, thoughtSignature: String?) {
@@ -228,36 +251,7 @@ public struct ExecutableCodePart: Part {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CodeExecutionResultPart: Part {
-  let codeExecutionResult: CodeExecutionResult
-  let _isThought: Bool?
-  let thoughtSignature: String?
-
-  public var outcome: CodeExecutionResultPart.Outcome {
-    CodeExecutionResultPart.Outcome(codeExecutionResult.outcome)
-  }
-
-  public var output: String { codeExecutionResult.output ?? "" }
-
-  public var isThought: Bool { _isThought ?? false }
-
-  public init(outcome: CodeExecutionResultPart.Outcome, output: String) {
-    self.init(
-      codeExecutionResult: CodeExecutionResult(outcome: outcome.internalOutcome, output: output),
-      _isThought: nil,
-      thoughtSignature: nil
-    )
-  }
-
-  init(codeExecutionResult: CodeExecutionResult, _isThought: Bool?, thoughtSignature: String?) {
-    self.codeExecutionResult = codeExecutionResult
-    self._isThought = _isThought
-    self.thoughtSignature = thoughtSignature
-  }
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension CodeExecutionResultPart {
-  struct Outcome: Sendable, Equatable {
+  public struct Outcome: Sendable, Equatable {
     let internalOutcome: CodeExecutionResult.Outcome
 
     public static let ok = CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .ok))
@@ -273,5 +267,38 @@ public extension CodeExecutionResultPart {
     init(_ outcome: CodeExecutionResult.Outcome) {
       internalOutcome = outcome
     }
+  }
+
+  let codeExecutionResult: CodeExecutionResult
+  let _isThought: Bool?
+  let thoughtSignature: String?
+
+  public var outcome: CodeExecutionResultPart.Outcome {
+    CodeExecutionResultPart.Outcome(
+      // Fallback to "OUTCOME_UNSPECIFIED" if this value is ever omitted by the backend; this should
+      // never happen.
+      codeExecutionResult.outcome ?? CodeExecutionResult.Outcome(kind: .unspecified)
+    )
+  }
+
+  public var output: String {
+    // Fallback to empty string if `output` is omitted by the backend; this should never happen.
+    codeExecutionResult.output ?? ""
+  }
+
+  public var isThought: Bool { _isThought ?? false }
+
+  public init(outcome: CodeExecutionResultPart.Outcome, output: String) {
+    self.init(
+      codeExecutionResult: CodeExecutionResult(outcome: outcome.internalOutcome, output: output),
+      _isThought: nil,
+      thoughtSignature: nil
+    )
+  }
+
+  init(codeExecutionResult: CodeExecutionResult, _isThought: Bool?, thoughtSignature: String?) {
+    self.codeExecutionResult = codeExecutionResult
+    self._isThought = _isThought
+    self.thoughtSignature = thoughtSignature
   }
 }

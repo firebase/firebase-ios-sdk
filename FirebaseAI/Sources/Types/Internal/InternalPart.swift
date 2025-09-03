@@ -65,10 +65,22 @@ struct FunctionResponse: Codable, Equatable, Sendable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ExecutableCode: Codable, Equatable, Sendable {
-  let language: String
-  let code: String
+  struct Language: CodableProtoEnum, Sendable, Equatable {
+    enum Kind: String {
+      case unspecified = "LANGUAGE_UNSPECIFIED"
+      case python = "PYTHON"
+    }
 
-  init(language: String, code: String) {
+    let rawValue: String
+
+    static let unrecognizedValueMessageCode =
+      AILog.MessageCode.executableCodeUnrecognizedLanguage
+  }
+
+  let language: Language?
+  let code: String?
+
+  init(language: Language, code: String) {
     self.language = language
     self.code = code
   }
@@ -78,6 +90,7 @@ struct ExecutableCode: Codable, Equatable, Sendable {
 struct CodeExecutionResult: Codable, Equatable, Sendable {
   struct Outcome: CodableProtoEnum, Sendable, Equatable {
     enum Kind: String {
+      case unspecified = "OUTCOME_UNSPECIFIED"
       case ok = "OUTCOME_OK"
       case failed = "OUTCOME_FAILED"
       case deadlineExceeded = "OUTCOME_DEADLINE_EXCEEDED"
@@ -89,7 +102,7 @@ struct CodeExecutionResult: Codable, Equatable, Sendable {
       AILog.MessageCode.codeExecutionResultUnrecognizedOutcome
   }
 
-  let outcome: Outcome
+  let outcome: Outcome?
   let output: String?
 
   init(outcome: Outcome, output: String) {
