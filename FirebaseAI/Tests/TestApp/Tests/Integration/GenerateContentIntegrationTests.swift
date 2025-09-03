@@ -418,6 +418,22 @@ struct GenerateContentIntegrationTests {
     }
   }
 
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2Flash,
+      generationConfig: generationConfig,
+      tools: [.codeExecution()]
+    )
+    let prompt = """
+    What is the sum of the first 5 prime numbers? Generate and run code for the calculation.
+    """
+
+    _ = try await model.generateContent(prompt)
+
+    // TODO: Add checks for the response contents
+  }
+
   // MARK: Streaming Tests
 
   @Test(arguments: [

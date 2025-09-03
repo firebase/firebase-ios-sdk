@@ -39,6 +39,8 @@ struct InternalPart: Equatable, Sendable {
     case fileData(FileData)
     case functionCall(FunctionCall)
     case functionResponse(FunctionResponse)
+    case executableCode(ExecutableCode)
+    case codeExecutionResult(CodeExecutionResult)
   }
 
   let data: OneOfData
@@ -84,6 +86,16 @@ public struct ModelContent: Equatable, Sendable {
       case let .functionResponse(functionResponse):
         return FunctionResponsePart(
           functionResponse, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+        )
+      case let .executableCode(executableCode):
+        return ExecutableCodePart(
+          executableCode, isThought: part.isThought, thoughtSignature: part.thoughtSignature
+        )
+      case let .codeExecutionResult(codeExecutionResult):
+        return CodeExecutionResultPart(
+          codeExecutionResult: codeExecutionResult,
+          _isThought: part.isThought,
+          thoughtSignature: part.thoughtSignature
         )
       }
     }
@@ -194,6 +206,8 @@ extension InternalPart.OneOfData: Codable {
     case fileData
     case functionCall
     case functionResponse
+    case executableCode
+    case codeExecutionResult
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -209,6 +223,10 @@ extension InternalPart.OneOfData: Codable {
       try container.encode(functionCall, forKey: .functionCall)
     case let .functionResponse(functionResponse):
       try container.encode(functionResponse, forKey: .functionResponse)
+    case let .executableCode(executableCode):
+      try container.encode(executableCode, forKey: .executableCode)
+    case let .codeExecutionResult(codeExecutionResult):
+      try container.encode(codeExecutionResult, forKey: .codeExecutionResult)
     }
   }
 
@@ -224,6 +242,12 @@ extension InternalPart.OneOfData: Codable {
       self = try .functionCall(values.decode(FunctionCall.self, forKey: .functionCall))
     } else if values.contains(.functionResponse) {
       self = try .functionResponse(values.decode(FunctionResponse.self, forKey: .functionResponse))
+    } else if values.contains(.executableCode) {
+      self = try .executableCode(values.decode(ExecutableCode.self, forKey: .executableCode))
+    } else if values.contains(.codeExecutionResult) {
+      self = try .codeExecutionResult(
+        values.decode(CodeExecutionResult.self, forKey: .codeExecutionResult)
+      )
     } else {
       let unexpectedKeys = values.allKeys.map { $0.stringValue }
       throw DecodingError.dataCorrupted(DecodingError.Context(
