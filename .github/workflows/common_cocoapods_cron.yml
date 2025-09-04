@@ -77,4 +77,6 @@ jobs:
         retry_wait_seconds: 120
         command: |
           scripts/pod_lib_lint.rb \
-            ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }} ${{ matrix.flag }}
+            ${{ inputs.product }}.podspec \
+            --platforms=${{ matrix.platform }} \
+            ${{ matrix.flags }}
