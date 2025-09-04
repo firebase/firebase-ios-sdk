@@ -50,10 +50,64 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   // Implementing this delegate method is needed when swizzling is disabled.
   // Without it, reCAPTCHA's login view controller will not dismiss.
+  // Without it, IdP Initiated SAML Sign In will not work.
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     for urlContext in URLContexts {
       let url = urlContext.url
       _ = Auth.auth().canHandle(url)
+      /// Handle IdP Initiated SAML deep link myapp://saml?resp=<samlResponse>
+      if url.scheme?.lowercased() == "myapp", /// replace with your custom scheme
+         url.host?.lowercased() == "saml" { /// replace with your host
+        let spAcsUrl =
+          "https://iostemp-8a944.web.app/googleidp-saml/acs" /// replace with your SP ACS URL
+        if let rawQuery = url.query {
+          var respValue: String?
+          for pair in rawQuery.split(separator: "&", omittingEmptySubsequences: false) {
+            let parts = pair.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
+            if parts.count == 2, parts[0] == "resp" {
+              respValue = String(parts[1])
+              break
+            }
+          }
+          if let resp = respValue {
+            let alert = UIAlertController(
+              title: "SAML Sign In",
+              message: "Enter Provider ID",
+              preferredStyle: .alert
+            )
+            alert.addTextField { tf in
+              tf.placeholder = "Provider ID"
+              tf.text = "saml.provider"
+              tf.autocapitalizationType = .none
+              tf.autocorrectionType = .no
+            }
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+              let providerId = alert.textFields?.first?.text?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+              let requestUri = alert.textFields?.last?.text?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+              guard !providerId.isEmpty, !requestUri.isEmpty else { return }
+              Task {
+                do {
+                  _ = try await AppManager.shared.auth().signInWithSamlIdp(
+                    ProviderId: providerId,
+                    SpAcsUrl: requestUri,
+                    SamlResp: resp
+                  )
+                } catch {
+                  print("IdP-initiated SAML sign-in failed with error:", error)
+                }
+              }
+            })
+            var top = window?.rootViewController
+            while let presented = top?.presentedViewController {
+              top = presented
+            }
+            top?.present(alert, animated: true)
+          }
+        }
+      }
     }
 
     // URL not auth related; it should be handled separately.
