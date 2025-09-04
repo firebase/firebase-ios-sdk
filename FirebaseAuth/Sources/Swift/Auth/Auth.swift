@@ -2341,6 +2341,29 @@ extension Auth: AuthInterop {
     }
   #endif
 
+  // MARK: IDP Initiated SAML Sign In
+
+  public func signInWithSamlIdp(providerId providerId: String,
+                                spAcsUrl SpAcsUrl: String,
+                                samlResp samlResp: String) async throws -> AuthDataResult {
+    let samlRespBody = "SAMLResponse=\(samlResp)&providerId=\(providerId)"
+    let request = SignInWithSamlIdpRequest(
+      requestUri: SpAcsUrl,
+      postBody: samlRespBody,
+      returnSecureToken: true,
+      requestConfiguration: requestConfiguration
+    )
+    let response = try await backend.call(with: request)
+    let user = try await completeSignIn(
+      withAccessToken: response.idToken,
+      accessTokenExpirationDate: response.expirationDate,
+      refreshToken: response.refreshToken,
+      anonymous: false
+    )
+    try await updateCurrentUser(user)
+    return AuthDataResult(withUser: user, additionalUserInfo: nil)
+  }
+
   // MARK: Internal properties
 
   /// Allow tests to swap in an alternate mainBundle, including ObjC unit tests via CocoaPods.

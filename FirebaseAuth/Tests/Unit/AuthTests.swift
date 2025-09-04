@@ -2287,6 +2287,152 @@ class AuthTests: RPCBaseTests {
     }
   #endif
 
+  // MARK: SAML IdP sign-in
+
+  #if os(iOS)
+
+    static let kSamlProviderId = "saml.idp"
+    static let kSamlAcsUrl = "https://example.com/saml-acs-url"
+    static let kSamlResponse = "BASE64_SAML_ASSERTION"
+    static let kBadSamlResponse = "MALFORMED_OR_TAMPERED_SAML"
+
+    func testSignInWithSamlIdpSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      setFakeGetAccountProvider()
+      setFakeSecureTokenService()
+      rpcIssuer.respondBlock = {
+        let req = try XCTUnwrap(self.rpcIssuer.request as? SignInWithSamlIdpRequest)
+        XCTAssertEqual(req.requestConfiguration().apiKey, AuthTests.kFakeAPIKey)
+        XCTAssertEqual(
+          req.unencodedHTTPRequestBody?["requestUri"] as? String,
+          AuthTests.kSamlAcsUrl
+        )
+        XCTAssertTrue(
+          (req.unencodedHTTPRequestBody?["postBody"] as? String)?.contains(
+            AuthTests.kSamlProviderId
+          ) ?? false
+        )
+        XCTAssertTrue(req.unencodedHTTPRequestBody?["returnSecureToken"] as? Bool ?? false)
+        return try self.rpcIssuer.respond(withJSON: [
+          "idToken": RPCBaseTests.kFakeAccessToken,
+          "refreshToken": self.kRefreshToken,
+          "email": self.kEmail,
+          "providerId": AuthTests.kSamlProviderId,
+          "expiresIn": "3600",
+        ])
+      }
+      try auth.signOut()
+      Task {
+        do {
+          let result = try await self.auth.signInWithSamlIdp(
+            providerId: AuthTests.kSamlProviderId,
+            spAcsUrl: AuthTests.kSamlAcsUrl,
+            samlResp: AuthTests.kSamlResponse
+          )
+          XCTAssertEqual(result.user.email, self.kEmail)
+          XCTAssertEqual(result.user.refreshToken, self.kRefreshToken)
+          XCTAssertFalse(result.user.isAnonymous)
+          expectation.fulfill()
+        } catch {
+          XCTFail("Unexpected error: \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    func testSignInWithSamlIdpWithIncorrectUrl() throws {
+      let expectation = self.expectation(description: #function)
+      let kBadSamlAcsUrl = "https://example.com/saml-acs-incorrect-url"
+      rpcIssuer.respondBlock = {
+        let req = try XCTUnwrap(self.rpcIssuer.request as? SignInWithSamlIdpRequest)
+        XCTAssertEqual(req.requestConfiguration().apiKey, AuthTests.kFakeAPIKey)
+        let body = try XCTUnwrap(req.unencodedHTTPRequestBody)
+        XCTAssertEqual(body["requestUri"] as? String, kBadSamlAcsUrl)
+        return try self.rpcIssuer.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
+      }
+      try auth.signOut()
+      Task {
+        do {
+          _ = try await self.auth.signInWithSamlIdp(
+            providerId: AuthTests.kSamlProviderId,
+            spAcsUrl: kBadSamlAcsUrl,
+            samlResp: AuthTests.kSamlResponse
+          )
+          XCTFail("Expected OPERATION_NOT_ALLOWED")
+        } catch {
+          let ns = error as NSError
+          XCTAssertEqual(ns.code, AuthErrorCode.operationNotAllowed.rawValue)
+          expectation.fulfill()
+        }
+      }
+      waitForExpectations(timeout: 5)
+      XCTAssertNil(auth.currentUser)
+    }
+
+    func testSignInWithSamlIdpWithWrongProviderId() throws {
+      let expectation = self.expectation(description: #function)
+      let badProvider = "saml.non-existent-idp"
+      rpcIssuer.respondBlock = {
+        let req = try XCTUnwrap(self.rpcIssuer.request as? SignInWithSamlIdpRequest)
+        XCTAssertEqual(req.requestConfiguration().apiKey, AuthTests.kFakeAPIKey)
+        let body = try XCTUnwrap(req.unencodedHTTPRequestBody)
+        let postBody = try XCTUnwrap(body["postBody"] as? String)
+        XCTAssertTrue(postBody.contains("providerId=\(badProvider)"))
+        return try self.rpcIssuer.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
+      }
+      try auth.signOut()
+      Task {
+        do {
+          _ = try await self.auth.signInWithSamlIdp(
+            providerId: badProvider, // wrong providerId
+            spAcsUrl: AuthTests.kSamlAcsUrl,
+            samlResp: AuthTests.kSamlResponse
+          )
+          XCTFail("Expected OPERATION_NOT_ALLOWED")
+        } catch {
+          let ns = error as NSError
+          XCTAssertEqual(ns.code, AuthErrorCode.operationNotAllowed.rawValue)
+          expectation.fulfill()
+        }
+      }
+      waitForExpectations(timeout: 5)
+      XCTAssertNil(auth.currentUser)
+    }
+
+    func testSignInWithSamlIdp_InvalidPostBody_InternalError() throws {
+      let expectation = self.expectation(description: #function)
+      rpcIssuer.respondBlock = {
+        let req = try XCTUnwrap(self.rpcIssuer.request as? SignInWithSamlIdpRequest)
+        XCTAssertEqual(req.requestConfiguration().apiKey, AuthTests.kFakeAPIKey)
+        let body = try XCTUnwrap(req.unencodedHTTPRequestBody)
+        XCTAssertEqual(body["requestUri"] as? String, AuthTests.kSamlAcsUrl)
+        let postBody = try XCTUnwrap(body["postBody"] as? String)
+        XCTAssertTrue(postBody.contains("SAMLResponse=\(AuthTests.kBadSamlResponse)"))
+        XCTAssertTrue(postBody.contains("providerId=\(AuthTests.kSamlProviderId)"))
+        XCTAssertTrue(body["returnSecureToken"] as? Bool ?? false)
+        return try self.rpcIssuer
+          .respond(underlyingErrorMessage: "INVALID_CREDENTIAL_OR_PROVIDER_ID")
+      }
+      try auth.signOut()
+      Task {
+        do {
+          _ = try await self.auth.signInWithSamlIdp(
+            providerId: AuthTests.kSamlProviderId,
+            spAcsUrl: AuthTests.kSamlAcsUrl,
+            samlResp: AuthTests.kBadSamlResponse
+          )
+          XCTFail("Expected internalError but got success")
+        } catch {
+          let ns = error as NSError
+          XCTAssertEqual(ns.code, AuthErrorCode.internalError.rawValue)
+          expectation.fulfill()
+        }
+      }
+      waitForExpectations(timeout: 5)
+      XCTAssertNil(auth.currentUser)
+    }
+  #endif
+
   // MARK: Application Delegate tests.
 
   #if os(iOS)
