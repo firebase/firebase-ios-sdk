@@ -2325,9 +2325,9 @@ class AuthTests: RPCBaseTests {
       Task {
         do {
           let result = try await self.auth.signInWithSamlIdp(
-            providerId: AuthTests.kSamlProviderId,
-            spAcsUrl: AuthTests.kSamlAcsUrl,
-            samlResp: AuthTests.kSamlResponse
+            ProviderId: AuthTests.kSamlProviderId,
+            SpAcsUrl: AuthTests.kSamlAcsUrl,
+            SamlResp: AuthTests.kSamlResponse
           )
           XCTAssertEqual(result.user.email, self.kEmail)
           XCTAssertEqual(result.user.refreshToken, self.kRefreshToken)
@@ -2354,9 +2354,9 @@ class AuthTests: RPCBaseTests {
       Task {
         do {
           _ = try await self.auth.signInWithSamlIdp(
-            providerId: AuthTests.kSamlProviderId,
-            spAcsUrl: kBadSamlAcsUrl,
-            samlResp: AuthTests.kSamlResponse
+            ProviderId: AuthTests.kSamlProviderId,
+            SpAcsUrl: kBadSamlAcsUrl,
+            SamlResp: AuthTests.kSamlResponse
           )
           XCTFail("Expected OPERATION_NOT_ALLOWED")
         } catch {
@@ -2384,9 +2384,9 @@ class AuthTests: RPCBaseTests {
       Task {
         do {
           _ = try await self.auth.signInWithSamlIdp(
-            providerId: badProvider, // wrong providerId
-            spAcsUrl: AuthTests.kSamlAcsUrl,
-            samlResp: AuthTests.kSamlResponse
+            ProviderId: badProvider, // wrong providerId
+            SpAcsUrl: AuthTests.kSamlAcsUrl,
+            SamlResp: AuthTests.kSamlResponse
           )
           XCTFail("Expected OPERATION_NOT_ALLOWED")
         } catch {
@@ -2417,9 +2417,9 @@ class AuthTests: RPCBaseTests {
       Task {
         do {
           _ = try await self.auth.signInWithSamlIdp(
-            providerId: AuthTests.kSamlProviderId,
-            spAcsUrl: AuthTests.kSamlAcsUrl,
-            samlResp: AuthTests.kBadSamlResponse
+            ProviderId: AuthTests.kSamlProviderId,
+            SpAcsUrl: AuthTests.kSamlAcsUrl,
+            SamlResp: AuthTests.kBadSamlResponse
           )
           XCTFail("Expected internalError but got success")
         } catch {
