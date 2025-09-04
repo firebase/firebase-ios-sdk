@@ -100,6 +100,24 @@ struct GenerateContentIntegrationTests {
       (usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount))
   }
 
+  @Test
+  func generateContent_imageInput_filesAPI() async throws {
+    let imageFile = FileDataPart(
+      uri: "https://generativelanguage.googleapis.com/v1beta/files/bfphtqoghnx0",
+      mimeType: "image/jpeg"
+    )
+    let model = FirebaseAI.componentInstance(.googleAI_v1beta).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: generationConfig
+    )
+    let prompt = "Which province is shown in this image? Answer with the name of the province only."
+
+    let response = try await model.generateContent(prompt, imageFile)
+
+    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
+    #expect(text == "Quebec")
+  }
+
   @Test(
     "Generate an enum and provide a system instruction",
     arguments: InstanceConfig.allConfigs
