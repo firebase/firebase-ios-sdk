@@ -49,8 +49,7 @@ on:
 jobs:
   cron-job:
     # This job is intended to be run on a schedule, on the main repo.
-    # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    if: github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: ${{ inputs.runs_on }}
     strategy:
