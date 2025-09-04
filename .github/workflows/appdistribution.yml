@@ -23,23 +23,23 @@ on:
 #     cancel-in-progress: true
 
 jobs:
-  # spm:
-  #   uses: ./.github/workflows/common.yml
-  #   with:
-  #     target: AppDistributionUnit
-  #     platforms: iOS
+  spm:
+    uses: ./.github/workflows/common.yml
+    with:
+      target: AppDistributionUnit
+      platforms: iOS
 
-  # catalyst:
-  #   uses: ./.github/workflows/common_catalyst.yml
-  #   with:
-  #     product: FirebaseAppDistribution
-  #     target: FirebaseAppDistribution-Unit-unit
+  catalyst:
+    uses: ./.github/workflows/common_catalyst.yml
+    with:
+      product: FirebaseAppDistribution
+      target: FirebaseAppDistribution-Unit-unit
 
-  # pod_lib_lint:
-  #   uses: ./.github/workflows/common_cocoapods.yml
-  #   with:
-  #     product: FirebaseAppDistribution
-  #     platforms: iOS # App Distro only supports iOS.
+  pod_lib_lint:
+    uses: ./.github/workflows/common_cocoapods.yml
+    with:
+      product: FirebaseAppDistribution
+      platforms: iOS # App Distro only supports iOS.
 
   appdistribution-cron-only:
     needs: pod_lib_lint
