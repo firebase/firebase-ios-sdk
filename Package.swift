@@ -1101,6 +1101,12 @@ let package = Package(
         "FirebaseInstallations",
         "FirebaseCoreExtension",
         "FirebaseSessionsObjC",
+         // The `FirebaseSessions` target transitively depends on nanopb via the internal
+         // `FirebaseSessionsObjC` target. Not explicitly depending on nanopb leads to
+         // undefined symbol errors in Tuist based SPM builds.
+         // See the conversations in
+         // - https://github.com/firebase/firebase-ios-sdk/issues/15276
+         // - https://github.com/firebase/firebase-ios-sdk/pull/15287
         .product(name: "nanopb", package: "nanopb"),
         .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
