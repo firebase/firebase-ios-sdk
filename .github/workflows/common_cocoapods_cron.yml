@@ -55,7 +55,7 @@ jobs:
     strategy:
       matrix:
         platform: ${{ fromJson(inputs.platforms) }}
-        flag: ${{ fromJson(inputs.flags) }}
+        flags: ${{ fromJson(inputs.flags) }}
 
     steps:
     - uses: actions/checkout@v4
