@@ -12,6 +12,7 @@ on:
     - '.github/workflows/core_extension.yml'
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/common_cocoapods_cron.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
@@ -24,23 +25,10 @@ jobs:
     with:
       product: FirebaseCoreExtension
 
-  core-internal-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-15
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        flags: [
-          '--use-static-frameworks'
-        ]
+  core-extension-cron-only:
     needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint CoreInternal Cron
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseCoreExtension.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+    uses: ./.github/workflows/common_cocoapods_cron.yml
+    with:
+      product: FirebaseCoreExtension
+      platforms: '[ "ios", "tvos", "macos" ]'
+      flags: '[ "--use-static-frameworks" ]'

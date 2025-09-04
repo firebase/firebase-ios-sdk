@@ -13,6 +13,7 @@ on:
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - '.github/workflows/common_quickstart.yml'
+    - '.github/workflows/common_cocoapods_cron.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
@@ -44,7 +45,7 @@ jobs:
         mkdir -p FirebaseInstallations/Source/Tests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
-        export FIS_INTEGRATION_TESTS_REQUIRED=1
+        echo "FIS_INTEGRATION_TESTS_REQUIRED=1" >> $GITHUB_ENV
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
@@ -92,38 +93,17 @@ jobs:
         test_type: "xctest"
 
   installations-cron-only:
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-
-    runs-on: macos-15
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FIR_IID_INTEGRATION_TESTS_REQUIRED: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-        flags: [
-          '--use-static-frameworks'
-        ]
     needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Configure test keychain
-      run: scripts/configure_test_keychain.sh
-    - name: Install GoogleService-Info.plist
-      run: |
+    uses: ./.github/workflows/common_cocoapods_cron.yml
+    with:
+      product: FirebaseInstallations
+      platforms: '[ "ios", "tvos", "macos" ]'
+      flags: '[ "--use-static-frameworks" ]'
+      setup_command: |
+        scripts/configure_test_keychain.sh
         mkdir -p FirebaseInstallations/Source/Tests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
           FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
-    - name: Get boolean for secrets available
-      id: secrets
-      run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
-    - name: PodLibLint Installations Cron
-      run: |
-       export FIS_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstallations.podspec \
-         --platforms=${{ matrix.target }} ${{ matrix.flags }} \
+        echo "FIS_INTEGRATION_TESTS_REQUIRED=1" >> $GITHUB_ENV
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

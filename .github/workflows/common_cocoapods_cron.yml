@@ -1,0 +1,82 @@
+name: common_cocoapods_cron
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    secrets:
+      plist_secret:
+        required: false
+    inputs:
+      # The product to test be tested (e.g. `FirebaseABTesting`).
+      product:
+        type: string
+        required: true
+
+      # JSON array of platforms to test against (e.g. `[ "ios", "tvos" ]`).
+      platforms:
+        type: string
+        required: true
+
+      # JSON array of flags to pass to pod lib lint. Each string in the array
+      # will create a separate matrix entry.
+      # e.g. `[ "--use-static-frameworks" ]`.
+      # To run with no flags, pass `[ "" ]`.
+      flags:
+        type: string
+        required: false
+        default: '[""]'
+
+      # A command to execute before testing.
+      setup_command:
+        type: string
+        required: false
+        default: ""
+
+      # The version of Xcode to use.
+      xcode:
+        type: string
+        required: false
+        default: "Xcode_16.4"
+
+      # The runner to use.
+      runs_on:
+        type: string
+        required: false
+        default: "macos-15"
+
+jobs:
+  cron-job:
+    # This job is intended to be run on a schedule, on the main repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+
+    runs-on: ${{ inputs.runs_on }}
+    strategy:
+      matrix:
+        platform: ${{ fromJson(inputs.platforms) }}
+        flags: ${{ fromJson(inputs.flags) }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ inputs.xcode }}.app/Contents/Developer
+    - name: Run setup command, if needed.
+      if: inputs.setup_command != ''
+      env:
+        plist_secret: ${{ secrets.plist_secret }}
+      run: ${{ inputs.setup_command }}
+    - name: PodLibLint Cron
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 3
+        retry_wait_seconds: 120
+        command: |
+          scripts/pod_lib_lint.rb \
+            ${{ inputs.product }}.podspec \
+            --platforms=${{ matrix.platform }} \
+            ${{ matrix.flags }}
