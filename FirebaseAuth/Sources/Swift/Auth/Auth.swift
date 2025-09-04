@@ -2343,9 +2343,9 @@ extension Auth: AuthInterop {
 
   // MARK: IDP Initiated SAML Sign In
 
-  public func signInWithSamlIdp(providerId providerId: String,
-                                spAcsUrl SpAcsUrl: String,
-                                samlResp samlResp: String) async throws -> AuthDataResult {
+  public func signInWithSamlIdp(ProviderId providerId: String,
+                                SpAcsUrl SpAcsUrl: String,
+                                SamlResp samlResp: String) async throws -> AuthDataResult {
     let samlRespBody = "SAMLResponse=\(samlResp)&providerId=\(providerId)"
     let request = SignInWithSamlIdpRequest(
       requestUri: SpAcsUrl,
