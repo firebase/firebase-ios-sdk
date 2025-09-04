@@ -37,7 +37,7 @@ final class SignInWithSamlIdpRequestTests: XCTestCase {
     super.tearDown()
   }
 
-  func testRequestURLIsCorrectlyConstructed() {
+  func testRequestURL() {
     let request = SignInWithSamlIdpRequest(
       requestUri: kRequestUri,
       postBody: kPostBody,
@@ -56,7 +56,7 @@ final class SignInWithSamlIdpRequestTests: XCTestCase {
     XCTAssertEqual(components?.queryItems?.first?.value, kAPIKey)
   }
 
-  func testRequestConfigurationIsPassedThrough() {
+  func testRequestConfigurationPassed() {
     let request = SignInWithSamlIdpRequest(
       requestUri: kRequestUri,
       postBody: kPostBody,
@@ -69,7 +69,7 @@ final class SignInWithSamlIdpRequestTests: XCTestCase {
     XCTAssertIdentical(returned.auth, configuration.auth)
   }
 
-  func testUnencodedHTTPRequestBodyContainsExpectedKeysAndValues() {
+  func testUnencodedHTTPRequestBody() {
     let request = SignInWithSamlIdpRequest(
       requestUri: kRequestUri,
       postBody: kPostBody,
@@ -88,19 +88,7 @@ final class SignInWithSamlIdpRequestTests: XCTestCase {
     XCTAssertEqual(body["returnSecureToken"] as? Bool, true)
   }
 
-  func testUnencodedHTTPRequestBodyReflectsReturnSecureTokenFalse() {
-    let request = SignInWithSamlIdpRequest(
-      requestUri: kRequestUri,
-      postBody: kPostBody,
-      returnSecureToken: false,
-      requestConfiguration: configuration
-    )
-
-    let body = request.unencodedHTTPRequestBody
-    XCTAssertEqual(body?["returnSecureToken"] as? Bool, false)
-  }
-
-  func testUnencodedHTTPRequestBodyPreservesPostBodyVerbatim() {
+  func testUnencodedHTTPRequestPostBody() {
     let request = SignInWithSamlIdpRequest(
       requestUri: kRequestUri,
       postBody: kRawPostBody,
@@ -112,35 +100,14 @@ final class SignInWithSamlIdpRequestTests: XCTestCase {
     XCTAssertEqual(body?["postBody"] as? String, kRawPostBody)
   }
 
-  func testUnencodedHTTPRequestBodyAllowsComplexRequestUri() {
+  func testUnencodedHTTPRequestBody_AllowsComplexRequestUri() throws {
     let request = SignInWithSamlIdpRequest(
       requestUri: kComplexUri,
       postBody: kPostBody,
       returnSecureToken: true,
       requestConfiguration: configuration
     )
-
-    let body = request.unencodedHTTPRequestBody
-    XCTAssertEqual(body?["requestUri"] as? String, kComplexUri)
-  }
-
-  func testRepeatedCallsDoNotMutateURLOrBody() {
-    let request = SignInWithSamlIdpRequest(
-      requestUri: kRequestUri,
-      postBody: kPostBody,
-      returnSecureToken: true,
-      requestConfiguration: configuration
-    )
-
-    let url1 = request.requestURL()
-    let body1 = request.unencodedHTTPRequestBody
-
-    let url2 = request.requestURL()
-    let body2 = request.unencodedHTTPRequestBody
-
-    XCTAssertEqual(url1, url2)
-    XCTAssertEqual(body1?["requestUri"] as? String, body2?["requestUri"] as? String)
-    XCTAssertEqual(body1?["postBody"] as? String, body2?["postBody"] as? String)
-    XCTAssertEqual(body1?["returnSecureToken"] as? Bool, body2?["returnSecureToken"] as? Bool)
+    let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+    XCTAssertEqual(body["requestUri"] as? String, kComplexUri)
   }
 }

@@ -21,25 +21,25 @@ final class SignInWithSamlIdpResponseTests: XCTestCase {
       "email": "user@example.com",
       "expiresIn": "3600",
       "idToken": "FAKE_ID_TOKEN",
-      "providerId": "saml.googleidp",
+      "providerId": "saml.provider",
       "refreshToken": "FAKE_REFRESH_TOKEN",
     ]
   }
 
-  func testInitWithValidDictionary_parsesAllRequiredFields() throws {
+  func testInitWithValidDictionaryAllRequiredFields() throws {
     var dict = makeValidDictionary()
-    dict["email"] = "alice@example.com"
+    dict["email"] = "user1@example.com"
     dict["idToken"] = "ID.TOKEN"
     dict["providerId"] = "saml.myidp"
     dict["refreshToken"] = "REFRESH.TOKEN"
     let response = try SignInWithSamlIdpResponse(dictionary: dict)
-    XCTAssertEqual(response.email, "alice@example.com")
+    XCTAssertEqual(response.email, "user1@example.com")
     XCTAssertEqual(response.idToken, "ID.TOKEN")
     XCTAssertEqual(response.providerId, "saml.myidp")
     XCTAssertEqual(response.refreshToken, "REFRESH.TOKEN")
   }
 
-  func testInitThrowsWhenRequiredFieldsMissing() {
+  func testInitMissingRequiredFields() {
     struct Case { let name: String; let keyToRemove: String }
     let cases: [Case] = [
       .init(name: "Missing email", keyToRemove: "email"),
@@ -59,7 +59,7 @@ final class SignInWithSamlIdpResponseTests: XCTestCase {
     }
   }
 
-  func testInitThrowsWhenFieldTypesAreWrong() {
+  func testInitIncorrectFieldTypes() {
     var dict = makeValidDictionary()
     dict["expiresIn"] = 3600
     XCTAssertThrowsError(try SignInWithSamlIdpResponse(dictionary: dict)) { error in

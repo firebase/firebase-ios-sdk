@@ -2369,7 +2369,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertNil(auth.currentUser)
     }
 
-    func testSignInWithSamlIdpWithWrongProviderId() throws {
+    func testSignInWithSamlIdpFailureInvalidProviderId() throws {
       let expectation = self.expectation(description: #function)
       let badProvider = "saml.non-existent-idp"
       rpcIssuer.respondBlock = {
@@ -2399,7 +2399,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertNil(auth.currentUser)
     }
 
-    func testSignInWithSamlIdp_InvalidPostBody_InternalError() throws {
+    func testSignInWithSamlIdpFailureInvalidPostBody() throws {
       let expectation = self.expectation(description: #function)
       rpcIssuer.respondBlock = {
         let req = try XCTUnwrap(self.rpcIssuer.request as? SignInWithSamlIdpRequest)
