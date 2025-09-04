@@ -18,9 +18,9 @@ on:
     # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
     - cron: '0 9 * * *'
 
-# concurrency:
-#     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-#     cancel-in-progress: true
+ concurrency:
+     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+     cancel-in-progress: true
 
 jobs:
   spm:
