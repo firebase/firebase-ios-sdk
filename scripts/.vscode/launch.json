@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:scripts}",
+            "name": "Debug SPMLocalize",
+            "program": "${workspaceFolder:scripts}/.build/debug/SPMLocalize",
+            "preLaunchTask": "swift: Build Debug SPMLocalize"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:scripts}",
+            "name": "Release SPMLocalize",
+            "program": "${workspaceFolder:scripts}/.build/release/SPMLocalize",
+            "preLaunchTask": "swift: Build Release SPMLocalize"
+        }
+    ]
+}

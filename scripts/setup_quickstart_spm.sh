@@ -86,18 +86,18 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ ${SAMPLE} == "installa
     fi
     VERSION=$(echo "$LATEST_TAG" | sed 's/CocoaPods-//')
     echo "Setting SPM dependency to latest version: ${VERSION}"
-    swift run --package-path "$scripts_dir/spm-localizer" SPMLocalize "$ABSOLUTE_PROJECT_FILE" --version "$VERSION"
+    "$scripts_dir/quickstart_spm_xcodeproj.sh" "$ABSOLUTE_PROJECT_FILE" --version "$VERSION"
 
   elif [ "$RELEASE_TESTING" == "prerelease_testing" ]; then
     # For prerelease testing, point to the tip of the main branch.
     echo "Setting SPM dependency to the tip of the main branch."
-    swift run --package-path "$scripts_dir/spm-localizer" SPMLocalize "$ABSOLUTE_PROJECT_FILE" --prerelease
+    "$scripts_dir/quickstart_spm_xcodeproj.sh" "$ABSOLUTE_PROJECT_FILE" --prerelease
 
   else
     # For PR testing, point to the current commit.
     CURRENT_REVISION=$(git rev-parse HEAD)
     echo "Setting SPM dependency to current revision: ${CURRENT_REVISION}"
-    swift run --package-path "$scripts_dir/spm-localizer" SPMLocalize "$ABSOLUTE_PROJECT_FILE" --revision "$CURRENT_REVISION"
+    "$scripts_dir/quickstart_spm_xcodeproj.sh" "$ABSOLUTE_PROJECT_FILE" --revision "$CURRENT_REVISION"
   fi
 
 else
