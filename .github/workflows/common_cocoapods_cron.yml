@@ -77,5 +77,5 @@ jobs:
         max_attempts: 3
         retry_wait_seconds: 120
         command: |
-          scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb \
+          scripts/pod_lib_lint.rb \
             ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }} ${{ matrix.flag }}
