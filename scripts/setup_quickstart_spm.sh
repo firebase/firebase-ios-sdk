@@ -52,7 +52,7 @@ scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$(dirname "$scripts_dir")"
 
 # Source function to check if CI secrets are available.
-source $scripts_dir/check_secrets.sh
+source "$scripts_dir/check_secrets.sh"
 
 SAMPLE=$1
 RELEASE_TESTING=${2-}
