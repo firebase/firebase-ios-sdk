@@ -441,25 +441,14 @@ struct GenerateContentIntegrationTests {
     let response = try await model.generateContent(prompt)
 
     let candidate = try #require(response.candidates.first)
-    let groundingMetadata = try #require(candidate.groundingMetadata)
-    #expect(!groundingMetadata.groundingChunks.isEmpty)
-    #expect(!groundingMetadata.groundingSupports.isEmpty)
-
-    for chunk in groundingMetadata.groundingChunks {
-      #expect(chunk.web != nil)
-    }
-
-    for support in groundingMetadata.groundingSupports {
-      let segment = support.segment
-      #expect(segment.endIndex > segment.startIndex)
-      #expect(!segment.text.isEmpty)
-      #expect(!support.groundingChunkIndices.isEmpty)
-
-      // Ensure indices point to valid chunks
-      for index in support.groundingChunkIndices {
-        #expect(index < groundingMetadata.groundingChunks.count)
-      }
-    }
+    let urlContextMetadata = try #require(candidate.urlContextMetadata)
+    #expect(urlContextMetadata.urlMetadata.count == 1)
+    let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try #require(urlMetadata.retrievedURL)
+    #expect(
+      retrievedURL == URL(string: "https://developers.googleblog.com/en/introducing-gemma-3-270m/")
+    )
+    #expect(urlMetadata.retrievalStatus == .success)
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
