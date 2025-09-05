@@ -21,6 +21,7 @@ public struct URLContextMetadata: Sendable, Hashable {
 
 // MARK: - Codable Conformances
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension URLContextMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case urlMetadata
