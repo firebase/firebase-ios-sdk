@@ -21,12 +21,16 @@ set -euo pipefail
 
 if [[ -z "${1:-}" ]]; then
   cat <<EOF
-Usage: $(basename "$0") <sample_name> [nightly_release_testing|prerelease_testing]
+Usage: $(basename "$0") <sample_name> [testing_mode]
 
 This script sets up a quickstart sample for SPM integration testing.
 
 ARGUMENTS:
-  <sample_name> The name of the quickstart sample directory (e.g., "authentication").
+  <sample_name>   The name of the quickstart sample directory (e.g., "authentication").
+  [testing_mode]  Optional. Specifies the testing mode. Can be one of:
+                  - "nightly_release_testing": Points SPM to the latest CocoaPods tag.
+                  - "prerelease_testing": Points SPM to the tip of the main branch.
+                  - (default): Points SPM to the current commit for PR testing.
 
 ENVIRONMENT VARIABLES:
   QUICKSTART_REPO: Optional. Path to a local clone of the quickstart-ios repo.
@@ -50,15 +54,6 @@ root_dir="$(dirname "$scripts_dir")"
 # Source function to check if CI secrets are available.
 source $scripts_dir/check_secrets.sh
 
-# Arguments:
-#   SAMPLE: The name of the quickstart sample directory.
-#   RELEASE_TESTING: Optional. Can be "nightly_release_testing" or "prerelease_testing".
-#
-# Environment Variable:
-#   QUICKSTART_REPO: Optional. Path to a local clone of the quickstart-ios repo.
-#                    If not set, the script will clone it from GitHub.
-#                    Example:
-#                    QUICKSTART_REPO=/path/to/my/quickstart-ios ./scripts/setup_quickstart_spm.sh authentication
 SAMPLE=$1
 RELEASE_TESTING=${2-}
 
