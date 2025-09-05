@@ -447,7 +447,8 @@ struct GenerateContentIntegrationTests {
     #expect(codeExecutionResults.count == 1)
     let codeExecutionResultPart = try #require(codeExecutionResults.first)
     #expect(codeExecutionResultPart.outcome == .ok)
-    #expect(codeExecutionResultPart.output.contains("28")) // 2 + 3 + 5 + 7 + 11 = 28
+    let output = try #require(codeExecutionResultPart.output)
+    #expect(output.contains("28")) // 2 + 3 + 5 + 7 + 11 = 28
     let text = try #require(response.text)
     #expect(text.contains("28"))
   }
