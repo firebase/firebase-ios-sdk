@@ -17,7 +17,12 @@
 # Modify a .xcodeproj to use a specific branch, version, or commit for the
 # firebase-ios-sdk SPM dependency.
 
-set -xeuo pipefail
+set -euo pipefail
+
+# Enable trace mode if DEBUG is set to 'true'
+if [[ "${DEBUG:-false}" == "true" ]]; then
+  set -x
+fi
 
 # --- Argument parsing ---
 if [[ $# -lt 2 ]]; then
