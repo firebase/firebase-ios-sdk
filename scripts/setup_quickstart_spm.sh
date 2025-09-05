@@ -57,8 +57,6 @@ source "$scripts_dir/check_secrets.sh"
 SAMPLE=$1
 RELEASE_TESTING=${2-}
 
-QUICKSTART_PROJECT_DIR="quickstart-ios/${SAMPLE}"
-
 # TODO: Investigate moving this to a shared prereq script.
 if ! gem list -i xcpretty > /dev/null; then
   gem install xcpretty
