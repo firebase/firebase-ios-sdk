@@ -21,6 +21,8 @@
 set -xeuo pipefail
 
 SAMPLE=$1
+SAMPLE_DIR=$(echo "$SAMPLE" | perl -ne 'print lc')
+SAMPLE_XCODEPROJ=${SAMPLE_DIR}/${SAMPLE}Example.xcodeproj
 
 scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -32,7 +34,7 @@ git clone https://github.com/firebase/quickstart-ios.git
 
 cd quickstart-ios
 
-source "$scripts_dir/quickstart_spm_xcodeproj.sh" "$SAMPLE"
+source "$scripts_dir/quickstart_spm_xcodeproj.sh" "$SAMPLE_XCODEPROJ" --branch "$BRANCH_NAME"
 
 # Placeholder GoogleService-Info.plist good enough for build only testing.
 cp ./mock-GoogleService-Info.plist ./firebaseai/GoogleService-Info.plist

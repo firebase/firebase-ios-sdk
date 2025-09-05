@@ -22,7 +22,8 @@ set -xeuo pipefail
 # --- Argument parsing ---
 if [[ $# -lt 2 ]]; then
   echo "Modify a .xcodeproj to use a specific branch, version, or commit for the"
-  echo "firebase-ios-sdk SPM dependency.\n"
+  echo "firebase-ios-sdk SPM dependency."
+  echo ""
   echo "Usage: $0 <path_to.xcodeproj> [--version <version> | --revision <revision> | --prerelease | --branch <branch>]"
   exit 1
 fi
