@@ -113,7 +113,7 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
   # the quickstart repo.
   # (cd "$QUICKSTART_DIR"; git checkout {BRANCH_NAME})
 
-  if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
+  if [[ "$RELEASE_TESTING" == "nightly_release_testing" ]]; then
     # For release testing, find the latest CocoaPods tag.
     LATEST_TAG=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
     if [[ -z "$LATEST_TAG" ]]; then
@@ -123,7 +123,7 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
     echo "Setting SPM dependency to latest version: ${LATEST_TAG}"
     "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --branch "$LATEST_TAG"
 
-  elif [ "$RELEASE_TESTING" == "prerelease_testing" ]; then
+  elif [[ "$RELEASE_TESTING" == "prerelease_testing" ]]; then
     # For prerelease testing, point to the tip of the main branch.
     echo "Setting SPM dependency to the tip of the main branch."
     "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --prerelease
