@@ -174,6 +174,13 @@ public final class GenerativeModel: Sendable {
       throw GenerateContentError.responseStoppedEarly(reason: reason, response: response)
     }
 
+    // If all candidates are empty (contain no information that a developer could act on) then throw
+    if response.candidates.allSatisfy({ $0.isEmpty }) {
+      throw GenerateContentError.internalError(underlying: InvalidCandidateError.emptyContent(
+        underlyingError: Candidate.EmptyContentError()
+      ))
+    }
+
     return response
   }
 
@@ -223,6 +230,7 @@ public final class GenerativeModel: Sendable {
       let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
       Task {
         do {
+          var didYieldResponse = false
           for try await response in responseStream {
             // Check the prompt feedback to see if the prompt was blocked.
             if response.promptFeedback?.blockReason != nil {
@@ -237,9 +245,30 @@ public final class GenerativeModel: Sendable {
               )
             }
 
-            continuation.yield(response)
+            // Skip returning the response if all candidates are empty (i.e., they contain no
+            // information that a developer could act on).
+            if response.candidates.allSatisfy({ $0.isEmpty }) {
+              AILog.log(
+                level: .debug,
+                code: .generateContentResponseEmptyCandidates,
+                "Skipped response with all empty candidates: \(response)"
+              )
+            } else {
+              continuation.yield(response)
+              didYieldResponse = true
+            }
           }
-          continuation.finish()
+
+          // Throw an error if all responses were skipped due to empty content.
+          if didYieldResponse {
+            continuation.finish()
+          } else {
+            continuation.finish(throwing: GenerativeModel.generateContentError(
+              from: InvalidCandidateError.emptyContent(
+                underlyingError: Candidate.EmptyContentError()
+              )
+            ))
+          }
         } catch {
           continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
           return

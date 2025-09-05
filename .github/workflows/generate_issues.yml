@@ -7,7 +7,7 @@ on:
     - '.github/workflows/generate_issues.yml'
     - '.github/actions/testing_report_generation**'
   schedule:
-    # Run every day at 4am (PST) - cron uses UTC times
+    # Run every day at 5am (PDT) / 8am (EDT) - cron uses UTC times
     - cron:  '0 12 * * *'
 
 permissions:

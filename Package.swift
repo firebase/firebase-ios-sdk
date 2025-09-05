@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.2.0"
+let firebaseVersion = "12.3.0"
 
 let package = Package(
   name: "Firebase",
@@ -329,8 +329,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.1.0/FirebaseAnalytics.zip",
-      checksum: "57ab43b31bc0b804bb09db48d77d713fa7834085bc5aa7e2cd1b5369e63a697d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.2.0/FirebaseAnalytics.zip",
+      checksum: "f1b07dabcdf3f2b6c495af72baa55e40672a625b8a1b6c631fb43ec74a2ec1ca"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1003,6 +1003,7 @@ let package = Package(
         "FirebaseABTesting",
         "FirebaseInstallations",
         "FirebaseRemoteConfigInterop",
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
       path: "FirebaseRemoteConfig/Sources",
@@ -1100,6 +1101,13 @@ let package = Package(
         "FirebaseInstallations",
         "FirebaseCoreExtension",
         "FirebaseSessionsObjC",
+         // The `FirebaseSessions` target transitively depends on nanopb via the internal
+         // `FirebaseSessionsObjC` target. Not explicitly depending on nanopb leads to
+         // undefined symbol errors in Tuist based SPM builds.
+         // See the conversations in
+         // - https://github.com/firebase/firebase-ios-sdk/issues/15276
+         // - https://github.com/firebase/firebase-ios-sdk/pull/15287
+        .product(name: "nanopb", package: "nanopb"),
         .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -1384,7 +1392,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.1.0")
+  return .package(url: appMeasurementURL, exact: "12.2.0")
 }
 
 func abseilDependency() -> Package.Dependency {

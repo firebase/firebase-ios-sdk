@@ -27,18 +27,29 @@ public final class FirebaseAI: Sendable {
 
   /// Creates an instance of `FirebaseAI`.
   ///
-  ///  - Parameters:
+  /// - Parameters:
   ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
   ///     ``FirebaseApp``.
   ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
   ///     ``Backend/googleAI()`` (Gemini Developer API).
+  ///   - useLimitedUseAppCheckTokens: When sending tokens to the backend, this option enables
+  ///     the usage of App Check's limited-use tokens instead of the standard cached tokens. Learn
+  ///     more about [limited-use tokens](https://firebase.google.com/docs/ai-logic/app-check),
+  ///     including their nuances, when to use them, and best practices for integrating them into
+  ///     your app.
+  ///
+  ///     _This flag is set to `false` by default._
+  ///   > Migrating to limited-use tokens sooner minimizes disruption when support for replay
+  ///   > protection is added.
   /// - Returns: A `FirebaseAI` instance, configured with the custom `FirebaseApp`.
   public static func firebaseAI(app: FirebaseApp? = nil,
-                                backend: Backend = .googleAI()) -> FirebaseAI {
+                                backend: Backend = .googleAI(),
+                                useLimitedUseAppCheckTokens: Bool = false) -> FirebaseAI {
     let instance = createInstance(
       app: app,
       location: backend.location,
-      apiConfig: backend.apiConfig
+      apiConfig: backend.apiConfig,
+      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
     // Verify that the `FirebaseAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
@@ -156,7 +167,8 @@ public final class FirebaseAI: Sendable {
   )
 
   static func createInstance(app: FirebaseApp?, location: String?,
-                             apiConfig: APIConfig) -> FirebaseAI {
+                             apiConfig: APIConfig,
+                             useLimitedUseAppCheckTokens: Bool) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
       fatalError("No instance of the default Firebase app was found.")
     }
@@ -166,16 +178,27 @@ public final class FirebaseAI: Sendable {
     // Unlock before the function returns.
     defer { os_unfair_lock_unlock(&instancesLock) }
 
-    let instanceKey = InstanceKey(appName: app.name, location: location, apiConfig: apiConfig)
+    let instanceKey = InstanceKey(
+      appName: app.name,
+      location: location,
+      apiConfig: apiConfig,
+      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
+    )
     if let instance = instances[instanceKey] {
       return instance
     }
-    let newInstance = FirebaseAI(app: app, location: location, apiConfig: apiConfig)
+    let newInstance = FirebaseAI(
+      app: app,
+      location: location,
+      apiConfig: apiConfig,
+      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
+    )
     instances[instanceKey] = newInstance
     return newInstance
   }
 
-  init(app: FirebaseApp, location: String?, apiConfig: APIConfig) {
+  init(app: FirebaseApp, location: String?, apiConfig: APIConfig,
+       useLimitedUseAppCheckTokens: Bool) {
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
     }
@@ -191,7 +214,8 @@ public final class FirebaseAI: Sendable {
       projectID: projectID,
       apiKey: apiKey,
       firebaseAppID: app.options.googleAppID,
-      firebaseApp: app
+      firebaseApp: app,
+      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
     self.apiConfig = apiConfig
     self.location = location
@@ -249,5 +273,6 @@ public final class FirebaseAI: Sendable {
     let appName: String
     let location: String?
     let apiConfig: APIConfig
+    let useLimitedUseAppCheckTokens: Bool
   }
 }

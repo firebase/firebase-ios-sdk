@@ -1,4 +1,4 @@
-# Unreleased
+# 12.2.0
 - [added] Added TOTP support for macOS.
 
 # 12.1.0

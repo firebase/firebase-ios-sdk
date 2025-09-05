@@ -41,9 +41,8 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        timeout_minutes: 120
+        timeout_minutes: 15
         max_attempts: 3
-        retry_on: error
         retry_wait_seconds: 120
         command: |
           scripts/test_catalyst.sh \

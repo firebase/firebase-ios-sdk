@@ -10,7 +10,7 @@ on:
     - '.github/workflows/notice_generation.yml'
     - '.github/actions/notices_generation**'
   schedule:
-    # Run every day at 2am (PST) - cron uses UTC times
+    # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
     - cron:  '0 10 * * *'
 jobs:
   generate_a_notice:

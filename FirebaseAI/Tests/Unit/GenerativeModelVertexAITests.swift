@@ -434,6 +434,29 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(text, "The sum of [1, 2, 3] is")
   }
 
+  func testGenerateContent_success_thinking_thoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-thinking-reply-thought-summary",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.finishReason, .stop)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let thoughtPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+    XCTAssertTrue(thoughtPart.isThought)
+    XCTAssertTrue(thoughtPart.text.hasPrefix("Right, someone needs the city where Google"))
+    XCTAssertEqual(response.thoughtSummary, thoughtPart.text)
+    let textPart = try XCTUnwrap(candidate.content.parts.last as? TextPart)
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(textPart.text, "Mountain View")
+    XCTAssertEqual(response.text, textPart.text)
+  }
+
   func testGenerateContent_success_image_invalidSafetyRatingsIgnored() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-image-invalid-safety-ratings",
@@ -452,6 +475,27 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let imagePart = try XCTUnwrap(inlineDataParts.first)
     XCTAssertEqual(imagePart.mimeType, "image/png")
     XCTAssertGreaterThan(imagePart.data.count, 0)
+  }
+
+  func testGenerateContent_success_image_emptyPartIgnored() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-empty-part",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let inlineDataParts = response.inlineDataParts
+    XCTAssertEqual(inlineDataParts.count, 1)
+    let imagePart = try XCTUnwrap(inlineDataParts.first)
+    XCTAssertEqual(imagePart.mimeType, "image/png")
+    XCTAssertGreaterThan(imagePart.data.count, 0)
+    let text = try XCTUnwrap(response.text)
+    XCTAssertTrue(text.starts(with: "I can certainly help you with that"))
   }
 
   func testGenerateContent_appCheck_validToken() async throws {
@@ -473,6 +517,31 @@ final class GenerativeModelVertexAITests: XCTestCase {
         withExtension: "json",
         subdirectory: vertexSubdirectory,
         appCheckToken: appCheckToken
+      )
+
+    _ = try await model.generateContent(testPrompt)
+  }
+
+  func testGenerateContent_appCheck_validToken_limitedUse() async throws {
+    let appCheckToken = "test-valid-token"
+    model = GenerativeModel(
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(
+        appCheck: AppCheckInteropFake(token: appCheckToken),
+        useLimitedUseAppCheckTokens: true
+      ),
+      apiConfig: apiConfig,
+      tools: nil,
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
+    )
+    MockURLProtocol
+      .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+        forResource: "unary-success-basic-reply-short",
+        withExtension: "json",
+        subdirectory: vertexSubdirectory,
+        appCheckToken: "limited_use_\(appCheckToken)"
       )
 
     _ = try await model.generateContent(testPrompt)
@@ -738,12 +807,12 @@ final class GenerativeModelVertexAITests: XCTestCase {
       XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
     } catch let GenerateContentError
       .internalError(underlying: invalidCandidateError as InvalidCandidateError) {
-      guard case let .emptyContent(decodingError) = invalidCandidateError else {
-        XCTFail("Not an InvalidCandidateError.emptyContent error: \(invalidCandidateError)")
+      guard case let .emptyContent(underlyingError) = invalidCandidateError else {
+        XCTFail("Should be an InvalidCandidateError.emptyContent error: \(invalidCandidateError)")
         return
       }
-      _ = try XCTUnwrap(decodingError as? DecodingError,
-                        "Not a DecodingError: \(decodingError)")
+      _ = try XCTUnwrap(underlyingError as? Candidate.EmptyContentError,
+                        "Should be an empty content error: \(underlyingError)")
     } catch {
       XCTFail("Should throw GenerateContentError.internalError; error thrown: \(error)")
     }
@@ -928,7 +997,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertNotNil(responseError)
     let generateContentError = try XCTUnwrap(responseError as? GenerateContentError)
     guard case let .internalError(underlyingError) = generateContentError else {
-      XCTFail("Not an internal error: \(generateContentError)")
+      XCTFail("Should be an internal error: \(generateContentError)")
       return
     }
     XCTAssertEqual(underlyingError.localizedDescription, "Response was not an HTTP response.")
@@ -956,12 +1025,12 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertNotNil(responseError)
     let generateContentError = try XCTUnwrap(responseError as? GenerateContentError)
     guard case let .internalError(underlyingError) = generateContentError else {
-      XCTFail("Not an internal error: \(generateContentError)")
+      XCTFail("Should be an internal error: \(generateContentError)")
       return
     }
     let decodingError = try XCTUnwrap(underlyingError as? DecodingError)
     guard case let .dataCorrupted(context) = decodingError else {
-      XCTFail("Not a data corrupted error: \(decodingError)")
+      XCTFail("Should be a data corrupted error: \(decodingError)")
       return
     }
     XCTAssert(context.debugDescription.hasPrefix("Failed to decode GenerateContentResponse"))
@@ -990,17 +1059,17 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertNotNil(responseError)
     let generateContentError = try XCTUnwrap(responseError as? GenerateContentError)
     guard case let .internalError(underlyingError) = generateContentError else {
-      XCTFail("Not an internal error: \(generateContentError)")
+      XCTFail("Should be an internal error: \(generateContentError)")
       return
     }
     let invalidCandidateError = try XCTUnwrap(underlyingError as? InvalidCandidateError)
     guard case let .emptyContent(emptyContentUnderlyingError) = invalidCandidateError else {
-      XCTFail("Not an empty content error: \(invalidCandidateError)")
+      XCTFail("Should be an empty content error: \(invalidCandidateError)")
       return
     }
     _ = try XCTUnwrap(
-      emptyContentUnderlyingError as? DecodingError,
-      "Not a decoding error: \(emptyContentUnderlyingError)"
+      emptyContentUnderlyingError as? Candidate.EmptyContentError,
+      "Should be an empty content error: \(emptyContentUnderlyingError)"
     )
   }
 
@@ -1330,6 +1399,33 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertFalse(citations.contains { $0.license?.isEmpty ?? false })
   }
 
+  func testGenerateContentStream_successWithThinking_thoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-thinking-reply-thought-summary",
+      withExtension: "txt",
+      subdirectory: vertexSubdirectory
+    )
+
+    var thoughtSummary = ""
+    var text = ""
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.content.parts.count, 1)
+      let part = try XCTUnwrap(candidate.content.parts.first)
+      let textPart = try XCTUnwrap(part as? TextPart)
+      if textPart.isThought {
+        let newThought = try XCTUnwrap(response.thoughtSummary)
+        thoughtSummary.append(newThought)
+      } else {
+        text.append(textPart.text)
+      }
+    }
+
+    XCTAssertTrue(thoughtSummary.hasPrefix("**Understanding the Core Question**"))
+    XCTAssertTrue(text.hasPrefix("The sky is blue due to a phenomenon"))
+  }
+
   func testGenerateContentStream_successWithInvalidSafetyRatingsIgnored() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "streaming-success-image-invalid-safety-ratings",
@@ -1488,7 +1584,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       }
     } catch let GenerateContentError.internalError(underlying as DecodingError) {
       guard case let .dataCorrupted(context) = underlying else {
-        XCTFail("Not a data corrupted error: \(underlying)")
+        XCTFail("Should be a data corrupted error: \(underlying)")
         return
       }
       XCTAssert(context.debugDescription.hasPrefix("Failed to decode GenerateContentResponse"))
@@ -1516,11 +1612,11 @@ final class GenerativeModelVertexAITests: XCTestCase {
       }
     } catch let GenerateContentError.internalError(underlyingError as InvalidCandidateError) {
       guard case let .emptyContent(contentError) = underlyingError else {
-        XCTFail("Not an empty content error: \(underlyingError)")
+        XCTFail("Should be an empty content error: \(underlyingError)")
         return
       }
 
-      XCTAssert(contentError is DecodingError)
+      XCTAssert(contentError is Candidate.EmptyContentError)
       return
     }
 
