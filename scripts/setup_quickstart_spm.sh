@@ -101,12 +101,13 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
   QUICKSTART_PROJECT_DIR="${QUICKSTART_DIR}/${SAMPLE}"
 
   # Find the .xcodeproj file within the sample directory.
-  # Note: This assumes there is only one .xcodeproj file.
-  PROJECT_FILE=$(find "$QUICKSTART_PROJECT_DIR" -maxdepth 1 -name "*.xcodeproj" | head -n 1)
-  if [[ -z "$PROJECT_FILE" ]]; then
-    echo "Error: Could not find .xcodeproj file in ${QUICKSTART_PROJECT_DIR}"
+  # Fail if there isn't exactly one.
+  PROJECT_FILES=($(find "$QUICKSTART_PROJECT_DIR" -maxdepth 1 -name "*.xcodeproj"))
+  if [[ ${#PROJECT_FILES[@]} -ne 1 ]]; then
+    echo "Error: Expected 1 .xcodeproj file in ${QUICKSTART_PROJECT_DIR}, but found ${#PROJECT_FILES[@]}." >&2
     exit 1
   fi
+  PROJECT_FILE="${PROJECT_FILES[0]}"
 
   # The update script needs an absolute path to the project file.
   if [[ -z "${QUICKSTART_REPO:-}" ]]; then
