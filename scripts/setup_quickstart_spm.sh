@@ -115,27 +115,31 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
   # the quickstart repo.
   # (cd "$QUICKSTART_DIR"; git checkout {BRANCH_NAME})
 
-  if [[ "$RELEASE_TESTING" == "$NIGHTLY_RELEASE_TESTING" ]]; then
-    # For release testing, find the latest CocoaPods tag.
-    LATEST_TAG=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
-    if [[ -z "$LATEST_TAG" ]]; then
-      echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag."
-      exit 1
-    fi
-    echo "Setting SPM dependency to latest version: ${LATEST_TAG}"
-    "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --branch "$LATEST_TAG"
+  case "$RELEASE_TESTING" in
+    "nightly_release_testing")
+      # For release testing, find the latest CocoaPods tag.
+      LATEST_TAG=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
+      if [[ -z "$LATEST_TAG" ]]; then
+        echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag."
+        exit 1
+      fi
+      echo "Setting SPM dependency to latest version: ${LATEST_TAG}"
+      "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --branch "$LATEST_TAG"
+      ;;
 
-  elif [[ "$RELEASE_TESTING" == "$PRERELEASE_TESTING" ]]; then
-    # For prerelease testing, point to the tip of the main branch.
-    echo "Setting SPM dependency to the tip of the main branch."
-    "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --prerelease
+    "prerelease_testing")
+      # For prerelease testing, point to the tip of the main branch.
+      echo "Setting SPM dependency to the tip of the main branch."
+      "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --prerelease
+      ;;
 
-  else
-    # For PR testing, point to the current commit.
-    CURRENT_REVISION=$(git rev-parse HEAD)
-    echo "Setting SPM dependency to current revision: ${CURRENT_REVISION}"
-    "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --revision "$CURRENT_REVISION"
-  fi
+    *)
+      # For PR testing, point to the current commit.
+      CURRENT_REVISION=$(git rev-parse HEAD)
+      echo "Setting SPM dependency to current revision: ${CURRENT_REVISION}"
+      "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --revision "$CURRENT_REVISION"
+      ;;
+  esac
 
 else
   echo "Skipping quickstart setup: CI secrets are not available."
