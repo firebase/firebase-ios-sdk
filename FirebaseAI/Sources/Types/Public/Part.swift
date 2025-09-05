@@ -229,14 +229,16 @@ public struct ExecutableCodePart: Part {
     ExecutableCodePart.Language(
       // Fallback to "LANGUAGE_UNSPECIFIED" if the value is ever omitted by the backend; this should
       // never happen.
-      executableCode.language ?? ExecutableCode.Language(kind: .unspecified)
+      AILog.safeUnwrap(
+        executableCode.language, fallback: ExecutableCode.Language(kind: .unspecified)
+      )
     )
   }
 
   /// The code that was executed.
   public var code: String {
     // Fallback to empty string if `code` is ever omitted by the backend; this should never happen.
-    executableCode.code ?? ""
+    AILog.safeUnwrap(executableCode.code, fallback: "")
   }
 
   public var isThought: Bool { _isThought ?? false }
@@ -290,15 +292,14 @@ public struct CodeExecutionResultPart: Part {
     CodeExecutionResultPart.Outcome(
       // Fallback to "OUTCOME_UNSPECIFIED" if this value is ever omitted by the backend; this should
       // never happen.
-      codeExecutionResult.outcome ?? CodeExecutionResult.Outcome(kind: .unspecified)
+      AILog.safeUnwrap(
+        codeExecutionResult.outcome, fallback: CodeExecutionResult.Outcome(kind: .unspecified)
+      )
     )
   }
 
   /// The output of the code execution.
-  public var output: String {
-    // Fallback to empty string if `output` is omitted by the backend; this should never happen.
-    codeExecutionResult.output ?? ""
-  }
+  public var output: String? { codeExecutionResult.output }
 
   public var isThought: Bool { _isThought ?? false }
 
