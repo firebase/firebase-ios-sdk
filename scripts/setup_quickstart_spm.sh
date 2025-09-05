@@ -135,7 +135,7 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
       "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --branch "$LATEST_TAG"
       ;;
 
-    "prerelease_testing")
+    "${PRERELEASE_TESTING}")
       # For prerelease testing, point to the tip of the main branch.
       echo "Setting SPM dependency to the tip of the main branch."
       "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --prerelease
