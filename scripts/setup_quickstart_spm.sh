@@ -66,7 +66,7 @@ fi
 
 # Some quickstarts may not need a real GoogleService-Info.plist for their tests.
 # When QUICKSTART_REPO is set, we are running locally and should skip the secrets check.
-if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ ${SAMPLE} == "installations" ]]; then
+if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "installations" ]]; then
 
   # Use local quickstart repo if QUICKSTART_REPO is set, otherwise clone it.
   if [[ -n "${QUICKSTART_REPO:-}" && -d "${QUICKSTART_REPO}" ]]; then
