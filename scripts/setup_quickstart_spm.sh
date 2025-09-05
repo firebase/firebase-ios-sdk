@@ -19,6 +19,10 @@
 
 set -euo pipefail
 
+# Define testing mode constants.
+readonly NIGHTLY_RELEASE_TESTING="nightly_release_testing"
+readonly PRERELEASE_TESTING="prerelease_testing"
+
 if [[ -z "${1:-}" ]]; then
   cat <<EOF
 Usage: $(basename "$0") <sample_name> [testing_mode]
@@ -28,8 +32,8 @@ This script sets up a quickstart sample for SPM integration testing.
 ARGUMENTS:
   <sample_name>   The name of the quickstart sample directory (e.g., "authentication").
   [testing_mode]  Optional. Specifies the testing mode. Can be one of:
-                  - "nightly_release_testing": Points SPM to the latest CocoaPods tag.
-                  - "prerelease_testing": Points SPM to the tip of the main branch.
+                  - "${NIGHTLY_RELEASE_TESTING}": Points SPM to the latest CocoaPods tag.
+                  - "${PRERELEASE_TESTING}": Points SPM to the tip of the main branch.
                   - (default): Points SPM to the current commit for PR testing.
 
 ENVIRONMENT VARIABLES:
@@ -111,7 +115,7 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
   # the quickstart repo.
   # (cd "$QUICKSTART_DIR"; git checkout {BRANCH_NAME})
 
-  if [[ "$RELEASE_TESTING" == "nightly_release_testing" ]]; then
+  if [[ "$RELEASE_TESTING" == "$NIGHTLY_RELEASE_TESTING" ]]; then
     # For release testing, find the latest CocoaPods tag.
     LATEST_TAG=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
     if [[ -z "$LATEST_TAG" ]]; then
@@ -121,7 +125,7 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
     echo "Setting SPM dependency to latest version: ${LATEST_TAG}"
     "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --branch "$LATEST_TAG"
 
-  elif [[ "$RELEASE_TESTING" == "prerelease_testing" ]]; then
+  elif [[ "$RELEASE_TESTING" == "$PRERELEASE_TESTING" ]]; then
     # For prerelease testing, point to the tip of the main branch.
     echo "Setting SPM dependency to the tip of the main branch."
     "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --prerelease
