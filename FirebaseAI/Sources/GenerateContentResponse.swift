@@ -154,14 +154,19 @@ public struct Candidate: Sendable {
 
   public let groundingMetadata: GroundingMetadata?
 
+  /// Metadata related to the ``URLContext`` tool.
+  public let urlContextMetadata: URLContextMetadata?
+
   /// Initializer for SwiftUI previews or tests.
   public init(content: ModelContent, safetyRatings: [SafetyRating], finishReason: FinishReason?,
-              citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil) {
+              citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil,
+              urlContextMetadata: URLContextMetadata? = nil) {
     self.content = content
     self.safetyRatings = safetyRatings
     self.finishReason = finishReason
     self.citationMetadata = citationMetadata
     self.groundingMetadata = groundingMetadata
+    self.urlContextMetadata = urlContextMetadata
   }
 
   // Returns `true` if the candidate contains no information that a developer could use.
@@ -499,6 +504,7 @@ extension Candidate: Decodable {
     case finishReason
     case citationMetadata
     case groundingMetadata
+    case urlContextMetadata
   }
 
   /// Initializes a response from a decoder. Used for decoding server responses; not for public
@@ -540,6 +546,14 @@ extension Candidate: Decodable {
       GroundingMetadata.self,
       forKey: .groundingMetadata
     )
+
+    if let urlContextMetadata =
+      try container.decodeIfPresent(URLContextMetadata.self, forKey: .urlContextMetadata),
+      !urlContextMetadata.urlMetadata.isEmpty {
+      self.urlContextMetadata = urlContextMetadata
+    } else {
+      urlContextMetadata = nil
+    }
   }
 }
 
