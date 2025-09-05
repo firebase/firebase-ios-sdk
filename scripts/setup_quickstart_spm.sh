@@ -102,13 +102,14 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
     exit 1
   fi
 
-  # The localization script needs an absolute path to the project file.
-  # If QUICKSTART_REPO was provided, PROJECT_FILE is already an absolute or user-provided path.
-  # Otherwise, it's relative to the firebase-ios-sdk root.
-  if [[ -n "${QUICKSTART_REPO:-}" && -d "${QUICKSTART_REPO}" ]]; then
-    ABSOLUTE_PROJECT_FILE="$PROJECT_FILE"
-  else
+  # The update script needs an absolute path to the project file.
+  if [[ -z "${QUICKSTART_REPO:-}" ]]; then
+    # When cloning, the project file path is relative to the SDK root.
     ABSOLUTE_PROJECT_FILE="$root_dir/$PROJECT_FILE"
+  else
+    # When using a local repo, the path could be relative to the current
+    # directory. Resolve it to an absolute path.
+    ABSOLUTE_PROJECT_FILE="$(cd "$(dirname "$PROJECT_FILE")" && pwd)/$(basename "$PROJECT_FILE")"
   fi
 
   # NOTE: Uncomment below and replace `{BRANCH_NAME}` for testing a branch of
@@ -135,7 +136,7 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
 
     *)
       # For PR testing, point to the current commit.
-      CURRENT_REVISION=$(git rev-parse HEAD)
+      CURRENT_REVISION=$(git -C "$root_dir" rev-parse HEAD)
       echo "Setting SPM dependency to current revision: ${CURRENT_REVISION}"
       "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --revision "$CURRENT_REVISION"
       ;;
