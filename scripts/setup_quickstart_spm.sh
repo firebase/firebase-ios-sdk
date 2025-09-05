@@ -112,7 +112,6 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ ${SAMPLE} == "installa
   # NOTE: Uncomment below and replace `{BRANCH_NAME}` for testing a branch of
   # the quickstart repo.
   # (cd "$QUICKSTART_DIR"; git checkout {BRANCH_NAME})
-  (cd "$QUICKSTART_DIR"; git checkout mc/spm)
 
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
     # For release testing, find the latest CocoaPods tag.
