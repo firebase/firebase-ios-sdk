@@ -70,11 +70,17 @@ fi
 # When QUICKSTART_REPO is set, we are running locally and should skip the secrets check.
 if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "installations" ]]; then
 
-  # Use local quickstart repo if QUICKSTART_REPO is set, otherwise clone it.
-  if [[ -n "${QUICKSTART_REPO:-}" && -d "${QUICKSTART_REPO}" ]]; then
+  # If QUICKSTART_REPO is set, use it. Otherwise, clone the repo.
+  if [[ -n "${QUICKSTART_REPO:-}" ]]; then
+    # If the user provided a path, it must be a valid directory.
+    if [[ ! -d "${QUICKSTART_REPO}" ]]; then
+      echo "Error: QUICKSTART_REPO is set to '${QUICKSTART_REPO}', but this is not a valid directory." >&2
+      exit 1
+    fi
     echo "Using local quickstart repository at ${QUICKSTART_REPO}"
     QUICKSTART_DIR="${QUICKSTART_REPO}"
   else
+    # QUICKSTART_REPO is not set, so clone it.
     QUICKSTART_DIR="quickstart-ios"
     if [[ -d "${QUICKSTART_DIR}" ]]; then
       echo "Quickstart repository already exists at ${QUICKSTART_DIR}"
