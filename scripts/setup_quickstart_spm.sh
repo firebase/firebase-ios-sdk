@@ -124,7 +124,7 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
   # (cd "$QUICKSTART_DIR"; git checkout {BRANCH_NAME})
 
   case "$RELEASE_TESTING" in
-    "nightly_release_testing")
+    "${NIGHTLY_RELEASE_TESTING}")
       # For release testing, find the latest CocoaPods tag.
       LATEST_TAG=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
       if [[ -z "$LATEST_TAG" ]]; then
