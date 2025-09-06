@@ -149,6 +149,14 @@ main() {
   local sample="$1"
   local release_testing="${2-}"
 
+  if [[ -n "${release_testing}" && \
+        "${release_testing}" != "${NIGHTLY_RELEASE_TESTING}" && \
+        "${release_testing}" != "${PRERELEASE_TESTING}" ]]; then
+    echo "Error: Invalid testing_mode: '${release_testing}'" >&2
+    print_usage
+    exit 1
+  fi
+
   # --- Environment Setup and Validation ---
   # Enable trace mode if DEBUG is set to 'true'
   if [[ "${DEBUG:-false}" == "true" ]]; then
