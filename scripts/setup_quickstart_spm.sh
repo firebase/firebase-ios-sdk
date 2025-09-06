@@ -61,9 +61,11 @@ source "$scripts_dir/check_secrets.sh"
 SAMPLE=$1
 RELEASE_TESTING=${2-}
 
-# TODO: Investigate moving this to a shared prereq script.
-if ! gem list -i xcpretty > /dev/null; then
-  gem install xcpretty
+# Check if the xcpretty command is available in the PATH.
+if ! command -v xcpretty >/dev/null 2>&1; then
+  echo "Error: xcpretty command not found. Please install it." >&2
+  echo "You can typically install it using: 'gem install xcpretty' or 'brew install xcpretty'" >&2
+  exit 1
 fi
 
 # Some quickstarts may not need a real GoogleService-Info.plist for their tests.
