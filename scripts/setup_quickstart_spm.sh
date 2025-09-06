@@ -224,10 +224,6 @@ main() {
   fi
   local project_file="${project_files[0]}"
 
-  # NOTE: Uncomment below and replace `{BRANCH_NAME}` for testing a branch of
-  # the quickstart repo.
-  # (cd "$quickstart_dir"; git checkout {BRANCH_NAME})
-
   update_spm_dependency "$release_testing" "$project_file"
 }
 
