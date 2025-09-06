@@ -114,7 +114,7 @@ update_spm_dependency() {
     "${NIGHTLY_RELEASE_TESTING}")
       # For release testing, find the latest CocoaPods tag.
       local latest_tag
-      latest_tag=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
+      latest_tag=$(git -C "$root_dir" tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
       if [[ -z "$latest_tag" ]]; then
         echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag." >&2
         exit 1
