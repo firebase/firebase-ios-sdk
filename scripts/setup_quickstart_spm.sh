@@ -23,7 +23,15 @@ set -euo pipefail
 readonly NIGHTLY_RELEASE_TESTING="nightly_release_testing"
 readonly PRERELEASE_TESTING="prerelease_testing"
 
-if [[ -z "${1:-}" ]]; then
+# All script logic is contained in functions. The main function is called at the end.
+# Global variables:
+#   - readonly constants are defined at the top.
+#   - scripts_dir and root_dir are set after constants.
+
+scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root_dir="$(dirname "$scripts_dir")"
+
+print_usage() {
   cat <<EOF
 Usage: $(basename "$0") <sample_name> [testing_mode]
 
@@ -44,114 +52,162 @@ ENVIRONMENT VARIABLES:
   BYPASS_SECRET_CHECK: Optional. Set to "true" to bypass the CI secret check for local runs.
                        Example: BYPASS_SECRET_CHECK=true $(basename "$0") authentication
 EOF
-  exit 1
-fi
+}
 
-# Enable trace mode if DEBUG is set to 'true'
-if [[ "${DEBUG:-false}" == "true" ]]; then
-  set -x
-fi
-
-scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-root_dir="$(dirname "$scripts_dir")"
-
-# Source function to check if CI secrets are available.
-source "$scripts_dir/check_secrets.sh"
-
-SAMPLE="$1"
-RELEASE_TESTING="${2-}"
-
-# Check if the xcpretty command is available in the PATH.
-if ! command -v xcpretty >/dev/null 2>&1; then
-  echo "Error: xcpretty command not found. Please install it." >&2
-  echo "You can typically install it using: 'gem install xcpretty' or 'brew install xcpretty'" >&2
-  exit 1
-fi
-
-# Skip setup in CI if secrets are not available. This check is bypassed for local
-# runs, if BYPASS_SECRET_CHECK is true, or for samples that don't require secrets.
-if [[ -z "${QUICKSTART_REPO:-}" ]] && \
-   [[ "${BYPASS_SECRET_CHECK:-}" != "true" ]] && \
-   ! check_secrets && \
-   [[ "${SAMPLE}" != "installations" ]]; then
-  echo "Skipping quickstart setup: CI secrets are not available."
-  exit 0
-fi
-
-# If QUICKSTART_REPO is set, use it. Otherwise, clone the repo.
-if [[ -n "${QUICKSTART_REPO:-}" ]]; then
-  # If the user provided a path, it must be a valid directory.
-  if [[ ! -d "${QUICKSTART_REPO}" ]]; then
-    echo "Error: QUICKSTART_REPO is set to '${QUICKSTART_REPO}', but this is not a valid directory." >&2
+check_prerequisites() {
+  # Check if the xcpretty command is available in the PATH.
+  if ! command -v xcpretty >/dev/null 2>&1; then
+    echo "Error: xcpretty command not found. Please install it." >&2
+    echo "You can typically install it using: 'gem install xcpretty' or 'brew install xcpretty'" >&2
     exit 1
   fi
-  echo "Using local quickstart repository at ${QUICKSTART_REPO}"
-  QUICKSTART_DIR="${QUICKSTART_REPO}"
-else
-  # QUICKSTART_REPO is not set, so clone it.
-  QUICKSTART_DIR="quickstart-ios"
-  if [[ -d "${QUICKSTART_DIR}" ]]; then
-    echo "Quickstart repository already exists at ${QUICKSTART_DIR}"
-  else
-    echo "Cloning quickstart repository into '${QUICKSTART_DIR}' directory..."
-    # Do a partial, sparse clone to speed up CI. See
-    # https://github.blog/2020-12-21-get-up-to-speed-with-partial-clone-and-shallow-clone/
-    git clone --filter=blob:none --sparse https://github.com/firebase/quickstart-ios.git "${QUICKSTART_DIR}"
-  fi
-  (
-    cd "${QUICKSTART_DIR}"
-    echo "Ensuring sparse checkout is set for ${SAMPLE}..."
-    # Checkout the sample and config directories.
-    git sparse-checkout set "${SAMPLE}" config
-  )
-fi
+}
 
-QUICKSTART_PROJECT_DIR="${QUICKSTART_DIR}/${SAMPLE}"
-
-# Find the .xcodeproj file within the sample directory.
-# Fail if there isn't exactly one.
+# Clones or locates the quickstart repo.
 #
-# Enable nullglob to ensure the glob expands to an empty list if no files are found.
-shopt -s nullglob
-PROJECT_FILES=("$QUICKSTART_PROJECT_DIR"/*.xcodeproj)
-# Restore default globbing behavior.
-shopt -u nullglob
-if [[ ${#PROJECT_FILES[@]} -ne 1 ]]; then
-  echo "Error: Expected 1 .xcodeproj file in ${QUICKSTART_PROJECT_DIR}, but found ${#PROJECT_FILES[@]}." >&2
-  exit 1
-fi
-PROJECT_FILE="${PROJECT_FILES[0]}"
+# Globals:
+#   - QUICKSTART_REPO (read-only)
+# Arguments:
+#   - $1: The name of the sample.
+# Outputs:
+#   - Echoes the absolute path to the quickstart directory.
+setup_quickstart_repo() {
+  local sample_name="$1"
+  local quickstart_dir
 
-# The update script needs an absolute path to the project file.
-ABSOLUTE_PROJECT_FILE="$(cd "$(dirname "$PROJECT_FILE")" && pwd)/$(basename "$PROJECT_FILE")"
-
-# NOTE: Uncomment below and replace `{BRANCH_NAME}` for testing a branch of
-# the quickstart repo.
-# (cd "$QUICKSTART_DIR"; git checkout {BRANCH_NAME})
-
-case "$RELEASE_TESTING" in
-  "${NIGHTLY_RELEASE_TESTING}")
-    # For release testing, find the latest CocoaPods tag.
-    LATEST_TAG=$(git -C "$root_dir" tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
-    if [[ -z "$LATEST_TAG" ]]; then
-      echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag." >&2
+  # If QUICKSTART_REPO is set, use it. Otherwise, clone the repo.
+  if [[ -n "${QUICKSTART_REPO:-}" ]]; then
+    # If the user provided a path, it must be a valid directory.
+    if [[ ! -d "${QUICKSTART_REPO}" ]]; then
+      echo "Error: QUICKSTART_REPO is set to '${QUICKSTART_REPO}', but this is not a valid directory." >&2
       exit 1
     fi
-    echo "Setting SPM dependency to latest version: ${LATEST_TAG}"
-    "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --branch "$LATEST_TAG"
-    ;;
+    echo "Using local quickstart repository at ${QUICKSTART_REPO}"
+    quickstart_dir="${QUICKSTART_REPO}"
+  else
+    # QUICKSTART_REPO is not set, so clone it.
+    quickstart_dir="quickstart-ios"
+    if [[ -d "${quickstart_dir}" ]]; then
+      echo "Quickstart repository already exists at ${quickstart_dir}"
+    else
+      echo "Cloning quickstart repository into '${quickstart_dir}' directory..."
+      # Do a partial, sparse clone to speed up CI. See
+      # https://github.blog/2020-12-21-get-up-to-speed-with-partial-clone-and-shallow-clone/
+      git clone --filter=blob:none --sparse https://github.com/firebase/quickstart-ios.git "${quickstart_dir}"
+    fi
+    (
+      cd "${quickstart_dir}"
+      echo "Ensuring sparse checkout is set for ${sample_name}..."
+      # Checkout the sample and config directories.
+      git sparse-checkout set "${sample_name}" config
+    )
+  fi
+  echo "$quickstart_dir"
+}
 
-  "${PRERELEASE_TESTING}")
-    # For prerelease testing, point to the tip of the main branch.
-    echo "Setting SPM dependency to the tip of the main branch."
-    "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --prerelease
-    ;;
+# Updates the SPM dependency in the Xcode project based on the testing mode.
+#
+# Globals:
+#   - NIGHTLY_RELEASE_TESTING (read-only)
+#   - PRERELEASE_TESTING (read-only)
+#   - scripts_dir (read-only)
+#   - root_dir (read-only)
+# Arguments:
+#   - $1: The testing mode.
+#   - $2: The absolute path to the .xcodeproj file.
+update_spm_dependency() {
+  local release_testing_mode="$1"
+  local absolute_project_file="$2"
 
-  *)
-    # For PR testing, point to the current commit.
-    CURRENT_REVISION=$(git -C "$root_dir" rev-parse HEAD)
-    echo "Setting SPM dependency to current revision: ${CURRENT_REVISION}"
-    "$scripts_dir/update_firebase_spm_dependency.sh" "$ABSOLUTE_PROJECT_FILE" --revision "$CURRENT_REVISION"
-    ;;
-esac
+  case "$release_testing_mode" in
+    "${NIGHTLY_RELEASE_TESTING}")
+      # For release testing, find the latest CocoaPods tag.
+      local latest_tag
+      latest_tag=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
+      if [[ -z "$latest_tag" ]]; then
+        echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag." >&2
+        exit 1
+      fi
+      echo "Setting SPM dependency to latest version: ${latest_tag}"
+      "$scripts_dir/update_firebase_spm_dependency.sh" "$absolute_project_file" --branch "$latest_tag"
+      ;;
 
+    "${PRERELEASE_TESTING}")
+      # For prerelease testing, point to the tip of the main branch.
+      echo "Setting SPM dependency to the tip of the main branch."
+      "$scripts_dir/update_firebase_spm_dependency.sh" "$absolute_project_file" --prerelease
+      ;;
+
+    *)
+      # For PR testing, point to the current commit.
+      local current_revision
+      current_revision=$(git -C "$root_dir" rev-parse HEAD)
+      echo "Setting SPM dependency to current revision: ${current_revision}"
+      "$scripts_dir/update_firebase_spm_dependency.sh" "$absolute_project_file" --revision "$current_revision"
+      ;;
+  esac
+}
+
+main() {
+  # --- Argument Parsing ---
+  if [[ -z "${1:-}" ]]; then
+    print_usage
+    exit 1
+  fi
+
+  local sample="$1"
+  local release_testing="${2-}"
+
+  # --- Environment Setup and Validation ---
+  # Enable trace mode if DEBUG is set to 'true'
+  if [[ "${DEBUG:-false}" == "true" ]]; then
+    set -x
+  fi
+
+  check_prerequisites
+
+  # Source function to check if CI secrets are available.
+  source "$scripts_dir/check_secrets.sh"
+
+  # Some quickstarts may not need a real GoogleService-Info.plist for their tests.
+  # When QUICKSTART_REPO is set, we are running locally and should skip the secrets check.
+  if [[ -z "${QUICKSTART_REPO:-}" ]] && \
+     [[ "${BYPASS_SECRET_CHECK:-}" != "true" ]] && \
+     ! check_secrets && \
+     [[ "${sample}" != "installations" ]]; then
+    echo "Skipping quickstart setup: CI secrets are not available."
+    exit 0
+  fi
+
+  # --- Main Logic ---
+  local quickstart_dir
+  quickstart_dir=$(setup_quickstart_repo "$sample")
+
+  local quickstart_project_dir="${quickstart_dir}/${sample}"
+
+  # Find the .xcodeproj file within the sample directory.
+  # Fail if there isn't exactly one.
+  # Enable nullglob to ensure the glob expands to an empty list if no files are found.
+  shopt -s nullglob
+  local project_files=("$quickstart_project_dir"/*.xcodeproj)
+  # Restore default globbing behavior.
+  shopt -u nullglob
+  if [[ ${#project_files[@]} -ne 1 ]]; then
+    echo "Error: Expected 1 .xcodeproj file in ${quickstart_project_dir}, but found ${#project_files[@]}." >&2
+    exit 1
+  fi
+  local project_file="${project_files[0]}"
+
+  # The update script needs an absolute path to the project file.
+  local absolute_project_file
+  absolute_project_file="$(cd "$(dirname "$project_file")" && pwd)/$(basename "$project_file")"
+
+  # NOTE: Uncomment below and replace `{BRANCH_NAME}` for testing a branch of
+  # the quickstart repo.
+  # (cd "$quickstart_dir"; git checkout {BRANCH_NAME})
+
+  update_spm_dependency "$release_testing" "$absolute_project_file"
+}
+
+# Run the main function with all provided arguments.
+main "$@"
