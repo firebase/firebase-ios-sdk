@@ -58,8 +58,8 @@ root_dir="$(dirname "$scripts_dir")"
 # Source function to check if CI secrets are available.
 source "$scripts_dir/check_secrets.sh"
 
-SAMPLE=$1
-RELEASE_TESTING=${2-}
+SAMPLE="$1"
+RELEASE_TESTING="${2-}"
 
 # Check if the xcpretty command is available in the PATH.
 if ! command -v xcpretty >/dev/null 2>&1; then
