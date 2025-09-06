@@ -308,6 +308,33 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertTrue(thoughtSignature.hasPrefix("CtQOAVSoXO74PmYr9AFu"))
   }
 
+  func testGenerateContent_success_codeExecution() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-code-execution",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let parts = candidate.content.parts
+    XCTAssertEqual(candidate.finishReason, .stop)
+    XCTAssertEqual(parts.count, 3)
+    let executableCodePart = try XCTUnwrap(parts[0] as? ExecutableCodePart)
+    XCTAssertFalse(executableCodePart.isThought)
+    XCTAssertEqual(executableCodePart.language, .python)
+    XCTAssertTrue(executableCodePart.code.starts(with: "prime_numbers = [2, 3, 5, 7, 11]"))
+    let codeExecutionResultPart = try XCTUnwrap(parts[1] as? CodeExecutionResultPart)
+    XCTAssertFalse(codeExecutionResultPart.isThought)
+    XCTAssertEqual(codeExecutionResultPart.outcome, .ok)
+    XCTAssertEqual(codeExecutionResultPart.output, "sum_of_primes=28\n")
+    let textPart = try XCTUnwrap(parts[2] as? TextPart)
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertTrue(textPart.text.hasPrefix("The first 5 prime numbers are 2, 3, 5, 7, and 11."))
+  }
+
   func testGenerateContent_failure_invalidAPIKey() async throws {
     let expectedStatusCode = 400
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -524,6 +551,39 @@ final class GenerativeModelGoogleAITests: XCTestCase {
       let inlineData = response.inlineDataParts.first
       XCTAssertTrue(text != nil || inlineData != nil, "Response did not contain text or data")
     }
+  }
+
+  func testGenerateContentStream_success_codeExecution() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-code-execution",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var parts = [any Part]()
+    let stream = try model.generateContentStream(testPrompt)
+    for try await response in stream {
+      if let responseParts = response.candidates.first?.content.parts {
+        parts.append(contentsOf: responseParts)
+      }
+    }
+
+    let thoughtParts = parts.filter { $0.isThought }
+    XCTAssertEqual(thoughtParts.count, 0)
+    let textParts = parts.filter { $0 is TextPart }
+    XCTAssertGreaterThan(textParts.count, 0)
+    let executableCodeParts = parts.compactMap { $0 as? ExecutableCodePart }
+    XCTAssertEqual(executableCodeParts.count, 1)
+    let executableCodePart = try XCTUnwrap(executableCodeParts.first)
+    XCTAssertFalse(executableCodePart.isThought)
+    XCTAssertEqual(executableCodePart.language, .python)
+    XCTAssertTrue(executableCodePart.code.starts(with: "prime_numbers = [2, 3, 5, 7, 11]"))
+    let codeExecutionResultParts = parts.compactMap { $0 as? CodeExecutionResultPart }
+    XCTAssertEqual(codeExecutionResultParts.count, 1)
+    let codeExecutionResultPart = try XCTUnwrap(codeExecutionResultParts.first)
+    XCTAssertFalse(codeExecutionResultPart.isThought)
+    XCTAssertEqual(codeExecutionResultPart.outcome, .ok)
+    XCTAssertEqual(codeExecutionResultPart.output, "The sum of the first 5 prime numbers is: 28\n")
   }
 
   func testGenerateContentStream_failureInvalidAPIKey() async throws {

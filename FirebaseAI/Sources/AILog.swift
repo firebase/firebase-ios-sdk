@@ -63,6 +63,8 @@ enum AILog {
     case generateContentResponseUnrecognizedContentModality = 3012
     case decodedUnsupportedImagenPredictionType = 3013
     case decodedUnsupportedPartData = 3014
+    case codeExecutionResultUnrecognizedOutcome = 3015
+    case executableCodeUnrecognizedLanguage = 3016
     case fallbackValueUsed = 3017
     case urlMetadataUnrecognizedURLRetrievalStatus = 3018
 

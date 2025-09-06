@@ -75,13 +75,17 @@ public struct Tool: Sendable {
   /// Specifies the Google Search configuration.
   let googleSearch: GoogleSearch?
 
+  let codeExecution: CodeExecution?
+
   let urlContext: URLContext?
 
   init(functionDeclarations: [FunctionDeclaration]? = nil,
        googleSearch: GoogleSearch? = nil,
+       codeExecution: CodeExecution? = nil,
        urlContext: URLContext? = nil) {
     self.functionDeclarations = functionDeclarations
     self.googleSearch = googleSearch
+    self.codeExecution = codeExecution
     self.urlContext = urlContext
   }
 
@@ -126,6 +130,13 @@ public struct Tool: Sendable {
   /// - Returns: A `Tool` configured for Google Search.
   public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
     return self.init(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows the model to execute code.
+  ///
+  /// For more details, see ``CodeExecution``.
+  public static func codeExecution() -> Tool {
+    return self.init(codeExecution: CodeExecution())
   }
 
   public static func urlContext() -> Tool {
