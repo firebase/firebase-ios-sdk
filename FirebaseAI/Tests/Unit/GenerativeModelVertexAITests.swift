@@ -487,6 +487,8 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(
       textPart2.text, "The sum of the first 5 prime numbers (2, 3, 5, 7, and 11) is 28."
     )
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 371)
   }
 
   func testGenerateContent_success_image_invalidSafetyRatingsIgnored() async throws {
