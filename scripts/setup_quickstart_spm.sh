@@ -120,7 +120,7 @@ update_spm_dependency() {
         exit 1
       fi
       echo "Setting SPM dependency to latest version: ${latest_tag}"
-      "$scripts_dir/update_firebase_spm_dependency.sh" "$absolute_project_file" --branch "$latest_tag"
+      "$scripts_dir/update_firebase_spm_dependency.sh" "$absolute_project_file" --version "$latest_tag"
       ;;
 
     "${PRERELEASE_TESTING}")
