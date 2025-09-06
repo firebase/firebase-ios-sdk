@@ -70,7 +70,7 @@ fi
 
 # Some quickstarts may not need a real GoogleService-Info.plist for their tests.
 # When QUICKSTART_REPO is set, we are running locally and should skip the secrets check.
-if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "installations" ]]; then
+if [[ -n "${QUICKSTART_REPO:-}" ]] || [[ "${GHA_WORKFLOW_SECRET:-}" == "true" ]] || check_secrets || [[ "${SAMPLE}" == "installations" ]]; then
 
   # If QUICKSTART_REPO is set, use it. Otherwise, clone the repo.
   if [[ -n "${QUICKSTART_REPO:-}" ]]; then
@@ -117,14 +117,7 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
   PROJECT_FILE="${PROJECT_FILES[0]}"
 
   # The update script needs an absolute path to the project file.
-  if [[ -z "${QUICKSTART_REPO:-}" ]]; then
-    # When cloning, the project file path is relative to the SDK root.
-    ABSOLUTE_PROJECT_FILE="$root_dir/$PROJECT_FILE"
-  else
-    # When using a local repo, the path could be relative to the current
-    # directory. Resolve it to an absolute path.
-    ABSOLUTE_PROJECT_FILE="$(cd "$(dirname "$PROJECT_FILE")" && pwd)/$(basename "$PROJECT_FILE")"
-  fi
+  ABSOLUTE_PROJECT_FILE="$(cd "$(dirname "$PROJECT_FILE")" && pwd)/$(basename "$PROJECT_FILE")"
 
   # NOTE: Uncomment below and replace `{BRANCH_NAME}` for testing a branch of
   # the quickstart repo.
