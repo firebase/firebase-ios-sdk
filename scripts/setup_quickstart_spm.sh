@@ -49,8 +49,15 @@ ENVIRONMENT VARIABLES:
                    If not set, the script will clone it from GitHub.
                    Example: QUICKSTART_REPO=/path/to/quickstart-ios $(basename "$0") authentication
 
+  QUICKSTART_BRANCH: Optional. The branch to checkout in the quickstart repo.
+                     Defaults to the repo's default branch.
+                     Example: QUICKSTART_BRANCH=my-feature-branch $(basename "$0") authentication
+
   BYPASS_SECRET_CHECK: Optional. Set to "true" to bypass the CI secret check for local runs.
                        Example: BYPASS_SECRET_CHECK=true $(basename "$0") authentication
+
+  DEBUG: Optional. Set to "true" to enable shell trace mode (`set -x`).
+         Example: DEBUG=true $(basename "$0") authentication
 EOF
 }
 
@@ -93,6 +100,17 @@ setup_quickstart_repo() {
       git sparse-checkout set "${sample_name}" config
     )
   fi
+
+  # If a branch is specified, check it out.
+  if [[ -n "${QUICKSTART_BRANCH:-}" ]]; then
+    echo "Checking out quickstart branch: ${QUICKSTART_BRANCH}" >&2
+    (
+      cd "${quickstart_dir}"
+      git fetch
+      git checkout "${QUICKSTART_BRANCH}"
+    )
+  fi
+
   # Return the absolute path to the quickstart directory.
   (cd "$quickstart_dir" && pwd)
 }
