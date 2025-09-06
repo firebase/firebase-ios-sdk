@@ -220,7 +220,7 @@ main() {
   local project_files=("${quickstart_project_dir}"/*.xcodeproj)
   # Restore default globbing behavior.
   shopt -u nullglob
-  if [[ ${#project_files[@]} -ne 1 ]]; then
+  if [[ "${#project_files[@]}" -ne 1 ]]; then
     echo "Error: Expected 1 .xcodeproj file in '${quickstart_project_dir}', but found ${#project_files[@]}." >&2
     exit 1
   fi
