@@ -74,7 +74,7 @@ setup_quickstart_repo() {
       exit 1
     fi
     echo "Using local quickstart repository at ${QUICKSTART_REPO}"
-    quickstart_dir="$(cd "${QUICKSTART_REPO}" && pwd)"
+    quickstart_dir="${QUICKSTART_REPO}"
   else
     # QUICKSTART_REPO is not set, so clone it.
     quickstart_dir="quickstart-ios"
