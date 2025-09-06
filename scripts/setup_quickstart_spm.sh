@@ -54,15 +54,6 @@ ENVIRONMENT VARIABLES:
 EOF
 }
 
-check_prerequisites() {
-  # Check if the xcpretty command is available in the PATH.
-  if ! command -v xcpretty >/dev/null 2>&1; then
-    echo "Error: xcpretty command not found. Please install it." >&2
-    echo "You can typically install it using: 'gem install xcpretty' or 'brew install xcpretty'" >&2
-    exit 1
-  fi
-}
-
 # Clones or locates the quickstart repo.
 #
 # Globals:
@@ -163,8 +154,6 @@ main() {
   if [[ "${DEBUG:-false}" == "true" ]]; then
     set -x
   fi
-
-  check_prerequisites
 
   # Source function to check if CI secrets are available.
   source "$scripts_dir/check_secrets.sh"
