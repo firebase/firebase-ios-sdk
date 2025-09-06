@@ -284,7 +284,30 @@ final class InternalPartTests: XCTestCase {
     XCTAssertEqual(functionResponse.response, ["output": .string("someValue")])
   }
 
-  func testDecodeExecutableCodePart() throws {
+  func testDecodeExecutableCodePartWithThought() throws {
+    let json = """
+    {
+      "executableCode": {
+        "language": "PYTHON",
+        "code": "print('hello')"
+      },
+      "thought": true
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertEqual(part.isThought, true)
+    guard case let .executableCode(executableCode) = part.data else {
+      XCTFail("Decoded part is not an executableCode part.")
+      return
+    }
+    XCTAssertEqual(executableCode.language, .init(kind: .python))
+    XCTAssertEqual(executableCode.code, "print('hello')")
+  }
+
+  func testDecodeExecutableCodePartWithoutThought() throws {
     let json = """
     {
       "executableCode": {
@@ -367,7 +390,30 @@ final class InternalPartTests: XCTestCase {
     XCTAssertNil(executableCode.code)
   }
 
-  func testDecodeCodeExecutionResultPart() throws {
+  func testDecodeCodeExecutionResultPartWithThought() throws {
+    let json = """
+    {
+      "codeExecutionResult": {
+        "outcome": "OUTCOME_OK",
+        "output": "hello"
+      },
+      "thought": true
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertEqual(part.isThought, true)
+    guard case let .codeExecutionResult(codeExecutionResult) = part.data else {
+      XCTFail("Decoded part is not a codeExecutionResult part.")
+      return
+    }
+    XCTAssertEqual(codeExecutionResult.outcome, .init(kind: .ok))
+    XCTAssertEqual(codeExecutionResult.output, "hello")
+  }
+
+  func testDecodeCodeExecutionResultPartWithoutThought() throws {
     let json = """
     {
       "codeExecutionResult": {
