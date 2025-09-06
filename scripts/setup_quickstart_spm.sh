@@ -93,7 +93,7 @@ setup_quickstart_repo() {
       git sparse-checkout set "${sample_name}" config
     )
   fi
-  echo "$quickstart_dir"
+  cd "$quickstart_dir" && pwd
 }
 
 # Updates the SPM dependency in the Xcode project based on the testing mode.
