@@ -74,7 +74,7 @@ setup_quickstart_repo() {
       exit 1
     fi
     echo "Using local quickstart repository at ${QUICKSTART_REPO}"
-    quickstart_dir="${QUICKSTART_REPO}"
+    quickstart_dir="$(cd "${QUICKSTART_REPO}" && pwd)"
   else
     # QUICKSTART_REPO is not set, so clone it.
     quickstart_dir="quickstart-ios"
@@ -174,15 +174,20 @@ main() {
 
   local quickstart_project_dir="${quickstart_dir}/${sample}"
 
+  if [[ ! -d "${quickstart_project_dir}" ]]; then
+    echo "Error: Sample directory not found at '${quickstart_project_dir}'" >&2
+    exit 1
+  fi
+
   # Find the .xcodeproj file within the sample directory.
   # Fail if there isn't exactly one.
   # Enable nullglob to ensure the glob expands to an empty list if no files are found.
   shopt -s nullglob
-  local project_files=("$quickstart_project_dir"/*.xcodeproj)
+  local project_files=("${quickstart_project_dir}"/*.xcodeproj)
   # Restore default globbing behavior.
   shopt -u nullglob
   if [[ ${#project_files[@]} -ne 1 ]]; then
-    echo "Error: Expected 1 .xcodeproj file in ${quickstart_project_dir}, but found ${#project_files[@]}." >&2
+    echo "Error: Expected 1 .xcodeproj file in '${quickstart_project_dir}', but found ${#project_files[@]}." >&2
     exit 1
   fi
   local project_file="${project_files[0]}"
