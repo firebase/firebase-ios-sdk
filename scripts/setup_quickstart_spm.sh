@@ -132,7 +132,7 @@ ABSOLUTE_PROJECT_FILE="$(cd "$(dirname "$PROJECT_FILE")" && pwd)/$(basename "$PR
 case "$RELEASE_TESTING" in
   "${NIGHTLY_RELEASE_TESTING}")
     # For release testing, find the latest CocoaPods tag.
-    LATEST_TAG=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
+    LATEST_TAG=$(git -C "$root_dir" tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
     if [[ -z "$LATEST_TAG" ]]; then
       echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag." >&2
       exit 1
