@@ -41,8 +41,8 @@ ENVIRONMENT VARIABLES:
                    If not set, the script will clone it from GitHub.
                    Example: QUICKSTART_REPO=/path/to/quickstart-ios $(basename "$0") authentication
 
-  GHA_WORKFLOW_SECRET: Optional. Set to "true" to bypass the CI secret check for local runs.
-                       Example: GHA_WORKFLOW_SECRET=true $(basename "$0") authentication
+  GITHUB_WORKFLOW: Optional. Set to "true" to bypass the CI secret check for local runs.
+                       Example: GITHUB_WORKFLOW=true $(basename "$0") authentication
 EOF
   exit 1
 fi
