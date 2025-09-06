@@ -138,8 +138,10 @@ update_spm_dependency() {
         echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag." >&2
         exit 1
       fi
-      echo "Setting SPM dependency to latest version: ${latest_tag}"
-      "$scripts_dir/update_firebase_spm_dependency.sh" "$absolute_project_file" --version "$latest_tag"
+      local tag_revision
+      tag_revision=$(git -C "$root_dir" rev-list -n 1 "$latest_tag")
+      echo "Setting SPM dependency to revision for tag ${latest_tag}: ${tag_revision}"
+      "$scripts_dir/update_firebase_spm_dependency.sh" "$absolute_project_file" --revision "$tag_revision"
       ;;
 
     "${PRERELEASE_TESTING}")
