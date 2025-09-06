@@ -74,7 +74,7 @@ setup_quickstart_repo() {
       exit 1
     fi
     echo "Using local quickstart repository at ${QUICKSTART_REPO}" >&2
-    quickstart_dir="$(cd "${QUICKSTART_REPO}" && pwd)"
+    quickstart_dir="${QUICKSTART_REPO}"
   else
     # QUICKSTART_REPO is not set, so clone it.
     quickstart_dir="quickstart-ios"
@@ -93,7 +93,7 @@ setup_quickstart_repo() {
       git sparse-checkout set "${sample_name}" config
     )
   fi
-  cd "$quickstart_dir" && pwd
+  (cd "$quickstart_dir" && pwd)
 }
 
 # Updates the SPM dependency in the Xcode project based on the testing mode.
