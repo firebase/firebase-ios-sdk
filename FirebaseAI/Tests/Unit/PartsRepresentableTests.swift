@@ -27,6 +27,33 @@ import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class PartsRepresentableTests: XCTestCase {
+  func testModelContentBuilderBuildsFromParts() {
+    let testConditional = false
+    @ModelContentBuilder func builderTester() -> ModelContent {
+      "A string prompt of some kind"
+
+      if testConditional {
+        "A single-conditional string prompt"
+      }
+
+      if Int.random(in: 0 ..< 5) > 2 {
+        "A true-branch conditional string prompt"
+      } else {
+        "A false-branch conditional string prompt"
+      }
+
+      for _ in 0 ..< 10 {
+        "A looped string prompt"
+      }
+
+      "Finally, a non-conditional string prompt"
+    }
+
+    let content = builderTester()
+    XCTAssert(content.parts.count == 13,
+              "Expected 14 parts, got \(content.parts.count): \(content.parts)")
+  }
+
   #if !os(watchOS)
     func testModelContentFromCGImageIsNotEmpty() throws {
       // adapted from https://forums.swift.org/t/creating-a-cgimage-from-color-array/18634/2
