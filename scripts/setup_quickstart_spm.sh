@@ -70,7 +70,10 @@ fi
 
 # Some quickstarts may not need a real GoogleService-Info.plist for their tests.
 # When QUICKSTART_REPO is set, we are running locally and should skip the secrets check.
-if ! { [[ -n "${QUICKSTART_REPO:-}" ]] || [[ "${BYPASS_SECRET_CHECK:-}" == "true" ]] || check_secrets || [[ "${SAMPLE}" == "installations" ]]; }; then
+if [[ -z "${QUICKSTART_REPO:-}" ]] && \
+   [[ "${BYPASS_SECRET_CHECK:-}" != "true" ]] && \
+   ! check_secrets && \
+   [[ "${SAMPLE}" != "installations" ]]; then
   echo "Skipping quickstart setup: CI secrets are not available."
   exit 0
 fi
@@ -131,7 +134,7 @@ case "$RELEASE_TESTING" in
     # For release testing, find the latest CocoaPods tag.
     LATEST_TAG=$(git tag -l "CocoaPods-*" --sort=-v:refname | awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
     if [[ -z "$LATEST_TAG" ]]; then
-      echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag."
+      echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag." >&2
       exit 1
     fi
     echo "Setting SPM dependency to latest version: ${LATEST_TAG}"
