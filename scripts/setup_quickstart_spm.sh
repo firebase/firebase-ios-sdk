@@ -68,8 +68,8 @@ if ! command -v xcpretty >/dev/null 2>&1; then
   exit 1
 fi
 
-# Some quickstarts may not need a real GoogleService-Info.plist for their tests.
-# When QUICKSTART_REPO is set, we are running locally and should skip the secrets check.
+# Skip setup in CI if secrets are not available. This check is bypassed for local
+# runs, if BYPASS_SECRET_CHECK is true, or for samples that don't require secrets.
 if [[ -z "${QUICKSTART_REPO:-}" ]] && \
    [[ "${BYPASS_SECRET_CHECK:-}" != "true" ]] && \
    ! check_secrets && \
