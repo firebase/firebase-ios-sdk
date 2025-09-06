@@ -77,12 +77,16 @@ public struct Tool: Sendable {
 
   let codeExecution: CodeExecution?
 
+  let urlContext: URLContext?
+
   init(functionDeclarations: [FunctionDeclaration]? = nil,
        googleSearch: GoogleSearch? = nil,
-       codeExecution: CodeExecution? = nil) {
+       codeExecution: CodeExecution? = nil,
+       urlContext: URLContext? = nil) {
     self.functionDeclarations = functionDeclarations
     self.googleSearch = googleSearch
     self.codeExecution = codeExecution
+    self.urlContext = urlContext
   }
 
   /// Creates a tool that allows the model to perform function calling.
@@ -133,6 +137,10 @@ public struct Tool: Sendable {
   /// For more details, see ``CodeExecution``.
   public static func codeExecution() -> Tool {
     return self.init(codeExecution: CodeExecution())
+  }
+
+  public static func urlContext() -> Tool {
+    return self.init(urlContext: URLContext())
   }
 }
 
