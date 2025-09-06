@@ -36,10 +36,10 @@ public struct URLMetadata: Sendable, Hashable {
     /// URL retrieval failed due to an error.
     public static let error = URLRetrievalStatus(kind: .error)
 
-    // URL retrieval failed failed because the content is behind paywall.
+    /// URL retrieval failed failed because the content is behind paywall.
     public static let paywall = URLRetrievalStatus(kind: .paywall)
 
-    // URL retrieval failed because the content is unsafe.
+    /// URL retrieval failed because the content is unsafe.
     public static let unsafe = URLRetrievalStatus(kind: .unsafe)
 
     /// Returns the raw string representation of the `URLRetrievalStatus` value.
