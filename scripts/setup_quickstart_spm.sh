@@ -102,7 +102,12 @@ if [[ -n "${QUICKSTART_REPO:-}" ]] || check_secrets || [[ "${SAMPLE}" == "instal
 
   # Find the .xcodeproj file within the sample directory.
   # Fail if there isn't exactly one.
-  PROJECT_FILES=($(find "$QUICKSTART_PROJECT_DIR" -maxdepth 1 -name "*.xcodeproj"))
+  #
+  # Enable nullglob to ensure the glob expands to an empty list if no files are found.
+  shopt -s nullglob
+  PROJECT_FILES=("$QUICKSTART_PROJECT_DIR"/*.xcodeproj)
+  # Restore default globbing behavior.
+  shopt -u nullglob
   if [[ ${#PROJECT_FILES[@]} -ne 1 ]]; then
     echo "Error: Expected 1 .xcodeproj file in ${QUICKSTART_PROJECT_DIR}, but found ${#PROJECT_FILES[@]}." >&2
     exit 1
