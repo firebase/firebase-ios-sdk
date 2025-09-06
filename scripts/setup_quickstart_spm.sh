@@ -79,20 +79,21 @@ setup_quickstart_repo() {
     # QUICKSTART_REPO is not set, so clone it.
     quickstart_dir="quickstart-ios"
     if [[ -d "${quickstart_dir}" ]]; then
-      echo "Quickstart repository already exists at ${quickstart_dir}"
+      echo "Quickstart repository already exists at ${quickstart_dir}" >&2
     else
-      echo "Cloning quickstart repository into '${quickstart_dir}' directory..."
+      echo "Cloning quickstart repository into '${quickstart_dir}' directory..." >&2
       # Do a partial, sparse clone to speed up CI. See
       # https://github.blog/2020-12-21-get-up-to-speed-with-partial-clone-and-shallow-clone/
       git clone --filter=blob:none --sparse https://github.com/firebase/quickstart-ios.git "${quickstart_dir}"
     fi
     (
       cd "${quickstart_dir}"
-      echo "Ensuring sparse checkout is set for ${sample_name}..."
+      echo "Ensuring sparse checkout is set for ${sample_name}..." >&2
       # Checkout the sample and config directories.
       git sparse-checkout set "${sample_name}" config
     )
   fi
+  # Return the absolute path to the quickstart directory.
   (cd "$quickstart_dir" && pwd)
 }
 
@@ -149,13 +150,18 @@ main() {
   local sample="$1"
   local release_testing="${2-}"
 
-  if [[ -n "${release_testing}" && \
-        "${release_testing}" != "${NIGHTLY_RELEASE_TESTING}" && \
-        "${release_testing}" != "${PRERELEASE_TESTING}" ]]; then
-    echo "Error: Invalid testing_mode: '${release_testing}'" >&2
-    print_usage
-    exit 1
-  fi
+  # Validate release_testing argument.
+  case "$release_testing" in
+    "" | "${NIGHTLY_RELEASE_TESTING}" | "${PRERELEASE_TESTING}")
+      # This is a valid value (or empty), so do nothing.
+      ;;
+    *)
+      # This is an invalid value.
+      echo "Error: Invalid testing_mode: '${release_testing}'" >&2
+      print_usage
+      exit 1
+      ;;
+  esac
 
   # --- Environment Setup and Validation ---
   # Enable trace mode if DEBUG is set to 'true'
@@ -200,15 +206,11 @@ main() {
   fi
   local project_file="${project_files[0]}"
 
-  # The update script needs an absolute path to the project file.
-  local absolute_project_file
-  absolute_project_file="$(cd "$(dirname "$project_file")" && pwd)/$(basename "$project_file")"
-
   # NOTE: Uncomment below and replace `{BRANCH_NAME}` for testing a branch of
   # the quickstart repo.
   # (cd "$quickstart_dir"; git checkout {BRANCH_NAME})
 
-  update_spm_dependency "$release_testing" "$absolute_project_file"
+  update_spm_dependency "$release_testing" "$project_file"
 }
 
 # Run the main function with all provided arguments.
