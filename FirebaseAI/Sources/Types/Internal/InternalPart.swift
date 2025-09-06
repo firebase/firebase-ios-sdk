@@ -64,6 +64,54 @@ struct FunctionResponse: Codable, Equatable, Sendable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct ExecutableCode: Codable, Equatable, Sendable {
+  struct Language: CodableProtoEnum, Sendable, Equatable {
+    enum Kind: String {
+      case unspecified = "LANGUAGE_UNSPECIFIED"
+      case python = "PYTHON"
+    }
+
+    let rawValue: String
+
+    static let unrecognizedValueMessageCode =
+      AILog.MessageCode.executableCodeUnrecognizedLanguage
+  }
+
+  let language: Language?
+  let code: String?
+
+  init(language: Language, code: String) {
+    self.language = language
+    self.code = code
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct CodeExecutionResult: Codable, Equatable, Sendable {
+  struct Outcome: CodableProtoEnum, Sendable, Equatable {
+    enum Kind: String {
+      case unspecified = "OUTCOME_UNSPECIFIED"
+      case ok = "OUTCOME_OK"
+      case failed = "OUTCOME_FAILED"
+      case deadlineExceeded = "OUTCOME_DEADLINE_EXCEEDED"
+    }
+
+    let rawValue: String
+
+    static let unrecognizedValueMessageCode =
+      AILog.MessageCode.codeExecutionResultUnrecognizedOutcome
+  }
+
+  let outcome: Outcome?
+  let output: String?
+
+  init(outcome: Outcome, output: String) {
+    self.outcome = outcome
+    self.output = output
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ErrorPart: Part, Error {
   let error: Error
 
