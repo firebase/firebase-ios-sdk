@@ -112,8 +112,8 @@ setup_quickstart_repo() {
     (
       cd "${quickstart_dir}"
       echo "Ensuring sparse checkout is set for ${sample_name}..." >&2
-      # Checkout the sample and config directories.
-      git sparse-checkout set "${sample_name}" config
+      # Checkout the sample and scripts directories.
+      git sparse-checkout set "${sample_name}" scripts
     )
   fi
 
