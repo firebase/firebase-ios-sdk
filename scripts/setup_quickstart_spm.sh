@@ -82,6 +82,10 @@ setup_quickstart_repo() {
     fi
     echo "Using local quickstart repository at ${QUICKSTART_REPO}" >&2
     quickstart_dir="${QUICKSTART_REPO}"
+    if ! (cd "${quickstart_dir}" && git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+      echo "Error: QUICKSTART_REPO ('${quickstart_dir}') is not a git repository." >&2
+      exit 1
+    fi
   else
     # QUICKSTART_REPO is not set, so clone it.
     quickstart_dir="quickstart-ios"
