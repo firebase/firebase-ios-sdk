@@ -98,7 +98,7 @@ jobs:
     with:
       product: Authentication
       is_legacy: false
-      setup_command: scripts/setup_quickstart_spm.sh authentication
+      setup_command: QUICKSTART_BRANCH=mc/spm scripts/setup_quickstart_spm.sh authentication
       plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
       plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
       run_tests: false

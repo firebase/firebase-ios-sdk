@@ -90,7 +90,7 @@ jobs:
       product: Messaging
       is_legacy: false
       quickstart_type: ${{ matrix.quickstart_type }}
-      setup_command: scripts/setup_quickstart_spm.sh messaging
+      setup_command: QUICKSTART_BRANCH=mc/spm scripts/setup_quickstart_spm.sh messaging
       plist_src_path: scripts/gha-encrypted/qs-messaging.plist.gpg
       plist_dst_path: quickstart-ios/messaging/GoogleService-Info.plist
       run_tests: false
