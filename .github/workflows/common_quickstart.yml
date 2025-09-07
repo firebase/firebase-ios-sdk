@@ -73,6 +73,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.plist_secret }}
       LEGACY: ${{ inputs.is_legacy && true || '' }}
+      SPM: true
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
