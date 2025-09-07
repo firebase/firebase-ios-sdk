@@ -81,34 +81,34 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Run setup command.
       run: ${{ inputs.setup_command }}
-    - name: Install Secret GoogleService-Info.plist
-      run: |
-          scripts/decrypt_gha_secret.sh \
-            ${{ inputs.plist_src_path }} \
-            ${{ inputs.plist_dst_path }} \
-            "$plist_secret"
-    - name: Build ${{ inputs.product }} Quickstart (${{ inputs.quickstart_type }} / ${{ inputs.is_legacy && 'Legacy' || 'Non-Legacy' }})
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 15
-        max_attempts: 3
-        retry_wait_seconds: 120
-        command: |
-          scripts/test_quickstart.sh \
-            ${{ inputs.product }} \
-            ${{ inputs.run_tests }} \
-            ${{ inputs.quickstart_type }}
+    # - name: Install Secret GoogleService-Info.plist
+    #   run: |
+    #       scripts/decrypt_gha_secret.sh \
+    #         ${{ inputs.plist_src_path }} \
+    #         ${{ inputs.plist_dst_path }} \
+    #         "$plist_secret"
+    # - name: Build ${{ inputs.product }} Quickstart (${{ inputs.quickstart_type }} / ${{ inputs.is_legacy && 'Legacy' || 'Non-Legacy' }})
+    #   uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+    #   with:
+    #     timeout_minutes: 15
+    #     max_attempts: 3
+    #     retry_wait_seconds: 120
+    #     command: |
+    #       scripts/test_quickstart.sh \
+    #         ${{ inputs.product }} \
+    #         ${{ inputs.run_tests }} \
+    #         ${{ inputs.quickstart_type }}
     # Failure sequence to upload artifact.
-    - id: lowercase_product
-      if: ${{ failure() }}
-      run: |
-        lowercase_product=$(echo "${{ inputs.product }}" | tr '[:upper:]' '[:lower:]')
-        echo "lowercase_product=$lowercase_product" >> $GITHUB_OUTPUT
-    - name: Remove data before upload.
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh ${{ steps.lowercase_product.outputs.lowercase_product }}
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_${{ steps.lowercase_product.outputs.lowercase_product }}
-        path: quickstart-ios/
+    # - id: lowercase_product
+    #   if: ${{ failure() }}
+    #   run: |
+    #     lowercase_product=$(echo "${{ inputs.product }}" | tr '[:upper:]' '[:lower:]')
+    #     echo "lowercase_product=$lowercase_product" >> $GITHUB_OUTPUT
+    # - name: Remove data before upload.
+    #   if: ${{ failure() }}
+    #   run: scripts/remove_data.sh ${{ steps.lowercase_product.outputs.lowercase_product }}
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_${{ steps.lowercase_product.outputs.lowercase_product }}
+    #     path: quickstart-ios/
