@@ -150,7 +150,7 @@ update_spm_dependency() {
       # For release testing, find the latest CocoaPods tag.
       local latest_tag
       latest_tag=$(git -C "$root_dir" tag -l "CocoaPods-*" --sort=-v:refname | \
-        awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/ { print; exit }')
+        grep -E '^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
       if [[ -z "$latest_tag" ]]; then
         echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag." >&2
         exit 1
@@ -214,8 +214,8 @@ main() {
   source "$scripts_dir/check_secrets.sh"
 
   # Some quickstarts may not need a real GoogleService-Info.plist for their
-  # tests. When QUICKSTART_REPO is set, we are running locally and should skip
-  # the secrets check.
+  # tests. When QUICKSTART_REPO is set (for local runs) or BYPASS_SECRET_CHECK
+  # is true, the secrets check is skipped.
   if [[ -z "${QUICKSTART_REPO:-}" ]] && \
      [[ "${BYPASS_SECRET_CHECK:-}" != "true" ]] && \
      ! check_secrets && \
