@@ -122,8 +122,8 @@ setup_quickstart_repo() {
     echo "Checking out quickstart branch: ${QUICKSTART_BRANCH}" >&2
     (
       cd "${quickstart_dir}"
-      git fetch
-      git checkout "${QUICKSTART_BRANCH}"
+      git fetch --quiet
+      git checkout --quiet "${QUICKSTART_BRANCH}"
     )
   fi
 
