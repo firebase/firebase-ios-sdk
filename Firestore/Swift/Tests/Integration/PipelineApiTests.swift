@@ -234,7 +234,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books").sample(count: 10)
 
     // Sample 10 percent of the collection of books
-    _ = db.pipeline().collection("books").sample(percentage: 10)
+    _ = db.pipeline().collection("books").sample(percentage: 0.1)
   }
 
   func testUnionStage() async throws {

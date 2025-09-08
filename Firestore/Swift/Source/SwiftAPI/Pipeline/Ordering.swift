@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-public class Ordering: @unchecked Sendable {
+public struct Ordering: @unchecked Sendable {
   let expr: Expression
   let direction: Direction
   let bridge: OrderingBridge
