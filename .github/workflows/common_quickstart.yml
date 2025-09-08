@@ -73,7 +73,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.plist_secret }}
       LEGACY: ${{ inputs.is_legacy && true || '' }}
-      SPM: true
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -97,7 +96,7 @@ jobs:
         max_attempts: 3
         retry_wait_seconds: 120
         command: |
-          scripts/test_quickstart.sh ${{ inputs.product }} false ${{ inputs.quickstart_type }}
+          SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh ${{ inputs.product }} false ${{ inputs.quickstart_type }}
         # command: |
         #   scripts/test_quickstart.sh ${{ inputs.product }} false ${{ inputs.quickstart_type }}
         #   scripts/test_quickstart.sh \
