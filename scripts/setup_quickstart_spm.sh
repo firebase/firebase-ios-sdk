@@ -17,8 +17,6 @@
 # Script to run in a CI `before_install` phase to setup a SPM-based
 # quickstart repo so that it can be used for integration testing.
 
-# Delete this line.
-
 set -euo pipefail
 
 # Define testing mode constants.
