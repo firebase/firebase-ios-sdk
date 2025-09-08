@@ -227,10 +227,12 @@ ObjectValue ObjectValue::FromFieldsEntry(
   return ObjectValue{std::move(value)};
 }
 
+// TODO(b/443765747) Revert back to absl::flat_hash_map after the absl version
+// is upgraded to later than 20250127.0
 ObjectValue ObjectValue::FromAggregateFieldsEntry(
     google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry,
     pb_size_t count,
-    const absl::flat_hash_map<std::string, std::string>& aliasMap) {
+    const std::unordered_map<std::string, std::string>& aliasMap) {
   Message<google_firestore_v1_Value> value;
   value->which_value_type = google_firestore_v1_Value_map_value_tag;
 
@@ -246,7 +248,9 @@ ObjectValue ObjectValue::FromAggregateFieldsEntry(
         // using the client-side alias.
         ByteString serverAlias(entry.key);
         std::string serverAliasString = serverAlias.ToString();
-        HARD_ASSERT(aliasMap.contains(serverAliasString),
+        // TODO(b/443765747) Revert back to aliasMap.contains(serverAliasString)
+        // after the absl version is upgraded to later than 20250127.0
+        HARD_ASSERT(aliasMap.find(serverAliasString) != aliasMap.end(),
                     "%s not present in aliasMap", serverAlias.ToString());
 
         ByteString clientAlias(aliasMap.find(serverAliasString)->second);
