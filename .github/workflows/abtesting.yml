@@ -45,7 +45,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: ABTesting
-      is_legacy: true
+      is_legacy: false
       setup_command: QUICKSTART_BRANCH=mc/spm scripts/setup_quickstart_spm.sh abtesting
       plist_src_path: scripts/gha-encrypted/qs-database.plist.gpg
       plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
