@@ -14,55 +14,56 @@
 
 import Foundation
 
+/// A multimodal model (like Gemini) capable of real-time content generation based on
+/// various input types, supporting bidirectional streaming.
+///
+/// You can create a new session via ``connect()``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class LiveGenerativeModel {
   let modelResourceName: String
   let firebaseInfo: FirebaseInfo
   let apiConfig: APIConfig
   let generationConfig: LiveGenerationConfig?
-  let requestOptions: RequestOptions
+  let tools: [Tool]?
+  let toolConfig: ToolConfig?
+  let systemInstruction: ModelContent?
   let urlSession: URLSession
 
   init(modelResourceName: String,
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
        generationConfig: LiveGenerationConfig? = nil,
-       requestOptions: RequestOptions,
+       tools: [Tool]? = nil,
+       toolConfig: ToolConfig? = nil,
+       systemInstruction: ModelContent? = nil,
        urlSession: URLSession = GenAIURLSession.default) {
     self.modelResourceName = modelResourceName
     self.firebaseInfo = firebaseInfo
     self.apiConfig = apiConfig
     self.generationConfig = generationConfig
-    // TODO: Add tools
-    // TODO: Add tool config
-    // TODO: Add system instruction
-    self.requestOptions = requestOptions
+    self.tools = tools
+    self.toolConfig = toolConfig
+    self.systemInstruction = systemInstruction
     self.urlSession = urlSession
   }
 
-  public func connect() -> LiveSession {
-    let liveSession = LiveSession(
+  /// Start a ``LiveSession`` with the server for bidirectional streaming.
+  ///
+  /// - Returns: A new ``LiveSession`` that you can use to stream messages to and from the server.
+  public func connect() async throws -> LiveSession {
+    let service = LiveSessionService(
       modelResourceName: modelResourceName,
       generationConfig: generationConfig,
-      url: webSocketURL(),
-      urlSession: urlSession
+      urlSession: urlSession,
+      apiConfig: apiConfig,
+      firebaseInfo: firebaseInfo,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
     )
-    print("Opening Live Session...")
-    liveSession.openConnection()
-    return liveSession
-  }
 
-  func webSocketURL() -> URL {
-    let urlString = switch apiConfig.service {
-    case .vertexAI:
-      "wss://firebasevertexai.googleapis.com/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/us-central1?key=\(firebaseInfo.apiKey)"
-    case .googleAI:
-      "wss://firebasevertexai.googleapis.com/ws/google.firebase.vertexai.v1beta.GenerativeService/BidiGenerateContent?key=\(firebaseInfo.apiKey)"
-    }
-    guard let url = URL(string: urlString) else {
-      // TODO: Add error handling
-      fatalError()
-    }
-    return url
+    await service.connect()
+
+    return LiveSession(service: service)
   }
 }

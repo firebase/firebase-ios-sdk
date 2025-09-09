@@ -66,12 +66,21 @@ enum AILog {
     case codeExecutionResultUnrecognizedOutcome = 3015
     case executableCodeUnrecognizedLanguage = 3016
     case fallbackValueUsed = 3017
+    case liveSessionUnsupportedMessage = 3018
+    case liveSessionFailedToEncodeClientMessage = 3019
+    case liveSessionFailedToEncodeClientMessagePayload = 3020
+    case liveSessionFailedToSendClientMessage = 3021
+    case liveSessionUnexpectedResponse = 3022
+
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000
     case generateContentResponseNoText = 4001
     case appCheckTokenFetchFailed = 4002
     case generateContentResponseEmptyCandidates = 4003
+    case invalidWebsocketURL = 4004
+    case duplicateLiveSessionSetupComplete = 4005
+
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000

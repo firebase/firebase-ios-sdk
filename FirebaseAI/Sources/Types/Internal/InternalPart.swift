@@ -56,10 +56,12 @@ struct FunctionCall: Equatable, Sendable {
 struct FunctionResponse: Codable, Equatable, Sendable {
   let name: String
   let response: JSONObject
+  let id: String?
 
-  init(name: String, response: JSONObject) {
+  init(name: String, response: JSONObject, id: String? = nil) {
     self.name = name
     self.response = response
+    self.id = id
   }
 }
 

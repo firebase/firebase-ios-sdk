@@ -21,11 +21,11 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
   private var continuationFinished = false
   private let continuationLock = NSLock()
 
-  private var _isConnected = false
-  private let isConnectedLock = NSLock()
-  private(set) var isConnected: Bool {
-    get { isConnectedLock.withLock { _isConnected } }
-    set { isConnectedLock.withLock { _isConnected = newValue } }
+  private var _closeError: WebSocketClosedError? = nil
+  private let closeErrorLock = NSLock()
+  private(set) var closeError: WebSocketClosedError? {
+    get { closeErrorLock.withLock { _closeError } }
+    set { closeErrorLock.withLock { _closeError = newValue } }
   }
 
   init(urlSession: URLSession = GenAIURLSession.default, urlRequest: URLRequest) {
@@ -40,32 +40,47 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
 
   func connect() -> AsyncThrowingStream<URLSessionWebSocketTask.Message, Error> {
     webSocketTask.resume()
-    isConnected = true
+    closeError = nil
     startReceiving()
     return stream
   }
 
   func disconnect() {
-    webSocketTask.cancel(with: .goingAway, reason: nil)
-    isConnected = false
-    continuationLock.withLock {
-      self.continuation.finish()
-      self.continuationFinished = true
-    }
+    if let closeError { return }
+
+    close(code: .goingAway, reason: nil)
   }
 
   func send(_ message: URLSessionWebSocketTask.Message) async throws {
-    // TODO: Throw error if socket already closed
+    if let closeError {
+      throw closeError
+    }
     try await webSocketTask.send(message)
   }
 
   private func startReceiving() {
     Task {
-      while !Task.isCancelled && self.webSocketTask.isOpen && self.isConnected {
-        let message = try await webSocketTask.receive()
-        // TODO: Check continuationFinished before yielding. Use the same thread for NSLock.
-        continuation.yield(message)
+      while !Task.isCancelled && self.webSocketTask.isOpen && self.closeError == nil {
+        do {
+          let message = try await webSocketTask.receive()
+          continuation.yield(message)
+        } catch {
+          close(code: webSocketTask.closeCode, reason: webSocketTask.closeReason)
+        }
       }
+    }
+  }
+
+  private func close(code: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+    let error = WebSocketClosedError(closeCode: code, closeReason: reason)
+    closeError = error
+
+    webSocketTask.cancel(with: code, reason: reason)
+
+    continuationLock.withLock {
+      guard !continuationFinished else { return }
+      self.continuation.finish(throwing: error)
+      self.continuationFinished = true
     }
   }
 
@@ -73,11 +88,7 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
                   webSocketTask: URLSessionWebSocketTask,
                   didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
                   reason: Data?) {
-    continuationLock.withLock {
-      guard !continuationFinished else { return }
-      continuation.finish()
-      continuationFinished = true
-    }
+    close(code: closeCode, reason: reason)
   }
 }
 

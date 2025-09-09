@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
-/// Request for the client to execute the `function_calls` and return the
-/// responses with the matching `id`s.
+// TODO: remove
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct BidiGenerateContentToolCall: Decodable, Sendable {
-  /// The function call to be executed.
-  let functionCalls: [FunctionCall]?
+public struct LiveTranscript: Sendable {
+  let transcript: BidiGenerateContentTranscription
+  public var text: String? { transcript.text }
+  public var finished: Bool? { transcript.finished }
+
+  init(_ transcript: BidiGenerateContentTranscription) {
+    self.transcript = transcript
+  }
 }

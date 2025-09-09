@@ -141,15 +141,38 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  /// **[Public Preview]** Initializes a ``LiveGenerativeModel`` with the given parameters.
+  ///
+  /// > Warning: For Firebase AI SDK, bidirectional streaming using Live models is in Public
+  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
+  /// could change in backwards-incompatible ways.
+  ///
+  /// > Important: Only Live models (typically containing `live-*` in the name) are supported.
+  ///
+  /// - Parameters:
+  ///   - modelName: The name of the Livemodel to use, for example
+  /// `"gemini-live-2.5-flash-preview"`;
+  ///     see [model versions](https://firebase.google.com/docs/ai-logic/live-api?api=dev#models-that-support-capability)
+  ///     for a list of supported Live models.
+  ///   - generationConfig: The content generation parameters your model should use.
+  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
+  ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
+  ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
+  ///     only text content is supported.
   public func liveModel(modelName: String,
                         generationConfig: LiveGenerationConfig? = nil,
+                        tools: [Tool]? = nil,
+                        toolConfig: ToolConfig? = nil,
+                        systemInstruction: ModelContent? = nil,
                         requestOptions: RequestOptions = RequestOptions()) -> LiveGenerativeModel {
     return LiveGenerativeModel(
       modelResourceName: modelResourceName(modelName: modelName),
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
       generationConfig: generationConfig,
-      requestOptions: requestOptions
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction
     )
   }
 

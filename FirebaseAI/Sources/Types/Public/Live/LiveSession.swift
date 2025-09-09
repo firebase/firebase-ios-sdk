@@ -14,74 +14,116 @@
 
 import Foundation
 
-// TODO: Extract most of this file into a service class similar to `GenerativeAIService`.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+/// A live WebSocket session, capable of streaming content to and from the model.
+///
+/// Messages are streamed through ``responses``, and can be sent through either the dedicated
+/// realtime API function (such as ``sendAudioRealtime(audio:)`` or ``sendTextRealtime(text:)``), or
+/// through the incremental API (such as ``sendContent(_:turnComplete:)``).
+///
+/// To create an instance of this class, see ``LiveGenerativeModel``.
+@available(macOS 12.0, *)
 public final class LiveSession: Sendable {
-  let modelResourceName: String
-  let generationConfig: LiveGenerationConfig?
-  let webSocket: AsyncWebSocket
+  private let service: LiveSessionService
 
-  public let responses: AsyncThrowingStream<BidiGenerateContentServerMessage, Error>
-  private let responseContinuation: AsyncThrowingStream<BidiGenerateContentServerMessage, Error>
-    .Continuation
+  /// An asyncronous stream of messages from the server.
+  ///
+  /// These messages from the incremental updates from the model, for the current conversation.
+  public var responses: AsyncThrowingStream<LiveServerMessage, Error> { service.responses }
 
-  private let jsonEncoder = JSONEncoder()
-  private let jsonDecoder = JSONDecoder()
-
-  init(modelResourceName: String,
-       generationConfig: LiveGenerationConfig?,
-       url: URL,
-       urlSession: URLSession) {
-    self.modelResourceName = modelResourceName
-    self.generationConfig = generationConfig
-    webSocket = AsyncWebSocket(urlSession: urlSession, urlRequest: URLRequest(url: url))
-    (responses, responseContinuation) = AsyncThrowingStream.makeStream()
+  init(service: LiveSessionService) {
+    self.service = service
   }
 
-  deinit {
-    webSocket.disconnect()
-  }
-
-  public func sendMessage(_ message: String) async throws {
-    let content = ModelContent(role: "user", parts: [message])
-    let clientContent = BidiGenerateContentClientContent(turns: [content], turnComplete: true)
-    let clientMessage = BidiGenerateContentClientMessage.clientContent(clientContent)
-    let clientMessageData = try jsonEncoder.encode(clientMessage)
-    try await webSocket.send(.data(clientMessageData))
-  }
-
-  func openConnection() {
-    Task {
-      do {
-        let stream = webSocket.connect()
-        try await sendSetupMessage()
-        for try await message in stream {
-          switch message {
-          case let .string(string):
-            print("Unexpected string response: \(string)")
-          case let .data(data):
-            let response = try jsonDecoder.decode(
-              BidiGenerateContentServerMessage.self,
-              from: data
-            )
-            responseContinuation.yield(response)
-          @unknown default:
-            print("Unknown message received")
-          }
-        }
-      } catch {
-        responseContinuation.finish(throwing: error)
-      }
-      responseContinuation.finish()
-    }
-  }
-
-  private func sendSetupMessage() async throws {
-    let setup = BidiGenerateContentSetup(
-      model: modelResourceName, generationConfig: generationConfig
+  /// Response to a ``LiveServerToolCall`` received from the server.
+  ///
+  /// - Parameters:
+  ///   - responses: Client generated function results, matched to their respective
+  /// ``FunctionCallPart`` by the `id` field.
+  public func functionResponses(_ responses: [FunctionResponsePart]) async {
+    // TODO: what happens if you send an empty list lol
+    let message = BidiGenerateContentToolResponse(
+      functionResponses: responses.map { $0.functionResponse }
     )
-    let message = BidiGenerateContentClientMessage.setup(setup)
-    let messageData = try jsonEncoder.encode(message)
-    try await webSocket.send(.data(messageData))
+    await service.send(.toolResponse(message))
+  }
+
+  /// Sends an audio input stream to the model, using the realtime API.
+  ///
+  /// To learn more about audio formats, and the required state they should be provided in, see the
+  /// docs on
+  /// [Supported audio formats](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api#supported-audio-formats).
+  ///
+  /// - Parameters:
+  ///   - audio: Raw 16-bit PCM audio at 16Hz, used to update the model on the client's
+  /// conversation.
+  public func sendAudioRealtime(audio: Data) async {
+    // TODO: (b/443984790) address when we add RealtimeInputConfig support
+    let message = BidiGenerateContentRealtimeInput(
+      audio: InlineData(data: audio, mimeType: "audio/pcm")
+    )
+    await service.send(.realtimeInput(message))
+  }
+
+  /// Sends a video input stream to the model, using the realtime API.
+  ///
+  /// - Parameters:
+  ///   - video: Encoded video data, used to update the model on the client's conversation.
+  ///   - format: The format that the video was encoded in (eg; `mp4`, `webm`, `wmv`, etc.,).
+  public func sendVideoRealtime(video: Data, format: String = "mp4") async {
+    let message = BidiGenerateContentRealtimeInput(
+      video: InlineData(data: video, mimeType: "video/\(format)")
+    )
+    await service.send(.realtimeInput(message))
+  }
+
+  /// Sends a text input stream to the model, using the realtime API.
+  ///
+  /// - Parameters:
+  ///   - text: Text content to append to the current client's conversation.
+  public func sendTextRealtime(text: String) async {
+    let message = BidiGenerateContentRealtimeInput(text: text)
+    await service.send(.realtimeInput(message))
+  }
+
+  /// Incremental update of the current conversation.
+  ///
+  /// The content is unconditionally appended to the conversation history and used as part of the
+  /// prompt to the model to
+  /// generate content.
+  ///
+  /// Sending this message will also cause an interruption, if the server is actively generating
+  /// content.
+  ///
+  /// - Parameters:
+  ///   - content: Content to append to the current conversation with the model.
+  ///   - turnComplete: Whether the server should start generating content with the currently
+  /// accumulated prompt, or await
+  ///   additional messages before starting generation. By default, the server will await additional
+  /// messages.
+  public func sendContent(_ content: [ModelContent], turnComplete: Bool? = nil) async {
+    let message = BidiGenerateContentClientContent(turns: content, turnComplete: turnComplete)
+    await service.send(.clientContent(message))
+  }
+
+  /// Incremental update of the current conversation.
+  ///
+  /// The content is unconditionally appended to the conversation history and used as part of the
+  /// prompt to the model to
+  /// generate content.
+  ///
+  /// Sending this message will also cause an interruption, if the server is actively generating
+  /// content.
+  ///
+  /// - Parameters:
+  ///   - content: Content to append to the current conversation with the model  (see
+  /// ``PartsRepresentable`` for
+  ///   conforming types).
+  ///   - turnComplete: Whether the server should start generating content with the currently
+  /// accumulated prompt, or await
+  ///   additional messages before starting generation. By default, the server will await additional
+  /// messages.
+  public func sendContent(_ parts: any PartsRepresentable...,
+                          turnComplete: Bool? = nil) async {
+    await sendContent([ModelContent(parts: parts)], turnComplete: turnComplete)
   }
 }

@@ -43,7 +43,7 @@ struct BidiGenerateContentRealtimeInput: Encodable {
   let audioStreamEnd: Bool?
 
   /// These form the realtime video input stream.
-  let video: Data?
+  let video: InlineData?
 
   /// These form the realtime text input stream.
   let text: String?
@@ -61,4 +61,15 @@ struct BidiGenerateContentRealtimeInput: Encodable {
   /// Marks the end of user activity. This can only be sent if automatic (i.e.
   // server-side) activity detection is disabled.
   let activityEnd: ActivityEnd?
+
+  init(audio: InlineData? = nil, video: InlineData? = nil, text: String? = nil,
+       activityStart: ActivityStart? = nil, activityEnd: ActivityEnd? = nil,
+       audioStreamEnd: Bool? = nil) {
+    self.audio = audio
+    self.video = video
+    self.text = text
+    self.activityStart = activityStart
+    self.activityEnd = activityEnd
+    self.audioStreamEnd = audioStreamEnd
+  }
 }

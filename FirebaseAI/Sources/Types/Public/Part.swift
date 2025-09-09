@@ -159,7 +159,7 @@ public struct FunctionCallPart: Part {
     self.init(FunctionCall(name: name, args: args), isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ functionCall: FunctionCall, isThought: Bool?, thoughtSignature: String?) {
+  init(_ functionCall: FunctionCall, isThought: Bool? = nil, thoughtSignature: String? = nil) {
     self.functionCall = functionCall
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -177,6 +177,9 @@ public struct FunctionResponsePart: Part {
   let _isThought: Bool?
   let thoughtSignature: String?
 
+  // TODO: add docs
+  public var id: String? { functionResponse.id }
+
   /// The name of the function that was called.
   public var name: String { functionResponse.name }
 
@@ -193,6 +196,15 @@ public struct FunctionResponsePart: Part {
   public init(name: String, response: JSONObject) {
     self.init(
       FunctionResponse(name: name, response: response), isThought: nil, thoughtSignature: nil
+    )
+  }
+
+  // TODO: add docs for id param
+  public init(name: String, response: JSONObject, id: String? = nil) {
+    self.init(
+      FunctionResponse(name: name, response: response, id: id),
+      isThought: nil,
+      thoughtSignature: nil
     )
   }
 

@@ -20,7 +20,7 @@ import Foundation
 /// attempt to undo the tool calls. This message occurs only in cases where the
 /// clients interrupt server turns.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct BidiGenerateContentToolCallCancellation: Decodable {
+struct BidiGenerateContentToolCallCancellation: Decodable, Sendable {
   /// The ids of the tool calls to be cancelled.
   let ids: [String]?
 }

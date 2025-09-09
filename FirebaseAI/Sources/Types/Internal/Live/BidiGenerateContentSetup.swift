@@ -43,18 +43,32 @@ struct BidiGenerateContentSetup: Encodable {
   /// knowledge and scope of the model.
   let tools: [Tool]?
 
+  let toolConfig: ToolConfig?
+
   /// Configures the handling of realtime input.
   let realtimeInputConfig: RealtimeInputConfig?
+
+  let inputAudioTranscription: AudioTranscriptionConfig?
+
+  let outputAudioTranscription: AudioTranscriptionConfig?
 
   init(model: String,
        generationConfig: LiveGenerationConfig? = nil,
        systemInstruction: ModelContent? = nil,
        tools: [Tool]? = nil,
-       realtimeInputConfig: RealtimeInputConfig? = nil) {
+       toolConfig: ToolConfig? = nil,
+       realtimeInputConfig: RealtimeInputConfig? = nil,
+       inputAudioTranscription: AudioTranscriptionConfig? = nil,
+       outputAudioTranscription: AudioTranscriptionConfig? = nil) {
     self.model = model
     self.generationConfig = generationConfig
     self.systemInstruction = systemInstruction
     self.tools = tools
+    self.toolConfig = toolConfig
     self.realtimeInputConfig = realtimeInputConfig
+    self.inputAudioTranscription = inputAudioTranscription
+    self.outputAudioTranscription = outputAudioTranscription
   }
 }
+
+struct AudioTranscriptionConfig: Encodable {}

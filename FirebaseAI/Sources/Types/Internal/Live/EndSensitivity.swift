@@ -16,7 +16,7 @@ import Foundation
 
 /// End of speech sensitivity.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct EndSensitivity: EncodableProtoEnum, Hashable, Sendable {
+struct EndSensitivity: EncodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case high = "END_SENSITIVITY_HIGH"
     case low = "END_SENSITIVITY_LOW"

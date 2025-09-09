@@ -28,6 +28,7 @@ public struct ResponseModality: EncodableProtoEnum, Sendable {
   enum Kind: String {
     case text = "TEXT"
     case image = "IMAGE"
+    case audio = "AUDIO"
   }
 
   /// Specifies that the model should generate textual content.
@@ -47,6 +48,8 @@ public struct ResponseModality: EncodableProtoEnum, Sendable {
   /// > means that it is not subject to any SLA or deprecation policy and could change in
   /// > backwards-incompatible ways.
   public static let image = ResponseModality(kind: .image)
+
+  public static let audio = ResponseModality(kind: .audio)
 
   let rawValue: String
 }
