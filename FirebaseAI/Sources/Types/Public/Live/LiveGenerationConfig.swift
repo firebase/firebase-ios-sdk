@@ -14,8 +14,7 @@
 
 import Foundation
 
-/// A struct defining model parameters to be used when sending generative AI
-/// requests to the backend model.
+/// Configuration options for live content generation.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct LiveGenerationConfig: Sendable {
   /// Controls the degree of randomness in token selection.
@@ -45,7 +44,7 @@ public struct LiveGenerationConfig: Sendable {
   /// Controls the voice of the model during conversation.
   let speechConfig: SpeechConfig?
 
-  /// Creates a new `GenerationConfig` value.
+  /// Creates a new ``LiveGenerationConfig`` value.
   ///
   /// See the
   /// [Configure model parameters](https://firebase.google.com/docs/vertex-ai/model-parameters)
