@@ -14,7 +14,6 @@
 
 import Foundation
 
-// TODO: add support for SpeechConfig
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -42,6 +41,9 @@ public struct LiveGenerationConfig: Sendable {
 
   /// Supported modalities of the response.
   let responseModalities: [ResponseModality]?
+
+  /// Controls the voice of the model during conversation.
+  let speechConfig: SpeechConfig?
 
   /// Creates a new `GenerationConfig` value.
   ///
@@ -122,10 +124,13 @@ public struct LiveGenerationConfig: Sendable {
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
   ///     > backwards-incompatible ways.
+  ///   - speechConfig: Controls the voice of the model, when streaming `audio` via
+  ///     ``ResponseModality``.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-              responseModalities: [ResponseModality]? = nil) {
+              responseModalities: [ResponseModality]? = nil,
+              speechConfig: LiveSpeechConfig? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -136,6 +141,7 @@ public struct LiveGenerationConfig: Sendable {
     self.presencePenalty = presencePenalty
     self.frequencyPenalty = frequencyPenalty
     self.responseModalities = responseModalities
+    self.speechConfig = speechConfig?.speechConfig
   }
 }
 
@@ -152,5 +158,6 @@ extension LiveGenerationConfig: Encodable {
     case presencePenalty
     case frequencyPenalty
     case responseModalities
+    case speechConfig
   }
 }

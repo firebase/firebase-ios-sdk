@@ -72,7 +72,6 @@ enum AILog {
     case liveSessionFailedToSendClientMessage = 3021
     case liveSessionUnexpectedResponse = 3022
 
-
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000
     case generateContentResponseNoText = 4001
@@ -80,7 +79,6 @@ enum AILog {
     case generateContentResponseEmptyCandidates = 4003
     case invalidWebsocketURL = 4004
     case duplicateLiveSessionSetupComplete = 4005
-
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000

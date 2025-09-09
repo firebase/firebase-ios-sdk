@@ -100,7 +100,8 @@ actor LiveSessionService {
 
   /// Start a new connection to the backend.
   ///
-  /// Seperated into its own function to make it easier to surface a way to call it seperately when resuming the same session.
+  /// Seperated into its own function to make it easier to surface a way to call it seperately when
+  /// resuming the same session.
   public func connect() {
     setupTask.cancel()
     setupTask = Task { [weak self] in
@@ -197,8 +198,8 @@ actor LiveSessionService {
           } else if let liveMessage = LiveServerMessage.tryFrom(response) {
             responseContinuation.yield(liveMessage)
           } else {
-            // we don't raise an error, since this allows us to add support internally but not publicly
-            // we still log it in debug though, in case it's not expected
+            // we don't raise an error, since this allows us to add support internally but not
+            // publicly we still log it in debug though, in case it's not expected
             AILog.debug(
               code: .liveSessionUnsupportedMessage,
               "The server sent a message that we don't currently have a mapping for: \(response)"

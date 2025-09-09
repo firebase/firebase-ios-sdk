@@ -25,7 +25,8 @@ public struct LiveServerMessage: Sendable {
     /// Request for the client to execute the provided functions.
     case toolCall(LiveServerToolCall)
 
-    /// Notification for the client that a previously issued ``LiveServerToolCall`` should be cancelled.
+    /// Notification for the client that a previously issued ``LiveServerToolCall`` should be
+    /// cancelled.
     case toolCallCancellation(LiveServerToolCallCancellation)
 
     /// Server will disconnect soon.
@@ -35,14 +36,14 @@ public struct LiveServerMessage: Sendable {
   /// The actual message sent from the server.
   public var messageType: MessageType
 
-  /// 
+  // TODO: document
   public var usageMetadata: GenerateContentResponse.UsageMetadata? { serverMessage.usageMetadata }
 }
 
 // MARK: - Internal parsing
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-internal extension LiveServerMessage {
+extension LiveServerMessage {
   static func tryFrom(_ serverMessage: BidiGenerateContentServerMessage) -> Self? {
     guard let messageType = LiveServerMessage.MessageType.tryFrom(serverMessage.messageType) else {
       return nil
@@ -53,7 +54,7 @@ internal extension LiveServerMessage {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-internal extension LiveServerMessage.MessageType {
+extension LiveServerMessage.MessageType {
   static func tryFrom(_ serverMessage: BidiGenerateContentServerMessage.MessageType) -> Self? {
     return switch serverMessage {
     case .setupComplete:

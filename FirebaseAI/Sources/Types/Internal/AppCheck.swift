@@ -15,7 +15,7 @@
 import FirebaseAppCheckInterop
 
 // TODO: document
-internal extension AppCheckInterop {
+extension AppCheckInterop {
   // TODO: Document
   func fetchAppCheckToken(limitedUse: Bool,
                           domain: String) async throws -> FIRAppCheckTokenResultInterop {
