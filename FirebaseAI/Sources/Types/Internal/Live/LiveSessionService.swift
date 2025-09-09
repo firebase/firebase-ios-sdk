@@ -205,7 +205,7 @@ actor LiveSessionService {
               "The server sent a message that we don't currently have a mapping for: \(response)"
             )
           }
-          // TODO: (b/xxx) When we get the goingAway message (and auto session resumption is enabled) then call `connect` again
+          // TODO: (b/444045023) When we get the goingAway message (and auto session resumption is enabled) then call `connect` again
         }
       } catch {
         if let error = error as? WebSocketClosedError {
