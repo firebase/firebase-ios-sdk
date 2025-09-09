@@ -14,9 +14,18 @@
 
 import FirebaseAppCheckInterop
 
-// TODO: document
+/// Internal helper extension for fetching app check tokens.
+///
+/// Provides a common means for fetching limited use tokens, and falling back to standard tokens
+/// when it's disabled (or in debug mode). This also centrializes the error, since this method is
+/// used in multiple places.
 extension AppCheckInterop {
-  // TODO: Document
+  /// Fetch the appcheck token.
+  ///
+  /// - Parameters:
+  ///   - limitedUse: Should the token be a limited-use token, or a standard token.
+  ///   - domain: A string dictating where this method is being called from. Used in any thrown
+  ///     errors, to avoid hard-to-parse traces.
   func fetchAppCheckToken(limitedUse: Bool,
                           domain: String) async throws -> FIRAppCheckTokenResultInterop {
     if limitedUse {
