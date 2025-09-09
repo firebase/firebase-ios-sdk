@@ -400,8 +400,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // if they haven't implemented it.
   if ([NSUserActivity class] != nil &&
       [appDelegate respondsToSelector:continueUserActivitySelector]) {
-    NSUserActivity *userActivity =
-        [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
+    // Use string literal to ensure compatibility with Xcode 26 and iOS 18
+    NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+    NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
     userActivity.webpageURL = url;
     [appDelegate application:application
         continueUserActivity:userActivity

@@ -16,12 +16,12 @@ import Foundation
 
 // TODO(Swift 6 Breaking): Make checked Sendable.
 
-#if os(iOS)
+#if os(iOS) || os(macOS)
   extension MultiFactorInfo: NSSecureCoding {}
 
   /// Safe public structure used to represent a second factor entity from a client perspective.
   ///
-  /// This class is available on iOS only.
+  /// This class is available on iOS and macOS.
   @objc(FIRMultiFactorInfo) open class MultiFactorInfo: NSObject, @unchecked Sendable {
     /// The multi-factor enrollment ID.
     @objc(UID) public let uid: String

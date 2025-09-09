@@ -1,3 +1,11 @@
+# Unreleased
+- [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
+  building dynamically linked libraries. (#15276)
+
+# 12.2.0
+- [fixed] Fixed a race condition that could lead to a crash during network
+  session recreation. (#15087)
+
 # 12.0.0
 - [added] Improved how the SDK handles real-time requests when a Firebase
   project has exceeded its available quota for real-time services.

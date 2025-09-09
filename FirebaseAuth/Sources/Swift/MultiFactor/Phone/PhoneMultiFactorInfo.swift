@@ -16,13 +16,13 @@ import Foundation
 
 // TODO(Swift 6 Breaking): Make checked Sendable.
 
-#if os(iOS)
+#if os(iOS) || os(macOS)
 
   /// Extends the MultiFactorInfo class for phone number second factors.
   ///
   /// The identifier of this second factor is "phone".
   ///
-  /// This class is available on iOS only.
+  /// This class is available on iOS and macOS.
   @objc(FIRPhoneMultiFactorInfo) open class PhoneMultiFactorInfo: MultiFactorInfo,
     @unchecked Sendable {
     /// The string identifier for using phone as a second factor.

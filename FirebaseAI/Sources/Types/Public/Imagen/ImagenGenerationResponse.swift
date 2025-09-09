@@ -60,6 +60,8 @@ extension ImagenGenerationResponse: Decodable where T: Decodable {
         images.append(image)
       } else if let filteredReason = try? predictionsContainer.decode(RAIFilteredReason.self) {
         filteredReasons.append(filteredReason.raiFilteredReason)
+      } else if let _ = try? predictionsContainer.decode(ImagenSafetyAttributes.self) {
+        // Ignore SafetyAttributes "prediction" to avoid logging in `unsupportedPrediction` below.
       } else if let unsupportedPrediction = try? predictionsContainer.decode(JSONObject.self) {
         AILog.warning(
           code: .decodedUnsupportedImagenPredictionType,
