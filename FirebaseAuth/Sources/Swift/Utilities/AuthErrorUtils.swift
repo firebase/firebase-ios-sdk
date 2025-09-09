@@ -207,6 +207,10 @@ class AuthErrorUtils {
     error(code: .invalidRecaptchaToken)
   }
 
+  static func invalidAuthenticatorResponse() -> Error {
+    error(code: .invalidAuthenticatorResponse)
+  }
+
   static func unauthorizedDomainError(message: String?) -> Error {
     error(code: .unauthorizedDomain, message: message)
   }
@@ -233,6 +237,10 @@ class AuthErrorUtils {
 
   static func missingVerificationCodeError(message: String?) -> Error {
     error(code: .missingVerificationCode, message: message)
+  }
+
+  static func missingPasskeyEnrollment() -> Error {
+    error(code: .missingPasskeyEnrollment)
   }
 
   static func invalidVerificationCodeError(message: String?) -> Error {

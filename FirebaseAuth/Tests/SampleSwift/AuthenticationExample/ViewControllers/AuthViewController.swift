@@ -191,6 +191,18 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .multifactorUnenroll:
       mfaUnenroll()
+
+    case .passkeySignUp:
+      passkeySignUp()
+
+    case .passkeyEnroll:
+      Task { await passkeyEnroll() }
+
+    case .passkeySignIn:
+      Task { await passkeySignIn() }
+
+    case .passkeyUnenroll:
+      Task { await passkeyUnenroll() }
     }
   }
 
@@ -922,6 +934,87 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
   }
 
+  // MARK: - Passkey
+
+  private func passkeySignUp() {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      print("OS version is not supported for this action.")
+      return
+    }
+    Task {
+      do {
+        _ = try await AppManager.shared.auth().signInAnonymously()
+        print("sign-in anonymously succeeded.")
+        if let uid = AppManager.shared.auth().currentUser?.uid {
+          print("User ID: \(uid)")
+        }
+        // Continue to enroll a passkey.
+        await passkeyEnroll()
+      } catch {
+        print("sign-in anonymously failed: \(error.localizedDescription)")
+        self.showAlert(for: "Anonymous Sign-In Failed")
+      }
+    }
+  }
+
+  private func passkeyEnroll() async {
+    guard let user = AppManager.shared.auth().currentUser else {
+      showAlert(for: "Please sign in first.")
+      return
+    }
+    let passkeyName = await showTextInputPrompt(with: "Passkey name")
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      showAlert(for: "Not Supported", message: "This OS version does not support passkeys.")
+      return
+    }
+
+    do {
+      let request = try await user.startPasskeyEnrollment(withName: passkeyName)
+      let controller = ASAuthorizationController(authorizationRequests: [request])
+      controller.delegate = self
+      controller.presentationContextProvider = self
+      controller.performRequests()
+      print("Started passkey enrollment (challenge created).")
+    } catch {
+      showAlert(for: "Passkey enrollment failed", message: error.localizedDescription)
+      print("startPasskeyEnrollment failed: \(error.localizedDescription)")
+    }
+  }
+
+  private func passkeySignIn() async {
+    guard #available(iOS 16.0, macOS 12.0, tvOS 16.0, *) else {
+      print("OS version is not supported for this action.")
+      return
+    }
+    do {
+      let request = try await AppManager.shared.auth().startPasskeySignIn()
+      let controller = ASAuthorizationController(authorizationRequests: [request])
+      controller.delegate = self
+      controller.presentationContextProvider = self
+      controller.performRequests()
+      print("Started passkey sign in (challenge created).")
+    } catch {
+      print("Passkey sign-in failed with error: \(error)")
+    }
+  }
+
+  private func passkeyUnenroll() async {
+    guard let user = AppManager.shared.auth().currentUser else {
+      showAlert(for: "Please sign in first.")
+      return
+    }
+    guard let credentialId = await showTextInputPrompt(with: "Credential Id") else {
+      print("Passkey unenrollment cancelled: no credential id entered.")
+      return
+    }
+    do {
+      let _ = try await user.unenrollPasskey(withCredentialID: credentialId)
+    } catch {
+      showAlert(for: "Passkey unenrollment failed", message: error.localizedDescription)
+      print("unenrollPasskey failed: \(error.localizedDescription)")
+    }
+  }
+
   // MARK: - Private Helpers
 
   private func showTextInputPrompt(with message: String, completion: ((String) -> Void)? = nil) {
@@ -1027,6 +1120,43 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
 
   func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithAuthorization authorization: ASAuthorization) {
+    if #available(iOS 16.0, macOS 12.0, tvOS 16.0, *),
+       let regCred = authorization.credential
+       as? ASAuthorizationPlatformPublicKeyCredentialRegistration {
+      Task { @MainActor [weak self] in
+        guard let self else { return }
+        do {
+          guard let user = AppManager.shared.auth().currentUser else {
+            self.showAlert(for: "Finalize failed", message: "No signed-in user.")
+            return
+          }
+          _ = try await user.finalizePasskeyEnrollment(withPlatformCredential: regCred)
+          self.showAlert(for: "Passkey Enrollment", message: "Succeeded")
+          print("Passkey Enrollment succeeded.")
+        } catch {
+          self.showAlert(for: "Passkey Enrollment failed", message: error.localizedDescription)
+          print("Finalize enrollment failed: \(error.localizedDescription)")
+        }
+      }
+      return
+    }
+    if let assertion = authorization
+      .credential as? ASAuthorizationPlatformPublicKeyCredentialAssertion {
+      Task { @MainActor [weak self] in
+        guard let self else { return }
+        do {
+          let _ = try await AppManager.shared.auth()
+            .finalizePasskeySignIn(withPlatformCredential: assertion)
+          self.showAlert(for: "Passkey Sign-In", message: "Succeeded")
+          print("Passkey sign-in succeeded.")
+          self.transitionToUserViewController()
+        } catch {
+          self.showAlert(for: "Passkey Sign-In failed", message: error.localizedDescription)
+          print("Finalize passkey sign-in failed: \(error.localizedDescription)")
+        }
+      }
+      return
+    }
     guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential
     else {
       print("Unable to retrieve AppleIDCredential")
@@ -1074,10 +1204,10 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
 
   func authorizationController(controller: ASAuthorizationController,
                                didCompleteWithError error: any Error) {
-    // Ensure that you have:
+    print("Apple authorization failed: \(error)")
+    // for Sign In with Apple, ensure that you have:
     //  - enabled `Sign in with Apple` on the Firebase console
     //  - added the `Sign in with Apple` capability for this project
-    print("Sign in with Apple failed: \(error)")
   }
 
   // MARK: ASAuthorizationControllerPresentationContextProviding
