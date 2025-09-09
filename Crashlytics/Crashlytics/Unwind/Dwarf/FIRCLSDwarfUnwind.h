@@ -26,14 +26,14 @@
 #pragma mark Structures
 typedef struct {
   uint32_t length;
-  const void* data;
+  const void *data;
 } DWARFInstructions;
 
 typedef struct {
   uint64_t length;
   uint8_t version;
   uintptr_t ehData;  // 8 bytes for 64-bit architectures, 4 bytes for 32
-  const char* augmentation;
+  const char *augmentation;
   uint8_t pointerEncoding;
   uint8_t lsdaEncoding;
   uint8_t personalityEncoding;
@@ -77,7 +77,7 @@ typedef struct {
 typedef struct {
   uint64_t cfaRegister;
   int64_t cfaRegisterOffset;
-  const void* cfaExpression;
+  const void *cfaExpression;
   uint32_t spArgSize;
 
   FIRCLSDwarfRegister registers[CLS_DWARF_MAX_REGISTER_NUM + 1];
@@ -86,51 +86,51 @@ typedef struct {
 __BEGIN_DECLS
 
 #pragma mark - Parsing
-bool FIRCLSDwarfParseCIERecord(DWARFCIERecord* cie, const void* ptr);
-bool FIRCLSDwarfParseFDERecord(DWARFFDERecord* fdeRecord,
+bool FIRCLSDwarfParseCIERecord(DWARFCIERecord *cie, const void *ptr);
+bool FIRCLSDwarfParseFDERecord(DWARFFDERecord *fdeRecord,
                                bool parseCIE,
-                               DWARFCIERecord* cieRecord,
-                               const void* ptr);
-bool FIRCLSDwarfParseCFIFromFDERecord(FIRCLSDwarfCFIRecord* record, const void* ptr);
-bool FIRCLSDwarfParseCFIFromFDERecordOffset(FIRCLSDwarfCFIRecord* record,
-                                            const void* ehFrame,
+                               DWARFCIERecord *cieRecord,
+                               const void *ptr);
+bool FIRCLSDwarfParseCFIFromFDERecord(FIRCLSDwarfCFIRecord *record, const void *ptr);
+bool FIRCLSDwarfParseCFIFromFDERecordOffset(FIRCLSDwarfCFIRecord *record,
+                                            const void *ehFrame,
                                             uintptr_t fdeOffset);
 
 #pragma mark - Properties
-bool FIRCLSDwarfCIEIsValid(DWARFCIERecord* cie);
-bool FIRCLSDwarfCIEHasAugmentationData(DWARFCIERecord* cie);
+bool FIRCLSDwarfCIEIsValid(DWARFCIERecord *cie);
+bool FIRCLSDwarfCIEHasAugmentationData(DWARFCIERecord *cie);
 
 #pragma mark - Execution
-bool FIRCLSDwarfInstructionsEnumerate(DWARFInstructions* instructions,
-                                      DWARFCIERecord* cieRecord,
-                                      FIRCLSDwarfState* state,
+bool FIRCLSDwarfInstructionsEnumerate(DWARFInstructions *instructions,
+                                      DWARFCIERecord *cieRecord,
+                                      FIRCLSDwarfState *state,
                                       intptr_t pcOffset);
-bool FIRCLSDwarfUnwindComputeRegisters(FIRCLSDwarfCFIRecord* record,
-                                       FIRCLSThreadContext* registers);
-bool FIRCLSDwarfUnwindAssignRegisters(const FIRCLSDwarfState* state,
-                                      const FIRCLSThreadContext* registers,
+bool FIRCLSDwarfUnwindComputeRegisters(FIRCLSDwarfCFIRecord *record,
+                                       FIRCLSThreadContext *registers);
+bool FIRCLSDwarfUnwindAssignRegisters(const FIRCLSDwarfState *state,
+                                      const FIRCLSThreadContext *registers,
                                       uintptr_t cfaRegister,
-                                      FIRCLSThreadContext* outputRegisters);
+                                      FIRCLSThreadContext *outputRegisters);
 
 #pragma mark - Register Operations
-bool FIRCLSDwarfCompareRegisters(const FIRCLSThreadContext* a,
-                                 const FIRCLSThreadContext* b,
+bool FIRCLSDwarfCompareRegisters(const FIRCLSThreadContext *a,
+                                 const FIRCLSThreadContext *b,
                                  uint64_t registerNum);
 
-bool FIRCLSDwarfGetCFA(FIRCLSDwarfState* state,
-                       const FIRCLSThreadContext* registers,
-                       uintptr_t* cfa);
-uintptr_t FIRCLSDwarfGetSavedRegister(const FIRCLSThreadContext* registers,
+bool FIRCLSDwarfGetCFA(FIRCLSDwarfState *state,
+                       const FIRCLSThreadContext *registers,
+                       uintptr_t *cfa);
+uintptr_t FIRCLSDwarfGetSavedRegister(const FIRCLSThreadContext *registers,
                                       uintptr_t cfaRegister,
                                       FIRCLSDwarfRegister dRegister);
 
 #if DEBUG
 #pragma mark - Debugging
-void FIRCLSCFIRecordShow(FIRCLSDwarfCFIRecord* record);
-void FIRCLSCIERecordShow(DWARFCIERecord* record);
-void FIRCLSFDERecordShow(DWARFFDERecord* record, DWARFCIERecord* cie);
-void FIRCLSDwarfPointerEncodingShow(const char* leadString, uint8_t encoding);
-void FIRCLSDwarfInstructionsShow(DWARFInstructions* instructions, DWARFCIERecord* cie);
+void FIRCLSCFIRecordShow(FIRCLSDwarfCFIRecord *record);
+void FIRCLSCIERecordShow(DWARFCIERecord *record);
+void FIRCLSFDERecordShow(DWARFFDERecord *record, DWARFCIERecord *cie);
+void FIRCLSDwarfPointerEncodingShow(const char *leadString, uint8_t encoding);
+void FIRCLSDwarfInstructionsShow(DWARFInstructions *instructions, DWARFCIERecord *cie);
 #endif
 
 __END_DECLS
