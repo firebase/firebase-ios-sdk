@@ -36,7 +36,7 @@ public struct LiveServerMessage: Sendable {
   /// The actual message sent from the server.
   public var messageType: MessageType
 
-  // TODO: document
+  /// Metadata on the usage of the cached content.
   public var usageMetadata: GenerateContentResponse.UsageMetadata? { serverMessage.usageMetadata }
 }
 
