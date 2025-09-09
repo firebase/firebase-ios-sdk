@@ -147,6 +147,7 @@ public struct FunctionCallPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
+  public var id: String?
   /// Constructs a new function call part.
   ///
   /// > Note: A `FunctionCallPart` is typically received from the model, rather than created
@@ -156,7 +157,21 @@ public struct FunctionCallPart: Part {
   ///   - name: The name of the function to call.
   ///   - args: The function parameters and values.
   public init(name: String, args: JSONObject) {
-    self.init(FunctionCall(name: name, args: args), isThought: nil, thoughtSignature: nil)
+    self.init(FunctionCall(name: name, args: args, id: nil), isThought: nil, thoughtSignature: nil)
+  }
+
+  /// Constructs a new function call part.
+  ///
+  /// > Note: A `FunctionCallPart` is typically received from the model, rather than created
+  /// manually.
+  ///
+  /// - Parameters:
+  ///   - name: The name of the function to call.
+  ///   - args: The function parameters and values.
+  ///   - id: Unique id of the function call. If present, the returned ``FunctionResponsePart``
+  ///     should have a matching `id` field.
+  public init(name: String, args: JSONObject, id: String? = nil) {
+    self.init(FunctionCall(name: name, args: args, id: id), isThought: nil, thoughtSignature: nil)
   }
 
   init(_ functionCall: FunctionCall, isThought: Bool? = nil, thoughtSignature: String? = nil) {

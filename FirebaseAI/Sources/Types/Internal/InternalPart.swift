@@ -45,10 +45,12 @@ struct FileData: Codable, Equatable, Sendable {
 struct FunctionCall: Equatable, Sendable {
   let name: String
   let args: JSONObject
+  let id: String?
 
-  init(name: String, args: JSONObject) {
+  init(name: String, args: JSONObject, id: String?) {
     self.name = name
     self.args = args
+    self.id = id
   }
 }
 
@@ -137,6 +139,7 @@ extension FunctionCall: Codable {
     } else {
       args = JSONObject()
     }
+    id = try container.decode(String.self, forKey: .id)
   }
 }
 
