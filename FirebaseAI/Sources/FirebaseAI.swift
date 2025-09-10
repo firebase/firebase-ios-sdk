@@ -151,7 +151,7 @@ public final class FirebaseAI: Sendable {
   ///
   /// - Parameters:
   ///   - modelName: The name of the Livemodel to use, for example
-  /// `"gemini-live-2.5-flash-preview"`;
+  ///     `"gemini-live-2.5-flash-preview"`;
   ///     see [model versions](https://firebase.google.com/docs/ai-logic/live-api?api=dev#models-that-support-capability)
   ///     for a list of supported Live models.
   ///   - generationConfig: The content generation parameters your model should use.
@@ -159,6 +159,7 @@ public final class FirebaseAI: Sendable {
   ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
+  ///   - requestOptions: Configuration parameters for sending requests to the backend.
   public func liveModel(modelName: String,
                         generationConfig: LiveGenerationConfig? = nil,
                         tools: [Tool]? = nil,
@@ -172,7 +173,8 @@ public final class FirebaseAI: Sendable {
       generationConfig: generationConfig,
       tools: tools,
       toolConfig: toolConfig,
-      systemInstruction: systemInstruction
+      systemInstruction: systemInstruction,
+      requestOptions: requestOptions
     )
   }
 

@@ -28,6 +28,7 @@ public final class LiveGenerativeModel {
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
   let urlSession: URLSession
+  let requestOptions: RequestOptions
 
   init(modelResourceName: String,
        firebaseInfo: FirebaseInfo,
@@ -36,7 +37,8 @@ public final class LiveGenerativeModel {
        tools: [Tool]? = nil,
        toolConfig: ToolConfig? = nil,
        systemInstruction: ModelContent? = nil,
-       urlSession: URLSession = GenAIURLSession.default) {
+       urlSession: URLSession = GenAIURLSession.default,
+       requestOptions: RequestOptions) {
     self.modelResourceName = modelResourceName
     self.firebaseInfo = firebaseInfo
     self.apiConfig = apiConfig
@@ -45,6 +47,7 @@ public final class LiveGenerativeModel {
     self.toolConfig = toolConfig
     self.systemInstruction = systemInstruction
     self.urlSession = urlSession
+    self.requestOptions = requestOptions
   }
 
   /// Start a ``LiveSession`` with the server for bidirectional streaming.
@@ -60,6 +63,7 @@ public final class LiveGenerativeModel {
       tools: tools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
+      requestOptions: requestOptions
     )
 
     await service.connect()

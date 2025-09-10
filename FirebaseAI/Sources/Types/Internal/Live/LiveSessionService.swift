@@ -44,6 +44,7 @@ actor LiveSessionService {
   let urlSession: URLSession
   let apiConfig: APIConfig
   let firebaseInfo: FirebaseInfo
+  let requestOptions: RequestOptions
   let tools: [Tool]?
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
@@ -73,7 +74,8 @@ actor LiveSessionService {
        firebaseInfo: FirebaseInfo,
        tools: [Tool]?,
        toolConfig: ToolConfig?,
-       systemInstruction: ModelContent?) {
+       systemInstruction: ModelContent?,
+       requestOptions: RequestOptions) {
     (responses, responseContinuation) = AsyncThrowingStream.makeStream()
     (messageQueue, messageQueueContinuation) = AsyncStream.makeStream()
     self.modelResourceName = modelResourceName
@@ -84,6 +86,7 @@ actor LiveSessionService {
     self.tools = tools
     self.toolConfig = toolConfig
     self.systemInstruction = systemInstruction
+    self.requestOptions = requestOptions
     setupTask = Task {}
   }
 
@@ -301,6 +304,7 @@ actor LiveSessionService {
       )
     }
     var urlRequest = URLRequest(url: url)
+    urlRequest.timeoutInterval = requestOptions.timeout
     urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
     urlRequest.setValue(
       "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
