@@ -19,10 +19,10 @@
 #include <mach-o/compact_unwind_encoding.h>
 #pragma pack(pop)
 
-bool FIRCLSCompactUnwindLookup(FIRCLSCompactUnwindContext* context,
+bool FIRCLSCompactUnwindLookup(FIRCLSCompactUnwindContext *context,
                                uintptr_t pc,
-                               FIRCLSCompactUnwindResult* result);
+                               FIRCLSCompactUnwindResult *result);
 
-bool FIRCLSCompactUnwindComputeRegisters(FIRCLSCompactUnwindContext* context,
-                                         FIRCLSCompactUnwindResult* result,
-                                         FIRCLSThreadContext* registers);
+bool FIRCLSCompactUnwindComputeRegisters(FIRCLSCompactUnwindContext *context,
+                                         FIRCLSCompactUnwindResult *result,
+                                         FIRCLSThreadContext *registers);

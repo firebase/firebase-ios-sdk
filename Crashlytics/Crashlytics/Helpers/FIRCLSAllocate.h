@@ -23,17 +23,17 @@ typedef enum { CLS_READONLY = 0, CLS_READWRITE = 1 } FIRCLSAllocationType;
 
 typedef struct {
   size_t size;
-  void* start;
-  _Atomic(void*) volatile cursor;
+  void *start;
+  _Atomic(void *) volatile cursor;
 } FIRCLSAllocationRegion;
 
 typedef struct {
-  void* buffer;
+  void *buffer;
   bool protectionEnabled;
   FIRCLSAllocationRegion writeableRegion;
   FIRCLSAllocationRegion readableRegion;
 } FIRCLSAllocator;
-typedef FIRCLSAllocator* FIRCLSAllocatorRef;
+typedef FIRCLSAllocator *FIRCLSAllocatorRef;
 
 FIRCLSAllocatorRef FIRCLSAllocatorCreate(size_t writableSpace, size_t readableSpace);
 void FIRCLSAllocatorDestroy(FIRCLSAllocatorRef allocator);
@@ -41,8 +41,8 @@ void FIRCLSAllocatorDestroy(FIRCLSAllocatorRef allocator);
 bool FIRCLSAllocatorProtect(FIRCLSAllocatorRef allocator);
 bool FIRCLSAllocatorUnprotect(FIRCLSAllocatorRef allocator);
 
-void* FIRCLSAllocatorSafeAllocate(FIRCLSAllocatorRef allocator,
+void *FIRCLSAllocatorSafeAllocate(FIRCLSAllocatorRef allocator,
                                   size_t size,
                                   FIRCLSAllocationType type);
-const char* FIRCLSAllocatorSafeStrdup(FIRCLSAllocatorRef allocator, const char* string);
-void FIRCLSAllocatorFree(FIRCLSAllocatorRef allocator, void* ptr);
+const char *FIRCLSAllocatorSafeStrdup(FIRCLSAllocatorRef allocator, const char *string);
+void FIRCLSAllocatorFree(FIRCLSAllocatorRef allocator, void *ptr);
