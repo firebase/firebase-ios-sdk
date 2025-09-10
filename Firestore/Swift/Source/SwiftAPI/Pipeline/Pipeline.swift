@@ -554,7 +554,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let results = try await combinedPipeline.execute()
   /// ```
   ///
-  /// - Parameter other: An array of at least one `Pipeline` whose documents will be unioned.
+  /// - Parameter other: Another `Pipeline` whose documents will be unioned.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func union(with other: Pipeline) -> Pipeline {
     return Pipeline(stages: stages + [Union(other: other)], db: db)

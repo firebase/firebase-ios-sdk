@@ -13,9 +13,9 @@
 // limitations under the License.
 
 public struct AliasedExpression: Selectable, SelectableWrapper, Sendable {
-  public let alias: String
+  let alias: String
 
-  public let expr: Expression
+  let expr: Expression
 
   init(_ expr: Expression, _ alias: String) {
     self.alias = alias

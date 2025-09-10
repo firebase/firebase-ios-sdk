@@ -129,11 +129,11 @@ public extension Expression {
     return BooleanExpression("gt", [self, exprOther])
   }
 
-  func greaterThanOrEqualTo(_ other: Expression) -> BooleanExpression {
+  func greaterThanOrEqual(_ other: Expression) -> BooleanExpression {
     return BooleanExpression("gte", [self, other])
   }
 
-  func greaterThanOrEqualTo(_ other: Sendable) -> BooleanExpression {
+  func greaterThanOrEqual(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
     return BooleanExpression("gte", [self, exprOther])
   }
@@ -147,11 +147,11 @@ public extension Expression {
     return BooleanExpression("lt", [self, exprOther])
   }
 
-  func lessThanOrEqualTo(_ other: Expression) -> BooleanExpression {
+  func lessThanOrEqual(_ other: Expression) -> BooleanExpression {
     return BooleanExpression("lte", [self, other])
   }
 
-  func lessThanOrEqualTo(_ other: Sendable) -> BooleanExpression {
+  func lessThanOrEqual(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
     return BooleanExpression("lte", [self, exprOther])
   }

@@ -371,14 +371,14 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter other: The expression to compare against.
   /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
-  func greaterThanOrEqualTo(_ other: Expression) -> BooleanExpression
+  func greaterThanOrEqual(_ other: Expression) -> BooleanExpression
 
   /// Creates a `BooleanExpr` that returns `true` if this expression is
   /// greater than or equal to the given value.
   ///
   /// - Parameter other: The value to compare against.
   /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
-  func greaterThanOrEqualTo(_ other: Sendable) -> BooleanExpression
+  func greaterThanOrEqual(_ other: Sendable) -> BooleanExpression
 
   /// Creates a `BooleanExpr` that returns `true` if this expression is less
   /// than the given expression.
@@ -399,14 +399,14 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter other: The expression to compare against.
   /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
-  func lessThanOrEqualTo(_ other: Expression) -> BooleanExpression
+  func lessThanOrEqual(_ other: Expression) -> BooleanExpression
 
   /// Creates a `BooleanExpr` that returns `true` if this expression is less
   /// than or equal to the given value.
   ///
   /// - Parameter other: The value to compare against.
   /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
-  func lessThanOrEqualTo(_ other: Sendable) -> BooleanExpression
+  func lessThanOrEqual(_ other: Sendable) -> BooleanExpression
 
   /// Creates a `BooleanExpr` that returns `true` if this expression is equal
   /// to the given expression.

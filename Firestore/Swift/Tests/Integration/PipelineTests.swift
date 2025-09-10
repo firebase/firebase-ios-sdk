@@ -1956,7 +1956,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .where(
         Field("rating").greaterThan(4.2) &&
-          Field("rating").lessThanOrEqualTo(4.5) &&
+          Field("rating").lessThanOrEqual(4.5) &&
           Field("genre").notEqual("Science Fiction")
       )
       .select(["rating", "title"])
@@ -2338,7 +2338,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate([AggregateFunction("count_if", [Field("rating").greaterThanOrEqualTo(4.5)])
+      .aggregate([AggregateFunction("count_if", [Field("rating").greaterThanOrEqual(4.5)])
           .as("countOfBest")])
 
     let snapshot = try await pipeline.execute()
