@@ -23,9 +23,8 @@ import Foundation
 /// Facilitates communication with the backend for a ``LiveSession``.
 ///
 /// Using an actor will make it easier to adopt session resumption, as we have an isolated place for
-/// mainting mutablity, which is backed
-/// by Swift concurrency implicity; allowing us to avoid various edge-case issues with dead-locks
-/// and data races.
+/// mainting mutablity, which is backed by Swift concurrency implicity; allowing us to avoid various
+/// edge-case issues with dead-locks and data races.
 ///
 /// This mainly comes into play when we don't want to block developers from sending messages while a
 /// session is being reloaded.
@@ -59,7 +58,7 @@ actor LiveSessionService {
   /// Used to hold off on sending messages until the server is ready.
   private var setupTask: Task<Void, Error>
 
-  /// Long running task that  that wraps around the websocket, propogating messages through the
+  /// Long running task that that wraps around the websocket, propogating messages through the
   /// public stream.
   private var responsesTask: Task<Void, Never>?
 
