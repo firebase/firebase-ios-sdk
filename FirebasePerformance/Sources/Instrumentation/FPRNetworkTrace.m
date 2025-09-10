@@ -251,7 +251,10 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
       self.responseCode = (int32_t)HTTPResponse.statusCode;
     }
     self.responseError = error;
-    self.responseContentType = response.MIMEType;
+    //Safely copy MIMEType to prevent use after free
+    NSURLResponse *strongRes = response;
+    NSString *mime = [[strongRes MIMEType] copy];
+    self.responseContentType = (mime.length ? mime : nil);
     [self checkpointState:FPRNetworkTraceCheckpointStateResponseCompleted];
 
     // Send the network trace for logging.
