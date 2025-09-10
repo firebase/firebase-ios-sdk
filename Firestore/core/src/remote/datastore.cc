@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/remote/datastore.h"
 
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 

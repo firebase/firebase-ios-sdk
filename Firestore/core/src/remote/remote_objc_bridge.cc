@@ -17,6 +17,7 @@
 #include "Firestore/core/src/remote/remote_objc_bridge.h"
 
 #include <map>
+#include <unordered_map>
 
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/query.h"

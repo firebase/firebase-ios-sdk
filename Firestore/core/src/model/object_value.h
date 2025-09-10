@@ -21,6 +21,7 @@
 #include <ostream>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
