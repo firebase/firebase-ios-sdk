@@ -71,6 +71,7 @@ enum AILog {
     case liveSessionFailedToEncodeClientMessagePayload = 3020
     case liveSessionFailedToSendClientMessage = 3021
     case liveSessionUnexpectedResponse = 3022
+    case liveSessionGoingAwaySoon = 3023
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000

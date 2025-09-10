@@ -196,16 +196,23 @@ actor LiveSessionService {
               setupComplete.resume()
             }
           } else if let liveMessage = LiveServerMessage.tryFrom(response) {
+            if case let .goAway(message) = liveMessage.messageType {
+              // TODO: (b/444045023) When auto session resumption is enabled, call `connect` again
+              AILog.debug(
+                code: .liveSessionGoingAwaySoon,
+                "Session expires in: \(message.goAway.timeLeft ?? 0)"
+              )
+            }
+
             responseContinuation.yield(liveMessage)
           } else {
             // we don't raise an error, since this allows us to add support internally but not
-            // publicly we still log it in debug though, in case it's not expected
+            // publicly. We still log it in debug though, in case it's not expected.
             AILog.debug(
               code: .liveSessionUnsupportedMessage,
               "The server sent a message that we don't currently have a mapping for: \(response)"
             )
           }
-          // TODO: (b/444045023) When we get the goingAway message (and auto session resumption is enabled) then call `connect` again
         }
       } catch {
         if let error = error as? WebSocketClosedError {
@@ -359,25 +366,6 @@ public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError 
   public var errorUserInfo: [String: Any] {
     [
       NSLocalizedDescriptionKey: "The live session was closed for some unexpected reason. Cause: \(underlyingError.localizedDescription)",
-      NSUnderlyingErrorKey: underlyingError,
-    ]
-  }
-}
-
-/// The live session exceeded the maximum session duration, and was closed.
-///
-/// To learn more, to see the docs on [Maximum session duration](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/multimodal-live#maximum-session-duration)\.
-// TODO: investigate if the server sends a specific message when this happens, or if we'll need to look at .goingAway and keep an internal note of it
-public struct LiveSessionExceededTimeLimit: Error, Sendable, CustomNSError {
-  let underlyingError: WebSocketClosedError
-
-  init(underlyingError: WebSocketClosedError) {
-    self.underlyingError = underlyingError
-  }
-
-  public var errorUserInfo: [String: Any] {
-    [
-      NSLocalizedDescriptionKey: "The live session exceeded the maximum session duration, and was permanently closed. Start a new session to continue.",
       NSUnderlyingErrorKey: underlyingError,
     ]
   }
