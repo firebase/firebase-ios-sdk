@@ -77,6 +77,9 @@ message Target {
 
     // A target specified by a set of document names.
     google.firestore.v1.Target.DocumentsTarget documents = 6;
+
+    // A target specified by a pipeline query.
+    google.firestore.v1.Target.PipelineQueryTarget pipeline_query = 13;
   }
 
   // Denotes the maximum snapshot version at which the associated query view

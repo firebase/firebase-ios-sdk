@@ -169,6 +169,9 @@ extern TargetChangeDefaultTypeInternal _TargetChange_default_instance_;
 class Target_DocumentsTarget;
 struct Target_DocumentsTargetDefaultTypeInternal;
 extern Target_DocumentsTargetDefaultTypeInternal _Target_DocumentsTarget_default_instance_;
+class Target_PipelineQueryTarget;
+struct Target_PipelineQueryTargetDefaultTypeInternal;
+extern Target_PipelineQueryTargetDefaultTypeInternal _Target_PipelineQueryTarget_default_instance_;
 class Target_QueryTarget;
 struct Target_QueryTargetDefaultTypeInternal;
 extern Target_QueryTargetDefaultTypeInternal _Target_QueryTarget_default_instance_;
@@ -746,7 +749,7 @@ class ListCollectionIdsResponse final :
                &_ListCollectionIdsResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    30;
+    31;
 
   friend void swap(ListCollectionIdsResponse& a, ListCollectionIdsResponse& b) {
     a.Swap(&b);
@@ -957,7 +960,7 @@ class ListCollectionIdsRequest final :
                &_ListCollectionIdsRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    29;
+    30;
 
   friend void swap(ListCollectionIdsRequest& a, ListCollectionIdsRequest& b) {
     a.Swap(&b);
@@ -1943,7 +1946,7 @@ class TargetChange final :
                &_TargetChange_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    28;
+    29;
 
   friend void swap(TargetChange& a, TargetChange& b) {
     a.Swap(&b);
@@ -3529,6 +3532,207 @@ class UpdateDocumentRequest final :
     ::google::firestore::v1::DocumentMask* update_mask_;
     ::google::firestore::v1::DocumentMask* mask_;
     ::google::firestore::v1::Precondition* current_document_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto;
+};// -------------------------------------------------------------------
+
+class Target_PipelineQueryTarget final :
+    public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:google.firestore.v1.Target.PipelineQueryTarget) */ {
+ public:
+  inline Target_PipelineQueryTarget() : Target_PipelineQueryTarget(nullptr) {}
+  ~Target_PipelineQueryTarget() override;
+  template<typename = void>
+  explicit PROTOBUF_CONSTEXPR Target_PipelineQueryTarget(::google::protobuf::internal::ConstantInitialized);
+
+  inline Target_PipelineQueryTarget(const Target_PipelineQueryTarget& from)
+      : Target_PipelineQueryTarget(nullptr, from) {}
+  Target_PipelineQueryTarget(Target_PipelineQueryTarget&& from) noexcept
+    : Target_PipelineQueryTarget() {
+    *this = ::std::move(from);
+  }
+
+  inline Target_PipelineQueryTarget& operator=(const Target_PipelineQueryTarget& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Target_PipelineQueryTarget& operator=(Target_PipelineQueryTarget&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetArena() == from.GetArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Target_PipelineQueryTarget& default_instance() {
+    return *internal_default_instance();
+  }
+  enum PipelineTypeCase {
+    kStructuredPipeline = 1,
+    PIPELINE_TYPE_NOT_SET = 0,
+  };
+
+  static inline const Target_PipelineQueryTarget* internal_default_instance() {
+    return reinterpret_cast<const Target_PipelineQueryTarget*>(
+               &_Target_PipelineQueryTarget_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    27;
+
+  friend void swap(Target_PipelineQueryTarget& a, Target_PipelineQueryTarget& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Target_PipelineQueryTarget* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() != nullptr &&
+        GetArena() == other->GetArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetArena() == other->GetArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Target_PipelineQueryTarget* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Target_PipelineQueryTarget* New(::google::protobuf::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Target_PipelineQueryTarget>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Target_PipelineQueryTarget& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom( const Target_PipelineQueryTarget& from) {
+    Target_PipelineQueryTarget::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::google::protobuf::Message& to_msg, const ::google::protobuf::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  ::size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::google::protobuf::internal::ParseContext* ctx) final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target, ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  ::google::protobuf::internal::CachedSize* AccessCachedSize() const final;
+  void SharedCtor(::google::protobuf::Arena* arena);
+  void SharedDtor();
+  void InternalSwap(Target_PipelineQueryTarget* other);
+
+  private:
+  friend class ::google::protobuf::internal::AnyMetadata;
+  static ::absl::string_view FullMessageName() {
+    return "google.firestore.v1.Target.PipelineQueryTarget";
+  }
+  protected:
+  explicit Target_PipelineQueryTarget(::google::protobuf::Arena* arena);
+  Target_PipelineQueryTarget(::google::protobuf::Arena* arena, const Target_PipelineQueryTarget& from);
+  public:
+
+  static const ClassData _class_data_;
+  const ::google::protobuf::Message::ClassData*GetClassData() const final;
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kStructuredPipelineFieldNumber = 1,
+  };
+  // .google.firestore.v1.StructuredPipeline structured_pipeline = 1;
+  bool has_structured_pipeline() const;
+  private:
+  bool _internal_has_structured_pipeline() const;
+
+  public:
+  void clear_structured_pipeline() ;
+  const ::google::firestore::v1::StructuredPipeline& structured_pipeline() const;
+  PROTOBUF_NODISCARD ::google::firestore::v1::StructuredPipeline* release_structured_pipeline();
+  ::google::firestore::v1::StructuredPipeline* mutable_structured_pipeline();
+  void set_allocated_structured_pipeline(::google::firestore::v1::StructuredPipeline* value);
+  void unsafe_arena_set_allocated_structured_pipeline(::google::firestore::v1::StructuredPipeline* value);
+  ::google::firestore::v1::StructuredPipeline* unsafe_arena_release_structured_pipeline();
+
+  private:
+  const ::google::firestore::v1::StructuredPipeline& _internal_structured_pipeline() const;
+  ::google::firestore::v1::StructuredPipeline* _internal_mutable_structured_pipeline();
+
+  public:
+  void clear_pipeline_type();
+  PipelineTypeCase pipeline_type_case() const;
+  // @@protoc_insertion_point(class_scope:google.firestore.v1.Target.PipelineQueryTarget)
+ private:
+  class _Internal;
+  void set_has_structured_pipeline();
+
+  inline bool has_pipeline_type() const;
+  inline void clear_has_pipeline_type();
+
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 1,
+      0, 2>
+      _table_;
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+
+        inline explicit constexpr Impl_(
+            ::google::protobuf::internal::ConstantInitialized) noexcept;
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena);
+        inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                              ::google::protobuf::Arena* arena, const Impl_& from);
+    union PipelineTypeUnion {
+      constexpr PipelineTypeUnion() : _constinit_{} {}
+        ::google::protobuf::internal::ConstantInitialized _constinit_;
+      ::google::firestore::v1::StructuredPipeline* structured_pipeline_;
+    } pipeline_type_;
+    mutable ::google::protobuf::internal::CachedSize _cached_size_;
+    ::uint32_t _oneof_case_[1];
+
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -6570,6 +6774,7 @@ class Target final :
   enum TargetTypeCase {
     kQuery = 2,
     kDocuments = 3,
+    kPipelineQuery = 13,
     TARGET_TYPE_NOT_SET = 0,
   };
 
@@ -6584,7 +6789,7 @@ class Target final :
                &_Target_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    27;
+    28;
 
   friend void swap(Target& a, Target& b) {
     a.Swap(&b);
@@ -6656,6 +6861,7 @@ class Target final :
 
   using DocumentsTarget = Target_DocumentsTarget;
   using QueryTarget = Target_QueryTarget;
+  using PipelineQueryTarget = Target_PipelineQueryTarget;
 
   // accessors -------------------------------------------------------
 
@@ -6665,6 +6871,7 @@ class Target final :
     kOnceFieldNumber = 6,
     kQueryFieldNumber = 2,
     kDocumentsFieldNumber = 3,
+    kPipelineQueryFieldNumber = 13,
     kResumeTokenFieldNumber = 4,
     kReadTimeFieldNumber = 11,
   };
@@ -6741,6 +6948,25 @@ class Target final :
   ::google::firestore::v1::Target_DocumentsTarget* _internal_mutable_documents();
 
   public:
+  // .google.firestore.v1.Target.PipelineQueryTarget pipeline_query = 13;
+  bool has_pipeline_query() const;
+  private:
+  bool _internal_has_pipeline_query() const;
+
+  public:
+  void clear_pipeline_query() ;
+  const ::google::firestore::v1::Target_PipelineQueryTarget& pipeline_query() const;
+  PROTOBUF_NODISCARD ::google::firestore::v1::Target_PipelineQueryTarget* release_pipeline_query();
+  ::google::firestore::v1::Target_PipelineQueryTarget* mutable_pipeline_query();
+  void set_allocated_pipeline_query(::google::firestore::v1::Target_PipelineQueryTarget* value);
+  void unsafe_arena_set_allocated_pipeline_query(::google::firestore::v1::Target_PipelineQueryTarget* value);
+  ::google::firestore::v1::Target_PipelineQueryTarget* unsafe_arena_release_pipeline_query();
+
+  private:
+  const ::google::firestore::v1::Target_PipelineQueryTarget& _internal_pipeline_query() const;
+  ::google::firestore::v1::Target_PipelineQueryTarget* _internal_mutable_pipeline_query();
+
+  public:
   // bytes resume_token = 4;
   bool has_resume_token() const;
   void clear_resume_token() ;
@@ -6786,6 +7012,7 @@ class Target final :
   class _Internal;
   void set_has_query();
   void set_has_documents();
+  void set_has_pipeline_query();
   void set_has_resume_token();
   void set_has_read_time();
 
@@ -6797,7 +7024,7 @@ class Target final :
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      2, 7, 4,
+      2, 8, 5,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -6824,6 +7051,7 @@ class Target final :
         ::google::protobuf::internal::ConstantInitialized _constinit_;
       ::google::firestore::v1::Target_QueryTarget* query_;
       ::google::firestore::v1::Target_DocumentsTarget* documents_;
+      ::google::firestore::v1::Target_PipelineQueryTarget* pipeline_query_;
     } target_type_;
     union ResumeTypeUnion {
       constexpr ResumeTypeUnion() : _constinit_{} {}
@@ -13744,6 +13972,86 @@ inline Target_QueryTarget::QueryTypeCase Target_QueryTarget::query_type_case() c
 }
 // -------------------------------------------------------------------
 
+// Target_PipelineQueryTarget
+
+// .google.firestore.v1.StructuredPipeline structured_pipeline = 1;
+inline bool Target_PipelineQueryTarget::has_structured_pipeline() const {
+  return pipeline_type_case() == kStructuredPipeline;
+}
+inline bool Target_PipelineQueryTarget::_internal_has_structured_pipeline() const {
+  return pipeline_type_case() == kStructuredPipeline;
+}
+inline void Target_PipelineQueryTarget::set_has_structured_pipeline() {
+  _impl_._oneof_case_[0] = kStructuredPipeline;
+}
+inline ::google::firestore::v1::StructuredPipeline* Target_PipelineQueryTarget::release_structured_pipeline() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Target.PipelineQueryTarget.structured_pipeline)
+  if (pipeline_type_case() == kStructuredPipeline) {
+    clear_has_pipeline_type();
+    auto* temp = _impl_.pipeline_type_.structured_pipeline_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.pipeline_type_.structured_pipeline_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::StructuredPipeline& Target_PipelineQueryTarget::_internal_structured_pipeline() const {
+  return pipeline_type_case() == kStructuredPipeline ? *_impl_.pipeline_type_.structured_pipeline_ : reinterpret_cast<::google::firestore::v1::StructuredPipeline&>(::google::firestore::v1::_StructuredPipeline_default_instance_);
+}
+inline const ::google::firestore::v1::StructuredPipeline& Target_PipelineQueryTarget::structured_pipeline() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Target.PipelineQueryTarget.structured_pipeline)
+  return _internal_structured_pipeline();
+}
+inline ::google::firestore::v1::StructuredPipeline* Target_PipelineQueryTarget::unsafe_arena_release_structured_pipeline() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:google.firestore.v1.Target.PipelineQueryTarget.structured_pipeline)
+  if (pipeline_type_case() == kStructuredPipeline) {
+    clear_has_pipeline_type();
+    auto* temp = _impl_.pipeline_type_.structured_pipeline_;
+    _impl_.pipeline_type_.structured_pipeline_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Target_PipelineQueryTarget::unsafe_arena_set_allocated_structured_pipeline(::google::firestore::v1::StructuredPipeline* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_pipeline_type();
+  if (value) {
+    set_has_structured_pipeline();
+    _impl_.pipeline_type_.structured_pipeline_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.Target.PipelineQueryTarget.structured_pipeline)
+}
+inline ::google::firestore::v1::StructuredPipeline* Target_PipelineQueryTarget::_internal_mutable_structured_pipeline() {
+  if (pipeline_type_case() != kStructuredPipeline) {
+    clear_pipeline_type();
+    set_has_structured_pipeline();
+    _impl_.pipeline_type_.structured_pipeline_ = CreateMaybeMessage<::google::firestore::v1::StructuredPipeline>(GetArena());
+  }
+  return _impl_.pipeline_type_.structured_pipeline_;
+}
+inline ::google::firestore::v1::StructuredPipeline* Target_PipelineQueryTarget::mutable_structured_pipeline() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::firestore::v1::StructuredPipeline* _msg = _internal_mutable_structured_pipeline();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Target.PipelineQueryTarget.structured_pipeline)
+  return _msg;
+}
+
+inline bool Target_PipelineQueryTarget::has_pipeline_type() const {
+  return pipeline_type_case() != PIPELINE_TYPE_NOT_SET;
+}
+inline void Target_PipelineQueryTarget::clear_has_pipeline_type() {
+  _impl_._oneof_case_[0] = PIPELINE_TYPE_NOT_SET;
+}
+inline Target_PipelineQueryTarget::PipelineTypeCase Target_PipelineQueryTarget::pipeline_type_case() const {
+  return Target_PipelineQueryTarget::PipelineTypeCase(_impl_._oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
 // Target
 
 // .google.firestore.v1.Target.QueryTarget query = 2;
@@ -13895,6 +14203,82 @@ inline ::google::firestore::v1::Target_DocumentsTarget* Target::_internal_mutabl
 inline ::google::firestore::v1::Target_DocumentsTarget* Target::mutable_documents() ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::firestore::v1::Target_DocumentsTarget* _msg = _internal_mutable_documents();
   // @@protoc_insertion_point(field_mutable:google.firestore.v1.Target.documents)
+  return _msg;
+}
+
+// .google.firestore.v1.Target.PipelineQueryTarget pipeline_query = 13;
+inline bool Target::has_pipeline_query() const {
+  return target_type_case() == kPipelineQuery;
+}
+inline bool Target::_internal_has_pipeline_query() const {
+  return target_type_case() == kPipelineQuery;
+}
+inline void Target::set_has_pipeline_query() {
+  _impl_._oneof_case_[0] = kPipelineQuery;
+}
+inline void Target::clear_pipeline_query() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (target_type_case() == kPipelineQuery) {
+    if (GetArena() == nullptr) {
+      delete _impl_.target_type_.pipeline_query_;
+    }
+    clear_has_target_type();
+  }
+}
+inline ::google::firestore::v1::Target_PipelineQueryTarget* Target::release_pipeline_query() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Target.pipeline_query)
+  if (target_type_case() == kPipelineQuery) {
+    clear_has_target_type();
+    auto* temp = _impl_.target_type_.pipeline_query_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.target_type_.pipeline_query_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::google::firestore::v1::Target_PipelineQueryTarget& Target::_internal_pipeline_query() const {
+  return target_type_case() == kPipelineQuery ? *_impl_.target_type_.pipeline_query_ : reinterpret_cast<::google::firestore::v1::Target_PipelineQueryTarget&>(::google::firestore::v1::_Target_PipelineQueryTarget_default_instance_);
+}
+inline const ::google::firestore::v1::Target_PipelineQueryTarget& Target::pipeline_query() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Target.pipeline_query)
+  return _internal_pipeline_query();
+}
+inline ::google::firestore::v1::Target_PipelineQueryTarget* Target::unsafe_arena_release_pipeline_query() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:google.firestore.v1.Target.pipeline_query)
+  if (target_type_case() == kPipelineQuery) {
+    clear_has_target_type();
+    auto* temp = _impl_.target_type_.pipeline_query_;
+    _impl_.target_type_.pipeline_query_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void Target::unsafe_arena_set_allocated_pipeline_query(::google::firestore::v1::Target_PipelineQueryTarget* value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_target_type();
+  if (value) {
+    set_has_pipeline_query();
+    _impl_.target_type_.pipeline_query_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:google.firestore.v1.Target.pipeline_query)
+}
+inline ::google::firestore::v1::Target_PipelineQueryTarget* Target::_internal_mutable_pipeline_query() {
+  if (target_type_case() != kPipelineQuery) {
+    clear_target_type();
+    set_has_pipeline_query();
+    _impl_.target_type_.pipeline_query_ = CreateMaybeMessage<::google::firestore::v1::Target_PipelineQueryTarget>(GetArena());
+  }
+  return _impl_.target_type_.pipeline_query_;
+}
+inline ::google::firestore::v1::Target_PipelineQueryTarget* Target::mutable_pipeline_query() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::google::firestore::v1::Target_PipelineQueryTarget* _msg = _internal_mutable_pipeline_query();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Target.pipeline_query)
   return _msg;
 }
 

@@ -350,6 +350,16 @@ typedef struct _google_firestore_v1_TargetChange {
 /* @@protoc_insertion_point(struct:google_firestore_v1_TargetChange) */
 } google_firestore_v1_TargetChange;
 
+typedef struct _google_firestore_v1_Target_PipelineQueryTarget {
+    pb_size_t which_pipeline_type;
+    union {
+        google_firestore_v1_StructuredPipeline structured_pipeline;
+    };
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_Target_PipelineQueryTarget) */
+} google_firestore_v1_Target_PipelineQueryTarget;
+
 typedef struct _google_firestore_v1_Target_QueryTarget {
     pb_bytes_array_t *parent;
     pb_size_t which_query_type;
@@ -401,6 +411,7 @@ typedef struct _google_firestore_v1_Target {
     union {
         google_firestore_v1_Target_QueryTarget query;
         google_firestore_v1_Target_DocumentsTarget documents;
+        google_firestore_v1_Target_PipelineQueryTarget pipeline_query;
     } target_type;
     pb_size_t which_resume_type;
     union {
@@ -461,6 +472,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_Target_init_default  {0, {google_firestore_v1_Target_QueryTarget_init_default}, 0, {NULL}, 0, 0, false, google_protobuf_Int32Value_init_default}
 #define google_firestore_v1_Target_DocumentsTarget_init_default {0, NULL}
 #define google_firestore_v1_Target_QueryTarget_init_default {NULL, 0, {google_firestore_v1_StructuredQuery_init_default}}
+#define google_firestore_v1_Target_PipelineQueryTarget_init_default {0, {google_firestore_v1_StructuredPipeline_init_default}}
 #define google_firestore_v1_TargetChange_init_default {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, false, google_rpc_Status_init_default, NULL, google_protobuf_Timestamp_init_default}
 #define google_firestore_v1_ListCollectionIdsRequest_init_default {NULL, 0, NULL}
 #define google_firestore_v1_ListCollectionIdsResponse_init_default {0, NULL, NULL}
@@ -492,6 +504,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_Target_init_zero     {0, {google_firestore_v1_Target_QueryTarget_init_zero}, 0, {NULL}, 0, 0, false, google_protobuf_Int32Value_init_zero}
 #define google_firestore_v1_Target_DocumentsTarget_init_zero {0, NULL}
 #define google_firestore_v1_Target_QueryTarget_init_zero {NULL, 0, {google_firestore_v1_StructuredQuery_init_zero}}
+#define google_firestore_v1_Target_PipelineQueryTarget_init_zero {0, {google_firestore_v1_StructuredPipeline_init_zero}}
 #define google_firestore_v1_TargetChange_init_zero {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, false, google_rpc_Status_init_zero, NULL, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1_ListCollectionIdsRequest_init_zero {NULL, 0, NULL}
 #define google_firestore_v1_ListCollectionIdsResponse_init_zero {0, NULL, NULL}
@@ -585,6 +598,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_TargetChange_cause_tag 3
 #define google_firestore_v1_TargetChange_resume_token_tag 4
 #define google_firestore_v1_TargetChange_read_time_tag 6
+#define google_firestore_v1_Target_PipelineQueryTarget_structured_pipeline_tag 1
 #define google_firestore_v1_Target_QueryTarget_structured_query_tag 2
 #define google_firestore_v1_Target_QueryTarget_parent_tag 1
 #define google_firestore_v1_UpdateDocumentRequest_document_tag 1
@@ -602,6 +616,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_ListenResponse_document_remove_tag 6
 #define google_firestore_v1_Target_query_tag     2
 #define google_firestore_v1_Target_documents_tag 3
+#define google_firestore_v1_Target_pipeline_query_tag 13
 #define google_firestore_v1_Target_resume_token_tag 4
 #define google_firestore_v1_Target_read_time_tag 11
 #define google_firestore_v1_Target_target_id_tag 5
@@ -638,9 +653,10 @@ extern const pb_field_t google_firestore_v1_WriteResponse_fields[5];
 extern const pb_field_t google_firestore_v1_ListenRequest_fields[5];
 extern const pb_field_t google_firestore_v1_ListenRequest_LabelsEntry_fields[3];
 extern const pb_field_t google_firestore_v1_ListenResponse_fields[6];
-extern const pb_field_t google_firestore_v1_Target_fields[8];
+extern const pb_field_t google_firestore_v1_Target_fields[9];
 extern const pb_field_t google_firestore_v1_Target_DocumentsTarget_fields[2];
 extern const pb_field_t google_firestore_v1_Target_QueryTarget_fields[3];
+extern const pb_field_t google_firestore_v1_Target_PipelineQueryTarget_fields[2];
 extern const pb_field_t google_firestore_v1_TargetChange_fields[6];
 extern const pb_field_t google_firestore_v1_ListCollectionIdsRequest_fields[4];
 extern const pb_field_t google_firestore_v1_ListCollectionIdsResponse_fields[3];
@@ -674,6 +690,7 @@ extern const pb_field_t google_firestore_v1_ListCollectionIdsResponse_fields[3];
 /* google_firestore_v1_Target_size depends on runtime parameters */
 /* google_firestore_v1_Target_DocumentsTarget_size depends on runtime parameters */
 /* google_firestore_v1_Target_QueryTarget_size depends on runtime parameters */
+#define google_firestore_v1_Target_PipelineQueryTarget_size (5 + google_firestore_v1_StructuredPipeline_size)
 /* google_firestore_v1_TargetChange_size depends on runtime parameters */
 /* google_firestore_v1_ListCollectionIdsRequest_size depends on runtime parameters */
 /* google_firestore_v1_ListCollectionIdsResponse_size depends on runtime parameters */
