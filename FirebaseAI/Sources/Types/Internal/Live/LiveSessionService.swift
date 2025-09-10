@@ -53,8 +53,17 @@ actor LiveSessionService {
   private let jsonEncoder = JSONEncoder()
   private let jsonDecoder = JSONDecoder()
 
+  /// Task that doesn't complete until the server sends a setupComplete message.
+  ///
+  /// Used to hold off on sending messages until the server is ready.
   private var setupTask: Task<Void, Error>
+
+  /// Long running task that  that wraps around the websocket, propogating messages through the
+  /// public stream.
   private var responsesTask: Task<Void, Never>?
+
+  /// Long running task that consumes user messages from the ``messageQueue`` and sends them through
+  /// the websocket.
   private var messageQueueTask: Task<Void, Never>?
 
   init(modelResourceName: String,
