@@ -257,7 +257,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
       // Safely copy MIMEType to prevent use after free
       mime = [response.MIMEType copy];
     } @catch (NSException *exception) {
-      mime = nil;
+      FPRLogWarning(@"MIMETypeException", @"Exception while accessing MIMEType for URL %@: %@. Trace will continue without MIMEType.", self.URLRequest.URL, exception);
     }
     self.responseContentType = (mime.length ? mime : nil);
     [self checkpointState:FPRNetworkTraceCheckpointStateResponseCompleted];
