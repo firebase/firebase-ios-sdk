@@ -251,8 +251,14 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
       self.responseCode = (int32_t)HTTPResponse.statusCode;
     }
     self.responseError = error;
-    // Safely copy MIMEType to prevent use after free
-    NSString *mime = [response.MIMEType copy];
+    // Defensive access to MIMEType
+    NSString *mime = nil;
+    @try {
+      // Safely copy MIMEType to prevent use after free
+      mime = [response.MIMEType copy];
+    } @catch (NSException *exception) {
+      mime = nil;
+    }
     self.responseContentType = (mime.length ? mime : nil);
     [self checkpointState:FPRNetworkTraceCheckpointStateResponseCompleted];
 
