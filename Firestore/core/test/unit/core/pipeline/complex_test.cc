@@ -125,10 +125,6 @@ TEST_F(ComplexPipelineTest, WhereWithMaxNumberOfStages) {
       SeedDatabase(10, num_of_fields, [&]() { return Value(value_counter++); });
 
   RealtimePipeline pipeline = StartPipeline("/" + COLLECTION_ID);
-  // Add the initial dummy 'where' from TS? Seems unnecessary if stages > 0.
-  // pipeline =
-  // pipeline.AddingStage(std::make_shared<Where>(EqExpr({SharedConstant(1LL),
-  // SharedConstant(1LL)})));
 
   for (int i = 1; i <= num_of_fields; ++i) {
     std::string field_name = "field_" + std::to_string(i);

@@ -17,6 +17,7 @@
 #include "Firestore/core/src/local/local_documents_view.h"
 
 #include <algorithm>
+#include <functional>  // Added for std::function
 #include <map>
 #include <memory>
 #include <set>
@@ -25,6 +26,8 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/api/realtime_pipeline.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/immutable/sorted_set.h"
 #include "Firestore/core/src/local/local_write_result.h"
@@ -38,6 +41,7 @@
 #include "Firestore/core/src/model/overlayed_document.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/snapshot_version.h"
+#include "Firestore/core/src/util/exception.h"  // Added for ThrowInvalidArgument
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/types/optional.h"
 
@@ -45,7 +49,9 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
+using api::RealtimePipeline;  // Added
 using core::Query;
+using core::QueryOrPipeline;  // Added
 using model::BatchId;
 using model::Document;
 using model::DocumentKey;
@@ -73,23 +79,33 @@ Document LocalDocumentsView::GetDocument(
   return Document{std::move(document)};
 }
 
+// Main entry point for matching documents, handles both Query and Pipeline.
 DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(
-    const Query& query, const model::IndexOffset& offset) {
-  absl::optional<QueryContext> null_context;
-  return GetDocumentsMatchingQuery(query, offset, null_context);
-}
-
-DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(
-    const Query& query,
+    const QueryOrPipeline& query_or_pipeline,
     const model::IndexOffset& offset,
     absl::optional<QueryContext>& context) {
-  if (query.IsDocumentQuery()) {
-    return GetDocumentsMatchingDocumentQuery(query.path());
-  } else if (query.IsCollectionGroupQuery()) {
-    return GetDocumentsMatchingCollectionGroupQuery(query, offset, context);
+  if (query_or_pipeline.IsPipeline()) {
+    return GetDocumentsMatchingPipeline(query_or_pipeline, offset, context);
   } else {
-    return GetDocumentsMatchingCollectionQuery(query, offset, context);
+    // Handle standard queries
+    const Query& query = query_or_pipeline.query();
+    if (query.IsDocumentQuery()) {
+      return GetDocumentsMatchingDocumentQuery(query.path());
+    } else if (query.IsCollectionGroupQuery()) {
+      return GetDocumentsMatchingCollectionGroupQuery(query, offset, context);
+    } else {
+      return GetDocumentsMatchingCollectionQuery(query, offset, context);
+    }
   }
+}
+
+// Overload without QueryContext (calls the main one with QueryOrPipeline)
+// This definition now matches the remaining declaration in the header.
+DocumentMap LocalDocumentsView::GetDocumentsMatchingQuery(
+    const QueryOrPipeline& query, const model::IndexOffset& offset) {
+  absl::optional<QueryContext> null_context;
+  // Wrap Query in QueryOrPipeline for the call
+  return GetDocumentsMatchingQuery(query, offset, null_context);
 }
 
 DocumentMap LocalDocumentsView::GetDocumentsMatchingDocumentQuery(
@@ -171,36 +187,11 @@ DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
       query.path(), offset.largest_batch_id());
   MutableDocumentMap remote_documents =
       remote_document_cache_->GetDocumentsMatchingQuery(
-          query, offset, context, absl::nullopt, overlays);
+          QueryOrPipeline(query), offset, context, absl::nullopt, overlays);
 
-  // As documents might match the query because of their overlay we need to
-  // include documents for all overlays in the initial document set.
-  for (const auto& entry : overlays) {
-    if (remote_documents.find(entry.first) == remote_documents.end()) {
-      remote_documents = remote_documents.insert(
-          entry.first, MutableDocument::InvalidDocument(entry.first));
-    }
-  }
-
-  // Apply the overlays and match against the query.
-  DocumentMap results;
-  for (const auto& entry : remote_documents) {
-    const auto& key = entry.first;
-    MutableDocument doc = entry.second;
-
-    auto overlay_it = overlays.find(key);
-    if (overlay_it != overlays.end()) {
-      (*overlay_it)
-          .second.mutation()
-          .ApplyToLocalView(doc, FieldMask(), Timestamp::Now());
-    }
-    // Finally, insert the documents that still match the query
-    if (query.Matches(doc)) {
-      results = results.insert(key, std::move(doc));
-    }
-  }
-
-  return results;
+  return RetrieveMatchingLocalDocuments(
+      std::move(overlays), std::move(remote_documents),
+      [&query](const Document& doc) { return query.Matches(doc); });
 }
 
 Document LocalDocumentsView::GetDocument(const DocumentKey& key) {
@@ -375,6 +366,146 @@ MutableDocument LocalDocumentsView::GetBaseDocument(
           overlay.value().mutation().type() == Mutation::Type::Patch)
              ? remote_document_cache_->Get(key)
              : MutableDocument::InvalidDocument(key);
+}
+
+// Helper function to apply overlays and filter documents.
+DocumentMap LocalDocumentsView::RetrieveMatchingLocalDocuments(
+    OverlayByDocumentKeyMap overlays,
+    MutableDocumentMap remote_documents,
+    const std::function<bool(const model::Document&)>& matcher) {
+  // As documents might match the query because of their overlay we need to
+  // include documents for all overlays in the initial document set.
+  for (const auto& entry : overlays) {
+    const DocumentKey& key = entry.first;
+    if (remote_documents.find(key) == remote_documents.end()) {
+      remote_documents =
+          remote_documents.insert(key, MutableDocument::InvalidDocument(key));
+    }
+  }
+
+  DocumentMap results;
+  for (const auto& entry : remote_documents) {
+    const DocumentKey& key = entry.first;
+    MutableDocument doc = entry.second;  // Make a copy to modify
+
+    auto overlay_it = overlays.find(key);
+    if (overlay_it != overlays.end()) {
+      // Apply the overlay mutation
+      overlay_it->second.mutation().ApplyToLocalView(doc, FieldMask(),
+                                                     Timestamp::Now());
+    }
+
+    // Finally, insert the documents that match the filter
+    if (matcher(doc)) {
+      results = results.insert(key, std::move(doc));
+    }
+  }
+
+  return results;
+}
+
+// Handles querying the local view for pipelines.
+DocumentMap LocalDocumentsView::GetDocumentsMatchingPipeline(
+    const QueryOrPipeline& query_or_pipeline,
+    const IndexOffset& offset,
+    absl::optional<QueryContext>& context) {
+  const auto& pipeline = query_or_pipeline.pipeline();
+
+  if (core::GetPipelineSourceType(pipeline) ==
+      core::PipelineSourceType::kCollectionGroup) {
+    auto collection_id = core::GetPipelineCollectionGroup(pipeline);
+    HARD_ASSERT(
+        collection_id.has_value(),
+        "Pipeline source type is kCollectionGroup but first stage is not "
+        "a CollectionGroupSource.");
+
+    DocumentMap results;
+    std::vector<ResourcePath> parents =
+        index_manager_->GetCollectionParents(collection_id.value());
+
+    for (const ResourcePath& parent : parents) {
+      RealtimePipeline collection_pipeline = core::AsCollectionPipelineAtPath(
+          pipeline, parent.Append(collection_id.value()));
+      DocumentMap collection_results = GetDocumentsMatchingPipeline(
+          QueryOrPipeline(collection_pipeline), offset, context);
+      for (const auto& kv : collection_results) {
+        results = results.insert(kv.first, kv.second);
+      }
+    }
+    return results;
+  } else {
+    // Non-collection-group pipelines:
+    OverlayByDocumentKeyMap overlays = GetOverlaysForPipeline(
+        QueryOrPipeline(pipeline), offset.largest_batch_id());
+
+    MutableDocumentMap remote_documents;
+    switch (core::GetPipelineSourceType(pipeline)) {
+      case core::PipelineSourceType::kCollection: {
+        remote_documents = remote_document_cache_->GetDocumentsMatchingQuery(
+            query_or_pipeline, offset, context, absl::nullopt, overlays);
+        break;
+      }
+      case core::PipelineSourceType::kDocuments: {
+        const auto keys =
+            core::GetPipelineDocuments(query_or_pipeline.pipeline());
+        DocumentKeySet key_set;
+        for (const auto& key : keys.value()) {
+          key_set = key_set.insert(DocumentKey::FromPathString(key));
+        }
+
+        remote_documents = remote_document_cache_->GetAll(key_set);
+        break;
+      }
+      default:
+        util::ThrowInvalidArgument(
+            "Invalid pipeline source to execute offline: %s",
+            query_or_pipeline.ToString());  // Assuming ToString exists
+    }
+
+    return RetrieveMatchingLocalDocuments(
+        std::move(overlays), std::move(remote_documents),
+        [&query_or_pipeline](const model::Document& doc) {
+          return query_or_pipeline.Matches(doc);
+        });
+  }
+}
+
+OverlayByDocumentKeyMap LocalDocumentsView::GetOverlaysForPipeline(
+    const QueryOrPipeline& query_or_pipeline, BatchId largest_batch_id) {
+  const auto& pipeline = query_or_pipeline.pipeline();
+  switch (core::GetPipelineSourceType(pipeline)) {
+    case core::PipelineSourceType::kCollection: {
+      auto collection = core::GetPipelineCollection(pipeline);
+      HARD_ASSERT(collection.has_value(),
+                  "Pipeline source type is kCollection but collection source "
+                  "is missing");
+
+      return document_overlay_cache_->GetOverlays(
+          ResourcePath::FromString(collection.value()), largest_batch_id);
+    }
+    case core::PipelineSourceType::kDocuments: {
+      auto documents = core::GetPipelineDocuments(pipeline);
+      HARD_ASSERT(documents.has_value(),
+                  "Pipeline source type is kDocuments but documents source "
+                  "is missing");
+
+      std::set<DocumentKey> key_set;
+      for (const auto& key_string : documents.value()) {
+        key_set.insert(DocumentKey::FromPathString(key_string));
+      }
+
+      OverlayByDocumentKeyMap results;
+      document_overlay_cache_->GetOverlays(results, key_set);
+
+      return results;
+    }
+    default: {
+      HARD_FAIL(
+          "GetOverlaysForPipeline: Unrecognized pipeline source type for "
+          "pipeline %s}",
+          query_or_pipeline.ToString());
+    }
+  }
 }
 
 }  // namespace local

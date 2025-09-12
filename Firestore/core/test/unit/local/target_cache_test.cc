@@ -77,9 +77,10 @@ TargetData TargetCacheTestBase::MakeTargetData(
     ListenSequenceNumber sequence_number,
     int64_t version) {
   ByteString resume_token = ResumeToken(version);
-  return TargetData(query.ToTarget(), target_id, sequence_number,
-                    QueryPurpose::Listen, Version(version), Version(version),
-                    resume_token, /*expected_count=*/absl::nullopt);
+  return TargetData(core::TargetOrPipeline(query.ToTarget()), target_id,
+                    sequence_number, QueryPurpose::Listen, Version(version),
+                    Version(version), resume_token,
+                    /*expected_count=*/absl::nullopt);
 }
 
 void TargetCacheTestBase::AddMatchingKey(const DocumentKey& key,
@@ -102,7 +103,9 @@ TargetCacheTest::~TargetCacheTest() = default;
 
 TEST_P(TargetCacheTest, ReadQueryNotInCache) {
   persistence_->Run("test_read_query_not_in_cache", [&] {
-    ASSERT_EQ(cache_->GetTarget(query_rooms_.ToTarget()), absl::nullopt);
+    ASSERT_EQ(
+        cache_->GetTarget(core::TargetOrPipeline(query_rooms_.ToTarget())),
+        absl::nullopt);
   });
 }
 
@@ -111,9 +114,10 @@ TEST_P(TargetCacheTest, SetAndReadAQuery) {
     TargetData target_data = MakeTargetData(query_rooms_);
     cache_->AddTarget(target_data);
 
-    auto result = cache_->GetTarget(query_rooms_.ToTarget());
+    auto result =
+        cache_->GetTarget(core::TargetOrPipeline(query_rooms_.ToTarget()));
     ASSERT_NE(result, absl::nullopt);
-    ASSERT_EQ(result->target(), target_data.target());
+    ASSERT_EQ(result->target_or_pipeline(), target_data.target_or_pipeline());
     ASSERT_EQ(result->target_id(), target_data.target_id());
     ASSERT_EQ(result->resume_token(), target_data.resume_token());
   });
@@ -132,24 +136,28 @@ TEST_P(TargetCacheTest, CanonicalIDCollision) {
 
     // Using the other query should not return the target cache entry despite
     // equal canonical_i_ds.
-    ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), absl::nullopt);
-    ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), data1);
+    ASSERT_EQ(cache_->GetTarget(core::TargetOrPipeline(q2.ToTarget())),
+              absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(core::TargetOrPipeline(q1.ToTarget())), data1);
 
     TargetData data2 = MakeTargetData(q2);
     cache_->AddTarget(data2);
     ASSERT_EQ(cache_->size(), 2);
 
-    ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), data1);
-    ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), data2);
+    ASSERT_EQ(cache_->GetTarget(core::TargetOrPipeline(q1.ToTarget())), data1);
+    ASSERT_EQ(cache_->GetTarget(core::TargetOrPipeline(q2.ToTarget())), data2);
 
     cache_->RemoveTarget(data1);
-    ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), absl::nullopt);
-    ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), data2);
+    ASSERT_EQ(cache_->GetTarget(core::TargetOrPipeline(q1.ToTarget())),
+              absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(core::TargetOrPipeline(q2.ToTarget())), data2);
     ASSERT_EQ(cache_->size(), 1);
 
     cache_->RemoveTarget(data2);
-    ASSERT_EQ(cache_->GetTarget(q1.ToTarget()), absl::nullopt);
-    ASSERT_EQ(cache_->GetTarget(q2.ToTarget()), absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(core::TargetOrPipeline(q1.ToTarget())),
+              absl::nullopt);
+    ASSERT_EQ(cache_->GetTarget(core::TargetOrPipeline(q2.ToTarget())),
+              absl::nullopt);
     ASSERT_EQ(cache_->size(), 0);
   });
 }
@@ -162,7 +170,8 @@ TEST_P(TargetCacheTest, SetQueryToNewValue) {
     TargetData target_data2 = MakeTargetData(query_rooms_, 1, 10, 2);
     cache_->AddTarget(target_data2);
 
-    auto result = cache_->GetTarget(query_rooms_.ToTarget());
+    auto result =
+        cache_->GetTarget(core::TargetOrPipeline(query_rooms_.ToTarget()));
     ASSERT_NE(target_data2.resume_token(), target_data1.resume_token());
     ASSERT_NE(target_data2.snapshot_version(), target_data1.snapshot_version());
     ASSERT_EQ(result->resume_token(), target_data2.resume_token());
@@ -197,7 +206,8 @@ TEST_P(TargetCacheTest, RemoveTarget) {
 
     cache_->RemoveTarget(target_data1);
 
-    auto result = cache_->GetTarget(query_rooms_.ToTarget());
+    auto result =
+        cache_->GetTarget(core::TargetOrPipeline(query_rooms_.ToTarget()));
     ASSERT_EQ(result, absl::nullopt);
   });
 }
@@ -239,9 +249,9 @@ TEST_P(TargetCacheTest, RemoveTargets) {
 
     cache_->RemoveTargets(target_data2.sequence_number(), {});
 
-    auto result = cache_->GetTarget(target_data1.target());
+    auto result = cache_->GetTarget(target_data1.target_or_pipeline());
     ASSERT_EQ(result, absl::nullopt);
-    result = cache_->GetTarget(target_data2.target());
+    result = cache_->GetTarget(target_data2.target_or_pipeline());
     ASSERT_EQ(result, absl::nullopt);
   });
 }
@@ -306,11 +316,13 @@ TEST_P(TargetCacheTest, MatchingKeysForTargetID) {
 
 TEST_P(TargetCacheTest, HighestListenSequenceNumber) {
   persistence_->Run("test_highest_listen_sequence_number", [&] {
-    TargetData query1(testutil::Query("rooms").ToTarget(), 1, 10,
-                      QueryPurpose::Listen);
+    TargetData query1(
+        core::TargetOrPipeline(testutil::Query("rooms").ToTarget()), 1, 10,
+        QueryPurpose::Listen);
     cache_->AddTarget(query1);
-    TargetData query2(testutil::Query("halls").ToTarget(), 2, 20,
-                      QueryPurpose::Listen);
+    TargetData query2(
+        core::TargetOrPipeline(testutil::Query("halls").ToTarget()), 2, 20,
+        QueryPurpose::Listen);
     cache_->AddTarget(query2);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 20);
 
@@ -318,8 +330,9 @@ TEST_P(TargetCacheTest, HighestListenSequenceNumber) {
     cache_->RemoveTarget(query2);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 20);
 
-    TargetData query3(testutil::Query("garages").ToTarget(), 42, 100,
-                      QueryPurpose::Listen);
+    TargetData query3(
+        core::TargetOrPipeline(testutil::Query("garages").ToTarget()), 42, 100,
+        QueryPurpose::Listen);
     cache_->AddTarget(query3);
     ASSERT_EQ(cache_->highest_listen_sequence_number(), 100);
 
@@ -335,16 +348,18 @@ TEST_P(TargetCacheTest, HighestTargetID) {
   persistence_->Run("test_highest_target_id", [&] {
     ASSERT_EQ(cache_->highest_target_id(), 0);
 
-    TargetData query1(testutil::Query("rooms").ToTarget(), 1, 10,
-                      QueryPurpose::Listen);
+    TargetData query1(
+        core::TargetOrPipeline(testutil::Query("rooms").ToTarget()), 1, 10,
+        QueryPurpose::Listen);
     DocumentKey key1 = Key("rooms/bar");
     DocumentKey key2 = Key("rooms/foo");
     cache_->AddTarget(query1);
     AddMatchingKey(key1, 1);
     AddMatchingKey(key2, 1);
 
-    TargetData query2(testutil::Query("halls").ToTarget(), 2, 20,
-                      QueryPurpose::Listen);
+    TargetData query2(
+        core::TargetOrPipeline(testutil::Query("halls").ToTarget()), 2, 20,
+        QueryPurpose::Listen);
     DocumentKey key3 = Key("halls/foo");
     cache_->AddTarget(query2);
     AddMatchingKey(key3, 2);
@@ -355,8 +370,9 @@ TEST_P(TargetCacheTest, HighestTargetID) {
     ASSERT_EQ(cache_->highest_target_id(), 2);
 
     // A query with an empty result set still counts.
-    TargetData query3(testutil::Query("garages").ToTarget(), 42, 100,
-                      QueryPurpose::Listen);
+    TargetData query3(
+        core::TargetOrPipeline(testutil::Query("garages").ToTarget()), 42, 100,
+        QueryPurpose::Listen);
     cache_->AddTarget(query3);
     ASSERT_EQ(cache_->highest_target_id(), 42);
 
