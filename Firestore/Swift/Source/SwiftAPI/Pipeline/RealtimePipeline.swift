@@ -20,7 +20,30 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineListenOptions: Sendable, Equatable, Hashable {
+struct PipelineListenOptions: Sendable, Equatable, Hashable {
+  /// Defines how to handle server-generated timestamps that are not yet known locally
+  /// during latency compensation.
+  struct ServerTimestampBehavior: Sendable, Equatable, Hashable {
+    /// The raw string value for the behavior, used for implementation and hashability.
+    let rawValue: String
+    /// Creates a new behavior with a private raw value.
+    private init(rawValue: String) {
+      self.rawValue = rawValue
+    }
+
+    /// Fields dependent on server timestamps will be `nil` until the value is
+    /// confirmed by the server.
+    public static let none = ServerTimestampBehavior(rawValue: "none")
+
+    /// Fields dependent on server timestamps will receive a local, client-generated
+    /// time estimate until the value is confirmed by the server.
+    public static let estimate = ServerTimestampBehavior(rawValue: "estimate")
+
+    /// Fields dependent on server timestamps will hold the value from the last
+    /// server-confirmed write until the new value is confirmed.
+    public static let previous = ServerTimestampBehavior(rawValue: "previous")
+  }
+
   // MARK: - Stored Properties
 
   /// The desired behavior for handling pending server timestamps.
@@ -61,14 +84,14 @@ public struct PipelineListenOptions: Sendable, Equatable, Hashable {
       return "estimate"
     case .previous:
       return "previous"
-    @unknown default:
+    default:
       fatalError("Unknown server timestamp behavior")
     }
   }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct RealtimePipeline: @unchecked Sendable {
+struct RealtimePipeline: @unchecked Sendable {
   private var stages: [Stage]
 
   let bridge: RealtimePipelineBridge
