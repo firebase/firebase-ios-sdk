@@ -110,7 +110,7 @@ let package = Package(
     ),
     .library(
       name: "FirebasePerformance",
-      targets: ["FirebasePerformanceTarget"]
+      targets: ["FirebasePerformanceTarget", "FirebasePerformance"]
     ),
     .library(
       name: "FirebaseRemoteConfig",
