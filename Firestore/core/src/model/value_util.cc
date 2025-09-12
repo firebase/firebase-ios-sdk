@@ -826,6 +826,20 @@ bool IsVectorValue(const google_firestore_v1_Value& value) {
   return true;
 }
 
+google_firestore_v1_Value TrueValue() {
+  google_firestore_v1_Value value;
+  value.which_value_type = google_firestore_v1_Value_boolean_value_tag;
+  value.boolean_value = true;
+  return value;
+}
+
+google_firestore_v1_Value FalseValue() {
+  google_firestore_v1_Value value;
+  value.which_value_type = google_firestore_v1_Value_boolean_value_tag;
+  value.boolean_value = false;
+  return value;
+}
+
 google_firestore_v1_Value NaNValue() {
   google_firestore_v1_Value nan_value;
   nan_value.which_value_type = google_firestore_v1_Value_double_value_tag;
