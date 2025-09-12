@@ -20,13 +20,12 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineListenOptions: Sendable, Equatable, Hashable {
+struct PipelineListenOptions: Sendable, Equatable, Hashable {
   /// Defines how to handle server-generated timestamps that are not yet known locally
   /// during latency compensation.
-  public struct ServerTimestampBehavior: Sendable, Equatable, Hashable {
+  struct ServerTimestampBehavior: Sendable, Equatable, Hashable {
     /// The raw string value for the behavior, used for implementation and hashability.
     let rawValue: String
-
     /// Creates a new behavior with a private raw value.
     private init(rawValue: String) {
       self.rawValue = rawValue
@@ -78,7 +77,7 @@ public struct PipelineListenOptions: Sendable, Equatable, Hashable {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct RealtimePipeline: @unchecked Sendable {
+struct RealtimePipeline: @unchecked Sendable {
   private var stages: [Stage]
   let bridge: RealtimePipelineBridge
   let db: Firestore
