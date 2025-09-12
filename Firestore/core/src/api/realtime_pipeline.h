@@ -20,7 +20,9 @@
 #include <memory>
 #include <vector>
 
+#include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/core/core_fwd.h"
 
 namespace firebase {
 namespace firestore {
@@ -44,6 +46,10 @@ class RealtimePipeline {
   const std::vector<std::shared_ptr<EvaluableStage>>& rewritten_stages() const;
 
   EvaluateContext evaluate_context() const;
+
+  std::unique_ptr<api::ListenerRegistration> AddSnapshotListener(
+      core::ListenOptions options,
+      api::RealtimePipelineSnapshotListener&& listener);
 
  private:
   std::vector<std::shared_ptr<EvaluableStage>> stages_;
