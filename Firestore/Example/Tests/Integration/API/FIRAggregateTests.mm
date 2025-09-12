@@ -516,7 +516,9 @@
   [self awaitExpectation:expectation];
 
   XCTAssertNotNil(result);
-  XCTAssertTrue([[result localizedDescription] containsString:@"maximum number of aggregations"]);
+  if (!FSTIntegrationTestCase.isRunningAgainstEmulator) {
+    XCTAssertTrue([[result localizedDescription] containsString:@"maximum number of aggregations"]);
+  }
 }
 
 - (void)testThrowsAnErrorWhenGettingTheResultOfAnUnrequestedAggregation {
