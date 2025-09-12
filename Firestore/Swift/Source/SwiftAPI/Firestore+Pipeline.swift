@@ -30,7 +30,7 @@ import Foundation
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @nonobjc func realtimePipeline() -> PipelineSource<RealtimePipeline> {
+  @nonobjc internal func realtimePipeline() -> PipelineSource<RealtimePipeline> {
     return PipelineSource<RealtimePipeline>(db: self) { stages, db in
       RealtimePipeline(stages: stages, db: db)
     }
