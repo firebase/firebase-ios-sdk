@@ -955,6 +955,20 @@ Message<google_firestore_v1_Value> RefValue(
   return result;
 }
 
+Message<google_firestore_v1_Value> ArrayValue(
+    std::vector<Message<google_firestore_v1_Value>> values) {
+  google_firestore_v1_Value result;
+  result.which_value_type = google_firestore_v1_Value_array_value_tag;
+
+  SetRepeatedField(&result.array_value.values, &result.array_value.values_count,
+                   values.begin(), values.end(),
+                   [](Message<google_firestore_v1_Value>& value) {
+                     return *value.release();
+                   });
+
+  return nanopb::MakeMessage(result);
+}
+
 Message<google_firestore_v1_Value> DeepClone(
     const google_firestore_v1_Value& source) {
   Message<google_firestore_v1_Value> target{source};
