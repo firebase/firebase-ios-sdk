@@ -249,6 +249,17 @@ nanopb::Message<google_firestore_v1_Value> RefValue(
     const DatabaseId& database_id, const DocumentKey& document_key);
 
 /**
+ * Returns a Protobuf string value.
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
+nanopb::Message<google_firestore_v1_Value> StringValue(
+    const std::string& value);
+
+nanopb::Message<google_firestore_v1_Value> StringValue(absl::string_view value);
+
+/**
  * Returns a Protobuf array value representing the given values.
  *
  * This function owns the passed in vector and might move the values out.
@@ -302,6 +313,13 @@ inline bool IsMap(const absl::optional<google_firestore_v1_Value>& value) {
  * Returns nullopt otherwise.
  */
 absl::optional<int64_t> GetInteger(const google_firestore_v1_Value& value);
+
+/**
+ * Finds an entry by key in the provided map value. Returns `nullptr` if the
+ * entry does not exist.
+ */
+google_firestore_v1_MapValue_FieldsEntry* FindEntry(
+    const google_firestore_v1_Value& value, absl::string_view field);
 
 }  // namespace model
 
