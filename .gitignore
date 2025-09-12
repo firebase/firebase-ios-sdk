@@ -45,6 +45,7 @@ Secrets.tar
 
 # Xcode
 build/
+.index-build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
