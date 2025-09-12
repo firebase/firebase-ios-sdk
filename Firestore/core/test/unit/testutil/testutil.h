@@ -263,6 +263,13 @@ nanopb::Message<google_firestore_v1_ArrayValue> Array(Args&&... values) {
   return details::MakeArray(std::move(values)...);
 }
 
+nanopb::Message<google_firestore_v1_ArrayValue> ArrayFromVector(
+    const std::vector<google_firestore_v1_Value>& values);
+
+nanopb::Message<google_firestore_v1_Value> MapFromPairs(
+    const std::vector<std::pair<std::string, google_firestore_v1_Value>>&
+        pairs);
+
 /** Wraps an immutable sorted map into an ObjectValue. */
 model::ObjectValue WrapObject(nanopb::Message<google_firestore_v1_Value> value);
 
