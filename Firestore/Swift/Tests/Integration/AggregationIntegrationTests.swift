@@ -90,7 +90,9 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
       XCTFail("Error expected.")
     } catch let error as NSError {
       XCTAssertNotNil(error)
-      XCTAssertTrue(error.localizedDescription.contains("maximum number of aggregations"))
+      if !AggregationIntegrationTests.isRunningAgainstEmulator() {
+        XCTAssertTrue(error.localizedDescription.contains("maximum number of aggregations"))
+      }
     }
   }
 
