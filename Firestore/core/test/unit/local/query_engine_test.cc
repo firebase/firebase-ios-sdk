@@ -42,6 +42,7 @@
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/test/unit/core/pipeline/utils.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -217,9 +218,7 @@ DocumentSet QueryEngineTestBase::RunQuery(
   const auto docs = query_engine_.GetDocumentsMatchingQuery(
       query_or_pipeline_to_run, last_limbo_free_snapshot_version, remote_keys);
 
-  // The View is always constructed based on the original query's intent,
-  // regardless of whether it was executed as a query or pipeline.
-  View view(core::QueryOrPipeline{query}, DocumentKeySet());
+  View view(query_or_pipeline_to_run, DocumentKeySet());
   ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(docs, {});
   return view.ApplyChanges(view_doc_changes).snapshot()->documents();
 }
@@ -628,11 +627,12 @@ TEST_P(QueryEngineTest, CanPerformOrQueriesUsingFullCollectionScan2) {
         [&] { return RunQuery(query6, kMissingLastLimboFreeSnapshot); });
     EXPECT_EQ(result6, DocSet(query6.Comparator(), {doc1, doc2}));
 
-    // Test with limits (implicit order by DESC): (a==1) || (b > 0)
+    // Test with limits (order by b ASC): (a==1) || (b > 0)
     // LIMIT_TO_LAST 2
     core::Query query7 = Query("coll")
                              .AddingFilter(OrFilters(
                                  {Filter("a", "==", 1), Filter("b", ">", 0)}))
+                             .AddingOrderBy(OrderBy("b", "asc"))
                              .WithLimitToLast(2);
     DocumentSet result7 = ExpectFullCollectionScan<DocumentSet>(
         [&] { return RunQuery(query7, kMissingLastLimboFreeSnapshot); });
