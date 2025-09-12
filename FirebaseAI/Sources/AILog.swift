@@ -66,6 +66,7 @@ enum AILog {
     case codeExecutionResultUnrecognizedOutcome = 3015
     case executableCodeUnrecognizedLanguage = 3016
     case fallbackValueUsed = 3017
+    case urlMetadataUnrecognizedURLRetrievalStatus = 3018
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000
