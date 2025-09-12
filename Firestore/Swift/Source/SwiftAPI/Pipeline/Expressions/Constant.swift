@@ -18,7 +18,7 @@
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-public struct Constant: Expr, BridgeWrapper, @unchecked Sendable {
+public struct Constant: Expression, BridgeWrapper, @unchecked Sendable {
   let bridge: ExprBridge
 
   let value: Any?

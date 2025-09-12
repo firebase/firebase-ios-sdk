@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class ArrayContains: BooleanExpr, @unchecked Sendable {
+public class ArrayContains: BooleanExpression, @unchecked Sendable {
   public init(fieldName: String, values: Sendable...) {
     super.init("array_contains", values.map { Helper.sendableToExpr($0) })
   }

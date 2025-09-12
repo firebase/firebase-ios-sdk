@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct ExprWithAlias: Selectable, SelectableWrapper, Sendable {
-  public var alias: String
+public struct AliasedExpression: Selectable, SelectableWrapper, Sendable {
+  let alias: String
 
-  public var expr: Expr
+  let expr: Expression
 
-  init(_ expr: Expr, _ alias: String) {
+  init(_ expr: Expression, _ alias: String) {
     self.alias = alias
     self.expr = expr
   }

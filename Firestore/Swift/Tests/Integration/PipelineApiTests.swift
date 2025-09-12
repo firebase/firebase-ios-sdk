@@ -17,7 +17,7 @@ import XCTest
 
 import FirebaseFirestore
 
-final class PipelineTests: FSTIntegrationTestCase {
+final class PipelineApiTests: FSTIntegrationTestCase {
   override func setUp() {
     FSTIntegrationTestCase.switchToEnterpriseMode()
     super.setUp()
@@ -45,10 +45,8 @@ final class PipelineTests: FSTIntegrationTestCase {
   func testWhereStage() async throws {
     _ = db.pipeline().collection("books")
       .where(
-        Field("rating").gt(4.0) && Field("genre").eq("Science Fiction") || ArrayContains(
-          fieldName: "fieldName",
-          values: "rating"
-        )
+        Field("rating").greaterThan(4.0) && Field("genre").equal("Science Fiction") || Field("tags")
+          .arrayContains("comedy")
       )
   }
 
@@ -59,15 +57,15 @@ final class PipelineTests: FSTIntegrationTestCase {
     // { title: 'title3', price: 5,  discount: 0.66 }
 
     // An expression that will compute price from the value of msrp field and discount field
-    let priceExpr: FunctionExpr = Field("msrp").multiply(Field("discount"))
+    let priceExpr: FunctionExpression = Field("msrp").multiply(Field("discount"))
 
     // An expression becomes a Selectable when given an alias. In this case
     // the alias is 'salePrice'
-    let priceSelectableExpr: Selectable = priceExpr.as("salePrice")
+    let priceSelectableExpr: AliasedExpression = priceExpr.as("salePrice")
 
     _ = db.pipeline().collection("books")
       .addFields(
-        priceSelectableExpr // Add field `salePrice` based computed from msrp and discount
+        [priceSelectableExpr] // Add field `salePrice` based computed from msrp and discount
       )
 
     // We don't expect customers to separate the Expression definition from the
@@ -76,8 +74,9 @@ final class PipelineTests: FSTIntegrationTestCase {
     // is to inline the Expr definition
     _ = db.pipeline().collection("books")
       .addFields(
-        Field("msrp").multiply(Field("discount")).as("salePrice"),
-        Field("author")
+        [
+          Field("msrp").multiply(Field("discount")).as("salePrice"),
+        ]
       )
 
     // Output
@@ -88,10 +87,10 @@ final class PipelineTests: FSTIntegrationTestCase {
 
   func testRemoveFieldsStage() async throws {
     // removes field 'rating' and 'cost' from the previous stage outputs.
-    _ = db.pipeline().collection("books").removeFields("rating", "cost")
+    _ = db.pipeline().collection("books").removeFields(["rating", "cost"])
 
     // removes field 'rating'.
-    _ = db.pipeline().collection("books").removeFields(Field("rating"))
+    _ = db.pipeline().collection("books").removeFields(["rating"])
   }
 
   func testSelectStage() async throws {
@@ -103,11 +102,13 @@ final class PipelineTests: FSTIntegrationTestCase {
     // Overload for string and Selectable
     _ = db.pipeline().collection("books")
       .select(
-        Field("title"), // Field class inheritates Selectable
-        Field("msrp").multiply(Field("discount")).as("salePrice")
+        [
+          Field("title"), // Field class inheritates Selectable
+          Field("msrp").multiply(Field("discount")).as("salePrice"),
+        ]
       )
 
-    _ = db.pipeline().collection("books").select("title", "author")
+    _ = db.pipeline().collection("books").select(["title", "author"])
 
     // Output
     // { title: 'title1', salePrice: 8.0},
@@ -120,22 +121,24 @@ final class PipelineTests: FSTIntegrationTestCase {
     // with the same rating
     _ = db.pipeline().collection("books")
       .sort(
-        Field("rating").descending(),
-        Ascending("title") // alternative API offered
+        [
+          Field("rating").descending(),
+          Field("title").ascending(), // alternative API offered
+        ]
       )
   }
 
   func testLimitStage() async throws {
     // Limit the results to the top 10 highest-rated books
     _ = db.pipeline().collection("books")
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(10)
   }
 
   func testOffsetStage() async throws {
     // Retrieve the second page of 20 results
     _ = db.pipeline().collection("books")
-      .sort(Field("published").descending())
+      .sort([Field("published").descending()])
       .offset(20) // Skip the first 20 results. Note that this must come
       // before .limit(...) unlike in Query where the order did not matter.
       .limit(20) // Take the next 20 results
@@ -150,8 +153,10 @@ final class PipelineTests: FSTIntegrationTestCase {
     // Get a list of unique author names in uppercase and genre combinations.
     _ = db.pipeline().collection("books")
       .distinct(
-        Field("author").uppercased().as("authorName"),
-        Field("genre")
+        [
+          Field("author").uppercased().as("authorName"),
+          Field("genre"),
+        ]
       )
 
     // Output
@@ -168,8 +173,10 @@ final class PipelineTests: FSTIntegrationTestCase {
     // Calculate the average rating and the total number of books
     _ = db.pipeline().collection("books")
       .aggregate(
-        Field("rating").avg().as("averageRating"),
-        CountAll().as("totalBooks")
+        [
+          Field("rating").average().as("averageRating"),
+          CountAll().as("totalBooks"),
+        ]
       )
 
     // Output
@@ -183,10 +190,10 @@ final class PipelineTests: FSTIntegrationTestCase {
     // Calculate the average rating and the total number of books and group by field 'genre'
     _ = db.pipeline().collection("books")
       .aggregate([
-        Field("rating").avg().as("averageRating"),
+        Field("rating").average().as("averageRating"),
         CountAll().as("totalBooks"),
       ],
-      groups: ["genre"])
+      groups: [Field("genre")])
 
     // Output
     // { genre: 'genreA', totalBooks: 1, averageRating: 5.0 }
@@ -196,7 +203,7 @@ final class PipelineTests: FSTIntegrationTestCase {
   func testFindNearestStage() async throws {
     _ = db.pipeline().collection("books").findNearest(
       field: Field("embedding"),
-      vectorValue: [5.0],
+      vectorValue: VectorValue([5.0]),
       distanceMeasure: .cosine,
       limit: 3)
   }
@@ -204,11 +211,11 @@ final class PipelineTests: FSTIntegrationTestCase {
   func testReplaceStage() async throws {
     // Input.
     // {
-//  "name": "John Doe Jr.",
-//  "parents": {
-//    "father": "John Doe Sr.",
-//    "mother": "Jane Doe"
-//    }
+    //  "name": "John Doe Jr.",
+    //  "parents": {
+    //    "father": "John Doe Sr.",
+    //    "mother": "Jane Doe"
+    //    }
     // }
 
     // Emit field parents as the document.
@@ -217,8 +224,8 @@ final class PipelineTests: FSTIntegrationTestCase {
 
     // Output
     // {
-//  "father": "John Doe Sr.",
-//  "mother": "Jane Doe"
+    //  "father": "John Doe Sr.",
+    //  "mother": "Jane Doe"
     // }
   }
 
@@ -227,13 +234,13 @@ final class PipelineTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books").sample(count: 10)
 
     // Sample 10 percent of the collection of books
-    _ = db.pipeline().collection("books").sample(percentage: 10)
+    _ = db.pipeline().collection("books").sample(percentage: 0.1)
   }
 
   func testUnionStage() async throws {
     // Emit documents from books collection and magazines collection.
     _ = db.pipeline().collection("books")
-      .union(db.pipeline().collection("magazines"))
+      .union(with: db.pipeline().collection("magazines"))
   }
 
   func testUnnestStage() async throws {
@@ -268,102 +275,108 @@ final class PipelineTests: FSTIntegrationTestCase {
     // add this stage by calling rawStage, passing the name of the stage "where",
     // and providing positional argument values.
     _ = db.pipeline().collection("books")
-      .rawStage(name: "where",
-                params: [Field("published").lt(1900)])
-      .select("title", "author")
+      .rawStage(
+        name: "where",
+        params: [Field("published").lessThan(1900)]
+      )
+      .select(["title", "author"])
 
     // In cases where the stage also supports named argument values, then these can be
     // provided with a third argument that maps the argument name to value.
     // Note that these named arguments are always optional in the stage definition.
     _ = db.pipeline().collection("books")
-      .rawStage(name: "where",
-                params: [Field("published").lt(1900)],
-                options: ["someOptionalParamName": "the argument value for this param"])
-      .select("title", "author")
+      .rawStage(
+        name: "where",
+        params: [Field("published").lessThan(1900)],
+        options: ["someOptionalParamName": "the argument value for this param"]
+      )
+      .select(["title", "author"])
   }
 
   func testField() async throws {
     // An expression that will return the value of the field `name` in the document
-    let nameField = Field("name")
+    _ = Field("name")
 
     // An expression that will return the value of the field `description` in the document
     // Field is a sub-type of Expr, so we can also declare our var of type Expr
-    let descriptionField: Expr = Field("description")
+    _ = Field("description")
 
     // USAGE: anywhere an Expr type is accepted
     // Use a field in a pipeline
     _ = db.pipeline().collection("books")
       .addFields(
-        Field("rating").as("bookRating") // Duplicate field 'rating' as 'bookRating'
+        [
+          Field("rating").as("bookRating"), // Duplicate field 'rating' as 'bookRating'
+        ]
       )
 
-    // One special Field value is conveniently exposed as static function to help the user reference
-    // reserved field values of __name__.
-    _ = db.pipeline().collection("books")
-      .addFields(
-        DocumentId()
-      )
+    // One special Field value is conveniently exposed as constructor to help the user reference reserved field values of __name__.
+        _ = db.pipeline().collection("books")
+          .addFields([
+            DocumentId()
+            ]
+          )
   }
 
   func testConstant() async throws {
     // A constant for a number
-    let three = Constant(3)
+    _ = Constant(3)
 
     // A constant for a string
-    let name = Constant("Expressions API")
+    _ = Constant("Expressions API")
 
     // Const is a sub-type of Expr, so we can also declare our var of type Expr
-    let nothing: Expr = Constant.nil
+    _ = Constant.nil
 
     // USAGE: Anywhere an Expr type is accepted
     // Add field `fromTheLibraryOf: 'Rafi'` to every document in the collection.
     _ = db.pipeline().collection("books")
-      .addFields(Constant("Rafi").as("fromTheLibraryOf"))
+      .addFields([Constant("Rafi").as("fromTheLibraryOf")])
   }
 
   func testFunctionExpr() async throws {
     let secondsField = Field("seconds")
 
     // Create a FunctionExpr using the multiply function to compute milliseconds
-    let milliseconds: FunctionExpr = secondsField.multiply(1000)
+    let milliseconds: FunctionExpression = secondsField.multiply(1000)
 
     // A firestore function is also a sub-type of Expr
-    let myExpr: Expr = milliseconds
+    _ = milliseconds
   }
 
   func testBooleanExpr() async throws {
-    let isApple: BooleanExpr = Field("type").eq("apple")
+    let isApple: BooleanExpression = Field("type").equal("apple")
 
     // USAGE: stage where requires an expression of type BooleanExpr
-    let allAppleOptions: Pipeline = db.pipeline().collection("fruitOptions").where(isApple)
+    let _: Pipeline = db.pipeline().collection("fruitOptions").where(isApple)
   }
 
   func testSelectableExpr() async throws {
     let secondsField = Field("seconds")
 
     // Create a selectable from our milliseconds expression.
-    let millisecondsSelectable: Selectable = secondsField.multiply(1000).as("milliseconds")
+    let _: Selectable = secondsField.multiply(1000).as("milliseconds")
 
     // USAGE: stages addFields and select accept expressions of type Selectable
     // Add (or overwrite) the 'milliseconds` field to each of our documents using the
     // `.addFields(...)` stage.
     _ = db.pipeline().collection("lapTimes")
-      .addFields(secondsField.multiply(1000).as("milliseconds"))
+      .addFields([secondsField.multiply(1000).as("milliseconds")])
 
     // NOTE: Field implements Selectable, the alias is the same as the name
-    let secondsSelectable: Selectable = secondsField
+    let _: Selectable = secondsField
   }
 
   func testAggregateExpr() async throws {
     let lapTimeSum: AggregateFunction = Field("seconds").sum()
 
-    let lapTimeSumTarget: AggregateWithAlias = lapTimeSum.as("totalTrackTime")
+    let _: AliasedAggregate = lapTimeSum.as("totalTrackTime")
 
     // USAGE: stage aggregate accepts expressions of type AggregateWithAlias
     // A pipeline that will return one document with one field `totalTrackTime` that
     // is the sum of all laps ever taken on the track.
     _ = db.pipeline().collection("lapTimes")
-      .aggregate(lapTimeSum.as("totalTrackTime"))
+      .aggregate([lapTimeSum.as("totalTrackTime")])
   }
 
   func testOrdering() async throws {
@@ -371,34 +384,34 @@ final class PipelineTests: FSTIntegrationTestCase {
 
     // USAGE: stage sort accepts objects of type Ordering
     // Use this ordering to sort our lap times collection from fastest to slowest
-    _ = db.pipeline().collection("lapTimes").sort(fastestToSlowest)
+    _ = db.pipeline().collection("lapTimes").sort([fastestToSlowest])
   }
 
   func testExpr() async throws {
     // An expression that computes the area of a circle
     // by chaining together two calls to the multiply function
-    let radiusField: Expr = Field("radius")
-    let radiusSq: Expr = radiusField.multiply(Field("radius"))
-    let areaExpr: Expr = radiusSq.multiply(3.14)
+    let radiusField = Field("radius")
+    let radiusSq = radiusField.multiply(Field("radius"))
+    _ = radiusSq.multiply(3.14)
 
     // Or define this expression in one clean, fluent statement
-    let areaOfCircle: Selectable = Field("radius")
+    let areaOfCircle = Field("radius")
       .multiply(Field("radius"))
       .multiply(3.14)
       .as("area")
 
     // And pass the expression to a Pipeline for evaluation
-    _ = db.pipeline().collection("circles").addFields(areaOfCircle)
+    _ = db.pipeline().collection("circles").addFields([areaOfCircle])
   }
 
   func testGeneric() async throws {
     // This is the same of the logicalMin('price', 0)', if it did not exist
-    let myLm = FunctionExpr("logicalMin", [Field("price"), Constant(0)])
+    _ = FunctionExpression("logicalMin", [Field("price"), Constant(0)])
 
     // Create a generic BooleanExpr for use where BooleanExpr is required
-    let myEq = BooleanExpr("eq", [Field("price"), Constant(10)])
+    _ = BooleanExpression("eq", [Field("price"), Constant(10)])
 
     // Create a generic AggregateFunction for use where AggregateFunction is required
-    let mySum = AggregateFunction("sum", [Field("price")])
+    _ = AggregateFunction("sum", [Field("price")])
   }
 }

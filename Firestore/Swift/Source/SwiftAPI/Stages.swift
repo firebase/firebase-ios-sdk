@@ -116,9 +116,9 @@ class Where: Stage {
   let name: String = "where"
 
   let bridge: StageBridge
-  private var condition: BooleanExpr
+  private var condition: BooleanExpression
 
-  init(condition: BooleanExpr) {
+  init(condition: BooleanExpression) {
     self.condition = condition
     bridge = WhereStageBridge(expr: condition.toBridge())
   }
@@ -154,16 +154,16 @@ class Offset: Stage {
 class AddFields: Stage {
   let name: String = "addFields"
   let bridge: StageBridge
-  private var fields: [Selectable]
+  private var selectables: [Selectable]
 
-  init(fields: [Selectable]) {
-    self.fields = fields
-    let objc_accumulators = fields.reduce(into: [String: ExprBridge]()) {
+  init(selectables: [Selectable]) {
+    self.selectables = selectables
+    let objc_accumulators = selectables.reduce(into: [String: ExprBridge]()) {
       result,
-        field
+        selectable
       in
-      let seletable = field as! SelectableWrapper
-      result[seletable.alias] = seletable.expr.toBridge()
+      let selectableWrapper = selectable as! SelectableWrapper
+      result[selectableWrapper.alias] = selectableWrapper.expr.toBridge()
     }
     bridge = AddFieldsStageBridge(fields: objc_accumulators)
   }
@@ -218,10 +218,10 @@ class Distinct: Stage {
 class Aggregate: Stage {
   let name: String = "aggregate"
   let bridge: StageBridge
-  private var accumulators: [AggregateWithAlias]
-  private var groups: [String: Expr] = [:]
+  private var accumulators: [AliasedAggregate]
+  private var groups: [String: Expression] = [:]
 
-  init(accumulators: [AggregateWithAlias], groups: [Selectable]?) {
+  init(accumulators: [AliasedAggregate], groups: [Selectable]?) {
     self.accumulators = accumulators
     if groups != nil {
       self.groups = Helper.selectablesToMap(selectables: groups!)
@@ -242,13 +242,13 @@ class FindNearest: Stage {
   let name: String = "findNearest"
   let bridge: StageBridge
   private var field: Field
-  private var vectorValue: [Double]
+  private var vectorValue: VectorValue
   private var distanceMeasure: DistanceMeasure
   private var limit: Int?
   private var distanceField: String?
 
   init(field: Field,
-       vectorValue: [Double],
+       vectorValue: VectorValue,
        distanceMeasure: DistanceMeasure,
        limit: Int? = nil,
        distanceField: String? = nil) {
@@ -259,7 +259,7 @@ class FindNearest: Stage {
     self.distanceField = distanceField
     bridge = FindNearestStageBridge(
       field: field.bridge as! FieldBridge,
-      vectorValue: VectorValue(vectorValue),
+      vectorValue: vectorValue,
       distanceMeasure: distanceMeasure.kind.rawValue,
       limit: limit as NSNumber?,
       distanceField: distanceField.map { Field($0).toBridge() } ?? nil
@@ -283,9 +283,9 @@ class Sort: Stage {
 class ReplaceWith: Stage {
   let name: String = "replaceWith"
   let bridge: StageBridge
-  private var expr: Expr
+  private var expr: Expression
 
-  init(expr: Expr) {
+  init(expr: Expression) {
     self.expr = expr
     bridge = ReplaceWithStageBridge(expr: expr.toBridge())
   }
@@ -327,8 +327,8 @@ class Union: Stage {
 class Unnest: Stage {
   let name: String = "unnest"
   let bridge: StageBridge
-  private var alias: Expr
-  private var field: Expr
+  private var alias: Expression
+  private var field: Expression
   private var indexField: String?
 
   init(field: Selectable, indexField: String? = nil) {
@@ -349,10 +349,10 @@ class Unnest: Stage {
 class RawStage: Stage {
   let name: String
   let bridge: StageBridge
-  private var params: [Sendable?]
+  private var params: [Sendable]
   private var options: [String: Sendable]?
 
-  init(name: String, params: [Sendable?], options: [String: Sendable]? = nil) {
+  init(name: String, params: [Sendable], options: [String: Sendable]? = nil) {
     self.name = name
     self.params = params
     self.options = options

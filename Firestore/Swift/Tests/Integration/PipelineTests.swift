@@ -267,7 +267,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate(Field("rating").avg().as("avgRating"))
+      .aggregate([Field("rating").average().as("avgRating")])
     let snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "Aggregate query should return a single result")
@@ -283,8 +283,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .aggregate(
-        [Field("rating").avg().as("avgRating")],
-        groups: ["genre"]
+        [Field("rating").average().as("avgRating")],
+        groups: [Field("genre")]
       ) // Make sure 'groupBy' and 'average' are correct
     let snapshot = try await pipeline.execute()
 
@@ -395,7 +395,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collectionGroup(randomSubCollectionId)
-      .sort(Field("order").ascending())
+      .sort([Field("order").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -447,8 +447,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .database() // Source is the entire database
-      .where(Field("randomId").eq(randomIDValue))
-      .sort(Ascending("order"))
+      .where(Field("randomId").equal(randomIDValue))
+      .sort([Field("order").ascending()])
     let snapshot = try await pipeline.execute()
 
     // We expect 3 documents: docA, docB, and docE (from sub-sub-collection)
@@ -580,7 +580,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select(
         constantsFirst + constantsSecond
       )
-    let snapshot = try await pipeline.execute()
+    let snapshot: PipelineSnapshot = try await pipeline.execute()
 
     TestHelper.compare(pipelineResult: snapshot.results.first!, expected: expectedResultsMap)
   }
@@ -644,18 +644,18 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1) // This should pick "The Lord of the Rings" (rating 4.7)
-      .select(
+      .select([
         Field("title"),
         Field("author"),
         Field("genre"),
         Field("rating"),
         Field("published"),
         Field("tags"),
-        Field("awards")
-      )
-      .addFields(
+        Field("awards"),
+      ])
+      .addFields([
         ArrayExpression([
           1,
           2,
@@ -669,11 +669,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           "rating": Field("rating").multiply(10),
           "nestedArray": ArrayExpression([Field("title")]),
           "nestedMap": MapExpression(["published": Field("published")]),
-        ]).as("metadata")
-      )
+        ]).as("metadata"),
+      ])
       .where(
-        Field("metadataArray").eq(metadataArrayElements) &&
-          Field("metadata").eq(metadataMapElements)
+        Field("metadataArray").equal(metadataArrayElements) &&
+          Field("metadata").equal(metadataMapElements)
       )
 
     let snapshot = try await pipeline.execute()
@@ -705,7 +705,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     var pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate(CountAll().as("count"))
+      .aggregate([CountAll().as("count")])
     var snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "Count all should return a single aggregate document")
@@ -717,12 +717,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("genre").eq("Science Fiction"))
-      .aggregate(
+      .where(Field("genre").equal("Science Fiction"))
+      .aggregate([
         CountAll().as("count"),
-        Field("rating").avg().as("avgRating"),
-        Field("rating").maximum().as("maxRating")
-      )
+        Field("rating").average().as("avgRating"),
+        Field("rating").maximum().as("maxRating"),
+      ])
     snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "Filtered aggregate should return a single document")
@@ -748,8 +748,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     do {
       _ = try await db.pipeline()
         .collection(collRef.path)
-        .where(Field("published").lt(1900))
-        .aggregate([], groups: ["genre"])
+        .where(Field("published").lessThan(1900))
+        .aggregate([], groups: [Field("genre")])
         .execute()
 
       XCTFail(
@@ -767,13 +767,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("published").lt(1984))
+      .where(Field("published").lessThan(1984))
       .aggregate(
-        [Field("rating").avg().as("avgRating")],
-        groups: ["genre"]
+        [Field("rating").average().as("avgRating")],
+        groups: [Field("genre")]
       )
-      .where(Field("avgRating").gt(4.3))
-      .sort(Field("avgRating").descending())
+      .where(Field("avgRating").greaterThan(4.3))
+      .sort([Field("avgRating").descending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -799,12 +799,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate(
+      .aggregate([
         Field("cost").count().as("booksWithCost"),
         CountAll().as("count"),
         Field("rating").maximum().as("maxRating"),
-        Field("published").minimum().as("minPublished")
-      )
+        Field("published").minimum().as("minPublished"),
+      ])
 
     let snapshot = try await pipeline.execute()
 
@@ -830,12 +830,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let expectedCount = 3
     let expectedResults: [String: Sendable] = ["count": expectedCount]
-    let condition = Field("rating").gt(4.3)
+    let condition = Field("rating").greaterThan(4.3)
 
-    var pipeline = db.pipeline()
+    let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate(condition.countIf().as("count"))
-    var snapshot = try await pipeline.execute()
+      .aggregate([condition.countIf().as("count")])
+    let snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "countIf aggregate should return a single document")
     if let result = snapshot.results.first {
@@ -851,8 +851,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .distinct(Field("genre"), Field("author"))
-      .sort(Field("genre").ascending(), Field("author").ascending())
+      .distinct([Field("genre"), Field("author")])
+      .sort([Field("genre").ascending(), Field("author").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -880,8 +880,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select(Field("title"), Field("author"))
-      .sort(Field("author").ascending())
+      .select([Field("title"), Field("author")])
+      .sort([Field("author").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -913,9 +913,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select(Field("title"), Field("author"))
-      .addFields(Constant("bar").as("foo"))
-      .sort(Field("author").ascending())
+      .select([Field("title"), Field("author")])
+      .addFields([Constant("bar").as("foo")])
+      .sort([Field("author").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -947,9 +947,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select(Field("title"), Field("author"))
-      .sort(Field("author").ascending()) // Sort before removing the 'author' field
-      .removeFields(Field("author"))
+      .select([Field("title"), Field("author")])
+      .sort([Field("author").ascending()]) // Sort before removing the 'author' field
+      .removeFields(["author"])
 
     let snapshot = try await pipeline.execute()
 
@@ -983,8 +983,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     // Test Case 1: Two AND conditions
     var pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("rating").gt(4.5)
-        && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"]))
+      .where(Field("rating").greaterThan(4.5)
+        && Field("genre").equalAny(["Science Fiction", "Romance", "Fantasy"]))
     var snapshot = try await pipeline.execute()
     var expectedIDs = ["book10", "book4"] // Dune (SF, 4.6), LOTR (Fantasy, 4.7)
     TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: expectedIDs, enforceOrder: false)
@@ -993,9 +993,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        Field("rating").gt(4.5)
-          && Field("genre").eqAny(["Science Fiction", "Romance", "Fantasy"])
-          && Field("published").lt(1965)
+        Field("rating").greaterThan(4.5)
+          && Field("genre").equalAny(["Science Fiction", "Romance", "Fantasy"])
+          && Field("published").lessThan(1965)
       )
     snapshot = try await pipeline.execute()
     expectedIDs = ["book4"] // LOTR (Fantasy, 4.7, published 1954)
@@ -1010,12 +1010,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     var pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        Field("genre").eq("Romance")
-          || Field("genre").eq("Dystopian")
-          || Field("genre").eq("Fantasy")
+        Field("genre").equal("Romance")
+          || Field("genre").equal("Dystopian")
+          || Field("genre").equal("Fantasy")
       )
-      .select(Field("title"))
-      .sort(Field("title").ascending())
+      .select([Field("title")])
+      .sort([Field("title").ascending()])
 
     var snapshot = try await pipeline.execute()
     var expectedResults: [[String: Sendable]] = [
@@ -1037,13 +1037,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        Field("genre").eq("Romance") // Book2 (T), Book5 (F), Book4 (F), Book8 (F)
-          ^ Field("genre").eq("Dystopian") // Book2 (F), Book5 (T), Book4 (F), Book8 (T)
-          ^ Field("genre").eq("Fantasy") // Book2 (F), Book5 (F), Book4 (T), Book8 (F)
-          ^ Field("published").eq(1949) // Book2 (F), Book5 (F), Book4 (F), Book8 (T)
+        Field("genre").equal("Romance") // Book2 (T), Book5 (F), Book4 (F), Book8 (F)
+          ^ Field("genre").equal("Dystopian") // Book2 (F), Book5 (T), Book4 (F), Book8 (T)
+          ^ Field("genre").equal("Fantasy") // Book2 (F), Book5 (F), Book4 (T), Book8 (F)
+          ^ Field("published").equal(1949) // Book2 (F), Book5 (F), Book4 (F), Book8 (T)
       )
-      .select(Field("title"))
-      .sort(Field("title").ascending())
+      .select([Field("title")])
+      .sort([Field("title").ascending()])
 
     snapshot = try await pipeline.execute()
 
@@ -1067,10 +1067,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("author").ascending())
+      .sort([Field("author").ascending()])
       .offset(5)
       .limit(3)
-      .select("title", "author")
+      .select(["title", "author"])
 
     let snapshot = try await pipeline.execute()
 
@@ -1104,10 +1104,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .rawStage(name: "select", params: selectParameters)
-      .sort(Field("title").ascending())
+      .sort([Field("title").ascending()])
       .limit(1)
 
-    let snapshot = try await pipeline.execute()
+    let snapshot: PipelineSnapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
     TestHelper.compare(
@@ -1123,17 +1123,17 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("author").ascending())
+      .sort([Field("author").ascending()])
       .limit(1)
-      .select("title", "author")
+      .select(["title", "author"])
       .rawStage(
         name: "add_fields",
         params: [
           [
-            "display": Field("title").strConcat(
+            "display": Field("title").strConcat([
               Constant(" - "),
-              Field("author")
-            ),
+              Field("author"),
+            ]),
           ],
         ]
       )
@@ -1159,14 +1159,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select("title", "author", "rating")
+      .select(["title", "author", "rating"])
       .rawStage(
         name: "distinct",
         params: [
           ["rating": Field("rating")],
         ]
       )
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -1193,12 +1193,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select("title", "author", "rating")
+      .select(["title", "author", "rating"])
       .rawStage(
         name: "aggregate",
         params: [
           [
-            "averageRating": Field("rating").avg(),
+            "averageRating": Field("rating").average(),
           ],
           emptySendableDictionary,
         ]
@@ -1223,10 +1223,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select("title", "author")
+      .select(["title", "author"])
       .rawStage(
         name: "where",
-        params: [Field("author").eq("Douglas Adams")]
+        params: [Field("author").equal("Douglas Adams")]
       )
 
     let snapshot = try await pipeline.execute()
@@ -1249,7 +1249,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select("title", "author")
+      .select(["title", "author"])
       .rawStage(
         name: "sort",
         params: [
@@ -1284,7 +1284,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .replace(with: "awards")
 
     let snapshot = try await pipeline.execute()
@@ -1311,7 +1311,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .replace(with:
         MapExpression([
           "foo": "bar",
@@ -1372,9 +1372,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .union(db.pipeline()
+      .union(with: db.pipeline()
         .collection(collRef.path))
-      .sort(Field(FieldPath.documentID()).ascending())
+      .sort([Field(FieldPath.documentID()).ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -1409,9 +1409,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .unnest(Field("tags").as("tag"), indexField: "tagsIndex")
-      .select(
+      .select([
         "title",
         "author",
         "genre",
@@ -1420,8 +1420,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "tags",
         "tag",
         "awards",
-        "nestedField"
-      )
+        "nestedField",
+      ])
 
     let snapshot = try await pipeline.execute()
 
@@ -1470,9 +1470,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .unnest(ArrayExpression([1, 2, 3]).as("copy"))
-      .select(
+      .select([
         "title",
         "author",
         "genre",
@@ -1481,8 +1481,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "tags",
         "copy",
         "awards",
-        "nestedField"
-      )
+        "nestedField",
+      ])
 
     let snapshot = try await pipeline.execute()
 
@@ -1541,10 +1541,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         .collection(collRef.path)
         .findNearest(
           field: Field("embedding"),
-          vectorValue: [10, 1, 3, 1, 2, 1, 1, 1, 1, 1],
+          vectorValue: VectorValue([10, 1, 3, 1, 2, 1, 1, 1, 1, 1]),
           distanceMeasure: measure, limit: 3
         )
-        .select("title")
+        .select(["title"])
       let snapshot = try await pipeline.execute()
       TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
     }
@@ -1569,11 +1569,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .findNearest(
         field: Field("embedding"),
-        vectorValue: [10, 1, 2, 1, 1, 1, 1, 1, 1, 1],
+        vectorValue: VectorValue([10, 1, 2, 1, 1, 1, 1, 1, 1, 1]),
         distanceMeasure: .euclidean, limit: 2,
         distanceField: "computedDistance"
       )
-      .select("title", "computedDistance")
+      .select(["title", "computedDistance"])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
@@ -1584,11 +1584,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select(
+      .select([
         Field("title"),
-        Field("published").logicalMaximum(Constant(1960), 1961).as("published-safe")
-      )
-      .sort(Field("title").ascending())
+        Field("published").logicalMaximum([Constant(1960), 1961]).as("published-safe"),
+      ])
+      .sort([Field("title").ascending()])
       .limit(3)
 
     let snapshot = try await pipeline.execute()
@@ -1608,14 +1608,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select(
+      .select([
         Field("title"),
-        Field("published").logicalMinimum(Constant(1960), 1961).as("published-safe")
-      )
-      .sort(Field("title").ascending())
+        Field("published").logicalMinimum([Constant(1960), 1961]).as("published-safe"),
+      ])
+      .sort([Field("title").ascending()])
       .limit(3)
 
-    let snapshot = try await pipeline.execute()
+    let snapshot: PipelineSnapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
       ["title": "1984", "published-safe": 1949],
@@ -1632,12 +1632,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select(
+      .select([
         Field("title"),
-        Field("published").lt(1960).then(Constant(1960), else: Field("published"))
-          .as("published-safe")
-      )
-      .sort(Field("title").ascending())
+        Field("published").lessThan(1960).then(Constant(1960), else: Field("published"))
+          .as("published-safe"),
+      ])
+      .sort([Field("title").ascending()])
       .limit(3)
 
     let snapshot = try await pipeline.execute()
@@ -1651,17 +1651,17 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
-  func testEqAnyWorks() async throws {
+  func testInWorks() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("published").eqAny([1979, 1999, 1967]))
-      .sort(Field("title").descending())
-      .select("title")
+      .where(Field("published").equalAny([1979, 1999, 1967]))
+      .sort([Field("title").descending()])
+      .select(["title"])
 
-    let snapshot = try await pipeline.execute()
+    let snapshot: PipelineSnapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
       ["title": "The Hitchhiker's Guide to the Galaxy"],
@@ -1677,8 +1677,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("published").notEqAny([1965, 1925, 1949, 1960, 1866, 1985, 1954, 1967, 1979]))
-      .select("title")
+      .where(Field("published")
+        .notEqualAny([1965, 1925, 1949, 1960, 1866, 1985, 1954, 1967, 1979]))
+      .select(["title"])
 
     let snapshot = try await pipeline.execute()
 
@@ -1696,7 +1697,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("tags").arrayContains("comedy"))
-      .select("title")
+      .select(["title"])
 
     let snapshot = try await pipeline.execute()
 
@@ -1714,8 +1715,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("tags").arrayContainsAny(["comedy", "classic"]))
-      .sort(Field("title").descending())
-      .select("title")
+      .sort([Field("title").descending()])
+      .select(["title"])
 
     let snapshot = try await pipeline.execute()
 
@@ -1734,7 +1735,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("tags").arrayContainsAll(["adventure", "magic"]))
-      .select("title")
+      .select(["title"])
 
     let snapshot = try await pipeline.execute()
 
@@ -1751,8 +1752,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select(Field("tags").arrayLength().as("tagsCount"))
-      .where(Field("tagsCount").eq(3))
+      .select([Field("tags").arrayLength().as("tagsCount")])
+      .where(Field("tagsCount").equal(3))
 
     let snapshot = try await pipeline.execute()
 
@@ -1765,8 +1766,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("author").ascending())
-      .select(Field("author").strConcat(Constant(" - "), Field("title")).as("bookInfo"))
+      .sort([Field("author").ascending()])
+      .select([Field("author").strConcat([Constant(" - "), Field("title")]).as("bookInfo")])
       .limit(1)
 
     let snapshot = try await pipeline.execute()
@@ -1785,8 +1786,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("title").startsWith("The"))
-      .select("title")
-      .sort(Field("title").ascending())
+      .select(["title"])
+      .sort([Field("title").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -1807,8 +1808,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("title").endsWith("y"))
-      .select("title")
-      .sort(Field("title").descending())
+      .select(["title"])
+      .sort([Field("title").descending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -1827,8 +1828,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("title").strContains("'s"))
-      .select("title")
-      .sort(Field("title").ascending())
+      .select(["title"])
+      .sort([Field("title").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -1846,12 +1847,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select(
+      .select([
         Field("title").charLength().as("titleLength"),
-        Field("title")
-      )
-      .where(Field("titleLength").gt(20))
-      .sort(Field("title").ascending())
+        Field("title"),
+      ])
+      .where(Field("titleLength").greaterThan(20))
+      .sort([Field("title").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -1872,7 +1873,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(Field("title").like("%Guide%"))
-      .select("title")
+      .select(["title"])
 
     let snapshot = try await pipeline.execute()
 
@@ -1915,16 +1916,16 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("To Kill a Mockingbird"))
-      .select(
+      .where(Field("title").equal("To Kill a Mockingbird"))
+      .select([
         Field("rating").add(1).as("ratingPlusOne"),
         Field("published").subtract(1900).as("yearsSince1900"),
         Field("rating").multiply(10).as("ratingTimesTen"),
         Field("rating").divide(2).as("ratingDividedByTwo"),
         Field("rating").multiply(20).as("ratingTimes20"),
         Field("rating").add(3).as("ratingPlus3"),
-        Field("rating").mod(2).as("ratingMod2")
-      )
+        Field("rating").mod(2).as("ratingMod2"),
+      ])
       .limit(1)
 
     let snapshot = try await pipeline.execute()
@@ -1954,12 +1955,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        Field("rating").gt(4.2) &&
-          Field("rating").lte(4.5) &&
-          Field("genre").neq("Science Fiction")
+        Field("rating").greaterThan(4.2) &&
+          Field("rating").lessThanOrEqual(4.5) &&
+          Field("genre").notEqual("Science Fiction")
       )
-      .select("rating", "title")
-      .sort(Field("title").ascending())
+      .select(["rating", "title"])
+      .sort([Field("title").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -1979,11 +1980,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        (Field("rating").gt(4.5) && Field("genre").eq("Science Fiction")) ||
-          Field("published").lt(1900)
+        (Field("rating").greaterThan(4.5) && Field("genre").equal("Science Fiction")) ||
+          Field("published").lessThan(1900)
       )
-      .select("title")
-      .sort(Field("title").ascending())
+      .select(["title"])
+      .sort([Field("title").ascending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -2003,18 +2004,20 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     // Part 1
     var pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
       .select(
-        Field("rating").isNull().as("ratingIsNull"),
-        Field("rating").isNan().as("ratingIsNaN"),
-        Field("title").arrayGet(0).isError().as("isError"),
-        Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
-        Field("foo").isAbsent().as("isAbsent"),
-        Field("title").isNotNull().as("titleIsNotNull"),
-        Field("cost").isNotNan().as("costIsNotNan"),
-        Field("fooBarBaz").exists().as("fooBarBazExists"),
-        Field("title").exists().as("titleExists")
+        [
+          Field("rating").isNil().as("ratingIsNull"),
+          Field("rating").isNan().as("ratingIsNaN"),
+          Field("title").arrayGet(0).isError().as("isError"),
+          Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
+          Field("foo").isAbsent().as("isAbsent"),
+          Field("title").isNotNil().as("titleIsNotNull"),
+          Field("cost").isNotNan().as("costIsNotNan"),
+          Field("fooBarBaz").exists().as("fooBarBazExists"),
+          Field("title").exists().as("titleExists"),
+        ]
       )
 
     var snapshot = try await pipeline.execute()
@@ -2040,16 +2043,18 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     // Part 2
     pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
       .select(
-        Field("rating").isNull().as("ratingIsNull"),
-        Field("rating").isNan().as("ratingIsNaN"),
-        Field("title").arrayGet(0).isError().as("isError"),
-        Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
-        Field("foo").isAbsent().as("isAbsent"),
-        Field("title").isNotNull().as("titleIsNotNull"),
-        Field("cost").isNotNan().as("costIsNotNan")
+        [
+          Field("rating").isNil().as("ratingIsNull"),
+          Field("rating").isNan().as("ratingIsNaN"),
+          Field("title").arrayGet(0).isError().as("isError"),
+          Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
+          Field("foo").isAbsent().as("isAbsent"),
+          Field("title").isNotNil().as("titleIsNotNull"),
+          Field("cost").isNotNan().as("costIsNotNan"),
+        ]
       )
 
     snapshot = try await pipeline.execute()
@@ -2077,13 +2082,15 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("published").descending())
+      .sort([Field("published").descending()])
       .select(
-        Field("awards").mapGet("hugo").as("hugoAward"),
-        Field("awards").mapGet("others").as("others"),
-        Field("title")
+        [
+          Field("awards").mapGet("hugo").as("hugoAward"),
+          Field("awards").mapGet("others").as("others"),
+          Field("title"),
+        ]
       )
-      .where(Field("hugoAward").eq(true))
+      .where(Field("hugoAward").equal(true))
 
     let snapshot = try await pipeline.execute()
 
@@ -2124,10 +2131,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .select(
-        Constant(VectorValue(sourceVector)).cosineDistance(targetVectorValue).as("cosineDistance"),
-        Constant(VectorValue(sourceVector)).dotProduct(targetVectorValue).as("dotProductDistance"),
-        Constant(VectorValue(sourceVector)).euclideanDistance(targetVectorValue)
-          .as("euclideanDistance")
+        [
+          Constant(VectorValue(sourceVector)).cosineDistance(targetVectorValue)
+            .as("cosineDistance"),
+          Constant(VectorValue(sourceVector)).dotProduct(targetVectorValue)
+            .as("dotProductDistance"),
+          Constant(VectorValue(sourceVector)).euclideanDistance(targetVectorValue)
+            .as("euclideanDistance"),
+        ]
       )
       .limit(1)
 
@@ -2171,7 +2182,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(1) // Limit to the document we just added
-      .select(Field("embedding").vectorLength().as("vectorLength"))
+      .select([Field("embedding").vectorLength().as("vectorLength")])
 
     // Execute the pipeline
     let snapshot = try await pipeline.execute()
@@ -2192,9 +2203,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("awards.hugo").eq(true))
-      .sort(Field("title").descending())
-      .select(Field("title"), Field("awards.hugo"))
+      .where(Field("awards.hugo").equal(true))
+      .sort([Field("title").descending()])
+      .select([Field("title"), Field("awards.hugo")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2212,13 +2223,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("awards.hugo").eq(true)) // Filters to book1 and book10
-      .select(
+      .where(Field("awards.hugo").equal(true)) // Filters to book1 and book10
+      .select([
         Field("title"),
         Field("nestedField.level.1"),
-        Field("nestedField").mapGet("level.1").mapGet("level.2").as("nested")
-      )
-      .sort(Field("title").descending())
+        Field("nestedField").mapGet("level.1").mapGet("level.2").as("nested"),
+      ])
+      .sort([Field("title").descending()])
 
     let snapshot = try await pipeline.execute()
 
@@ -2249,12 +2260,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
       .select(
-        FunctionExpr("add", [Field("rating"), Constant(1)]).as(
-          "rating"
-        )
+        [
+          FunctionExpression("add", [Field("rating"), Constant(1)]).as(
+            "rating"
+          ),
+        ]
       )
 
     let snapshot = try await pipeline.execute()
@@ -2279,11 +2292,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        BooleanExpr("and", [Field("rating").gt(0),
-                            Field("title").charLength().lt(5),
-                            Field("tags").arrayContains("propaganda")])
+        BooleanExpression("and", [Field("rating").greaterThan(0),
+                                  Field("title").charLength().lessThan(5),
+                                  Field("tags").arrayContains("propaganda")])
       )
-      .select("title")
+      .select(["title"])
 
     let snapshot = try await pipeline.execute()
 
@@ -2302,8 +2315,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(BooleanExpr("array_contains_any", [Field("tags"), ArrayExpression(["politics"])]))
-      .select(Field("title"))
+      .where(BooleanExpression(
+        "array_contains_any",
+        [Field("tags"), ArrayExpression(["politics"])]
+      ))
+      .select([Field("title")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2322,7 +2338,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate(AggregateFunction("count_if", [Field("rating").gte(4.5)]).as("countOfBest"))
+      .aggregate([AggregateFunction("count_if", [Field("rating").greaterThanOrEqual(4.5)])
+          .as("countOfBest")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2346,11 +2363,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .sort(
-        FunctionExpr("char_length", [Field("title")]).ascending(),
-        Field("__name__").descending()
+        [
+          FunctionExpression("char_length", [Field("title")]).ascending(),
+          Field("__name__").descending(),
+        ]
       )
       .limit(3)
-      .select(Field("title"))
+      .select([Field("title")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2372,7 +2391,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(10)
-      .select(RandomExpr().as("result"))
+      .select([RandomExpression().as("result")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2402,9 +2421,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(ArrayExpression([1, 2, 3, 4]).as("metadata"))
+      .select([ArrayExpression([1, 2, 3, 4]).as("metadata")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2425,14 +2444,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(ArrayExpression([
+      .select([ArrayExpression([
         1,
         2,
         Field("genre"),
         Field("rating").multiply(10),
-      ]).as("metadata"))
+      ]).as("metadata")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2459,9 +2478,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline1 = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(3)
-      .select(Field("tags").arrayGet(0).as("firstTag"))
+      .select([Field("tags").arrayGet(0).as("firstTag")])
 
     let snapshot1 = try await pipeline1.execute()
     XCTAssertEqual(snapshot1.results.count, 3, "Part 1: Should retrieve three documents")
@@ -2478,9 +2497,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(MapExpression(["foo": "bar"]).as("metadata"))
+      .select([MapExpression(["foo": "bar"]).as("metadata")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2501,12 +2520,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(MapExpression([
+      .select([MapExpression([
         "genre": Field("genre"), // "Fantasy"
         "rating": Field("rating").multiply(10), // 4.7 * 10 = 47.0
-      ]).as("metadata"))
+      ]).as("metadata")])
 
     let snapshot = try await pipeline.execute()
 
@@ -2530,9 +2549,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline2 = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(Field("awards").mapRemove("hugo").as("awards"))
+      .select([Field("awards").mapRemove("hugo").as("awards")])
 
     let snapshot2 = try await pipeline2.execute()
     XCTAssertEqual(snapshot2.results.count, 1, "Should retrieve one document")
@@ -2547,15 +2566,15 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let db = firestore()
     let collRef = collectionRef(withDocuments: bookDocs)
 
-    let expectedResult: [String: Sendable?] =
+    let expectedResult: [String: Sendable] =
       ["awards": ["hugo": false, "nebula": false, "fakeAward": true]]
     let mergeMap: [String: Sendable] = ["fakeAward": true]
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(Field("awards").mapMerge(mergeMap).as("awards"))
+      .select([Field("awards").mapMerge([mergeMap]).as("awards")])
 
     let snapshot = try await pipeline.execute()
     XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
@@ -2576,7 +2595,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select(
+      .select([
         Constant(1_741_380_235).unixSecondsToTimestamp().as("unixSecondsToTimestamp"),
         Constant(1_741_380_235_123).unixMillisToTimestamp().as("unixMillisToTimestamp"),
         Constant(1_741_380_235_123_456).unixMicrosToTimestamp().as("unixMicrosToTimestamp"),
@@ -2585,8 +2604,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
           .timestampToUnixMillis().as("timestampToUnixMillis"),
         Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
-          .timestampToUnixMicros().as("timestampToUnixMicros")
-      )
+          .timestampToUnixMicros().as("timestampToUnixMicros"),
+      ])
 
     let snapshot = try await pipeline.execute()
     XCTAssertEqual(
@@ -2622,21 +2641,25 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(randomCol.path)
       .limit(1)
       .select(
-        Constant(initialTimestamp).as("timestamp")
+        [
+          Constant(initialTimestamp).as("timestamp"),
+        ]
       )
       .select(
-        Field("timestamp").timestampAdd(.day, 10).as("plus10days"),
-        Field("timestamp").timestampAdd(.hour, 10).as("plus10hours"),
-        Field("timestamp").timestampAdd(.minute, 10).as("plus10minutes"),
-        Field("timestamp").timestampAdd(.second, 10).as("plus10seconds"),
-        Field("timestamp").timestampAdd(.microsecond, 10).as("plus10micros"),
-        Field("timestamp").timestampAdd(.millisecond, 10).as("plus10millis"),
-        Field("timestamp").timestampSub(.day, 10).as("minus10days"),
-        Field("timestamp").timestampSub(.hour, 10).as("minus10hours"),
-        Field("timestamp").timestampSub(.minute, 10).as("minus10minutes"),
-        Field("timestamp").timestampSub(.second, 10).as("minus10seconds"),
-        Field("timestamp").timestampSub(.microsecond, 10).as("minus10micros"),
-        Field("timestamp").timestampSub(.millisecond, 10).as("minus10millis")
+        [
+          Field("timestamp").timestampAdd(10, .day).as("plus10days"),
+          Field("timestamp").timestampAdd(10, .hour).as("plus10hours"),
+          Field("timestamp").timestampAdd(10, .minute).as("plus10minutes"),
+          Field("timestamp").timestampAdd(10, .second).as("plus10seconds"),
+          Field("timestamp").timestampAdd(10, .microsecond).as("plus10micros"),
+          Field("timestamp").timestampAdd(10, .millisecond).as("plus10millis"),
+          Field("timestamp").timestampSub(10, .day).as("minus10days"),
+          Field("timestamp").timestampSub(10, .hour).as("minus10hours"),
+          Field("timestamp").timestampSub(10, .minute).as("minus10minutes"),
+          Field("timestamp").timestampSub(10, .second).as("minus10seconds"),
+          Field("timestamp").timestampSub(10, .microsecond).as("minus10micros"),
+          Field("timestamp").timestampSub(10, .millisecond).as("minus10millis"),
+        ]
       )
 
     let snapshot = try await pipeline.execute()
@@ -2675,10 +2698,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(randomCol.path)
       .limit(1)
       .select(
-        Constant(bytes).as("bytes")
+        [
+          Constant(bytes).as("bytes"),
+        ]
       )
       .select(
-        Field("bytes").byteLength().as("byteLength")
+        [
+          Field("bytes").byteLength().as("byteLength"),
+        ]
       )
 
     let snapshot = try await pipeline.execute()
@@ -2706,10 +2733,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select(Constant(true).as("trueField"))
+      .select([Constant(true).as("trueField")])
       .select(
-        Field("trueField"),
-        (!(Field("trueField").eq(true))).as("falseField")
+        [
+          Field("trueField"),
+          (!(Field("trueField").equal(true))).as("falseField"),
+        ]
       )
 
     let snapshot = try await pipeline.execute()
@@ -2734,9 +2763,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Lord of the Rings"))
+      .where(Field("title").equal("The Lord of the Rings"))
       .limit(1)
-      .select(Field("title").replaceFirst("o", "0").as("newName"))
+      .select([Field("title").replaceFirst("o", with: "0").as("newName")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -2752,9 +2781,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("The Lord of the Rings"))
+      .where(Field("title").equal("The Lord of the Rings"))
       .limit(1)
-      .select(Field("title").replaceAll("o", "0").as("newName"))
+      .select([Field("title").replaceAll("o", with: "0").as("newName")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -2772,7 +2801,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select(Constant(5).bitAnd(12).as("result"))
+      .select([Constant(5).bitAnd(12).as("result")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 4]], enforceOrder: false)
   }
@@ -2786,7 +2815,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select(Constant(5).bitOr(12).as("result"))
+      .select([Constant(5).bitOr(12).as("result")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 13]], enforceOrder: false)
   }
@@ -2800,7 +2829,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select(Constant(5).bitXor(12).as("result"))
+      .select([Constant(5).bitXor(12).as("result")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 9]], enforceOrder: false)
   }
@@ -2816,7 +2845,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select(Constant(bytesInput).bitNot().as("result"))
+      .select([Constant(bytesInput).bitNot().as("result")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -2836,7 +2865,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select(Constant(bytesInput).bitLeftShift(2).as("result"))
+      .select([Constant(bytesInput).bitLeftShift(2).as("result")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -2856,7 +2885,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select(Constant(bytesInput).bitRightShift(2).as("result"))
+      .select([Constant(bytesInput).bitRightShift(2).as("result")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -2872,9 +2901,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(Field("__path__").documentId().as("docId"))
+      .select([Field("__path__").documentId().as("docId")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -2890,9 +2919,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(Field("title").substr(9, 2).as("of"))
+      .select([Field("title").substr(position: 9, length: 2).as("of")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(pipelineSnapshot: snapshot, expected: [["of": "of"]], enforceOrder: false)
   }
@@ -2904,9 +2933,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .sort(Field("rating").descending())
+      .sort([Field("rating").descending()])
       .limit(1)
-      .select(Field("title").substr(9).as("of"))
+      .select([Field("title").substr(position: 9).as("of")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -2924,11 +2953,15 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .limit(1) // Assuming we operate on the first book (book1)
       .select(
-        Field("tags").arrayConcat(
-          ["newTag1", "newTag2"],
-          [Field("tags")],
-          [Constant.nil]
-        ).as("modifiedTags")
+        [
+          Field("tags").arrayConcat(
+            [
+              ["newTag1", "newTag2"],
+              [Field("tags")],
+              [Constant.nil],
+            ]
+          ).as("modifiedTags"),
+        ]
       )
     var snapshot = try await pipeline.execute()
 
@@ -2949,11 +2982,15 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .limit(1) // Assuming we operate on the first book (book1)
       .select(
-        Field("tags").arrayConcat(
-          Field("newTag1"), Field("newTag2"),
-          Field("tags"),
-          Constant.nil
-        ).as("modifiedTags")
+        [
+          Field("tags").arrayConcat(
+            [
+              Field("newTag1"), Field("newTag2"),
+              Field("tags"),
+              Constant.nil,
+            ]
+          ).as("modifiedTags"),
+        ]
       )
     snapshot = try await pipeline.execute()
 
@@ -2972,7 +3009,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(1)
-      .select(Field("title").lowercased().as("lowercaseTitle"))
+      .select([Field("title").lowercased().as("lowercaseTitle")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -2989,7 +3026,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(1)
-      .select(Field("author").uppercased().as("uppercaseAuthor"))
+      .select([Field("author").uppercased().as("uppercaseAuthor")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -3005,8 +3042,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .addFields(Constant(" The Hitchhiker's Guide to the Galaxy ").as("spacedTitle"))
-      .select(Field("spacedTitle").trim().as("trimmedTitle"), Field("spacedTitle"))
+      .addFields([Constant(" The Hitchhiker's Guide to the Galaxy ").as("spacedTitle")])
+      .select([Field("spacedTitle").trim().as("trimmedTitle"), Field("spacedTitle")])
       .limit(1)
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
@@ -3027,9 +3064,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").eq("1984"))
+      .where(Field("title").equal("1984"))
       .limit(1)
-      .select(Field("title").reverse().as("reverseTitle"))
+      .select([Field("title").reverse().as("reverseTitle")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -3079,10 +3116,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select("title", "rating", "__name__")
+      .select(["title", "rating", "__name__"])
       .sort(
-        Field("rating").descending(),
-        Field("__name__").ascending()
+        [
+          Field("rating").descending(),
+          Field("__name__").ascending(),
+        ]
       )
 
     var snapshot = try await pipeline.limit(Int32(pageSize)).execute()
@@ -3099,9 +3138,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let lastDoc = snapshot.results.last!
 
     snapshot = try await pipeline.where(
-      (Field("rating").eq(lastDoc.get("rating")!)
-        && Field("rating").lt(lastDoc.get("rating")!))
-        || Field("rating").lt(lastDoc.get("rating")!)
+      (Field("rating").equal(lastDoc.get("rating")!)
+        && Field("rating").lessThan(lastDoc.get("rating")!))
+        || Field("rating").lessThan(lastDoc.get("rating")!)
     ).limit(Int32(pageSize)).execute()
 
     TestHelper.compare(
@@ -3126,10 +3165,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .select("title", "rating", "__path__")
+      .select(["title", "rating", "__path__"])
       .sort(
-        Field("rating").descending(),
-        Field("__path__").ascending()
+        [
+          Field("rating").descending(),
+          Field("__path__").ascending(),
+        ]
       )
 
     var snapshot = try await pipeline.offset(Int32(currPage) * Int32(pageSize)).limit(

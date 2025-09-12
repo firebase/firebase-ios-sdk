@@ -22,5 +22,5 @@ protocol AggregateBridgeWrapper {
 
 protocol SelectableWrapper: Sendable {
   var alias: String { get }
-  var expr: Expr { get }
+  var expr: Expression { get }
 }

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-public class Ordering: @unchecked Sendable {
-  let expr: Expr
+public struct Ordering: @unchecked Sendable {
+  let expr: Expression
   let direction: Direction
   let bridge: OrderingBridge
 
-  init(expr: Expr, direction: Direction) {
+  init(expr: Expression, direction: Direction) {
     self.expr = expr
     self.direction = direction
     bridge = OrderingBridge(expr: expr.toBridge(), direction: direction.rawValue)
   }
 }
 
-public struct Direction: Sendable, Equatable, Hashable {
+struct Direction: Sendable, Equatable, Hashable {
   let kind: Kind
   let rawValue: String
 
@@ -35,13 +35,9 @@ public struct Direction: Sendable, Equatable, Hashable {
     case descending
   }
 
-  public static var ascending: Direction {
-    return self.init(kind: .ascending, rawValue: "ascending")
-  }
+  static let ascending = Direction(kind: .ascending, rawValue: "ascending")
 
-  public static var descending: Direction {
-    return self.init(kind: .descending, rawValue: "descending")
-  }
+  static let descending = Direction(kind: .descending, rawValue: "descending")
 
   init(kind: Kind, rawValue: String) {
     self.kind = kind
