@@ -30,10 +30,8 @@ final class MockSubscriber: SessionsSubscriber, Sendable {
     set { _isDataCollectionEnabled.withLock { $0 = newValue } }
   }
 
-  private let _sessionThatChanged = FIRAllocatedUnfairLock<FirebaseSessions.SessionDetails?>(
-    initialState: nil
-  )
-  private let _isDataCollectionEnabled = FIRAllocatedUnfairLock<Bool>(initialState: true)
+  private let _sessionThatChanged = UnfairLock<FirebaseSessions.SessionDetails?>(nil)
+  private let _isDataCollectionEnabled = UnfairLock<Bool>(true)
 
   init(name: SessionsSubscriberName) {
     sessionsSubscriberName = name

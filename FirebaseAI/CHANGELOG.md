@@ -1,3 +1,27 @@
+# 12.3.0
+- [feature] Added support for the Code Execution tool, which enables the model
+  to generate and run code to perform complex tasks like solving mathematical
+  equations or visualizing data. (#15280)
+- [fixed] Fixed a decoding error when generating images with the
+  `gemini-2.5-flash-image-preview` model using `generateContentStream` or
+  `sendMessageStream` with the Gemini Developer API. (#15262)
+
+# 12.2.0
+- [feature] Added support for returning thought summaries, which are synthesized
+  versions of a model's internal reasoning process. (#15096)
+- [feature] Added support for limited-use tokens with Firebase App Check.
+  These limited-use tokens are required for an upcoming optional feature called
+  _replay protection_. We recommend
+  [enabling the usage of limited-use tokens](https://firebase.google.com/docs/ai-logic/app-check)
+  now so that when replay protection becomes available, you can enable it sooner
+  because more of your users will be on versions of your app that send limited-use tokens.
+  (#15099)
+
+# 12.0.0
+- [feature] Added support for Grounding with Google Search. (#15014)
+- [removed] Removed `CountTokensResponse.totalBillableCharacters` which was
+  deprecated in 11.15.0. Use `totalTokens` instead. (#15056)
+
 # 11.15.0
 - [fixed] Fixed `Sendable` warnings introduced in the Xcode 26 beta. (#14947)
 - [added] Added support for setting `title` in string, number and array `Schema`

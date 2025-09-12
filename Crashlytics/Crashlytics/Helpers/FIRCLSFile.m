@@ -28,10 +28,20 @@
 
 #include <unistd.h>
 
-// uint64_t should only have max 19 chars in base 10, and less in base 16
-static const size_t FIRCLSUInt64StringBufferLength = 21;
-static const size_t FIRCLSStringBufferLength = 16;
 const size_t FIRCLSWriteBufferLength = 1000;
+
+/// Use an enum to define true compile-time integer constants. This prevents
+/// compiler warnings when these constants are used to declare array sizes.
+enum {
+  /// The buffer size needed to hold a 64-bit unsigned integer as a string.
+  /// The largest uint64_t value (18,446,744,073,709,551,615) has 20 digits.
+  /// An additional byte is required for the null terminator.
+  FIRCLSUInt64StringBufferLength = 21,
+
+  /// The size in bytes of a raw 128-bit UUID. This is used for buffers
+  /// holding the binary data, not a C-style string.
+  FIRCLSStringBufferLength = 16
+};
 
 static bool FIRCLSFileInit(
     FIRCLSFile* file, const char* path, int fdm, bool appendMode, bool bufferWrites);

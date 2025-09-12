@@ -27,8 +27,8 @@ public protocol SessionsSubscriber: Sendable {
 /// Session Payload is a container for Session Data passed to Subscribers
 /// whenever the Session changes
 @objc(FIRSessionDetails)
-public class SessionDetails: NSObject {
-  @objc public var sessionId: String?
+public final class SessionDetails: NSObject, Sendable {
+  @objc public let sessionId: String?
 
   public init(sessionId: String?) {
     self.sessionId = sessionId

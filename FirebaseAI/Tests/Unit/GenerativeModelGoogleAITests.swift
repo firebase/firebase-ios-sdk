@@ -198,6 +198,143 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(usageMetadata.candidatesTokensDetails[0].tokenCount, 22)
   }
 
+  func testGenerateContent_groundingMetadata() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-google-search-grounding",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
+
+    XCTAssertEqual(groundingMetadata.webSearchQueries, ["current weather in London"])
+    let searchEntryPoint = try XCTUnwrap(groundingMetadata.searchEntryPoint)
+    XCTAssertFalse(searchEntryPoint.renderedContent.isEmpty)
+
+    XCTAssertEqual(groundingMetadata.groundingChunks.count, 2)
+    let firstChunk = try XCTUnwrap(groundingMetadata.groundingChunks.first?.web)
+    XCTAssertEqual(firstChunk.title, "accuweather.com")
+    XCTAssertNotNil(firstChunk.uri)
+    XCTAssertNil(firstChunk.domain) // Domain is not supported by Google AI backend
+
+    XCTAssertEqual(groundingMetadata.groundingSupports.count, 3)
+    let firstSupport = try XCTUnwrap(groundingMetadata.groundingSupports.first)
+    let segment = try XCTUnwrap(firstSupport.segment)
+    XCTAssertEqual(segment.text, "The current weather in London, United Kingdom is cloudy.")
+    XCTAssertEqual(segment.startIndex, 0)
+    XCTAssertEqual(segment.partIndex, 0)
+    XCTAssertEqual(segment.endIndex, 56)
+    XCTAssertEqual(firstSupport.groundingChunkIndices, [0])
+  }
+
+  // This test case can be deleted once https://b.corp.google.com/issues/422779395 (internal) is
+  // fixed.
+  func testGenerateContent_groundingMetadata_emptyGroundingChunks() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-google-search-grounding-empty-grounding-chunks",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let groundingMetadata = try XCTUnwrap(candidate.groundingMetadata)
+    XCTAssertNotNil(groundingMetadata.searchEntryPoint)
+    XCTAssertEqual(groundingMetadata.webSearchQueries, ["current weather London"])
+
+    // Chunks exist, but contain no web information.
+    XCTAssertEqual(groundingMetadata.groundingChunks.count, 2)
+    XCTAssertNil(groundingMetadata.groundingChunks[0].web)
+    XCTAssertNil(groundingMetadata.groundingChunks[1].web)
+
+    XCTAssertEqual(groundingMetadata.groundingSupports.count, 1)
+    let support = try XCTUnwrap(groundingMetadata.groundingSupports.first)
+    XCTAssertEqual(support.groundingChunkIndices, [0])
+    XCTAssertEqual(
+      support.segment.text,
+      "There is a 0% chance of rain and the humidity is around 41%."
+    )
+  }
+
+  func testGenerateContent_success_thinking_thoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-thinking-reply-thought-summary",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let thoughtPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+    XCTAssertTrue(thoughtPart.isThought)
+    XCTAssertTrue(thoughtPart.text.hasPrefix("**Thinking About Google's Headquarters**"))
+    XCTAssertEqual(thoughtPart.text, response.thoughtSummary)
+    let textPart = try XCTUnwrap(candidate.content.parts.last as? TextPart)
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(textPart.text, "Mountain View")
+    XCTAssertEqual(textPart.text, response.text)
+  }
+
+  func testGenerateContent_success_thinking_functionCall_thoughtSummaryAndSignature() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-thinking-function-call-thought-summary-signature",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.finishReason, .stop)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let thoughtPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+    XCTAssertTrue(thoughtPart.isThought)
+    XCTAssertTrue(thoughtPart.text.hasPrefix("**Thinking Through the New Year's Eve Calculation**"))
+    let functionCallPart = try XCTUnwrap(candidate.content.parts.last as? FunctionCallPart)
+    XCTAssertFalse(functionCallPart.isThought)
+    XCTAssertEqual(functionCallPart.name, "now")
+    XCTAssertTrue(functionCallPart.args.isEmpty)
+    let thoughtSignature = try XCTUnwrap(functionCallPart.thoughtSignature)
+    XCTAssertTrue(thoughtSignature.hasPrefix("CtQOAVSoXO74PmYr9AFu"))
+  }
+
+  func testGenerateContent_success_codeExecution() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-code-execution",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let parts = candidate.content.parts
+    XCTAssertEqual(candidate.finishReason, .stop)
+    XCTAssertEqual(parts.count, 3)
+    let executableCodePart = try XCTUnwrap(parts[0] as? ExecutableCodePart)
+    XCTAssertFalse(executableCodePart.isThought)
+    XCTAssertEqual(executableCodePart.language, .python)
+    XCTAssertTrue(executableCodePart.code.starts(with: "prime_numbers = [2, 3, 5, 7, 11]"))
+    let codeExecutionResultPart = try XCTUnwrap(parts[1] as? CodeExecutionResultPart)
+    XCTAssertFalse(codeExecutionResultPart.isThought)
+    XCTAssertEqual(codeExecutionResultPart.outcome, .ok)
+    XCTAssertEqual(codeExecutionResultPart.output, "sum_of_primes=28\n")
+    let textPart = try XCTUnwrap(parts[2] as? TextPart)
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertTrue(textPart.text.hasPrefix("The first 5 prime numbers are 2, 3, 5, 7, and 11."))
+  }
+
   func testGenerateContent_failure_invalidAPIKey() async throws {
     let expectedStatusCode = 400
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -331,6 +468,122 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertNil(citation.license)
     XCTAssertNil(citation.title)
     XCTAssertNil(citation.publicationDate)
+  }
+
+  func testGenerateContentStream_successWithThoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-thinking-reply-thought-summary",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var thoughtSummary = ""
+    var text = ""
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.content.parts.count, 1)
+      let textPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+      if textPart.isThought {
+        let newThought = try XCTUnwrap(response.thoughtSummary)
+        XCTAssertEqual(textPart.text, newThought)
+        thoughtSummary.append(newThought)
+      } else {
+        let newText = try XCTUnwrap(response.text)
+        XCTAssertEqual(textPart.text, newText)
+        text.append(newText)
+      }
+    }
+
+    XCTAssertTrue(thoughtSummary.hasPrefix("**Exploring Sky Color**"))
+    XCTAssertTrue(text.hasPrefix("The sky is blue because"))
+  }
+
+  func testGenerateContentStream_success_thinking_functionCall_thoughtSummary_signature() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-thinking-function-call-thought-summary-signature",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var thoughtSummary = ""
+    var functionCalls: [FunctionCallPart] = []
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.content.parts.count, 1)
+      let part = try XCTUnwrap(candidate.content.parts.first)
+      if part.isThought {
+        let textPart = try XCTUnwrap(part as? TextPart)
+        let newThought = try XCTUnwrap(response.thoughtSummary)
+        XCTAssertEqual(textPart.text, newThought)
+        thoughtSummary.append(newThought)
+      } else {
+        let functionCallPart = try XCTUnwrap(part as? FunctionCallPart)
+        XCTAssertEqual(response.functionCalls.count, 1)
+        let newFunctionCall = try XCTUnwrap(response.functionCalls.first)
+        XCTAssertEqual(functionCallPart, newFunctionCall)
+        functionCalls.append(newFunctionCall)
+      }
+    }
+
+    XCTAssertTrue(thoughtSummary.hasPrefix("**Calculating the Days**"))
+    XCTAssertEqual(functionCalls.count, 1)
+    let functionCall = try XCTUnwrap(functionCalls.first)
+    XCTAssertEqual(functionCall.name, "now")
+    XCTAssertTrue(functionCall.args.isEmpty)
+    let thoughtSignature = try XCTUnwrap(functionCall.thoughtSignature)
+    XCTAssertTrue(thoughtSignature.hasPrefix("CiIBVKhc7vB+vaaq6rA"))
+  }
+
+  func testGenerateContentStream_success_ignoresEmptyParts() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-empty-parts",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertGreaterThan(candidate.content.parts.count, 0)
+      let text = response.text
+      let inlineData = response.inlineDataParts.first
+      XCTAssertTrue(text != nil || inlineData != nil, "Response did not contain text or data")
+    }
+  }
+
+  func testGenerateContentStream_success_codeExecution() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-code-execution",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var parts = [any Part]()
+    let stream = try model.generateContentStream(testPrompt)
+    for try await response in stream {
+      if let responseParts = response.candidates.first?.content.parts {
+        parts.append(contentsOf: responseParts)
+      }
+    }
+
+    let thoughtParts = parts.filter { $0.isThought }
+    XCTAssertEqual(thoughtParts.count, 0)
+    let textParts = parts.filter { $0 is TextPart }
+    XCTAssertGreaterThan(textParts.count, 0)
+    let executableCodeParts = parts.compactMap { $0 as? ExecutableCodePart }
+    XCTAssertEqual(executableCodeParts.count, 1)
+    let executableCodePart = try XCTUnwrap(executableCodeParts.first)
+    XCTAssertFalse(executableCodePart.isThought)
+    XCTAssertEqual(executableCodePart.language, .python)
+    XCTAssertTrue(executableCodePart.code.starts(with: "prime_numbers = [2, 3, 5, 7, 11]"))
+    let codeExecutionResultParts = parts.compactMap { $0 as? CodeExecutionResultPart }
+    XCTAssertEqual(codeExecutionResultParts.count, 1)
+    let codeExecutionResultPart = try XCTUnwrap(codeExecutionResultParts.first)
+    XCTAssertFalse(codeExecutionResultPart.isThought)
+    XCTAssertEqual(codeExecutionResultPart.outcome, .ok)
+    XCTAssertEqual(codeExecutionResultPart.output, "The sum of the first 5 prime numbers is: 28\n")
   }
 
   func testGenerateContentStream_failureInvalidAPIKey() async throws {

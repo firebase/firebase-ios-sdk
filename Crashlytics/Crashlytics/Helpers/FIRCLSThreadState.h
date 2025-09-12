@@ -42,16 +42,16 @@ typedef _STRUCT_UCONTEXT _STRUCT_UCONTEXT64;
 
 #pragma mark Register Access
 
-uintptr_t FIRCLSThreadContextGetPC(FIRCLSThreadContext* registers);
-uintptr_t FIRCLSThreadContextGetStackPointer(const FIRCLSThreadContext* registers);
-uintptr_t FIRCLSThreadContextGetFramePointer(const FIRCLSThreadContext* registers);
+uintptr_t FIRCLSThreadContextGetPC(FIRCLSThreadContext *registers);
+uintptr_t FIRCLSThreadContextGetStackPointer(const FIRCLSThreadContext *registers);
+uintptr_t FIRCLSThreadContextGetFramePointer(const FIRCLSThreadContext *registers);
 
-bool FIRCLSThreadContextSetPC(FIRCLSThreadContext* registers, uintptr_t value);
-bool FIRCLSThreadContextSetStackPointer(FIRCLSThreadContext* registers, uintptr_t value);
-bool FIRCLSThreadContextSetFramePointer(FIRCLSThreadContext* registers, uintptr_t value);
+bool FIRCLSThreadContextSetPC(FIRCLSThreadContext *registers, uintptr_t value);
+bool FIRCLSThreadContextSetStackPointer(FIRCLSThreadContext *registers, uintptr_t value);
+bool FIRCLSThreadContextSetFramePointer(FIRCLSThreadContext *registers, uintptr_t value);
 
 // The link register only exists on ARM platforms.
 #if CLS_CPU_ARM || CLS_CPU_ARM64
-uintptr_t FIRCLSThreadContextGetLinkRegister(const FIRCLSThreadContext* registers);
-bool FIRCLSThreadContextSetLinkRegister(FIRCLSThreadContext* registers, uintptr_t value);
+uintptr_t FIRCLSThreadContextGetLinkRegister(const FIRCLSThreadContext *registers);
+bool FIRCLSThreadContextSetLinkRegister(FIRCLSThreadContext *registers, uintptr_t value);
 #endif

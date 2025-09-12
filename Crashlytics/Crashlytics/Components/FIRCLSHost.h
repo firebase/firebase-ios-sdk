@@ -20,19 +20,19 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 
 typedef struct {
-  const char* documentDirectoryPath;
+  const char *documentDirectoryPath;
   vm_size_t pageSize;
 } FIRCLSHostReadOnlyContext;
 
 __BEGIN_DECLS
 
-void FIRCLSHostInitialize(FIRCLSHostReadOnlyContext* roContext);
+void FIRCLSHostInitialize(FIRCLSHostReadOnlyContext *roContext);
 
 vm_size_t FIRCLSHostGetPageSize(void);
 
-bool FIRCLSHostRecord(FIRCLSFile* file);
+bool FIRCLSHostRecord(FIRCLSFile *file);
 
-void FIRCLSHostWriteDiskUsage(FIRCLSFile* file);
+void FIRCLSHostWriteDiskUsage(FIRCLSFile *file);
 
 bool FIRCLSHostIsRosettaTranslated(void);
 

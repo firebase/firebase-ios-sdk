@@ -372,7 +372,7 @@
                                                                    accessToken:@"token"];
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
 - (void)FIRMultiFactor_h:(FIRMultiFactor *)mf mfa:(FIRMultiFactorAssertion *)mfa {
   [mf getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable credential,
                                  NSError *_Nullable error){
@@ -466,7 +466,9 @@
 - (void)phoneMultiFactorInfo:(FIRPhoneMultiFactorInfo *)info {
   __unused NSString *s = [info phoneNumber];
 }
+#endif
 
+#if TARGET_OS_IOS || TARGET_OS_OSX
 - (void)FIRTOTPSecret_h:(FIRTOTPSecret *)secret {
   NSString *s = [secret sharedSecretKey];
   s = [secret generateQRCodeURLWithAccountName:@"name" issuer:@"issuer"];
@@ -571,7 +573,7 @@
   b = [user isEmailVerified];
   __unused NSArray<NSObject<FIRUserInfo> *> *userInfo = [user providerData];
   __unused FIRUserMetadata *meta = [user metadata];
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_OSX
   __unused FIRMultiFactor *mf = [user multiFactor];
 #endif
   NSString *s = [user refreshToken];

@@ -12,7 +12,6 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseCoreExtension', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseAnalytics' # Binary pods don't work with `:path`.
-  pod 'FirebaseAnalyticsOnDeviceConversion', :path => '../../'
   pod 'FirebaseABTesting', :path => '../../'
   pod 'FirebaseAppCheck', :path => '../../'
   pod 'FirebaseRemoteConfig', :path => '../../'

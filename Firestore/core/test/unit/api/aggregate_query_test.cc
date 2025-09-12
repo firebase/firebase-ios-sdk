@@ -110,7 +110,9 @@ TEST(AggregateQuery, GetCallsGetAggregateOk) {
   aggregate_fields_entry[0].value.integer_value = 10;
 
   // Test alias map
-  absl::flat_hash_map<std::string, std::string> alias_map;
+  // TODO(b/443765747) Revert back to absl::flat_hash_map after the absl version
+  // is upgraded to later than 20250127.0
+  std::unordered_map<std::string, std::string> alias_map;
   alias_map["aggregate_0"] = "count";
 
   // Test ObjectValue result

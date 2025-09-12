@@ -12,34 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
-final class AtomicBox<T> {
-  private var _value: T
-  private let lock = NSLock()
-
-  public init(_ value: T) {
-    _value = value
-  }
-
-  public func value() -> T {
-    lock.withLock {
-      _value
-    }
-  }
-
-  @discardableResult
-  public func withLock(_ mutatingBody: (_ value: inout T) -> Void) -> T {
-    lock.withLock {
-      mutatingBody(&_value)
-      return _value
-    }
-  }
-
-  @discardableResult
-  public func withLock<R>(_ mutatingBody: (_ value: inout T) throws -> R) rethrows -> R {
-    try lock.withLock {
-      try mutatingBody(&_value)
-    }
-  }
+/// A tool that allows the model to execute code.
+///
+/// This tool can be used to solve complex problems, for example, by generating and executing Python
+/// code to solve a math problem.
+public struct CodeExecution: Sendable, Encodable {
+  init() {}
 }

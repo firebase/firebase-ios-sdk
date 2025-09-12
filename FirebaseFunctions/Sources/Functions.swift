@@ -25,36 +25,7 @@ import Foundation
 #endif
 
 internal import FirebaseCoreExtension
-
-final class AtomicBox<T>: Sendable {
-  private nonisolated(unsafe) var _value: T
-  private let lock = NSLock()
-
-  public init(_ value: T) where T: Sendable {
-    _value = value
-  }
-
-  public func value() -> T {
-    lock.withLock {
-      _value
-    }
-  }
-
-  @discardableResult
-  public func withLock(_ mutatingBody: (_ value: inout T) -> Void) -> T {
-    lock.withLock {
-      mutatingBody(&_value)
-      return _value
-    }
-  }
-
-  @discardableResult
-  public func withLock<R>(_ mutatingBody: (_ value: inout T) throws -> R) rethrows -> R {
-    try lock.withLock {
-      try mutatingBody(&_value)
-    }
-  }
-}
+private import FirebaseCoreInternal
 
 /// File specific constants.
 private enum Constants {
@@ -82,8 +53,7 @@ enum FunctionsConstants {
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
-  private static let instances: AtomicBox<[String: [Functions]]> =
-    AtomicBox([:])
+  private static let instances = UnfairLock<[String: [Functions]]>([:])
 
   /// The custom domain to use for all functions references (optional).
   let customDomain: String?
@@ -91,7 +61,7 @@ enum FunctionsConstants {
   /// The region to use for all function references.
   let region: String
 
-  private let _emulatorOrigin: AtomicBox<String?>
+  private let _emulatorOrigin: UnfairLock<String?>
 
   // MARK: - Public APIs
 
@@ -371,7 +341,7 @@ enum FunctionsConstants {
     self.projectID = projectID
     self.region = region
     self.customDomain = customDomain
-    _emulatorOrigin = AtomicBox(nil)
+    _emulatorOrigin = UnfairLock(nil)
     contextProvider = FunctionsContextProvider(auth: auth,
                                                messaging: messaging,
                                                appCheck: appCheck)
@@ -416,7 +386,6 @@ enum FunctionsConstants {
     return URL(string: "https://\(region)-\(projectID).cloudfunctions.net/\(name)")
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   func callFunction(at url: URL,
                     withObject data: Any?,
                     options: HTTPSCallableOptions?,
@@ -435,73 +404,6 @@ enum FunctionsConstants {
       return try callableResult(fromResponseData: rawData, endpointURL: url)
     } catch {
       throw processedError(fromResponseError: error, endpointURL: url)
-    }
-  }
-
-  func callFunction(at url: URL,
-                    withObject data: Any?,
-                    options: HTTPSCallableOptions?,
-                    timeout: TimeInterval,
-                    completion: @escaping @MainActor (Result<HTTPSCallableResult, Error>) -> Void) {
-    // Get context first.
-    contextProvider.getContext(options: options) { context, error in
-      // Note: context is always non-nil since some checks could succeed, we're only failing if
-      // there's an error.
-      if let error {
-        DispatchQueue.main.async {
-          completion(.failure(error))
-        }
-      } else {
-        self.callFunction(url: url,
-                          withObject: data,
-                          options: options,
-                          timeout: timeout,
-                          context: context,
-                          completion: completion)
-      }
-    }
-  }
-
-  private func callFunction(url: URL,
-                            withObject data: Any?,
-                            options: HTTPSCallableOptions?,
-                            timeout: TimeInterval,
-                            context: FunctionsContext,
-                            completion: @escaping @MainActor (Result<HTTPSCallableResult, Error>)
-                              -> Void) {
-    let fetcher: GTMSessionFetcher
-    do {
-      fetcher = try makeFetcher(
-        url: url,
-        data: data,
-        options: options,
-        timeout: timeout,
-        context: context
-      )
-    } catch {
-      DispatchQueue.main.async {
-        completion(.failure(error))
-      }
-      return
-    }
-
-    fetcher.beginFetch { [self] data, error in
-      let result: Result<HTTPSCallableResult, any Error>
-      if let error {
-        result = .failure(processedError(fromResponseError: error, endpointURL: url))
-      } else if let data {
-        do {
-          result = try .success(callableResult(fromResponseData: data, endpointURL: url))
-        } catch {
-          result = .failure(error)
-        }
-      } else {
-        result = .failure(FunctionsError(.internal))
-      }
-
-      DispatchQueue.main.async {
-        completion(result)
-      }
     }
   }
 
@@ -610,7 +512,7 @@ enum FunctionsConstants {
     }
   }
 
-  @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+  @available(macOS 12.0, watchOS 8.0, *)
   private func callableStreamResult(fromResponseData data: Data,
                                     endpointURL url: URL) throws -> sending JSONStreamResponse {
     let data = try processedData(fromResponseData: data, endpointURL: url)

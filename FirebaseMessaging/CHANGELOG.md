@@ -1,3 +1,8 @@
+# 12.1.0
+- [fixed] Fix Xcode 26 crash from missing `NSUserActivityTypeBrowsingWeb`
+  symbol. Note that this fix isn't in the 12.1.0 zip and Carthage
+  distributions, but will be included from 12.2.0 onwards. (#15159)
+
 # 11.14.0
 - [fixed] Fix a potential SQL injection issue. (#14846).
 

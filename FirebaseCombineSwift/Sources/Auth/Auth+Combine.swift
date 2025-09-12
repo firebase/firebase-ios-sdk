@@ -259,31 +259,6 @@ public extension Auth {
     }
   }
 
-  //  MARK: - Email-based Authentication Helpers
-
-  /// Fetches the list of all sign-in methods previously used for the provided email address.
-  ///
-  /// The publisher will emit events on the **main** thread.
-  ///
-  /// - Parameter email: The email address for which to obtain a list of sign-in methods.
-  /// - Returns: A publisher that emits a list of sign-in methods for the specified email
-  ///   address, or an error if one occurred. The publisher will emit on the *main* thread.
-  /// - Remark: Possible error codes:
-  ///   - `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
-  ///
-  ///   See `AuthErrors` for a list of error codes that are common to all API methods
-  func fetchSignInMethods(forEmail email: String) -> Future<[String], Error> {
-    Future<[String], Error> { promise in
-      self.fetchSignInMethods(forEmail: email) { signInMethods, error in
-        if let error {
-          promise(.failure(error))
-        } else if let signInMethods {
-          promise(.success(signInMethods))
-        }
-      }
-    }
-  }
-
   // MARK: - Password Reset
 
   /// Resets the password given a code sent to the user outside of the app and a new password for

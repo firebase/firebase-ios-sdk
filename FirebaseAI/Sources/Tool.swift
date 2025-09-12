@@ -50,6 +50,19 @@ public struct FunctionDeclaration: Sendable {
   }
 }
 
+/// A tool that allows the generative model to connect to Google Search to access and incorporate
+/// up-to-date information from the web into its responses.
+///
+/// > Important: When using this feature, you are required to comply with the
+/// "Grounding with Google Search" usage requirements for your chosen API provider:
+/// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
+/// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+/// section within the Service Specific Terms).
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GoogleSearch: Sendable {
+  public init() {}
+}
+
 /// A helper tool that the model may use when generating responses.
 ///
 /// A `Tool` is a piece of code that enables the system to interact with external systems to perform
@@ -59,8 +72,17 @@ public struct Tool: Sendable {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
 
-  init(functionDeclarations: [FunctionDeclaration]?) {
+  /// Specifies the Google Search configuration.
+  let googleSearch: GoogleSearch?
+
+  let codeExecution: CodeExecution?
+
+  init(functionDeclarations: [FunctionDeclaration]? = nil,
+       googleSearch: GoogleSearch? = nil,
+       codeExecution: CodeExecution? = nil) {
     self.functionDeclarations = functionDeclarations
+    self.googleSearch = googleSearch
+    self.codeExecution = codeExecution
   }
 
   /// Creates a tool that allows the model to perform function calling.
@@ -84,6 +106,33 @@ public struct Tool: Sendable {
   ///   providing generation context for the model's next turn.
   public static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
     return self.init(functionDeclarations: functionDeclarations)
+  }
+
+  /// Creates a tool that allows the model to use Grounding with Google Search.
+  ///
+  /// Grounding with Google Search can be used to allow the model to connect to Google Search to
+  /// access and incorporate up-to-date information from the web into it's responses.
+  ///
+  /// > Important: When using this feature, you are required to comply with the
+  /// "Grounding with Google Search" usage requirements for your chosen API provider:
+  /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
+  /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+  /// section within the Service Specific Terms).
+  ///
+  /// - Parameters:
+  ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list
+  ///     of tools enables the model to use Google Search.
+  ///
+  /// - Returns: A `Tool` configured for Google Search.
+  public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
+    return self.init(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows the model to execute code.
+  ///
+  /// For more details, see ``CodeExecution``.
+  public static func codeExecution() -> Tool {
+    return self.init(codeExecution: CodeExecution())
   }
 }
 
@@ -169,6 +218,9 @@ extension FunctionCallingConfig: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig.Mode: Encodable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GoogleSearch: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {}

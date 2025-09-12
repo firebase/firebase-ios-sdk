@@ -45,6 +45,12 @@ public final class Chat: Sendable {
     }
   }
 
+  private func appendHistory(_ newElement: ModelContent) {
+    historyLock.withLock {
+      _history.append(newElement)
+    }
+  }
+
   /// Sends a message using the existing history of this chat as context. If successful, the message
   /// and response will be added to the history. If unsuccessful, history will remain unchanged.
   /// - Parameter parts: The new content to send as a single chat message.
@@ -82,7 +88,7 @@ public final class Chat: Sendable {
 
     // Append the request and successful result to history, then return the value.
     appendHistory(contentsOf: newContent)
-    history.append(toAdd)
+    appendHistory(toAdd)
     return result
   }
 
@@ -134,38 +140,55 @@ public final class Chat: Sendable {
 
         // Aggregate the content to add it to the history before we finish.
         let aggregated = self.aggregatedChunks(aggregatedContent)
-        self.history.append(aggregated)
+        self.appendHistory(aggregated)
         continuation.finish()
       }
     }
   }
 
   private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [any Part] = []
+    var parts: [InternalPart] = []
     var combinedText = ""
-    for aggregate in chunks {
-      // Loop through all the parts, aggregating the text and adding the images.
-      for part in aggregate.parts {
-        switch part {
-        case let textPart as TextPart:
-          combinedText += textPart.text
+    var combinedThoughts = ""
 
-        default:
-          // Don't combine it, just add to the content. If there's any text pending, add that as
-          // a part.
-          if !combinedText.isEmpty {
-            parts.append(TextPart(combinedText))
-            combinedText = ""
-          }
-
-          parts.append(part)
-        }
+    func flush() {
+      if !combinedThoughts.isEmpty {
+        parts.append(InternalPart(.text(combinedThoughts), isThought: true, thoughtSignature: nil))
+        combinedThoughts = ""
+      }
+      if !combinedText.isEmpty {
+        parts.append(InternalPart(.text(combinedText), isThought: nil, thoughtSignature: nil))
+        combinedText = ""
       }
     }
 
-    if !combinedText.isEmpty {
-      parts.append(TextPart(combinedText))
+    // Loop through all the parts, aggregating the text.
+    for part in chunks.flatMap({ $0.internalParts }) {
+      // Only text parts may be combined.
+      if case let .text(text) = part.data, part.thoughtSignature == nil {
+        // Thought summaries must not be combined with regular text.
+        if part.isThought ?? false {
+          // If we were combining regular text, flush it before handling "thoughts".
+          if !combinedText.isEmpty {
+            flush()
+          }
+          combinedThoughts += text
+        } else {
+          // If we were combining "thoughts", flush it before handling regular text.
+          if !combinedThoughts.isEmpty {
+            flush()
+          }
+          combinedText += text
+        }
+      } else {
+        // This is a non-combinable part (not text), flush any pending text.
+        flush()
+        parts.append(part)
+      }
     }
+
+    // Flush any remaining text.
+    flush()
 
     return ModelContent(role: "model", parts: parts)
   }

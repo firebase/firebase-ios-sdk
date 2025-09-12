@@ -36,7 +36,6 @@ struct FunctionsContextProvider: Sendable {
     self.appCheck = appCheck
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   func context(options: HTTPSCallableOptions?) async throws -> FunctionsContext {
     async let authToken = auth?.getToken(forcingRefresh: false)
     async let appCheckToken = getAppCheckToken(options: options)
@@ -52,7 +51,6 @@ struct FunctionsContextProvider: Sendable {
     )
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   private func getAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
     guard
       options?.requireLimitedUseAppCheckTokens != true,
@@ -62,7 +60,6 @@ struct FunctionsContextProvider: Sendable {
     return tokenResult.token
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   private func getLimitedUseAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
     // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
     await withCheckedContinuation { (continuation: CheckedContinuation<String?, Never>) in
@@ -80,58 +77,6 @@ struct FunctionsContextProvider: Sendable {
         // The placeholder token should be used in the case of App Check error.
         continuation.resume(returning: tokenResult.token)
       }
-    }
-  }
-
-  func getContext(options: HTTPSCallableOptions? = nil,
-                  _ completion: @escaping ((FunctionsContext, Error?) -> Void)) {
-    let dispatchGroup = DispatchGroup()
-
-    var authToken: String?
-    var appCheckToken: String?
-    var error: Error?
-    var limitedUseAppCheckToken: String?
-
-    if let auth {
-      dispatchGroup.enter()
-
-      auth.getToken(forcingRefresh: false) { token, authError in
-        authToken = token
-        error = authError
-        dispatchGroup.leave()
-      }
-    }
-
-    if let appCheck {
-      dispatchGroup.enter()
-
-      if options?.requireLimitedUseAppCheckTokens == true {
-        // `getLimitedUseToken(completion:)` is an optional protocol method.
-        // If it’s not implemented, we still need to leave the dispatch group.
-        if let limitedUseTokenClosure = appCheck.getLimitedUseToken {
-          limitedUseTokenClosure { tokenResult in
-            // In the case of an error, the token will be the placeholder token.
-            limitedUseAppCheckToken = tokenResult.token
-            dispatchGroup.leave()
-          }
-        } else {
-          dispatchGroup.leave()
-        }
-      } else {
-        appCheck.getToken(forcingRefresh: false) { tokenResult in
-          // In the case of an error, the token will be the placeholder token.
-          appCheckToken = tokenResult.token
-          dispatchGroup.leave()
-        }
-      }
-    }
-
-    dispatchGroup.notify(queue: .main) {
-      let context = FunctionsContext(authToken: authToken,
-                                     fcmToken: self.messaging?.fcmToken,
-                                     appCheckToken: appCheckToken,
-                                     limitedUseAppCheckToken: limitedUseAppCheckToken)
-      completion(context, error)
     }
   }
 }

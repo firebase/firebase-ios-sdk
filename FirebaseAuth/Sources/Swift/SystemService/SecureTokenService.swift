@@ -125,7 +125,7 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
     set { _requestConfiguration.withLock { $0 = newValue } }
   }
 
-  let _requestConfiguration: FIRAllocatedUnfairLock<AuthRequestConfiguration?>
+  let _requestConfiguration: UnfairLock<AuthRequestConfiguration?>
 
   /// The cached access token.
   ///
@@ -140,7 +140,7 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
     set { _accessToken.withLock { $0 = newValue } }
   }
 
-  private let _accessToken: FIRAllocatedUnfairLock<String>
+  private let _accessToken: UnfairLock<String>
 
   /// The refresh token for the user, or `nil` if the user has yet completed sign-in flow.
   ///
@@ -150,7 +150,7 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
     set { _refreshToken.withLock { $0 = newValue } }
   }
 
-  private let _refreshToken: FIRAllocatedUnfairLock<String?>
+  private let _refreshToken: UnfairLock<String?>
 
   /// The expiration date of the cached access token.
   var accessTokenExpirationDate: Date? {
@@ -158,7 +158,7 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
     set { _accessTokenExpirationDate.withLock { $0 = newValue } }
   }
 
-  private let _accessTokenExpirationDate: FIRAllocatedUnfairLock<Date?>
+  private let _accessTokenExpirationDate: UnfairLock<Date?>
 
   /// Creates a `SecureTokenService` with access and refresh tokens.
   /// - Parameter requestConfiguration: The configuration for making requests to server.
@@ -170,10 +170,10 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
        accessTokenExpirationDate: Date?,
        refreshToken: String) {
     internalService = SecureTokenServiceInternal()
-    _requestConfiguration = FIRAllocatedUnfairLock(initialState: requestConfiguration)
-    _accessToken = FIRAllocatedUnfairLock(initialState: accessToken)
-    _accessTokenExpirationDate = FIRAllocatedUnfairLock(initialState: accessTokenExpirationDate)
-    _refreshToken = FIRAllocatedUnfairLock(initialState: refreshToken)
+    _requestConfiguration = UnfairLock(requestConfiguration)
+    _accessToken = UnfairLock(accessToken)
+    _accessTokenExpirationDate = UnfairLock(accessTokenExpirationDate)
+    _refreshToken = UnfairLock(refreshToken)
   }
 
   /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token

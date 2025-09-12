@@ -998,6 +998,7 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 3.4.1;
+				maximumVersion = "6.0.0";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

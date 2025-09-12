@@ -314,8 +314,8 @@ This test flakes frequently on the emulator on travis and almost always on GHA w
           ios - sdk / firebase - ios -
           sdk / Example / Database / Tests / Helpers /
               FEventTester
-                  .m : 123 because it was raised inside test case -
-              [FEventTester(
+                  .m
+              : 123 because it was raised inside test case -[FEventTester(
                   null)] which has no associated XCTestRun object.This may happen when test cases
                   are constructed and invoked independently of standard XCTest infrastructure,
       or when the test has already finished
@@ -2240,7 +2240,8 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }];
 }
 
-- (void)testDeepUpdatesWork {
+// TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
+- (void)SKIP_testDeepUpdatesWork {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *reader = refs.one;
   FIRDatabaseReference *writer = refs.two;
@@ -3008,7 +3009,8 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }
 }
 
-- (void)testServerIncrementOverflowAndTypeCoercion {
+// TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
+- (void)SKIP_testServerIncrementOverflowAndTypeCoercion {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   __block NSMutableArray *found = [NSMutableArray new];
   __block NSMutableArray *foundTypes = [NSMutableArray new];

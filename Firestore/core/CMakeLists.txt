@@ -137,7 +137,6 @@ target_compile_definitions(
 target_link_libraries(
   firestore_util PUBLIC
   absl::base
-  absl::flat_hash_map
   absl::memory
   absl::meta
   absl::optional
@@ -250,7 +249,6 @@ target_link_libraries(
   firestore_core PUBLIC
   LevelDB::LevelDB
   absl::base
-  absl::flat_hash_map
   absl::memory
   absl::meta
   absl::optional
