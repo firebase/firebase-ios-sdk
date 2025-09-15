@@ -77,6 +77,9 @@ enum class TypeOrder {
   kMaxValue = 12
 };
 
+/** Result type for StrictEquals comparison. */
+enum class StrictEqualsResult { kEq, kNotEq, kNull };
+
 /** Returns the backend's type order of the given Value type. */
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value);
 
@@ -102,6 +105,15 @@ bool Equals(const google_firestore_v1_Value& left,
 
 bool Equals(const google_firestore_v1_ArrayValue& left,
             const google_firestore_v1_ArrayValue& right);
+
+/**
+ * Performs a strict equality comparison used in Pipeline expressions
+ * evaluations. The main difference to Equals is its handling of null
+ * propagation, and it uses direct double value comparison (as opposed to Equals
+ * which use bits comparison).
+ */
+StrictEqualsResult StrictEquals(const google_firestore_v1_Value& left,
+                                const google_firestore_v1_Value& right);
 
 /**
  * Generates the canonical ID for the provided field value (as used in Target
@@ -276,6 +288,12 @@ inline bool IsMap(const absl::optional<google_firestore_v1_Value>& value) {
   return value &&
          value->which_value_type == google_firestore_v1_Value_map_value_tag;
 }
+
+/**
+ * Extracts the integer value if the input is an integer type.
+ * Returns nullopt otherwise.
+ */
+absl::optional<int64_t> GetInteger(const google_firestore_v1_Value& value);
 
 }  // namespace model
 

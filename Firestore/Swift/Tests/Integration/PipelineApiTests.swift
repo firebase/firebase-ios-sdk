@@ -310,12 +310,12 @@ final class PipelineApiTests: FSTIntegrationTestCase {
         ]
       )
 
-    // One special Field value is conveniently exposed as constructor to help the user reference reserved field values of __name__.
-        _ = db.pipeline().collection("books")
-          .addFields([
-            DocumentId()
-            ]
-          )
+    // One special Field value is conveniently exposed as constructor to help the user reference
+    // reserved field values of __name__.
+    _ = db.pipeline().collection("books")
+      .addFields([
+        DocumentId(),
+      ])
   }
 
   func testConstant() async throws {
