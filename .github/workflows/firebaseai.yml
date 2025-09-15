@@ -27,12 +27,6 @@ permissions:
 
 jobs:
   spm:
-    strategy:
-      matrix:
-        include:
-          - os: macos-26
-            xcode: Xcode_26.0
-            platform: iOS
     uses: ./.github/workflows/common.yml
     with:
       target: FirebaseAIUnit
