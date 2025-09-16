@@ -131,7 +131,7 @@ public struct Tool: Sendable {
     return self.init(googleSearch: googleSearch)
   }
 
-  public static func urlContext() -> Tool {
+  static func urlContext() -> Tool {
     return self.init(urlContext: URLContext())
   }
 
