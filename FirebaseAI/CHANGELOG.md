@@ -1,3 +1,7 @@
+# Unreleased
+- The Developer API and the Imagen generation APIs are now Generally
+  Available (GA).
+
 # 12.3.0
 - [feature] Added support for the Code Execution tool, which enables the model
   to generate and run code to perform complex tasks like solving mathematical

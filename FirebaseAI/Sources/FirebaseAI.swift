@@ -105,12 +105,6 @@ public final class FirebaseAI: Sendable {
     )
   }
 
-  /// **[Public Preview]** Initializes an ``ImagenModel`` with the given parameters.
-  ///
-  /// > Warning: For Firebase AI SDK, image generation using Imagen 3 models is in Public
-  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
-  /// could change in backwards-incompatible ways.
-  ///
   /// > Important: Only Imagen 3 models (named `imagen-3.0-*`) are supported.
   ///
   /// - Parameters:
