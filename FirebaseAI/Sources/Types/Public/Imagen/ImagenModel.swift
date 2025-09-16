@@ -61,6 +61,8 @@ public final class ImagenModel {
     self.requestOptions = requestOptions
   }
 
+  /// Generates images using the Imagen model and returns them as inline data.
+  ///
   /// The individual ``ImagenInlineImage/data`` is provided for each of the generated
   /// ``ImagenGenerationResponse/images``.
   ///
@@ -81,6 +83,8 @@ public final class ImagenModel {
     )
   }
 
+  /// Generates images using the Imagen model and stores them in Cloud Storage (GCS) for Firebase.
+  ///
   /// The generated images are stored in a subdirectory of the requested `gcsURI`, named as a random
   /// numeric hash. For example, for the `gcsURI` `"gs://bucket-name/path/"`, the generated images
   /// are stored in `"gs://bucket-name/path/1234567890123/"` with the names `sample_0.png`,

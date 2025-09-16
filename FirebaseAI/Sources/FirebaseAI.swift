@@ -105,6 +105,8 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  /// Initializes an ``ImagenModel`` with the given parameters.
+  ///
   /// > Important: Only Imagen 3 models (named `imagen-3.0-*`) are supported.
   ///
   /// - Parameters:
