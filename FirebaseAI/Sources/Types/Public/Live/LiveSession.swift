@@ -129,11 +129,11 @@ public final class LiveSession: Sendable {
 
   /// Permanently stop the conversation with the model, and close the connection to the server
   ///
-  /// This method will be called automatically when the ``LiveSession`` is deinitialized, but this method
-  /// can be called manually to explicitly end the session.
+  /// This method will be called automatically when the ``LiveSession`` is deinitialized, but this
+  /// method can be called manually to explicitly end the session.
   ///
-  /// Attempting to receive content from a closed session will cause a ``LiveSessionUnexpectedClosureError`` error
-  /// to be thrown.
+  /// Attempting to receive content from a closed session will cause a
+  /// ``LiveSessionUnexpectedClosureError`` error to be thrown.
   public func close() async {
     await service.close()
   }
