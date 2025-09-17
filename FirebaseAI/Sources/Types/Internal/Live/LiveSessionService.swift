@@ -125,6 +125,20 @@ actor LiveSessionService {
     }
   }
 
+  /// Cancel any running tasks and close the websocket.
+  ///
+  /// This method is idempotent; if it's already ran once, it will effectively be a no-op.
+  public func close() {
+    setupTask.cancel()
+    responsesTask?.cancel()
+    messageQueueTask?.cancel()
+    webSocket?.disconnect()
+
+    webSocket = nil
+    responsesTask = nil
+    messageQueueTask = nil
+  }
+
   /// Start a fresh websocket to the backend, and listen for responses.
   ///
   /// Will hold off on sending any messages until the server sends a setupComplete mesage.
@@ -267,20 +281,6 @@ actor LiveSessionService {
         }
       }
     }
-  }
-
-  /// Cancel any running tasks and close the websocket.
-  ///
-  /// This method is idempotent; if it's already ran once, it will effectively be a no-op.
-  private func close() {
-    setupTask.cancel()
-    responsesTask?.cancel()
-    messageQueueTask?.cancel()
-    webSocket?.disconnect()
-
-    webSocket = nil
-    responsesTask = nil
-    messageQueueTask = nil
   }
 
   /// Creates a websocket pointing to the backend.
