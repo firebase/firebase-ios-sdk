@@ -149,7 +149,7 @@ public struct FunctionCallPart: Part {
 
   /// Unique id of the function call. If present, the returned ``FunctionResponsePart``
   /// should have a matching `id` field.
-  public var id: String?
+  public var id: String? { functionCall.id }
 
   /// Constructs a new function call part.
   ///
