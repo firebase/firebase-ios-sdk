@@ -49,7 +49,7 @@ public struct URLMetadata: Sendable, Hashable {
       AILog.MessageCode.urlMetadataUnrecognizedURLRetrievalStatus
   }
 
-  /// The URL retrieved by the ``URLContext`` tool.
+  /// The URL retrieved by the ``Tool/urlContext()`` tool.
   public let retrievedURL: URL?
 
   /// The status of the URL retrieval.
