@@ -137,4 +137,6 @@ public final class LiveSession: Sendable {
   public func close() async {
     await service.close()
   }
+
+  // TODO: b(445716402) Add a start method when we support session resumption
 }
