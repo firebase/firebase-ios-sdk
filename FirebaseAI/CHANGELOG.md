@@ -1,5 +1,6 @@
 # Unreleased
-- [changed] The Developer API and the Imagen generation APIs are now Generally Available (GA).
+- [changed] Using Firebase AI Logic with the Gemini Developer API is now Generally Available (GA).
+- [changed] Using Firebase AI Logic with the Imagen generation APIs is now Generally Available (GA).
 
 # 12.3.0
 - [feature] Added support for the Code Execution tool, which enables the model
