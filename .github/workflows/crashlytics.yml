@@ -48,7 +48,6 @@ jobs:
     with:
       product: Crashlytics
       is_legacy: true
-      quickstart_type: swift
       setup_command: |
         scripts/setup_quickstart.sh crashlytics
         mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics

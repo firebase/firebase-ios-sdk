@@ -84,7 +84,6 @@ jobs:
     with:
       product: Performance
       is_legacy: false
-      quickstart_type: swift
       setup_command: QUICKSTART_BRANCH=mc/spm scripts/setup_quickstart_spm.sh performance
       plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
       plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
