@@ -137,6 +137,12 @@ public final class GenerativeModel: Sendable {
     return try await generateContent([ModelContent(parts: parts)])
   }
 
+  public func generateContent(@ModelContentBuilder _ contentBuilder: ()
+    -> ModelContent) async throws -> GenerateContentResponse {
+    let content = contentBuilder()
+    return try await generateContent([content])
+  }
+
   /// Generates new content from input content given to the model as a prompt.
   ///
   /// - Parameter content: The input(s) given to the model as a prompt.
