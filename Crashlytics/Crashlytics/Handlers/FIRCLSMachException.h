@@ -59,21 +59,21 @@ typedef struct {
 typedef struct {
   mach_port_t port;
   pthread_t thread;
-  const char* path;
+  const char *path;
 
   exception_mask_t mask;
   FIRCLSMachExceptionOriginalPorts originalPorts;
 } FIRCLSMachExceptionReadContext;
 
 #pragma mark - API
-void FIRCLSMachExceptionInit(FIRCLSMachExceptionReadContext* context);
+void FIRCLSMachExceptionInit(FIRCLSMachExceptionReadContext *context);
 
 void FIRCLSMachExceptionCheckHandlers(void);
 
 void FIRCLSMachExceptionNameLookup(exception_type_t number,
                                    mach_exception_data_type_t code,
-                                   const char** name,
-                                   const char** codeName);
+                                   const char **name,
+                                   const char **codeName);
 #else
 
 #define CLS_MACH_EXCEPTION_HANDLER_STACK_SIZE 0

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAI'
-  s.version          = '12.3.0'
+  s.version          = '12.4.0'
   s.summary          = 'Firebase AI SDK'
 
   s.description      = <<-DESC
@@ -43,6 +43,6 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAILogic', '12.3.0'
-  s.dependency 'FirebaseCore', '~> 12.3.0'
+  s.dependency 'FirebaseAILogic', '12.4.0'
+  s.dependency 'FirebaseCore', '~> 12.4.0'
 end
