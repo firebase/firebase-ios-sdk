@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Add missing nanopb dependency to fix SwiftPM builds when building
+  dynamically linked libraries. (#15276)
+
 # 11.6.0
 - [fixed] Fix a crash related to registering for notifications when the app is between foreground or background states. (#13174)
 

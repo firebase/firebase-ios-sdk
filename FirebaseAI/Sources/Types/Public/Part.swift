@@ -202,3 +202,118 @@ public struct FunctionResponsePart: Part {
     self.thoughtSignature = thoughtSignature
   }
 }
+
+/// A part containing code that was executed by the model.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct ExecutableCodePart: Part {
+  /// The language of the code in an ``ExecutableCodePart``.
+  public struct Language: Sendable, Equatable, CustomStringConvertible {
+    let internalLanguage: ExecutableCode.Language
+
+    /// The Python programming language.
+    public static let python = ExecutableCodePart.Language(ExecutableCode.Language(kind: .python))
+
+    public var description: String { internalLanguage.rawValue }
+
+    init(_ language: ExecutableCode.Language) {
+      internalLanguage = language
+    }
+  }
+
+  let executableCode: ExecutableCode
+  let _isThought: Bool?
+  let thoughtSignature: String?
+
+  /// The language of the code.
+  public var language: ExecutableCodePart.Language {
+    ExecutableCodePart.Language(
+      // Fallback to "LANGUAGE_UNSPECIFIED" if the value is ever omitted by the backend; this should
+      // never happen.
+      AILog.safeUnwrap(
+        executableCode.language, fallback: ExecutableCode.Language(kind: .unspecified)
+      )
+    )
+  }
+
+  /// The code that was executed.
+  public var code: String {
+    // Fallback to empty string if `code` is ever omitted by the backend; this should never happen.
+    AILog.safeUnwrap(executableCode.code, fallback: "")
+  }
+
+  public var isThought: Bool { _isThought ?? false }
+
+  public init(language: ExecutableCodePart.Language, code: String) {
+    self.init(
+      ExecutableCode(language: language.internalLanguage, code: code),
+      isThought: nil,
+      thoughtSignature: nil
+    )
+  }
+
+  init(_ executableCode: ExecutableCode, isThought: Bool?, thoughtSignature: String?) {
+    self.executableCode = executableCode
+    _isThought = isThought
+    self.thoughtSignature = thoughtSignature
+  }
+}
+
+/// The result of executing code.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct CodeExecutionResultPart: Part {
+  /// The outcome of a code execution.
+  public struct Outcome: Sendable, Equatable, CustomStringConvertible {
+    let internalOutcome: CodeExecutionResult.Outcome
+
+    /// The code executed without errors.
+    public static let ok = CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .ok))
+
+    /// The code failed to execute.
+    public static let failed =
+      CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .failed))
+
+    /// The code took too long to execute.
+    public static let deadlineExceeded =
+      CodeExecutionResultPart.Outcome(CodeExecutionResult.Outcome(kind: .deadlineExceeded))
+
+    public var description: String { internalOutcome.rawValue }
+
+    init(_ outcome: CodeExecutionResult.Outcome) {
+      internalOutcome = outcome
+    }
+  }
+
+  let codeExecutionResult: CodeExecutionResult
+  let _isThought: Bool?
+  let thoughtSignature: String?
+
+  /// The outcome of the code execution.
+  public var outcome: CodeExecutionResultPart.Outcome {
+    CodeExecutionResultPart.Outcome(
+      // Fallback to "OUTCOME_UNSPECIFIED" if this value is ever omitted by the backend; this should
+      // never happen.
+      AILog.safeUnwrap(
+        codeExecutionResult.outcome, fallback: CodeExecutionResult.Outcome(kind: .unspecified)
+      )
+    )
+  }
+
+  /// The output of the code execution.
+  public var output: String? { codeExecutionResult.output }
+
+  public var isThought: Bool { _isThought ?? false }
+
+  public init(outcome: CodeExecutionResultPart.Outcome, output: String) {
+    self.init(
+      codeExecutionResult: CodeExecutionResult(outcome: outcome.internalOutcome, output: output),
+      isThought: nil,
+      thoughtSignature: nil
+    )
+  }
+
+  init(codeExecutionResult: CodeExecutionResult, isThought: Bool?, thoughtSignature: String?) {
+    self.codeExecutionResult = codeExecutionResult
+    _isThought = isThought
+    self.thoughtSignature = thoughtSignature
+  }
+}

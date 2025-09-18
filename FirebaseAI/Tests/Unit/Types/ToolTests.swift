@@ -27,11 +27,28 @@ final class ToolTests: XCTestCase {
 
   func testEncodeTool_googleSearch() throws {
     let tool = Tool.googleSearch()
+
     let jsonData = try encoder.encode(tool)
+
     let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(jsonString, """
     {
       "googleSearch" : {
+
+      }
+    }
+    """)
+  }
+
+  func testEncodeTool_codeExecution() throws {
+    let tool = Tool.codeExecution()
+
+    let jsonData = try encoder.encode(tool)
+
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(jsonString, """
+    {
+      "codeExecution" : {
 
       }
     }
@@ -45,11 +62,9 @@ final class ToolTests: XCTestCase {
       parameters: ["param1": .string()]
     )
     let tool = Tool.functionDeclarations([functionDecl])
-
-    encoder.outputFormatting.insert(.withoutEscapingSlashes)
     let jsonData = try encoder.encode(tool)
-    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
 
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(jsonString, """
     {
       "functionDeclarations" : [

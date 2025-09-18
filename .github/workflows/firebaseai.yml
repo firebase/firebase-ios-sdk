@@ -8,7 +8,7 @@ on:
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - 'scripts/quickstart_build_spm.sh'
-    - 'scripts/quickstart_spm_xcodeproj.sh'
+    - 'scripts/update_firebase_spm_dependency.sh'
     - 'Gemfile*'
     # Do not run for documentation-only PRs.
     - '!**.md'

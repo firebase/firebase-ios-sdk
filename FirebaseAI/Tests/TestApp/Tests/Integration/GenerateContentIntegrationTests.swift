@@ -322,14 +322,20 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    InstanceConfig.vertexAI_v1beta,
-    InstanceConfig.vertexAI_v1beta_global,
-    InstanceConfig.googleAI_v1beta,
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImagePreview),
     // Note: The following configs are commented out for easy one-off manual testing.
-    // InstanceConfig.googleAI_v1beta_staging,
-    // InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashPreviewImageGeneration)
+    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashPreviewImageGeneration),
+    // (
+    //  InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
+    //  ModelNames.gemini2FlashPreviewImageGeneration
+    // ),
   ])
-  func generateImage(_ config: InstanceConfig) async throws {
+  func generateImage(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
       temperature: 0.0,
       topP: 0.0,
@@ -341,8 +347,8 @@ struct GenerateContentIntegrationTests {
       // 'gemini-2.0-flash-preview-image-generation' model.
       $0.harmCategory != .civicIntegrity
     }
-    let model = AILogic.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2FlashPreviewImageGeneration,
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
@@ -418,6 +424,35 @@ struct GenerateContentIntegrationTests {
     }
   }
 
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      tools: [.codeExecution()]
+    )
+    let prompt = """
+    What is the sum of the first 5 prime numbers? Generate and run code for the calculation.
+    """
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let executableCodeParts = candidate.content.parts.compactMap { $0 as? ExecutableCodePart }
+    #expect(executableCodeParts.count == 1)
+    let executableCodePart = try #require(executableCodeParts.first)
+    #expect(executableCodePart.language == .python)
+    #expect(executableCodePart.code.contains("sum"))
+    let codeExecutionResults = candidate.content.parts.compactMap { $0 as? CodeExecutionResultPart }
+    #expect(codeExecutionResults.count == 1)
+    let codeExecutionResultPart = try #require(codeExecutionResults.first)
+    #expect(codeExecutionResultPart.outcome == .ok)
+    let output = try #require(codeExecutionResultPart.output)
+    #expect(output.contains("28")) // 2 + 3 + 5 + 7 + 11 = 28
+    let text = try #require(response.text)
+    #expect(text.contains("28"))
+  }
+
   // MARK: Streaming Tests
 
   @Test(arguments: [
@@ -481,6 +516,73 @@ struct GenerateContentIntegrationTests {
     let modelJSONData = try #require(modelTextPart.text.data(using: .utf8))
     let response = try JSONDecoder().decode([String].self, from: modelJSONData)
     #expect(response == expectedResponse)
+  }
+
+  @Test(arguments: [
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImagePreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImagePreview),
+    // Note: The following configs are commented out for easy one-off manual testing.
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashPreviewImageGeneration)
+    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashPreviewImageGeneration),
+    // (
+    //  InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
+    //  ModelNames.gemini2FlashPreviewImageGeneration
+    // ),
+  ])
+  func generateImageStreaming(_ config: InstanceConfig, modelName: String) async throws {
+    let generationConfig = GenerationConfig(
+      temperature: 0.0,
+      topP: 0.0,
+      topK: 1,
+      responseModalities: [.text, .image]
+    )
+    let safetySettings = safetySettings.filter {
+      // HARM_CATEGORY_CIVIC_INTEGRITY is deprecated in Vertex AI but only rejected when using the
+      // 'gemini-2.0-flash-preview-image-generation' model.
+      $0.harmCategory != .civicIntegrity
+    }
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate an image of a cute cartoon kitten playing with a ball of yarn"
+
+    let stream = try model.generateContentStream(prompt)
+
+    var inlineDataParts = [InlineDataPart]()
+    for try await response in stream {
+      let candidate = try #require(response.candidates.first)
+      let inlineDataPart = candidate.content.parts.first { $0 is InlineDataPart } as? InlineDataPart
+      if let inlineDataPart {
+        inlineDataParts.append(inlineDataPart)
+        let inlineDataPartsViaAccessor = response.inlineDataParts
+        #expect(inlineDataPartsViaAccessor.count == 1)
+        #expect(inlineDataPartsViaAccessor == response.inlineDataParts)
+      }
+      let textPart = candidate.content.parts.first { $0 is TextPart } as? TextPart
+      #expect(
+        inlineDataPart != nil || textPart != nil || candidate.finishReason == .stop,
+        "No text or image found in the candidate"
+      )
+    }
+
+    #expect(inlineDataParts.count == 1)
+    let inlineDataPart = try #require(inlineDataParts.first)
+    #expect(inlineDataPart.mimeType == "image/png")
+    #expect(inlineDataPart.data.count > 0)
+    #if canImport(UIKit)
+      let uiImage = try #require(UIImage(data: inlineDataPart.data))
+      // Gemini 2.0 Flash Experimental returns images sized to fit within a 1024x1024 pixel box but
+      // dimensions may vary depending on the aspect ratio.
+      #expect(uiImage.size.width <= 1024)
+      #expect(uiImage.size.width >= 500)
+      #expect(uiImage.size.height <= 1024)
+      #expect(uiImage.size.height >= 500)
+    #endif // canImport(UIKit)
   }
 
   // MARK: - App Check Tests
