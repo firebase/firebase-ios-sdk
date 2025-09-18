@@ -64,7 +64,7 @@ struct GenerateContentIntegrationTests {
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
