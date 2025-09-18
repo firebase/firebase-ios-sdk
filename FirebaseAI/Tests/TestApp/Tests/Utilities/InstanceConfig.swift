@@ -146,12 +146,12 @@ extension InstanceConfig: CustomTestStringConvertible {
   }
 }
 
-extension AILogic {
-  static func componentInstance(_ instanceConfig: InstanceConfig) -> AILogic {
+extension FirebaseAI {
+  static func componentInstance(_ instanceConfig: InstanceConfig) -> FirebaseAI {
     switch instanceConfig.apiConfig.service {
     case .vertexAI:
       let location = instanceConfig.location ?? "us-central1"
-      return AILogic.createInstance(
+      return FirebaseAI.createInstance(
         app: instanceConfig.app,
         location: location,
         apiConfig: instanceConfig.apiConfig,
@@ -162,7 +162,7 @@ extension AILogic {
         instanceConfig.location == nil,
         "The Developer API is global and does not support `location`."
       )
-      return AILogic.createInstance(
+      return FirebaseAI.createInstance(
         app: instanceConfig.app,
         location: nil,
         apiConfig: instanceConfig.apiConfig,

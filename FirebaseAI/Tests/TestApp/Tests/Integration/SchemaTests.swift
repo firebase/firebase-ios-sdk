@@ -50,7 +50,7 @@ struct SchemaTests {
 
   @Test(arguments: InstanceConfig.allConfigs)
   func generateContentSchemaItems(_ config: InstanceConfig) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
@@ -75,7 +75,7 @@ struct SchemaTests {
 
   @Test(arguments: InstanceConfig.allConfigs)
   func generateContentSchemaNumberRange(_ config: InstanceConfig) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
@@ -104,7 +104,7 @@ struct SchemaTests {
       let price: Double // Will correspond to .double in schema
       let salePrice: Float // Will correspond to .float in schema
     }
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
@@ -195,7 +195,7 @@ struct SchemaTests {
       ],
       description: "A U.S. mailing address"
     )
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: GenerationConfig(
         temperature: 0.0,

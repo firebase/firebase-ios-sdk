@@ -38,7 +38,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     includeResponsibleAIFilterReason: includeResponsibleAIFilterReason,
     includeSafetyAttributes: includeSafetyAttributes
   )
-  let apiConfig = AILogic.defaultVertexAIAPIConfig
+  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
   let instance = ImageGenerationInstance(prompt: "test-prompt")
 

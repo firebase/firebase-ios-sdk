@@ -105,7 +105,7 @@ struct GenerateContentIntegrationTests {
     arguments: InstanceConfig.allConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "text/x.enum",
@@ -184,7 +184,7 @@ struct GenerateContentIntegrationTests {
   )
   func generateContentThinking(_ config: InstanceConfig, modelName: String,
                                thinkingConfig: ThinkingConfig) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: GenerationConfig(
         temperature: 0.0,
@@ -268,7 +268,7 @@ struct GenerateContentIntegrationTests {
         "country": .string(),
       ]
     )
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: GenerationConfig(
         temperature: 0.0,
@@ -390,7 +390,7 @@ struct GenerateContentIntegrationTests {
     arguments: InstanceConfig.allConfigs
   )
   func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       tools: [.googleSearch()]
     )
@@ -485,7 +485,7 @@ struct GenerateContentIntegrationTests {
     - Do NOT wrap the JSON in Markdown code blocks (e.g., ```json ... ``` or ``` ... ```).
     - The response must start with '[' and end with ']'.
     """
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: generationConfig,
       safetySettings: safetySettings
@@ -589,7 +589,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: InstanceConfig.appCheckNotConfiguredConfigs)
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."

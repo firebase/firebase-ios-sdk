@@ -48,7 +48,7 @@ struct CountTokensIntegrationTests {
   @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_text(_ config: InstanceConfig) async throws {
     let prompt = "Why is the sky blue?"
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings
@@ -65,7 +65,7 @@ struct CountTokensIntegrationTests {
 
   @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
@@ -83,7 +83,7 @@ struct CountTokensIntegrationTests {
 
   @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
-    let model = AILogic.componentInstance(config).generativeModel(
+    let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",

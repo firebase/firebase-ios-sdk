@@ -58,7 +58,7 @@ final class GenerativeModelGoogleAITests: XCTestCase {
   ].sorted()
   let testModelName = "test-model"
   let testModelResourceName = "projects/test-project-id/models/test-model"
-  let apiConfig = AILogic.defaultVertexAIAPIConfig
+  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
   let googleAISubdirectory = "mock-responses/googleai"
 

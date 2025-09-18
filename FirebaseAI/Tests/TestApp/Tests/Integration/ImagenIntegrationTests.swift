@@ -34,13 +34,13 @@ import Testing
   .serialized
 )
 struct ImagenIntegrationTests {
-  var vertex: AILogic
+  var vertex: FirebaseAI
   var storage: Storage
   var userID1: String
 
   init() async throws {
     userID1 = try await TestHelpers.getUserID()
-    vertex = AILogic.aiLogic(backend: .vertexAI())
+    vertex = FirebaseAI.firebaseAI(backend: .vertexAI())
     storage = Storage.storage()
   }
 

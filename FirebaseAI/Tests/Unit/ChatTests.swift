@@ -71,7 +71,7 @@ final class ChatTests: XCTestCase {
           firebaseApp: app,
           useLimitedUseAppCheckTokens: false
         ),
-        apiConfig: AILogic.defaultVertexAIAPIConfig,
+        apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
         tools: nil,
         requestOptions: RequestOptions(),
         urlSession: urlSession
@@ -107,7 +107,7 @@ final class ChatTests: XCTestCase {
       modelName: modelName,
       modelResourceName: modelResourceName,
       firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
-      apiConfig: AILogic.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -148,7 +148,7 @@ final class ChatTests: XCTestCase {
       modelName: modelName,
       modelResourceName: modelResourceName,
       firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
-      apiConfig: AILogic.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -184,7 +184,7 @@ final class ChatTests: XCTestCase {
       modelName: modelName,
       modelResourceName: modelResourceName,
       firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
-      apiConfig: AILogic.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
