@@ -21,6 +21,7 @@
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/api/pipeline.h"
+#include "Firestore/core/src/api/pipeline_result_change.h"
 #include "Firestore/core/src/api/stages.h"
 
 @class FIRFilter;
@@ -56,6 +57,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface __FIRPipelineResultBridge (Internal)
 
 - (id)initWithCppResult:(api::PipelineResult)result db:(std::shared_ptr<api::Firestore>)db;
+
+@end
+
+@interface __FIRPipelineResultChangeBridge (Internal)
+
+- (id)initWithCppChange:(api::PipelineResultChange)change db:(std::shared_ptr<api::Firestore>)db;
 
 @end
 

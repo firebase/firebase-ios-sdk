@@ -81,90 +81,20 @@ void QuerySnapshot::ForEachDocument(
   }
 }
 
-static DocumentChange::Type DocumentChangeTypeForChange(
-    const DocumentViewChange& change) {
-  switch (change.type()) {
-    case DocumentViewChange::Type::Added:
-      return DocumentChange::Type::Added;
-    case DocumentViewChange::Type::Modified:
-    case DocumentViewChange::Type::Metadata:
-      return DocumentChange::Type::Modified;
-    case DocumentViewChange::Type::Removed:
-      return DocumentChange::Type::Removed;
-  }
-
-  HARD_FAIL("Unknown DocumentViewChange::Type: %s", change.type());
-}
-
 void QuerySnapshot::ForEachChange(
     bool include_metadata_changes,
     const std::function<void(DocumentChange)>& callback) const {
-  if (include_metadata_changes && snapshot_.excludes_metadata_changes()) {
-    ThrowInvalidArgument(
-        "To include metadata changes with your document "
-        "changes, you must call "
-        "addSnapshotListener(includeMetadataChanges:true).");
-  }
+  auto factory = [this](const Document& doc,
+                        SnapshotMetadata meta) -> DocumentSnapshot {
+    return DocumentSnapshot::FromDocument(this->firestore_, doc,
+                                          std::move(meta));
+  };
 
-  if (snapshot_.old_documents().empty()) {
-    // Special case the first snapshot because index calculation is easy and
-    // fast. Also all changes on the first snapshot are adds so there are also
-    // no metadata-only changes to filter out.
-    DocumentComparator doc_comparator =
-        snapshot_.query_or_pipeline().Comparator();
-    absl::optional<Document> last_document;
-    size_t index = 0;
-    for (const DocumentViewChange& change : snapshot_.document_changes()) {
-      const Document& doc = change.document();
-      SnapshotMetadata metadata(
-          /*pending_writes=*/snapshot_.mutated_keys().contains(doc->key()),
-          /*from_cache=*/snapshot_.from_cache());
-      auto document =
-          DocumentSnapshot::FromDocument(firestore_, doc, std::move(metadata));
-
-      HARD_ASSERT(change.type() == DocumentViewChange::Type::Added,
-                  "Invalid event type for first snapshot");
-      HARD_ASSERT(!last_document || util::Ascending(doc_comparator.Compare(
-                                        *last_document, change.document())),
-                  "Got added events in wrong order");
-
-      callback(DocumentChange(DocumentChange::Type::Added, std::move(document),
-                              DocumentChange::npos, index++));
-      last_document = doc;
-    }
-
-  } else {
-    // A DocumentSet that is updated incrementally as changes are applied to use
-    // to lookup the index of a document.
-    DocumentSet index_tracker = snapshot_.old_documents();
-    for (const DocumentViewChange& change : snapshot_.document_changes()) {
-      if (!include_metadata_changes &&
-          change.type() == DocumentViewChange::Type::Metadata) {
-        continue;
-      }
-
-      const Document& doc = change.document();
-      SnapshotMetadata metadata(
-          /*pending_writes=*/snapshot_.mutated_keys().contains(doc->key()),
-          /*from_cache=*/snapshot_.from_cache());
-      auto document = DocumentSnapshot::FromDocument(firestore_, doc, metadata);
-
-      size_t old_index = DocumentChange::npos;
-      size_t new_index = DocumentChange::npos;
-      if (change.type() != DocumentViewChange::Type::Added) {
-        old_index = index_tracker.IndexOf(change.document()->key());
-        HARD_ASSERT(old_index != DocumentSet::npos,
-                    "Index for document not found");
-        index_tracker = index_tracker.erase(change.document()->key());
-      }
-      if (change.type() != DocumentViewChange::Type::Removed) {
-        index_tracker = index_tracker.insert(change.document());
-        new_index = index_tracker.IndexOf(change.document()->key());
-      }
-
-      DocumentChange::Type type = DocumentChangeTypeForChange(change);
-      callback(DocumentChange(type, std::move(document), old_index, new_index));
-    }
+  std::vector<DocumentChange> changes =
+      GenerateChangesFromSnapshot<DocumentChange, DocumentSnapshot>(
+          this->snapshot_, include_metadata_changes, factory);
+  for (auto& change : changes) {
+    callback(change);
   }
 }
 
