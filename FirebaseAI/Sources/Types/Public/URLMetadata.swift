@@ -14,8 +14,7 @@
 
 import Foundation
 
-/// The number of tokens in the results from tool executions, which are provided back to the model
-/// as input.
+/// Metadata for a single URL retrieved by the `urlContext` tool.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct URLMetadata: Sendable, Hashable {
   /// Status of the URL retrieval.
