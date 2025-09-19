@@ -359,6 +359,14 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
     XCTAssertNotNil(result.get("rating") as? Timestamp)
     XCTAssertEqual(result.get("rating") as? Timestamp, result.data["rating"] as? Timestamp)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertNotNil(firstChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      firstChanges[0].result.get("rating") as? Timestamp,
+      result.get("rating") as? Timestamp
+    )
 
     enableNetwork()
 
@@ -367,6 +375,14 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertNotEqual(
       secondSnapshot!.results()[0].get("rating") as? Timestamp,
       result.data["rating"] as? Timestamp
+    )
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
     )
   }
 
@@ -432,12 +448,24 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertNotNil(result.get("rating") as? Double)
     XCTAssertEqual(result.get("rating") as! Double, 4.2)
     XCTAssertEqual(result.get("rating") as! Double, result.data["rating"] as! Double)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertEqual(firstChanges[0].result.get("rating") as! Double, 4.2)
 
     enableNetwork()
 
     let secondSnapshot = try await iterator.next()
     XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
     XCTAssertNotNil(secondSnapshot!.results()[0].get("rating") as? Timestamp)
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
+    )
   }
 
   func testCanEvaluateServerTimestampPreviousProperly() async throws {
@@ -493,12 +521,24 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
     XCTAssertNil(result.get("rating") as? Timestamp)
     XCTAssertEqual(result.get("rating") as? Timestamp, result.data["rating"] as? Timestamp)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertNil(firstChanges[0].result.get("rating") as? Timestamp)
 
     enableNetwork()
 
     let secondSnapshot = try await iterator.next()
     XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
     XCTAssertNotNil(secondSnapshot!.results()[0].get("rating") as? Timestamp)
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
+    )
   }
 
   func testCanEvaluateServerTimestampNoneProperly() async throws {
