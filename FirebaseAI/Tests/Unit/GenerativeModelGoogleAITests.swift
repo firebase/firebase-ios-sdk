@@ -380,7 +380,7 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     let successURLMetadata = urlContextMetadata.urlMetadata[1]
     XCTAssertEqual(successURLMetadata.retrievalStatus, .success)
 
-    let errorURLMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata[2])
+    let errorURLMetadata = urlContextMetadata.urlMetadata[2]
     XCTAssertEqual(errorURLMetadata.retrievalStatus, .error)
   }
 
