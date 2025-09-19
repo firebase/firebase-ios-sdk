@@ -43,9 +43,11 @@ std::unique_ptr<LocalStoreTestHelper> Factory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_SUITE_P(MemoryLocalStoreTest,
-                         LocalStoreTest,
-                         ::testing::Values(Factory));
+INSTANTIATE_TEST_SUITE_P(
+    MemoryLocalStoreTest,
+    LocalStoreTest,
+    testing::Values(LocalStoreTestParams{Factory, /*use_pipeline=*/false},
+                    LocalStoreTestParams{Factory, /*use_pipeline=*/true}));
 
 }  // namespace local
 }  // namespace firestore

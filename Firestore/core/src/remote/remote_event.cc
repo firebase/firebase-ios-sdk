@@ -237,6 +237,13 @@ create_existence_filter_mismatch_info_for_testing_hooks(
           std::move(bloom_filter_info)};
 }
 
+bool IsSingleDocumentTarget(const core::TargetOrPipeline target_or_pipeline) {
+  // TODO(pipeline): We only handle the non-pipeline case because realtime
+  // pipeline does not support single document lookup yet.
+  return !target_or_pipeline.IsPipeline() &&
+         target_or_pipeline.target().IsDocumentQuery();
+}
+
 }  // namespace
 
 void WatchChangeAggregator::HandleExistenceFilter(
@@ -246,25 +253,10 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
   absl::optional<TargetData> target_data = TargetDataForActiveTarget(target_id);
   if (target_data) {
-    const Target& target = target_data->target();
-    if (target.IsDocumentQuery()) {
-      if (expected_count == 0) {
-        // The existence filter told us the document does not exist. We deduce
-        // that this document does not exist and apply a deleted document to our
-        // updates. Without applying this deleted document there might be
-        // another query that will raise this document as part of a snapshot
-        // until it is resolved, essentially exposing inconsistency between
-        // queries.
-        DocumentKey key{target.path()};
-        RemoveDocumentFromTarget(
-            target_id, key,
-            MutableDocument::NoDocument(key, SnapshotVersion::None()));
-      } else {
-        HARD_ASSERT(expected_count == 1,
-                    "Single document existence filter with count: %s",
-                    expected_count);
-      }
-    } else {
+    const core::TargetOrPipeline& target_or_pipeline =
+        target_data->target_or_pipeline();
+
+    if (!IsSingleDocumentTarget(target_or_pipeline)) {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
         // Apply bloom filter to identify and mark removed documents.
@@ -291,6 +283,23 @@ void WatchChangeAggregator::HandleExistenceFilter(
                 current_size, existence_filter,
                 target_metadata_provider_->GetDatabaseId(),
                 std::move(bloom_filter), status));
+      }
+    } else {
+      if (expected_count == 0) {
+        // The existence filter told us the document does not exist. We deduce
+        // that this document does not exist and apply a deleted document to our
+        // updates. Without applying this deleted document there might be
+        // another query that will raise this document as part of a snapshot
+        // until it is resolved, essentially exposing inconsistency between
+        // queries.
+        DocumentKey key{target_or_pipeline.target().path()};
+        RemoveDocumentFromTarget(
+            target_id, key,
+            MutableDocument::NoDocument(key, SnapshotVersion::None()));
+      } else {
+        HARD_ASSERT(expected_count == 1,
+                    "Single document existence filter with count: %s",
+                    expected_count);
       }
     }
   }
@@ -368,13 +377,14 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     absl::optional<TargetData> target_data =
         TargetDataForActiveTarget(target_id);
     if (target_data) {
-      if (target_state.current() && target_data->target().IsDocumentQuery()) {
+      if (target_state.current() &&
+          IsSingleDocumentTarget(target_data->target_or_pipeline())) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
         // the limbo state of the document, removing it from
         // SyncEngine::limbo_document_refs_.
-        DocumentKey key{target_data->target().path()};
+        DocumentKey key{target_data->target_or_pipeline().target().path()};
         if (pending_document_updates_.find(key) ==
                 pending_document_updates_.end() &&
             !TargetContainsDocument(target_id, key)) {
