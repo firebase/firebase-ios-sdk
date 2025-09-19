@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
@@ -47,6 +50,8 @@ public struct GenerationConfig: Sendable {
 
   /// Output schema of the generated candidate text.
   let responseSchema: Schema?
+
+  fileprivate let responseJSONSchema: (any ResponseJSONSchema)?
 
   /// Supported modalities of the response.
   let responseModalities: [ResponseModality]?
@@ -175,9 +180,37 @@ public struct GenerationConfig: Sendable {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
+    self.responseJSONSchema = nil
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
   }
+
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
+              candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
+              stopSequences: [String]? = nil, responseMIMEType: String? = nil,
+              responseSchema: FoundationModels.GenerationSchema,
+              responseModalities: [ResponseModality]? = nil,
+              thinkingConfig: ThinkingConfig? = nil) {
+    self.temperature = temperature
+    self.topP = topP
+    self.topK = topK
+    self.candidateCount = candidateCount
+    self.maxOutputTokens = maxOutputTokens
+    self.presencePenalty = presencePenalty
+    self.frequencyPenalty = frequencyPenalty
+    self.stopSequences = stopSequences
+    self.responseMIMEType = responseMIMEType
+    self.responseSchema = nil
+    self.responseJSONSchema = responseSchema
+    self.responseModalities = responseModalities
+    self.thinkingConfig = thinkingConfig
+  }
+#endif // canImport(FoundationModels)
 }
 
 // MARK: - Codable Conformances
@@ -195,7 +228,38 @@ extension GenerationConfig: Encodable {
     case stopSequences
     case responseMIMEType = "responseMimeType"
     case responseSchema
+    case responseJSONSchema = "responseJsonSchema"
     case responseModalities
     case thinkingConfig
   }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(temperature, forKey: .temperature)
+    try container.encodeIfPresent(topP, forKey: .topP)
+    try container.encodeIfPresent(topK, forKey: .topK)
+    try container.encodeIfPresent(candidateCount, forKey: .candidateCount)
+    try container.encodeIfPresent(maxOutputTokens, forKey: .maxOutputTokens)
+    try container.encodeIfPresent(presencePenalty, forKey: .presencePenalty)
+    try container.encodeIfPresent(frequencyPenalty, forKey: .frequencyPenalty)
+    try container.encodeIfPresent(stopSequences, forKey: .stopSequences)
+    try container.encodeIfPresent(responseMIMEType, forKey: .responseMIMEType)
+    try container.encodeIfPresent(responseSchema, forKey: .responseSchema)
+    if let responseJSONSchema {
+      try container.encode(responseJSONSchema, forKey: .responseJSONSchema)
+    }
+    try container.encodeIfPresent(responseModalities, forKey: .responseModalities)
+    try container.encodeIfPresent(thinkingConfig, forKey: .thinkingConfig)
+  }
 }
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+fileprivate protocol ResponseJSONSchema: Encodable, Sendable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONValue: ResponseJSONSchema {}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension GenerationSchema: ResponseJSONSchema {}
