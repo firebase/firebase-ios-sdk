@@ -162,35 +162,23 @@ jobs:
         include:
           - product: Performance
             run_tests: true
-            swift: true
           - product: Storage
             run_tests: true
-            swift: true
             is_legacy: true
           - product: Config
             run_tests: true
-            objc: true
           - product: Messaging
             run_tests: false
-            objc: true
-            swift: true
           - product: InAppMessaging
             run_tests: true
-            objc: true
-            swift: true
           - product: Firestore
             run_tests: false
-            objc: true
           - product: Database
             run_tests: false
-            objc: true
-            swift: true
           - product: Authentication
             run_tests: false
-            objc: true
           - product: Crashlytics
             run_tests: true
-            swift: true
             is_legacy: true
             setup_command: |
               mkdir -p quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
@@ -199,7 +187,6 @@ jobs:
               cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
           - product: ABTesting
             run_tests: true
-            objc: true
             is_legacy: true
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -220,22 +207,13 @@ jobs:
     - name: Run setup command, if needed.
       if: matrix.setup_command != ''
       run: ${{ matrix.setup_command }}
-    - name: Build Obj-C quickstart
-      if: matrix.objc == true
+    - name: Build Quickstart
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
         command: scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
-    - name: Build Swift quickstart
-      if: matrix.swift == true
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 15
-        max_attempts: 3
-        retry_wait_seconds: 120
-        command: scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }} swift
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh ${{ matrix.product }}

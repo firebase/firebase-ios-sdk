@@ -88,14 +88,9 @@ jobs:
         max_attempts: 3
         retry_wait_seconds: 120
         command: |
-          SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh ${{ inputs.product }} false
-#        command: |
-#           SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh ${{ inputs.product }} ${{ inputs.run_tests }}
-#           scripts/test_quickstart.sh \
-#             ${{ inputs.product }} \
-#             ${{ inputs.run_tests }} \
-#             ${{ inputs.quickstart_type }}
-
+          SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh \
+            ${{ inputs.product }} \
+            ${{ inputs.run_tests }} \
     # Failure sequence to upload artifact.
     # - id: lowercase_product
     #   if: ${{ failure() }}
