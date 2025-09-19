@@ -1,4 +1,11 @@
+# Unreleased
+- [changed] Using Firebase AI Logic with the Gemini Developer API is now Generally Available (GA).
+- [changed] Using Firebase AI Logic with the Imagen generation APIs is now Generally Available (GA).
+
 # 12.3.0
+- [feature] Added support for the Code Execution tool, which enables the model
+  to generate and run code to perform complex tasks like solving mathematical
+  equations or visualizing data. (#15280)
 - [fixed] Fixed a decoding error when generating images with the
   `gemini-2.5-flash-image-preview` model using `generateContentStream` or
   `sendMessageStream` with the Gemini Developer API. (#15262)

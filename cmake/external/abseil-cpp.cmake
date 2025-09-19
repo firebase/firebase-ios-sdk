@@ -14,7 +14,7 @@
 
 include(ExternalProject)
 
-set(version 20240116.1)
+set(version 20240722.1)
 
 ExternalProject_Add(
   abseil-cpp
@@ -22,7 +22,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME abseil-cpp-${version}.tar.gz
   URL https://github.com/abseil/abseil-cpp/archive/${version}.tar.gz
-  URL_HASH SHA256=3c743204df78366ad2eaf236d6631d83f6bc928d1705dd0000b872e53b73dc6a
+  URL_HASH SHA256=40cee67604060a7c8794d931538cb55f4d444073e556980c88b6c49bb9b19bb7
 
   PREFIX ${PROJECT_BINARY_DIR}
 

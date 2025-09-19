@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,28 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
-#include <mach/vm_types.h>
-#include <sys/cdefs.h>
-
-#include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
-
-typedef struct {
-  const char *documentDirectoryPath;
-  vm_size_t pageSize;
-} FIRCLSHostReadOnlyContext;
-
-__BEGIN_DECLS
-
-void FIRCLSHostInitialize(FIRCLSHostReadOnlyContext *roContext);
-
-vm_size_t FIRCLSHostGetPageSize(void);
-
-bool FIRCLSHostRecord(FIRCLSFile *file);
-
-void FIRCLSHostWriteDiskUsage(FIRCLSFile *file);
-
-bool FIRCLSHostIsRosettaTranslated(void);
-
-__END_DECLS
+/// A tool that allows the model to execute code.
+///
+/// This tool can be used to solve complex problems, for example, by generating and executing Python
+/// code to solve a math problem.
+public struct CodeExecution: Sendable, Encodable {
+  init() {}
+}

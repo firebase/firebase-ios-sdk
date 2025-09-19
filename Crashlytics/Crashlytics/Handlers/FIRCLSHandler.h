@@ -20,9 +20,9 @@
 
 __BEGIN_DECLS
 
-void FIRCLSHandler(FIRCLSFile* file,
+void FIRCLSHandler(FIRCLSFile *file,
                    thread_t crashedThread,
-                   void* uapVoid,
+                   void *uapVoid,
                    bool shouldSuspendThread);
 
 __END_DECLS

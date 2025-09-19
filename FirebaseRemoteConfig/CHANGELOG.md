@@ -1,4 +1,4 @@
-# Unreleased
+# 12.3.0
 - [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
   building dynamically linked libraries. (#15276)
 
