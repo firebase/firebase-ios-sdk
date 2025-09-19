@@ -539,6 +539,22 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(errorURLMetadata.retrievalStatus, .error)
   }
 
+  func testGenerateContent_success_urlContext_missingRetrievedURL() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-url-context-missing-retrievedurl",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    XCTAssertEqual(urlMetadata.retrievedURL?.absoluteString, "https://example.com/8")
+    XCTAssertEqual(urlMetadata.retrievalStatus, .error)
+  }
+
   func testGenerateContent_success_image_invalidSafetyRatingsIgnored() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-image-invalid-safety-ratings",
@@ -1766,6 +1782,28 @@ final class GenerativeModelVertexAITests: XCTestCase {
     }
 
     XCTAssertEqual(responses, 1)
+  }
+
+  func testGenerateContentStream_success_urlContext() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-url-context",
+      withExtension: "txt",
+      subdirectory: vertexSubdirectory
+    )
+
+    var responses = [GenerateContentResponse]()
+    let stream = try model.generateContentStream(testPrompt)
+    for try await response in stream {
+      responses.append(response)
+    }
+
+    let firstResponse = try XCTUnwrap(responses.first)
+    let candidate = try XCTUnwrap(firstResponse.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 1)
+    let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    XCTAssertEqual(urlMetadata.retrievedURL?.absoluteString, "https://google.com")
+    XCTAssertEqual(urlMetadata.retrievalStatus, .success)
   }
 
   // MARK: - Count Tokens

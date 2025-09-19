@@ -692,4 +692,25 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     let lastResponse = try XCTUnwrap(responses.last)
     XCTAssertEqual(lastResponse.text, "text8")
   }
+
+  func testGenerateContentStream_success_urlContext() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-url-context",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var responses = [GenerateContentResponse]()
+    let stream = try model.generateContentStream(testPrompt)
+    for try await response in stream {
+      responses.append(response)
+    }
+
+    let firstResponse = try XCTUnwrap(responses.first)
+    let candidate = try XCTUnwrap(firstResponse.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 1)
+    let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    XCTAssertEqual(urlMetadata.retrievalStatus, .success)
+  }
 }
