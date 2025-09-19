@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Add `Pipeline` support.
+
 # 12.1.0
 - [fixed] Fixed accidental removal of `pod "Firebase/Firestore"` for tvOS in 12.0.0.
 

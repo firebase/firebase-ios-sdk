@@ -17,11 +17,8 @@
 #include "Firestore/core/src/model/value_util.h"
 
 #include <algorithm>
-#include <cmath>
 #include <limits>
-#include <memory>
 #include <type_traits>
-#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/model/database_id.h"
@@ -826,6 +823,20 @@ bool IsVectorValue(const google_firestore_v1_Value& value) {
   return true;
 }
 
+google_firestore_v1_Value TrueValue() {
+  google_firestore_v1_Value value;
+  value.which_value_type = google_firestore_v1_Value_boolean_value_tag;
+  value.boolean_value = true;
+  return value;
+}
+
+google_firestore_v1_Value FalseValue() {
+  google_firestore_v1_Value value;
+  value.which_value_type = google_firestore_v1_Value_boolean_value_tag;
+  value.boolean_value = false;
+  return value;
+}
+
 google_firestore_v1_Value NaNValue() {
   google_firestore_v1_Value nan_value;
   nan_value.which_value_type = google_firestore_v1_Value_double_value_tag;
@@ -941,6 +952,34 @@ Message<google_firestore_v1_Value> RefValue(
   return result;
 }
 
+Message<google_firestore_v1_Value> StringValue(const std::string& value) {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_string_value_tag;
+  result->reference_value = nanopb::MakeBytesArray(value);
+  return result;
+}
+
+Message<google_firestore_v1_Value> StringValue(absl::string_view value) {
+  Message<google_firestore_v1_Value> result;
+  result->which_value_type = google_firestore_v1_Value_string_value_tag;
+  result->reference_value = nanopb::MakeBytesArray(value.data(), value.size());
+  return result;
+}
+
+Message<google_firestore_v1_Value> ArrayValue(
+    std::vector<Message<google_firestore_v1_Value>> values) {
+  google_firestore_v1_Value result;
+  result.which_value_type = google_firestore_v1_Value_array_value_tag;
+
+  SetRepeatedField(&result.array_value.values, &result.array_value.values_count,
+                   values.begin(), values.end(),
+                   [](Message<google_firestore_v1_Value>& value) {
+                     return *value.release();
+                   });
+
+  return nanopb::MakeMessage(result);
+}
+
 Message<google_firestore_v1_Value> DeepClone(
     const google_firestore_v1_Value& source) {
   Message<google_firestore_v1_Value> target{source};
@@ -1000,6 +1039,173 @@ Message<google_firestore_v1_MapValue> DeepClone(
     target->fields[i].value = *DeepClone(source.fields[i].value).release();
   }
   return target;
+}
+
+absl::optional<int64_t> GetInteger(const google_firestore_v1_Value& value) {
+  if (value.which_value_type == google_firestore_v1_Value_integer_value_tag) {
+    return value.integer_value;
+  }
+  return absl::nullopt;
+}
+
+namespace {
+struct MapEntryKeyCompare {
+  bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
+                  absl::string_view segment) const {
+    return nanopb::MakeStringView(entry.key) < segment;
+  }
+  bool operator()(absl::string_view segment,
+                  const google_firestore_v1_MapValue_FieldsEntry& entry) const {
+    return segment < nanopb::MakeStringView(entry.key);
+  }
+};
+}  // namespace
+
+google_firestore_v1_MapValue_FieldsEntry* FindEntry(
+    const google_firestore_v1_Value& value, absl::string_view field) {
+  if (!IsMap(value)) {
+    return nullptr;
+  }
+  const google_firestore_v1_MapValue& map_value = value.map_value;
+  for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
+    if (nanopb::MakeStringView(map_value.fields[i].key) == field) {
+      return &map_value.fields[i];
+    }
+  }
+
+  return nullptr;
+}
+
+namespace {
+
+StrictEqualsResult StrictArrayEquals(
+    const google_firestore_v1_ArrayValue& left,
+    const google_firestore_v1_ArrayValue& right) {
+  if (left.values_count != right.values_count) {
+    return StrictEqualsResult::kNotEq;
+  }
+
+  bool found_null = false;
+  for (pb_size_t i = 0; i < left.values_count; ++i) {
+    StrictEqualsResult element_result =
+        StrictEquals(left.values[i], right.values[i]);
+    switch (element_result) {
+      case StrictEqualsResult::kNotEq:
+        return StrictEqualsResult::kNotEq;
+      case StrictEqualsResult::kNull:
+        found_null = true;
+        break;
+      case StrictEqualsResult::kEq:
+        // Continue checking other elements
+        break;
+    }
+  }
+
+  return found_null ? StrictEqualsResult::kNull : StrictEqualsResult::kEq;
+}
+
+StrictEqualsResult StrictMapEquals(const google_firestore_v1_MapValue& left,
+                                   const google_firestore_v1_MapValue& right) {
+  if (left.fields_count != right.fields_count) {
+    return StrictEqualsResult::kNotEq;
+  }
+
+  // Sort copies to compare map content regardless of original order.
+  auto left_map = DeepClone(left);
+  auto right_map = DeepClone(right);
+  SortFields(*left_map);
+  SortFields(*right_map);
+
+  bool found_null = false;
+  for (pb_size_t i = 0; i < left_map->fields_count; ++i) {
+    // Compare keys first
+    if (nanopb::MakeStringView(left_map->fields[i].key) !=
+        nanopb::MakeStringView(right_map->fields[i].key)) {
+      return StrictEqualsResult::kNotEq;
+    }
+
+    // Compare values recursively
+    StrictEqualsResult value_result =
+        StrictEquals(left_map->fields[i].value, right_map->fields[i].value);
+    switch (value_result) {
+      case StrictEqualsResult::kNotEq:
+        return StrictEqualsResult::kNotEq;
+      case StrictEqualsResult::kNull:
+        found_null = true;
+        break;
+      case StrictEqualsResult::kEq:
+        // Continue checking other fields
+        break;
+    }
+  }
+
+  return found_null ? StrictEqualsResult::kNull : StrictEqualsResult::kEq;
+}
+
+// TODO(BSON): need to add support for int32 and decimal128 later.
+StrictEqualsResult StrictNumberEquals(const google_firestore_v1_Value& left,
+                                      const google_firestore_v1_Value& right) {
+  if (left.which_value_type == google_firestore_v1_Value_integer_value_tag &&
+      right.which_value_type == google_firestore_v1_Value_integer_value_tag) {
+    // Case 1: Both are longs
+    return left.integer_value == right.integer_value
+               ? StrictEqualsResult::kEq
+               : StrictEqualsResult::kNotEq;
+  } else if (left.which_value_type ==
+                 google_firestore_v1_Value_double_value_tag &&
+             right.which_value_type ==
+                 google_firestore_v1_Value_double_value_tag) {
+    // Case 2: Both are doubles
+    // Standard double comparison handles 0.0 == -0.0 and NaN != NaN.
+    return left.double_value == right.double_value ? StrictEqualsResult::kEq
+                                                   : StrictEqualsResult::kNotEq;
+  } else {
+    // Case 3: Mixed integer and double
+    // Promote integer to double for comparison.
+    double left_double =
+        (left.which_value_type == google_firestore_v1_Value_integer_value_tag)
+            ? static_cast<double>(left.integer_value)
+            : left.double_value;
+    double right_double =
+        (right.which_value_type == google_firestore_v1_Value_integer_value_tag)
+            ? static_cast<double>(right.integer_value)
+            : right.double_value;
+    return left_double == right_double ? StrictEqualsResult::kEq
+                                       : StrictEqualsResult::kNotEq;
+  }
+}
+
+}  // namespace
+
+StrictEqualsResult StrictEquals(const google_firestore_v1_Value& left,
+                                const google_firestore_v1_Value& right) {
+  if (IsNullValue(left) || IsNullValue(right)) {
+    return StrictEqualsResult::kNull;
+  }
+
+  TypeOrder left_type = GetTypeOrder(left);
+  TypeOrder right_type = GetTypeOrder(right);
+  if (left_type != right_type) {
+    return StrictEqualsResult::kNotEq;
+  }
+
+  switch (left_type) {
+    case TypeOrder::kNumber:
+      return StrictNumberEquals(left, right);
+    case TypeOrder::kArray:
+      return StrictArrayEquals(left.array_value, right.array_value);
+    case TypeOrder::kVector:
+    case TypeOrder::kMap:
+      // Note: MaxValue is also a map, but should be handled by TypeOrder check
+      // if compared against a non-MaxValue. MaxValue == MaxValue is handled
+      // by the Equals call below. Vector equality is map equality.
+      return StrictMapEquals(left.map_value, right.map_value);
+    default:
+      // For all other types (Null, Boolean, Timestamp, String, Blob,
+      // Ref, GeoPoint, MaxValue), the standard Equals function works.
+      return Equals(left, right) ? StrictEqualsResult::kEq
+                                 : StrictEqualsResult::kNotEq;
+  }
 }
 
 }  // namespace model

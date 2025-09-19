@@ -1,4 +1,4 @@
-// Copyright 2018 Google LLC.
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,24 +11,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
 
 syntax = "proto3";
 
 package google.firestore.v1;
 
+import "google/api/field_behavior.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "google/type/latlng.proto";
 
-option csharp_namespace = "Google.Cloud.Firestore.V1Beta1";
-option go_package = "google.golang.org/genproto/googleapis/firestore/v1;firestore";
+option csharp_namespace = "Google.Cloud.Firestore.V1";
+option go_package = "cloud.google.com/go/firestore/apiv1/firestorepb;firestorepb";
 option java_multiple_files = true;
 option java_outer_classname = "DocumentProto";
 option java_package = "com.google.firestore.v1";
 option objc_class_prefix = "GCFS";
-option php_namespace = "Google\\Cloud\\Firestore\\V1beta1";
-
+option php_namespace = "Google\\Cloud\\Firestore\\V1";
+option ruby_package = "Google::Cloud::Firestore::V1";
 
 // A Firestore document.
 //
@@ -42,23 +42,23 @@ message Document {
   //
   // The map keys represent field names.
   //
+  // Field names matching the regular expression `__.*__` are reserved. Reserved
+  // field names are forbidden except in certain documented contexts. The field
+  // names, represented as UTF-8, must not exceed 1,500 bytes and cannot be
+  // empty.
+  //
+  // Field paths may be used in other contexts to refer to structured fields
+  // defined here. For `map_value`, the field path is represented by a
+  // dot-delimited (`.`) string of segments. Each segment is either a simple
+  // field name (defined below) or a quoted field name. For example, the
+  // structured field `"foo" : { map_value: { "x&y" : { string_value: "hello"
+  // }}}` would be represented by the field path `` foo.`x&y` ``.
+  //
   // A simple field name contains only characters `a` to `z`, `A` to `Z`,
   // `0` to `9`, or `_`, and must not start with `0` to `9`. For example,
   // `foo_bar_17`.
   //
-  // Field names matching the regular expression `__.*__` are reserved. Reserved
-  // field names are forbidden except in certain documented contexts. The map
-  // keys, represented as UTF-8, must not exceed 1,500 bytes and cannot be
-  // empty.
-  //
-  // Field paths may be used in other contexts to refer to structured fields
-  // defined here. For `map_value`, the field path is represented by the simple
-  // or quoted field names of the containing fields, delimited by `.`. For
-  // example, the structured field
-  // `"foo" : { map_value: { "x&y" : { string_value: "hello" }}}` would be
-  // represented by the field path `foo.x&y`.
-  //
-  // Within a field path, a quoted field name starts and ends with `` ` `` and
+  // A quoted field name starts and ends with `` ` `` and
   // may contain any character. Some characters, including `` ` ``, must be
   // escaped using a `\`. For example, `` `x&y` `` represents `x&y` and
   // `` `bak\`tik` `` represents `` bak`tik ``.
@@ -123,12 +123,38 @@ message Value {
 
     // An array value.
     //
-    // Cannot directly contain another array value, though can contain an
+    // Cannot directly contain another array value, though can contain a
     // map which contains another array.
     ArrayValue array_value = 9;
 
     // A map value.
     MapValue map_value = 6;
+
+    // Value which references a field.
+    //
+    // This is considered relative (vs absolute) since it only refers to a field
+    // and not a field within a particular document.
+    //
+    // **Requires:**
+    //
+    // * Must follow [field reference][FieldReference.field_path] limitations.
+    //
+    // * Not allowed to be used when writing documents.
+    string field_reference_value = 19;
+
+    // A value that represents an unevaluated expression.
+    //
+    // **Requires:**
+    //
+    // * Not allowed to be used when writing documents.
+    Function function_value = 20;
+
+    // A value that represents an unevaluated pipeline.
+    //
+    // **Requires:**
+    //
+    // * Not allowed to be used when writing documents.
+    Pipeline pipeline_value = 21;
   }
 }
 
@@ -147,4 +173,68 @@ message MapValue {
   // in certain documented contexts. The map keys, represented as UTF-8, must
   // not exceed 1,500 bytes and cannot be empty.
   map<string, Value> fields = 1;
+}
+
+// Represents an unevaluated scalar expression.
+//
+// For example, the expression `like(user_name, "%alice%")` is represented as:
+//
+// ```
+// name: "like"
+// args { field_reference: "user_name" }
+// args { string_value: "%alice%" }
+// ```
+message Function {
+  // Required. The name of the function to evaluate.
+  //
+  // **Requires:**
+  //
+  // * must be in snake case (lower case with underscore separator).
+  string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+  // Optional. Ordered list of arguments the given function expects.
+  repeated Value args = 2 [(google.api.field_behavior) = OPTIONAL];
+
+  // Optional. Optional named arguments that certain functions may support.
+  map<string, Value> options = 3 [(google.api.field_behavior) = OPTIONAL];
+}
+
+// A Firestore query represented as an ordered list of operations / stages.
+message Pipeline {
+  // A single operation within a pipeline.
+  //
+  // A stage is made up of a unique name, and a list of arguments. The exact
+  // number of arguments & types is dependent on the stage type.
+  //
+  // To give an example, the stage `filter(state = "MD")` would be encoded as:
+  //
+  // ```
+  // name: "filter"
+  // args {
+  //   function_value {
+  //     name: "eq"
+  //     args { field_reference_value: "state" }
+  //     args { string_value: "MD" }
+  //   }
+  // }
+  // ```
+  //
+  // See public documentation for the full list.
+  message Stage {
+    // Required. The name of the stage to evaluate.
+    //
+    // **Requires:**
+    //
+    // * must be in snake case (lower case with underscore separator).
+    string name = 1 [(google.api.field_behavior) = REQUIRED];
+
+    // Optional. Ordered list of arguments the given stage expects.
+    repeated Value args = 2 [(google.api.field_behavior) = OPTIONAL];
+
+    // Optional. Optional named arguments that certain functions may support.
+    map<string, Value> options = 3 [(google.api.field_behavior) = OPTIONAL];
+  }
+
+  // Required. Ordered list of stages to evaluate.
+  repeated Stage stages = 1 [(google.api.field_behavior) = REQUIRED];
 }
