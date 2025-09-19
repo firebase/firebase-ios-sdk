@@ -21,6 +21,42 @@ import Foundation
 /// requests to the backend model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerationConfig: Sendable {
+  public struct ResponseSchema {
+    let openAPISchema: Schema?
+    fileprivate let jsonSchema: (any ResponseJSONSchema)?
+
+    fileprivate init(openAPISchema: Schema?, jsonSchema: (any ResponseJSONSchema)?) {
+      self.openAPISchema = openAPISchema
+      self.jsonSchema = jsonSchema
+    }
+
+    public static func openAPI(_ schema: Schema) -> Self {
+      return self.init(openAPISchema: schema, jsonSchema: nil)
+    }
+
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public static func foundationModels(_ schema: GenerationSchema) -> Self {
+      return self.init(openAPISchema: nil, jsonSchema: schema)
+    }
+
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public static func foundationModels(generating type: any FoundationModels.Generable.Type) -> Self {
+      return self.init(openAPISchema: nil, jsonSchema: type.generationSchema)
+    }
+
+    public static func jsonSchema(_ schema: FirebaseGenerationSchema) -> Self {
+      return self.init(openAPISchema: nil, jsonSchema: schema)
+    }
+
+    public static func jsonSchema(generating type: any FirebaseGenerable.Type) -> Self {
+      return self.init(openAPISchema: nil, jsonSchema: type.firebaseGenerationSchema)
+    }
+  }
+
   /// Controls the degree of randomness in token selection.
   let temperature: Float?
 
@@ -238,6 +274,36 @@ public struct GenerationConfig: Sendable {
     self.thinkingConfig = thinkingConfig
   }
 #endif // canImport(FoundationModels)
+
+  /// Option #3: New `ResponseSchema` type with static methods
+  public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
+              candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
+              stopSequences: [String]? = nil, responseMIMEType: String? = "application/json",
+              responseSchema: ResponseSchema, responseModalities: [ResponseModality]? = nil,
+              thinkingConfig: ThinkingConfig? = nil) {
+    self.temperature = temperature
+    self.topP = topP
+    self.topK = topK
+    self.candidateCount = candidateCount
+    self.maxOutputTokens = maxOutputTokens
+    self.presencePenalty = presencePenalty
+    self.frequencyPenalty = frequencyPenalty
+    self.stopSequences = stopSequences
+    self.responseMIMEType = responseMIMEType
+    if let openAPISchema = responseSchema.openAPISchema {
+      self.responseSchema = openAPISchema
+      self.responseJSONSchema = nil
+    } else if let jsonSchema = responseSchema.jsonSchema {
+      self.responseSchema = nil
+      self.responseJSONSchema = jsonSchema
+    } else {
+      self.responseSchema = nil
+      self.responseJSONSchema = nil
+    }
+    self.responseModalities = responseModalities
+    self.thinkingConfig = thinkingConfig
+  }
 }
 
 // MARK: - Codable Conformances
@@ -290,3 +356,15 @@ extension JSONValue: ResponseJSONSchema {}
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension GenerationSchema: ResponseJSONSchema {}
+
+public protocol FirebaseGenerable {
+  static var firebaseGenerationSchema: FirebaseGenerationSchema { get }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct FirebaseGenerationSchema {
+  // This is just a mock
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseGenerationSchema: ResponseJSONSchema {}
