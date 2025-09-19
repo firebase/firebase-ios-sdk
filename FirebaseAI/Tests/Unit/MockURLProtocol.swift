@@ -21,6 +21,12 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   ))?
+
+  nonisolated(unsafe) static var dataRequestHandler: ((URLRequest) throws -> (
+    URLResponse,
+    Data?
+  ))?
+
   override class func canInit(with request: URLRequest) -> Bool {
     #if os(watchOS)
       print("MockURLProtocol cannot be used on watchOS.")
@@ -33,34 +39,44 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
   override class func canonicalRequest(for request: URLRequest) -> URLRequest { return request }
 
   override func startLoading() {
-    guard let requestHandler = MockURLProtocol.requestHandler else {
-      fatalError("`requestHandler` is nil.")
-    }
     guard let client = client else {
       fatalError("`client` is nil.")
     }
 
-    Task {
-      let (response, stream) = try requestHandler(self.request)
-      client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-      if let stream = stream {
-        do {
-          for try await line in stream {
-            guard let data = line.data(using: .utf8) else {
-              fatalError("Failed to convert \"\(line)\" to UTF8 data.")
+    if let requestHandler = MockURLProtocol.requestHandler {
+      Task {
+        let (response, stream) = try requestHandler(self.request)
+        client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        if let stream = stream {
+          do {
+            for try await line in stream {
+              guard let data = line.data(using: .utf8) else {
+                fatalError("Failed to convert \"\(line)\" to UTF8 data.")
+              }
+              client.urlProtocol(self, didLoad: data)
+              // Add a newline character since AsyncLineSequence strips them when reading line by
+              // line;
+              // without the following, the whole file is delivered as a single line.
+              client.urlProtocol(self, didLoad: "\n".data(using: .utf8)!)
             }
-            client.urlProtocol(self, didLoad: data)
-            // Add a newline character since AsyncLineSequence strips them when reading line by
-            // line;
-            // without the following, the whole file is delivered as a single line.
-            client.urlProtocol(self, didLoad: "\n".data(using: .utf8)!)
+          } catch {
+            client.urlProtocol(self, didFailWithError: error)
+            XCTFail("Unexpected failure reading lines from stream: \(error.localizedDescription)")
           }
-        } catch {
-          client.urlProtocol(self, didFailWithError: error)
-          XCTFail("Unexpected failure reading lines from stream: \(error.localizedDescription)")
         }
+        client.urlProtocolDidFinishLoading(self)
       }
-      client.urlProtocolDidFinishLoading(self)
+    } else if let dataRequestHandler = MockURLProtocol.dataRequestHandler {
+      Task {
+        let (response, data) = try dataRequestHandler(self.request)
+        client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        if let data = data {
+          client.urlProtocol(self, didLoad: data)
+        }
+        client.urlProtocolDidFinishLoading(self)
+      }
+    } else {
+      fatalError("No request handler set.")
     }
   }
 

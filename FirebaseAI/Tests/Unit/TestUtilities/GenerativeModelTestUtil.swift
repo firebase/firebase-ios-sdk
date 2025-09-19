@@ -79,6 +79,31 @@ enum GenerativeModelTestUtil {
     #endif // os(watchOS)
   }
 
+  /// Returns an HTTP request handler that returns the given `json` string as a response.
+  static func httpRequestHandler(json: String,
+                                 statusCode: Int = 200) throws -> ((URLRequest) throws -> (
+    URLResponse,
+    Data?
+  )) {
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    #if os(watchOS)
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    #else // os(watchOS)
+      let data = try XCTUnwrap(json.data(using: .utf8))
+      return { request in
+        let requestURL = try XCTUnwrap(request.url)
+        let response = try XCTUnwrap(HTTPURLResponse(
+          url: requestURL,
+          statusCode: statusCode,
+          httpVersion: nil,
+          headerFields: nil
+        ))
+        return (response, data)
+      }
+    #endif // os(watchOS)
+  }
+
   static func nonHTTPRequestHandler() throws -> ((URLRequest) -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
