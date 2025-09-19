@@ -374,13 +374,13 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
     XCTAssertEqual(urlContextMetadata.urlMetadata.count, 3)
 
-    let paywallURLMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata[0])
+    let paywallURLMetadata = urlContextMetadata.urlMetadata[0]
     XCTAssertEqual(paywallURLMetadata.retrievalStatus, .error)
 
-    let successURLMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata[1])
+    let successURLMetadata = urlContextMetadata.urlMetadata[1]
     XCTAssertEqual(successURLMetadata.retrievalStatus, .success)
 
-    let errorURLMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata[2])
+    let errorURLMetadata = urlContextMetadata.urlMetadata[2]
     XCTAssertEqual(errorURLMetadata.retrievalStatus, .error)
   }
 
