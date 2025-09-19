@@ -31,12 +31,13 @@
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/value_util.h"  // For value helpers like IsArray, DeepClone
 #include "Firestore/core/src/nanopb/message.h"  // Added for MakeMessage
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 #include "absl/strings/ascii.h"  // For AsciiStrToLower/ToUpper (if needed later)
-#include "absl/strings/internal/utf8.h"
 #include "absl/strings/match.h"    // For StartsWith, EndsWith, StrContains
 #include "absl/strings/str_cat.h"  // For StrAppend
 #include "absl/strings/strip.h"    // For StripAsciiWhitespace
@@ -312,6 +313,32 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
   HARD_FAIL("Unsupported function name: %s", function.name());
 }
 
+namespace {
+
+nanopb::Message<google_firestore_v1_Value> GetServerTimestampValue(
+    const api::EvaluateContext& context,
+    const google_firestore_v1_Value& timestamp_sentinel) {
+  if (context.listen_options().server_timestamp_behavior() ==
+      ListenOptions::ServerTimestampBehavior::kEstimate) {
+    google_firestore_v1_Value result;
+    result.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
+    result.timestamp_value = model::GetLocalWriteTime(timestamp_sentinel);
+    return nanopb::MakeMessage<google_firestore_v1_Value>(result);
+  }
+
+  if (context.listen_options().server_timestamp_behavior() ==
+      ListenOptions::ServerTimestampBehavior::kPrevious) {
+    auto result = model::GetPreviousValue(timestamp_sentinel);
+    if (result.has_value()) {
+      return model::DeepClone(result.value());
+    }
+  }
+
+  return nanopb::MakeMessage<google_firestore_v1_Value>(model::NullValue());
+}
+
+}  // namespace
+
 EvaluateResult CoreField::Evaluate(
     const api::EvaluateContext& context,
     const model::PipelineInputOutput& input) const {
@@ -340,6 +367,11 @@ EvaluateResult CoreField::Evaluate(
   // Return 'UNSET' if the field doesn't exist, otherwise the Value.
   const auto& result = input.field(field->field_path());
   if (result.has_value()) {
+    if (model::IsServerTimestamp(result.value())) {
+      return EvaluateResult::NewValue(
+          GetServerTimestampValue(context, result.value()));
+    }
+
     // DeepClone the field value to avoid modifying the original.
     return EvaluateResult::NewValue(model::DeepClone(result.value()));
   } else {
