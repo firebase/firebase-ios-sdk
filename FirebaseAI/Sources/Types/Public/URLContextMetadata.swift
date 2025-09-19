@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Metadata related to the ``Tool/urlContext()`` tool.
+/// Metadata related to ``URLContextTool``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct URLContextMetadata: Sendable, Hashable {
-  /// List of URL context.
+  /// List of URL metadata used to provide context to the Gemini model.
   public let urlMetadata: [URLMetadata]
 }
 

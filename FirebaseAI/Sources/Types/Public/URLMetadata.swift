@@ -14,7 +14,8 @@
 
 import Foundation
 
-/// Context of a single URL retrieval.
+/// The number of tokens in the results from tool executions, which are provided back to the model
+/// as input.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct URLMetadata: Sendable, Hashable {
   /// Status of the URL retrieval.
@@ -27,19 +28,19 @@ public struct URLMetadata: Sendable, Hashable {
       case unsafe = "URL_RETRIEVAL_STATUS_UNSAFE"
     }
 
-    /// Internal only - default value.
+    /// Internal only - Unspecified retrieval status.
     static let unspecified = URLRetrievalStatus(kind: .unspecified)
 
-    /// URL retrieval succeeded.
+    /// The URL retrieval was successful.
     public static let success = URLRetrievalStatus(kind: .success)
 
-    /// URL retrieval failed due to an error.
+    /// The URL retrieval failed.
     public static let error = URLRetrievalStatus(kind: .error)
 
-    /// URL retrieval failed failed because the content is behind paywall.
+    /// The URL retrieval failed because the content is behind a paywall.
     public static let paywall = URLRetrievalStatus(kind: .paywall)
 
-    /// URL retrieval failed because the content is unsafe.
+    /// The URL retrieval failed because the content is unsafe.
     public static let unsafe = URLRetrievalStatus(kind: .unsafe)
 
     /// Returns the raw string representation of the `URLRetrievalStatus` value.
@@ -49,7 +50,7 @@ public struct URLMetadata: Sendable, Hashable {
       AILog.MessageCode.urlMetadataUnrecognizedURLRetrievalStatus
   }
 
-  /// The URL retrieved by the ``Tool/urlContext()`` tool.
+  /// The retrieved URL.
   public let retrievedURL: URL?
 
   /// The status of the URL retrieval.
