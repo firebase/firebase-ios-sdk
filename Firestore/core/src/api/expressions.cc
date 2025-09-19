@@ -29,6 +29,7 @@ namespace api {
 
 Field::Field(std::string name) {
   field_path_ = model::FieldPath::FromDotSeparatedString(name);
+  alias_ = field_path_.CanonicalString();
 }
 
 google_firestore_v1_Value Field::to_proto() const {
