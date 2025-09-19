@@ -26,6 +26,9 @@ public struct GenerateContentResponse: Sendable {
     /// The total number of tokens across the generated response candidates.
     public let candidatesTokenCount: Int
 
+    /// The number of tokens used by tools.
+    public let toolUsePromptTokenCount: Int
+
     /// The number of tokens used by the model's internal "thinking" process.
     ///
     /// For models that support thinking (like Gemini 2.5 Pro and Flash), this represents the actual
@@ -39,11 +42,15 @@ public struct GenerateContentResponse: Sendable {
     /// The total number of tokens in both the request and response.
     public let totalTokenCount: Int
 
-    /// The breakdown, by modality, of how many tokens are consumed by the prompt
+    /// The breakdown, by modality, of how many tokens are consumed by the prompt.
     public let promptTokensDetails: [ModalityTokenCount]
 
     /// The breakdown, by modality, of how many tokens are consumed by the candidates
     public let candidatesTokensDetails: [ModalityTokenCount]
+
+    /// The breakdown, by modality, of how many tokens were consumed by the tools used to process
+    /// the request.
+    public let toolUsePromptTokensDetails: [ModalityTokenCount]
   }
 
   /// A list of candidate response content, ordered from best to worst.
@@ -154,14 +161,19 @@ public struct Candidate: Sendable {
 
   public let groundingMetadata: GroundingMetadata?
 
+  /// Metadata related to the ``URLContext`` tool.
+  public let urlContextMetadata: URLContextMetadata?
+
   /// Initializer for SwiftUI previews or tests.
   public init(content: ModelContent, safetyRatings: [SafetyRating], finishReason: FinishReason?,
-              citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil) {
+              citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil,
+              urlContextMetadata: URLContextMetadata? = nil) {
     self.content = content
     self.safetyRatings = safetyRatings
     self.finishReason = finishReason
     self.citationMetadata = citationMetadata
     self.groundingMetadata = groundingMetadata
+    self.urlContextMetadata = urlContextMetadata
   }
 
   // Returns `true` if the candidate contains no information that a developer could use.
@@ -469,10 +481,12 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
     case candidatesTokenCount
+    case toolUsePromptTokenCount
     case thoughtsTokenCount
     case totalTokenCount
     case promptTokensDetails
     case candidatesTokensDetails
+    case toolUsePromptTokensDetails
   }
 
   public init(from decoder: any Decoder) throws {
@@ -480,6 +494,8 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
     candidatesTokenCount =
       try container.decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
+    toolUsePromptTokenCount =
+      try container.decodeIfPresent(Int.self, forKey: .toolUsePromptTokenCount) ?? 0
     thoughtsTokenCount = try container.decodeIfPresent(Int.self, forKey: .thoughtsTokenCount) ?? 0
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
     promptTokensDetails =
@@ -487,6 +503,9 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     candidatesTokensDetails = try container.decodeIfPresent(
       [ModalityTokenCount].self,
       forKey: .candidatesTokensDetails
+    ) ?? []
+    toolUsePromptTokensDetails = try container.decodeIfPresent(
+      [ModalityTokenCount].self, forKey: .toolUsePromptTokensDetails
     ) ?? []
   }
 }
@@ -499,6 +518,7 @@ extension Candidate: Decodable {
     case finishReason
     case citationMetadata
     case groundingMetadata
+    case urlContextMetadata
   }
 
   /// Initializes a response from a decoder. Used for decoding server responses; not for public
@@ -540,6 +560,14 @@ extension Candidate: Decodable {
       GroundingMetadata.self,
       forKey: .groundingMetadata
     )
+
+    if let urlContextMetadata =
+      try container.decodeIfPresent(URLContextMetadata.self, forKey: .urlContextMetadata),
+      !urlContextMetadata.urlMetadata.isEmpty {
+      self.urlContextMetadata = urlContextMetadata
+    } else {
+      urlContextMetadata = nil
+    }
   }
 }
 

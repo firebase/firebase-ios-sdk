@@ -333,6 +333,8 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     let textPart = try XCTUnwrap(parts[2] as? TextPart)
     XCTAssertFalse(textPart.isThought)
     XCTAssertTrue(textPart.text.hasPrefix("The first 5 prime numbers are 2, 3, 5, 7, and 11."))
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 160)
   }
 
   func testGenerateContent_failure_invalidAPIKey() async throws {

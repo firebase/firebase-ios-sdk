@@ -424,6 +424,33 @@ struct GenerateContentIntegrationTests {
     }
   }
 
+  @Test(
+    "generateContent with URL Context",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_Flash,
+      tools: [.urlContext()]
+    )
+    let prompt = """
+    Write a one paragraph summary of this blog post: \
+    https://developers.googleblog.com/en/introducing-gemma-3-270m/
+    """
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let urlContextMetadata = try #require(candidate.urlContextMetadata)
+    #expect(urlContextMetadata.urlMetadata.count == 1)
+    let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try #require(urlMetadata.retrievedURL)
+    #expect(
+      retrievedURL == URL(string: "https://developers.googleblog.com/en/introducing-gemma-3-270m/")
+    )
+    #expect(urlMetadata.retrievalStatus == .success)
+  }
+
   @Test(arguments: InstanceConfig.allConfigs)
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(

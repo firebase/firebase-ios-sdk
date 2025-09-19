@@ -76,12 +76,15 @@ public struct Tool: Sendable {
   let googleSearch: GoogleSearch?
 
   let codeExecution: CodeExecution?
+  let urlContext: URLContext?
 
   init(functionDeclarations: [FunctionDeclaration]? = nil,
        googleSearch: GoogleSearch? = nil,
+       urlContext: URLContext? = nil,
        codeExecution: CodeExecution? = nil) {
     self.functionDeclarations = functionDeclarations
     self.googleSearch = googleSearch
+    self.urlContext = urlContext
     self.codeExecution = codeExecution
   }
 
@@ -126,6 +129,15 @@ public struct Tool: Sendable {
   /// - Returns: A `Tool` configured for Google Search.
   public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
     return self.init(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows you to provide additional context to the models in the form of
+  /// public web URLs.
+  ///
+  /// By including URLs in your request, the Gemini model will access the content from those pages
+  /// to inform and enhance its response.
+  public static func urlContext() -> Tool {
+    return self.init(urlContext: URLContext())
   }
 
   /// Creates a tool that allows the model to execute code.
