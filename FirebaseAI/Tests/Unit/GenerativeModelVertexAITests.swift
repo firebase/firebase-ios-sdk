@@ -555,6 +555,27 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(urlMetadata.retrievalStatus, .error)
   }
 
+  func testGenerateContent_success_urlContext_emptyURLMetadata() async throws {
+    let json = """
+    {
+      "candidates": [
+        {
+          "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+          "finishReason": "STOP",
+          "urlContextMetadata": { "urlMetadata": [] }
+        }
+      ]
+    }
+    """
+    MockURLProtocol.requestHandler = nil
+    MockURLProtocol.dataRequestHandler = try GenerativeModelTestUtil.httpRequestHandler(json: json)
+
+    let response = try await model.generateContent(testPrompt)
+
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertNil(candidate.urlContextMetadata)
+  }
+
   func testGenerateContent_success_image_invalidSafetyRatingsIgnored() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-image-invalid-safety-ratings",
