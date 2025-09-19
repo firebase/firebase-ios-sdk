@@ -361,7 +361,6 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 424)
   }
 
-
   func testGenerateContent_success_urlContext_mixedValidity() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-url-context-mixed-validity",
