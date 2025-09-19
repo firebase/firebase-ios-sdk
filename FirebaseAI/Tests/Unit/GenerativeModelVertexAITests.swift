@@ -491,6 +491,54 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 371)
   }
 
+  func testGenerateContent_success_urlContext() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-url-context",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 1)
+    let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try XCTUnwrap(urlMetadata.retrievedURL)
+    XCTAssertEqual(
+      retrievedURL,
+      URL(string: "https://berkshirehathaway.com")
+    )
+    XCTAssertEqual(urlMetadata.retrievalStatus, .success)
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 34)
+    XCTAssertEqual(usageMetadata.thoughtsTokenCount, 36)
+  }
+
+  func testGenerateContent_success_urlContext_mixedValidity() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-url-context-mixed-validity",
+      withExtension: "json",
+      subdirectory: vertexSubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 3)
+
+    let paywallURLMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata[0])
+    XCTAssertEqual(paywallURLMetadata.retrievalStatus, .error)
+
+    let successURLMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata[1])
+    XCTAssertEqual(successURLMetadata.retrievalStatus, .success)
+
+    let errorURLMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata[2])
+    XCTAssertEqual(errorURLMetadata.retrievalStatus, .error)
+  }
+
   func testGenerateContent_success_image_invalidSafetyRatingsIgnored() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-image-invalid-safety-ratings",
