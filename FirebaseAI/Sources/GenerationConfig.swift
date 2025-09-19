@@ -186,13 +186,14 @@ public struct GenerationConfig: Sendable {
   }
 
 #if canImport(FoundationModels)
+  /// Option 1: Overload with support for specifying a `GenerationSchema`.
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-              stopSequences: [String]? = nil, responseMIMEType: String? = nil,
+              stopSequences: [String]? = nil, responseMIMEType: String? = "application/json",
               responseSchema: FoundationModels.GenerationSchema,
               responseModalities: [ResponseModality]? = nil,
               thinkingConfig: ThinkingConfig? = nil) {
@@ -207,6 +208,32 @@ public struct GenerationConfig: Sendable {
     self.responseMIMEType = responseMIMEType
     self.responseSchema = nil
     self.responseJSONSchema = responseSchema
+    self.responseModalities = responseModalities
+    self.thinkingConfig = thinkingConfig
+  }
+
+  /// Option 2: Overload with support for specifying a `Generable` type.
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
+              candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
+              stopSequences: [String]? = nil, responseMIMEType: String? = "application/json",
+              generating type: any FoundationModels.Generable.Type,
+              responseModalities: [ResponseModality]? = nil,
+              thinkingConfig: ThinkingConfig? = nil) {
+    self.temperature = temperature
+    self.topP = topP
+    self.topK = topK
+    self.candidateCount = candidateCount
+    self.maxOutputTokens = maxOutputTokens
+    self.presencePenalty = presencePenalty
+    self.frequencyPenalty = frequencyPenalty
+    self.stopSequences = stopSequences
+    self.responseMIMEType = responseMIMEType
+    self.responseSchema = nil
+    self.responseJSONSchema = type.generationSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
   }

@@ -172,13 +172,36 @@ struct SchemaTests {
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  func generateContentSchemaNumberRangeMultiType_generableMacro(_ config: InstanceConfig) async throws {
+  func generateContentSchemaNumberRangeMultiType_option1(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
-      generationConfig: GenerationConfig(
-        responseMIMEType: "application/json",
-        responseSchema: ProductInfo.generationSchema
-      ),
+      generationConfig: GenerationConfig(responseSchema: ProductInfo.generationSchema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Describe a premium wireless headphone, including a user rating and price."
+    let response = try await model.generateContent(prompt)
+    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
+    let jsonData = try #require(text.data(using: .utf8))
+    let decodedProduct = try JSONDecoder().decode(ProductInfo.self, from: jsonData)
+    let price = decodedProduct.price
+    let salePrice = decodedProduct.salePrice
+    let rating = decodedProduct.rating
+    #expect(price >= 10.0, "Expected a price >= 10.00, but got \(price)")
+    #expect(price <= 120.0, "Expected a price <= 120.00, but got \(price)")
+    #expect(salePrice >= 5.0, "Expected a salePrice >= 5.00, but got \(salePrice)")
+    #expect(salePrice <= 90.0, "Expected a salePrice <= 90.00, but got \(salePrice)")
+    #expect(rating >= 1, "Expected a rating >= 1, but got \(rating)")
+    #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
+  }
+
+  @Test(arguments: [InstanceConfig.vertexAI_v1beta])
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  func generateContentSchemaNumberRangeMultiType_option2(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: GenerationConfig(generating: ProductInfo.self),
       safetySettings: safetySettings
     )
     let prompt = "Describe a premium wireless headphone, including a user rating and price."
