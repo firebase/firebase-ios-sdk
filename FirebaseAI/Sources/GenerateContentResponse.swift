@@ -26,7 +26,7 @@ public struct GenerateContentResponse: Sendable {
     /// The total number of tokens across the generated response candidates.
     public let candidatesTokenCount: Int
 
-    /// The number of tokens present in tool-use prompt(s).
+    /// The number of tokens used by tools.
     public let toolUsePromptTokenCount: Int
 
     /// The number of tokens used by the model's internal "thinking" process.
@@ -42,13 +42,14 @@ public struct GenerateContentResponse: Sendable {
     /// The total number of tokens in both the request and response.
     public let totalTokenCount: Int
 
-    /// The breakdown, by modality, of how many tokens are consumed by the prompt
+    /// The breakdown, by modality, of how many tokens are consumed by the prompt.
     public let promptTokensDetails: [ModalityTokenCount]
 
     /// The breakdown, by modality, of how many tokens are consumed by the candidates
     public let candidatesTokensDetails: [ModalityTokenCount]
 
-    /// List of modalities that were processed for tool-use request inputs.
+    /// The breakdown, by modality, of how many tokens were consumed by the tools used to process
+    /// the request.
     public let toolUsePromptTokensDetails: [ModalityTokenCount]
   }
 
