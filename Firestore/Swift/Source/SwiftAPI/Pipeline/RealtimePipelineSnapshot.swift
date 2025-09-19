@@ -20,7 +20,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct RealtimePipelineSnapshot: Sendable {
+struct RealtimePipelineSnapshot: Sendable {
   /// The Pipeline on which `execute()` was called to obtain this `PipelineSnapshot`.
   public let pipeline: RealtimePipeline
 
@@ -51,7 +51,7 @@ public struct RealtimePipelineSnapshot: Sendable {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineResultChange: Sendable {
+struct PipelineResultChange: Sendable {
   public enum ChangeType {
     case added, modified, removed
   }

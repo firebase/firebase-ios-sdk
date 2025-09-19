@@ -20,7 +20,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineListenOptions: Sendable, Equatable, Hashable {
+struct PipelineListenOptions: Sendable, Equatable, Hashable {
   // MARK: - Stored Properties
 
   /// The desired behavior for handling pending server timestamps.
@@ -68,7 +68,7 @@ public struct PipelineListenOptions: Sendable, Equatable, Hashable {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct RealtimePipeline: @unchecked Sendable {
+struct RealtimePipeline: @unchecked Sendable {
   private var stages: [Stage]
 
   let bridge: RealtimePipelineBridge
