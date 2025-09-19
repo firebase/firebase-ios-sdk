@@ -49,8 +49,7 @@ public struct GenerateContentResponse: Sendable {
     /// The breakdown, by modality, of how many tokens are consumed by the candidates
     public let candidatesTokensDetails: [ModalityTokenCount]
 
-    /// A list of tokens used by tools whose usage was triggered from a prompt, broken down by
-    /// modality.
+    /// A list of tokens used by tools, broken down by modality.
     public let toolUsePromptTokensDetails: [ModalityTokenCount]
   }
 
