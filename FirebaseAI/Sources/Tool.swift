@@ -131,6 +131,11 @@ public struct Tool: Sendable {
     return self.init(googleSearch: googleSearch)
   }
 
+  /// Creates a tool that allows you to provide additional context to the models in the form of
+  /// public web URLs.
+  ///
+  /// By including URLs in your request, the Gemini model will access the content from those pages
+  /// to inform and enhance its response.
   public static func urlContext() -> Tool {
     return self.init(urlContext: URLContext())
   }
