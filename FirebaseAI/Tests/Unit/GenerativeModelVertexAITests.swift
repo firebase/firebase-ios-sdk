@@ -539,7 +539,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(errorURLMetadata.retrievalStatus, .error)
   }
 
-  func testGenerateContent_success_urlContext_missingRetrievedURL() async throws {
+  func testGenerateContent_success_urlContext_nonexistentRetrievedURL() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-url-context-missing-retrievedurl",
       withExtension: "json",
