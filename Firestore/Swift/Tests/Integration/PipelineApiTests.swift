@@ -151,7 +151,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books")
       .distinct(
         [
-          Field("author").uppercased().as("authorName"),
+          Field("author").toUpper().as("authorName"),
           Field("genre"),
         ]
       )
@@ -311,7 +311,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     // reserved field values of __name__.
     _ = db.pipeline().collection("books")
       .addFields([
-        DocumentId(),
+        Field(FieldPath.documentID()),
       ])
   }
 

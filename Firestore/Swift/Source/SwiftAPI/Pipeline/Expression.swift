@@ -779,22 +779,22 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Convert the "name" field to lowercase
-  /// Field("name").lowercased()
+  /// Field("name").toLower()
   /// ```
   ///
   /// - Returns: A new `FunctionExpression` representing the lowercase string.
-  func lowercased() -> FunctionExpression
+  func toLower() -> FunctionExpression
 
   /// Creates an expression that converts a string (from `self`) to uppercase.
   /// Assumes `self` evaluates to a string.
   ///
   /// ```swift
-  /// // Convert the "title" field to uppercase3
-  /// Field("title").uppercased()
+  /// // Convert the "title" field to uppercase
+  /// Field("title").toUpper()
   /// ```
   ///
   /// - Returns: A new `FunctionExpression` representing the uppercase string.
-  func uppercased() -> FunctionExpression
+  func toUpper() -> FunctionExpression
 
   /// Creates an expression that removes leading and trailing whitespace from a string (from
   /// `self`).

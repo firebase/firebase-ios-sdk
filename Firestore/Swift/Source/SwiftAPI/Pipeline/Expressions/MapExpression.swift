@@ -12,6 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// An expression that represents a map (or dictionary) of key-value pairs.
+///
+/// `MapExpression` is used to construct a map from a dictionary of `String` keys
+/// and `Sendable` values. The values can be literals (like numbers and strings)
+/// or other `Expression` instances, allowing for the creation of dynamic nested
+/// objects within a pipeline.
+///
+/// Example:
+/// ```swift
+/// MapExpression([
+///   "genre": Field("genre"),
+///   "rating": Field("rating").multiply(10),
+///   "nestedArray": ArrayExpression([Field("title")]),
+///   "nestedMap": MapExpression(["published": Field("published")]),
+/// ]).as("metadata")
+/// ```
 public class MapExpression: FunctionExpression, @unchecked Sendable {
   var result: [Expression] = []
   public init(_ elements: [String: Sendable]) {

@@ -2106,7 +2106,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       [
         "hugoAward": true,
         "title": "Dune",
-        "others": nil,
       ],
     ]
 
@@ -2238,13 +2237,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let expectedResultsArray: [[String: Sendable?]] = [
       [
         "title": "The Hitchhiker's Guide to the Galaxy",
-        "nestedField.level.`1`": nil,
         "nested": true,
       ],
       [
         "title": "Dune",
-        "nestedField.level.`1`": nil,
-        "nested": nil,
       ],
     ]
     TestHelper.compare(
@@ -3001,7 +2997,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  func testToLowercase() async throws {
+  func testToLower() async throws {
     try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
@@ -3009,7 +3005,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(1)
-      .select([Field("title").lowercased().as("lowercaseTitle")])
+      .select([Field("title").toLower().as("lowercaseTitle")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,
@@ -3018,7 +3014,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  func testToUppercase() async throws {
+  func testToUpper() async throws {
     try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
@@ -3026,7 +3022,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(1)
-      .select([Field("author").uppercased().as("uppercaseAuthor")])
+      .select([Field("author").toUpper().as("uppercaseAuthor")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,

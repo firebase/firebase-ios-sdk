@@ -18,7 +18,7 @@ import Foundation
 /// A `BooleanExpression` is a specialized `FunctionExpression` that evaluates to a boolean value.
 ///
 /// It is used to construct conditional logic within Firestore pipelines, such as in `where`
-/// clauses or `cond` expressions. `BooleanExpression` instances can be combined using standard
+/// clauses or `ConditionalExpression`. `BooleanExpression` instances can be combined using standard
 /// logical operators (`&&`, `||`, `!`, `^`) to create complex conditions.
 ///
 /// Example usage in a `where` clause:
@@ -79,7 +79,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   /// - Returns: A new `FunctionExpression` representing the conditional logic.
   public func then(_ thenExpression: Expression,
                    else elseExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("cond", [self, thenExpression, elseExpression])
+    return FunctionExpression("conditional", [self, thenExpression, elseExpression])
   }
 
   /// Combines two boolean expressions with a logical AND (`&&`).

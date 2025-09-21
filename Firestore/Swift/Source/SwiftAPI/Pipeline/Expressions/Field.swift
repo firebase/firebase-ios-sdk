@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class Field: ExprBridge, Expression, Selectable, BridgeWrapper, SelectableWrapper,
+public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   @unchecked Sendable {
   let bridge: ExprBridge
 

@@ -121,80 +121,80 @@ public extension Expression {
   }
 
   func greaterThan(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("gt", [self, other])
+    return BooleanExpression("greater_than", [self, other])
   }
 
   func greaterThan(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("gt", [self, exprOther])
+    return BooleanExpression("greater_than", [self, exprOther])
   }
 
   func greaterThanOrEqual(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("gte", [self, other])
+    return BooleanExpression("greater_than_or_equal", [self, other])
   }
 
   func greaterThanOrEqual(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("gte", [self, exprOther])
+    return BooleanExpression("greater_than_or_equal", [self, exprOther])
   }
 
   func lessThan(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("lt", [self, other])
+    return BooleanExpression("less_than", [self, other])
   }
 
   func lessThan(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("lt", [self, exprOther])
+    return BooleanExpression("less_than", [self, exprOther])
   }
 
   func lessThanOrEqual(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("lte", [self, other])
+    return BooleanExpression("less_than_or_equal", [self, other])
   }
 
   func lessThanOrEqual(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("lte", [self, exprOther])
+    return BooleanExpression("less_than_or_equal", [self, exprOther])
   }
 
   func equal(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("eq", [self, other])
+    return BooleanExpression("equal", [self, other])
   }
 
   func equal(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("eq", [self, exprOther])
+    return BooleanExpression("equal", [self, exprOther])
   }
 
   func notEqual(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("neq", [self, other])
+    return BooleanExpression("not_equal", [self, other])
   }
 
   func notEqual(_ other: Sendable) -> BooleanExpression {
-    return BooleanExpression("neq", [self, Helper.sendableToExpr(other)])
+    return BooleanExpression("not_equal", [self, Helper.sendableToExpr(other)])
   }
 
   func equalAny(_ others: [Expression]) -> BooleanExpression {
-    return BooleanExpression("eq_any", [self, Helper.array(others)])
+    return BooleanExpression("equal_any", [self, Helper.array(others)])
   }
 
   func equalAny(_ others: [Sendable]) -> BooleanExpression {
-    return BooleanExpression("eq_any", [self, Helper.array(others)])
+    return BooleanExpression("equal_any", [self, Helper.array(others)])
   }
 
   func equalAny(_ arrayExpression: Expression) -> BooleanExpression {
-    return BooleanExpression("eq_any", [self, arrayExpression])
+    return BooleanExpression("equal_any", [self, arrayExpression])
   }
 
   func notEqualAny(_ others: [Expression]) -> BooleanExpression {
-    return BooleanExpression("not_eq_any", [self, Helper.array(others)])
+    return BooleanExpression("not_equal_any", [self, Helper.array(others)])
   }
 
   func notEqualAny(_ others: [Sendable]) -> BooleanExpression {
-    return BooleanExpression("not_eq_any", [self, Helper.array(others)])
+    return BooleanExpression("not_equal_any", [self, Helper.array(others)])
   }
 
   func notEqualAny(_ arrayExpression: Expression) -> BooleanExpression {
-    return BooleanExpression("not_eq_any", [self, arrayExpression])
+    return BooleanExpression("not_equal_any", [self, arrayExpression])
   }
 
   // MARK: Checks
@@ -260,11 +260,11 @@ public extension Expression {
   }
 
   func strContains(_ substring: String) -> BooleanExpression {
-    return BooleanExpression("str_contains", [self, Helper.sendableToExpr(substring)])
+    return BooleanExpression("string_contains", [self, Helper.sendableToExpr(substring)])
   }
 
   func strContains(_ expr: Expression) -> BooleanExpression {
-    return BooleanExpression("str_contains", [self, expr])
+    return BooleanExpression("string_contains", [self, expr])
   }
 
   func startsWith(_ prefix: String) -> BooleanExpression {
@@ -283,11 +283,11 @@ public extension Expression {
     return BooleanExpression("ends_with", [self, suffix])
   }
 
-  func lowercased() -> FunctionExpression {
+  func toLower() -> FunctionExpression {
     return FunctionExpression("to_lower", [self])
   }
 
-  func uppercased() -> FunctionExpression {
+  func toUpper() -> FunctionExpression {
     return FunctionExpression("to_upper", [self])
   }
 
@@ -296,7 +296,7 @@ public extension Expression {
   }
 
   func strConcat(_ strings: [Expression]) -> FunctionExpression {
-    return FunctionExpression("str_concat", [self] + strings)
+    return FunctionExpression("string_concat", [self] + strings)
   }
 
   func reverse() -> FunctionExpression {
@@ -380,35 +380,35 @@ public extension Expression {
   }
 
   func average() -> AggregateFunction {
-    return AggregateFunction("avg", [self])
+    return AggregateFunction("average", [self])
   }
 
   func minimum() -> AggregateFunction {
-    return AggregateFunction("min", [self])
+    return AggregateFunction("minimum", [self])
   }
 
   func maximum() -> AggregateFunction {
-    return AggregateFunction("max", [self])
+    return AggregateFunction("maximum", [self])
   }
 
   // MARK: Logical min/max
 
   func logicalMaximum(_ expressions: [Expression]) -> FunctionExpression {
-    return FunctionExpression("max", [self] + expressions)
+    return FunctionExpression("logical_maximum", [self] + expressions)
   }
 
   func logicalMaximum(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("max", exprs)
+    return FunctionExpression("logical_maximum", exprs)
   }
 
   func logicalMinimum(_ expressions: [Expression]) -> FunctionExpression {
-    return FunctionExpression("min", [self] + expressions)
+    return FunctionExpression("logical_minimum", [self] + expressions)
   }
 
   func logicalMinimum(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("min", exprs)
+    return FunctionExpression("logical_minimum", exprs)
   }
 
   // MARK: Vector Operations
@@ -503,12 +503,12 @@ public extension Expression {
   }
 
   func timestampSub(amount: Expression, unit: Expression) -> FunctionExpression {
-    return FunctionExpression("timestamp_sub", [self, unit, amount])
+    return FunctionExpression("timestamp_subtract", [self, unit, amount])
   }
 
   func timestampSub(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
-      "timestamp_sub",
+      "timestamp_subtract",
       [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
     )
   }

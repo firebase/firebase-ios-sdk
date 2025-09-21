@@ -12,6 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// An expression that represents an array of values.
+///
+/// `ArrayExpression` is used to construct an array from a list of `Sendable`
+/// values, which can include literals (like numbers and strings) as well as other
+/// `Expression` instances. This allows for the creation of dynamic arrays within
+
+/// a pipeline.
+///
+/// Example:
+/// ```swift
+/// ArrayExpression([
+///   1,
+///   2,
+///   Field("genre"),
+///   Field("rating").multiply(10),
+///   ArrayExpression([Field("title")]),
+///   MapExpression(["published": Field("published")]),
+/// ]).as("metadataArray")
+/// ```
 public class ArrayExpression: FunctionExpression, @unchecked Sendable {
   var result: [Expression] = []
   public init(_ elements: [Sendable]) {

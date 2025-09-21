@@ -183,7 +183,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - `String`: Name of an existing field (implicitly converted to `Field`).
   /// - `Field`: References an existing field.
   /// - `FunctionExpression`: Represents the result of a function with an assigned alias
-  ///   (e.g., `Field("address").uppercased().as("upperAddress")`).
+  ///   (e.g., `Field("address").toUpper().as("upperAddress")`).
   ///
   /// If no selections are provided, the output of this stage is typically empty.
   /// Use `addFields` if only additions are desired without replacing the existing document
@@ -194,7 +194,7 @@ public struct Pipeline: @unchecked Sendable {
   /// let projectedPipeline = pipeline.select([
   ///   Field("firstName"),
   ///   Field("lastName"),
-  ///   Field("address").uppercased().as("upperAddress")
+  ///   Field("address").toUpper().as("upperAddress")
   /// ])
   /// // let results = try await projectedPipeline.execute()
   /// ```
@@ -335,7 +335,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Get unique uppercase author names and genre combinations.
   /// let distinctPipeline = pipeline.distinct(
-  ///   Field("author").uppercased().as("authorName"),
+  ///   Field("author").toUpper().as("authorName"),
   ///   Field("genre")
   /// )
   /// // To select only the transformed author name:
