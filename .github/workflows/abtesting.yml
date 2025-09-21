@@ -47,8 +47,8 @@ jobs:
       product: ABTesting
       is_legacy: true
       setup_command: QUICKSTART_BRANCH=mc/spm scripts/setup_quickstart_spm.sh abtesting
-      plist_src_path: scripts/gha-encrypted/qs-database.plist.gpg
-      plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
+      plist_src_path: scripts/gha-encrypted/qs-abtesting.plist.gpg
+      plist_dst_path: quickstart-ios/abtesting/GoogleService-Info.plist
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
