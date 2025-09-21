@@ -12,6 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///
+/// A `Field` is an `Expression` that represents a field in a Firestore document.
+///
+/// It is a central component for building queries and transformations in Firestore pipelines.
+/// A `Field` can be used to:
+/// - Reference a document field by its name or `FieldPath`.
+/// - Create complex `BooleanExpression`s for filtering in a `where` clause.
+/// - Perform mathematical operations on numeric fields.
+/// - Manipulate string and array fields.
+///
+/// Example of creating a `Field` and using it in a `where` clause:
+/// ```swift
+/// // Reference the "price" field in a document
+/// let priceField = Field("price")
+///
+/// // Create a query to find products where the price is greater than 100
+/// firestore.pipeline()
+///   .collection("products")
+///   .where(priceField.greaterThan(100))
+/// ```
 public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   @unchecked Sendable {
   let bridge: ExprBridge
@@ -24,6 +44,7 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
 
   public let fieldName: String
 
+  /// Creates a new `Field` expression from a field name.
   public init(_ name: String) {
     let fieldBridge = FieldBridge(name: name)
     bridge = fieldBridge
@@ -31,6 +52,7 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
     alias = fieldName
   }
 
+  /// Creates a new `Field` expression from a `FieldPath`.
   public init(_ path: FieldPath) {
     let fieldBridge = FieldBridge(path: path)
     bridge = fieldBridge
