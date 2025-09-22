@@ -2,7 +2,6 @@
 
 * **Authors**
   * Peter Friese (peterfriese@google.com)
-
 * **Status**: `In Review`
 * **Last Updated**: 2025-09-22
 
@@ -297,7 +296,3 @@ The implementation will be phased, with each product's API being added in a sepa
 ## 10. Open Questions & Future Work
 
 *   Should we provide convenience wrappers for common `AsyncSequence` operators? (e.g., a method to directly stream decoded objects instead of snapshots). For now, this is considered a **Non-Goal** but could be revisited.
-
----
-
-*This document is based on the original proposal and discussions in PRs #11508 and #14924.*
