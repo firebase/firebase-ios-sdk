@@ -106,4 +106,23 @@ final class GenerateContentResponseTests: XCTestCase {
       "functionCalls should be empty when there are no candidates."
     )
   }
+
+  func testURLContextMetadata_withEmptyURLMetadata_isNil() throws {
+    let json = """
+    {
+      "candidates": [
+        {
+          "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+          "finishReason": "STOP",
+          "urlContextMetadata": { "urlMetadata": [] }
+        }
+      ]
+    }
+    """.data(using: .utf8)!
+
+    let response = try JSONDecoder().decode(GenerateContentResponse.self, from: json)
+
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertNil(candidate.urlContextMetadata)
+  }
 }
