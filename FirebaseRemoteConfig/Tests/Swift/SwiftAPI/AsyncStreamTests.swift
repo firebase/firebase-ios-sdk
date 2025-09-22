@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class MockListenerRegistration: ConfigUpdateListenerRegistration, @unchecked Sen
 
 /// A mock for the RCNConfigRealtime component that allows tests to control the config update
 /// listener.
-class MockRealtime: RCNConfigRealtime {
+class MockRealtime: RCNConfigRealtime, @unchecked Sendable {
   /// The listener closure captured from the `updates` async stream.
   var listener: ((RemoteConfigUpdate?, Error?) -> Void)?
   let mockRegistration = MockListenerRegistration()
