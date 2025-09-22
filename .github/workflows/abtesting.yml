@@ -46,7 +46,7 @@ jobs:
     with:
       product: ABTesting
       is_legacy: true
-      setup_command: QUICKSTART_BRANCH=mc/spm scripts/setup_quickstart_spm.sh abtesting
+      setup_command: QUICKSTART_BRANCH=nc/quickstarts scripts/setup_quickstart_spm.sh abtesting
       plist_src_path: scripts/gha-encrypted/qs-abtesting.plist.gpg
       plist_dst_path: quickstart-ios/abtesting/GoogleService-Info.plist
     secrets:

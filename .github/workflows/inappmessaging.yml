@@ -77,7 +77,7 @@ jobs:
     with:
       product: InAppMessaging
       is_legacy: false
-      setup_command: QUICKSTART_BRANCH=mc/spm scripts/setup_quickstart_spm.sh inappmessaging
+      setup_command: QUICKSTART_BRANCH=nc/quickstarts scripts/setup_quickstart_spm.sh inappmessaging
       plist_src_path: scripts/gha-encrypted/qs-inappmessaging.plist.gpg
       plist_dst_path: quickstart-ios/inappmessaging/GoogleService-Info.plist
     secrets:
