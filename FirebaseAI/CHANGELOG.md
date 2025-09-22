@@ -1,4 +1,5 @@
 # Unreleased
+- [feature] Added support for Gemini's URL context tool. (#15221)
 - [changed] Using Firebase AI Logic with the Gemini Developer API is now Generally Available (GA).
 - [changed] Using Firebase AI Logic with the Imagen generation APIs is now Generally Available (GA).
 
