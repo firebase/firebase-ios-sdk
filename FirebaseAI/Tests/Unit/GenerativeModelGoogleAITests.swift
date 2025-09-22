@@ -710,6 +710,8 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
     XCTAssertEqual(urlContextMetadata.urlMetadata.count, 1)
     let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try XCTUnwrap(urlMetadata.retrievedURL)
+    XCTAssertEqual(retrievedURL, URL(string: "https://google.com"))
     XCTAssertEqual(urlMetadata.retrievalStatus, .success)
   }
 }
