@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 import FirebaseCore
 @testable import FirebaseRemoteConfig
+import XCTest
 
 #if SWIFT_PACKAGE
   import RemoteConfigFakeConsoleObjC
@@ -30,16 +30,15 @@ class MockListenerRegistration: ConfigUpdateListenerRegistration, @unchecked Sen
   }
 }
 
-/// A mock for the RCNConfigRealtime component that allows tests to control the config update listener.
+/// A mock for the RCNConfigRealtime component that allows tests to control the config update
+/// listener.
 class MockRealtime: RCNConfigRealtime {
   /// The listener closure captured from the `updates` async stream.
   var listener: ((RemoteConfigUpdate?, Error?) -> Void)?
   let mockRegistration = MockListenerRegistration()
 
-  
-  override func addConfigUpdateListener(
-    _ listener: @escaping (RemoteConfigUpdate?, Error?) -> Void
-  ) -> ConfigUpdateListenerRegistration {
+  override func addConfigUpdateListener(_ listener: @escaping (RemoteConfigUpdate?, Error?)
+    -> Void) -> ConfigUpdateListenerRegistration {
     self.listener = listener
     return mockRegistration
   }

@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 13.0.0, macOS 10.15.0, macCatalyst 13.0.0, tvOS 13.0.0, watchOS 7.0.0, *)
-extension RemoteConfig {
+public extension RemoteConfig {
   /// Returns an `AsyncThrowingStream` that provides real-time updates to the configuration.
   ///
   /// You can listen for updates by iterating over the stream using a `for try await` loop.
@@ -47,14 +47,14 @@ extension RemoteConfig {
   ///   }
   /// }
   /// ```
-  public var updates: AsyncThrowingStream<RemoteConfigUpdate, Error> {
+  var updates: AsyncThrowingStream<RemoteConfigUpdate, Error> {
     return AsyncThrowingStream { continuation in
       let listener = addOnConfigUpdateListener { update, error in
         switch (update, error) {
-        case (let update?, _):
+        case let (update?, _):
           // If there's an update, yield it. We prioritize the update over a potential error.
           continuation.yield(update)
-        case (_, let error?):
+        case let (_, error?):
           // If there's no update but there is an error, terminate the stream with the error.
           continuation.finish(throwing: error)
         case (nil, nil):
