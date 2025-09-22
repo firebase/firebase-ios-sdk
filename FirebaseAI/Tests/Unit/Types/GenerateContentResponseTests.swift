@@ -17,6 +17,8 @@ import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerateContentResponseTests: XCTestCase {
+  let jsonDecoder = JSONDecoder()
+
   // MARK: - GenerateContentResponse Computed Properties
 
   func testGenerateContentResponse_inlineDataParts_success() throws {
@@ -105,5 +107,54 @@ final class GenerateContentResponseTests: XCTestCase {
       response.functionCalls.isEmpty,
       "functionCalls should be empty when there are no candidates."
     )
+  }
+
+  // MARK: - Decoding Tests
+
+  func testDecodeCandidate_emptyURLMetadata_urlContextMetadataIsNil() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "STOP",
+      "urlContextMetadata": { "urlMetadata": [] }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertNil(
+      candidate.urlContextMetadata,
+      "urlContextMetadata should be nil if the `urlMetadata` array is empty in the candidate."
+    )
+    XCTAssertEqual(candidate.content.role, "model")
+    let part = try XCTUnwrap(candidate.content.parts.first)
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertEqual(textPart.text, "Some text.")
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(candidate.finishReason, .stop)
+  }
+
+  func testDecodeCandidate_missingURLMetadata_urlContextMetadataIsNil() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "STOP"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertNil(
+      candidate.urlContextMetadata,
+      "urlContextMetadata should be nil if `urlMetadata` is not provided in the candidate."
+    )
+    XCTAssertEqual(candidate.content.role, "model")
+    let part = try XCTUnwrap(candidate.content.parts.first)
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertEqual(textPart.text, "Some text.")
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(candidate.finishReason, .stop)
   }
 }
