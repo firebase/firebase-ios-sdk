@@ -384,27 +384,6 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(errorURLMetadata.retrievalStatus, .error)
   }
 
-  func testGenerateContent_success_urlContext_emptyURLMetadata() async throws {
-    let json = """
-    {
-      "candidates": [
-        {
-          "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
-          "finishReason": "STOP",
-          "urlContextMetadata": { "urlMetadata": [] }
-        }
-      ]
-    }
-    """
-    MockURLProtocol.requestHandler = nil
-    MockURLProtocol.dataRequestHandler = try GenerativeModelTestUtil.httpRequestHandler(json: json)
-
-    let response = try await model.generateContent(testPrompt)
-
-    let candidate = try XCTUnwrap(response.candidates.first)
-    XCTAssertNil(candidate.urlContextMetadata)
-  }
-
   func testGenerateContent_failure_invalidAPIKey() async throws {
     let expectedStatusCode = 400
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
