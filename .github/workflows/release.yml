@@ -182,6 +182,7 @@ jobs:
             run_tests: true
           - product: abtesting
             run_tests: true
+    name: 'quickstart (release, ${{ matrix.product }}, run_tests: ${{ matrix.run_tests }})'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
