@@ -164,7 +164,6 @@ jobs:
             run_tests: true
           - product: Storage
             run_tests: true
-            is_legacy: true
           - product: Config
             run_tests: true
           - product: Messaging
@@ -179,19 +178,11 @@ jobs:
             run_tests: false
           - product: Crashlytics
             run_tests: true
-            is_legacy: true
-            setup_command: |
-              mkdir -p quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
-              # Set the deployed pod location of run and upload-symbols with the development pod version.
-              cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-              cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
           - product: ABTesting
             run_tests: true
-            is_legacy: true
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-      LEGACY: ${{ matrix.is_legacy && true || '' }}
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
@@ -215,13 +206,13 @@ jobs:
         retry_wait_seconds: 120
         command: scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
     - name: Remove data before upload
-      if: ${{ failure() }}
+    #  if: ${{ failure() }}
       run: scripts/remove_data.sh ${{ matrix.product }}
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_${{ matrix.product }}
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_${{ matrix.product }}
+    #     path: quickstart-ios/
 
   # TODO: The functions quickstart uses Material which isn't supported by Xcode 15
   # functions_quickstart:
@@ -231,7 +222,6 @@ jobs:
   #   env:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
   #     botaccess: ${{ secrets.RELEASE_TESTING_PAT }}
-  #     LEGACY: true
   #   runs-on: macos-12
   #   steps:
   #   - uses: actions/checkout@v4

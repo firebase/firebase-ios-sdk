@@ -1,5 +1,7 @@
 name: zip
 
+# TODO(ncooke3): Add FirebaseAI test.
+
 permissions:
   actions: read
   contents: read
@@ -147,8 +149,6 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      env:
-        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
@@ -160,12 +160,8 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
         quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      env:
-        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
-      env:
-        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh abtesting
     - uses: actions/upload-artifact@v4
@@ -306,8 +302,6 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      env:
-        LEGACY: true
       run: |
               SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
@@ -327,8 +321,6 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      env:
-        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     # TODO(#8057): Restore Swift Quickstart
     # - name: Test Swift Quickstart
@@ -336,8 +328,6 @@ jobs:
     #     LEGACY: true
     #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
-      env:
-        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics
     - uses: actions/upload-artifact@v4
@@ -625,30 +615,20 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      env:
-        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Setup swift quickstart
-      env:
-        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
         quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      env:
-        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Test Swift Quickstart
-      env:
-        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
-      env:
-        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh storage
     - uses: actions/upload-artifact@v4
