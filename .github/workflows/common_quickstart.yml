@@ -34,7 +34,7 @@ on:
         type: string
         required: false
         # default: 'main' # TODO: Revert to main before merging.
-        default: 'nc/remove-objc-qs' # 'nc/quickstarts'
+        default: 'nc/quickstarts'
 
       # The path to the encrypted `GoogleService-Info.plist` file.
       plist_src_path:
