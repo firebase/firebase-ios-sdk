@@ -47,12 +47,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Crashlytics
-      setup_command: |
-        scripts/setup_quickstart.sh crashlytics
-        mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
-        # Set the deployed pod location of run and upload-symbols with the development pod version.
-        cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+      setup_command: scripts/setup_quickstart.sh crashlytics
       plist_src_path: scripts/gha-encrypted/qs-crashlytics.plist.gpg
       plist_dst_path: quickstart-ios/crashlytics/GoogleService-Info.plist
     secrets:
