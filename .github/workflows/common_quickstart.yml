@@ -32,7 +32,8 @@ on:
       # Whether to test the legacy version of the quickstart.
       is_legacy:
         type: boolean
-        required: true
+        required: false
+        default: false
 
       # The path to the encrypted `GoogleService-Info.plist` file.
       plist_src_path:
