@@ -85,19 +85,15 @@ jobs:
             ${{ inputs.plist_dst_path }} \
             "$plist_secret"
     - name: Build ${{ inputs.product }} Quickstart
-      run: |
-        SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh \
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 3
+        retry_wait_seconds: 120
+        command: |
+          SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh \
             ${{ inputs.product }} \
-            ${{ inputs.run_tests }} \
-      # uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      # with:
-      #   timeout_minutes: 15
-      #   max_attempts: 3
-      #   retry_wait_seconds: 120
-      #   command: |
-      #     SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh \
-      #       ${{ inputs.product }} \
-      #       ${{ inputs.run_tests }} \
+            ${{ inputs.run_tests }}
     # Failure sequence to upload artifact.
     - id: lowercase_product
       if: ${{ failure() }}
