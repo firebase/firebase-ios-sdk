@@ -47,7 +47,6 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Crashlytics
-      is_legacy: true
       setup_command: |
         scripts/setup_quickstart.sh crashlytics
         mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics

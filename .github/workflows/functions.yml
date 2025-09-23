@@ -59,7 +59,6 @@ jobs:
   #         quickstart_type: [objc, swift]
   #     with:
   #       product: Functions
-  #       is_legacy: true
   #       setup_command: |
   #         scripts/setup_quickstart.sh functions
   #         sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist

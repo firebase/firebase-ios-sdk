@@ -83,7 +83,6 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Storage
-      is_legacy: true
       setup_command: scripts/setup_quickstart_spm.sh storage
       plist_src_path: scripts/gha-encrypted/qs-storage.plist.gpg
       plist_dst_path: quickstart-ios/storage/GoogleService-Info.plist
