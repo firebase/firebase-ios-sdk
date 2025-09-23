@@ -190,7 +190,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-tags: true
+        # fetch-tags: true
         fetch-depth: 0
     - name: Set Xcode version
       run: sudo xcode-select -s /Applications/Xcode_16.4.app
