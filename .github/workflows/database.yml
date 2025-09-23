@@ -74,7 +74,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Database
-      setup_command: QUICKSTART_BRANCH=nc/quickstarts scripts/setup_quickstart_spm.sh database
+      setup_command: scripts/setup_quickstart_spm.sh database
       plist_src_path: scripts/gha-encrypted/qs-database.plist.gpg
       plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
       run_tests: false

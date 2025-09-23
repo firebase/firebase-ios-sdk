@@ -84,7 +84,7 @@ jobs:
     with:
       product: Storage
       is_legacy: true
-      setup_command: QUICKSTART_BRANCH=nc/quickstarts scripts/setup_quickstart_spm.sh storage
+      setup_command: scripts/setup_quickstart_spm.sh storage
       plist_src_path: scripts/gha-encrypted/qs-storage.plist.gpg
       plist_dst_path: quickstart-ios/storage/GoogleService-Info.plist
       run_tests: false

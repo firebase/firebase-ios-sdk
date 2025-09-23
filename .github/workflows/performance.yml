@@ -83,7 +83,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Performance
-      setup_command: QUICKSTART_BRANCH=nc/quickstarts scripts/setup_quickstart_spm.sh performance
+      setup_command: scripts/setup_quickstart_spm.sh performance
       plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
       plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
     secrets:

@@ -29,6 +29,13 @@ on:
         type: string
         required: true
 
+      # The branch to checkout in the quickstart repo.
+      quickstart_branch:
+        type: string
+        required: false
+        # default: 'main' # TODO: Revert to main before merging.
+        default: 'nc/quickstarts'
+
       # Whether to test the legacy version of the quickstart.
       is_legacy:
         type: boolean
@@ -66,6 +73,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.plist_secret }}
       LEGACY: ${{ inputs.is_legacy && true || '' }}
+      QUICKSTART_BRANCH: ${{ inputs.quickstart_branch }}
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4

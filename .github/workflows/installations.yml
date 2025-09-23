@@ -53,7 +53,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Installations
-      setup_command: QUICKSTART_BRANCH=nc/quickstarts scripts/setup_quickstart_spm.sh installations
+      setup_command: scripts/setup_quickstart_spm.sh installations
       plist_src_path: scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg
       plist_dst_path: quickstart-ios/installations/GoogleService-Info.plist
     secrets:
