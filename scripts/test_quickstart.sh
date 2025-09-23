@@ -21,6 +21,9 @@ set -xeuo pipefail
 sample="$1"
 test="$2"
 
+echo "Hello"
+exit 1
+
 # Source function to check if CI secrets are available.
 source scripts/check_secrets.sh
 
