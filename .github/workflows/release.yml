@@ -159,7 +159,7 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     strategy:
-      # fail-fast: false
+      fail-fast: false
       matrix:
         include:
           - product: performance
