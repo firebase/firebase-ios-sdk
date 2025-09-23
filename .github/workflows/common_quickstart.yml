@@ -36,12 +36,6 @@ on:
         # default: 'main' # TODO: Revert to main before merging.
         default: 'nc/remove-objc-qs' # 'nc/quickstarts'
 
-      # Whether to test the legacy version of the quickstart.
-      is_legacy:
-        type: boolean
-        required: false
-        default: false
-
       # The path to the encrypted `GoogleService-Info.plist` file.
       plist_src_path:
         type: string
@@ -72,7 +66,6 @@ jobs:
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     env:
       plist_secret: ${{ secrets.plist_secret }}
-      LEGACY: ${{ inputs.is_legacy && true || '' }}
       QUICKSTART_BRANCH: ${{ inputs.quickstart_branch }}
     runs-on: macos-15
     steps:
@@ -90,16 +83,20 @@ jobs:
             ${{ inputs.plist_src_path }} \
             ${{ inputs.plist_dst_path }} \
             "$plist_secret"
-    - name: Build ${{ inputs.product }} Quickstart (${{ inputs.is_legacy && 'Legacy' || 'Non-Legacy' }})
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 15
-        max_attempts: 3
-        retry_wait_seconds: 120
-        command: |
-          SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh \
+    - name: Build ${{ inputs.product }} Quickstart
+      run: |
+        SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh \
             ${{ inputs.product }} \
             ${{ inputs.run_tests }} \
+      # uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      # with:
+      #   timeout_minutes: 15
+      #   max_attempts: 3
+      #   retry_wait_seconds: 120
+      #   command: |
+      #     SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh \
+      #       ${{ inputs.product }} \
+      #       ${{ inputs.run_tests }} \
     # Failure sequence to upload artifact.
     - id: lowercase_product
       if: ${{ failure() }}
