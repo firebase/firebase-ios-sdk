@@ -34,7 +34,7 @@ on:
         type: string
         required: false
         # default: 'main' # TODO: Revert to main before merging.
-        default: 'nc/quickstarts'
+        default: 'nc/remove-objc-qs' # 'nc/quickstarts'
 
       # Whether to test the legacy version of the quickstart.
       is_legacy:
