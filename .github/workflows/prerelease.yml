@@ -258,25 +258,25 @@ jobs:
     strategy:
       matrix:
         include:
-          - product: Performance
+          - product: performance
             run_tests: true
-          - product: Storage
+          - product: storage
             run_tests: true
-          - product: Config
+          - product: config
             run_tests: true
-          - product: Messaging
+          - product: messaging
             run_tests: false
-          - product: InAppMessaging
+          - product: inappMessaging
             run_tests: true
-          - product: Firestore
+          - product: firestore
             run_tests: false
-          - product: Database
+          - product: database
             run_tests: false
-          - product: Authentication
+          - product: authentication
             run_tests: false
-          - product: Crashlytics
+          - product: crashlytics
             run_tests: true
-          - product: ABTesting
+          - product: abtesting
             run_tests: true
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
