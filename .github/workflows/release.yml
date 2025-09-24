@@ -56,8 +56,9 @@ jobs:
   #       path: quickstart-ios/
 
   quickstart:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+    if: |
+      github.repository == 'firebase/firebase-ios-sdk' &&
+      contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name)
     strategy:
       fail-fast: false
       matrix:
@@ -108,8 +109,7 @@ jobs:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
-        # TODO(ncooke3): Remove SPM=true and instead change default value in quickstart-ios/scripts/test.sh
-        command: SPM=true DIR=${{ matrix.product }} scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
+        command: DIR=${{ matrix.product }} scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
     - name: Remove data before upload
     #  if: ${{ failure() }}
       run: scripts/remove_data.sh ${{ matrix.product }}
