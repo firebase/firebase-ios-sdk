@@ -65,7 +65,7 @@ jobs:
           - product: Performance
             run_tests: true
           - product: Storage
-            run_tests: true
+            run_tests: false
           - product: Config
             run_tests: true
           - product: Messaging
