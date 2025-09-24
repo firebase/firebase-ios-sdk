@@ -66,25 +66,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - product: performance
+          - product: Performance
             run_tests: true
-          - product: storage
+          - product: Storage
             run_tests: true
-          - product: config
+          - product: Config
             run_tests: true
-          - product: messaging
+          - product: Messaging
             run_tests: false
-          - product: inappMessaging
+          - product: InAppMessaging
             run_tests: true
-          - product: firestore
+          - product: Firestore
             run_tests: false
-          - product: database
+          - product: Database
             run_tests: false
-          - product: authentication
+          - product: Authentication
             run_tests: false
-          - product: crashlytics
+          - product: Crashlytics
             run_tests: true
-          - product: abtesting
+          - product: ABTesting
             run_tests: true
     name: 'quickstart (prerelease, ${{ matrix.product }}, run_tests: ${{ matrix.run_tests }})'
     env:
