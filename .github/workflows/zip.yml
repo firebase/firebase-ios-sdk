@@ -6,8 +6,6 @@ permissions:
   actions: read
   contents: read
 
-  break
-
 on:
   pull_request:
     paths:
