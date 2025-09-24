@@ -15,6 +15,9 @@
 import Foundation
 
 /// Metadata for a single URL retrieved by the ``Tool/urlContext()`` tool.
+///
+/// > Warning: URL context is a **Public Preview** feature, which means that it is not subject to
+/// > any SLA or deprecation policy and could change in backwards-incompatible ways.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct URLMetadata: Sendable, Hashable {
   /// Status of the URL retrieval.
