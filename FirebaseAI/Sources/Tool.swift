@@ -136,6 +136,10 @@ public struct Tool: Sendable {
   ///
   /// By including URLs in your request, the Gemini model will access the content from those pages
   /// to inform and enhance its response.
+  ///
+  /// > Warning: URL context is a **Public Preview** feature, which means
+  /// > that it is not subject to any SLA or deprecation policy and could change in
+  /// > backwards-incompatible ways.
   public static func urlContext() -> Tool {
     return self.init(urlContext: URLContext())
   }
