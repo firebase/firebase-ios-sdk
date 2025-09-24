@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+@testable import FirebaseAI
 import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -156,5 +156,41 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertEqual(textPart.text, "Some text.")
     XCTAssertFalse(textPart.isThought)
     XCTAssertEqual(candidate.finishReason, .stop)
+  }
+
+  // MARK: - Candidate.isEmpty
+
+  func testCandidateIsEmpty_allEmpty_isTrue() throws {
+    let candidate = Candidate(
+      content: ModelContent(parts: []),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil,
+      groundingMetadata: nil,
+      urlContextMetadata: nil
+    )
+
+    XCTAssertTrue(candidate.isEmpty, "A candidate with no content should be empty.")
+  }
+
+  func testCandidateIsEmpty_withURLContextMetadata_isFalse() throws {
+    let urlMetadata = URLMetadata(
+      retrievedURL: URL(string: "https://google.com")!,
+      retrievalStatus: .success
+    )
+    let urlContextMetadata = URLContextMetadata(urlMetadata: [urlMetadata])
+    let candidate = Candidate(
+      content: ModelContent(parts: []),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil,
+      groundingMetadata: nil,
+      urlContextMetadata: urlContextMetadata
+    )
+
+    XCTAssertFalse(
+      candidate.isEmpty,
+      "A candidate with only `urlContextMetadata` should not be empty."
+    )
   }
 }
