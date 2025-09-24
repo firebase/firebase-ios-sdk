@@ -149,10 +149,13 @@ update_spm_dependency() {
     "${NIGHTLY_RELEASE_TESTING}")
       # For release testing, find the latest CocoaPods tag.
       local latest_tag
-      latest_tag=$(git -C "$root_dir" tag -l "CocoaPods-*" --sort=-v:refname | \
-        grep -E '^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
+      latest_tag=$(git -C "$root_dir" tag -l "CocoaPods-*" --sort=-v:refname |
+        awk '/^CocoaPods-[0-9]+\.[0-9]+\.[0-9]+$/{print; exit}')
       if [[ -z "$latest_tag" ]]; then
-        echo "Error: Could not find a 'CocoaPods-X.Y.Z' tag." >&2
+        echo "Error: Could not find the latest CocoaPods tag." >&2
+        echo "This is often caused by a shallow git clone in a CI environment." >&2
+        echo "If you are running in GitHub Actions, please ensure your checkout" >&2
+        echo "step includes 'fetch-depth: 0' to fetch the full git history." >&2
         exit 1
       fi
       local tag_revision

@@ -47,13 +47,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Crashlytics
-      is_legacy: true
-      setup_command: |
-        scripts/setup_quickstart.sh crashlytics
-        mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
-        # Set the deployed pod location of run and upload-symbols with the development pod version.
-        cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-        cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
+      setup_command: scripts/setup_quickstart_spm.sh crashlytics
       plist_src_path: scripts/gha-encrypted/qs-crashlytics.plist.gpg
       plist_dst_path: quickstart-ios/crashlytics/GoogleService-Info.plist
     secrets:
@@ -76,20 +70,12 @@ jobs:
   #     run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
   #   - name: Setup quickstart
   #     run: scripts/setup_quickstart.sh crashlytics
-  #     env:
-  #       LEGACY: true
   #   - name: Install Secret GoogleService-Info.plist
   #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
   #         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
   #   - name: Build swift quickstart
   #     run: |
-  #       mkdir quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics
-  #       # Set the deployed pod location of run and upload-symbols with the development pod version.
-  #       cp Crashlytics/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
-  #       cp Crashlytics/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Pods/FirebaseCrashlytics/
   #       ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Crashlytics swift)
-  #     env:
-  #       LEGACY: true
   #   - id: ftl_test
   #     uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
   #     with:

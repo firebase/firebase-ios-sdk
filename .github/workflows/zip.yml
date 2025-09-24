@@ -1,5 +1,7 @@
 name: zip
 
+# TODO(ncooke3): Add FirebaseAI test.
+
 permissions:
   actions: read
   contents: read
@@ -147,8 +149,6 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      env:
-        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
@@ -160,19 +160,15 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
         quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      env:
-        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
-      env:
-        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh abtesting
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_abtesting
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_abtesting
+    #     path: quickstart-ios/
 
   quickstart_framework_auth:
     needs: package-head
@@ -219,11 +215,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh authentiation
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_auth
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_auth
+    #     path: quickstart-ios/
 
   quickstart_framework_config:
     needs: package-head
@@ -268,11 +264,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh config
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_config
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_config
+    #     path: quickstart-ios/
 
   quickstart_framework_crashlytics:
     needs: package-head
@@ -306,8 +302,6 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      env:
-        LEGACY: true
       run: |
               SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
@@ -327,8 +321,6 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      env:
-        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     # TODO(#8057): Restore Swift Quickstart
     # - name: Test Swift Quickstart
@@ -336,15 +328,13 @@ jobs:
     #     LEGACY: true
     #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
-      env:
-        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_crashlytics
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_crashlytics
+    #     path: quickstart-ios/
 
   quickstart_framework_database:
     needs: package-head
@@ -392,11 +382,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh database
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts database
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts database
+    #     path: quickstart-ios/
 
   quickstart_framework_firestore:
     needs: package-head
@@ -449,11 +439,11 @@ jobs:
     - name: Remove data before upload and zip directory to reduce upload size.
       if: ${{ failure() }}
       run: scripts/remove_data.sh firestore; zip -r --symlinks quickstart_artifacts_firestore.zip quickstart-ios/
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
-        path: quickstart_artifacts_firestore.zip
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
+    #     path: quickstart_artifacts_firestore.zip
 
   check_framework_firestore_symbols:
     needs: package-head
@@ -534,11 +524,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh inappmessaging
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_inappmessaging
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_inappmessaging
+    #     path: quickstart-ios/
 
   quickstart_framework_messaging:
     needs: package-head
@@ -587,11 +577,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh messaging
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_messaging
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_messaging
+    #     path: quickstart-ios/
 
   quickstart_framework_storage:
     needs: package-head
@@ -625,34 +615,24 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      env:
-        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Setup swift quickstart
-      env:
-        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
         quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      env:
-        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Test Swift Quickstart
-      env:
-        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
-      env:
-        LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh storage
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_storage
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_storage
+    #     path: quickstart-ios/
