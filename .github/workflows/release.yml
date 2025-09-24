@@ -207,7 +207,7 @@ jobs:
         max_attempts: 3
         retry_wait_seconds: 120
         # TODO(ncooke3): Remove SPM=true and instead change default value in quickstart-ios/scripts/test.sh
-        command: SPM=true scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
+        command: SPM=true DIR=${{ matrix.product }} scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
     - name: Remove data before upload
     #  if: ${{ failure() }}
       run: scripts/remove_data.sh ${{ matrix.product }}
