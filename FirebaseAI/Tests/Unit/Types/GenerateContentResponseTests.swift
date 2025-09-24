@@ -175,7 +175,7 @@ final class GenerateContentResponseTests: XCTestCase {
 
   func testCandidateIsEmpty_withURLContextMetadata_isFalse() throws {
     let urlMetadata = URLMetadata(
-      retrievedURL: URL(string: "https://google.com")!,
+      retrievedURL: try XCTUnwrap(URL(string: "https://google.com")),
       retrievalStatus: .success
     )
     let urlContextMetadata = URLContextMetadata(urlMetadata: [urlMetadata])
