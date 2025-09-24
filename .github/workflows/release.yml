@@ -55,6 +55,8 @@ jobs:
   #       name: quickstart_artifacts_functions
   #       path: quickstart-ios/
 
+  # TODO(ncooke3): Probably should separate *release workflows into
+  # *release-cocoapods and *release (spm).
   quickstart:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
@@ -62,25 +64,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - product: Performance
+          - product: performance
             run_tests: true
-          - product: Storage
+          - product: storage
             run_tests: true
-          - product: Config
+          - product: config
             run_tests: true
-          - product: Messaging
+          - product: messaging
             run_tests: false
-          - product: InAppMessaging
+          - product: inappMessaging
             run_tests: true
-          - product: Firestore
+          - product: firestore
             run_tests: false
-          - product: Database
+          - product: database
             run_tests: false
-          - product: Authentication
+          - product: authentication
             run_tests: false
-          - product: Crashlytics
+          - product: crashlytics
             run_tests: true
-          - product: ABTesting
+          - product: abtesting
             run_tests: true
     name: 'quickstart (release, ${{ matrix.product }}, run_tests: ${{ matrix.run_tests }})'
     env:
