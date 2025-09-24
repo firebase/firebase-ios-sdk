@@ -303,7 +303,8 @@ jobs:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
-        command: scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
+        # TODO(ncooke3): Remove SPM=true and instead change default value in quickstart-ios/scripts/test.sh
+        command: SPM=true scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
     # Failure sequence to upload artifact.
     - name: Remove data before upload.
     #  if: ${{ failure() }}
