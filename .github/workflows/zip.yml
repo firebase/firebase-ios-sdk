@@ -32,7 +32,7 @@ on:
         # - https://github.com/firebase/firebase-ios-sdk/actions/runs/17335533279
         description: 'Run ID of a previous successful zip workflow to use for quickstart testing'
         required: false
-        default: '17965877651' #TODO(ncooke3): Revert back to ''.
+        default: ''
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
