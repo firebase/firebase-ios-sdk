@@ -166,11 +166,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh abtesting
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_abtesting
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_abtesting
+    #     path: quickstart-ios/
 
   quickstart_framework_auth:
     needs: package-head
@@ -217,11 +217,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh authentiation
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_auth
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_auth
+    #     path: quickstart-ios/
 
   quickstart_framework_config:
     needs: package-head
@@ -266,11 +266,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh config
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_config
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_config
+    #     path: quickstart-ios/
 
   quickstart_framework_crashlytics:
     needs: package-head
@@ -332,11 +332,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_crashlytics
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_crashlytics
+    #     path: quickstart-ios/
 
   quickstart_framework_database:
     needs: package-head
@@ -384,11 +384,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh database
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts database
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts database
+    #     path: quickstart-ios/
 
   quickstart_framework_firestore:
     needs: package-head
@@ -441,11 +441,11 @@ jobs:
     - name: Remove data before upload and zip directory to reduce upload size.
       if: ${{ failure() }}
       run: scripts/remove_data.sh firestore; zip -r --symlinks quickstart_artifacts_firestore.zip quickstart-ios/
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
-        path: quickstart_artifacts_firestore.zip
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
+    #     path: quickstart_artifacts_firestore.zip
 
   check_framework_firestore_symbols:
     needs: package-head
@@ -526,11 +526,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh inappmessaging
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_inappmessaging
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_inappmessaging
+    #     path: quickstart-ios/
 
   quickstart_framework_messaging:
     needs: package-head
@@ -579,11 +579,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh messaging
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_messaging
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_messaging
+    #     path: quickstart-ios/
 
   quickstart_framework_storage:
     needs: package-head
@@ -633,8 +633,8 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh storage
-    - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
-      with:
-        name: quickstart_artifacts_storage
-        path: quickstart-ios/
+    # - uses: actions/upload-artifact@v4
+    #   if: ${{ failure() }}
+    #   with:
+    #     name: quickstart_artifacts_storage
+    #     path: quickstart-ios/
