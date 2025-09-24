@@ -185,7 +185,7 @@ Provides an async alternative to `observe(.progress, ...)`.
 ```swift
 extension StorageTask {
   /// An asynchronous stream of progress updates for an ongoing task.
-  var progress: AsyncThrowingStream<StorageTaskProgress, Error> { get }
+  var progressUpdates: AsyncThrowingStream<StorageTaskSnapshot, Error> { get }
 }
 ```
 
