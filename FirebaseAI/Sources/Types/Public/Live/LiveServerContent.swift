@@ -62,17 +62,19 @@ public struct LiveServerContent: Sendable {
 
   /// The model's interpretation of what the client said in an audio message.
   ///
-  /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to ``LiveGenerationConfig``.
+  /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to
+  /// ``LiveGenerationConfig``.
   public var inputTranscription: LiveTranscription? {
     serverContent.inputTranscription.map { LiveTranscription($0) }
   }
 
   /// Transcription matching the model's audio response.
   ///
-  /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to ``LiveGenerationConfig``.
+  /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to
+  /// ``LiveGenerationConfig``.
   ///
-  ///     > Important: Transcripts are independent to the model turn. This means transcripts may come earlier or later than when
-  ///     > the model sends the corresponding audio responses.
+  /// > Important: Transcripts are independent to the model turn. This means transcripts may
+  /// > come earlier or later than when the model sends the corresponding audio responses.
   public var outputTranscription: LiveTranscription? {
     serverContent.outputTranscription.map { LiveTranscription($0) }
   }

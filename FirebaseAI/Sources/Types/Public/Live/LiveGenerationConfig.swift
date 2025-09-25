@@ -102,25 +102,28 @@ public struct LiveGenerationConfig: Sendable {
   ///     > backwards-incompatible ways.
   ///   - speechConfig: Controls the voice of the model, when streaming `audio` via
   ///     ``ResponseModality``.
-  ///   - inputAudioTranscription: Configures (and enables) input transcriptions when streaming to the model.
+  ///   - inputAudioTranscription: Configures (and enables) input transcriptions when streaming to
+  ///     the model.
   ///
-  ///     Input transcripts are the model's interprutation of audio data sent to it, and they are populated in model responses via ``LiveServerContent``.
-  ///     When this fields is set to `nil`, input transcripts are not populated in model responses.
-  ///   - outputAudioTranscription: Configures (and enables) output transcriptions when streaming to the model.
+  ///     Input transcripts are the model's interprutation of audio data sent to it, and they are
+  ///     populated in model responses via ``LiveServerContent``. When this fields is set to `nil`,
+  ///     input transcripts are not populated in model responses.
+  ///   - outputAudioTranscription: Configures (and enables) output transcriptions when streaming to
+  ///     the model.
   ///
-  ///     Output transcripts are text representations of the audio the model is sending to the client, and they are populated in model responses via ``LiveServerContent``
-  ///     When this fields is set to `nil`, output transcripts are not populated in model responses.
+  ///     Output transcripts are text representations of the audio the model is sending to the
+  ///     client, and they are populated in model responses via ``LiveServerContent``. When this
+  ///     fields is set to `nil`, output transcripts are not populated in model responses.
   ///
-  ///     > Important: Transcripts are independent to the model turn. This means transcripts may come earlier or later than when
-  ///     > the model sends the corresponding audio responses.
+  ///     > Important: Transcripts are independent to the model turn. This means transcripts may
+  ///     > come earlier or later than when  the model sends the corresponding audio responses.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               responseModalities: [ResponseModality]? = nil,
               speechConfig: SpeechConfig? = nil,
               inputAudioTranscription: AudioTranscriptionConfig? = nil,
-              outputAudioTranscription: AudioTranscriptionConfig? = nil
-  ) {
+              outputAudioTranscription: AudioTranscriptionConfig? = nil) {
     self.init(
       BidiGenerationConfig(
         temperature: temperature,
@@ -138,11 +141,9 @@ public struct LiveGenerationConfig: Sendable {
     )
   }
 
-  init(
-    _ bidiGenerationConfig: BidiGenerationConfig,
-    inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
-    outputAudioTranscription: BidiAudioTranscriptionConfig? = nil
-  ) {
+  init(_ bidiGenerationConfig: BidiGenerationConfig,
+       inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
+       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil) {
     self.bidiGenerationConfig = bidiGenerationConfig
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription

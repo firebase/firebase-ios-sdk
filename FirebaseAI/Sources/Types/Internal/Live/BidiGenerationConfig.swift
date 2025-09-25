@@ -16,7 +16,7 @@ import Foundation
 
 /// Configuration options for live content generation.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-internal struct BidiGenerationConfig: Encodable, Sendable {
+struct BidiGenerationConfig: Encodable, Sendable {
   let temperature: Float?
   let topP: Float?
   let topK: Int?
@@ -28,11 +28,10 @@ internal struct BidiGenerationConfig: Encodable, Sendable {
   let speechConfig: BidiSpeechConfig?
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
-              candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
-              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-              responseModalities: [ResponseModality]? = nil,
-              speechConfig: BidiSpeechConfig? = nil
-  ) {
+       candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+       presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
+       responseModalities: [ResponseModality]? = nil,
+       speechConfig: BidiSpeechConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
     self.topK = topK
