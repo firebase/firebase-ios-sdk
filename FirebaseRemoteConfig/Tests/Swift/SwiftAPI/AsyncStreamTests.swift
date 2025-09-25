@@ -151,7 +151,7 @@ class AsyncStreamTests: XCTestCase {
   }
 
   func testStreamCancellation_callsRemoveOnListener() async throws {
-    let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
+    let listenerAttachedExpectation = expectation(description: "Listener should be attached.")
     mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
 
     let listeningTask = Task {
