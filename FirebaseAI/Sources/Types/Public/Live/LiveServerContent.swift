@@ -60,13 +60,21 @@ public struct LiveServerContent: Sendable {
   /// Metadata specifing the sources used to ground generated content.
   public var groundingMetadata: GroundingMetadata? { serverContent.groundingMetadata }
 
-  // TODO: remove
-  public var transcript: LiveTranscript? {
-    if let transcript = serverContent.outputTranscription {
-      LiveTranscript(transcript)
-    } else {
-      nil
-    }
+  /// The model's interpretation of what the client said in an audio message.
+  ///
+  /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to ``LiveGenerationConfig``.
+  public var inputTranscription: LiveTranscription? {
+    serverContent.inputTranscription.map { LiveTranscription($0) }
+  }
+
+  /// Transcription matching the model's audio response.
+  ///
+  /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to ``LiveGenerationConfig``.
+  ///
+  ///     > Important: Transcripts are independent to the model turn. This means transcripts may come earlier or later than when
+  ///     > the model sends the corresponding audio responses.
+  public var outputTranscription: LiveTranscription? {
+    serverContent.outputTranscription.map { LiveTranscription($0) }
   }
 
   init(_ serverContent: BidiGenerateContentServerContent) {

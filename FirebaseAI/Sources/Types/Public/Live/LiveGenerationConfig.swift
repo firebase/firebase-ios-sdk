@@ -17,32 +17,9 @@ import Foundation
 /// Configuration options for live content generation.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct LiveGenerationConfig: Sendable {
-  /// Controls the degree of randomness in token selection.
-  let temperature: Float?
-
-  /// Controls diversity of generated text.
-  let topP: Float?
-
-  /// Limits the number of highest probability words considered.
-  let topK: Int?
-
-  /// The number of response variations to return.
-  let candidateCount: Int?
-
-  /// Maximum number of tokens that can be generated in the response.
-  let maxOutputTokens: Int?
-
-  /// Controls the likelihood of repeating the same words or phrases already generated in the text.
-  let presencePenalty: Float?
-
-  /// Controls the likelihood of repeating words, with the penalty increasing for each repetition.
-  let frequencyPenalty: Float?
-
-  /// Supported modalities of the response.
-  let responseModalities: [ResponseModality]?
-
-  /// Controls the voice of the model during conversation.
-  let speechConfig: SpeechConfig?
+  let bidiGenerationConfig: BidiGenerationConfig
+  let inputAudioTranscription: BidiAudioTranscriptionConfig?
+  let outputAudioTranscription: BidiAudioTranscriptionConfig?
 
   /// Creates a new ``LiveGenerationConfig`` value.
   ///
@@ -125,38 +102,49 @@ public struct LiveGenerationConfig: Sendable {
   ///     > backwards-incompatible ways.
   ///   - speechConfig: Controls the voice of the model, when streaming `audio` via
   ///     ``ResponseModality``.
+  ///   - inputAudioTranscription: Configures (and enables) input transcriptions when streaming to the model.
+  ///
+  ///     Input transcripts are the model's interprutation of audio data sent to it, and they are populated in model responses via ``LiveServerContent``.
+  ///     When this fields is set to `nil`, input transcripts are not populated in model responses.
+  ///   - outputAudioTranscription: Configures (and enables) output transcriptions when streaming to the model.
+  ///
+  ///     Output transcripts are text representations of the audio the model is sending to the client, and they are populated in model responses via ``LiveServerContent``
+  ///     When this fields is set to `nil`, output transcripts are not populated in model responses.
+  ///
+  ///     > Important: Transcripts are independent to the model turn. This means transcripts may come earlier or later than when
+  ///     > the model sends the corresponding audio responses.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               responseModalities: [ResponseModality]? = nil,
-              speechConfig: LiveSpeechConfig? = nil) {
-    // Explicit init because otherwise if we re-arrange the above variables it changes the API
-    // surface.
-    self.temperature = temperature
-    self.topP = topP
-    self.topK = topK
-    self.candidateCount = candidateCount
-    self.maxOutputTokens = maxOutputTokens
-    self.presencePenalty = presencePenalty
-    self.frequencyPenalty = frequencyPenalty
-    self.responseModalities = responseModalities
-    self.speechConfig = speechConfig?.speechConfig
+              speechConfig: SpeechConfig? = nil,
+              inputAudioTranscription: AudioTranscriptionConfig? = nil,
+              outputAudioTranscription: AudioTranscriptionConfig? = nil
+  ) {
+    self.init(
+      BidiGenerationConfig(
+        temperature: temperature,
+        topP: topP,
+        topK: topK,
+        candidateCount: candidateCount,
+        maxOutputTokens: maxOutputTokens,
+        presencePenalty: presencePenalty,
+        frequencyPenalty: frequencyPenalty,
+        responseModalities: responseModalities,
+        speechConfig: speechConfig?.speechConfig
+      ),
+      inputAudioTranscription: inputAudioTranscription?.audioTranscriptionConfig,
+      outputAudioTranscription: outputAudioTranscription?.audioTranscriptionConfig
+    )
   }
-}
 
-// MARK: - Codable Conformances
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension LiveGenerationConfig: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case temperature
-    case topP
-    case topK
-    case candidateCount
-    case maxOutputTokens
-    case presencePenalty
-    case frequencyPenalty
-    case responseModalities
-    case speechConfig
+  init(
+    _ bidiGenerationConfig: BidiGenerationConfig,
+    inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
+    outputAudioTranscription: BidiAudioTranscriptionConfig? = nil
+  ) {
+    self.bidiGenerationConfig = bidiGenerationConfig
+    self.inputAudioTranscription = inputAudioTranscription
+    self.outputAudioTranscription = outputAudioTranscription
   }
 }

@@ -16,10 +16,10 @@ import Foundation
 
 /// Configuration for controlling the voice of the model during conversation.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct LiveSpeechConfig: Sendable {
-  let speechConfig: SpeechConfig
+public struct SpeechConfig: Sendable {
+  let speechConfig: BidiSpeechConfig
 
-  init(_ speechConfig: SpeechConfig) {
+  init(_ speechConfig: BidiSpeechConfig) {
     self.speechConfig = speechConfig
   }
 
@@ -37,7 +37,7 @@ public struct LiveSpeechConfig: Sendable {
   ///     [Supported languages](https://ai.google.dev/gemini-api/docs/speech-generation#languages)\.
   public init(voiceName: String, languageCode: String? = nil) {
     self.init(
-      SpeechConfig(
+      BidiSpeechConfig(
         voiceConfig: .prebuiltVoiceConfig(.init(voiceName: voiceName)),
         languageCode: languageCode
       )

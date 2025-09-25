@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO: remove
+/// Text transcription of some audio form during a live interaction with the model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct LiveTranscript: Sendable {
+public struct LiveTranscription: Sendable {
   let transcript: BidiGenerateContentTranscription
+  /// Text representing the model's interpretation of what the audio said.
   public var text: String? { transcript.text }
-  public var finished: Bool? { transcript.finished }
 
   init(_ transcript: BidiGenerateContentTranscription) {
     self.transcript = transcript

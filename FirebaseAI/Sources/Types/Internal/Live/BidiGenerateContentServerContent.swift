@@ -51,5 +51,7 @@ struct BidiGenerateContentServerContent: Decodable, Sendable {
   /// Metadata specifies sources used to ground generated content.
   let groundingMetadata: GroundingMetadata?
 
+  let inputTranscription: BidiGenerateContentTranscription?
+
   let outputTranscription: BidiGenerateContentTranscription?
 }

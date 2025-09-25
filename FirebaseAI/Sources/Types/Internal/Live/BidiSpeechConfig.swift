@@ -15,7 +15,7 @@
 import Foundation
 
 /// Speech generation config.
-struct SpeechConfig: Encodable, Sendable {
+struct BidiSpeechConfig: Encodable, Sendable {
   /// The configuration for the speaker to use.
   let voiceConfig: VoiceConfig
 

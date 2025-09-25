@@ -29,7 +29,7 @@ struct BidiGenerateContentSetup: Encodable {
   let model: String
 
   /// Generation config.
-  let generationConfig: LiveGenerationConfig?
+  let generationConfig: BidiGenerationConfig?
 
   /// The user provided system instructions for the model.
   /// Note: only text should be used in parts and content in each part will be
@@ -48,18 +48,24 @@ struct BidiGenerateContentSetup: Encodable {
   /// Configures the handling of realtime input.
   let realtimeInputConfig: RealtimeInputConfig?
 
-  let inputAudioTranscription: AudioTranscriptionConfig?
+  /// Input transcription. The transcription is independent to the model turn
+  /// which means it doesn't imply any ordering between transcription and model
+  /// turn.
+  let inputAudioTranscription: BidiAudioTranscriptionConfig?
 
-  let outputAudioTranscription: AudioTranscriptionConfig?
+  /// Output transcription. The transcription is independent to the model turn
+  /// which means it doesn't imply any ordering between transcription and model
+  /// turn.
+  let outputAudioTranscription: BidiAudioTranscriptionConfig?
 
   init(model: String,
-       generationConfig: LiveGenerationConfig? = nil,
+       generationConfig: BidiGenerationConfig? = nil,
        systemInstruction: ModelContent? = nil,
        tools: [Tool]? = nil,
        toolConfig: ToolConfig? = nil,
        realtimeInputConfig: RealtimeInputConfig? = nil,
-       inputAudioTranscription: AudioTranscriptionConfig? = nil,
-       outputAudioTranscription: AudioTranscriptionConfig? = nil) {
+       inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
+       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil) {
     self.model = model
     self.generationConfig = generationConfig
     self.systemInstruction = systemInstruction
@@ -71,4 +77,4 @@ struct BidiGenerateContentSetup: Encodable {
   }
 }
 
-struct AudioTranscriptionConfig: Encodable {}
+struct BidiAudioTranscriptionConfig: Encodable {}
