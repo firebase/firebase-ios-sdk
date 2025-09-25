@@ -179,7 +179,8 @@ public struct Candidate: Sendable {
   // Returns `true` if the candidate contains no information that a developer could use.
   var isEmpty: Bool {
     content.parts
-      .isEmpty && finishReason == nil && citationMetadata == nil && groundingMetadata == nil
+      .isEmpty && finishReason == nil && citationMetadata == nil && groundingMetadata == nil &&
+      urlContextMetadata == nil
   }
 }
 
