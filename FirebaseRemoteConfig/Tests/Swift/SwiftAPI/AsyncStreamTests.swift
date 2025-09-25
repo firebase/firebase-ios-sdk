@@ -36,10 +36,12 @@ class MockRealtime: RCNConfigRealtime, @unchecked Sendable {
   /// The listener closure captured from the `updates` async stream.
   var listener: ((RemoteConfigUpdate?, Error?) -> Void)?
   let mockRegistration = MockListenerRegistration()
+  var listenerAttachedExpectation: XCTestExpectation?
 
   override func addConfigUpdateListener(_ listener: @escaping (RemoteConfigUpdate?, Error?)
     -> Void) -> ConfigUpdateListenerRegistration {
     self.listener = listener
+    listenerAttachedExpectation?.fulfill()
     return mockRegistration
   }
 
@@ -101,6 +103,9 @@ class AsyncStreamTests: XCTestCase {
     let expectation = self.expectation(description: "Stream should yield an update.")
     let keysToUpdate = ["foo", "bar"]
 
+    let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
+    mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
+
     let listeningTask = Task {
       for try await update in config.updates {
         XCTAssertEqual(update.updatedKeys, Set(keysToUpdate))
@@ -109,8 +114,8 @@ class AsyncStreamTests: XCTestCase {
       }
     }
 
-    // Ensure the listener is attached before sending the update.
-    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+    // Wait for the listener to be attached before sending the update.
+    await fulfillment(of: [listenerAttachedExpectation], timeout: 1.0)
 
     mockRealtime.sendUpdate(keys: keysToUpdate)
 
@@ -121,6 +126,9 @@ class AsyncStreamTests: XCTestCase {
   func testStreamFinishes_whenErrorIsSent() async throws {
     let expectation = self.expectation(description: "Stream should throw an error.")
     let testError = TestError()
+
+    let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
+    mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
 
     let listeningTask = Task {
       do {
@@ -133,8 +141,8 @@ class AsyncStreamTests: XCTestCase {
       }
     }
 
-    // Ensure the listener is attached before sending the error.
-    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+    // Wait for the listener to be attached before sending the error.
+    await fulfillment(of: [listenerAttachedExpectation], timeout: 1.0)
 
     mockRealtime.sendError(testError)
 
@@ -143,14 +151,17 @@ class AsyncStreamTests: XCTestCase {
   }
 
   func testStreamCancellation_callsRemoveOnListener() async throws {
+    let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
+    mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
+
     let listeningTask = Task {
       for try await _ in config.updates {
         // We will cancel the task, so it should not reach here.
       }
     }
 
-    // Ensure the listener has time to be established.
-    try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+    // Wait for the listener to be attached.
+    await fulfillment(of: [listenerAttachedExpectation], timeout: 1.0)
 
     // Verify the listener has not been removed yet.
     XCTAssertFalse(mockRealtime.mockRegistration.wasRemoveCalled)
@@ -168,6 +179,9 @@ class AsyncStreamTests: XCTestCase {
   func testStreamFinishesGracefully_whenListenerSendsNil() async throws {
     let expectation = self.expectation(description: "Stream should finish without error.")
 
+    let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
+    mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
+
     let listeningTask = Task {
       var updateCount = 0
       do {
@@ -182,7 +196,7 @@ class AsyncStreamTests: XCTestCase {
       }
     }
 
-    try await Task.sleep(nanoseconds: 100_000_000)
+    await fulfillment(of: [listenerAttachedExpectation], timeout: 1.0)
     mockRealtime.sendCompletion()
 
     await fulfillment(of: [expectation], timeout: 1.0)
@@ -199,6 +213,9 @@ class AsyncStreamTests: XCTestCase {
     ]
     var receivedUpdates: [Set<String>] = []
 
+    let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
+    mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
+
     let listeningTask = Task {
       for try await update in config.updates {
         receivedUpdates.append(update.updatedKeys)
@@ -210,10 +227,9 @@ class AsyncStreamTests: XCTestCase {
       return receivedUpdates
     }
 
-    try await Task.sleep(nanoseconds: 100_000_000)
+    await fulfillment(of: [listenerAttachedExpectation], timeout: 1.0)
 
     mockRealtime.sendUpdate(keys: Array(updatesToSend[0]))
-    try await Task.sleep(nanoseconds: 100_000_000) // Brief pause between sends
     mockRealtime.sendUpdate(keys: Array(updatesToSend[1]))
 
     await fulfillment(of: [expectation], timeout: 2.0)
