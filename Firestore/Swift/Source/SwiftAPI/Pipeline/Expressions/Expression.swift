@@ -36,6 +36,16 @@ public protocol Expression: Sendable {
 
   // --- Added Mathematical Operations ---
 
+  /// Creates an expression that returns the smallest numeric value that isn't less than the number.
+  ///
+  /// ```swift
+  /// // Get the ceiling of the "amount" field.
+  /// Field("amount").ceil()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the ceiling of the number.
+  func ceil() -> FunctionExpression
+
   /// Creates an expression that returns the absolute value of the number.
   ///
   /// ```swift

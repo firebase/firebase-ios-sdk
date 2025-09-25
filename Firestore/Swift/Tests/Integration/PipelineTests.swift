@@ -2001,6 +2001,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testCeilWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": -10.8],
+      "doc2": ["value": 5.3],
+      "doc3": ["value": 0],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").ceil().as("ceilValue"),
+      ])
+      .sort([Field("ceilValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["ceilValue": -10],
+      ["ceilValue": 0],
+      ["ceilValue": 6],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testComparisonOperators() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
