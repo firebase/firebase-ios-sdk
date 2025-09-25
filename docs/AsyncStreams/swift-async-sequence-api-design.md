@@ -1,4 +1,4 @@
-# Swift `AsyncSequence` API Design Proposal
+# API Design for Firebase `AsyncSequence` Event Streams
 
 * **Authors**
   * Peter Friese
