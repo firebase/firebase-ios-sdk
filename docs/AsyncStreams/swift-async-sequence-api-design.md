@@ -1,9 +1,12 @@
 # Swift `AsyncSequence` API Design Proposal
 
 * **Authors**
-  * Peter Friese (peterfriese@google.com)
+  * Peter Friese
+* **Contributors**
+  * Nick Cooke
+  * Paul Beusterien
 * **Status**: `In Review`
-* **Last Updated**: 2025-09-22
+* **Last Updated**: 2025-09-25
 
 ## 1. Abstract
 
