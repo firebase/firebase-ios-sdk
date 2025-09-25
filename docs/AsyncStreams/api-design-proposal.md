@@ -2,7 +2,6 @@
 
 * **Authors**
   * Peter Friese (peterfriese@google.com)
-
 * **Status**: `In Review`
 * **Last Updated**: 2025-09-22
 
@@ -79,19 +78,19 @@ Provides an async alternative to `addSnapshotListener`.
 // Collection snapshots
 extension CollectionReference {
   var snapshots: AsyncThrowingStream<QuerySnapshot, Error> { get }
-  func snapshots(includeMetadataChanges: Bool) -> AsyncThrowingStream<QuerySnapshot, Error>
+  func snapshots(includeMetadataChanges: Bool = false) -> AsyncThrowingStream<QuerySnapshot, Error>
 }
 
 // Query snapshots
 extension Query {
   var snapshots: AsyncThrowingStream<QuerySnapshot, Error> { get }
-  func snapshots(includeMetadataChanges: Bool) -> AsyncThrowingStream<QuerySnapshot, Error>
+  func snapshots(includeMetadataChanges: Bool = false) -> AsyncThrowingStream<QuerySnapshot, Error>
 }
 
 // Document snapshots
 extension DocumentReference {
   var snapshots: AsyncThrowingStream<DocumentSnapshot, Error> { get }
-  func snapshots(includeMetadataChanges: Bool) -> AsyncThrowingStream<DocumentSnapshot, Error>
+  func snapshots(includeMetadataChanges: Bool = false) -> AsyncThrowingStream<DocumentSnapshot, Error>
 }
 ```
 
@@ -186,7 +185,7 @@ Provides an async alternative to `observe(.progress, ...)`.
 ```swift
 extension StorageTask {
   /// An asynchronous stream of progress updates for an ongoing task.
-  var progress: AsyncThrowingStream<StorageTaskProgress, Error> { get }
+  var progressUpdates: AsyncThrowingStream<StorageTaskSnapshot, Error> { get }
 }
 ```
 
@@ -297,7 +296,3 @@ The implementation will be phased, with each product's API being added in a sepa
 ## 10. Open Questions & Future Work
 
 *   Should we provide convenience wrappers for common `AsyncSequence` operators? (e.g., a method to directly stream decoded objects instead of snapshots). For now, this is considered a **Non-Goal** but could be revisited.
-
----
-
-*This document is based on the original proposal and discussions in PRs #11508 and #14924.*
