@@ -13,7 +13,7 @@
 // limitations under the License.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-internal struct RealtimePipelineSource: @unchecked Sendable {
+struct RealtimePipelineSource: @unchecked Sendable {
   let db: Firestore
   let factory: ([Stage], Firestore) -> RealtimePipeline
 
@@ -22,26 +22,26 @@ internal struct RealtimePipelineSource: @unchecked Sendable {
     self.factory = factory
   }
 
-  internal func collection(_ path: String) -> RealtimePipeline {
+  func collection(_ path: String) -> RealtimePipeline {
     return factory([CollectionSource(collection: db.collection(path), db: db)], db)
   }
 
-  internal func collection(_ coll: CollectionReference) -> RealtimePipeline {
+  func collection(_ coll: CollectionReference) -> RealtimePipeline {
     return factory([CollectionSource(collection: coll, db: db)], db)
   }
 
-  internal func collectionGroup(_ collectionId: String) -> RealtimePipeline {
+  func collectionGroup(_ collectionId: String) -> RealtimePipeline {
     return factory(
       [CollectionGroupSource(collectionId: collectionId)],
       db
     )
   }
 
-  internal func documents(_ docs: [DocumentReference]) -> RealtimePipeline {
+  func documents(_ docs: [DocumentReference]) -> RealtimePipeline {
     return factory([DocumentsSource(docs: docs, db: db)], db)
   }
 
-  internal func documents(_ paths: [String]) -> RealtimePipeline {
+  func documents(_ paths: [String]) -> RealtimePipeline {
     let docs = paths.map { db.document($0) }
     return factory([DocumentsSource(docs: docs, db: db)], db)
   }

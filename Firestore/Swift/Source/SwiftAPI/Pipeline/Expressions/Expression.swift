@@ -36,6 +36,16 @@ public protocol Expression: Sendable {
 
   // --- Added Mathematical Operations ---
 
+  /// Creates an expression that returns the absolute value of the number.
+  ///
+  /// ```swift
+  /// // Get the absolute value of the "amount" field.
+  /// Field("amount").abs()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the absolute value of the number.
+  func abs() -> FunctionExpression
+
   /// Creates an expression that adds another expression to this expression.
   /// To add multiple expressions, chain calls to this method.
   /// Assumes `self` and the parameter evaluate to compatible types for addition (e.g., numbers, or

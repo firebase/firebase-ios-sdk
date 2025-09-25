@@ -25,6 +25,10 @@ public extension Expression {
 
   // MARK: Arithmetic Operators
 
+  func abs() -> FunctionExpression {
+    return FunctionExpression("abs", [self])
+  }
+
   func add(_ value: Expression) -> FunctionExpression {
     return FunctionExpression("add", [self, value])
   }

@@ -823,8 +823,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTFail("No result for min/max/count/countAll aggregation")
     }
   }
-  
-// Hide this test due to `.countIf()` design is incomplete.
+
+  // Hide this test due to `.countIf()` design is incomplete.
 //  func testReturnsCountIfAccumulation() async throws {
 //    let collRef = collectionRef(withDocuments: bookDocs)
 //    let db = collRef.firestore
@@ -1947,6 +1947,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     } else {
       XCTFail("No document retrieved for arithmetic operations test")
     }
+  }
+
+  func testAbsWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": -10],
+      "doc2": ["value": 5],
+      "doc3": ["value": 0],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").abs().as("absValue"),
+      ])
+      .sort([Field("absValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["absValue": 0],
+      ["absValue": 5],
+      ["absValue": 10],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testComparisonOperators() async throws {

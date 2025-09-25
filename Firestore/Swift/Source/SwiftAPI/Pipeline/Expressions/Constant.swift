@@ -19,7 +19,8 @@
 #endif // SWIFT_PACKAGE
 
 ///
-/// A `Constant` is an `Expression` that represents a fixed, literal value within a Firestore pipeline.
+/// A `Constant` is an `Expression` that represents a fixed, literal value within a Firestore
+/// pipeline.
 ///
 /// `Constant`s are used to introduce literal values into a query, which can be useful for:
 /// - Comparing a field to a specific value in a `where` clause.

@@ -20,7 +20,7 @@ public struct Ordering: @unchecked Sendable {
   let bridge: OrderingBridge
 
   init(expression: Expression, direction: Direction) {
-    self.expr = expression
+    expr = expression
     self.direction = direction
     bridge = OrderingBridge(expr: expression.toBridge(), direction: direction.rawValue)
   }
