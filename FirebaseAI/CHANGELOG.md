@@ -5,6 +5,12 @@
 - [fixed] Fixed a decoding error when generating images with the
   `gemini-2.5-flash-image-preview` model using `generateContentStream` or
   `sendMessageStream` with the Gemini Developer API. (#15262)
+- [feature] Added support for the Live API, which allows bidirectional
+  communication with the model in realtime.
+
+  To get started with the Live API, see the Firebase docs on
+  [Bidirectional streaming using the Gemini Live API](https://firebase.google.com/docs/ai-logic/live-api).
+  (#15309)
 
 # 12.2.0
 - [feature] Added support for returning thought summaries, which are synthesized
