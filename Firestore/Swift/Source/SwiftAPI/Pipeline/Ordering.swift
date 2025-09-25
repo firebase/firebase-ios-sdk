@@ -19,10 +19,10 @@ public struct Ordering: @unchecked Sendable {
   let direction: Direction
   let bridge: OrderingBridge
 
-  init(expr: Expression, direction: Direction) {
-    self.expr = expr
+  init(expression: Expression, direction: Direction) {
+    self.expr = expression
     self.direction = direction
-    bridge = OrderingBridge(expr: expr.toBridge(), direction: direction.rawValue)
+    bridge = OrderingBridge(expr: expression.toBridge(), direction: direction.rawValue)
   }
 }
 

@@ -350,7 +350,7 @@ public protocol Expression: Sendable {
   /// - Parameter offsetExpr: An `Expression` (evaluating to an Int) representing the offset of the
   /// element to return.
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
-  func arrayGet(_ offsetExpr: Expression) -> FunctionExpression
+  func arrayGet(_ offsetExpression: Expression) -> FunctionExpression
 
   /// Creates a `BooleanExpr` that returns `true` if this expression is greater
   /// than the given expression.
@@ -699,7 +699,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Check if the "description" field contains "example".
-  /// Field("description").strContains("example")
+  /// Field("description").string_contains("example")
   /// ```
   ///
   /// - Parameter substring: The literal string substring to search for.
@@ -712,13 +712,13 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Check if the "message" field contains the value of the "keyword" field.
-  /// Field("message").strContains(Field("keyword"))
+  /// Field("message").string_contains(Field("keyword"))
   /// ```
   ///
   /// - Parameter expr: An `Expression` (evaluating to a string) representing the substring to
   /// search for.
   /// - Returns: A new `BooleanExpr` representing the "str_contains" comparison.
-  func strContains(_ expr: Expression) -> BooleanExpression
+  func string_contains(_ expression: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) starts with a given literal prefix
   /// (case-sensitive).
@@ -813,14 +813,14 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Combine "firstName", "middleName", and "lastName" fields
-  /// Field("firstName").strConcat(Field("middleName"), Field("lastName"))
+  /// Field("firstName").stringConcat(Field("middleName"), Field("lastName"))
   /// ```
   ///
   /// - Parameter secondString: An `Expression` (evaluating to a string) to concatenate.
   /// - Parameter otherStrings: Optional additional `Expression` (evaluating to strings) to
   /// concatenate.
   /// - Returns: A new `FunctionExpression` representing the concatenated string.
-  func strConcat(_ strings: [Expression]) -> FunctionExpression
+  func stringConcat(_ strings: [Expression]) -> FunctionExpression
 
   /// Creates an expression that reverses this string expression.
   /// Assumes `self` evaluates to a string.
@@ -989,7 +989,7 @@ public protocol Expression: Sendable {
   /// - Parameter keyExpr: An `Expr` (evaluating to a string) representing the key to remove from
   /// the map.
   /// - Returns: A new `FunctionExpr` representing the "map_remove" operation.
-  func mapRemove(_ keyExpr: Expression) -> FunctionExpression
+  func mapRemove(_ keyExpression: Expression) -> FunctionExpression
 
   /// Creates an expression that merges this map with multiple other map literals.
   /// Assumes `self` evaluates to a Map. Later maps overwrite keys from earlier maps.
@@ -1584,7 +1584,7 @@ public protocol Expression: Sendable {
   /// ```
   /// - Parameter numberExpr: An `Expr` (evaluating to an Int) for the number of bits to shift by.
   /// - Returns: A new "FunctionExpression" representing the bitwise left shift operation.
-  func bitLeftShift(_ numberExpr: Expression) -> FunctionExpression
+  func bitLeftShift(_ numberExpression: Expression) -> FunctionExpression
 
   /// Creates an expression applying bitwise right shift to this expression by a literal number of
   /// bits.
@@ -1612,7 +1612,7 @@ public protocol Expression: Sendable {
   /// ```
   /// - Parameter numberExpr: An `Expr` (evaluating to an Int) for the number of bits to shift by.
   /// - Returns: A new "FunctionExpression" representing the bitwise right shift operation.
-  func bitRightShift(_ numberExpr: Expression) -> FunctionExpression
+  func bitRightShift(_ numberExpression: Expression) -> FunctionExpression
 
   func documentId() -> FunctionExpression
 

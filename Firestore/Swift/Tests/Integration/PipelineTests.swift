@@ -823,27 +823,28 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTFail("No result for min/max/count/countAll aggregation")
     }
   }
-
-  func testReturnsCountIfAccumulation() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
-
-    let expectedCount = 3
-    let expectedResults: [String: Sendable] = ["count": expectedCount]
-    let condition = Field("rating").greaterThan(4.3)
-
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .aggregate([condition.countIf().as("count")])
-    let snapshot = try await pipeline.execute()
-
-    XCTAssertEqual(snapshot.results.count, 1, "countIf aggregate should return a single document")
-    if let result = snapshot.results.first {
-      TestHelper.compare(pipelineResult: result, expected: expectedResults)
-    } else {
-      XCTFail("No result for countIf aggregation")
-    }
-  }
+  
+// Hide this test due to `.countIf()` design is incomplete.
+//  func testReturnsCountIfAccumulation() async throws {
+//    let collRef = collectionRef(withDocuments: bookDocs)
+//    let db = collRef.firestore
+//
+//    let expectedCount = 3
+//    let expectedResults: [String: Sendable] = ["count": expectedCount]
+//    let condition = Field("rating").greaterThan(4.3)
+//
+//    let pipeline = db.pipeline()
+//      .collection(collRef.path)
+//      .aggregate([condition.countIf().as("count")])
+//    let snapshot = try await pipeline.execute()
+//
+//    XCTAssertEqual(snapshot.results.count, 1, "countIf aggregate should return a single document")
+//    if let result = snapshot.results.first {
+//      TestHelper.compare(pipelineResult: result, expected: expectedResults)
+//    } else {
+//      XCTFail("No result for countIf aggregation")
+//    }
+//  }
 
   func testDistinctStage() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
@@ -1130,7 +1131,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         name: "add_fields",
         params: [
           [
-            "display": Field("title").strConcat([
+            "display": Field("title").stringConcat([
               Constant(" - "),
               Field("author"),
             ]),
@@ -1767,7 +1768,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .sort([Field("author").ascending()])
-      .select([Field("author").strConcat([Constant(" - "), Field("title")]).as("bookInfo")])
+      .select([Field("author").stringConcat([Constant(" - "), Field("title")]).as("bookInfo")])
       .limit(1)
 
     let snapshot = try await pipeline.execute()

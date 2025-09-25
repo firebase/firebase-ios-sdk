@@ -116,8 +116,8 @@ public extension Expression {
     return FunctionExpression("array_get", [self, Helper.sendableToExpr(offset)])
   }
 
-  func arrayGet(_ offsetExpr: Expression) -> FunctionExpression {
-    return FunctionExpression("array_get", [self, offsetExpr])
+  func arrayGet(_ offsetExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("array_get", [self, offsetExpression])
   }
 
   func greaterThan(_ other: Expression) -> BooleanExpression {
@@ -263,8 +263,8 @@ public extension Expression {
     return BooleanExpression("string_contains", [self, Helper.sendableToExpr(substring)])
   }
 
-  func strContains(_ expr: Expression) -> BooleanExpression {
-    return BooleanExpression("string_contains", [self, expr])
+  func string_contains(_ expression: Expression) -> BooleanExpression {
+    return BooleanExpression("string_contains", [self, expression])
   }
 
   func startsWith(_ prefix: String) -> BooleanExpression {
@@ -295,7 +295,7 @@ public extension Expression {
     return FunctionExpression("trim", [self])
   }
 
-  func strConcat(_ strings: [Expression]) -> FunctionExpression {
+  func stringConcat(_ strings: [Expression]) -> FunctionExpression {
     return FunctionExpression("string_concat", [self] + strings)
   }
 
@@ -356,8 +356,8 @@ public extension Expression {
     return FunctionExpression("map_remove", [self, Helper.sendableToExpr(key)])
   }
 
-  func mapRemove(_ keyExpr: Expression) -> FunctionExpression {
-    return FunctionExpression("map_remove", [self, keyExpr])
+  func mapRemove(_ keyExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("map_remove", [self, keyExpression])
   }
 
   func mapMerge(_ maps: [[String: Sendable]]) -> FunctionExpression {
@@ -559,24 +559,24 @@ public extension Expression {
     return FunctionExpression("bit_left_shift", [self, Helper.sendableToExpr(y)])
   }
 
-  func bitLeftShift(_ numberExpr: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_left_shift", [self, numberExpr])
+  func bitLeftShift(_ numberExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("bit_left_shift", [self, numberExpression])
   }
 
   func bitRightShift(_ y: Int) -> FunctionExpression {
     return FunctionExpression("bit_right_shift", [self, Helper.sendableToExpr(y)])
   }
 
-  func bitRightShift(_ numberExpr: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_right_shift", [self, numberExpr])
+  func bitRightShift(_ numberExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("bit_right_shift", [self, numberExpression])
   }
 
   func documentId() -> FunctionExpression {
     return FunctionExpression("document_id", [self])
   }
 
-  func ifError(_ catchExpr: Expression) -> FunctionExpression {
-    return FunctionExpression("if_error", [self, catchExpr])
+  func ifError(_ catchExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("if_error", [self, catchExpression])
   }
 
   func ifError(_ catchValue: Sendable) -> FunctionExpression {
@@ -586,10 +586,10 @@ public extension Expression {
   // MARK: Sorting
 
   func ascending() -> Ordering {
-    return Ordering(expr: self, direction: .ascending)
+    return Ordering(expression: self, direction: .ascending)
   }
 
   func descending() -> Ordering {
-    return Ordering(expr: self, direction: .descending)
+    return Ordering(expression: self, direction: .descending)
   }
 }
