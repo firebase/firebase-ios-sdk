@@ -132,7 +132,7 @@ jobs:
       SDK: "ABTesting"
     strategy:
       matrix:
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
         build-env:
           - os: macos-15
             xcode: Xcode_16.4
@@ -186,7 +186,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-15]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
         include:
           - os: macos-15
             xcode: Xcode_16.4
@@ -236,7 +236,7 @@ jobs:
       SDK: "Config"
     strategy:
       matrix:
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
         build-env:
           - os: macos-15
             xcode: Xcode_16.4
@@ -285,7 +285,7 @@ jobs:
       SDK: "Crashlytics"
     strategy:
       matrix:
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
         build-env:
           - os: macos-15
             xcode: Xcode_16.4
@@ -353,7 +353,7 @@ jobs:
       matrix:
         os: [macos-14]
         xcode: [Xcode_16.2]
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -403,7 +403,7 @@ jobs:
       SDK: "Firestore"
     strategy:
       matrix:
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
         build-env:
           - os: macos-15
             xcode: Xcode_16.4
@@ -492,7 +492,7 @@ jobs:
       SDK: "InAppMessaging"
     strategy:
       matrix:
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
         build-env:
           - os: macos-15
             xcode: Xcode_16.4
@@ -545,7 +545,7 @@ jobs:
       SDK: "Messaging"
     strategy:
       matrix:
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
         build-env:
           - os: macos-15
             xcode: Xcode_16.4
@@ -598,7 +598,7 @@ jobs:
       SDK: "Storage"
     strategy:
       matrix:
-        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir]
         build-env:
           - os: macos-15
             xcode: Xcode_16.4
