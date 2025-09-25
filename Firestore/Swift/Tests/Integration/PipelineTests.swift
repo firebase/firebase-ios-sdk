@@ -1761,6 +1761,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results.count, 10)
   }
 
+  func testArrayReverseWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["tags": ["a", "b", "c"]],
+      "doc2": ["tags": [1, 2, 3]],
+      "doc3": ["tags": []],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("tags").arrayReverse().as("reversedTags"),
+      ])
+      .sort([Field("reversedTags").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["reversedTags": []],
+      ["reversedTags": [3, 2, 1]],
+      ["reversedTags": ["c", "b", "a"]],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testStrConcat() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore

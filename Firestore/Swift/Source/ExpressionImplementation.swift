@@ -71,6 +71,10 @@ public extension Expression {
 
   // MARK: Array Operations
 
+  func arrayReverse() -> FunctionExpression {
+    return FunctionExpression("array_reverse", [self])
+  }
+
   func arrayConcat(_ arrays: [Expression]) -> FunctionExpression {
     return FunctionExpression("array_concat", [self] + arrays)
   }

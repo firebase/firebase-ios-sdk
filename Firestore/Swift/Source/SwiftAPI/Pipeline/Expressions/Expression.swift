@@ -187,6 +187,16 @@ public protocol Expression: Sendable {
 
   // --- Added Array Operations ---
 
+  /// Creates an expression that returns the `input` with elements in reverse order.
+  ///
+  /// ```swift
+  /// // Reverse the "tags" array.
+  /// Field("tags").arrayReverse()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the reversed array.
+  func arrayReverse() -> FunctionExpression
+
   /// Creates an expression that concatenates an array expression (from `self`) with one or more
   /// other array expressions.
   /// Assumes `self` and all parameters evaluate to arrays.
