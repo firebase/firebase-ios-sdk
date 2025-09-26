@@ -383,6 +383,10 @@ public extension Expression {
 
   // --- Added Aggregate Operations (on Expr) ---
 
+  func countDistinct() -> AggregateFunction {
+    return AggregateFunction("count_distinct", [self])
+  }
+
   func count() -> AggregateFunction {
     return AggregateFunction("count", [self])
   }

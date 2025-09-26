@@ -1054,6 +1054,16 @@ public protocol Expression: Sendable {
 
   // MARK: Aggregations
 
+  /// Creates an aggregation that counts the number of distinct values of this expression.
+  ///
+  /// ```swift
+  /// // Count the number of distinct categories.
+  /// Field("category").countDistinct().as("distinctCategories")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "count_distinct" aggregation.
+  func countDistinct() -> AggregateFunction
+
   /// Creates an aggregation that counts the number of stage inputs where this expression evaluates
   /// to a valid, non-null value.
   ///

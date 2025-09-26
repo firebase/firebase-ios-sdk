@@ -824,6 +824,31 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
+  func testReturnsCountDistinctAccumulation() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate([
+        Field("genre").countDistinct().as("distinctGenres"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Aggregate should return a single document")
+
+    let expectedValues: [String: Sendable] = [
+      "distinctGenres": 8,
+    ]
+
+    if let result = snapshot.results.first {
+      TestHelper.compare(pipelineResult: result, expected: expectedValues)
+    } else {
+      XCTFail("No result for countDistinct aggregation")
+    }
+  }
+
   // Hide this test due to `.countIf()` design is incomplete.
 //  func testReturnsCountIfAccumulation() async throws {
 //    let collRef = collectionRef(withDocuments: bookDocs)
