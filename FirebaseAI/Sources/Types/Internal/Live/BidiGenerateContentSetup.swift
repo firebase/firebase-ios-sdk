@@ -45,9 +45,6 @@ struct BidiGenerateContentSetup: Encodable {
 
   let toolConfig: ToolConfig?
 
-  /// Configures the handling of realtime input.
-  let realtimeInputConfig: RealtimeInputConfig?
-
   /// Input transcription. The transcription is independent to the model turn
   /// which means it doesn't imply any ordering between transcription and model
   /// turn.
@@ -63,7 +60,6 @@ struct BidiGenerateContentSetup: Encodable {
        systemInstruction: ModelContent? = nil,
        tools: [Tool]? = nil,
        toolConfig: ToolConfig? = nil,
-       realtimeInputConfig: RealtimeInputConfig? = nil,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
        outputAudioTranscription: BidiAudioTranscriptionConfig? = nil) {
     self.model = model
@@ -71,7 +67,6 @@ struct BidiGenerateContentSetup: Encodable {
     self.systemInstruction = systemInstruction
     self.tools = tools
     self.toolConfig = toolConfig
-    self.realtimeInputConfig = realtimeInputConfig
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
   }
