@@ -15,6 +15,12 @@
 import Foundation
 private import FirebaseCoreInternal
 
+/// Async API for interacting with web sockets.
+///
+/// Internally, this just wraps around a `URLSessionWebSocketTask`, and provides a more async friendly
+/// interface for sending and consuming data from it.
+///
+/// Also surfaces a more fine-grained ``WebSocketClosedError`` for when the web socket is closed.
 final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDelegate {
   private let webSocketTask: URLSessionWebSocketTask
   private let stream: AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>
@@ -33,6 +39,7 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
     disconnect()
   }
 
+  /// Starts a connection to the backend, returning a stream for the websocket responses.
   func connect() -> AsyncThrowingStream<URLSessionWebSocketTask.Message, Error> {
     webSocketTask.resume()
     closeError.withLock { $0 = nil }
@@ -40,12 +47,16 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
     return stream
   }
 
+  /// Closes the websocket, if it's not already closed.
   func disconnect() {
     if closeError.value() != nil { return }
 
     close(code: .goingAway, reason: nil)
   }
 
+  /// Sends a message to the server, through the websocket.
+  ///
+  /// If the web socket is closed, this method will throw the error it was closed with.
   func send(_ message: URLSessionWebSocketTask.Message) async throws {
     if let closeError = closeError.value() {
       throw closeError
@@ -95,6 +106,10 @@ private extension URLSessionWebSocketTask {
   }
 }
 
+/// The websocket was closed.
+///
+/// See the `closeReason` for why, or the `errorCode` for the corresponding
+/// `URLSessionWebSocketTask.CloseCode`.
 struct WebSocketClosedError: Error, Sendable, CustomNSError {
   let closeCode: URLSessionWebSocketTask.CloseCode
   let closeReason: String
