@@ -244,9 +244,14 @@ actor LiveSessionService {
         if let error = error as? WebSocketClosedError {
           // only raise an error if the session didn't close normally (ie; the user calling close)
           if error.closeCode != .goingAway {
-            let error = LiveSessionUnexpectedClosureError(underlyingError: error)
+            let closureError: Error
+            if let error = error.underlyingError as? NSError, error.domain == NSURLErrorDomain, error.code == NSURLErrorNetworkConnectionLost {
+              closureError = LiveSessionLostConnectionError(underlyingError: error)
+            } else {
+              closureError = LiveSessionUnexpectedClosureError(underlyingError: error)
+            }
             close()
-            responseContinuation.finish(throwing: error)
+            responseContinuation.finish(throwing: closureError)
           }
         } else {
           // an error occurred outside the websocket, so it's likely not closed
@@ -365,10 +370,27 @@ public struct LiveSessionUnsupportedMessageError: Error, Sendable, CustomNSError
   }
 }
 
+/// The live session was closed, because the network connection was lost.
+///
+/// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+public struct LiveSessionLostConnectionError: Error, Sendable, CustomNSError {
+  let underlyingError: Error
+
+  init(underlyingError: Error) {
+    self.underlyingError = underlyingError
+  }
+
+  public var errorUserInfo: [String: Any] {
+    [
+      NSLocalizedDescriptionKey: "The live session lost connection to the server. Cause: \(underlyingError.localizedDescription)",
+      NSUnderlyingErrorKey: underlyingError,
+    ]
+  }
+}
+
 /// The live session was closed, but not for a reason the SDK expected.
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
-// TODO: two common causes I can think of are api limits and network issues. I wonder if we can catch these somehow, as they seem common enough to surface as actual errors.
 public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError {
   let underlyingError: WebSocketClosedError
 

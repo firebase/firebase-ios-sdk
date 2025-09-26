@@ -71,14 +71,30 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
           let message = try await webSocketTask.receive()
           continuation.yield(message)
         } catch {
-          close(code: webSocketTask.closeCode, reason: webSocketTask.closeReason)
+          if let error = webSocketTask.error as? NSError {
+            close(
+              code: webSocketTask.closeCode,
+              reason: webSocketTask.closeReason,
+              underlyingError: error
+            )
+          } else {
+            close(code: webSocketTask.closeCode, reason: webSocketTask.closeReason)
+          }
         }
       }
     }
   }
 
-  private func close(code: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-    let error = WebSocketClosedError(closeCode: code, closeReason: reason)
+  private func close(
+    code: URLSessionWebSocketTask.CloseCode,
+    reason: Data?,
+    underlyingError: Error? = nil
+  ) {
+    let error = WebSocketClosedError(
+      closeCode: code,
+      closeReason: reason,
+      underlyingError: underlyingError
+    )
     closeError.withLock {
       $0 = error
     }
@@ -110,14 +126,19 @@ private extension URLSessionWebSocketTask {
 ///
 /// See the `closeReason` for why, or the `errorCode` for the corresponding
 /// `URLSessionWebSocketTask.CloseCode`.
+///
+/// In some cases, the `NSUnderlyingErrorKey` key may be populated with an
+/// error for additional context.
 struct WebSocketClosedError: Error, Sendable, CustomNSError {
   let closeCode: URLSessionWebSocketTask.CloseCode
   let closeReason: String
+  let underlyingError: Error?
 
-  init(closeCode: URLSessionWebSocketTask.CloseCode, closeReason: Data?) {
+  init(closeCode: URLSessionWebSocketTask.CloseCode, closeReason: Data?, underlyingError: Error? = nil) {
     self.closeCode = closeCode
     self.closeReason = closeReason
       .flatMap { String(data: $0, encoding: .utf8) } ?? "Unknown reason."
+    self.underlyingError = underlyingError
   }
 
   var errorCode: Int { closeCode.rawValue }
@@ -125,6 +146,7 @@ struct WebSocketClosedError: Error, Sendable, CustomNSError {
   var errorUserInfo: [String: Any] {
     [
       NSLocalizedDescriptionKey: "WebSocket closed with code \(closeCode.rawValue). Reason: \(closeReason)",
+      NSUnderlyingErrorKey: underlyingError as Any,
     ]
   }
 }
