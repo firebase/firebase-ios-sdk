@@ -29,9 +29,6 @@ public struct FunctionDeclaration: Sendable {
   /// Describes the parameters to this function; must be of type `DataType.object`.
   let parameters: Schema?
 
-  // TODO: remove (added for testing)
-  let behavior: FunctionBehavior?
-
   /// Constructs a new `FunctionDeclaration`.
   ///
   /// - Parameters:
@@ -43,33 +40,14 @@ public struct FunctionDeclaration: Sendable {
   ///   calls; by default, all parameters are considered required.
   public init(name: String, description: String, parameters: [String: Schema],
               optionalParameters: [String] = []) {
-    self.init(
-      name: name,
-      description: description,
-      parameters: parameters,
-      optionalParameters: optionalParameters,
-      functionBehavior: nil
-    )
-  }
-
-  // TODO: remove (added for testing)
-  public init(name: String, description: String, parameters: [String: Schema],
-              optionalParameters: [String] = [], functionBehavior: FunctionBehavior? = nil) {
     self.name = name
     self.description = description
-    behavior = functionBehavior
     self.parameters = Schema.object(
       properties: parameters,
       optionalProperties: optionalParameters,
       nullable: false
     )
   }
-}
-
-// TODO: remove (added for testing)
-public enum FunctionBehavior: String, Sendable, Encodable {
-  case blocking = "BLOCKING"
-  case nonBlocking = "NON_BLOCKING"
 }
 
 /// A tool that allows the generative model to connect to Google Search to access and incorporate
@@ -237,7 +215,6 @@ extension FunctionDeclaration: Encodable {
     case name
     case description
     case parameters
-    case behavior // TODO: remove (added for testing)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -245,7 +222,6 @@ extension FunctionDeclaration: Encodable {
     try container.encode(name, forKey: .name)
     try container.encode(description, forKey: .description)
     try container.encode(parameters, forKey: .parameters)
-    try container.encode(behavior, forKey: .behavior) // TODO: remove (added for testing)
   }
 }
 
