@@ -587,6 +587,10 @@ public extension Expression {
     return FunctionExpression("document_id", [self])
   }
 
+  func collectionId() -> FunctionExpression {
+    return FunctionExpression("collection_id", [self])
+  }
+
   func ifError(_ catchExpression: Expression) -> FunctionExpression {
     return FunctionExpression("if_error", [self, catchExpression])
   }

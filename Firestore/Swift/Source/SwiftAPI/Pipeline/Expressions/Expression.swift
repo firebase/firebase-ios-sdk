@@ -1644,7 +1644,22 @@ public protocol Expression: Sendable {
   /// - Returns: A new "FunctionExpression" representing the bitwise right shift operation.
   func bitRightShift(_ numberExpression: Expression) -> FunctionExpression
 
+  /// Creates an expression that returns the document ID from a path.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Get the document ID from a path.
+  /// Field(FieldPath.documentID()).documentId()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the documentId operation.
   func documentId() -> FunctionExpression
+
+  /// Gets the collection id (kind) of a given document (either an absolute or
+  /// namespace relative reference).  Throw error if the input is the
+  /// root itself.
+  func collectionId() -> FunctionExpression
 
   /// Creates an expression that returns the result of `catchExpr` if this expression produces an
   /// error during evaluation,

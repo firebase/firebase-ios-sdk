@@ -2027,6 +2027,42 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testCollectionIdWorks() async throws {
+    let collRef = collectionRef()
+    let docRef = collRef.document("doc")
+    try await docRef.setData(["foo": "bar"])
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field(FieldPath.documentID()).collectionId().as("collectionId"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["collectionId": collRef.collectionID],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+//  func testCollectionIdOnRootThrowsError() async throws {
+//    let db = firestore()
+//    let pipeline = db.pipeline()
+//      .database()
+//      .select([
+//        Field(FieldPath.documentID()).collectionId().as("collectionId"),
+//      ])
+//
+//    do {
+//      _ = try await pipeline.execute()
+//      XCTFail("Should have thrown an error")
+//    } catch {
+//      // Expected error
+//    }
+//  }
+
   func testComparisonOperators() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
