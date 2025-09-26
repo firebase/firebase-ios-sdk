@@ -32,7 +32,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
   s.prefix_header_file = false
 
   s.source_files = [
-    'FirebaseAI/Wrapper/**/*.swift',
+    'FirebaseAI/Wrapper/Sources/**/*.swift',
   ]
 
   s.swift_version = '5.9'
@@ -45,4 +45,17 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
 
   s.dependency 'FirebaseAILogic', '12.4.0'
   s.dependency 'FirebaseCore', '~> 12.4.0'
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests_dir = 'FirebaseAI/Wrapper/Tests/'
+    unit_tests.scheme = { :code_coverage => true }
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    unit_tests.source_files = [
+      unit_tests_dir + '**/*.swift',
+    ]
+  end
 end

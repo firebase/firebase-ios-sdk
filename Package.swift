@@ -196,15 +196,10 @@ let package = Package(
       ],
       path: "FirebaseAI/Sources"
     ),
-    .target(
-      name: "FirebaseAI",
-      dependencies: ["FirebaseAILogic"],
-      path: "FirebaseAI/Wrapper"
-    ),
     .testTarget(
-      name: "FirebaseAIUnit",
+      name: "FirebaseAILogicUnit",
       dependencies: [
-        "FirebaseAI",
+        "FirebaseAILogic",
         "FirebaseStorage",
       ],
       path: "FirebaseAI/Tests/Unit",
@@ -215,6 +210,16 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../../"),
       ]
+    ),
+    .target(
+      name: "FirebaseAI",
+      dependencies: ["FirebaseAILogic"],
+      path: "FirebaseAI/Wrapper/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseAIUnit",
+      dependencies: ["FirebaseAI"],
+      path: "FirebaseAI/Wrapper/Tests",
     ),
 
     // MARK: - Firebase Core
