@@ -245,7 +245,8 @@ actor LiveSessionService {
           // only raise an error if the session didn't close normally (ie; the user calling close)
           if error.closeCode != .goingAway {
             let closureError: Error
-            if let error = error.underlyingError as? NSError, error.domain == NSURLErrorDomain, error.code == NSURLErrorNetworkConnectionLost {
+            if let error = error.underlyingError as? NSError, error.domain == NSURLErrorDomain,
+               error.code == NSURLErrorNetworkConnectionLost {
               closureError = LiveSessionLostConnectionError(underlyingError: error)
             } else {
               closureError = LiveSessionUnexpectedClosureError(underlyingError: error)

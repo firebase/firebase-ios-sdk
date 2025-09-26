@@ -17,8 +17,8 @@ private import FirebaseCoreInternal
 
 /// Async API for interacting with web sockets.
 ///
-/// Internally, this just wraps around a `URLSessionWebSocketTask`, and provides a more async friendly
-/// interface for sending and consuming data from it.
+/// Internally, this just wraps around a `URLSessionWebSocketTask`, and provides a more async
+/// friendly interface for sending and consuming data from it.
 ///
 /// Also surfaces a more fine-grained ``WebSocketClosedError`` for when the web socket is closed.
 final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDelegate {
@@ -85,11 +85,9 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
     }
   }
 
-  private func close(
-    code: URLSessionWebSocketTask.CloseCode,
-    reason: Data?,
-    underlyingError: Error? = nil
-  ) {
+  private func close(code: URLSessionWebSocketTask.CloseCode,
+                     reason: Data?,
+                     underlyingError: Error? = nil) {
     let error = WebSocketClosedError(
       closeCode: code,
       closeReason: reason,
@@ -134,7 +132,8 @@ struct WebSocketClosedError: Error, Sendable, CustomNSError {
   let closeReason: String
   let underlyingError: Error?
 
-  init(closeCode: URLSessionWebSocketTask.CloseCode, closeReason: Data?, underlyingError: Error? = nil) {
+  init(closeCode: URLSessionWebSocketTask.CloseCode, closeReason: Data?,
+       underlyingError: Error? = nil) {
     self.closeCode = closeCode
     self.closeReason = closeReason
       .flatMap { String(data: $0, encoding: .utf8) } ?? "Unknown reason."
