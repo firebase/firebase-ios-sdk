@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+@testable import FirebaseAI
 import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerateContentResponseTests: XCTestCase {
+  let jsonDecoder = JSONDecoder()
+
   // MARK: - GenerateContentResponse Computed Properties
 
   func testGenerateContentResponse_inlineDataParts_success() throws {
@@ -104,6 +106,91 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertTrue(
       response.functionCalls.isEmpty,
       "functionCalls should be empty when there are no candidates."
+    )
+  }
+
+  // MARK: - Decoding Tests
+
+  func testDecodeCandidate_emptyURLMetadata_urlContextMetadataIsNil() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "STOP",
+      "urlContextMetadata": { "urlMetadata": [] }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertNil(
+      candidate.urlContextMetadata,
+      "urlContextMetadata should be nil if the `urlMetadata` array is empty in the candidate."
+    )
+    XCTAssertEqual(candidate.content.role, "model")
+    let part = try XCTUnwrap(candidate.content.parts.first)
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertEqual(textPart.text, "Some text.")
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(candidate.finishReason, .stop)
+  }
+
+  func testDecodeCandidate_missingURLMetadata_urlContextMetadataIsNil() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "STOP"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertNil(
+      candidate.urlContextMetadata,
+      "urlContextMetadata should be nil if `urlMetadata` is not provided in the candidate."
+    )
+    XCTAssertEqual(candidate.content.role, "model")
+    let part = try XCTUnwrap(candidate.content.parts.first)
+    let textPart = try XCTUnwrap(part as? TextPart)
+    XCTAssertEqual(textPart.text, "Some text.")
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(candidate.finishReason, .stop)
+  }
+
+  // MARK: - Candidate.isEmpty
+
+  func testCandidateIsEmpty_allEmpty_isTrue() throws {
+    let candidate = Candidate(
+      content: ModelContent(parts: []),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil,
+      groundingMetadata: nil,
+      urlContextMetadata: nil
+    )
+
+    XCTAssertTrue(candidate.isEmpty, "A candidate with no content should be empty.")
+  }
+
+  func testCandidateIsEmpty_withURLContextMetadata_isFalse() throws {
+    let urlMetadata = try URLMetadata(
+      retrievedURL: XCTUnwrap(URL(string: "https://google.com")),
+      retrievalStatus: .success
+    )
+    let urlContextMetadata = URLContextMetadata(urlMetadata: [urlMetadata])
+    let candidate = Candidate(
+      content: ModelContent(parts: []),
+      safetyRatings: [],
+      finishReason: nil,
+      citationMetadata: nil,
+      groundingMetadata: nil,
+      urlContextMetadata: urlContextMetadata
+    )
+
+    XCTAssertFalse(
+      candidate.isEmpty,
+      "A candidate with only `urlContextMetadata` should not be empty."
     )
   }
 }

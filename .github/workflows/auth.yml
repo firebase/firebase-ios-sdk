@@ -134,12 +134,12 @@ jobs:
   #       test_type: "xctest"
 
   auth-cron-only:
-  needs: pod_lib_lint
-  uses: ./.github/workflows/common_cocoapods_cron.yml
-  with:
-    product: FirebaseAuth
-    platforms: '[ "ios", "tvos --skip-tests", "macos --skip-tests", "watchos --skip-tests" ]'
-    flags: '[ "--use-static-frameworks" ]'
-    setup_command: scripts/configure_test_keychain.sh
-  secrets:
-    plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    needs: pod_lib_lint
+    uses: ./.github/workflows/common_cocoapods_cron.yml
+    with:
+      product: FirebaseAuth
+      platforms: '[ "ios", "tvos --skip-tests", "macos --skip-tests", "watchos --skip-tests" ]'
+      flags: '[ "--use-static-frameworks" ]'
+      setup_command: scripts/configure_test_keychain.sh
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

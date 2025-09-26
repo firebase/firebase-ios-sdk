@@ -40,6 +40,8 @@ jobs:
         include:
           - os: macos-15
             xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.0
     runs-on: ${{ matrix.os }}
     needs: spm
     env:
@@ -87,6 +89,8 @@ jobs:
         include:
           - os: macos-15
             xcode: Xcode_16.4
+          - os: macos-26
+            xcode: Xcode_26.0
     runs-on: ${{ matrix.os }}
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}
