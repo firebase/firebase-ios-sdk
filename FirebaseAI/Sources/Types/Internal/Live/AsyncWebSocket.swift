@@ -19,8 +19,7 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
   private let webSocketTask: URLSessionWebSocketTask
   private let stream: AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>
   private let continuation: AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>.Continuation
-  private var continuationFinished = false
-  private let continuationLock = NSLock()
+  private let continuationFinished = UnfairLock<Bool>(false)
   private var closeError: UnfairLock<WebSocketClosedError?>
 
   init(urlSession: URLSession = GenAIURLSession.default, urlRequest: URLRequest) {
@@ -75,10 +74,10 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
 
     webSocketTask.cancel(with: code, reason: reason)
 
-    continuationLock.withLock {
-      guard !continuationFinished else { return }
+    continuationFinished.withLock { isFinished in
+      guard !isFinished else { return }
       self.continuation.finish(throwing: error)
-      self.continuationFinished = true
+      isFinished = true
     }
   }
 
