@@ -219,7 +219,7 @@ let package = Package(
     .testTarget(
       name: "FirebaseAIUnit",
       dependencies: ["FirebaseAI"],
-      path: "FirebaseAI/Wrapper/Tests",
+      path: "FirebaseAI/Wrapper/Tests"
     ),
 
     // MARK: - Firebase Core
