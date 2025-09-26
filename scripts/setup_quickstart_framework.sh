@@ -16,11 +16,11 @@ set -ex
 
 REPO=`pwd`
 if [ ! -d "quickstart-ios" ]; then
-  git clone https://github.com/firebase/quickstart-ios.git
-  git checkout nc/quickstarts
+  git clone https://github.com/firebase/quickstart-ios.git  
 fi
 QS_SCRIPTS="${REPO}"/quickstart-ios/scripts
 cd quickstart-ios/"${SAMPLE}"
+git checkout nc/quickstarts
 
 if [[ ! -z "$LEGACY" ]]; then
   cd "Legacy${SAMPLE}Quickstart"
