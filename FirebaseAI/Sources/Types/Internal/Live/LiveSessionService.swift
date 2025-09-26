@@ -226,7 +226,7 @@ actor LiveSessionService {
               // TODO: (b/444045023) When auto session resumption is enabled, call `connect` again
               AILog.debug(
                 code: .liveSessionGoingAwaySoon,
-                "Session expires in: \(message.goAway.timeLeft ?? 0)"
+                "Session expires in: \(message.goAway.timeLeft?.timeInterval ?? 0)"
               )
             }
 
