@@ -15,8 +15,7 @@
 /// Request for the client to execute the provided ``functionCalls``.
 ///
 /// The client should return matching ``FunctionResponsePart``, where the `id` fields correspond to
-/// individual
-/// ``FunctionCallPart``s.
+/// individual ``FunctionCallPart``s.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct LiveServerToolCall: Sendable {
   let serverToolCall: BidiGenerateContentToolCall

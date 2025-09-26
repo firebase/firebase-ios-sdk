@@ -20,8 +20,7 @@
 public struct LiveServerToolCallCancellation: Sendable {
   let serverToolCallCancellation: BidiGenerateContentToolCallCancellation
   /// A list of `id`s matching the `id` provided in a previous ``LiveServerToolCall``, where only
-  /// the provided `id`s should
-  /// be cancelled.
+  /// the provided `id`s should be cancelled.
   public var ids: [String]? { serverToolCallCancellation.ids }
 
   init(_ serverToolCallCancellation: BidiGenerateContentToolCallCancellation) {

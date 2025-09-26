@@ -38,9 +38,8 @@ public final class LiveSession: Sendable {
   ///
   /// - Parameters:
   ///   - responses: Client generated function results, matched to their respective
-  /// ``FunctionCallPart`` by the `id` field.
+  ///     ``FunctionCallPart`` by the `id` field.
   public func functionResponses(_ responses: [FunctionResponsePart]) async {
-    // TODO: what happens if you send an empty list lol
     let message = BidiGenerateContentToolResponse(
       functionResponses: responses.map { $0.functionResponse }
     )
@@ -55,7 +54,7 @@ public final class LiveSession: Sendable {
   ///
   /// - Parameters:
   ///   - audio: Raw 16-bit PCM audio at 16Hz, used to update the model on the client's
-  /// conversation.
+  ///     conversation.
   public func sendAudioRealtime(audio: Data) async {
     // TODO: (b/443984790) address when we add RealtimeInputConfig support
     let message = BidiGenerateContentRealtimeInput(
@@ -97,9 +96,8 @@ public final class LiveSession: Sendable {
   /// - Parameters:
   ///   - content: Content to append to the current conversation with the model.
   ///   - turnComplete: Whether the server should start generating content with the currently
-  /// accumulated prompt, or await
-  ///   additional messages before starting generation. By default, the server will await additional
-  /// messages.
+  ///     accumulated prompt, or await additional messages before starting generation. By default,
+  ///     the server will await additional messages.
   public func sendContent(_ content: [ModelContent], turnComplete: Bool? = nil) async {
     let message = BidiGenerateContentClientContent(turns: content, turnComplete: turnComplete)
     await service.send(.clientContent(message))
@@ -116,12 +114,10 @@ public final class LiveSession: Sendable {
   ///
   /// - Parameters:
   ///   - content: Content to append to the current conversation with the model  (see
-  /// ``PartsRepresentable`` for
-  ///   conforming types).
+  ///     ``PartsRepresentable`` for conforming types).
   ///   - turnComplete: Whether the server should start generating content with the currently
-  /// accumulated prompt, or await
-  ///   additional messages before starting generation. By default, the server will await additional
-  /// messages.
+  ///     accumulated prompt, or await additional messages before starting generation. By default,
+  ///     the server will await additional messages.
   public func sendContent(_ parts: any PartsRepresentable...,
                           turnComplete: Bool? = nil) async {
     await sendContent([ModelContent(parts: parts)], turnComplete: turnComplete)
