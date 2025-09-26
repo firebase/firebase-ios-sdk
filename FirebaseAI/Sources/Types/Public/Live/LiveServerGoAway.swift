@@ -23,7 +23,7 @@ public struct LiveServerGoAway: Sendable {
   /// The remaining time before the connection will be terminated as ABORTED.
   /// The minimal time returned here is specified differently together with
   /// the rate limits for a given model.
-  public var timeLeft: TimeInterval? { goAway.timeLeft }
+  public var timeLeft: TimeInterval? { goAway.timeLeft?.timeInterval }
 
   init(_ goAway: GoAway) {
     self.goAway = goAway

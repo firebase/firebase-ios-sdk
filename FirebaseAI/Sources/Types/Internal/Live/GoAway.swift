@@ -20,5 +20,5 @@ struct GoAway: Decodable, Sendable {
   /// The remaining time before the connection will be terminated as ABORTED.
   /// The minimal time returned here is specified differently together with
   /// the rate limits for a given model.
-  let timeLeft: TimeInterval?
+  let timeLeft: ProtoDuration?
 }
