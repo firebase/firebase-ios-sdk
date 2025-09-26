@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+private import FirebaseCoreInternal
 
 final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDelegate {
   private let webSocketTask: URLSessionWebSocketTask
@@ -20,39 +21,34 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
   private let continuation: AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>.Continuation
   private var continuationFinished = false
   private let continuationLock = NSLock()
-
-  private var _closeError: WebSocketClosedError? = nil
-  private let closeErrorLock = NSLock()
-  private(set) var closeError: WebSocketClosedError? {
-    get { closeErrorLock.withLock { _closeError } }
-    set { closeErrorLock.withLock { _closeError = newValue } }
-  }
+  private var closeError: UnfairLock<WebSocketClosedError?>
 
   init(urlSession: URLSession = GenAIURLSession.default, urlRequest: URLRequest) {
     webSocketTask = urlSession.webSocketTask(with: urlRequest)
     (stream, continuation) = AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>
       .makeStream()
+    closeError = UnfairLock(nil)
   }
 
   deinit {
-    webSocketTask.cancel(with: .goingAway, reason: nil)
+    disconnect()
   }
 
   func connect() -> AsyncThrowingStream<URLSessionWebSocketTask.Message, Error> {
     webSocketTask.resume()
-    closeError = nil
+    closeError.withLock { $0 = nil }
     startReceiving()
     return stream
   }
 
   func disconnect() {
-    if closeError != nil { return }
+    if closeError.value() != nil { return }
 
     close(code: .goingAway, reason: nil)
   }
 
   func send(_ message: URLSessionWebSocketTask.Message) async throws {
-    if let closeError {
+    if let closeError = closeError.value() {
       throw closeError
     }
     try await webSocketTask.send(message)
@@ -60,7 +56,7 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
 
   private func startReceiving() {
     Task {
-      while !Task.isCancelled && self.webSocketTask.isOpen && self.closeError == nil {
+      while !Task.isCancelled && self.webSocketTask.isOpen && self.closeError.value() == nil {
         do {
           let message = try await webSocketTask.receive()
           continuation.yield(message)
@@ -73,7 +69,9 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
 
   private func close(code: URLSessionWebSocketTask.CloseCode, reason: Data?) {
     let error = WebSocketClosedError(closeCode: code, closeReason: reason)
-    closeError = error
+    closeError.withLock {
+      $0 = error
+    }
 
     webSocketTask.cancel(with: code, reason: reason)
 
