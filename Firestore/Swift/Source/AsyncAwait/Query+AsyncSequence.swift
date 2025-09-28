@@ -36,13 +36,14 @@ public extension Query {
   /// - Returns: An `AsyncThrowingStream` of `QuerySnapshot` events.
   func snapshots(includeMetadataChanges: Bool) -> AsyncThrowingStream<QuerySnapshot, Error> {
     return AsyncThrowingStream { continuation in
-      let listener = self.addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { snapshot, error in
-        if let error = error {
-          continuation.finish(throwing: error)
-        } else if let snapshot = snapshot {
-          continuation.yield(snapshot)
+      let listener = self
+        .addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { snapshot, error in
+          if let error = error {
+            continuation.finish(throwing: error)
+          } else if let snapshot = snapshot {
+            continuation.yield(snapshot)
+          }
         }
-      }
       continuation.onTermination = { @Sendable _ in
         listener.remove()
       }
