@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import XCTest
 @testable import FirebaseFirestore
+import XCTest
 
 // MARK: - Mock Objects for Testing
 
@@ -33,17 +33,14 @@ private class MockQuery: Query {
   var capturedListener: SnapshotListener?
   let mockListenerRegistration = MockListenerRegistration()
 
-  override func addSnapshotListener(
-    _ listener: @escaping SnapshotListener
-  ) -> ListenerRegistration {
+  override func addSnapshotListener(_ listener: @escaping SnapshotListener)
+    -> ListenerRegistration {
     capturedListener = listener
     return mockListenerRegistration
   }
 
-  override func addSnapshotListener(
-    includeMetadataChanges: Bool,
-    listener: @escaping SnapshotListener
-  ) -> ListenerRegistration {
+  override func addSnapshotListener(includeMetadataChanges: Bool,
+                                    listener: @escaping SnapshotListener) -> ListenerRegistration {
     capturedListener = listener
     return mockListenerRegistration
   }
@@ -53,17 +50,15 @@ private class MockDocumentReference: DocumentReference {
   var capturedListener: DocumentSnapshotListener?
   let mockListenerRegistration = MockListenerRegistration()
 
-  override func addSnapshotListener(
-    _ listener: @escaping DocumentSnapshotListener
-  ) -> ListenerRegistration {
+  override func addSnapshotListener(_ listener: @escaping DocumentSnapshotListener)
+    -> ListenerRegistration {
     capturedListener = listener
     return mockListenerRegistration
   }
 
-  override func addSnapshotListener(
-    includeMetadataChanges: Bool,
-    listener: @escaping DocumentSnapshotListener
-  ) -> ListenerRegistration {
+  override func addSnapshotListener(includeMetadataChanges: Bool,
+                                    listener: @escaping DocumentSnapshotListener)
+    -> ListenerRegistration {
     capturedListener = listener
     return mockListenerRegistration
   }
