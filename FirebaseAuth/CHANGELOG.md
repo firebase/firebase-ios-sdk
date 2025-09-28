@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added `authStateChanges` to `Auth`, an `AsyncStream` that emits the user's authentication state changes.
+
 # 12.2.0
 - [added] Added TOTP support for macOS.
 
