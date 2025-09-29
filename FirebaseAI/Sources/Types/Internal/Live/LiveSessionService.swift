@@ -293,7 +293,7 @@ actor LiveSessionService {
   /// Creates a websocket pointing to the backend.
   ///
   /// Will apply the required app check and auth headers, as the backend expects them.
-  private func createWebsocket() async throws -> AsyncWebSocket {
+  private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
     let urlString = switch apiConfig.service {
     case .vertexAI:
       "wss://firebasevertexai.googleapis.com/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/us-central1"
