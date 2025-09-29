@@ -38,7 +38,7 @@ public final class LiveSession: Sendable {
   ///
   /// - Parameters:
   ///   - responses: Client generated function results, matched to their respective
-  ///     ``FunctionCallPart`` by the `id` field.
+  ///     ``FunctionCallPart`` by the `functionId` field.
   public func functionResponses(_ responses: [FunctionResponsePart]) async {
     let message = BidiGenerateContentToolResponse(
       functionResponses: responses.map { $0.functionResponse }
