@@ -33,6 +33,10 @@ public extension Expression {
     return FunctionExpression("ceil", [self])
   }
 
+  func exp() -> FunctionExpression {
+    return FunctionExpression("exp", [self])
+  }
+
   func add(_ value: Expression) -> FunctionExpression {
     return FunctionExpression("add", [self, value])
   }

@@ -36,6 +36,18 @@ public protocol Expression: Sendable {
 
   // --- Added Mathematical Operations ---
 
+  /// Creates an expression that returns e to the power of X.
+  ///
+  /// Returns zero on underflow and nil on overflow.
+  ///
+  /// ```swift
+  /// // Get the exp of the "amount" field.
+  /// Field("amount").exp()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the exp of the number.
+  func exp() -> FunctionExpression
+
   /// Creates an expression that returns the smallest numeric value that isn't less than the number.
   ///
   /// ```swift

@@ -2052,6 +2052,70 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testExpWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": 1],
+      "doc2": ["value": 0],
+      "doc3": ["value": -1],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").exp().as("expValue"),
+      ])
+      .sort([Field("expValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["expValue": Foundation.exp(Double(-1))],
+      ["expValue": Foundation.exp(Double(0))],
+      ["expValue": Foundation.exp(Double(1))],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testExpUnderflow() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": -1000],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").exp().as("expValue"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["expValue": 0],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testExpOverflow() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": 1000],
+    ])
+    let db = collRef.firestore
+    
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").exp().as("expValue"),
+      ])
+    
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1)
+    XCTAssertNil(snapshot.results.first!.get("expValue"))
+  }
+
   func testCollectionIdWorks() async throws {
     let collRef = collectionRef()
     let docRef = collRef.document("doc")
