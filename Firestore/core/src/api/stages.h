@@ -18,11 +18,12 @@
 #define FIRESTORE_CORE_SRC_API_STAGES_H_
 
 #include <memory>
+#include <set>
 #include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
+#include <utility>
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/api/aggregate_expressions.h"
 #include "Firestore/core/src/api/api_fwd.h"
@@ -89,6 +90,10 @@ class CollectionSource : public EvaluableStage {
     return "collection";
   }
 
+  std::string path() const {
+    return path_.CanonicalString();
+  }
+
   model::PipelineInputOutputVector Evaluate(
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const override;
@@ -126,6 +131,10 @@ class CollectionGroupSource : public EvaluableStage {
     return "collection_group";
   }
 
+  absl::string_view collection_id() const {
+    return collection_id_;
+  }
+
   model::PipelineInputOutputVector Evaluate(
       const EvaluateContext& context,
       const model::PipelineInputOutputVector& inputs) const override;
@@ -134,21 +143,29 @@ class CollectionGroupSource : public EvaluableStage {
   std::string collection_id_;
 };
 
-class DocumentsSource : public Stage {
+class DocumentsSource : public EvaluableStage {
  public:
-  explicit DocumentsSource(std::vector<std::string> documents)
-      : documents_(std::move(documents)) {
+  explicit DocumentsSource(const std::vector<std::string>& documents)
+      : documents_(documents.cbegin(), documents.cend()) {
   }
   ~DocumentsSource() override = default;
 
   google_firestore_v1_Pipeline_Stage to_proto() const override;
 
-  absl::string_view name() const {
+  model::PipelineInputOutputVector Evaluate(
+      const EvaluateContext& context,
+      const model::PipelineInputOutputVector& inputs) const override;
+
+  absl::string_view name() const override {
     return "documents";
   }
 
+  std::vector<std::string> documents() const {
+    return std::vector<std::string>(documents_.cbegin(), documents_.cend());
+  }
+
  private:
-  std::vector<std::string> documents_;
+  std::set<std::string> documents_;
 };
 
 class AddFields : public Stage {
@@ -192,6 +209,10 @@ class Where : public EvaluableStage {
 
   absl::string_view name() const override {
     return "where";
+  }
+
+  const Expr* expr() const {
+    return expr_.get();
   }
 
   model::PipelineInputOutputVector Evaluate(
@@ -248,6 +269,10 @@ class LimitStage : public EvaluableStage {
 
   absl::string_view name() const override {
     return "limit";
+  }
+
+  int64_t limit() const {
+    return limit_;
   }
 
   model::PipelineInputOutputVector Evaluate(

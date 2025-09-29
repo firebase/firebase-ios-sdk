@@ -80,6 +80,8 @@ class Constant : public Expr {
   }
   google_firestore_v1_Value to_proto() const override;
 
+  const google_firestore_v1_Value& value() const;
+
   std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
 
  private:

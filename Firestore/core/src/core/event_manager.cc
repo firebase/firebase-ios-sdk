@@ -36,7 +36,12 @@ EventManager::EventManager(QueryEventSource* query_event_source)
 
 model::TargetId EventManager::AddQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
-  const Query& query = listener->query();
+  const QueryOrPipeline& query_or_pipeline = listener->query();
+  if (query_or_pipeline.IsPipeline()) {
+    HARD_FAIL("Unimplemented");
+  }
+
+  const auto& query = query_or_pipeline.query();
   ListenerSetupAction listener_action =
       ListenerSetupAction::NoSetupActionRequired;
 
@@ -75,14 +80,14 @@ model::TargetId EventManager::AddQueryListener(
   switch (listener_action) {
     case ListenerSetupAction::InitializeLocalListenAndRequireWatchConnection:
       query_info.target_id = query_event_source_->Listen(
-          query, /** should_listen_to_remote= */ true);
+          query_or_pipeline, /** should_listen_to_remote= */ true);
       break;
     case ListenerSetupAction::InitializeLocalListenOnly:
       query_info.target_id = query_event_source_->Listen(
-          query, /** should_listen_to_remote= */ false);
+          query_or_pipeline, /** should_listen_to_remote= */ false);
       break;
     case ListenerSetupAction::RequireWatchConnectionOnly:
-      query_event_source_->ListenToRemoteStore(query);
+      query_event_source_->ListenToRemoteStore(query_or_pipeline);
       break;
     default:
       break;
@@ -92,11 +97,15 @@ model::TargetId EventManager::AddQueryListener(
 
 void EventManager::RemoveQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
-  const Query& query = listener->query();
+  const auto& query_or_pipeline = listener->query();
+  if (query_or_pipeline.IsPipeline()) {
+    HARD_FAIL("Unimplemented");
+  }
+
   ListenerRemovalAction listener_action =
       ListenerRemovalAction::NoRemovalActionRequired;
 
-  auto found_iter = queries_.find(query);
+  auto found_iter = queries_.find(query_or_pipeline);
   if (found_iter != queries_.end()) {
     QueryListenersInfo& query_info = found_iter->second;
     query_info.Erase(listener);
@@ -119,13 +128,14 @@ void EventManager::RemoveQueryListener(
         TerminateLocalListenAndRequireWatchDisconnection:
       queries_.erase(found_iter);
       return query_event_source_->StopListening(
-          query, /** should_stop_remote_listening= */ true);
+          query_or_pipeline, /** should_stop_remote_listening= */ true);
     case ListenerRemovalAction::TerminateLocalListenOnly:
       queries_.erase(found_iter);
       return query_event_source_->StopListening(
-          query, /** should_stop_remote_listening= */ false);
+          query_or_pipeline, /** should_stop_remote_listening= */ false);
     case ListenerRemovalAction::RequireWatchDisconnectionOnly:
-      return query_event_source_->StopListeningToRemoteStoreOnly(query);
+      return query_event_source_->StopListeningToRemoteStoreOnly(
+          query_or_pipeline);
     default:
       return;
   }
@@ -170,7 +180,7 @@ void EventManager::OnViewSnapshots(
     std::vector<core::ViewSnapshot>&& snapshots) {
   bool raised_event = false;
   for (ViewSnapshot& snapshot : snapshots) {
-    const Query& query = snapshot.query();
+    const QueryOrPipeline& query = snapshot.query_or_pipeline();
     auto found_iter = queries_.find(query);
     if (found_iter != queries_.end()) {
       QueryListenersInfo& query_info = found_iter->second;
@@ -187,7 +197,7 @@ void EventManager::OnViewSnapshots(
   }
 }
 
-void EventManager::OnError(const core::Query& query,
+void EventManager::OnError(const core::QueryOrPipeline& query,
                            const util::Status& error) {
   auto found_iter = queries_.find(query);
   if (found_iter == queries_.end()) {

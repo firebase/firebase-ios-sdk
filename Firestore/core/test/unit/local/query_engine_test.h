@@ -25,6 +25,11 @@
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/patch_mutation.h"
+// For QueryOrPipeline, absl::optional
+#include "Firestore/core/src/api/realtime_pipeline.h"  // Full definition for api::RealtimePipeline
+#include "Firestore/core/src/core/pipeline_util.h"  // Defines QueryOrPipeline
+#include "Firestore/core/src/remote/serializer.h"  // For remote::Serializer if needed by ConvertQueryToPipeline
+#include "absl/types/optional.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -32,6 +37,9 @@ namespace firestore {
 
 namespace core {
 class Query;
+// Forward declare RealtimePipeline if its full definition isn't needed here
+// yet. However, QueryOrPipeline will bring it in. class RealtimePipeline; //
+// from api/realtime_pipeline.h
 }  // namespace core
 
 namespace model {
@@ -45,6 +53,11 @@ namespace local {
 class TargetCache;
 class Persistence;
 class MemoryRemoteDocumentCache;
+// api::RealtimePipeline is now fully included above.
+// No need to forward-declare if full header included.
+namespace remote {
+class Serializer;  // Forward declaration
+}  // namespace remote
 class DocumentOverlayCache;
 class MemoryIndexManager;
 class MutationQueue;
@@ -54,7 +67,8 @@ class TestLocalDocumentsView : public LocalDocumentsView {
   using LocalDocumentsView::LocalDocumentsView;
 
   model::DocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query, const model::IndexOffset& offset) override;
+      const core::QueryOrPipeline& query,
+      const model::IndexOffset& offset) override;
 
   void ExpectFullCollectionScan(bool full_collection_scan);
 
@@ -63,6 +77,13 @@ class TestLocalDocumentsView : public LocalDocumentsView {
 };
 
 using FactoryFunc = std::unique_ptr<Persistence> (*)();
+
+// Parameters for QueryEngine tests, combining persistence factory and pipeline
+// flag.
+struct QueryEngineTestParams {
+  FactoryFunc persistence_factory;
+  bool use_pipeline;
+};
 
 /**
  * A test fixture for implementing tests of the QueryEngine interface.
@@ -97,11 +118,16 @@ class QueryEngineTestBase : public testing::Test {
   template <typename T>
   T ExpectFullCollectionScan(const std::function<T(void)>& f);
 
+  // RunQuery will now use the should_use_pipeline_ member.
   model::DocumentSet RunQuery(
       const core::Query& query,
       const model::SnapshotVersion& last_limbo_free_snapshot_version);
 
+  api::RealtimePipeline ConvertQueryToPipeline(const core::Query& query);
+
   std::unique_ptr<local::Persistence> persistence_;
+  bool should_use_pipeline_ =
+      false;  // Flag to indicate if pipeline conversion should be attempted.
   RemoteDocumentCache* remote_document_cache_ = nullptr;
   DocumentOverlayCache* document_overlay_cache_;
   IndexManager* index_manager_;
@@ -119,13 +145,16 @@ class QueryEngineTestBase : public testing::Test {
  * + Write a persistence factory function
  * + Call INSTANTIATE_TEST_SUITE_P(MyNewQueryEngineTest,
  *                                 QueryEngineTest,
- *                                 testing::Values(PersistenceFactory));
+ *                                 testing::Values(
+ *                                   QueryEngineTestParams{&CreateMemoryPersistence,
+ * false}, QueryEngineTestParams{&CreateMemoryPersistence, true}
+ *                                 ));
  */
 
-class QueryEngineTest : public QueryEngineTestBase,
-                        public testing::WithParamInterface<FactoryFunc> {
+class QueryEngineTest
+    : public QueryEngineTestBase,
+      public testing::WithParamInterface<QueryEngineTestParams> {
  public:
-  // `GetParam()` must return a factory function.
   QueryEngineTest();
 };
 

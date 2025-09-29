@@ -44,7 +44,7 @@ MemoryTargetCache::MemoryTargetCache(MemoryPersistence* persistence)
 }
 
 void MemoryTargetCache::AddTarget(const TargetData& target_data) {
-  targets_[target_data.target()] = target_data;
+  targets_[target_data.target_or_pipeline()] = target_data;
   if (target_data.target_id() > highest_target_id_) {
     highest_target_id_ = target_data.target_id();
   }
@@ -59,12 +59,13 @@ void MemoryTargetCache::UpdateTarget(const TargetData& target_data) {
 }
 
 void MemoryTargetCache::RemoveTarget(const TargetData& target_data) {
-  targets_.erase(target_data.target());
+  targets_.erase(target_data.target_or_pipeline());
   references_.RemoveReferences(target_data.target_id());
 }
 
-absl::optional<TargetData> MemoryTargetCache::GetTarget(const Target& target) {
-  auto iter = targets_.find(target);
+absl::optional<TargetData> MemoryTargetCache::GetTarget(
+    const core::TargetOrPipeline& target_or_pipeline) {
+  auto iter = targets_.find(target_or_pipeline);
   return iter == targets_.end() ? absl::optional<TargetData>{} : iter->second;
 }
 
@@ -78,20 +79,23 @@ void MemoryTargetCache::EnumerateSequenceNumbers(
 size_t MemoryTargetCache::RemoveTargets(
     model::ListenSequenceNumber upper_bound,
     const std::unordered_map<TargetId, TargetData>& live_targets) {
-  std::vector<const Target*> to_remove;
+  // Use pointers to the keys in the map.
+  std::vector<const core::TargetOrPipeline*> to_remove;
   for (const auto& kv : targets_) {
-    const Target& target = kv.first;
+    const core::TargetOrPipeline& target_or_pipeline = kv.first;
     const TargetData& target_data = kv.second;
 
     if (target_data.sequence_number() <= upper_bound) {
       if (live_targets.find(target_data.target_id()) == live_targets.end()) {
-        to_remove.push_back(&target);
+        // Store the address of the key.
+        to_remove.push_back(&target_or_pipeline);
         references_.RemoveReferences(target_data.target_id());
       }
     }
   }
 
-  for (const Target* element : to_remove) {
+  for (const core::TargetOrPipeline* element : to_remove) {
+    // Erase using the dereferenced pointer (the key itself).
     targets_.erase(*element);
   }
   return to_remove.size();

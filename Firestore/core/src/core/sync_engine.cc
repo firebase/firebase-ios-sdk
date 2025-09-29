@@ -19,6 +19,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/bundle/bundle_loader.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/sync_engine_callback.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/core/transaction_runner.h"
@@ -104,13 +105,15 @@ void SyncEngine::AssertCallbackExists(absl::string_view source) {
               "Tried to call '%s' before callback was registered.", source);
 }
 
-TargetId SyncEngine::Listen(Query query, bool should_listen_to_remote) {
+TargetId SyncEngine::Listen(QueryOrPipeline query,
+                            bool should_listen_to_remote) {
   AssertCallbackExists("Listen");
 
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
               "We already listen to query: %s", query.ToString());
 
-  TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
+  TargetData target_data =
+      local_store_->AllocateTarget(query.ToTargetOrPipeline());
   TargetId target_id = target_data.target_id();
   nanopb::ByteString resume_token = target_data.resume_token();
 
@@ -128,7 +131,9 @@ TargetId SyncEngine::Listen(Query query, bool should_listen_to_remote) {
 }
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
-    const Query& query, TargetId target_id, nanopb::ByteString resume_token) {
+    const QueryOrPipeline& query,
+    TargetId target_id,
+    nanopb::ByteString resume_token) {
   QueryResult query_result =
       local_store_->ExecuteQuery(query, /* use_previous_results= */ true);
 
@@ -137,7 +142,7 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
   auto current_sync_state = SyncState::None;
   absl::optional<TargetChange> synthesized_current_change;
   if (queries_by_target_.find(target_id) != queries_by_target_.end()) {
-    const Query& mirror_query = queries_by_target_[target_id][0];
+    const QueryOrPipeline& mirror_query = queries_by_target_[target_id][0];
     current_sync_state =
         query_views_by_query_[mirror_query]->view().sync_state();
   }
@@ -163,27 +168,30 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
   return view_change.snapshot().value();
 }
 
-void SyncEngine::ListenToRemoteStore(Query query) {
+void SyncEngine::ListenToRemoteStore(QueryOrPipeline query) {
   AssertCallbackExists("ListenToRemoteStore");
-  TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
+  TargetData target_data =
+      local_store_->AllocateTarget(query.ToTargetOrPipeline());
   remote_store_->Listen(std::move(target_data));
 }
 
-void SyncEngine::StopListening(const Query& query,
+void SyncEngine::StopListening(const QueryOrPipeline& query,
                                bool should_stop_remote_listening) {
   AssertCallbackExists("StopListening");
   StopListeningAndReleaseTarget(query, /** last_listen= */ true,
                                 should_stop_remote_listening);
 }
 
-void SyncEngine::StopListeningToRemoteStoreOnly(const Query& query) {
+void SyncEngine::StopListeningToRemoteStoreOnly(const QueryOrPipeline& query) {
   AssertCallbackExists("StopListeningToRemoteStoreOnly");
   StopListeningAndReleaseTarget(query, /** last_listen= */ false,
                                 /** should_stop_remote_listening= */ true);
 }
 
 void SyncEngine::StopListeningAndReleaseTarget(
-    const Query& query, bool last_listen, bool should_stop_remote_listening) {
+    const QueryOrPipeline& query,
+    bool last_listen,
+    bool should_stop_remote_listening) {
   auto query_view = query_views_by_query_[query];
   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
 
@@ -210,13 +218,13 @@ void SyncEngine::StopListeningAndReleaseTarget(
 }
 
 void SyncEngine::RemoveAndCleanupTarget(TargetId target_id, Status status) {
-  for (const Query& query : queries_by_target_.at(target_id)) {
+  for (const QueryOrPipeline& query : queries_by_target_.at(target_id)) {
     query_views_by_query_.erase(query);
     if (!status.ok()) {
       sync_engine_callback_->OnError(query, status);
       if (ErrorIsInteresting(status)) {
-        LOG_WARN("Listen for query at %s failed: %s",
-                 query.path().CanonicalString(), status.error_message());
+        LOG_WARN("Listen for query at %s failed: %s", query.CanonicalId(),
+                 status.error_message());
       }
     }
   }
@@ -602,9 +610,9 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
     active_limbo_resolutions_by_target_.emplace(limbo_target_id,
                                                 LimboResolution{key});
     active_limbo_targets_by_key_.emplace(key, limbo_target_id);
-    remote_store_->Listen(TargetData(Query(key.path()).ToTarget(),
-                                     limbo_target_id, kIrrelevantSequenceNumber,
-                                     QueryPurpose::LimboResolution));
+    remote_store_->Listen(TargetData(
+        TargetOrPipeline(Query(key.path()).ToTarget()), limbo_target_id,
+        kIrrelevantSequenceNumber, QueryPurpose::LimboResolution));
   }
 }
 

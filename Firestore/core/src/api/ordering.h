@@ -49,8 +49,16 @@ class Ordering {
     return expr_.get();
   }
 
+  const std::shared_ptr<Expr> expr_shared() const {
+    return expr_;
+  }
+
   Direction direction() const {
     return direction_;
+  }
+
+  Ordering WithReversedDirection() const {
+    return Ordering(expr_, direction_ == ASCENDING ? DESCENDING : ASCENDING);
   }
 
   google_firestore_v1_Value to_proto() const;
