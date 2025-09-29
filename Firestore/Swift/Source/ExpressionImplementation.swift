@@ -225,6 +225,52 @@ extension Expression {
   func bitRightShift(_ numberExpression: Expression) -> FunctionExpression {
     return FunctionExpression("bit_right_shift", [self, numberExpression])
   }
+  
+  /// Calculates the Manhattan (L1) distance between this vector expression and another vector
+  /// expression.
+  /// Assumes both `self` and `other` evaluate to Vectors.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Manhattan distance between "vector1" field and "vector2" field
+  /// Field("vector1").manhattanDistance(Field("vector2"))
+  /// ```
+  ///
+  /// - Parameter expression: The other vector as an `Expr` to compare against.
+  /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
+  func manhattanDistance(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression("manhattan_distance", [self, expression])
+  }
+
+  /// Calculates the Manhattan (L1) distance between this vector expression and another vector
+  /// literal (`VectorValue`).
+  /// Assumes `self` evaluates to a Vector.
+  /// - Note: This API is in beta.
+  /// ```swift
+  /// let referencePoint = VectorValue(vector: [5.0, 10.0])
+  /// Field("dataPoint").manhattanDistance(referencePoint)
+  /// ```
+  /// - Parameter vector: The other vector as a `VectorValue` to compare against.
+  /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
+  func manhattanDistance(_ vector: VectorValue) -> FunctionExpression {
+    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
+  }
+
+  /// Calculates the Manhattan (L1) distance between this vector expression and another vector
+  /// literal (`[Double]`).
+  /// Assumes `self` evaluates to a Vector.
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Manhattan distance between "point" field and a target point
+  /// Field("point").manhattanDistance([10.0, 20.0])
+  /// ```
+  /// - Parameter vector: The other vector as `[Double]` to compare against.
+  /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
+  func manhattanDistance(_ vector: [Double]) -> FunctionExpression {
+    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
+  }
 }
 
 public extension Expression {
@@ -688,18 +734,6 @@ public extension Expression {
 
   func euclideanDistance(_ vector: [Double]) -> FunctionExpression {
     return FunctionExpression("euclidean_distance", [self, Helper.sendableToExpr(vector)])
-  }
-
-  func manhattanDistance(_ expression: Expression) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, expression])
-  }
-
-  func manhattanDistance(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
-  }
-
-  func manhattanDistance(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
   }
 
   // MARK: Timestamp operations
