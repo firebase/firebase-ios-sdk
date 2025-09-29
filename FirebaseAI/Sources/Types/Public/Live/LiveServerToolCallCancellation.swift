@@ -19,8 +19,8 @@
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct LiveServerToolCallCancellation: Sendable {
   let serverToolCallCancellation: BidiGenerateContentToolCallCancellation
-  /// A list of `id`s matching the `id` provided in a previous ``LiveServerToolCall``, where only
-  /// the provided `id`s should be cancelled.
+  /// A list of `functionId`s matching the `functionId` provided in a previous ``LiveServerToolCall``, where only
+  /// the provided `functionId`s should be cancelled.
   public var ids: [String]? { serverToolCallCancellation.ids }
 
   init(_ serverToolCallCancellation: BidiGenerateContentToolCallCancellation) {
