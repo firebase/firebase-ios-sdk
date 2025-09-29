@@ -51,6 +51,8 @@ extern "C" {
 /** Returns the default Firestore database ID for testing. */
 + (NSString *)databaseID;
 
++ (void)switchToEnterpriseMode;
+
 + (bool)isRunningAgainstEmulator;
 
 /** Returns a FirestoreSettings configured to use either hexa or the emulator. */

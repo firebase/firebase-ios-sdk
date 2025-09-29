@@ -179,6 +179,13 @@ void Firestore::RunTransaction(core::TransactionUpdateCallback update_callback,
                        std::move(result_callback));
 }
 
+void Firestore::RunPipeline(const api::Pipeline& pipeline,
+                            util::StatusOrCallback<PipelineSnapshot> callback) {
+  EnsureClientConfigured();
+
+  client_->RunPipeline(pipeline, std::move(callback));
+}
+
 void Firestore::Terminate(util::StatusCallback callback) {
   // The client must be initialized to ensure that all subsequent API usage
   // throws an exception.
