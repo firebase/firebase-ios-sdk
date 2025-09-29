@@ -2052,6 +2052,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testFloorWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": -10.8],
+      "doc2": ["value": 5.3],
+      "doc3": ["value": 0],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").floor().as("floorValue"),
+      ])
+      .sort([Field("floorValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["floorValue": -11],
+      ["floorValue": 0],
+      ["floorValue": 5],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testExpWorks() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": ["value": 1],
@@ -2992,107 +3018,107 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  func testBitAnd() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let db = firestore()
-    let randomCol = collectionRef()
-    try await randomCol.document("dummyDoc").setData(["field": "value"])
-
-    let pipeline = db.pipeline()
-      .collection(randomCol.path)
-      .limit(1)
-      .select([Constant(5).bitAnd(12).as("result")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 4]], enforceOrder: false)
-  }
-
-  func testBitOr() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let db = firestore()
-    let randomCol = collectionRef()
-    try await randomCol.document("dummyDoc").setData(["field": "value"])
-
-    let pipeline = db.pipeline()
-      .collection(randomCol.path)
-      .limit(1)
-      .select([Constant(5).bitOr(12).as("result")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 13]], enforceOrder: false)
-  }
-
-  func testBitXor() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let db = firestore()
-    let randomCol = collectionRef()
-    try await randomCol.document("dummyDoc").setData(["field": "value"])
-
-    let pipeline = db.pipeline()
-      .collection(randomCol.path)
-      .limit(1)
-      .select([Constant(5).bitXor(12).as("result")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 9]], enforceOrder: false)
-  }
-
-  func testBitNot() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let db = firestore()
-    let randomCol = collectionRef()
-    try await randomCol.document("dummyDoc").setData(["field": "value"])
-    let bytesInput = Data([0xFD])
-    let expectedOutput = Data([0x02])
-
-    let pipeline = db.pipeline()
-      .collection(randomCol.path)
-      .limit(1)
-      .select([Constant(bytesInput).bitNot().as("result")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(
-      pipelineSnapshot: snapshot,
-      expected: [["result": expectedOutput]],
-      enforceOrder: false
-    )
-  }
-
-  func testBitLeftShift() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let db = firestore()
-    let randomCol = collectionRef()
-    try await randomCol.document("dummyDoc").setData(["field": "value"])
-    let bytesInput = Data([0x02])
-    let expectedOutput = Data([0x08])
-
-    let pipeline = db.pipeline()
-      .collection(randomCol.path)
-      .limit(1)
-      .select([Constant(bytesInput).bitLeftShift(2).as("result")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(
-      pipelineSnapshot: snapshot,
-      expected: [["result": expectedOutput]],
-      enforceOrder: false
-    )
-  }
-
-  func testBitRightShift() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let db = firestore()
-    let randomCol = collectionRef()
-    try await randomCol.document("dummyDoc").setData(["field": "value"])
-    let bytesInput = Data([0x02])
-    let expectedOutput = Data([0x00])
-
-    let pipeline = db.pipeline()
-      .collection(randomCol.path)
-      .limit(1)
-      .select([Constant(bytesInput).bitRightShift(2).as("result")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(
-      pipelineSnapshot: snapshot,
-      expected: [["result": expectedOutput]],
-      enforceOrder: false
-    )
-  }
+//  func testBitAnd() async throws {
+//    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+//    let db = firestore()
+//    let randomCol = collectionRef()
+//    try await randomCol.document("dummyDoc").setData(["field": "value"])
+//
+//    let pipeline = db.pipeline()
+//      .collection(randomCol.path)
+//      .limit(1)
+//      .select([Constant(5).bitAnd(12).as("result")])
+//    let snapshot = try await pipeline.execute()
+//    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 4]], enforceOrder: false)
+//  }
+//
+//  func testBitOr() async throws {
+//    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+//    let db = firestore()
+//    let randomCol = collectionRef()
+//    try await randomCol.document("dummyDoc").setData(["field": "value"])
+//
+//    let pipeline = db.pipeline()
+//      .collection(randomCol.path)
+//      .limit(1)
+//      .select([Constant(5).bitOr(12).as("result")])
+//    let snapshot = try await pipeline.execute()
+//    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 13]], enforceOrder: false)
+//  }
+//
+//  func testBitXor() async throws {
+//    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+//    let db = firestore()
+//    let randomCol = collectionRef()
+//    try await randomCol.document("dummyDoc").setData(["field": "value"])
+//
+//    let pipeline = db.pipeline()
+//      .collection(randomCol.path)
+//      .limit(1)
+//      .select([Constant(5).bitXor(12).as("result")])
+//    let snapshot = try await pipeline.execute()
+//    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 9]], enforceOrder: false)
+//  }
+//
+//  func testBitNot() async throws {
+//    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+//    let db = firestore()
+//    let randomCol = collectionRef()
+//    try await randomCol.document("dummyDoc").setData(["field": "value"])
+//    let bytesInput = Data([0xFD])
+//    let expectedOutput = Data([0x02])
+//
+//    let pipeline = db.pipeline()
+//      .collection(randomCol.path)
+//      .limit(1)
+//      .select([Constant(bytesInput).bitNot().as("result")])
+//    let snapshot = try await pipeline.execute()
+//    TestHelper.compare(
+//      pipelineSnapshot: snapshot,
+//      expected: [["result": expectedOutput]],
+//      enforceOrder: false
+//    )
+//  }
+//
+//  func testBitLeftShift() async throws {
+//    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+//    let db = firestore()
+//    let randomCol = collectionRef()
+//    try await randomCol.document("dummyDoc").setData(["field": "value"])
+//    let bytesInput = Data([0x02])
+//    let expectedOutput = Data([0x08])
+//
+//    let pipeline = db.pipeline()
+//      .collection(randomCol.path)
+//      .limit(1)
+//      .select([Constant(bytesInput).bitLeftShift(2).as("result")])
+//    let snapshot = try await pipeline.execute()
+//    TestHelper.compare(
+//      pipelineSnapshot: snapshot,
+//      expected: [["result": expectedOutput]],
+//      enforceOrder: false
+//    )
+//  }
+//
+//  func testBitRightShift() async throws {
+//    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+//    let db = firestore()
+//    let randomCol = collectionRef()
+//    try await randomCol.document("dummyDoc").setData(["field": "value"])
+//    let bytesInput = Data([0x02])
+//    let expectedOutput = Data([0x00])
+//
+//    let pipeline = db.pipeline()
+//      .collection(randomCol.path)
+//      .limit(1)
+//      .select([Constant(bytesInput).bitRightShift(2).as("result")])
+//    let snapshot = try await pipeline.execute()
+//    TestHelper.compare(
+//      pipelineSnapshot: snapshot,
+//      expected: [["result": expectedOutput]],
+//      enforceOrder: false
+//    )
+//  }
 
   func testDocumentId() async throws {
     try XCTSkipIf(true, "Skip this test since backend has not yet supported.")

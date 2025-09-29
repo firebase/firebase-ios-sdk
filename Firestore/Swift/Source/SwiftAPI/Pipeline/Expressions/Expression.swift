@@ -36,6 +36,16 @@ public protocol Expression: Sendable {
 
   // --- Added Mathematical Operations ---
 
+  /// Creates an expression that returns the largest numeric value that isn't greater than X.
+  ///
+  /// ```swift
+  /// // Get the floor of the "amount" field.
+  /// Field("amount").floor()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the floor of the number.
+  func floor() -> FunctionExpression
+
   /// Creates an expression that returns e to the power of X.
   ///
   /// Returns zero on underflow and nil on overflow.

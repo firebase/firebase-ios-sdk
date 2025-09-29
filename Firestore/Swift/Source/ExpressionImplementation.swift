@@ -242,6 +242,10 @@ public extension Expression {
     return FunctionExpression("ceil", [self])
   }
 
+  func floor() -> FunctionExpression {
+    return FunctionExpression("floor", [self])
+  }
+
   func exp() -> FunctionExpression {
     return FunctionExpression("exp", [self])
   }
