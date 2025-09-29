@@ -2104,13 +2104,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "doc1": ["value": 1000],
     ])
     let db = collRef.firestore
-    
+
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .select([
         Field("value").exp().as("expValue"),
       ])
-    
+
     let snapshot = try await pipeline.execute()
     XCTAssertEqual(snapshot.results.count, 1)
     XCTAssertNil(snapshot.results.first!.get("expValue"))

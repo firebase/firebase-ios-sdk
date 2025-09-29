@@ -16,6 +16,215 @@ extension Expression {
   func toBridge() -> ExprBridge {
     return (self as! BridgeWrapper).bridge
   }
+
+  /// Creates an expression applying bitwise AND between this expression and an integer literal.
+  /// Assumes `self` evaluates to an Integer or Bytes.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Bitwise AND of "flags" field and 0xFF
+  /// Field("flags").bitAnd(0xFF)
+  /// ```
+  ///
+  /// - Parameter otherBits: The integer literal operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise AND operation.
+  func bitAnd(_ otherBits: Int) -> FunctionExpression {
+    return FunctionExpression("bit_and", [self, Helper.sendableToExpr(otherBits)])
+  }
+
+  /// Creates an expression applying bitwise AND between this expression and a UInt8 literal (often
+  /// for byte masks).
+  /// Assumes `self` evaluates to an Integer or Bytes.
+  /// - Note: This API is in beta.
+  /// ```swift
+  /// // Bitwise AND of "byteFlags" field and a byte mask
+  /// Field("byteFlags").bitAnd(0b00001111 as UInt8)
+  /// ```
+  /// - Parameter otherBits: The UInt8 literal operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise AND operation.
+  func bitAnd(_ otherBits: UInt8) -> FunctionExpression {
+    return FunctionExpression("bit_and", [self, Helper.sendableToExpr(otherBits)])
+  }
+
+  /// Creates an expression applying bitwise AND between this expression and another expression.
+  /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Bitwise AND of "mask1" and "mask2" fields
+  /// Field("mask1").bitAnd(Field("mask2"))
+  /// ```
+  /// - Parameter bitsExpression: The other `Expr` operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise AND operation.
+  func bitAnd(_ bitsExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("bit_and", [self, bitsExpression])
+  }
+
+  /// Creates an expression applying bitwise OR between this expression and an integer literal.
+  /// Assumes `self` evaluates to an Integer or Bytes.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Bitwise OR of "flags" field and 0x01
+  /// Field("flags").bitOr(0x01)
+  /// ```
+  ///
+  /// - Parameter otherBits: The integer literal operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise OR operation.
+  func bitOr(_ otherBits: Int) -> FunctionExpression {
+    return FunctionExpression("bit_or", [self, Helper.sendableToExpr(otherBits)])
+  }
+
+  /// Creates an expression applying bitwise OR between this expression and a UInt8 literal.
+  /// Assumes `self` evaluates to an Integer or Bytes.
+  /// - Note: This API is in beta.
+  /// ```swift
+  /// // Set specific bits in "controlByte"
+  /// Field("controlByte").bitOr(0b10000001 as UInt8)
+  /// ```
+  /// - Parameter otherBits: The UInt8 literal operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise OR operation.
+  func bitOr(_ otherBits: UInt8) -> FunctionExpression {
+    return FunctionExpression("bit_or", [self, Helper.sendableToExpr(otherBits)])
+  }
+
+  /// Creates an expression applying bitwise OR between this expression and another expression.
+  /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Bitwise OR of "permissionSet1" and "permissionSet2" fields
+  /// Field("permissionSet1").bitOr(Field("permissionSet2"))
+  /// ```
+  /// - Parameter bitsExpression: The other `Expr` operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise OR operation.
+  func bitOr(_ bitsExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("bit_or", [self, bitsExpression])
+  }
+
+  /// Creates an expression applying bitwise XOR between this expression and an integer literal.
+  /// Assumes `self` evaluates to an Integer or Bytes.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Bitwise XOR of "toggle" field and 0xFFFF
+  /// Field("toggle").bitXor(0xFFFF)
+  /// ```
+  ///
+  /// - Parameter otherBits: The integer literal operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise XOR operation.
+  func bitXor(_ otherBits: Int) -> FunctionExpression {
+    return FunctionExpression("bit_xor", [self, Helper.sendableToExpr(otherBits)])
+  }
+
+  /// Creates an expression applying bitwise XOR between this expression and a UInt8 literal.
+  /// Assumes `self` evaluates to an Integer or Bytes.
+  /// - Note: This API is in beta.
+  /// ```swift
+  /// // Toggle bits in "statusByte" using a XOR mask
+  /// Field("statusByte").bitXor(0b01010101 as UInt8)
+  /// ```
+  /// - Parameter otherBits: The UInt8 literal operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise XOR operation.
+  func bitXor(_ otherBits: UInt8) -> FunctionExpression {
+    return FunctionExpression("bit_xor", [self, Helper.sendableToExpr(otherBits)])
+  }
+
+  /// Creates an expression applying bitwise XOR between this expression and another expression.
+  /// Assumes `self` and `bitsExpression` evaluate to Integer or Bytes.
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Bitwise XOR of "key1" and "key2" fields (assuming Bytes)
+  /// Field("key1").bitXor(Field("key2"))
+  /// ```
+  /// - Parameter bitsExpression: The other `Expr` operand.
+  /// - Returns: A new "FunctionExpression" representing the bitwise XOR operation.
+  func bitXor(_ bitsExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("bit_xor", [self, bitsExpression])
+  }
+
+  /// Creates an expression applying bitwise NOT to this expression.
+  /// Assumes `self` evaluates to an Integer or Bytes.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Bitwise NOT of "mask" field
+  /// Field("mask").bitNot()
+  /// ```
+  ///
+  /// - Returns: A new "FunctionExpression" representing the bitwise NOT operation.
+  func bitNot() -> FunctionExpression {
+    return FunctionExpression("bit_not", [self])
+  }
+
+  /// Creates an expression applying bitwise left shift to this expression by a literal number of
+  /// bits.
+  /// Assumes `self` evaluates to Integer or Bytes.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Left shift "value" field by 2 bits
+  /// Field("value").bitLeftShift(2)
+  /// ```
+  ///
+  /// - Parameter y: The number of bits (Int literal) to shift by.
+  /// - Returns: A new "FunctionExpression" representing the bitwise left shift operation.
+  func bitLeftShift(_ y: Int) -> FunctionExpression {
+    return FunctionExpression("bit_left_shift", [self, Helper.sendableToExpr(y)])
+  }
+
+  /// Creates an expression applying bitwise left shift to this expression by a number of bits
+  /// specified by an expression.
+  /// Assumes `self` evaluates to Integer or Bytes, and `numberExpr` evaluates to an Integer.
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Left shift "data" by number of bits in "shiftCount" field
+  /// Field("data").bitLeftShift(Field("shiftCount"))
+  /// ```
+  /// - Parameter numberExpr: An `Expr` (evaluating to an Int) for the number of bits to shift by.
+  /// - Returns: A new "FunctionExpression" representing the bitwise left shift operation.
+  func bitLeftShift(_ numberExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("bit_left_shift", [self, numberExpression])
+  }
+
+  /// Creates an expression applying bitwise right shift to this expression by a literal number of
+  /// bits.
+  /// Assumes `self` evaluates to Integer or Bytes.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Right shift "value" field by 4 bits
+  /// Field("value").bitRightShift(4)
+  /// ```
+  ///
+  /// - Parameter y: The number of bits (Int literal) to shift by.
+  /// - Returns: A new "FunctionExpression" representing the bitwise right shift operation.
+  func bitRightShift(_ y: Int) -> FunctionExpression {
+    return FunctionExpression("bit_right_shift", [self, Helper.sendableToExpr(y)])
+  }
+
+  /// Creates an expression applying bitwise right shift to this expression by a number of bits
+  /// specified by an expression.
+  /// Assumes `self` evaluates to Integer or Bytes, and `numberExpr` evaluates to an Integer.
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // Right shift "data" by number of bits in "shiftCount" field
+  /// Field("data").bitRightShift(Field("shiftCount"))
+  /// ```
+  /// - Parameter numberExpr: An `Expr` (evaluating to an Int) for the number of bits to shift by.
+  /// - Returns: A new "FunctionExpression" representing the bitwise right shift operation.
+  func bitRightShift(_ numberExpression: Expression) -> FunctionExpression {
+    return FunctionExpression("bit_right_shift", [self, numberExpression])
+  }
 }
 
 public extension Expression {
@@ -531,64 +740,6 @@ public extension Expression {
       "timestamp_subtract",
       [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
     )
-  }
-
-  // MARK: - Bitwise operations
-
-  func bitAnd(_ otherBits: Int) -> FunctionExpression {
-    return FunctionExpression("bit_and", [self, Helper.sendableToExpr(otherBits)])
-  }
-
-  func bitAnd(_ otherBits: UInt8) -> FunctionExpression {
-    return FunctionExpression("bit_and", [self, Helper.sendableToExpr(otherBits)])
-  }
-
-  func bitAnd(_ bitsExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_and", [self, bitsExpression])
-  }
-
-  func bitOr(_ otherBits: Int) -> FunctionExpression {
-    return FunctionExpression("bit_or", [self, Helper.sendableToExpr(otherBits)])
-  }
-
-  func bitOr(_ otherBits: UInt8) -> FunctionExpression {
-    return FunctionExpression("bit_or", [self, Helper.sendableToExpr(otherBits)])
-  }
-
-  func bitOr(_ bitsExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_or", [self, bitsExpression])
-  }
-
-  func bitXor(_ otherBits: Int) -> FunctionExpression {
-    return FunctionExpression("bit_xor", [self, Helper.sendableToExpr(otherBits)])
-  }
-
-  func bitXor(_ otherBits: UInt8) -> FunctionExpression {
-    return FunctionExpression("bit_xor", [self, Helper.sendableToExpr(otherBits)])
-  }
-
-  func bitXor(_ bitsExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_xor", [self, bitsExpression])
-  }
-
-  func bitNot() -> FunctionExpression {
-    return FunctionExpression("bit_not", [self])
-  }
-
-  func bitLeftShift(_ y: Int) -> FunctionExpression {
-    return FunctionExpression("bit_left_shift", [self, Helper.sendableToExpr(y)])
-  }
-
-  func bitLeftShift(_ numberExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_left_shift", [self, numberExpression])
-  }
-
-  func bitRightShift(_ y: Int) -> FunctionExpression {
-    return FunctionExpression("bit_right_shift", [self, Helper.sendableToExpr(y)])
-  }
-
-  func bitRightShift(_ numberExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_right_shift", [self, numberExpression])
   }
 
   func documentId() -> FunctionExpression {
