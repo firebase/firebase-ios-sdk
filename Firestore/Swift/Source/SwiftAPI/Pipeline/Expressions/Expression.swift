@@ -650,6 +650,16 @@ public protocol Expression: Sendable {
 
   // MARK: String Operations
 
+  /// Creates an expression that returns the length of a string.
+  ///
+  /// ```swift
+  /// // Get the length of the "name" field.
+  /// Field("name").length()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the length of the string.
+  func length() -> FunctionExpression
+
   /// Creates an expression that calculates the character length of a string in UTF-8.
   /// Assumes `self` evaluates to a string.
   ///

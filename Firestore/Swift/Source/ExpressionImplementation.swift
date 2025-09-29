@@ -460,6 +460,10 @@ public extension Expression {
 
   // --- Added String Operations ---
 
+  func length() -> FunctionExpression {
+    return FunctionExpression("length", [self])
+  }
+
   func charLength() -> FunctionExpression {
     return FunctionExpression("char_length", [self])
   }

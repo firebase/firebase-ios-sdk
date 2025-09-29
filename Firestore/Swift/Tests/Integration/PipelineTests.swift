@@ -1918,6 +1918,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testLength() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": "abc"],
+      "doc2": ["value": ""],
+      "doc3": ["value": "a"],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").length().as("lengthValue"),
+      ])
+      .sort([Field("lengthValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["lengthValue": 0],
+      ["lengthValue": 1],
+      ["lengthValue": 3],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testLike() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
