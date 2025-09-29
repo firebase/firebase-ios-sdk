@@ -46,14 +46,11 @@ on:
         required: false
         default: "macos-15"
 
-env:
-  FIREBASE_CI: true
-
 jobs:
   cron-job:
     if: |
       github.repository == 'firebase/firebase-ios-sdk' &&
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+      (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch')
     runs-on: ${{ inputs.runs_on }}
     strategy:
       matrix:
