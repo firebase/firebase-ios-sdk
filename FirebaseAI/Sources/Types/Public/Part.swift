@@ -147,9 +147,10 @@ public struct FunctionCallPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
-  /// Unique id of the function call. If present, the returned ``FunctionResponsePart``
-  /// should have a matching `id` field.
-  public var id: String? { functionCall.id }
+  /// Unique id of the function call.
+  ///
+  /// If present, the returned ``FunctionResponsePart`` should have a matching `functionId` field.
+  public var functionId: String? { functionCall.id }
 
   /// Constructs a new function call part.
   ///
@@ -196,7 +197,7 @@ public struct FunctionResponsePart: Part {
   let thoughtSignature: String?
 
   /// Matching `id` for a ``FunctionCallPart``, if one was provided.
-  public var id: String? { functionResponse.id }
+  public var functionId: String? { functionResponse.id }
 
   /// The name of the function that was called.
   public var name: String { functionResponse.name }
@@ -222,10 +223,10 @@ public struct FunctionResponsePart: Part {
   /// - Parameters:
   ///   - name: The name of the function that was called.
   ///   - response: The function's response.
-  ///   - id: Matching `id` for a ``FunctionCallPart``, if one was provided.
-  public init(name: String, response: JSONObject, id: String? = nil) {
+  ///   - functionId: Matching `functionId` for a ``FunctionCallPart``, if one was provided.
+  public init(name: String, response: JSONObject, functionId: String? = nil) {
     self.init(
-      FunctionResponse(name: name, response: response, id: id),
+      FunctionResponse(name: name, response: response, id: functionId),
       isThought: nil,
       thoughtSignature: nil
     )
