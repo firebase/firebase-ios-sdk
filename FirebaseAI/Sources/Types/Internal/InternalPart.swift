@@ -139,7 +139,7 @@ extension FunctionCall: Codable {
     } else {
       args = JSONObject()
     }
-    id = try container.decode(String.self, forKey: .id)
+    id = try container.decodeIfPresent(String.self, forKey: .id)
   }
 }
 
