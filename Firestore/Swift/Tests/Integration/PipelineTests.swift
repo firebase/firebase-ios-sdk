@@ -3060,41 +3060,41 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testReplaceFirst() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
+//  func testReplaceFirst() async throws {
+//    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+//    let collRef = collectionRef(withDocuments: bookDocs)
+//    let db = collRef.firestore
+//
+//    let pipeline = db.pipeline()
+//      .collection(collRef.path)
+//      .where(Field("title").equal("The Lord of the Rings"))
+//      .limit(1)
+//      .select([Field("title").replaceFirst("o", with: "0").as("newName")])
+//    let snapshot = try await pipeline.execute()
+//    TestHelper.compare(
+//      pipelineSnapshot: snapshot,
+//      expected: [["newName": "The L0rd of the Rings"]],
+//      enforceOrder: false
+//    )
+//  }
 
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .where(Field("title").equal("The Lord of the Rings"))
-      .limit(1)
-      .select([Field("title").replaceFirst("o", with: "0").as("newName")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(
-      pipelineSnapshot: snapshot,
-      expected: [["newName": "The L0rd of the Rings"]],
-      enforceOrder: false
-    )
-  }
-
-  func testReplaceAll() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
-
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .where(Field("title").equal("The Lord of the Rings"))
-      .limit(1)
-      .select([Field("title").replaceAll("o", with: "0").as("newName")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(
-      pipelineSnapshot: snapshot,
-      expected: [["newName": "The L0rd 0f the Rings"]],
-      enforceOrder: false
-    )
-  }
+//  func testStringReplace() async throws {
+//    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+//    let collRef = collectionRef(withDocuments: bookDocs)
+//    let db = collRef.firestore
+//
+//    let pipeline = db.pipeline()
+//      .collection(collRef.path)
+//      .where(Field("title").equal("The Lord of the Rings"))
+//      .limit(1)
+//      .select([Field("title").stringReplace("o", with: "0").as("newName")])
+//    let snapshot = try await pipeline.execute()
+//    TestHelper.compare(
+//      pipelineSnapshot: snapshot,
+//      expected: [["newName": "The L0rd 0f the Rings"]],
+//      enforceOrder: false
+//    )
+//  }
 
 //  func testBitAnd() async throws {
 //    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")

@@ -271,6 +271,79 @@ extension Expression {
   func manhattanDistance(_ vector: [Double]) -> FunctionExpression {
     return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
   }
+  
+  /// Creates an expression that replaces the first occurrence of a literal substring within this
+  /// string expression with another literal substring.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace the first "hello" with "hi" in the "message" field
+  /// Field("message").replaceFirst("hello", "hi")
+  /// ```
+  ///
+  /// - Parameter find: The literal string substring to search for.
+  /// - Parameter replace: The literal string substring to replace the first occurrence with.
+  /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
+  func replaceFirst(_ find: String, with replace: String) -> FunctionExpression{
+    return FunctionExpression(
+      "replace_first",
+      [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
+    )
+  }
+
+  /// Creates an expression that replaces the first occurrence of a substring (from an expression)
+  /// within this string expression with another substring (from an expression).
+  /// Assumes `self` evaluates to a string, and `find`/`replace` evaluate to strings.
+  ///
+  /// ```swift
+  /// // Replace first occurrence of field "findPattern" with field "replacePattern" in "text"
+  /// Field("text").replaceFirst(Field("findPattern"), Field("replacePattern"))
+  /// ```
+  ///
+  /// - Parameter find: An `Expr` (evaluating to a string) for the substring to search for.
+  /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace the first
+  /// occurrence with.
+  /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
+  func replaceFirst(_ find: Expression, with replace: Expression) -> FunctionExpression{
+    return FunctionExpression("replace_first", [self, find, replace])
+  }
+
+  /// Creates an expression that replaces all occurrences of a literal substring within this string
+  /// expression with another literal substring.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Replace all occurrences of " " with "_" in "description"
+  /// Field("description").stringReplace(" ", "_")
+  /// ```
+  ///
+  /// - Parameter find: The literal string substring to search for.
+  /// - Parameter replace: The literal string substring to replace all occurrences with.
+  /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
+  func stringReplace(_ find: String, with replace: String) -> FunctionExpression{
+    return FunctionExpression(
+      "string_replace",
+      [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
+    )
+  }
+
+  /// Creates an expression that replaces all occurrences of a substring (from an expression) within
+  /// this string expression with another substring (from an expression).
+  /// Assumes `self` evaluates to a string, and `find`/`replace` evaluate to strings.
+  ///
+  /// ```swift
+  /// // Replace all occurrences of field "target" with field "replacement" in "content"
+  /// Field("content").stringReplace(Field("target"), Field("replacement"))
+  /// ```
+  ///
+  /// - Parameter find: An `Expr` (evaluating to a string) for the substring to search for.
+  /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace all
+  /// occurrences with.
+  /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
+  func stringReplace(_ find: Expression, with replace: Expression) -> FunctionExpression{
+    return FunctionExpression("string_replace", [self, find, replace])
+  }
+  
 }
 
 public extension Expression {
@@ -592,28 +665,6 @@ public extension Expression {
 
   func reverse() -> FunctionExpression {
     return FunctionExpression("reverse", [self])
-  }
-
-  func replaceFirst(_ find: String, with replace: String) -> FunctionExpression {
-    return FunctionExpression(
-      "replace_first",
-      [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
-    )
-  }
-
-  func replaceFirst(_ find: Expression, with replace: Expression) -> FunctionExpression {
-    return FunctionExpression("replace_first", [self, find, replace])
-  }
-
-  func replaceAll(_ find: String, with replace: String) -> FunctionExpression {
-    return FunctionExpression(
-      "replace_all",
-      [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
-    )
-  }
-
-  func replaceAll(_ find: Expression, with replace: Expression) -> FunctionExpression {
-    return FunctionExpression("replace_all", [self, find, replace])
   }
 
   func byteLength() -> FunctionExpression {

@@ -931,64 +931,6 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpr` representing the reversed string.
   func reverse() -> FunctionExpression
 
-  /// Creates an expression that replaces the first occurrence of a literal substring within this
-  /// string expression with another literal substring.
-  /// Assumes `self` evaluates to a string.
-  ///
-  /// ```swift
-  /// // Replace the first "hello" with "hi" in the "message" field
-  /// Field("message").replaceFirst("hello", "hi")
-  /// ```
-  ///
-  /// - Parameter find: The literal string substring to search for.
-  /// - Parameter replace: The literal string substring to replace the first occurrence with.
-  /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
-  func replaceFirst(_ find: String, with replace: String) -> FunctionExpression
-
-  /// Creates an expression that replaces the first occurrence of a substring (from an expression)
-  /// within this string expression with another substring (from an expression).
-  /// Assumes `self` evaluates to a string, and `find`/`replace` evaluate to strings.
-  ///
-  /// ```swift
-  /// // Replace first occurrence of field "findPattern" with field "replacePattern" in "text"
-  /// Field("text").replaceFirst(Field("findPattern"), Field("replacePattern"))
-  /// ```
-  ///
-  /// - Parameter find: An `Expr` (evaluating to a string) for the substring to search for.
-  /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace the first
-  /// occurrence with.
-  /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
-  func replaceFirst(_ find: Expression, with replace: Expression) -> FunctionExpression
-
-  /// Creates an expression that replaces all occurrences of a literal substring within this string
-  /// expression with another literal substring.
-  /// Assumes `self` evaluates to a string.
-  ///
-  /// ```swift
-  /// // Replace all occurrences of " " with "_" in "description"
-  /// Field("description").replaceAll(" ", "_")
-  /// ```
-  ///
-  /// - Parameter find: The literal string substring to search for.
-  /// - Parameter replace: The literal string substring to replace all occurrences with.
-  /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
-  func replaceAll(_ find: String, with replace: String) -> FunctionExpression
-
-  /// Creates an expression that replaces all occurrences of a substring (from an expression) within
-  /// this string expression with another substring (from an expression).
-  /// Assumes `self` evaluates to a string, and `find`/`replace` evaluate to strings.
-  ///
-  /// ```swift
-  /// // Replace all occurrences of field "target" with field "replacement" in "content"
-  /// Field("content").replaceAll(Field("target"), Field("replacement"))
-  /// ```
-  ///
-  /// - Parameter find: An `Expr` (evaluating to a string) for the substring to search for.
-  /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace all
-  /// occurrences with.
-  /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
-  func replaceAll(_ find: Expression, with replace: Expression) -> FunctionExpression
-
   /// Creates an expression that calculates the length of this string or bytes expression in bytes.
   /// Assumes `self` evaluates to a string or bytes.
   ///
