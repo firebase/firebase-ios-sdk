@@ -44,30 +44,31 @@ public struct LiveServerMessage: Sendable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerMessage {
-  static func tryFrom(_ serverMessage: BidiGenerateContentServerMessage) -> Self? {
-    guard let messageType = LiveServerMessage.MessageType.tryFrom(serverMessage.messageType) else {
+  init?(from serverMessage: BidiGenerateContentServerMessage) {
+    guard let messageType = LiveServerMessage.MessageType(from: serverMessage.messageType) else {
       return nil
     }
 
-    return LiveServerMessage(serverMessage: serverMessage, messageType: messageType)
+    self.serverMessage = serverMessage
+    self.messageType = messageType
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerMessage.MessageType {
-  static func tryFrom(_ serverMessage: BidiGenerateContentServerMessage.MessageType) -> Self? {
-    return switch serverMessage {
+  init?(from serverMessage: BidiGenerateContentServerMessage.MessageType) {
+    switch serverMessage {
     case .setupComplete:
       // this is handled internally, and should not be surfaced to users
-      nil
+      return nil
     case let .serverContent(msg):
-      .content(LiveServerContent(msg))
+      self = .content(LiveServerContent(msg))
     case let .toolCall(msg):
-      .toolCall(LiveServerToolCall(msg))
+      self = .toolCall(LiveServerToolCall(msg))
     case let .toolCallCancellation(msg):
-      .toolCallCancellation(LiveServerToolCallCancellation(msg))
+      self = .toolCallCancellation(LiveServerToolCallCancellation(msg))
     case let .goAway(msg):
-      .goAway(LiveServerGoAway(msg))
+      self = .goAway(LiveServerGoAway(msg))
     }
   }
 }

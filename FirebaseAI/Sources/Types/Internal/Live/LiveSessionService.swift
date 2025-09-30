@@ -219,7 +219,7 @@ actor LiveSessionService {
               resumed = true
               setupComplete.resume()
             }
-          } else if let liveMessage = LiveServerMessage.tryFrom(response) {
+          } else if let liveMessage = LiveServerMessage(from: response) {
             if case let .goAway(message) = liveMessage.messageType {
               // TODO: (b/444045023) When auto session resumption is enabled, call `connect` again
               AILog.debug(
