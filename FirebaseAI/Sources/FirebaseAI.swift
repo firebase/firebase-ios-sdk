@@ -146,7 +146,7 @@ public final class FirebaseAI: Sendable {
   /// > Important: Only Live models (typically containing `live-*` in the name) are supported.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the Livemodel to use, for example
+  ///   - modelName: The name of the Live model to use, for example
   ///     `"gemini-live-2.5-flash-preview"`;
   ///     see [model versions](https://firebase.google.com/docs/ai-logic/live-api?api=dev#models-that-support-capability)
   ///     for a list of supported Live models.
@@ -156,6 +156,8 @@ public final class FirebaseAI: Sendable {
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+  @available(watchOS, unavailable)
   public func liveModel(modelName: String,
                         generationConfig: LiveGenerationConfig? = nil,
                         tools: [Tool]? = nil,

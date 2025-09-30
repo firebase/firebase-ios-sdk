@@ -28,7 +28,7 @@ import Foundation
 ///
 /// This mainly comes into play when we don't want to block developers from sending messages while a
 /// session is being reloaded.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 actor LiveSessionService {
   let responses: AsyncThrowingStream<LiveServerMessage, Error>
