@@ -15,7 +15,8 @@
 import Foundation
 
 /// Messages sent by the client in the BidiGenerateContent RPC call.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 enum BidiGenerateContentClientMessage {
   /// Message to be sent in the first and only first client message.
   case setup(BidiGenerateContentSetup)
