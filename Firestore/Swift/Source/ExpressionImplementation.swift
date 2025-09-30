@@ -853,11 +853,11 @@ public extension Expression {
     )
   }
 
-  func timestampSub(amount: Expression, unit: Expression) -> FunctionExpression {
+  func timestampSubtract(amount: Expression, unit: Expression) -> FunctionExpression {
     return FunctionExpression("timestamp_subtract", [self, unit, amount])
   }
 
-  func timestampSub(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
+  func timestampSubtract(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
       "timestamp_subtract",
       [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]

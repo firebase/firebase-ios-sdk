@@ -1459,15 +1459,15 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Subtract duration from "unitField"/"amountField" from "timestamp"
-  /// Field("timestamp").timestampSub(amount: Field("amountField"), unit: Field("unitField"))
+  /// Field("timestamp").timestampSubtract(amount: Field("amountField"), unit: Field("unitField"))
   /// ```
   ///
-  /// - Parameter unit: An `Expr` evaluating to the unit of time string (e.g., "day", "hour").
+  /// - Parameter unit: An `Expression` evaluating to the unit of time string (e.g., "day", "hour").
   ///                 Valid units are "microsecond", "millisecond", "second", "minute", "hour",
   /// "day".
-  /// - Parameter amount: An `Expr` evaluating to the amount (Int) of the unit to subtract.
+  /// - Parameter amount: An `Expression` evaluating to the amount (Int) of the unit to subtract.
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
-  func timestampSub(amount: Expression, unit: Expression) -> FunctionExpression
+  func timestampSubtract(amount: Expression, unit: Expression) -> FunctionExpression
 
   /// Creates an expression that subtracts a specified amount of time from this timestamp
   /// expression,
@@ -1476,13 +1476,13 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Subtract 1 day from the "timestamp" field.
-  /// Field("timestamp").timestampSub(1, .day)
+  /// Field("timestamp").timestampSubtract(1, .day)
   /// ```
   ///
   /// - Parameter unit: The `TimeUnit` enum representing the unit of time.
   /// - Parameter amount: The literal `Int` amount of the unit to subtract.
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
-  func timestampSub(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression
+  func timestampSubtract(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression
 
   /// Creates an expression that returns the document ID from a path.
   ///

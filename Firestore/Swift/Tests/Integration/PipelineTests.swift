@@ -3080,12 +3080,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           Field("timestamp").timestampAdd(10, .second).as("plus10seconds"),
           Field("timestamp").timestampAdd(10, .microsecond).as("plus10micros"),
           Field("timestamp").timestampAdd(10, .millisecond).as("plus10millis"),
-          Field("timestamp").timestampSub(10, .day).as("minus10days"),
-          Field("timestamp").timestampSub(10, .hour).as("minus10hours"),
-          Field("timestamp").timestampSub(10, .minute).as("minus10minutes"),
-          Field("timestamp").timestampSub(10, .second).as("minus10seconds"),
-          Field("timestamp").timestampSub(10, .microsecond).as("minus10micros"),
-          Field("timestamp").timestampSub(10, .millisecond).as("minus10millis"),
+          Field("timestamp").timestampSubtract(10, .day).as("minus10days"),
+          Field("timestamp").timestampSubtract(10, .hour).as("minus10hours"),
+          Field("timestamp").timestampSubtract(10, .minute).as("minus10minutes"),
+          Field("timestamp").timestampSubtract(10, .second).as("minus10seconds"),
+          Field("timestamp").timestampSubtract(10, .microsecond).as("minus10micros"),
+          Field("timestamp").timestampSubtract(10, .millisecond).as("minus10millis"),
         ]
       )
 
