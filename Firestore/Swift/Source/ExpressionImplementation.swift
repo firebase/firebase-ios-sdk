@@ -888,4 +888,10 @@ public extension Expression {
   func descending() -> Ordering {
     return Ordering(expression: self, direction: .descending)
   }
+
+  // MARK: Equivalence Operations
+
+  func equivalent(_ other: Sendable) -> BooleanExpression {
+    return BooleanExpression("equivalent", [self, Helper.sendableToExpr(other)])
+  }
 }
