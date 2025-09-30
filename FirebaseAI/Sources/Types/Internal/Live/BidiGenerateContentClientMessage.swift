@@ -33,4 +33,26 @@ enum BidiGenerateContentClientMessage {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
-extension BidiGenerateContentClientMessage: Encodable {}
+extension BidiGenerateContentClientMessage: Encodable {
+  enum CodingKeys: CodingKey {
+    case setup
+    case clientContent
+    case realtimeInput
+    case toolResponse
+  }
+
+  func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    switch self {
+    case let .setup(setup):
+      try container.encode(setup, forKey: .setup)
+    case let .clientContent(clientContent):
+      try container.encode(clientContent, forKey: .clientContent)
+    case let .realtimeInput(realtimeInput):
+      try container.encode(realtimeInput, forKey: .realtimeInput)
+    case let .toolResponse(toolResponse):
+      try container.encode(toolResponse, forKey: .toolResponse)
+    }
+  }
+}
+
