@@ -158,6 +158,20 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertEqual(candidate.finishReason, .stop)
   }
 
+  func testDecodeCandidate_withNoImageFinishReason() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "NO_IMAGE"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertEqual(candidate.finishReason, .noImage)
+  }
+
   // MARK: - Candidate.isEmpty
 
   func testCandidateIsEmpty_allEmpty_isTrue() throws {
