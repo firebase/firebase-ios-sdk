@@ -113,7 +113,7 @@ actor LiveSessionService {
   ///
   /// Seperated into its own function to make it easier to surface a way to call it seperately when
   /// resuming the same session.
-  public func connect() {
+  func connect() {
     setupTask.cancel()
     setupTask = Task { [weak self] in
       try await withCheckedThrowingContinuation { setupContinuation in
