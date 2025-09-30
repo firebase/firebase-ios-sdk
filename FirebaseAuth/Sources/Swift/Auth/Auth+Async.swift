@@ -48,7 +48,7 @@ import Foundation
     /// }
     /// ```
     var authStateChanges: AsyncStream<User?> {
-      return AsyncStream { continuation in
+      AsyncStream { continuation in
         let listenerHandle = addStateDidChangeListener { _, user in
           continuation.yield(user)
         }
@@ -89,7 +89,7 @@ import Foundation
     /// }
     /// ```
     var idTokenChanges: AsyncStream<User?> {
-      return AsyncStream { continuation in
+      AsyncStream { continuation in
         let listenerHandle = addIDTokenDidChangeListener { _, user in
           continuation.yield(user)
         }
