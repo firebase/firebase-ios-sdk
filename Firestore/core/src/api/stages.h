@@ -29,7 +29,6 @@
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/ordering.h"
-#include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -63,13 +62,8 @@ class EvaluateContext {
     return *serializer_;
   }
 
-  const core::ListenOptions& listen_options() const {
-    return listen_options_;
-  }
-
  private:
   remote::Serializer* serializer_;
-  core::ListenOptions listen_options_;
 };
 
 // Subclass of Stage that supports cache evaluation.
