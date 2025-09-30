@@ -3216,8 +3216,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  func testSubstr() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+  func testSubstring() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -3225,13 +3224,12 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .sort([Field("rating").descending()])
       .limit(1)
-      .select([Field("title").substr(position: 9, length: 2).as("of")])
+      .select([Field("title").substring(position: 9, length: 2).as("of")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(pipelineSnapshot: snapshot, expected: [["of": "of"]], enforceOrder: false)
   }
 
-  func testSubstrWithoutLength() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+  func testSubstringWithoutLength() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -3239,7 +3237,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .sort([Field("rating").descending()])
       .limit(1)
-      .select([Field("title").substr(position: 9).as("of")])
+      .select([Field("title").substring(position: 9).as("of")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       pipelineSnapshot: snapshot,

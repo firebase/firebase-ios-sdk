@@ -671,20 +671,20 @@ public extension Expression {
     return FunctionExpression("byte_length", [self])
   }
 
-  func substr(position: Int, length: Int? = nil) -> FunctionExpression {
+  func substring(position: Int, length: Int? = nil) -> FunctionExpression {
     let positionExpr = Helper.sendableToExpr(position)
     if let length = length {
-      return FunctionExpression("substr", [self, positionExpr, Helper.sendableToExpr(length)])
+      return FunctionExpression("substring", [self, positionExpr, Helper.sendableToExpr(length)])
     } else {
-      return FunctionExpression("substr", [self, positionExpr])
+      return FunctionExpression("substring", [self, positionExpr])
     }
   }
 
-  func substr(position: Expression, length: Expression? = nil) -> FunctionExpression {
+  func substring(position: Expression, length: Expression? = nil) -> FunctionExpression {
     if let length = length {
-      return FunctionExpression("substr", [self, position, length])
+      return FunctionExpression("substring", [self, position, length])
     } else {
-      return FunctionExpression("substr", [self, position])
+      return FunctionExpression("substring", [self, position])
     }
   }
 

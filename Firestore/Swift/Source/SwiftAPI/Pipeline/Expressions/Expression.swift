@@ -953,16 +953,16 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Get substring from index 5 with length 10
-  /// Field("myString").substr(5, 10)
+  /// Field("myString").substring(5, 10)
   ///
   /// // Get substring from "myString" starting at index 3 to the end
-  /// Field("myString").substr(3, nil)
+  /// Field("myString").substring(3, nil)
   /// ```
   ///
   /// - Parameter position: Literal `Int` index of the first character/byte.
   /// - Parameter length: Optional literal `Int` length of the substring. If `nil`, goes to the end.
   /// - Returns: A new `FunctionExpr` representing the substring.
-  func substr(position: Int, length: Int?) -> FunctionExpression
+  func substring(position: Int, length: Int?) -> FunctionExpression
 
   /// Creates an expression that returns a substring of this expression (String or Bytes) using
   /// expressions for position and optional length.
@@ -973,10 +973,10 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Get substring from index calculated by Field("start") with length from Field("len")
-  /// Field("myString").substr(Field("start"), Field("len"))
+  /// Field("myString").substring(Field("start"), Field("len"))
   ///
   /// // Get substring from index calculated by Field("start") to the end
-  /// Field("myString").substr(Field("start"), nil) // Passing nil for optional Expr length
+  /// Field("myString").substring(Field("start"), nil) // Passing nil for optional Expr length
   /// ```
   ///
   /// - Parameter position: An `Expr` (evaluating to an Int) for the index of the first
@@ -984,7 +984,7 @@ public protocol Expression: Sendable {
   /// - Parameter length: Optional `Expr` (evaluating to an Int) for the length of the substring. If
   /// `nil`, goes to the end.
   /// - Returns: A new `FunctionExpr` representing the substring.
-  func substr(position: Expression, length: Expression?) -> FunctionExpression
+  func substring(position: Expression, length: Expression?) -> FunctionExpression
 
   // MARK: Map Operations
 
