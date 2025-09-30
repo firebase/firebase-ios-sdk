@@ -64,7 +64,7 @@ public struct LiveServerContent: Sendable {
   ///
   /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to
   /// ``LiveGenerationConfig``.
-  public var inputTranscription: LiveTranscription? {
+  public var inputAudioTranscription: LiveTranscription? {
     serverContent.inputTranscription.map { LiveTranscription($0) }
   }
 
@@ -75,7 +75,7 @@ public struct LiveServerContent: Sendable {
   ///
   /// > Important: Transcripts are independent to the model turn. This means transcripts may
   /// > come earlier or later than when the model sends the corresponding audio responses.
-  public var outputTranscription: LiveTranscription? {
+  public var outputAudioTranscription: LiveTranscription? {
     serverContent.outputTranscription.map { LiveTranscription($0) }
   }
 
