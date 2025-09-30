@@ -60,12 +60,8 @@ class QueryListener {
 
   virtual ~QueryListener() = default;
 
-  QueryOrPipeline& query() {
+  const QueryOrPipeline& query() const {
     return query_;
-  }
-
-  ListenOptions listen_options() {
-    return options_;
   }
 
   bool listens_to_remote_store() const {

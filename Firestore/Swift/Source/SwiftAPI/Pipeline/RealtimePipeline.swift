@@ -21,6 +21,29 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct PipelineListenOptions: Sendable, Equatable, Hashable {
+  /// Defines how to handle server-generated timestamps that are not yet known locally
+  /// during latency compensation.
+  struct ServerTimestampBehavior: Sendable, Equatable, Hashable {
+    /// The raw string value for the behavior, used for implementation and hashability.
+    let rawValue: String
+    /// Creates a new behavior with a private raw value.
+    private init(rawValue: String) {
+      self.rawValue = rawValue
+    }
+
+    /// Fields dependent on server timestamps will be `nil` until the value is
+    /// confirmed by the server.
+    public static let none = ServerTimestampBehavior(rawValue: "none")
+
+    /// Fields dependent on server timestamps will receive a local, client-generated
+    /// time estimate until the value is confirmed by the server.
+    public static let estimate = ServerTimestampBehavior(rawValue: "estimate")
+
+    /// Fields dependent on server timestamps will hold the value from the last
+    /// server-confirmed write until the new value is confirmed.
+    public static let previous = ServerTimestampBehavior(rawValue: "previous")
+  }
+
   // MARK: - Stored Properties
 
   /// The desired behavior for handling pending server timestamps.
@@ -46,31 +69,16 @@ struct PipelineListenOptions: Sendable, Equatable, Hashable {
     self.includeMetadataChanges = includeMetadataChanges
     self.source = source
     bridge = __PipelineListenOptionsBridge(
-      serverTimestampBehavior: PipelineListenOptions
-        .toRawValue(servertimestamp: self.serverTimestamps ?? .none),
+      serverTimestampBehavior: (self.serverTimestamps ?? .none).rawValue,
       includeMetadata: self.includeMetadataChanges ?? false,
       source: self.source ?? ListenSource.default
     )
-  }
-
-  private static func toRawValue(servertimestamp: ServerTimestampBehavior) -> String {
-    switch servertimestamp {
-    case .none:
-      return "none"
-    case .estimate:
-      return "estimate"
-    case .previous:
-      return "previous"
-    @unknown default:
-      fatalError("Unknown server timestamp behavior")
-    }
   }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct RealtimePipeline: @unchecked Sendable {
   private var stages: [Stage]
-
   let bridge: RealtimePipelineBridge
   let db: Firestore
 
@@ -81,22 +89,18 @@ struct RealtimePipeline: @unchecked Sendable {
   }
 
   struct Snapshot: Sendable {
-    /// An array of all the results in the `Pipeline.Snapshot`.
+    /// An array of all the results in the `PipelineSnapshot`.
     let results_cache: [PipelineResult]
 
     public let changes: [PipelineResultChange]
     public let metadata: SnapshotMetadata
 
     let bridge: __RealtimePipelineSnapshotBridge
-    private var options: PipelineListenOptions
 
-    init(_ bridge: __RealtimePipelineSnapshotBridge,
-         options: PipelineListenOptions) {
+    init(_ bridge: __RealtimePipelineSnapshotBridge) {
       self.bridge = bridge
-      self.options = options
       metadata = bridge.metadata
-      results_cache = self.bridge.results
-        .map { PipelineResult($0, options.serverTimestamps ?? .none) }
+      results_cache = self.bridge.results.map { PipelineResult($0) }
       changes = self.bridge.changes.map { PipelineResultChange($0) }
     }
 
@@ -109,17 +113,13 @@ struct RealtimePipeline: @unchecked Sendable {
                                    listener: @escaping (RealtimePipeline.Snapshot?, Error?) -> Void)
     -> ListenerRegistration {
     return bridge.addSnapshotListener(options: options.bridge) { snapshotBridge, error in
-      if snapshotBridge != nil {
-        listener(
-          RealtimePipeline.Snapshot(
-            snapshotBridge!,
-            options: options
-          ),
-          error
-        )
-      } else {
-        listener(nil, error)
-      }
+      listener(
+        RealtimePipeline.Snapshot(
+          // TODO(pipeline): this needs to be fixed
+          snapshotBridge!
+        ),
+        error
+      )
     }
   }
 

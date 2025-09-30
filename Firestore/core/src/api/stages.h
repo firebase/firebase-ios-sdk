@@ -55,9 +55,8 @@ class Stage {
 
 class EvaluateContext {
  public:
-  explicit EvaluateContext(remote::Serializer* serializer,
-                           core::ListenOptions options)
-      : serializer_(serializer), listen_options_(std::move(options)) {
+  explicit EvaluateContext(remote::Serializer* serializer)
+      : serializer_(serializer) {
   }
 
   const remote::Serializer& serializer() const {

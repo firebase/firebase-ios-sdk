@@ -24,7 +24,6 @@
 #include "absl/types/optional.h"
 #include "absl/types/variant.h"
 
-#include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/realtime_pipeline.h"
 #include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/query.h"

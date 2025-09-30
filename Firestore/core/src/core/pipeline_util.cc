@@ -30,10 +30,9 @@
 #include "Firestore/core/src/core/expressions_eval.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/order_by.h"
-#include "Firestore/core/src/core/pipeline_run.h"  // Contains RunPipeline, EvaluateContext
+#include "Firestore/core/src/core/pipeline_run.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/model/document.h"
-#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/field_path.h"
 #include "Firestore/core/src/model/mutable_document.h"
@@ -46,7 +45,6 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
-#include "absl/types/compare.h"
 #include "absl/types/optional.h"
 #include "absl/types/variant.h"
 

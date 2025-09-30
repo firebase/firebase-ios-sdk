@@ -17,11 +17,8 @@
 #include "Firestore/core/src/model/value_util.h"
 
 #include <algorithm>
-#include <cmath>
 #include <limits>
-#include <memory>
 #include <type_traits>
-#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/model/database_id.h"
@@ -1070,17 +1067,13 @@ google_firestore_v1_MapValue_FieldsEntry* FindEntry(
     return nullptr;
   }
   const google_firestore_v1_MapValue& map_value = value.map_value;
-
-  // MapValues in iOS are always stored in sorted order.
-  auto found = std::equal_range(map_value.fields,
-                                map_value.fields + map_value.fields_count,
-                                field, MapEntryKeyCompare());
-
-  if (found.first == found.second) {
-    return nullptr;
+  for (pb_size_t i = 0; i < map_value.fields_count; ++i) {
+    if (nanopb::MakeStringView(map_value.fields[i].key) == field) {
+      return &map_value.fields[i];
+    }
   }
 
-  return found.first;
+  return nullptr;
 }
 
 namespace {
@@ -1149,6 +1142,7 @@ StrictEqualsResult StrictMapEquals(const google_firestore_v1_MapValue& left,
   return found_null ? StrictEqualsResult::kNull : StrictEqualsResult::kEq;
 }
 
+// TODO(BSON): need to add support for int32 and decimal128 later.
 StrictEqualsResult StrictNumberEquals(const google_firestore_v1_Value& left,
                                       const google_firestore_v1_Value& right) {
   if (left.which_value_type == google_firestore_v1_Value_integer_value_tag &&
@@ -1207,7 +1201,7 @@ StrictEqualsResult StrictEquals(const google_firestore_v1_Value& left,
       // by the Equals call below. Vector equality is map equality.
       return StrictMapEquals(left.map_value, right.map_value);
     default:
-      // For all other types (Null, Boolean, Number, Timestamp, String, Blob,
+      // For all other types (Null, Boolean, Timestamp, String, Blob,
       // Ref, GeoPoint, MaxValue), the standard Equals function works.
       return Equals(left, right) ? StrictEqualsResult::kEq
                                  : StrictEqualsResult::kNotEq;

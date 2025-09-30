@@ -1558,7 +1558,6 @@ public protocol Expression: Sendable {
 
   // MARK: Equivalence Operations
 
-
   /// Creates a `BooleanExpr` that returns `true` if this expression is equivalent
   /// to the given value.
   ///
