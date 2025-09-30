@@ -15,7 +15,8 @@
 import Foundation
 
 /// Configuration for controlling the voice of the model during conversation.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 public struct SpeechConfig: Sendable {
   let speechConfig: BidiSpeechConfig
 
