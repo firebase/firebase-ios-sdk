@@ -105,7 +105,7 @@ actor LiveSessionService {
   /// If there's any issues while sending the message, details about the issue will be logged.
   ///
   /// Since messages are queued syncronously, they are sent in-order.
-  public func send(_ message: BidiGenerateContentClientMessage) {
+  func send(_ message: BidiGenerateContentClientMessage) {
     messageQueueContinuation.yield(message)
   }
 
