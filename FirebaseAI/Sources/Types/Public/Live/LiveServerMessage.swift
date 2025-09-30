@@ -31,7 +31,7 @@ public struct LiveServerMessage: Sendable {
     case toolCallCancellation(LiveServerToolCallCancellation)
 
     /// Server will disconnect soon.
-    case goAway(LiveServerGoAway)
+    case goingAwayNotice(LiveServerGoingAwayNotice)
   }
 
   /// The actual message sent from the server.
@@ -71,7 +71,7 @@ extension LiveServerMessage.MessageType {
     case let .toolCallCancellation(msg):
       self = .toolCallCancellation(LiveServerToolCallCancellation(msg))
     case let .goAway(msg):
-      self = .goAway(LiveServerGoAway(msg))
+      self = .goingAwayNotice(LiveServerGoingAwayNotice(msg))
     }
   }
 }
