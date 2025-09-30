@@ -128,7 +128,7 @@ actor LiveSessionService {
   /// Cancel any running tasks and close the websocket.
   ///
   /// This method is idempotent; if it's already ran once, it will effectively be a no-op.
-  public func close() {
+  func close() {
     setupTask.cancel()
     responsesTask?.cancel()
     messageQueueTask?.cancel()
