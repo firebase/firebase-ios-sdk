@@ -122,4 +122,27 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
   XCTAssertEqualObjects(adapter.identity.app_quality_session_id, TestContextSessionID2);
 }
 
+// This test is for chain on init promise for development platform related setters
+- (void)test_promisesChainOnInitPromiseInOrder {
+  NSMutableArray<NSString *> *result = @[].mutableCopy;
+  NSMutableArray<NSString *> *expectation = @[].mutableCopy;
+
+  for (int j = 0; j < 100; j++) {
+    [expectation addObject:[NSString stringWithFormat:@"%d", j]];
+  }
+
+  FBLPromise *promise = [self.contextManager setupContextWithReport:self.report
+                                                           settings:self.mockSettings
+                                                        fileManager:self.fileManager];
+
+  for (int i = 0; i < 100; i++) {
+    [promise then:^id _Nullable(id _Nullable value) {
+      [result addObject:[NSString stringWithFormat:@"%d", i]];
+      if (i == 99) {
+        XCTAssertTrue([result isEqualToArray:expectation]);
+      }
+      return nil;
+    }];
+  }
+}
 @end
