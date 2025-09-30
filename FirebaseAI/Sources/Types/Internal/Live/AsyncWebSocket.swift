@@ -49,7 +49,7 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
 
   /// Closes the websocket, if it's not already closed.
   func disconnect() {
-    if closeError.value() != nil { return }
+    guard closeError.value() == nil else { return }
 
     close(code: .goingAway, reason: nil)
   }
