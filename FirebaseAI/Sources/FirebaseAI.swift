@@ -146,7 +146,7 @@ public final class FirebaseAI: Sendable {
   /// > Important: Only Live models (typically containing `live-*` in the name) are supported.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the Livemodel to use, for example
+  ///   - modelName: The name of the Live model to use, for example
   ///     `"gemini-live-2.5-flash-preview"`;
   ///     see [model versions](https://firebase.google.com/docs/ai-logic/live-api?api=dev#models-that-support-capability)
   ///     for a list of supported Live models.
