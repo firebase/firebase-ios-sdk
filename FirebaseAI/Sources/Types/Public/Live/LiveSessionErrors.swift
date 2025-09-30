@@ -57,6 +57,8 @@ public struct LiveSessionLostConnectionError: Error, Sendable, CustomNSError {
 /// The live session was closed, but not for a reason the SDK expected.
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError {
   let underlyingError: WebSocketClosedError
 
