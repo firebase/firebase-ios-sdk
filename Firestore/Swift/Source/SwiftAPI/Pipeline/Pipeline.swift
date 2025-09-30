@@ -453,7 +453,7 @@ public struct Pipeline: @unchecked Sendable {
   /// Fully overwrites document fields with those from a nested map identified by an `Expr`.
   ///
   /// "Promotes" a map value (dictionary) from a field to become the new root document.
-  /// Each key-value pair from the map specified by `expr` becomes a field-value pair
+  /// Each key-value pair from the map specified by `expression` becomes a field-value pair
   /// in the output document, discarding original document fields.
   ///
   /// ```swift
@@ -468,7 +468,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // Output document would be: { "name": "Alex", "age": 30 }
   /// ```
   ///
-  /// - Parameter expr: The `Expr` (typically a `Field`) that resolves to the nested map.
+  /// - Parameter expression: The `Expr` (typically a `Field`) that resolves to the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func replace(with expr: Expression) -> Pipeline {
     return Pipeline(stages: stages + [ReplaceWith(expr: expr)], db: db)

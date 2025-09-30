@@ -38,7 +38,7 @@ public class ConditionalExpression: FunctionExpression, @unchecked Sendable {
   /// Creates a new `ConditionalExpression`.
   ///
   /// - Parameters:
-  ///   - expr: The `BooleanExpression` to evaluate.
+  ///   - expression: The `BooleanExpression` to evaluate.
   ///   - thenExpression: The `Expression` to evaluate if the boolean expression is `true`.
   ///   - elseExpression: The `Expression` to evaluate if the boolean expression is `false`.
   public init(_ expr: BooleanExpression,

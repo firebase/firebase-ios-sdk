@@ -826,14 +826,14 @@ public protocol Expression: Sendable {
 
   /// Creates an expression that checks if a string (from `self`) contains a specified substring
   /// from an expression (case-sensitive).
-  /// Assumes `self` evaluates to a string, and `expr` evaluates to a string.
+  /// Assumes `self` evaluates to a string, and `expression` evaluates to a string.
   ///
   /// ```swift
   /// // Check if the "message" field contains the value of the "keyword" field.
   /// Field("message").stringContains(Field("keyword"))
   /// ```
   ///
-  /// - Parameter expr: An `Expression` (evaluating to a string) representing the substring to
+  /// - Parameter expression: An `Expression` (evaluating to a string) representing the substring to
   /// search for.
   /// - Returns: A new `BooleanExpr` representing the "str_contains" comparison.
   func stringContains(_ expression: Expression) -> BooleanExpression
