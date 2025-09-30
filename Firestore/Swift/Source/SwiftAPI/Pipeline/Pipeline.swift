@@ -87,12 +87,32 @@ public struct Pipeline: @unchecked Sendable {
     self.db = db
     bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
+  
+  public struct Snapshot: Sendable {
+    /// The Pipeline on which `execute()` was called to obtain this `Pipeline.Snapshot`.
+    public let pipeline: Pipeline
 
-  /// Executes the defined pipeline and returns a `PipelineSnapshot` containing the results.
+    /// An array of all the results in the `Pipeline.Snapshot`.
+    public let results: [PipelineResult]
+
+    /// The time at which the pipeline producing this result was executed.
+    public let executionTime: Timestamp
+
+    let bridge: __PipelineSnapshotBridge
+
+    init(_ bridge: __PipelineSnapshotBridge, pipeline: Pipeline) {
+      self.bridge = bridge
+      self.pipeline = pipeline
+      executionTime = self.bridge.execution_time
+      results = self.bridge.results.map { PipelineResult($0) }
+    }
+  }
+
+  /// Executes the defined pipeline and returns a `Pipeline.Snapshot` containing the results.
   ///
   /// This method asynchronously sends the pipeline definition to Firestore for execution.
   /// The resulting documents, transformed and filtered by the pipeline stages, are returned
-  /// within a `PipelineSnapshot`.
+  /// within a `Pipeline.Snapshot`.
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume a pipeline is already configured.
@@ -106,14 +126,14 @@ public struct Pipeline: @unchecked Sendable {
   /// ```
   ///
   /// - Throws: An error if the pipeline execution fails on the backend.
-  /// - Returns: A `PipelineSnapshot` containing the result of the pipeline execution.
-  public func execute() async throws -> PipelineSnapshot {
+  /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
+  public func execute() async throws -> Pipeline.Snapshot {
     return try await withCheckedThrowingContinuation { continuation in
       self.bridge.execute { result, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
-          continuation.resume(returning: PipelineSnapshot(result!, pipeline: self))
+          continuation.resume(returning: Pipeline.Snapshot(result!, pipeline: self))
         }
       }
     }

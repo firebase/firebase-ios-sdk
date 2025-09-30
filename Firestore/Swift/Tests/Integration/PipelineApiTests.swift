@@ -36,7 +36,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     let query: Query = db.collection("foo").limit(to: 2)
     let _: Pipeline = pipelineSource.create(from: query)
 
-    let _: PipelineSnapshot = try await pipeline.execute()
+    let _: Pipeline.Snapshot = try await pipeline.execute()
   }
 
   func testWhereStage() async throws {

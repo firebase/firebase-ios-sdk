@@ -144,7 +144,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(0)
       .execute()
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedCount: 0)
+    TestHelper.compare(snapshot: snapshot, expectedCount: 0)
   }
 
   func testFullResults() async throws {
@@ -158,7 +158,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .execute()
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: [
+    TestHelper.compare(snapshot: snapshot, expectedIDs: [
       "book1", "book10", "book2", "book3", "book4",
       "book5", "book6", "book7", "book8", "book9",
     ], enforceOrder: false)
@@ -186,7 +186,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline().collection(collRef.path).limit(0)
     let snapshot = try await pipeline.execute()
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedCount: 0)
+    TestHelper.compare(snapshot: snapshot, expectedCount: 0)
 
     let executionTimeValue = snapshot.executionTime.dateValue().timeIntervalSince1970
     XCTAssertGreaterThan(executionTimeValue, 0, "Execution time should be positive and not zero")
@@ -310,7 +310,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline().collection(collRef)
     let snapshot = try await pipeline.execute()
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedCount: bookDocs.count)
+    TestHelper.compare(snapshot: snapshot, expectedCount: bookDocs.count)
   }
 
   func testSupportsListOfDocumentReferencesAsSource() async throws {
@@ -327,7 +327,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper
       .compare(
-        pipelineSnapshot: snapshot,
+        snapshot: snapshot,
         expectedIDs: ["book1", "book2", "book3"],
         enforceOrder: false
       )
@@ -347,7 +347,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper
       .compare(
-        pipelineSnapshot: snapshot,
+        snapshot: snapshot,
         expectedIDs: ["book1", "book2", "book3"],
         enforceOrder: false
       )
@@ -403,7 +403,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     // correct order.
     TestHelper
       .compare(
-        pipelineSnapshot: snapshot,
+        snapshot: snapshot,
         expectedIDs: [doc1Ref.documentID, doc2Ref.documentID],
         enforceOrder: true
       )
@@ -460,7 +460,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     // Order should be docE (order 0), docA (order 1), docB (order 2)
     TestHelper
       .compare(
-        pipelineSnapshot: snapshot,
+        snapshot: snapshot,
         expectedIDs: [subSubCollDocRef.documentID, collADocRef.documentID, collBDocRef.documentID],
         enforceOrder: true
       )
@@ -580,7 +580,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select(
         constantsFirst + constantsSecond
       )
-    let snapshot: PipelineSnapshot = try await pipeline.execute()
+    let snapshot = try await pipeline.execute()
 
     TestHelper.compare(pipelineResult: snapshot.results.first!, expected: expectedResultsMap)
   }
@@ -790,7 +790,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ]
 
     TestHelper
-      .compare(pipelineSnapshot: snapshot, expected: expectedResultsArray, enforceOrder: true)
+      .compare(snapshot: snapshot, expected: expectedResultsArray, enforceOrder: true)
   }
 
   func testReturnsMinMaxCountAndCountAllAccumulations() async throws {
@@ -897,7 +897,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, expectedResults.count, "Snapshot results count mismatch")
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testSelectStage() async throws {
@@ -930,7 +930,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "Snapshot results count mismatch for select stage."
     )
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testAddFieldStage() async throws {
@@ -964,7 +964,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "Snapshot results count mismatch for addField stage."
     )
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testRemoveFieldsStage() async throws {
@@ -999,7 +999,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "Snapshot results count mismatch for removeFields stage."
     )
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testWhereStageWithAndConditions() async throws {
@@ -1013,7 +1013,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         && Field("genre").equalAny(["Science Fiction", "Romance", "Fantasy"]))
     var snapshot = try await pipeline.execute()
     var expectedIDs = ["book10", "book4"] // Dune (SF, 4.6), LOTR (Fantasy, 4.7)
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: expectedIDs, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expectedIDs: expectedIDs, enforceOrder: false)
 
     // Test Case 2: Three AND conditions
     pipeline = db.pipeline()
@@ -1025,7 +1025,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       )
     snapshot = try await pipeline.execute()
     expectedIDs = ["book4"] // LOTR (Fantasy, 4.7, published 1954)
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: expectedIDs, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expectedIDs: expectedIDs, enforceOrder: false)
   }
 
   func testWhereStageWithOrAndXorConditions() async throws {
@@ -1056,7 +1056,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       expectedResults.count,
       "Snapshot results count mismatch for OR conditions."
     )
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
 
     // Test Case 2: XOR conditions
     // XOR is true if an odd number of its arguments are true.
@@ -1084,7 +1084,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       expectedResults.count,
       "Snapshot results count mismatch for XOR conditions."
     )
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testSortOffsetAndLimitStages() async throws {
@@ -1105,7 +1105,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "To Kill a Mockingbird", "author": "Harper Lee"],
       ["title": "The Lord of the Rings", "author": "J.R.R. Tolkien"],
     ]
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   // MARK: - Generic Stage Tests
@@ -1133,11 +1133,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .sort([Field("title").ascending()])
       .limit(1)
 
-    let snapshot: PipelineSnapshot = try await pipeline.execute()
+    let snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [expectedSelectedData],
       enforceOrder: true
     )
@@ -1167,7 +1167,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         [
           "title": "The Hitchhiker's Guide to the Galaxy",
@@ -1197,7 +1197,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         ["rating": 4.7],
         ["rating": 4.6],
@@ -1233,7 +1233,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         [
           "averageRating": 4.3100000000000005,
@@ -1258,7 +1258,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         [
           "title": "The Hitchhiker's Guide to the Galaxy",
@@ -1291,7 +1291,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         [
           "author": "Fyodor Dostoevsky",
@@ -1315,7 +1315,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let snapshot = try await pipeline.execute()
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedCount: 1)
+    TestHelper.compare(snapshot: snapshot, expectedCount: 1)
 
     let expectedBook1Transformed: [String: Sendable?] = [
       "hugo": true,
@@ -1325,7 +1325,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper
       .compare(
-        pipelineSnapshot: snapshot,
+        snapshot: snapshot,
         expected: [expectedBook1Transformed],
         enforceOrder: false
       )
@@ -1353,7 +1353,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "baz": ["title": "The Hitchhiker's Guide to the Galaxy"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: [expectedResults], enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: [expectedResults], enforceOrder: false)
   }
 
   // MARK: - Sample Stage Tests
@@ -1369,7 +1369,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     TestHelper
-      .compare(pipelineSnapshot: snapshot, expectedCount: 3)
+      .compare(snapshot: snapshot, expectedCount: 3)
   }
 
   func testSampleStageLimitPercentage60Average() async throws {
@@ -1426,7 +1426,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "book9",
       "book9",
     ]
-    TestHelper.compare(pipelineSnapshot: snapshot, expectedIDs: books, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expectedIDs: books, enforceOrder: false)
   }
 
   func testUnnestStage() async throws {
@@ -1487,7 +1487,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testUnnestExpr() async throws {
@@ -1548,7 +1548,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testFindNearest() async throws {
@@ -1572,7 +1572,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         )
         .select(["title"])
       let snapshot = try await pipeline.execute()
-      TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+      TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
     }
   }
 
@@ -1601,7 +1601,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       )
       .select(["title", "computedDistance"])
     let snapshot = try await pipeline.execute()
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testLogicalMaxWorks() async throws {
@@ -1625,7 +1625,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Dune", "published-safe": 1965],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testLogicalMinWorks() async throws {
@@ -1641,7 +1641,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .sort([Field("title").ascending()])
       .limit(3)
 
-    let snapshot: PipelineSnapshot = try await pipeline.execute()
+    let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
       ["title": "1984", "published-safe": 1949],
@@ -1649,7 +1649,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Dune", "published-safe": 1960],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testCondWorks() async throws {
@@ -1674,7 +1674,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Dune", "published-safe": 1965],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testInWorks() async throws {
@@ -1687,14 +1687,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .sort([Field("title").descending()])
       .select(["title"])
 
-    let snapshot: PipelineSnapshot = try await pipeline.execute()
+    let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
       ["title": "The Hitchhiker's Guide to the Galaxy"],
       ["title": "One Hundred Years of Solitude"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testNotEqAnyWorks() async throws {
@@ -1713,7 +1713,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Pride and Prejudice"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testArrayContainsWorks() async throws {
@@ -1731,7 +1731,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "The Hitchhiker's Guide to the Galaxy"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testArrayContainsAnyWorks() async throws {
@@ -1751,7 +1751,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Pride and Prejudice"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testArrayContainsAllWorks() async throws {
@@ -1769,7 +1769,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "The Lord of the Rings"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testArrayLengthWorks() async throws {
@@ -1809,7 +1809,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["reversedTags": ["c", "b", "a"]],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testStrConcat() async throws {
@@ -1828,7 +1828,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["bookInfo": "Douglas Adams - The Hitchhiker's Guide to the Galaxy"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testStringConcatWithSendable() async throws {
@@ -1847,7 +1847,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["bookInfo": "Douglas Adams - The Hitchhiker's Guide to the Galaxy"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testStartsWith() async throws {
@@ -1869,7 +1869,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "The Lord of the Rings"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testEndsWith() async throws {
@@ -1889,7 +1889,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "The Great Gatsby"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testStrContains() async throws {
@@ -1909,7 +1909,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "The Hitchhiker's Guide to the Galaxy"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testCharLength() async throws {
@@ -1934,7 +1934,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["titleLength": 21, "title": "To Kill a Mockingbird"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testLength() async throws {
@@ -1960,7 +1960,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["lengthValue": 3],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testReverseWorksOnString() async throws {
@@ -1986,7 +1986,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["reversedValue": "cba"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
   
   func testReverseWorksOnArray() async throws {
@@ -2012,7 +2012,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["reversedTags": ["c", "b", "a"]],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testLike() async throws {
@@ -2030,7 +2030,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "The Hitchhiker's Guide to the Galaxy"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
   func testRegexContains() async throws {
@@ -2120,7 +2120,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["absValue": 10],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testCeilWorks() async throws {
@@ -2146,7 +2146,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["ceilValue": 6],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testFloorWorks() async throws {
@@ -2172,7 +2172,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["floorValue": 5],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testLnWorks() async throws {
@@ -2198,7 +2198,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["lnValue": 2],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testPowWorks() async throws {
@@ -2224,7 +2224,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["powValue": 9],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testRoundWorks() async throws {
@@ -2250,7 +2250,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["roundValue": 5],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testSqrtWorks() async throws {
@@ -2276,7 +2276,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["sqrtValue": 4],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testExpWorks() async throws {
@@ -2302,7 +2302,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["expValue": Foundation.exp(Double(1))],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testExpUnderflow() async throws {
@@ -2323,7 +2323,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["expValue": 0],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testExpOverflow() async throws {
@@ -2360,7 +2360,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["collectionId": collRef.collectionID],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
 //  func testCollectionIdOnRootThrowsError() async throws {
@@ -2401,7 +2401,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["rating": 4.5, "title": "Pride and Prejudice"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testLogicalOperators() async throws {
@@ -2425,7 +2425,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Pride and Prejudice"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testChecks() async throws {
@@ -2540,7 +2540,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testDistanceFunctions() async throws {
@@ -2644,7 +2644,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Dune", "awards.hugo": true],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testMapGetWithFieldNameIncludingDotNotation() async throws {
@@ -2675,7 +2675,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
     ]
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: expectedResultsArray,
       enforceOrder: true
     )
@@ -2733,7 +2733,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "1984"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResult, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResult, enforceOrder: false)
   }
 
   func testGenericFunctionArrayContainsAny() async throws {
@@ -2756,7 +2756,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Dune"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResult, enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResult, enforceOrder: false)
   }
 
   func testGenericFunctionCountIfAggregate() async throws {
@@ -2808,7 +2808,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "The Great Gatsby"],
     ]
 
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testSupportsRand() async throws {
@@ -2912,7 +2912,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot1 = try await pipeline1.execute()
     XCTAssertEqual(snapshot1.results.count, 3, "Part 1: Should retrieve three documents")
     TestHelper.compare(
-      pipelineSnapshot: snapshot1,
+      snapshot: snapshot1,
       expected: expectedResultsPart1,
       enforceOrder: true
     )
@@ -3195,7 +3195,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      .select([Field("title").replaceFirst("o", with: "0").as("newName")])
 //    let snapshot = try await pipeline.execute()
 //    TestHelper.compare(
-//      pipelineSnapshot: snapshot,
+//      snapshot: snapshot,
 //      expected: [["newName": "The L0rd of the Rings"]],
 //      enforceOrder: false
 //    )
@@ -3213,7 +3213,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      .select([Field("title").stringReplace("o", with: "0").as("newName")])
 //    let snapshot = try await pipeline.execute()
 //    TestHelper.compare(
-//      pipelineSnapshot: snapshot,
+//      snapshot: snapshot,
 //      expected: [["newName": "The L0rd 0f the Rings"]],
 //      enforceOrder: false
 //    )
@@ -3230,7 +3230,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      .limit(1)
 //      .select([Constant(5).bitAnd(12).as("result")])
 //    let snapshot = try await pipeline.execute()
-//    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 4]], enforceOrder: false)
+//    TestHelper.compare(snapshot: snapshot, expected: [["result": 4]], enforceOrder: false)
 //  }
 //
 //  func testBitOr() async throws {
@@ -3244,7 +3244,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      .limit(1)
 //      .select([Constant(5).bitOr(12).as("result")])
 //    let snapshot = try await pipeline.execute()
-//    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 13]], enforceOrder: false)
+//    TestHelper.compare(snapshot: snapshot, expected: [["result": 13]], enforceOrder: false)
 //  }
 //
 //  func testBitXor() async throws {
@@ -3258,7 +3258,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      .limit(1)
 //      .select([Constant(5).bitXor(12).as("result")])
 //    let snapshot = try await pipeline.execute()
-//    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["result": 9]], enforceOrder: false)
+//    TestHelper.compare(snapshot: snapshot, expected: [["result": 9]], enforceOrder: false)
 //  }
 //
 //  func testBitNot() async throws {
@@ -3275,7 +3275,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      .select([Constant(bytesInput).bitNot().as("result")])
 //    let snapshot = try await pipeline.execute()
 //    TestHelper.compare(
-//      pipelineSnapshot: snapshot,
+//      snapshot: snapshot,
 //      expected: [["result": expectedOutput]],
 //      enforceOrder: false
 //    )
@@ -3295,7 +3295,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      .select([Constant(bytesInput).bitLeftShift(2).as("result")])
 //    let snapshot = try await pipeline.execute()
 //    TestHelper.compare(
-//      pipelineSnapshot: snapshot,
+//      snapshot: snapshot,
 //      expected: [["result": expectedOutput]],
 //      enforceOrder: false
 //    )
@@ -3315,7 +3315,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //      .select([Constant(bytesInput).bitRightShift(2).as("result")])
 //    let snapshot = try await pipeline.execute()
 //    TestHelper.compare(
-//      pipelineSnapshot: snapshot,
+//      snapshot: snapshot,
 //      expected: [["result": expectedOutput]],
 //      enforceOrder: false
 //    )
@@ -3333,7 +3333,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([Field("__path__").documentId().as("docId")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [["docId": "book4"]],
       enforceOrder: false
     )
@@ -3349,7 +3349,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .select([Field("title").substring(position: 9, length: 2).as("of")])
     let snapshot = try await pipeline.execute()
-    TestHelper.compare(pipelineSnapshot: snapshot, expected: [["of": "of"]], enforceOrder: false)
+    TestHelper.compare(snapshot: snapshot, expected: [["of": "of"]], enforceOrder: false)
   }
 
   func testSubstringWithoutLength() async throws {
@@ -3363,7 +3363,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([Field("title").substring(position: 9).as("of")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [["of": "of the Rings"]],
       enforceOrder: false
     )
@@ -3398,7 +3398,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ]
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [["modifiedTags": expectedTags]],
       enforceOrder: false
     )
@@ -3420,7 +3420,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     snapshot = try await pipeline.execute()
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [["modifiedTags": expectedTags]],
       enforceOrder: false
     )
@@ -3437,7 +3437,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([Field("title").toLower().as("lowercaseTitle")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [["lowercaseTitle": "the hitchhiker's guide to the galaxy"]],
       enforceOrder: false
     )
@@ -3454,7 +3454,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([Field("author").toUpper().as("uppercaseAuthor")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [["uppercaseAuthor": "DOUGLAS ADAMS"]],
       enforceOrder: false
     )
@@ -3472,7 +3472,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [[
         "spacedTitle": " The Hitchhiker's Guide to the Galaxy ",
         "trimmedTitle": "The Hitchhiker's Guide to the Galaxy",
@@ -3494,7 +3494,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([Field("title").reverse().as("reverseTitle")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [["reverseTitle": "4891"]],
       enforceOrder: false
     )
@@ -3552,7 +3552,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     var snapshot = try await pipeline.limit(Int32(pageSize)).execute()
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         ["title": "The Lord of the Rings", "rating": 4.7],
         ["title": "Jonathan Strange & Mr Norrell", "rating": 4.6],
@@ -3569,7 +3569,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ).limit(Int32(pageSize)).execute()
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         ["title": "Pride and Prejudice", "rating": 4.5],
         ["title": "Crime and Punishment", "rating": 4.3],
@@ -3605,7 +3605,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     currPage += 1
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         ["title": "The Lord of the Rings", "rating": 4.7],
         ["title": "Dune", "rating": 4.6],
@@ -3620,7 +3620,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     currPage += 1
 
     TestHelper.compare(
-      pipelineSnapshot: snapshot,
+      snapshot: snapshot,
       expected: [
         ["title": "A Long Way to a Small, Angry Planet", "rating": 4.6],
         ["title": "Pride and Prejudice", "rating": 4.5],

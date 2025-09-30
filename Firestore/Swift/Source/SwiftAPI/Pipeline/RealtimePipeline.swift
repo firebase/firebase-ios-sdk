@@ -79,14 +79,44 @@ struct RealtimePipeline: @unchecked Sendable {
     self.db = db
     bridge = RealtimePipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
+  
+  struct Snapshot: Sendable {
+    /// The Pipeline on which `execute()` was called to obtain this `Pipeline.Snapshot`.
+    public let pipeline: RealtimePipeline
+
+    /// An array of all the results in the `Pipeline.Snapshot`.
+    let results_cache: [PipelineResult]
+
+    public let changes: [PipelineResultChange]
+    public let metadata: SnapshotMetadata
+
+    let bridge: __RealtimePipelineSnapshotBridge
+    private var options: PipelineListenOptions
+
+    init(_ bridge: __RealtimePipelineSnapshotBridge,
+         pipeline: RealtimePipeline,
+         options: PipelineListenOptions) {
+      self.bridge = bridge
+      self.pipeline = pipeline
+      self.options = options
+      metadata = bridge.metadata
+      results_cache = self.bridge.results
+        .map { PipelineResult($0, options.serverTimestamps ?? .none) }
+      changes = self.bridge.changes.map { PipelineResultChange($0) }
+    }
+
+    public func results() -> [PipelineResult] {
+      return results_cache
+    }
+  }
 
   private func addSnapshotListener(options: PipelineListenOptions,
-                                   listener: @escaping (RealtimePipelineSnapshot?, Error?) -> Void)
+                                   listener: @escaping (RealtimePipeline.Snapshot?, Error?) -> Void)
     -> ListenerRegistration {
     return bridge.addSnapshotListener(options: options.bridge) { snapshotBridge, error in
       if snapshotBridge != nil {
         listener(
-          RealtimePipelineSnapshot(
+          RealtimePipeline.Snapshot(
             snapshotBridge!,
             pipeline: self,
             options: options
@@ -100,7 +130,7 @@ struct RealtimePipeline: @unchecked Sendable {
   }
 
   public func snapshotStream(options: PipelineListenOptions? = nil)
-    -> AsyncThrowingStream<RealtimePipelineSnapshot, Error> {
+    -> AsyncThrowingStream<RealtimePipeline.Snapshot, Error> {
     AsyncThrowingStream { continuation in
       let listener = self.addSnapshotListener(
         options: options ?? PipelineListenOptions()

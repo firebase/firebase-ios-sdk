@@ -20,7 +20,7 @@ import Foundation
 import XCTest
 
 public enum TestHelper {
-  public static func compare(pipelineSnapshot snapshot: PipelineSnapshot,
+  public static func compare(snapshot: Pipeline.Snapshot,
                              expectedCount: Int,
                              file: StaticString = #file,
                              line: UInt = #line) {
@@ -33,7 +33,7 @@ public enum TestHelper {
     )
   }
 
-  static func compare(pipelineSnapshot snapshot: PipelineSnapshot,
+  static func compare(snapshot: Pipeline.Snapshot,
                       expectedIDs: [String],
                       enforceOrder: Bool,
                       file: StaticString = #file,
@@ -68,7 +68,7 @@ public enum TestHelper {
     }
   }
 
-  static func compare(pipelineSnapshot snapshot: PipelineSnapshot,
+  static func compare(snapshot: Pipeline.Snapshot,
                       expected: [[String: Sendable?]],
                       enforceOrder: Bool,
                       file: StaticString = #file,
