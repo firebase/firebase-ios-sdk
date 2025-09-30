@@ -30,7 +30,7 @@ import Foundation
 /// session is being reloaded.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 actor LiveSessionService {
-  public let responses: AsyncThrowingStream<LiveServerMessage, Error>
+  let responses: AsyncThrowingStream<LiveServerMessage, Error>
   private let responseContinuation: AsyncThrowingStream<LiveServerMessage, Error>
     .Continuation
 
