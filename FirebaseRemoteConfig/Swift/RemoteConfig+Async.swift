@@ -35,7 +35,7 @@ public extension RemoteConfig {
   /// func listenForRealtimeUpdates() {
   ///   Task {
   ///     do {
-  ///       for try await configUpdate in remoteConfig.updates {
+  ///       for try await configUpdate in remoteConfig.configUpdates {
   ///         print("Updated keys: \(configUpdate.updatedKeys)")
   ///         // Activate the new config to make it available
   ///         let status = try await remoteConfig.activate()
@@ -47,8 +47,8 @@ public extension RemoteConfig {
   ///   }
   /// }
   /// ```
-  var updates: AsyncThrowingStream<RemoteConfigUpdate, Error> {
-    return AsyncThrowingStream { continuation in
+  var configUpdates: AsyncThrowingStream<RemoteConfigUpdate, Error> {
+    AsyncThrowingStream { continuation in
       let listener = addOnConfigUpdateListener { update, error in
         switch (update, error) {
         case let (update?, _):

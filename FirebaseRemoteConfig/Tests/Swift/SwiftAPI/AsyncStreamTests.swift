@@ -33,7 +33,7 @@ class MockListenerRegistration: ConfigUpdateListenerRegistration, @unchecked Sen
 /// A mock for the RCNConfigRealtime component that allows tests to control the config update
 /// listener.
 class MockRealtime: RCNConfigRealtime, @unchecked Sendable {
-  /// The listener closure captured from the `updates` async stream.
+  /// The listener closure captured from the `configUpdates` async stream.
   var listener: ((RemoteConfigUpdate?, Error?) -> Void)?
   let mockRegistration = MockListenerRegistration()
   var listenerAttachedExpectation: XCTestExpectation?
@@ -62,7 +62,7 @@ class MockRealtime: RCNConfigRealtime, @unchecked Sendable {
   }
 }
 
-// MARK: - AsyncStreamTests2
+// MARK: - AsyncStreamTests
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AsyncStreamTests: XCTestCase {
@@ -107,7 +107,7 @@ class AsyncStreamTests: XCTestCase {
     mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
 
     let listeningTask = Task {
-      for try await update in config.updates {
+      for try await update in config.configUpdates {
         XCTAssertEqual(update.updatedKeys, Set(keysToUpdate))
         expectation.fulfill()
         break // End the loop after receiving the expected update.
@@ -132,7 +132,7 @@ class AsyncStreamTests: XCTestCase {
 
     let listeningTask = Task {
       do {
-        for try await _ in config.updates {
+        for try await _ in config.configUpdates {
           XCTFail("Stream should not have yielded any updates.")
         }
       } catch {
@@ -155,7 +155,7 @@ class AsyncStreamTests: XCTestCase {
     mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
 
     let listeningTask = Task {
-      for try await _ in config.updates {
+      for try await _ in config.configUpdates {
         // We will cancel the task, so it should not reach here.
       }
     }
@@ -185,7 +185,7 @@ class AsyncStreamTests: XCTestCase {
     let listeningTask = Task {
       var updateCount = 0
       do {
-        for try await _ in config.updates {
+        for try await _ in config.configUpdates {
           updateCount += 1
         }
         // The loop finished without throwing, which is the success condition.
@@ -217,7 +217,7 @@ class AsyncStreamTests: XCTestCase {
     mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
 
     let listeningTask = Task {
-      for try await update in config.updates {
+      for try await update in config.configUpdates {
         receivedUpdates.append(update.updatedKeys)
         expectation.fulfill()
         if receivedUpdates.count == updatesToSend.count {
