@@ -2130,6 +2130,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testPowWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["base": 2, "exponent": 3],
+      "doc2": ["base": 3, "exponent": 2],
+      "doc3": ["base": 4, "exponent": 0.5],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("base").pow(Field("exponent")).as("powValue"),
+      ])
+      .sort([Field("powValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["powValue": 2],
+      ["powValue": 8],
+      ["powValue": 9],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testExpWorks() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": ["value": 1],

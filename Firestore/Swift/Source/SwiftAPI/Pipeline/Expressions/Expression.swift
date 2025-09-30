@@ -36,6 +36,32 @@ public protocol Expression: Sendable {
 
   // --- Added Mathematical Operations ---
 
+  /// Creates an expression that returns the value of self raised to the power of Y.
+  ///
+  /// Returns zero on underflow.
+  ///
+  /// ```swift
+  /// // Get the value of the "amount" field raised to the power of 2.
+  /// Field("amount").pow(2)
+  /// ```
+  ///
+  /// - Parameter exponent: The exponent to raise self to.
+  /// - Returns: A new `FunctionExpression` representing the power of the number.
+  func pow(_ exponent: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the value of self raised to the power of Y.
+  ///
+  /// Returns zero on underflow.
+  ///
+  /// ```swift
+  /// // Get the value of the "amount" field raised to the power of the "exponent" field.
+  /// Field("amount").pow(Field("exponent"))
+  /// ```
+  ///
+  /// - Parameter exponent: The exponent to raise self to.
+  /// - Returns: A new `FunctionExpression` representing the power of the number.
+  func pow(_ exponent: Expression) -> FunctionExpression
+
   /// Creates an expression that returns the natural logarithm of self.
   ///
   /// ```swift
