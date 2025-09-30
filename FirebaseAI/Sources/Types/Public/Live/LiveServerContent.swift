@@ -55,7 +55,7 @@ public struct LiveServerContent: Sendable {
   ///
   ///  Note that if the model was ``interrupted``, this will not be set. The model will go from
   /// ``interrupted`` -> ``turnComplete``.
-  public var generationComplete: Bool? { serverContent.generationComplete }
+  public var isGenerationComplete: Bool? { serverContent.generationComplete }
 
   /// Metadata specifing the sources used to ground generated content.
   public var groundingMetadata: GroundingMetadata? { serverContent.groundingMetadata }
