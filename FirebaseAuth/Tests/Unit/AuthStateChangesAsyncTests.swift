@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ import FirebaseCore
 import XCTest
 
 @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *)
-class AuthAsyncTests: RPCBaseTests {
+class AuthStateChangesAsyncTests: RPCBaseTests {
   var auth: Auth!
   static var testNum = 0
 
@@ -27,8 +27,8 @@ class AuthAsyncTests: RPCBaseTests {
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.apiKey = "FAKE_API_KEY"
     options.projectID = "myProjectID"
-    let name = "test-AuthAsyncTests\(AuthAsyncTests.testNum)"
-    AuthAsyncTests.testNum += 1
+    let name = "test-AuthStateChangesAsyncTests\(AuthStateChangesAsyncTests.testNum)"
+    AuthStateChangesAsyncTests.testNum += 1
 
     FirebaseApp.configure(name: name, options: options)
     let app = FirebaseApp.app(name: name)!
