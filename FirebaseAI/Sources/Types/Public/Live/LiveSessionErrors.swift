@@ -81,6 +81,8 @@ public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError 
 /// the model being invalid,  or some internal error.
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 public struct LiveSessionSetupError: Error, Sendable, CustomNSError {
   let underlyingError: Error
 
