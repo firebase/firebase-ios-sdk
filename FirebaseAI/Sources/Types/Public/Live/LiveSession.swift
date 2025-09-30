@@ -99,7 +99,7 @@ public final class LiveSession: Sendable {
   ///   - turnComplete: Whether the server should start generating content with the currently
   ///     accumulated prompt, or await additional messages before starting generation. By default,
   ///     the server will await additional messages.
-  public func sendContent(_ content: [ModelContent], turnComplete: Bool? = nil) async {
+  public func sendContent(_ content: [ModelContent], turnComplete: Bool = false) async {
     let message = BidiGenerateContentClientContent(turns: content, turnComplete: turnComplete)
     await service.send(.clientContent(message))
   }
@@ -120,7 +120,7 @@ public final class LiveSession: Sendable {
   ///     accumulated prompt, or await additional messages before starting generation. By default,
   ///     the server will await additional messages.
   public func sendContent(_ parts: any PartsRepresentable...,
-                          turnComplete: Bool? = nil) async {
+                          turnComplete: Bool = false) async {
     await sendContent([ModelContent(parts: parts)], turnComplete: turnComplete)
   }
 

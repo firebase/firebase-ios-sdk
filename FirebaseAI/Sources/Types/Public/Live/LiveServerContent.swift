@@ -25,7 +25,7 @@ public struct LiveServerContent: Sendable {
   /// The content that the model has generated as part of the current
   /// conversation with the user.
   ///
-  /// This can be ``null`` if the message signifies something else (such
+  /// This can be `nil` if the message signifies something else (such
   /// as the turn ending).
   public var modelTurn: ModelContent? { serverContent.modelTurn }
 
@@ -33,27 +33,27 @@ public struct LiveServerContent: Sendable {
   ///
   /// Generation will only start in response to additional client messages.
   ///
-  /// Can be set alongside ``content``, indicating that the ``content`` is
+  /// Can be set alongside `content`, indicating that the `content` is
   /// the last in the turn.
-  public var isTurnComplete: Bool? { serverContent.turnComplete }
+  public var isTurnComplete: Bool { serverContent.turnComplete ?? false }
 
   /// The model was interrupted by a client message while generating data.
   ///
   /// If the client is playing out the content in realtime, this is a
   /// good signal to stop and empty the current queue.
-  public var wasInterrupted: Bool? { serverContent.interrupted }
+  public var wasInterrupted: Bool { serverContent.interrupted ?? false }
 
   /// The model has finished _generating_ data for the current turn.
   ///
   /// For realtime playback, there will be a delay between when the model finishes generating
-  /// content and the client has finished playing back the generated content. ``generationComplete``
-  /// indicates that the model is done generating data, while ``isturnComplete`` indicates the model
+  /// content and the client has finished playing back the generated content. `generationComplete`
+  /// indicates that the model is done generating data, while `isturnComplete` indicates the model
   /// is waiting for additional client messages. Sending a message during this delay may cause a
-  /// ``wasInterrupted`` message to be sent.
+  /// `wasInterrupted` message to be sent.
   ///
-  ///  Note that if the model ``wasInterrupted``, this will not be set. The model will go from
-  /// ``wasInterrupted`` -> ``turnComplete``.
-  public var isGenerationComplete: Bool? { serverContent.generationComplete }
+  ///  Note that if the model `wasInterrupted`, this will not be set. The model will go from
+  /// `wasInterrupted` -> `turnComplete`.
+  public var isGenerationComplete: Bool { serverContent.generationComplete ?? false }
 
   /// Metadata specifing the sources used to ground generated content.
   public var groundingMetadata: GroundingMetadata? { serverContent.groundingMetadata }
