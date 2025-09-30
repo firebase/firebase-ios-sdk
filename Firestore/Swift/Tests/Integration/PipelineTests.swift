@@ -1831,6 +1831,25 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testStringConcatWithSendable() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("author").ascending()])
+      .select([Field("author").stringConcat([" - ", Field("title")]).as("bookInfo")])
+      .limit(1)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["bookInfo": "Douglas Adams - The Hitchhiker's Guide to the Galaxy"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testStartsWith() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
@@ -1879,7 +1898,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(Field("title").strContains("'s"))
+      .where(Field("title").stringContains("'s"))
       .select(["title"])
       .sort([Field("title").ascending()])
 
@@ -1939,6 +1958,58 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["lengthValue": 0],
       ["lengthValue": 1],
       ["lengthValue": 3],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testReverseWorksOnString() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": "abc"],
+      "doc2": ["value": ""],
+      "doc3": ["value": "a"],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").reverse().as("reversedValue"),
+      ])
+      .sort([Field("reversedValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["reversedValue": ""],
+      ["reversedValue": "a"],
+      ["reversedValue": "cba"],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+  
+  func testReverseWorksOnArray() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["tags": ["a", "b", "c"]],
+      "doc2": ["tags": [1, 2, 3]],
+      "doc3": ["tags": []],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("tags").reverse().as("reversedTags"),
+      ])
+      .sort([Field("reversedTags").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["reversedTags": []],
+      ["reversedTags": [3, 2, 1]],
+      ["reversedTags": ["c", "b", "a"]],
     ]
 
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -2151,6 +2222,58 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["powValue": 2],
       ["powValue": 8],
       ["powValue": 9],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testRoundWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": -10.8],
+      "doc2": ["value": 5.3],
+      "doc3": ["value": 0],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").round().as("roundValue"),
+      ])
+      .sort([Field("roundValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["roundValue": -11],
+      ["roundValue": 0],
+      ["roundValue": 5],
+    ]
+
+    TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testSqrtWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": 4],
+      "doc2": ["value": 9],
+      "doc3": ["value": 16],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").sqrt().as("sqrtValue"),
+      ])
+      .sort([Field("sqrtValue").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["sqrtValue": 2],
+      ["sqrtValue": 3],
+      ["sqrtValue": 4],
     ]
 
     TestHelper.compare(pipelineSnapshot: snapshot, expected: expectedResults, enforceOrder: true)

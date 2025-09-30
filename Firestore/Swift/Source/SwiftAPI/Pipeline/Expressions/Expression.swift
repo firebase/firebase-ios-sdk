@@ -36,6 +36,26 @@ public protocol Expression: Sendable {
 
   // --- Added Mathematical Operations ---
 
+  /// Creates an expression that returns the value of self rounded to the nearest integer.
+  ///
+  /// ```swift
+  /// // Get the value of the "amount" field rounded to the nearest integer.
+  /// Field("amount").round()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the rounded number.
+  func round() -> FunctionExpression
+
+  /// Creates an expression that returns the square root of self.
+  ///
+  /// ```swift
+  /// // Get the square root of the "area" field.
+  /// Field("area").sqrt()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the square root of the number.
+  func sqrt() -> FunctionExpression
+
   /// Creates an expression that returns the value of self raised to the power of Y.
   ///
   /// Returns zero on underflow.
@@ -797,12 +817,12 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Check if the "description" field contains "example".
-  /// Field("description").string_contains("example")
+  /// Field("description").stringContains("example")
   /// ```
   ///
   /// - Parameter substring: The literal string substring to search for.
-  /// - Returns: A new `BooleanExpr` representing the "str_contains" comparison.
-  func strContains(_ substring: String) -> BooleanExpression
+  /// - Returns: A new `BooleanExpr` representing the "stringContains" comparison.
+  func stringContains(_ substring: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified substring
   /// from an expression (case-sensitive).
@@ -810,13 +830,13 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Check if the "message" field contains the value of the "keyword" field.
-  /// Field("message").string_contains(Field("keyword"))
+  /// Field("message").stringContains(Field("keyword"))
   /// ```
   ///
   /// - Parameter expr: An `Expression` (evaluating to a string) representing the substring to
   /// search for.
   /// - Returns: A new `BooleanExpr` representing the "str_contains" comparison.
-  func string_contains(_ expression: Expression) -> BooleanExpression
+  func stringContains(_ expression: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) starts with a given literal prefix
   /// (case-sensitive).
@@ -910,6 +930,18 @@ public protocol Expression: Sendable {
   /// Assumes `self` and all parameters evaluate to strings.
   ///
   /// ```swift
+  /// // Combine "firstName", " ", and "lastName"
+  /// Field("firstName").stringConcat([" ", Field("lastName")])
+  /// ```
+  ///
+  /// - Parameter strings: An array of `Expression` or `String` to concatenate.
+  /// - Returns: A new `FunctionExpression` representing the concatenated string.
+  func stringConcat(_ strings: [Sendable]) -> FunctionExpression
+
+  /// Creates an expression that concatenates this string expression with other string expressions.
+  /// Assumes `self` and all parameters evaluate to strings.
+  ///
+  /// ```swift
   /// // Combine "firstName", "middleName", and "lastName" fields
   /// Field("firstName").stringConcat(Field("middleName"), Field("lastName"))
   /// ```
@@ -930,6 +962,17 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `FunctionExpr` representing the reversed string.
   func reverse() -> FunctionExpression
+
+  /// Creates an expression that reverses this string expression.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Reverse the value of the "myString" field.
+  /// Field("myString").stringReverse()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpr` representing the reversed string.
+  func stringReverse() -> FunctionExpression
 
   /// Creates an expression that calculates the length of this string or bytes expression in bytes.
   /// Assumes `self` evaluates to a string or bytes.

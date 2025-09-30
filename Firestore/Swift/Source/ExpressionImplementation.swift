@@ -336,10 +336,10 @@ extension Expression {
   /// Field("content").stringReplace(Field("target"), Field("replacement"))
   /// ```
   ///
-  /// - Parameter find: An `Expr` (evaluating to a string) for the substring to search for.
-  /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace all
+  /// - Parameter find: An `Expression` (evaluating to a string) for the substring to search for.
+  /// - Parameter replace: An `Expression` (evaluating to a string) for the substring to replace all
   /// occurrences with.
-  /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
+  /// - Returns: A new `FunctionExpression` representing the string with all occurrences replaced.
   func stringReplace(_ find: Expression, with replace: Expression) -> FunctionExpression{
     return FunctionExpression("string_replace", [self, find, replace])
   }
@@ -375,6 +375,14 @@ public extension Expression {
 
   func pow(_ exponent: Expression) -> FunctionExpression {
     return FunctionExpression("pow", [self, exponent])
+  }
+
+  func round() -> FunctionExpression {
+    return FunctionExpression("round", [self])
+  }
+
+  func sqrt() -> FunctionExpression {
+    return FunctionExpression("sqrt", [self])
   }
 
   func exp() -> FunctionExpression {
@@ -623,11 +631,11 @@ public extension Expression {
     return BooleanExpression("regex_match", [self, pattern])
   }
 
-  func strContains(_ substring: String) -> BooleanExpression {
+  func stringContains(_ substring: String) -> BooleanExpression {
     return BooleanExpression("string_contains", [self, Helper.sendableToExpr(substring)])
   }
 
-  func string_contains(_ expression: Expression) -> BooleanExpression {
+  func stringContains(_ expression: Expression) -> BooleanExpression {
     return BooleanExpression("string_contains", [self, expression])
   }
 
@@ -663,8 +671,17 @@ public extension Expression {
     return FunctionExpression("string_concat", [self] + strings)
   }
 
+  func stringConcat(_ strings: [Sendable]) -> FunctionExpression {
+    let exprs = [self] + strings.map { Helper.sendableToExpr($0) }
+    return FunctionExpression("string_concat", exprs)
+  }
+
   func reverse() -> FunctionExpression {
     return FunctionExpression("reverse", [self])
+  }
+
+  func stringReverse() -> FunctionExpression {
+    return FunctionExpression("string_reverse", [self])
   }
 
   func byteLength() -> FunctionExpression {
