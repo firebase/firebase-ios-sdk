@@ -79,11 +79,8 @@ struct RealtimePipeline: @unchecked Sendable {
     self.db = db
     bridge = RealtimePipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
-  
-  struct Snapshot: Sendable {
-    /// The Pipeline on which `execute()` was called to obtain this `Pipeline.Snapshot`.
-    public let pipeline: RealtimePipeline
 
+  struct Snapshot: Sendable {
     /// An array of all the results in the `Pipeline.Snapshot`.
     let results_cache: [PipelineResult]
 
@@ -94,10 +91,8 @@ struct RealtimePipeline: @unchecked Sendable {
     private var options: PipelineListenOptions
 
     init(_ bridge: __RealtimePipelineSnapshotBridge,
-         pipeline: RealtimePipeline,
          options: PipelineListenOptions) {
       self.bridge = bridge
-      self.pipeline = pipeline
       self.options = options
       metadata = bridge.metadata
       results_cache = self.bridge.results
@@ -118,7 +113,6 @@ struct RealtimePipeline: @unchecked Sendable {
         listener(
           RealtimePipeline.Snapshot(
             snapshotBridge!,
-            pipeline: self,
             options: options
           ),
           error

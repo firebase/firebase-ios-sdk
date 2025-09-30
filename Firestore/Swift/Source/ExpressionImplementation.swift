@@ -225,7 +225,7 @@ extension Expression {
   func bitRightShift(_ numberExpression: Expression) -> FunctionExpression {
     return FunctionExpression("bit_right_shift", [self, numberExpression])
   }
-  
+
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
   /// expression.
   /// Assumes both `self` and `other` evaluate to Vectors.
@@ -271,7 +271,7 @@ extension Expression {
   func manhattanDistance(_ vector: [Double]) -> FunctionExpression {
     return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
   }
-  
+
   /// Creates an expression that replaces the first occurrence of a literal substring within this
   /// string expression with another literal substring.
   /// Assumes `self` evaluates to a string.
@@ -284,7 +284,7 @@ extension Expression {
   /// - Parameter find: The literal string substring to search for.
   /// - Parameter replace: The literal string substring to replace the first occurrence with.
   /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
-  func replaceFirst(_ find: String, with replace: String) -> FunctionExpression{
+  func replaceFirst(_ find: String, with replace: String) -> FunctionExpression {
     return FunctionExpression(
       "replace_first",
       [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
@@ -304,7 +304,7 @@ extension Expression {
   /// - Parameter replace: An `Expr` (evaluating to a string) for the substring to replace the first
   /// occurrence with.
   /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
-  func replaceFirst(_ find: Expression, with replace: Expression) -> FunctionExpression{
+  func replaceFirst(_ find: Expression, with replace: Expression) -> FunctionExpression {
     return FunctionExpression("replace_first", [self, find, replace])
   }
 
@@ -320,7 +320,7 @@ extension Expression {
   /// - Parameter find: The literal string substring to search for.
   /// - Parameter replace: The literal string substring to replace all occurrences with.
   /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
-  func stringReplace(_ find: String, with replace: String) -> FunctionExpression{
+  func stringReplace(_ find: String, with replace: String) -> FunctionExpression {
     return FunctionExpression(
       "string_replace",
       [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
@@ -340,10 +340,9 @@ extension Expression {
   /// - Parameter replace: An `Expression` (evaluating to a string) for the substring to replace all
   /// occurrences with.
   /// - Returns: A new `FunctionExpression` representing the string with all occurrences replaced.
-  func stringReplace(_ find: Expression, with replace: Expression) -> FunctionExpression{
+  func stringReplace(_ find: Expression, with replace: Expression) -> FunctionExpression {
     return FunctionExpression("string_replace", [self, find, replace])
   }
-  
 }
 
 public extension Expression {

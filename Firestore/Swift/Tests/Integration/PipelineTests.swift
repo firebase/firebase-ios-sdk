@@ -1988,7 +1988,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
-  
+
   func testReverseWorksOnArray() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": ["tags": ["a", "b", "c"]],

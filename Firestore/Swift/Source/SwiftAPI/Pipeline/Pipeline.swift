@@ -87,11 +87,8 @@ public struct Pipeline: @unchecked Sendable {
     self.db = db
     bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
-  
-  public struct Snapshot: Sendable {
-    /// The Pipeline on which `execute()` was called to obtain this `Pipeline.Snapshot`.
-    public let pipeline: Pipeline
 
+  public struct Snapshot: Sendable {
     /// An array of all the results in the `Pipeline.Snapshot`.
     public let results: [PipelineResult]
 
@@ -100,9 +97,8 @@ public struct Pipeline: @unchecked Sendable {
 
     let bridge: __PipelineSnapshotBridge
 
-    init(_ bridge: __PipelineSnapshotBridge, pipeline: Pipeline) {
+    init(_ bridge: __PipelineSnapshotBridge) {
       self.bridge = bridge
-      self.pipeline = pipeline
       executionTime = self.bridge.execution_time
       results = self.bridge.results.map { PipelineResult($0) }
     }
@@ -133,7 +129,7 @@ public struct Pipeline: @unchecked Sendable {
         if let error {
           continuation.resume(throwing: error)
         } else {
-          continuation.resume(returning: Pipeline.Snapshot(result!, pipeline: self))
+          continuation.resume(returning: Pipeline.Snapshot(result!))
         }
       }
     }
