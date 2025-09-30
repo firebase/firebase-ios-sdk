@@ -15,7 +15,8 @@
 import Foundation
 
 /// Response message for BidiGenerateContent RPC call.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 struct BidiGenerateContentServerMessage: Sendable {
   /// The type of the message.
   enum MessageType: Sendable {
@@ -47,7 +48,8 @@ struct BidiGenerateContentServerMessage: Sendable {
 
 // MARK: - Decodable
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 extension BidiGenerateContentServerMessage: Decodable {
   enum CodingKeys: String, CodingKey {
     case setupComplete

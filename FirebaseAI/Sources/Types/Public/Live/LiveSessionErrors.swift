@@ -21,6 +21,8 @@ import Foundation
 /// not supported.
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 public struct LiveSessionUnsupportedMessageError: Error, Sendable, CustomNSError {
   let underlyingError: Error
 
@@ -39,6 +41,8 @@ public struct LiveSessionUnsupportedMessageError: Error, Sendable, CustomNSError
 /// The live session was closed, because the network connection was lost.
 ///
 /// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 public struct LiveSessionLostConnectionError: Error, Sendable, CustomNSError {
   let underlyingError: Error
 

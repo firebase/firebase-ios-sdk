@@ -15,5 +15,6 @@
 import Foundation
 
 /// Sent in response to a `BidiGenerateContentSetup` message from the client.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 struct BidiGenerateContentSetupComplete: Decodable, Sendable {}

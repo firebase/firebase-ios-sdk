@@ -15,6 +15,8 @@
 import Foundation
 
 /// Configuration for the speaker to use.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 enum VoiceConfig {
   /// Configuration for the prebuilt voice to use.
   case prebuiltVoiceConfig(PrebuiltVoiceConfig)
@@ -27,6 +29,8 @@ enum VoiceConfig {
 ///
 /// Not just a string on the parent proto, because there'll likely be a lot
 /// more options here.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 struct PrebuiltVoiceConfig: Encodable, Sendable {
   /// The name of the preset voice to use.
   let voiceName: String
@@ -37,6 +41,8 @@ struct PrebuiltVoiceConfig: Encodable, Sendable {
 }
 
 /// The configuration for the custom voice to use.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 struct CustomVoiceConfig: Encodable, Sendable {
   /// The sample of the custom voice, in pcm16 s16e format.
   let customVoiceSample: Data
@@ -48,6 +54,8 @@ struct CustomVoiceConfig: Encodable, Sendable {
 
 // MARK: - Encodable conformance
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
 extension VoiceConfig: Encodable {
   enum CodingKeys: CodingKey {
     case prebuiltVoiceConfig
