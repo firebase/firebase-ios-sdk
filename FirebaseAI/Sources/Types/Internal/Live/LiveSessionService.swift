@@ -117,7 +117,8 @@ actor LiveSessionService {
     close()
     // we launch the setup task in a seperate task to avoid blocking the parent context
     setupTask = Task { [weak self] in
-      // we need a continuation to surface that the setup is complete, while still allowing us to listen to the server
+      // we need a continuation to surface that the setup is complete, while still allowing us to
+      // listen to the server
       try await withCheckedThrowingContinuation { setupContinuation in
         // nested task so we can use await
         Task { [weak self] in
