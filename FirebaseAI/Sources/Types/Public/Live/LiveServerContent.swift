@@ -34,7 +34,7 @@ public struct LiveServerContent: Sendable {
   ///
   /// Can be set alongside ``content``, indicating that the ``content`` is
   /// the last in the turn.
-  public var turnComplete: Bool? { serverContent.turnComplete }
+  public var isTurnComplete: Bool? { serverContent.turnComplete }
 
   /// The model was interrupted by a client message while generating data.
   ///
