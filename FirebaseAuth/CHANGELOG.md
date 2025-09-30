@@ -1,5 +1,5 @@
 # Unreleased
-- [added] Added `authStateChanges` to `Auth`, an `AsyncStream` that emits the user's authentication state changes.
+- [added] Added `authStateChanges` and `idTokenChanges` to `Auth`, a pair of `AsyncStream`s that emit the user's authentication state and ID token changes.
 - [fixed] Fix a race condition with User.providerData getter. (#15950)
 
 # 12.9.0
