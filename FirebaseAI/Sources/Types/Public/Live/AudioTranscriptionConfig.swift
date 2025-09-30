@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Configuration options for audio transcriptions when communicating with a live model.
+/// Configuration options for audio transcriptions when communicating with a Live API model.
 ///
 /// While there are not currently any options, this will likely change in the future. For now, just
 /// providing an instance of this struct will enable audio transcriptions for the corresponding
