@@ -49,6 +49,16 @@ public struct ResponseModality: EncodableProtoEnum, Sendable {
   /// > backwards-incompatible ways.
   public static let image = ResponseModality(kind: .image)
 
+  /// **Public Preview**: Specifies that the model should generate audio content.
+  ///
+  /// Use this modality when you need the model to produce (spoken) audio responses based on the
+  /// provided input or prompts.
+  ///
+  /// > Warning: This is **only** supported via the [live api](``LiveGenerativeModel``) currently.
+  /// >
+  /// > Furthermore, bidirectional streaming using Live models is in Public Preview, which means
+  /// > that the feature is not subject to any SLA or deprecation policy and could change in
+  /// > backwards-incompatible ways.
   public static let audio = ResponseModality(kind: .audio)
 
   let rawValue: String
