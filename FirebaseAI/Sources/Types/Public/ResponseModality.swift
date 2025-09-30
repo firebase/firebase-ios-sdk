@@ -54,8 +54,8 @@ public struct ResponseModality: EncodableProtoEnum, Sendable {
   /// Use this modality when you need the model to produce (spoken) audio responses based on the
   /// provided input or prompts.
   ///
-  /// > Warning: This is **only** supported via the [live api](https://firebase.google.com/docs/ai-logic/live-api)
-  /// > currently.
+  /// > Warning: This is currently **only** supported via the
+  /// > [live api](https://firebase.google.com/docs/ai-logic/live-api)\.
   /// >
   /// > Furthermore, bidirectional streaming using Live models is in Public Preview, which means
   /// > that the feature is not subject to any SLA or deprecation policy and could change in
