@@ -40,7 +40,7 @@ public struct LiveServerContent: Sendable {
   ///
   /// If the client is playing out the content in realtime, this is a
   /// good signal to stop and empty the current queue.
-  public var interrupted: Bool? { serverContent.interrupted }
+  public var wasInterrupted: Bool? { serverContent.interrupted }
 
   /// The model has finished _generating_ data for the current turn.
   ///
