@@ -55,4 +55,3 @@ extension BidiGenerateContentClientMessage: Encodable {
     }
   }
 }
-
