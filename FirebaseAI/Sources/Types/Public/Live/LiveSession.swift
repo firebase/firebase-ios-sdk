@@ -55,7 +55,7 @@ public final class LiveSession: Sendable {
   /// - Parameters:
   ///   - audio: Raw 16-bit PCM audio at 16Hz, used to update the model on the client's
   ///     conversation.
-  public func sendAudioRealtime(audio: Data) async {
+  public func sendAudioRealtime(_ audio: Data) async {
     // TODO: (b/443984790) address when we add RealtimeInputConfig support
     let message = BidiGenerateContentRealtimeInput(
       audio: InlineData(data: audio, mimeType: "audio/pcm")
@@ -68,7 +68,7 @@ public final class LiveSession: Sendable {
   /// - Parameters:
   ///   - video: Encoded video data, used to update the model on the client's conversation.
   ///   - format: The format that the video was encoded in (eg; `mp4`, `webm`, `wmv`, etc.,).
-  public func sendVideoRealtime(video: Data, format: String) async {
+  public func sendVideoRealtime(_ video: Data, format: String) async {
     let message = BidiGenerateContentRealtimeInput(
       video: InlineData(data: video, mimeType: "video/\(format)")
     )
@@ -79,7 +79,7 @@ public final class LiveSession: Sendable {
   ///
   /// - Parameters:
   ///   - text: Text content to append to the current client's conversation.
-  public func sendTextRealtime(text: String) async {
+  public func sendTextRealtime(_ text: String) async {
     let message = BidiGenerateContentRealtimeInput(text: text)
     await service.send(.realtimeInput(message))
   }
