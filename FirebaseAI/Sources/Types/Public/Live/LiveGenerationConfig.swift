@@ -117,7 +117,7 @@ public struct LiveGenerationConfig: Sendable {
   ///     fields is set to `nil`, output transcripts are not populated in model responses.
   ///
   ///     > Important: Transcripts are independent to the model turn. This means transcripts may
-  ///     > come earlier or later than when  the model sends the corresponding audio responses.
+  ///     > come earlier or later than when the model sends the corresponding audio responses.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
