@@ -67,7 +67,7 @@ public final class LiveGenerativeModel {
       requestOptions: requestOptions
     )
 
-    await service.connect()
+    try await service.connect()
 
     return LiveSession(service: service)
   }

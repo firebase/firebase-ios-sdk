@@ -114,9 +114,9 @@ actor LiveSessionService {
   ///
   /// Seperated into its own function to make it easier to surface a way to call it seperately when
   /// resuming the same session.
-  func connect() {
+  func connect() async throws {
     close()
-    // we launch the setup task in a seperate task to avoid blocking the parent context
+    // we launch the setup task in a seperate task to allow us to cancel it via close
     setupTask = Task { [weak self] in
       // we need a continuation to surface that the setup is complete, while still allowing us to
       // listen to the server
@@ -128,6 +128,8 @@ actor LiveSessionService {
         }
       }
     }
+
+    try await setupTask.value
   }
 
   /// Cancel any running tasks and close the websocket.
