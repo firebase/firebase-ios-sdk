@@ -1564,4 +1564,15 @@ public protocol Expression: Sendable {
   /// - Parameter other: The value to compare against.
   /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
   func equivalent(_ other: Sendable) -> BooleanExpression
+
+  /// Creates an expression that concatenates multiple sequenceable types together.
+  ///
+  /// ```swift
+  /// // Concatenate the firstName and lastName with a space in between.
+  /// Field("firstName").concat([" ", Field("lastName")])
+  /// ```
+  ///
+  /// - Parameter values: The values to concatenate.
+  /// - Returns: A new `FunctionExpression` representing the concatenated result.
+  func concat(_ values: [Sendable]) -> FunctionExpression
 }

@@ -894,4 +894,9 @@ public extension Expression {
   func equivalent(_ other: Sendable) -> BooleanExpression {
     return BooleanExpression("equivalent", [self, Helper.sendableToExpr(other)])
   }
+
+  func concat(_ values: [Sendable]) -> FunctionExpression {
+    let exprs = [self] + values.map { Helper.sendableToExpr($0) }
+    return FunctionExpression("concat", exprs)
+  }
 }

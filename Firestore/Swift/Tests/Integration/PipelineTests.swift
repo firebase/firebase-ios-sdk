@@ -1869,6 +1869,30 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testConcatWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["s": "a", "b": "b", "c": "c"],
+      "doc2": ["s": "x", "b": "y", "c": "z"],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("s").concat([Field("b"), Field("c"), " "]).as("concatenated"),
+      ])
+      .sort([Field("concatenated").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["concatenated": "abc "],
+      ["concatenated": "xyz "],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testStartsWith() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
