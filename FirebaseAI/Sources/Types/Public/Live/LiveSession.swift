@@ -37,10 +37,12 @@ public final class LiveSession: Sendable {
 
   /// Response to a ``LiveServerToolCall`` received from the server.
   ///
+  /// This method is used both for the realtime API and the incremental API.
+  ///
   /// - Parameters:
   ///   - responses: Client generated function results, matched to their respective
   ///     ``FunctionCallPart`` by the `functionId` field.
-  public func functionResponses(_ responses: [FunctionResponsePart]) async {
+  public func sendFunctionResponses(_ responses: [FunctionResponsePart]) async {
     let message = BidiGenerateContentToolResponse(
       functionResponses: responses.map { $0.functionResponse }
     )
