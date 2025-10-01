@@ -15,7 +15,7 @@
 /// Text transcription of some audio form during a live interaction with the model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
-public struct LiveTranscription: Sendable {
+public struct LiveAudioTranscription: Sendable {
   let transcript: BidiGenerateContentTranscription
   /// Text representing the model's interpretation of what the audio said.
   public var text: String? { transcript.text }
