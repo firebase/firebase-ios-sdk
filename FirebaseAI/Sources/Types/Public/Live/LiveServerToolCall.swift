@@ -18,7 +18,7 @@
 /// correspond to individual ``FunctionCallPart``s.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
-public struct LiveServerToolCall: Sendable {
+public struct LiveServerToolCall: LiveServerMessage {
   let serverToolCall: BidiGenerateContentToolCall
 
   /// A list of ``FunctionCallPart`` to run and return responses for.
@@ -26,7 +26,11 @@ public struct LiveServerToolCall: Sendable {
     serverToolCall.functionCalls?.map { FunctionCallPart($0) }
   }
 
-  init(_ serverToolCall: BidiGenerateContentToolCall) {
+  public var usageMetadata: GenerateContentResponse.UsageMetadata?
+
+  init(_ serverToolCall: BidiGenerateContentToolCall,
+       usageMetadata: GenerateContentResponse.UsageMetadata?) {
     self.serverToolCall = serverToolCall
+    self.usageMetadata = usageMetadata
   }
 }
