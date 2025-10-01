@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/7f774173bfc50ea8/FirebaseAnalytics-12.3.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/8ca614257fd008b0/FirebaseAnalytics-12.4.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.12.0'
