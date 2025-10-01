@@ -146,7 +146,7 @@ actor LiveSessionService {
 
   /// Start a fresh websocket to the backend, and listen for responses.
   ///
-  /// Will hold off on sending any messages until the server sends a setupComplete mesage.
+  /// Will hold off on sending any messages until the server sends a setupComplete message.
   ///
   /// Will also close out the old websocket and the previous long running tasks.
   private func listenToServer(_ setupComplete: CheckedContinuation<Void, any Error>) async {
