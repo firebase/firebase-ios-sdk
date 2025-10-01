@@ -33,8 +33,7 @@ public struct LiveServerContent: Sendable {
   ///
   /// Generation will only start in response to additional client messages.
   ///
-  /// Can be set alongside `content`, indicating that the `content` is
-  /// the last in the turn.
+  /// Can be set alongside ``modelTurn``, indicating that the content is the last in the turn.
   public var isTurnComplete: Bool { serverContent.turnComplete ?? false }
 
   /// The model was interrupted by a client message while generating data.
