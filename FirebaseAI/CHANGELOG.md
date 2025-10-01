@@ -1,4 +1,4 @@
-# Unreleased
+# 12.4.0
 - [feature] Added support for the URL context tool, which allows the model to access content
   from provided public web URLs to inform and enhance its responses. (#15221)
 - [changed] Using Firebase AI Logic with the Gemini Developer API is now Generally Available (GA).
