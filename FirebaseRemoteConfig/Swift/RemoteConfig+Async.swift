@@ -47,7 +47,8 @@ public extension RemoteConfig {
   ///   }
   /// }
   /// ```
-  var configUpdates: AsyncThrowingStream<RemoteConfigUpdate, Error> {
+  @available(iOS 18.0, *)
+  var configUpdates: some AsyncSequence<RemoteConfigUpdate, Error> {
     AsyncThrowingStream { continuation in
       let listener = addOnConfigUpdateListener { update, error in
         switch (update, error) {
