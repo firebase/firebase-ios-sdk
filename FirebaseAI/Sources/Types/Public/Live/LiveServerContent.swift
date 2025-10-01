@@ -54,7 +54,7 @@ public struct LiveServerContent: LiveServerMessage {
   /// `wasInterrupted` -> `turnComplete`.
   public var isGenerationComplete: Bool { serverContent.generationComplete ?? false }
 
-  /// Metadata specifing the sources used to ground generated content.
+  /// Metadata specifying the sources used to ground generated content.
   public var groundingMetadata: GroundingMetadata? { serverContent.groundingMetadata }
 
   /// The model's interpretation of what the client said in an audio message.
