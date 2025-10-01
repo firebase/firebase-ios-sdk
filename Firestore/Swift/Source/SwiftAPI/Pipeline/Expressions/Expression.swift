@@ -1556,15 +1556,6 @@ public protocol Expression: Sendable {
   /// - Returns: A new `Ordering` instance for descending sorting.
   func descending() -> Ordering
 
-  // MARK: Equivalence Operations
-
-  /// Creates a `BooleanExpr` that returns `true` if this expression is equivalent
-  /// to the given value.
-  ///
-  /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
-  func equivalent(_ other: Sendable) -> BooleanExpression
-
   /// Creates an expression that concatenates multiple sequenceable types together.
   ///
   /// ```swift

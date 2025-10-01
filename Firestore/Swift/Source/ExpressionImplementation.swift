@@ -343,6 +343,17 @@ extension Expression {
   func stringReplace(_ find: Expression, with replace: Expression) -> FunctionExpression {
     return FunctionExpression("string_replace", [self, find, replace])
   }
+  
+  // MARK: Equivalence Operations
+
+  /// Creates a `BooleanExpr` that returns `true` if this expression is equivalent
+  /// to the given value.
+  ///
+  /// - Parameter other: The value to compare against.
+  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  func equivalent(_ other: Sendable) -> BooleanExpression {
+    return BooleanExpression("equivalent", [self, Helper.sendableToExpr(other)])
+  }
 }
 
 public extension Expression {
@@ -887,12 +898,6 @@ public extension Expression {
 
   func descending() -> Ordering {
     return Ordering(expression: self, direction: .descending)
-  }
-
-  // MARK: Equivalence Operations
-
-  func equivalent(_ other: Sendable) -> BooleanExpression {
-    return BooleanExpression("equivalent", [self, Helper.sendableToExpr(other)])
   }
 
   func concat(_ values: [Sendable]) -> FunctionExpression {
