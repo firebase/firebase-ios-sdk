@@ -3224,13 +3224,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   func testErrorExpressionWorks() async throws {
     let collRef = collectionRef(withDocuments: ["doc1": ["foo": 1]])
     let db = collRef.firestore
-    
+
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .select([
         ErrorExpression("This is a test error").as("error"),
       ])
-    
+
     do {
       let _ = try await pipeline.execute()
       XCTFail("The pipeline should have thrown an error, but it did not.")

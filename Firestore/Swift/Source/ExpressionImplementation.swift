@@ -343,7 +343,7 @@ extension Expression {
   func stringReplace(_ find: Expression, with replace: Expression) -> FunctionExpression {
     return FunctionExpression("string_replace", [self, find, replace])
   }
-  
+
   // MARK: Equivalence Operations
 
   /// Creates a `BooleanExpr` that returns `true` if this expression is equivalent
@@ -771,21 +771,21 @@ public extension Expression {
   // MARK: Logical min/max
 
   func logicalMaximum(_ expressions: [Expression]) -> FunctionExpression {
-    return FunctionExpression("logical_maximum", [self] + expressions)
+    return FunctionExpression("maximum", [self] + expressions)
   }
 
   func logicalMaximum(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("logical_maximum", exprs)
+    return FunctionExpression("maximum", exprs)
   }
 
   func logicalMinimum(_ expressions: [Expression]) -> FunctionExpression {
-    return FunctionExpression("logical_minimum", [self] + expressions)
+    return FunctionExpression("minimum", [self] + expressions)
   }
 
   func logicalMinimum(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("logical_minimum", exprs)
+    return FunctionExpression("minimum", exprs)
   }
 
   // MARK: Vector Operations
