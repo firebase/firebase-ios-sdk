@@ -206,10 +206,14 @@ actor LiveSessionService {
               from: message
             )
           } catch {
-            throw LiveSessionUnsupportedMessageError(underlyingError: error)
+            setupComplete.resume(
+              throwing: LiveSessionUnsupportedMessageError(underlyingError: error)
+            )
+            return
           }
 
-          if case .setupComplete = response.messageType {
+          switch response.messageType {
+          case .setupComplete:
             if resumed {
               AILog.debug(
                 code: .duplicateLiveSessionSetupComplete,
@@ -221,18 +225,29 @@ actor LiveSessionService {
               resumed = true
               setupComplete.resume()
             }
-          } else if let liveMessage = LiveServerMessage(from: response) {
-            if case let .goingAwayNotice(message) = liveMessage.messageType {
-              // TODO: (b/444045023) When auto session resumption is enabled, call `connect` again
-              AILog.debug(
-                code: .liveSessionGoingAwaySoon,
-                "Session expires in: \(message.goAway.timeLeft?.timeInterval ?? 0)"
-              )
-            }
-
-            responseContinuation.yield(liveMessage)
-          } else {
-            // we don't raise an error, since this allows us to add support internally but not
+          case let .goAway(goAway):
+            // TODO: (b/444045023) When auto session resumption is enabled, call `connect` again
+            AILog.debug(
+              code: .liveSessionGoingAwaySoon,
+              "Session expires in: \(goAway.timeLeft?.timeInterval ?? 0)"
+            )
+            responseContinuation.yield(
+              LiveServerGoingAwayNotice(goAway, usageMetadata: response.usageMetadata)
+            )
+          case let .serverContent(serverContent):
+            responseContinuation.yield(
+              LiveServerContent(serverContent, usageMetadata: response.usageMetadata)
+            )
+          case let .toolCall(toolCall):
+            responseContinuation.yield(
+              LiveServerToolCall(toolCall, usageMetadata: response.usageMetadata)
+            )
+          case let .toolCallCancellation(toolCallCancellation):
+            responseContinuation.yield(LiveServerToolCallCancellation(
+              toolCallCancellation, usageMetadata: response.usageMetadata
+            ))
+          case .none:
+            // We don't raise an error, since this allows us to add support internally but not
             // publicly. We still log it in debug though, in case it's not expected.
             AILog.debug(
               code: .liveSessionUnsupportedMessage,
