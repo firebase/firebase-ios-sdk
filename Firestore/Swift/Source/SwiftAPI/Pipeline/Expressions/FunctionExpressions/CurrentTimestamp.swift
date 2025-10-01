@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class ArrayContains: BooleanExpression, @unchecked Sendable {
-  public init(fieldName: String, values: Sendable...) {
-    super.init("array_contains", values.map { Helper.sendableToExpr($0) })
+import Foundation
+
+/// An expression that represents a server-side timestamp.
+///
+/// `CurrentTimestamp` is used to generate a timestamp on the server.
+/// This is useful for recording current date and time.
+///
+/// Example:
+/// ```swift
+/// CurrentTimestamp().as("createdAt")
+/// ```
+public class CurrentTimestamp: FunctionExpression, @unchecked Sendable {
+  public init() {
+    super.init("current_timestamp", [])
   }
 }

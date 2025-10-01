@@ -13,44 +13,44 @@
 // limitations under the License.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineSource<P>: @unchecked Sendable {
+public struct PipelineSource: @unchecked Sendable {
   let db: Firestore
-  let factory: ([Stage], Firestore) -> P
+  let factory: ([Stage], Firestore) -> Pipeline
 
-  init(db: Firestore, factory: @escaping ([Stage], Firestore) -> P) {
+  init(db: Firestore, factory: @escaping ([Stage], Firestore) -> Pipeline) {
     self.db = db
     self.factory = factory
   }
 
-  public func collection(_ path: String) -> P {
+  public func collection(_ path: String) -> Pipeline {
     return factory([CollectionSource(collection: db.collection(path), db: db)], db)
   }
 
-  public func collection(_ coll: CollectionReference) -> P {
+  public func collection(_ coll: CollectionReference) -> Pipeline {
     return factory([CollectionSource(collection: coll, db: db)], db)
   }
 
-  public func collectionGroup(_ collectionId: String) -> P {
+  public func collectionGroup(_ collectionId: String) -> Pipeline {
     return factory(
       [CollectionGroupSource(collectionId: collectionId)],
       db
     )
   }
 
-  public func database() -> P {
+  public func database() -> Pipeline {
     return factory([DatabaseSource()], db)
   }
 
-  public func documents(_ docs: [DocumentReference]) -> P {
+  public func documents(_ docs: [DocumentReference]) -> Pipeline {
     return factory([DocumentsSource(docs: docs, db: db)], db)
   }
 
-  public func documents(_ paths: [String]) -> P {
+  public func documents(_ paths: [String]) -> Pipeline {
     let docs = paths.map { db.document($0) }
     return factory([DocumentsSource(docs: docs, db: db)], db)
   }
 
-  public func create(from query: Query) -> P {
+  public func create(from query: Query) -> Pipeline {
     let stageBridges = PipelineBridge.createStageBridges(from: query)
     let stages: [Stage] = stageBridges.map { bridge in
       switch bridge.name {

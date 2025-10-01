@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class MapExpression: FunctionExpression, @unchecked Sendable {
-  var result: [Expression] = []
-  public init(_ elements: [String: Sendable]) {
-    for element in elements {
-      result.append(Constant(element.key))
-      result.append(Helper.sendableToExpr(element.value))
-    }
+import Foundation
 
-    super.init("map", result)
+/// An expression that produces an error with a custom error message.
+/// This is primarily used for debugging purposes.
+///
+/// Example:
+/// ```swift
+/// ErrorExpression("This is a custom error message").as("errorResult")
+/// ```
+public class ErrorExpression: FunctionExpression, @unchecked Sendable {
+  public init(_ errorMessage: String) {
+    super.init("error", [Constant(errorMessage)])
   }
 }

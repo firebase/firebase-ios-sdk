@@ -20,37 +20,6 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-struct RealtimePipelineSnapshot: Sendable {
-  /// The Pipeline on which `execute()` was called to obtain this `PipelineSnapshot`.
-  public let pipeline: RealtimePipeline
-
-  /// An array of all the results in the `PipelineSnapshot`.
-  let results_cache: [PipelineResult]
-
-  public let changes: [PipelineResultChange]
-  public let metadata: SnapshotMetadata
-
-  let bridge: __RealtimePipelineSnapshotBridge
-  private var options: PipelineListenOptions
-
-  init(_ bridge: __RealtimePipelineSnapshotBridge,
-       pipeline: RealtimePipeline,
-       options: PipelineListenOptions) {
-    self.bridge = bridge
-    self.pipeline = pipeline
-    self.options = options
-    metadata = bridge.metadata
-    results_cache = self.bridge.results
-      .map { PipelineResult($0, options.serverTimestamps ?? .none) }
-    changes = self.bridge.changes.map { PipelineResultChange($0) }
-  }
-
-  public func results() -> [PipelineResult] {
-    return results_cache
-  }
-}
-
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct PipelineResultChange: Sendable {
   public enum ChangeType {
     case added, modified, removed

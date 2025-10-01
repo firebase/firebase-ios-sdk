@@ -36,7 +36,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     let query: Query = db.collection("foo").limit(to: 2)
     let _: Pipeline = pipelineSource.create(from: query)
 
-    let _: PipelineSnapshot = try await pipeline.execute()
+    let _: Pipeline.Snapshot = try await pipeline.execute()
   }
 
   func testWhereStage() async throws {
@@ -151,7 +151,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books")
       .distinct(
         [
-          Field("author").uppercased().as("authorName"),
+          Field("author").toUpper().as("authorName"),
           Field("genre"),
         ]
       )
@@ -311,7 +311,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     // reserved field values of __name__.
     _ = db.pipeline().collection("books")
       .addFields([
-        DocumentId(),
+        Field(FieldPath.documentID()),
       ])
   }
 

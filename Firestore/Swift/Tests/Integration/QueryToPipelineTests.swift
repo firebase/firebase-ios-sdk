@@ -21,7 +21,7 @@ import XCTest
 class QueryToPipelineTests: FSTIntegrationTestCase {
   let testUnsupportedFeatures = false
 
-  private func verifyResults(_ snapshot: PipelineSnapshot,
+  private func verifyResults(_ snapshot: Pipeline.Snapshot,
                              _ expected: [[String: AnyHashable?]],
                              enforceOrder: Bool = false,
                              file: StaticString = #file,
