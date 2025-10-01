@@ -60,7 +60,7 @@ struct BidiGenerateContentRealtimeInput: Encodable {
   struct ActivityEnd: Encodable {}
 
   /// Marks the end of user activity. This can only be sent if automatic (i.e.
-  // server-side) activity detection is disabled.
+  /// server-side) activity detection is disabled.
   let activityEnd: ActivityEnd?
 
   init(audio: InlineData? = nil, video: InlineData? = nil, text: String? = nil,
