@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// The Live API model sent a message that the SDK failed to parse.
+/// The model sent a message that the SDK failed to parse.
 ///
 /// This may indicate that the SDK version needs updating, a model is too old for the current SDK
 /// version, or that the model is just
@@ -78,7 +78,7 @@ public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError 
   }
 }
 
-/// The Live API model refused our request to setup a live session.
+/// The model refused our request to setup a live session.
 ///
 /// This can occur due to the model not supporting the requested response modalities, the project
 /// not having access to the model, the model being invalid,  or some internal error.
