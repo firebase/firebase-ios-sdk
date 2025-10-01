@@ -107,14 +107,14 @@ public struct LiveGenerationConfig: Sendable {
   ///     the model.
   ///
   ///     Input transcripts are the model's interprutation of audio data sent to it, and they are
-  ///     populated in model responses via ``LiveServerContent``. When this fields is set to `nil`,
+  ///     populated in model responses via ``LiveServerContent``. When this field is set to `nil`,
   ///     input transcripts are not populated in model responses.
   ///   - outputAudioTranscription: Configures (and enables) output transcriptions when streaming to
   ///     the model.
   ///
   ///     Output transcripts are text representations of the audio the model is sending to the
   ///     client, and they are populated in model responses via ``LiveServerContent``. When this
-  ///     fields is set to `nil`, output transcripts are not populated in model responses.
+  ///     field is set to `nil`, output transcripts are not populated in model responses.
   ///
   ///     > Important: Transcripts are independent to the model turn. This means transcripts may
   ///     > come earlier or later than when the model sends the corresponding audio responses.
