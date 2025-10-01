@@ -1,4 +1,4 @@
-# Unreleased
+# 12.4.0
 - [fixed] Make set development platform APIs to chain on Crashlytics context init promise.
 
 # 12.3.0
