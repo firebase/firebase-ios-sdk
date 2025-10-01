@@ -430,7 +430,7 @@ struct GenerateContentIntegrationTests {
   )
   func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
+      modelName: ModelNames.gemini2_5_FlashLite,
       tools: [.urlContext()]
     )
     let prompt = """
