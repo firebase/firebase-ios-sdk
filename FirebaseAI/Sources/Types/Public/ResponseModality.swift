@@ -57,9 +57,9 @@ public struct ResponseModality: EncodableProtoEnum, Sendable {
   /// > Warning: This is currently **only** supported via the
   /// > [live api](https://firebase.google.com/docs/ai-logic/live-api)\.
   /// >
-  /// > Furthermore, using the Firebase AI Logic SDKs with the Gemini Live API is in Public Preview, which means
-  /// > that the feature is not subject to any SLA or deprecation policy and could change in
-  /// > backwards-incompatible ways.
+  /// > Furthermore, using the Firebase AI Logic SDKs with the Gemini Live API is in Public Preview,
+  /// > which means that the feature is not subject to any SLA or deprecation policy and could
+  /// > change in backwards-incompatible ways.
   public static let audio = ResponseModality(kind: .audio)
 
   let rawValue: String

@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Configuration options for audio transcriptions when communicating with a model that supports the Gemini Live API.
+/// Configuration options for audio transcriptions when communicating with a model that supports the
+/// Gemini Live API.
 ///
 /// While there are not currently any options, this will likely change in the future. For now, just
 /// providing an instance of this struct will enable audio transcriptions for the corresponding

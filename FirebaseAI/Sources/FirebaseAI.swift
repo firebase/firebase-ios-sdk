@@ -143,7 +143,8 @@ public final class FirebaseAI: Sendable {
   /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
   /// could change in backwards-incompatible ways.
   ///
-  /// > Important: Only models that support the Gemini Live API (typically containing `live-*` in the name) are supported.
+  /// > Important: Only models that support the Gemini Live API (typically containing `live-*` in
+  /// the name) are supported.
   ///
   /// - Parameters:
   ///   - modelName: The name of the model to use, for example

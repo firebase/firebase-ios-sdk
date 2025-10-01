@@ -235,7 +235,7 @@ actor LiveSessionService {
               code: .liveSessionGoingAwaySoon,
               "Session expires in: \(goAway.timeLeft?.timeInterval ?? 0)"
             )
-            
+
             responseContinuation.yield(LiveServerGoingAwayNotice(
               goAway,
               usageMetadata: response.usageMetadata
