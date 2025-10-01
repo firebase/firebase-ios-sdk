@@ -183,4 +183,46 @@ final class APITests: XCTestCase {
     let _: String? = response.text
     let _: [FunctionCallPart] = response.functionCalls
   }
+
+  func liveSessionAPI() async throws {
+    let firebaseAI = FirebaseAI.firebaseAI()
+
+    // Initialize a Live Model
+    let liveModel = firebaseAI.liveModel(modelName: "gemini-2.0-flash-live-001")
+
+    // Start a Live session
+    let session = try await liveModel.connect()
+
+    // Add history incrementally to the session
+    await session.sendContent("Where is Google headquarters located?")
+    await session.sendContent("Respond in the format 'City, State'", turnComplete: true)
+    await session.sendContent(
+      [ModelContent(role: "model", parts: [TextPart("Mountain View, California")])],
+      turnComplete: true
+    )
+
+    // Send realtime data
+    await session.sendTextRealtime("What year was it founded?")
+    await session.sendAudioRealtime(Data())
+    await session.sendVideoRealtime(Data(), format: "mp4")
+
+    // Handle response content
+    for try await response in session.responses {
+      switch response {
+      case let serverContent as LiveServerContent:
+        print("Server content: \(serverContent)")
+      case let toolCall as LiveServerToolCall:
+        print("Tool call: \(toolCall)")
+      case let toolCallCancellation as LiveServerToolCallCancellation:
+        print("Tool call cancellation: \(toolCallCancellation)")
+      case let goingAway as LiveServerGoingAwayNotice:
+        print("Session is going away: \(goingAway)")
+      default:
+        print("Unexpected response type: \(response)")
+      }
+    }
+
+    // Close a Live session
+    await session.close()
+  }
 }
