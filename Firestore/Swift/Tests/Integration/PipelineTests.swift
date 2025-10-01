@@ -1677,6 +1677,30 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testIfAbsentWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["value": 1],
+      "doc2": ["value2": 2],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("value").ifAbsent(100).as("value"),
+      ])
+      .sort([Field(FieldPath.documentID()).ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["value": 100],
+      ["value": 1],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
 //  func testEquivalentWorks() async throws {
 //    let collRef = collectionRef(withDocuments: [
 //      "doc1": ["value": 1, "value2": 1],
@@ -3170,6 +3194,24 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     XCTAssertEqual(snapshot.results.count, 1)
+  }
+
+  func testErrorExpressionWorks() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["foo": 1]])
+    let db = collRef.firestore
+    
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        ErrorExpression("This is a test error").as("error"),
+      ])
+    
+    do {
+      let _ = try await pipeline.execute()
+      XCTFail("The pipeline should have thrown an error, but it did not.")
+    } catch {
+      XCTAssert(true, "Successfully caught expected error from ErrorExpression.")
+    }
   }
 
   func testSupportsByteLength() async throws {

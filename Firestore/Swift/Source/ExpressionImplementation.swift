@@ -890,6 +890,10 @@ public extension Expression {
     return FunctionExpression("if_error", [self, Helper.sendableToExpr(catchValue)])
   }
 
+  func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression {
+    return FunctionExpression("if_absent", [self, Helper.sendableToExpr(defaultValue)])
+  }
+
   // MARK: Sorting
 
   func ascending() -> Ordering {

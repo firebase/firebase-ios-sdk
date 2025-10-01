@@ -1531,6 +1531,21 @@ public protocol Expression: Sendable {
   /// - Returns: A new "FunctionExpression" representing the "ifError" operation.
   func ifError(_ catchValue: Sendable) -> FunctionExpression
 
+  /// Creates an expression that returns the literal `defaultValue` if this expression is
+  /// absent (e.g., a field does not exist in a map).
+  /// Otherwise, returns the result of this expression.
+  ///
+  /// - Note: This API is in beta.
+  ///
+  /// ```swift
+  /// // If the "optionalField" is absent, return "default value".
+  /// Field("optionalField").ifAbsent("default value")
+  /// ```
+  ///
+  /// - Parameter defaultValue: The literal `Sendable` value to return if this expression is absent.
+  /// - Returns: A new "FunctionExpression" representing the "ifAbsent" operation.
+  func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression
+
   // MARK: Sorting
 
   /// Creates an `Ordering` object that sorts documents in ascending order based on this expression.
