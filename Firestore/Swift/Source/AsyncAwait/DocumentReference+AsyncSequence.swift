@@ -26,7 +26,8 @@ public extension DocumentReference {
   /// An asynchronous sequence of document snapshots.
   ///
   /// This stream emits a new `DocumentSnapshot` every time the underlying data changes.
-  var snapshots: AsyncThrowingStream<DocumentSnapshot, Error> {
+  @available(iOS 18.0, *)
+  var snapshots: some AsyncSequence<DocumentSnapshot, Error> {
     return snapshots(includeMetadataChanges: false)
   }
 
@@ -34,7 +35,8 @@ public extension DocumentReference {
   ///
   /// - Parameter includeMetadataChanges: Whether to receive events for metadata-only changes.
   /// - Returns: An `AsyncThrowingStream` of `DocumentSnapshot` events.
-  func snapshots(includeMetadataChanges: Bool) -> AsyncThrowingStream<DocumentSnapshot, Error> {
+  @available(iOS 18.0, *)
+  func snapshots(includeMetadataChanges: Bool) -> some AsyncSequence<DocumentSnapshot, Error> {
     return AsyncThrowingStream { continuation in
       let listener = self
         .addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { snapshot, error in
