@@ -46,7 +46,7 @@ public struct LiveServerContent: LiveServerMessage {
   ///
   /// For realtime playback, there will be a delay between when the model finishes generating
   /// content and the client has finished playing back the generated content. `generationComplete`
-  /// indicates that the model is done generating data, while `isturnComplete` indicates the model
+  /// indicates that the model is done generating data, while `isTurnComplete` indicates the model
   /// is waiting for additional client messages. Sending a message during this delay may cause a
   /// `wasInterrupted` message to be sent.
   ///
@@ -54,7 +54,7 @@ public struct LiveServerContent: LiveServerMessage {
   /// `wasInterrupted` -> `turnComplete`.
   public var isGenerationComplete: Bool { serverContent.generationComplete ?? false }
 
-  /// Metadata specifing the sources used to ground generated content.
+  /// Metadata specifying the sources used to ground generated content.
   public var groundingMetadata: GroundingMetadata? { serverContent.groundingMetadata }
 
   /// The model's interpretation of what the client said in an audio message.
