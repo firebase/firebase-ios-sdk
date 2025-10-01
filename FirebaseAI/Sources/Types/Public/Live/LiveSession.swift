@@ -91,8 +91,7 @@ public final class LiveSession: Sendable {
   /// Incremental update of the current conversation.
   ///
   /// The content is unconditionally appended to the conversation history and used as part of the
-  /// prompt to the model to
-  /// generate content.
+  /// prompt to the model to generate content.
   ///
   /// Sending this message will also cause an interruption, if the server is actively generating
   /// content.
@@ -110,8 +109,7 @@ public final class LiveSession: Sendable {
   /// Incremental update of the current conversation.
   ///
   /// The content is unconditionally appended to the conversation history and used as part of the
-  /// prompt to the model to
-  /// generate content.
+  /// prompt to the model to generate content.
   ///
   /// Sending this message will also cause an interruption, if the server is actively generating
   /// content.
