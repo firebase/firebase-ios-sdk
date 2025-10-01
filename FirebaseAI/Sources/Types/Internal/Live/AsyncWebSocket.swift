@@ -145,9 +145,12 @@ struct WebSocketClosedError: Error, Sendable, CustomNSError {
   var errorCode: Int { closeCode.rawValue }
 
   var errorUserInfo: [String: Any] {
-    [
+    var userInfo: [String: Any] = [
       NSLocalizedDescriptionKey: "WebSocket closed with code \(closeCode.rawValue). Reason: \(closeReason)",
-      NSUnderlyingErrorKey: underlyingError as Any,
     ]
+    if let underlyingError {
+      userInfo[NSUnderlyingErrorKey] = underlyingError
+    }
+    return userInfo
   }
 }
