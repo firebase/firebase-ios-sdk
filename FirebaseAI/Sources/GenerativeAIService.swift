@@ -177,7 +177,10 @@ struct GenerativeAIService {
     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     if let appCheck = firebaseInfo.appCheck {
-      let tokenResult = try await fetchAppCheckToken(appCheck: appCheck)
+      let tokenResult = try await appCheck.fetchAppCheckToken(
+        limitedUse: firebaseInfo.useLimitedUseAppCheckTokens,
+        domain: "GenerativeAIService"
+      )
       urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
       if let error = tokenResult.error {
         AILog.error(
@@ -205,53 +208,6 @@ struct GenerativeAIService {
     urlRequest.timeoutInterval = request.options.timeout
 
     return urlRequest
-  }
-
-  private func fetchAppCheckToken(appCheck: AppCheckInterop) async throws
-    -> FIRAppCheckTokenResultInterop {
-    if firebaseInfo.useLimitedUseAppCheckTokens {
-      if let token = await getLimitedUseAppCheckToken(appCheck: appCheck) {
-        return token
-      }
-
-      let errorMessage =
-        "The provided App Check token provider doesn't implement getLimitedUseToken(), but requireLimitedUseTokens was enabled."
-
-      #if Debug
-        fatalError(errorMessage)
-      #else
-        throw NSError(
-          domain: "\(Constants.baseErrorDomain).\(Self.self)",
-          code: AILog.MessageCode.appCheckTokenFetchFailed.rawValue,
-          userInfo: [NSLocalizedDescriptionKey: errorMessage]
-        )
-      #endif
-    }
-
-    return await appCheck.getToken(forcingRefresh: false)
-  }
-
-  private func getLimitedUseAppCheckToken(appCheck: AppCheckInterop) async
-    -> FIRAppCheckTokenResultInterop? {
-    // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
-    await withCheckedContinuation { (continuation: CheckedContinuation<
-      FIRAppCheckTokenResultInterop?,
-      Never
-    >) in
-      guard
-        firebaseInfo.useLimitedUseAppCheckTokens,
-        // `getLimitedUseToken(completion:)` is an optional protocol method. Optional binding
-        // is performed to make sure `continuation` is called even if the method’s not implemented.
-        let limitedUseTokenClosure = appCheck.getLimitedUseToken
-      else {
-        return continuation.resume(returning: nil)
-      }
-
-      limitedUseTokenClosure { tokenResult in
-        // The placeholder token should be used in the case of App Check error.
-        continuation.resume(returning: tokenResult)
-      }
-    }
   }
 
   private func httpResponse(urlResponse: URLResponse) throws -> HTTPURLResponse {

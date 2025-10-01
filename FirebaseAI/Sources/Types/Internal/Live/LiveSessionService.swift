@@ -1,0 +1,395 @@
+// Copyright 2025 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import Foundation
+
+// TODO: remove @preconcurrency when we update to Swift 6
+// for context, see
+// https://forums.swift.org/t/why-does-sending-a-sendable-value-risk-causing-data-races/73074
+@preconcurrency import FirebaseAppCheckInterop
+@preconcurrency import FirebaseAuthInterop
+
+/// Facilitates communication with the backend for a ``LiveSession``.
+///
+/// Using an actor will make it easier to adopt session resumption, as we have an isolated place for
+/// mainting mutablity, which is backed by Swift concurrency implicity; allowing us to avoid various
+/// edge-case issues with dead-locks and data races.
+///
+/// This mainly comes into play when we don't want to block developers from sending messages while a
+/// session is being reloaded.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(watchOS, unavailable)
+actor LiveSessionService {
+  let responses: AsyncThrowingStream<LiveServerMessage, Error>
+  private let responseContinuation: AsyncThrowingStream<LiveServerMessage, Error>
+    .Continuation
+
+  // to ensure messages are sent in order, since swift actors are reentrant
+  private let messageQueue: AsyncStream<BidiGenerateContentClientMessage>
+  private let messageQueueContinuation: AsyncStream<BidiGenerateContentClientMessage>.Continuation
+
+  let modelResourceName: String
+  let generationConfig: LiveGenerationConfig?
+  let urlSession: URLSession
+  let apiConfig: APIConfig
+  let firebaseInfo: FirebaseInfo
+  let requestOptions: RequestOptions
+  let tools: [Tool]?
+  let toolConfig: ToolConfig?
+  let systemInstruction: ModelContent?
+
+  var webSocket: AsyncWebSocket?
+
+  private let jsonEncoder = JSONEncoder()
+  private let jsonDecoder = JSONDecoder()
+
+  /// Task that doesn't complete until the server sends a setupComplete message.
+  ///
+  /// Used to hold off on sending messages until the server is ready.
+  private var setupTask: Task<Void, Error>
+
+  /// Long running task that that wraps around the websocket, propogating messages through the
+  /// public stream.
+  private var responsesTask: Task<Void, Never>?
+
+  /// Long running task that consumes user messages from the ``messageQueue`` and sends them through
+  /// the websocket.
+  private var messageQueueTask: Task<Void, Never>?
+
+  init(modelResourceName: String,
+       generationConfig: LiveGenerationConfig?,
+       urlSession: URLSession,
+       apiConfig: APIConfig,
+       firebaseInfo: FirebaseInfo,
+       tools: [Tool]?,
+       toolConfig: ToolConfig?,
+       systemInstruction: ModelContent?,
+       requestOptions: RequestOptions) {
+    (responses, responseContinuation) = AsyncThrowingStream.makeStream()
+    (messageQueue, messageQueueContinuation) = AsyncStream.makeStream()
+    self.modelResourceName = modelResourceName
+    self.generationConfig = generationConfig
+    self.urlSession = urlSession
+    self.apiConfig = apiConfig
+    self.firebaseInfo = firebaseInfo
+    self.tools = tools
+    self.toolConfig = toolConfig
+    self.systemInstruction = systemInstruction
+    self.requestOptions = requestOptions
+    setupTask = Task {}
+  }
+
+  deinit {
+    setupTask.cancel()
+    responsesTask?.cancel()
+    messageQueueTask?.cancel()
+    webSocket?.disconnect()
+
+    webSocket = nil
+    responsesTask = nil
+    messageQueueTask = nil
+  }
+
+  /// Queue a message to be sent to the model.
+  ///
+  /// If there's any issues while sending the message, details about the issue will be logged.
+  ///
+  /// Since messages are queued synchronously, they are sent in-order.
+  func send(_ message: BidiGenerateContentClientMessage) {
+    messageQueueContinuation.yield(message)
+  }
+
+  /// Start a new connection to the backend.
+  ///
+  /// Seperated into its own function to make it easier to surface a way to call it seperately when
+  /// resuming the same session.
+  func connect() async throws {
+    close()
+    // we launch the setup task in a seperate task to allow us to cancel it via close
+    setupTask = Task { [weak self] in
+      // we need a continuation to surface that the setup is complete, while still allowing us to
+      // listen to the server
+      try await withCheckedThrowingContinuation { setupContinuation in
+        // nested task so we can use await
+        Task { [weak self] in
+          guard let self else { return }
+          await self.listenToServer(setupContinuation)
+        }
+      }
+    }
+
+    try await setupTask.value
+  }
+
+  /// Cancel any running tasks and close the websocket.
+  ///
+  /// This method is idempotent; if it's already ran once, it will effectively be a no-op.
+  func close() {
+    setupTask.cancel()
+    responsesTask?.cancel()
+    messageQueueTask?.cancel()
+    webSocket?.disconnect()
+
+    webSocket = nil
+    responsesTask = nil
+    messageQueueTask = nil
+  }
+
+  /// Start a fresh websocket to the backend, and listen for responses.
+  ///
+  /// Will hold off on sending any messages until the server sends a setupComplete message.
+  ///
+  /// Will also close out the old websocket and the previous long running tasks.
+  private func listenToServer(_ setupComplete: CheckedContinuation<Void, any Error>) async {
+    do {
+      webSocket = try await createWebsocket()
+    } catch {
+      let error = LiveSessionSetupError(underlyingError: error)
+      close()
+      setupComplete.resume(throwing: error)
+      return
+    }
+
+    guard let webSocket else { return }
+    let stream = webSocket.connect()
+
+    var resumed = false
+
+    // remove the uncommon (and unexpected) responses from the stream, to make normal path cleaner
+    let dataStream = stream.compactMap { (message: URLSessionWebSocketTask.Message) -> Data? in
+      switch message {
+      case let .string(string):
+        AILog.error(code: .liveSessionUnexpectedResponse, "Unexpected string response: \(string)")
+      case let .data(data):
+        return data
+      @unknown default:
+        AILog.error(code: .liveSessionUnexpectedResponse, "Unknown message received: \(message)")
+      }
+      return nil
+    }
+
+    do {
+      let setup = BidiGenerateContentSetup(
+        model: modelResourceName,
+        generationConfig: generationConfig?.bidiGenerationConfig,
+        systemInstruction: systemInstruction,
+        tools: tools,
+        toolConfig: toolConfig,
+        inputAudioTranscription: generationConfig?.inputAudioTranscription,
+        outputAudioTranscription: generationConfig?.outputAudioTranscription
+      )
+      let data = try jsonEncoder.encode(BidiGenerateContentClientMessage.setup(setup))
+      try await webSocket.send(.data(data))
+    } catch {
+      let error = LiveSessionSetupError(underlyingError: error)
+      close()
+      setupComplete.resume(throwing: error)
+      return
+    }
+
+    responsesTask = Task {
+      do {
+        for try await message in dataStream {
+          let response: BidiGenerateContentServerMessage
+          do {
+            response = try jsonDecoder.decode(
+              BidiGenerateContentServerMessage.self,
+              from: message
+            )
+          } catch {
+            // only log the json if it wasn't a decoding error, but an unsupported message type
+            if error is InvalidMessageTypeError {
+              AILog.error(
+                code: .liveSessionUnsupportedMessage,
+                "The server sent a message that we don't currently have a mapping for."
+              )
+
+              AILog.debug(
+                code: .liveSessionUnsupportedMessagePayload,
+                message.encodeToJsonString() ?? "\(message)"
+              )
+            }
+
+            let error = LiveSessionUnsupportedMessageError(underlyingError: error)
+            // if we've already finished setting up, then only surface the error through responses
+            // otherwise, make the setup task error as well
+            if !resumed {
+              setupComplete.resume(throwing: error)
+            }
+            throw error
+          }
+
+          if case .setupComplete = response.messageType {
+            if resumed {
+              AILog.debug(
+                code: .duplicateLiveSessionSetupComplete,
+                "Setup complete was received multiple times; this may be a bug in the model."
+              )
+            } else {
+              // calling resume multiple times is an error in swift, so we catch multiple calls
+              // to avoid causing any issues due to model quirks
+              resumed = true
+              setupComplete.resume()
+            }
+          } else if let liveMessage = LiveServerMessage(from: response) {
+            if case let .goingAwayNotice(message) = liveMessage.payload {
+              // TODO: (b/444045023) When auto session resumption is enabled, call `connect` again
+              AILog.debug(
+                code: .liveSessionGoingAwaySoon,
+                "Session expires in: \(message.goAway.timeLeft?.timeInterval ?? 0)"
+              )
+            }
+
+            responseContinuation.yield(liveMessage)
+          }
+        }
+      } catch {
+        if let error = error as? WebSocketClosedError {
+          // only raise an error if the session didn't close normally (ie; the user calling close)
+          if error.closeCode != .goingAway {
+            let closureError: Error
+            if let error = error.underlyingError as? NSError, error.domain == NSURLErrorDomain,
+               error.code == NSURLErrorNetworkConnectionLost {
+              closureError = LiveSessionLostConnectionError(underlyingError: error)
+            } else {
+              closureError = LiveSessionUnexpectedClosureError(underlyingError: error)
+            }
+            close()
+            responseContinuation.finish(throwing: closureError)
+          }
+        } else {
+          // an error occurred outside the websocket, so it's likely not closed
+          close()
+          responseContinuation.finish(throwing: error)
+        }
+      }
+    }
+
+    messageQueueTask = Task {
+      for await message in messageQueue {
+        // we don't propogate errors, since those are surfaced in the responses stream
+        guard let _ = try? await setupTask.value else {
+          break
+        }
+
+        let data: Data
+        do {
+          data = try jsonEncoder.encode(message)
+        } catch {
+          AILog.error(code: .liveSessionFailedToEncodeClientMessage, error.localizedDescription)
+          AILog.debug(
+            code: .liveSessionFailedToEncodeClientMessagePayload,
+            String(describing: message)
+          )
+          continue
+        }
+
+        do {
+          try await webSocket.send(.data(data))
+        } catch {
+          AILog.error(code: .liveSessionFailedToSendClientMessage, error.localizedDescription)
+        }
+      }
+    }
+  }
+
+  /// Creates a websocket pointing to the backend.
+  ///
+  /// Will apply the required app check and auth headers, as the backend expects them.
+  private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
+    let host = apiConfig.service.endpoint.rawValue.withoutPrefix("https://")
+    // TODO: (b/448722577) Set a location based on the api config
+    let urlString = switch apiConfig.service {
+    case .vertexAI:
+      "wss://\(host)/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/us-central1"
+    case .googleAI:
+      "wss://\(host)/ws/google.firebase.vertexai.v1beta.GenerativeService/BidiGenerateContent"
+    }
+    guard let url = URL(string: urlString) else {
+      throw NSError(
+        domain: "\(Constants.baseErrorDomain).\(Self.self)",
+        code: AILog.MessageCode.invalidWebsocketURL.rawValue,
+        userInfo: [
+          NSLocalizedDescriptionKey: "The live API websocket URL is not a valid URL",
+        ]
+      )
+    }
+    var urlRequest = URLRequest(url: url)
+    urlRequest.timeoutInterval = requestOptions.timeout
+    urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
+    urlRequest.setValue(
+      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
+      forHTTPHeaderField: "x-goog-api-client"
+    )
+    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    if let appCheck = firebaseInfo.appCheck {
+      let tokenResult = try await appCheck.fetchAppCheckToken(
+        limitedUse: firebaseInfo.useLimitedUseAppCheckTokens,
+        domain: "LiveSessionService"
+      )
+      urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
+      if let error = tokenResult.error {
+        AILog.error(
+          code: .appCheckTokenFetchFailed,
+          "Failed to fetch AppCheck token. Error: \(error)"
+        )
+      }
+    }
+
+    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(
+      forcingRefresh: false
+    ) {
+      urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
+    }
+
+    if firebaseInfo.app.isDataCollectionDefaultEnabled {
+      urlRequest.setValue(firebaseInfo.firebaseAppID, forHTTPHeaderField: "X-Firebase-AppId")
+      if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+        urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
+      }
+    }
+
+    return AsyncWebSocket(urlSession: urlSession, urlRequest: urlRequest)
+  }
+}
+
+private extension Data {
+  /// Encodes this into a raw json string, with no regard to specific keys.
+  ///
+  /// Will return `nil` if this data doesn't represent a valid json object.
+  func encodeToJsonString() -> String? {
+    do {
+      let object = try JSONSerialization.jsonObject(with: self)
+      let data = try JSONSerialization.data(withJSONObject: object)
+
+      return String(data: data, encoding: .utf8)
+    } catch {
+      return nil
+    }
+  }
+}
+
+private extension String {
+  /// Create a new string with the given prefix removed, if it's present.
+  ///
+  /// If the prefix isn't present, this string will be returned instead.
+  func withoutPrefix(_ prefix: String) -> String {
+    if let index = range(of: prefix, options: .anchored) {
+      return String(self[index.upperBound...])
+    } else {
+      return self
+    }
+  }
+}

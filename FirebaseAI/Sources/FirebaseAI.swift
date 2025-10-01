@@ -137,6 +137,46 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  /// **[Public Preview]** Initializes a ``LiveGenerativeModel`` with the given parameters.
+  ///
+  /// > Warning: Using the Firebase AI Logic SDKs with the Gemini Live API is in Public
+  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
+  /// could change in backwards-incompatible ways.
+  ///
+  /// > Important: Only models that support the Gemini Live API (typically containing `live-*` in
+  /// the name) are supported.
+  ///
+  /// - Parameters:
+  ///   - modelName: The name of the model to use, for example
+  ///     `"gemini-live-2.5-flash-preview"`;
+  ///     see [model versions](https://firebase.google.com/docs/ai-logic/live-api?api=dev#models-that-support-capability)
+  ///     for a list of supported models.
+  ///   - generationConfig: The content generation parameters your model should use.
+  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
+  ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
+  ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
+  ///     only text content is supported.
+  ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+  @available(watchOS, unavailable)
+  public func liveModel(modelName: String,
+                        generationConfig: LiveGenerationConfig? = nil,
+                        tools: [Tool]? = nil,
+                        toolConfig: ToolConfig? = nil,
+                        systemInstruction: ModelContent? = nil,
+                        requestOptions: RequestOptions = RequestOptions()) -> LiveGenerativeModel {
+    return LiveGenerativeModel(
+      modelResourceName: modelResourceName(modelName: modelName),
+      firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
+      generationConfig: generationConfig,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      requestOptions: requestOptions
+    )
+  }
+
   /// Class to enable FirebaseAI to register via the Objective-C based Firebase component system
   /// to include FirebaseAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
