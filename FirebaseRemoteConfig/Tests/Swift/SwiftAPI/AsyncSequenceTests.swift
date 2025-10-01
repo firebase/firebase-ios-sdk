@@ -62,7 +62,7 @@ class MockRealtime: RCNConfigRealtime, @unchecked Sendable {
   }
 }
 
-// MARK: - AsyncStreamTests
+// MARK: - AsyncSequenceTests
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AsyncSequenceTests: XCTestCase {
@@ -99,8 +99,8 @@ class AsyncSequenceTests: XCTestCase {
     try super.tearDownWithError()
   }
 
-  func testStreamYieldsUpdate_whenUpdateIsSent() async throws {
-    let expectation = self.expectation(description: "Stream should yield an update.")
+  func testSequenceYieldsUpdate_whenUpdateIsSent() async throws {
+    let expectation = self.expectation(description: "Sequence should yield an update.")
     let keysToUpdate = ["foo", "bar"]
 
     let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
@@ -123,8 +123,8 @@ class AsyncSequenceTests: XCTestCase {
     listeningTask.cancel()
   }
 
-  func testStreamFinishes_whenErrorIsSent() async throws {
-    let expectation = self.expectation(description: "Stream should throw an error.")
+  func testSequenceFinishes_whenErrorIsSent() async throws {
+    let expectation = self.expectation(description: "Sequence should throw an error.")
     let testError = TestError()
 
     let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
@@ -150,7 +150,7 @@ class AsyncSequenceTests: XCTestCase {
     listeningTask.cancel()
   }
 
-  func testStreamCancellation_callsRemoveOnListener() async throws {
+  func testSequenceCancellation_callsRemoveOnListener() async throws {
     let listenerAttachedExpectation = expectation(description: "Listener should be attached.")
     mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
 
@@ -176,8 +176,8 @@ class AsyncSequenceTests: XCTestCase {
     XCTAssertTrue(mockRealtime.mockRegistration.wasRemoveCalled)
   }
 
-  func testStreamFinishesGracefully_whenListenerSendsNil() async throws {
-    let expectation = self.expectation(description: "Stream should finish without error.")
+  func testSequenceFinishesGracefully_whenListenerSendsNil() async throws {
+    let expectation = self.expectation(description: "Sequence should finish without error.")
 
     let listenerAttachedExpectation = self.expectation(description: "Listener should be attached.")
     mockRealtime.listenerAttachedExpectation = listenerAttachedExpectation
@@ -203,8 +203,8 @@ class AsyncSequenceTests: XCTestCase {
     listeningTask.cancel()
   }
 
-  func testStreamYieldsMultipleUpdates_whenMultipleUpdatesAreSent() async throws {
-    let expectation = self.expectation(description: "Stream should receive two updates.")
+  func testSequenceYieldsMultipleUpdates_whenMultipleUpdatesAreSent() async throws {
+    let expectation = self.expectation(description: "Sequence should receive two updates.")
     expectation.expectedFulfillmentCount = 2
 
     let updatesToSend = [
