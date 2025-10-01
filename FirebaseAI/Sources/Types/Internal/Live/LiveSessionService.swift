@@ -206,7 +206,26 @@ actor LiveSessionService {
               from: message
             )
           } catch {
-            throw LiveSessionUnsupportedMessageError(underlyingError: error)
+            // only log the json if it wasn't a decoding error, but an unsupported message type
+            if error is InvalidMessageTypeError {
+              AILog.error(
+                code: .liveSessionUnsupportedMessage,
+                "The server sent a message that we don't currently have a mapping for."
+              )
+
+              AILog.debug(
+                code: .liveSessionUnsupportedMessagePayload,
+                message.encodeToJsonString() ?? "\(message)"
+              )
+            }
+
+            let error = LiveSessionUnsupportedMessageError(underlyingError: error)
+            // if we've already finished setting up, then only surface the error through responses
+            // otherwise, make the setup task error as well
+            if !resumed {
+              setupComplete.resume(throwing: error)
+            }
+            throw error
           }
 
           if case .setupComplete = response.messageType {
@@ -231,13 +250,6 @@ actor LiveSessionService {
             }
 
             responseContinuation.yield(liveMessage)
-          } else {
-            // we don't raise an error, since this allows us to add support internally but not
-            // publicly. We still log it in debug though, in case it's not expected.
-            AILog.debug(
-              code: .liveSessionUnsupportedMessage,
-              "The server sent a message that we don't currently have a mapping for: \(response)"
-            )
           }
         }
       } catch {
@@ -346,5 +358,21 @@ actor LiveSessionService {
     }
 
     return AsyncWebSocket(urlSession: urlSession, urlRequest: urlRequest)
+  }
+}
+
+private extension Data {
+  /// Encodes this into a raw json string, with no regard to specific keys.
+  ///
+  /// Will return `nil` if this data doesn't represent a valid json object.
+  func encodeToJsonString() -> String? {
+    do {
+      let object = try JSONSerialization.jsonObject(with: self)
+      let data = try JSONSerialization.data(withJSONObject: object)
+
+      return String(data: data, encoding: .utf8)
+    } catch {
+      return nil
+    }
   }
 }

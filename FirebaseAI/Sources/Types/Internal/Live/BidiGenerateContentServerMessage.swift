@@ -86,16 +86,20 @@ extension BidiGenerateContentServerMessage: Decodable {
     } else if let goAway = try container.decodeIfPresent(GoAway.self, forKey: .goAway) {
       messageType = .goAway(goAway)
     } else {
-      let context = DecodingError.Context(
-        codingPath: decoder.codingPath,
-        debugDescription: "Could not decode server message."
-      )
-      throw DecodingError.dataCorrupted(context)
+      throw InvalidMessageTypeError()
     }
 
     usageMetadata = try container.decodeIfPresent(
       GenerateContentResponse.UsageMetadata.self,
       forKey: .usageMetadata
     )
+  }
+}
+
+struct InvalidMessageTypeError: Error, Sendable, CustomNSError {
+  public var errorUserInfo: [String: Any] {
+    [
+      NSLocalizedDescriptionKey: "Missing server message type.",
+    ]
   }
 }
