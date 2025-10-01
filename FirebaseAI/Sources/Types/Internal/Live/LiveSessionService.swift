@@ -308,11 +308,12 @@ actor LiveSessionService {
   ///
   /// Will apply the required app check and auth headers, as the backend expects them.
   private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
+    let host = apiConfig.service.endpoint.rawValue.withoutPrefix("https://")
     let urlString = switch apiConfig.service {
     case .vertexAI:
-      "wss://firebasevertexai.googleapis.com/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/us-central1"
+      "wss://\(host)/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/us-central1"
     case .googleAI:
-      "wss://firebasevertexai.googleapis.com/ws/google.firebase.vertexai.v1beta.GenerativeService/BidiGenerateContent"
+      "wss://\(host)/ws/google.firebase.vertexai.v1beta.GenerativeService/BidiGenerateContent"
     }
     guard let url = URL(string: urlString) else {
       throw NSError(
@@ -375,6 +376,19 @@ private extension Data {
       return String(data: data, encoding: .utf8)
     } catch {
       return nil
+    }
+  }
+}
+
+private extension String {
+  /// Create a new string with the given prefix removed, if it's present.
+  ///
+  /// If the prefix isn't present, this string will be returned instead.
+  func withoutPrefix(_ prefix: String) -> String {
+    if let index = range(of: prefix, options: .anchored) {
+      return String(self[index.upperBound...])
+    } else {
+      return self
     }
   }
 }
