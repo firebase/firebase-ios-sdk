@@ -23,7 +23,7 @@ private import FirebaseCoreInternal
 /// Also surfaces a more fine-grained ``WebSocketClosedError`` for when the web socket is closed.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
-final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDelegate {
+final class AsyncWebSocket: Sendable {
   private let webSocketTask: URLSessionWebSocketTask
   private let stream: AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>
   private let continuation: AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>.Continuation
@@ -106,13 +106,6 @@ final class AsyncWebSocket: NSObject, @unchecked Sendable, URLSessionWebSocketDe
       self.continuation.finish(throwing: error)
       isFinished = true
     }
-  }
-
-  func urlSession(_ session: URLSession,
-                  webSocketTask: URLSessionWebSocketTask,
-                  didCloseWith closeCode: URLSessionWebSocketTask.CloseCode,
-                  reason: Data?) {
-    close(code: closeCode, reason: reason)
   }
 }
 
