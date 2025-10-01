@@ -18,17 +18,13 @@
 /// ``FunctionCallPart``s.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
-public struct LiveServerToolCallCancellation: LiveServerMessage {
+public struct LiveServerToolCallCancellation: Sendable {
   let serverToolCallCancellation: BidiGenerateContentToolCallCancellation
   /// A list of `functionId`s matching the `functionId` provided in a previous
   /// ``LiveServerToolCall``, where only the provided `functionId`s should be cancelled.
   public var ids: [String]? { serverToolCallCancellation.ids }
 
-  public var usageMetadata: GenerateContentResponse.UsageMetadata?
-
-  init(_ serverToolCallCancellation: BidiGenerateContentToolCallCancellation,
-       usageMetadata: GenerateContentResponse.UsageMetadata?) {
+  init(_ serverToolCallCancellation: BidiGenerateContentToolCallCancellation) {
     self.serverToolCallCancellation = serverToolCallCancellation
-    self.usageMetadata = usageMetadata
   }
 }

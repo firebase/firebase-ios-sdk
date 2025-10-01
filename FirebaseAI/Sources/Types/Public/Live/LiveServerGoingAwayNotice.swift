@@ -19,7 +19,7 @@ import Foundation
 /// To  learn more about session limits,  see the docs on [Maximum session duration](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/multimodal-live#maximum-session-duration)\.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
-public struct LiveServerGoingAwayNotice: LiveServerMessage {
+public struct LiveServerGoingAwayNotice: Sendable {
   let goAway: GoAway
   /// The remaining time before the connection will be terminated as ABORTED.
   ///
@@ -27,10 +27,7 @@ public struct LiveServerGoingAwayNotice: LiveServerMessage {
   /// the rate limits for a given model.
   public var timeLeft: TimeInterval? { goAway.timeLeft?.timeInterval }
 
-  public var usageMetadata: GenerateContentResponse.UsageMetadata?
-
-  init(_ goAway: GoAway, usageMetadata: GenerateContentResponse.UsageMetadata?) {
+  init(_ goAway: GoAway) {
     self.goAway = goAway
-    self.usageMetadata = usageMetadata
   }
 }

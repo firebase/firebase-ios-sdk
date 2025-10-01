@@ -19,7 +19,7 @@
 /// may choose to buffer and play it out in realtime.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
-public struct LiveServerContent: LiveServerMessage {
+public struct LiveServerContent: Sendable {
   let serverContent: BidiGenerateContentServerContent
 
   /// The content that the model has generated as part of the current
@@ -76,11 +76,7 @@ public struct LiveServerContent: LiveServerMessage {
     serverContent.outputTranscription.map { LiveTranscription($0) }
   }
 
-  public var usageMetadata: GenerateContentResponse.UsageMetadata?
-
-  init(_ serverContent: BidiGenerateContentServerContent,
-       usageMetadata: GenerateContentResponse.UsageMetadata?) {
+  init(_ serverContent: BidiGenerateContentServerContent) {
     self.serverContent = serverContent
-    self.usageMetadata = usageMetadata
   }
 }
