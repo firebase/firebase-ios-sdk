@@ -68,6 +68,7 @@ extension APIConfig {
 
 extension APIConfig.Service {
   /// Network addresses for generative AI API services.
+  // TODO: maybe remove the https:// prefix and just add it as needed? websockets use these too.
   enum Endpoint: String, Encodable {
     /// The Firebase proxy production endpoint.
     ///
