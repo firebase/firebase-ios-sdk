@@ -12,7 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///
+/// A `RandomExpression` is a `FunctionExpression` that generates a random floating-point
+/// number between 0.0 (inclusive) and 1.0 (exclusive).
+///
+/// This expression is useful when you need to introduce a random value into a pipeline,
+/// for example, to randomly sample a subset of documents.
+///
+/// Example of using `RandomExpression` to sample documents:
+/// ```swift
+/// // Create a query to sample approximately 10% of the documents in a collection
+/// firestore.pipeline()
+///   .collection("users")
+///   .where(RandomExpression().lessThan(0.1))
+/// ```
 public class RandomExpression: FunctionExpression, @unchecked Sendable {
+  /// Creates a new `RandomExpression` that generates a random number.
   public init() {
     super.init("rand", [])
   }

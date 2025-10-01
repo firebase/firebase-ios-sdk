@@ -15,20 +15,20 @@
  */
 
 public struct Ordering: @unchecked Sendable {
-  let expr: Expression
-  let direction: Direction
+  public let expression: Expression
+  public let direction: Direction
   let bridge: OrderingBridge
 
-  init(expr: Expression, direction: Direction) {
-    self.expr = expr
+  init(expression: Expression, direction: Direction) {
+    self.expression = expression
     self.direction = direction
-    bridge = OrderingBridge(expr: expr.toBridge(), direction: direction.rawValue)
+    bridge = OrderingBridge(expr: expression.toBridge(), direction: direction.rawValue)
   }
 }
 
-struct Direction: Sendable, Equatable, Hashable {
+public struct Direction: Sendable, Equatable, Hashable {
   let kind: Kind
-  let rawValue: String
+  public let rawValue: String
 
   enum Kind: String {
     case ascending

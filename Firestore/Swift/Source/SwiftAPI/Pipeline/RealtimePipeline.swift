@@ -103,27 +103,43 @@ struct RealtimePipeline: @unchecked Sendable {
     bridge = RealtimePipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
+  struct Snapshot: Sendable {
+    /// An array of all the results in the `PipelineSnapshot`.
+    let results_cache: [PipelineResult]
+
+    public let changes: [PipelineResultChange]
+    public let metadata: SnapshotMetadata
+
+    let bridge: __RealtimePipelineSnapshotBridge
+
+    init(_ bridge: __RealtimePipelineSnapshotBridge) {
+      self.bridge = bridge
+      metadata = bridge.metadata
+      results_cache = self.bridge.results.map { PipelineResult($0) }
+      changes = self.bridge.changes.map { PipelineResultChange($0) }
+    }
+
+    public func results() -> [PipelineResult] {
+      return results_cache
+    }
+  }
+
   private func addSnapshotListener(options: PipelineListenOptions,
-                                   listener: @escaping (RealtimePipelineSnapshot?, Error?) -> Void)
+                                   listener: @escaping (RealtimePipeline.Snapshot?, Error?) -> Void)
     -> ListenerRegistration {
     return bridge.addSnapshotListener(options: options.bridge) { snapshotBridge, error in
-      if snapshotBridge != nil {
-        listener(
-          RealtimePipelineSnapshot(
-            snapshotBridge!,
-            pipeline: self,
-            options: options
-          ),
-          error
-        )
-      } else {
-        listener(nil, error)
-      }
+      listener(
+        RealtimePipeline.Snapshot(
+          // TODO(pipeline): this needs to be fixed
+          snapshotBridge!
+        ),
+        error
+      )
     }
   }
 
   public func snapshotStream(options: PipelineListenOptions? = nil)
-    -> AsyncThrowingStream<RealtimePipelineSnapshot, Error> {
+    -> AsyncThrowingStream<RealtimePipeline.Snapshot, Error> {
     AsyncThrowingStream { continuation in
       let listener = self.addSnapshotListener(
         options: options ?? PipelineListenOptions()
