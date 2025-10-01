@@ -309,6 +309,7 @@ actor LiveSessionService {
   /// Will apply the required app check and auth headers, as the backend expects them.
   private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
     let host = apiConfig.service.endpoint.rawValue.withoutPrefix("https://")
+    // TODO: (b/448722577) Set a location based on the api config
     let urlString = switch apiConfig.service {
     case .vertexAI:
       "wss://\(host)/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/us-central1"
