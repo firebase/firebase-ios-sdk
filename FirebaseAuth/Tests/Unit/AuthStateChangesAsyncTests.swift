@@ -62,6 +62,7 @@ class AuthStateChangesAsyncTests: RPCBaseTests {
     _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
   }
 
+  @available(iOS 18.0, *)
   func testAuthStateChangesStreamYieldsUserOnSignIn() async throws {
     // Given
     let initialNilExpectation = expectation(description: "Stream should emit initial nil user")
@@ -103,6 +104,7 @@ class AuthStateChangesAsyncTests: RPCBaseTests {
     task.cancel()
   }
 
+  @available(iOS 18.0, *)
   func testAuthStateChangesStreamIsCancelled() async throws {
     // Given: An inverted expectation that will fail the test if it's fulfilled.
     let streamCancelledExpectation =
@@ -145,6 +147,7 @@ class AuthStateChangesAsyncTests: RPCBaseTests {
     XCTAssertEqual(iteration, 1, "The stream should have only emitted its initial value.")
   }
 
+  @available(iOS 18.0, *)
   func testAuthStateChangesStreamYieldsNilOnSignOut() async throws {
     // Given
     let initialNilExpectation = expectation(description: "Stream should emit initial nil user")
