@@ -26,7 +26,8 @@ public extension Query {
   /// An asynchronous sequence of query snapshots.
   ///
   /// This stream emits a new `QuerySnapshot` every time the underlying data changes.
-  var snapshots: AsyncThrowingStream<QuerySnapshot, Error> {
+  @available(iOS 18.0, *)
+  var snapshots: some AsyncSequence<QuerySnapshot, Error> {
     return snapshots(includeMetadataChanges: false)
   }
 
@@ -34,7 +35,8 @@ public extension Query {
   ///
   /// - Parameter includeMetadataChanges: Whether to receive events for metadata-only changes.
   /// - Returns: An `AsyncThrowingStream` of `QuerySnapshot` events.
-  func snapshots(includeMetadataChanges: Bool) -> AsyncThrowingStream<QuerySnapshot, Error> {
+  @available(iOS 18.0, *)
+  func snapshots(includeMetadataChanges: Bool) -> some AsyncSequence<QuerySnapshot, Error> {
     return AsyncThrowingStream { continuation in
       let listener = self
         .addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { snapshot, error in
