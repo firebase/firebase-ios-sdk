@@ -14,20 +14,18 @@
 
 import Foundation
 
-#if swift(>=5.5.2)
-  @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *)
-  public extension Auth {
-    /// An asynchronous stream of authentication state changes.
+public extension Auth {
+    /// An asynchronous sequence of authentication state changes.
     ///
-    /// This stream provides a modern, `async/await`-compatible way to monitor the authentication
+    /// This sequence provides a modern, `async/await`-compatible way to monitor the authentication
     /// state of the current user. It emits a new `User?` value whenever the user signs in or
     /// out.
     ///
-    /// The stream's underlying listener is automatically managed. It is added to the `Auth`
-    /// instance when you begin iterating over the stream and is removed when the iteration
+    /// The sequence's underlying listener is automatically managed. It is added to the `Auth`
+    /// instance when you begin iterating over the sequence and is removed when the iteration
     /// is cancelled or terminates.
     ///
-    /// - Important: The first value emitted by this stream is always the *current* authentication
+    /// - Important: The first value emitted by this sequence is always the *current* authentication
     ///   state, which may be `nil` if no user is signed in.
     ///
     /// ### Example Usage
@@ -47,7 +45,8 @@ import Foundation
     ///   }
     /// }
     /// ```
-    var authStateChanges: AsyncStream<User?> {
+  @available(iOS 18.0, *)
+  var authStateChanges: some AsyncSequence<User?, Never> {
       AsyncStream { continuation in
         let listenerHandle = addStateDidChangeListener { _, user in
           continuation.yield(user)
@@ -59,16 +58,16 @@ import Foundation
       }
     }
 
-    /// An asynchronous stream of ID token changes.
+    /// An asynchronous sequence of ID token changes.
     ///
-    /// This stream provides a modern, `async/await`-compatible way to monitor changes to the
+    /// This sequence provides a modern, `async/await`-compatible way to monitor changes to the
     /// current user's ID token. It emits a new `User?` value whenever the ID token changes.
     ///
-    /// The stream's underlying listener is automatically managed. It is added to the `Auth`
-    /// instance when you begin iterating over the stream and is removed when the iteration
+    /// The sequence's underlying listener is automatically managed. It is added to the `Auth`
+    /// instance when you begin iterating over the sequence and is removed when the iteration
     /// is cancelled or terminates.
     ///
-    /// - Important: The first value emitted by this stream is always the *current* authentication
+    /// - Important: The first value emitted by this sequence is always the *current* authentication
     ///   state, which may be `nil` if no user is signed in.
     ///
     /// ### Example Usage
@@ -88,16 +87,16 @@ import Foundation
     ///   }
     /// }
     /// ```
-    var idTokenChanges: AsyncStream<User?> {
+  @available(iOS 18.0, *)
+  var idTokenChanges: some AsyncSequence<User?, Never> {
       AsyncStream { continuation in
         let listenerHandle = addIDTokenDidChangeListener { _, user in
           continuation.yield(user)
         }
 
         continuation.onTermination = { @Sendable _ in
-          self.removeStateDidChangeListener(listenerHandle)
+          self.removeIDTokenDidChangeListener(listenerHandle)
         }
       }
     }
   }
-#endif // swift(>=5.5.2)
