@@ -40,7 +40,7 @@ struct BidiGenerateContentServerMessage: Sendable {
   }
 
   /// The message type.
-  let messageType: MessageType
+  let messageType: MessageType?
 
   /// Usage metadata about the response(s).
   let usageMetadata: GenerateContentResponse.UsageMetadata?
@@ -86,11 +86,7 @@ extension BidiGenerateContentServerMessage: Decodable {
     } else if let goAway = try container.decodeIfPresent(GoAway.self, forKey: .goAway) {
       messageType = .goAway(goAway)
     } else {
-      let context = DecodingError.Context(
-        codingPath: decoder.codingPath,
-        debugDescription: "Could not decode server message."
-      )
-      throw DecodingError.dataCorrupted(context)
+      messageType = nil
     }
 
     usageMetadata = try container.decodeIfPresent(
