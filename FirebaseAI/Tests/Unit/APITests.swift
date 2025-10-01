@@ -184,6 +184,7 @@ final class APITests: XCTestCase {
     let _: [FunctionCallPart] = response.functionCalls
   }
 
+  @available(watchOS, unavailable)
   func liveSessionAPI() async throws {
     let firebaseAI = FirebaseAI.firebaseAI()
 
