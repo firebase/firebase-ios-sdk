@@ -3157,6 +3157,21 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
+  func testCurrentTimestampWorks() async throws {
+    let collRef = collectionRef(withDocuments: ["doc1": ["foo": 1]])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        CurrentTimestamp().as("timestamp"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+  }
+
   func testSupportsByteLength() async throws {
     let db = firestore()
     let randomCol = collectionRef()
