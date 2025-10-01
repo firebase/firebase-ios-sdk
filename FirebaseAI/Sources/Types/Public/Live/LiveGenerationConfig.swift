@@ -101,7 +101,7 @@ public struct LiveGenerationConfig: Sendable {
   ///     > Warning: Specifying response modalities is a **Public Preview** feature, which means
   ///     > that it is not subject to any SLA or deprecation policy and could change in
   ///     > backwards-incompatible ways.
-  ///   - speechConfig: Controls the voice of the model, when streaming `audio` via
+  ///   - speech: Controls the voice of the model, when streaming `audio` via
   ///     ``ResponseModality``.
   ///   - inputAudioTranscription: Configures (and enables) input transcriptions when streaming to
   ///     the model.
@@ -122,7 +122,7 @@ public struct LiveGenerationConfig: Sendable {
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               responseModalities: [ResponseModality]? = nil,
-              speechConfig: SpeechConfig? = nil,
+              speech: SpeechConfig? = nil,
               inputAudioTranscription: AudioTranscriptionConfig? = nil,
               outputAudioTranscription: AudioTranscriptionConfig? = nil) {
     self.init(
@@ -135,7 +135,7 @@ public struct LiveGenerationConfig: Sendable {
         presencePenalty: presencePenalty,
         frequencyPenalty: frequencyPenalty,
         responseModalities: responseModalities,
-        speechConfig: speechConfig?.speechConfig
+        speechConfig: speech?.speechConfig
       ),
       inputAudioTranscription: inputAudioTranscription?.audioTranscriptionConfig,
       outputAudioTranscription: outputAudioTranscription?.audioTranscriptionConfig
