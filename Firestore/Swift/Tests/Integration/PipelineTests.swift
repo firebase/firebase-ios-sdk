@@ -2878,6 +2878,31 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testJoinWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["tags": ["a", "b", "c"]],
+      "doc2": ["tags": ["d", "e"]],
+      "doc3": ["tags": []],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("tags").join(delimiter: ", ").as("tagsString"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["tagsString": "a, b, c"],
+      ["tagsString": "d, e"],
+      ["tagsString": ""],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
+
   func testSupportsRand() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore

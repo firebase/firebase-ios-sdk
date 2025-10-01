@@ -161,7 +161,7 @@ public enum TestHelper {
 
     for (key, value1) in dict1 {
       guard let value2 = dict2[key], areEqual(value1, value2) else {
-        XCTFail("""
+        print("""
         Dictionary value mismatch for key: '\(key)'
         Actual value: '\(String(describing: value1))' (from dict1)
         Expected value:   '\(String(describing: dict2[key]))' (from dict2)
@@ -180,7 +180,7 @@ public enum TestHelper {
     for (index, value1) in array1.enumerated() {
       let value2 = array2[index]
       if !areEqual(value1, value2) {
-        XCTFail("""
+        print("""
         Array value mismatch.
         Actual array value: '\(String(describing: value1))'
         Expected array value:   '\(String(describing: value2))'

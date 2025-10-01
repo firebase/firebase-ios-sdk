@@ -706,6 +706,19 @@ public protocol Expression: Sendable {
 
   // MARK: String Operations
 
+  /// Creates an expression that joins the elements of an array of strings with a given separator.
+  ///
+  /// Assumes `self` evaluates to an array of strings.
+  ///
+  /// ```swift
+  /// // Join the "tags" array with a ", " separator.
+  /// Field("tags").join(separator: ", ")
+  /// ```
+  ///
+  /// - Parameter delimiter: The string to use as a delimiter.
+  /// - Returns: A new `FunctionExpression` representing the joined string.
+  func join(delimiter: String) -> FunctionExpression
+
   /// Creates an expression that returns the length of a string.
   ///
   /// ```swift

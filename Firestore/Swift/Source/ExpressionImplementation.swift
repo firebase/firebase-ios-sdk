@@ -609,6 +609,10 @@ public extension Expression {
 
   // --- Added String Operations ---
 
+  func join(delimiter: String) -> FunctionExpression {
+    return FunctionExpression("join", [self, Constant(delimiter)])
+  }
+
   func length() -> FunctionExpression {
     return FunctionExpression("length", [self])
   }
