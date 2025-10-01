@@ -65,7 +65,7 @@ class MockRealtime: RCNConfigRealtime, @unchecked Sendable {
 // MARK: - AsyncStreamTests
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AsyncStreamTests: XCTestCase {
+class AsyncSequenceTests: XCTestCase {
   var app: FirebaseApp!
   var config: RemoteConfig!
   var mockRealtime: MockRealtime!
