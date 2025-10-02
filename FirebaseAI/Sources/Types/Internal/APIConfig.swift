@@ -58,7 +58,7 @@ extension APIConfig {
     /// This must correspond with the API set in `service`.
     var endpoint: Endpoint {
       switch self {
-      case let .vertexAI(endpoint: endpoint, location: _):
+      case let .vertexAI(endpoint: endpoint, _):
         return endpoint
       case let .googleAI(endpoint: endpoint):
         return endpoint
