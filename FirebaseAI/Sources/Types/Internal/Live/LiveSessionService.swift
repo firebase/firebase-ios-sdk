@@ -310,7 +310,7 @@ actor LiveSessionService {
   private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
     let host = apiConfig.service.endpoint.rawValue.withoutPrefix("https://")
     let urlString = switch apiConfig.service {
-    case let .vertexAI(endpoint: _, location: location):
+    case let .vertexAI(_, location: location):
       "wss://\(host)/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/\(location)"
     case .googleAI:
       "wss://\(host)/ws/google.firebase.vertexai.v1beta.GenerativeService/BidiGenerateContent"
