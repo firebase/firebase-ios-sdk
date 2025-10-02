@@ -45,7 +45,7 @@ public extension Auth {
   ///   }
   /// }
   /// ```
-  @available(iOS 18.0, *)
+  @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
   var authStateChanges: some AsyncSequence<User?, Never> {
     AsyncStream { continuation in
       let listenerHandle = addStateDidChangeListener { _, user in
@@ -87,7 +87,7 @@ public extension Auth {
   ///   }
   /// }
   /// ```
-  @available(iOS 18.0, *)
+  @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
   var idTokenChanges: some AsyncSequence<User?, Never> {
     AsyncStream { continuation in
       let listenerHandle = addIDTokenDidChangeListener { _, user in

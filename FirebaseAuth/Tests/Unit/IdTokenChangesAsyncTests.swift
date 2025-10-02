@@ -14,12 +14,13 @@
 
 @testable import FirebaseAuth
 import FirebaseCore
+import FirebaseCoreInternal
 import XCTest
 
-@available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *)
+@available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
 class IdTokenChangesAsyncTests: RPCBaseTests {
   var auth: Auth!
-  static var testNum = 0
+  static let testNum = UnfairLock<Int>(0)
 
   override func setUp() {
     super.setUp()
@@ -27,8 +28,8 @@ class IdTokenChangesAsyncTests: RPCBaseTests {
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
     options.apiKey = "FAKE_API_KEY"
     options.projectID = "myProjectID"
-    let name = "test-IdTokenChangesAsyncTests\(IdTokenChangesAsyncTests.testNum)"
-    IdTokenChangesAsyncTests.testNum += 1
+    let name = "test-\(Self.self)\(Self.testNum.value())"
+    Self.testNum.withLock { $0 += 1 }
 
     FirebaseApp.configure(name: name, options: options)
     let app = FirebaseApp.app(name: name)!
@@ -55,14 +56,9 @@ class IdTokenChangesAsyncTests: RPCBaseTests {
   }
 
   private func waitForAuthGlobalWorkQueueDrain() {
-    let workerSemaphore = DispatchSemaphore(value: 0)
-    kAuthGlobalWorkQueue.async {
-      workerSemaphore.signal()
-    }
-    _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
+    kAuthGlobalWorkQueue.sync {}
   }
 
-  @available(iOS 18.0, *)
   func testIdTokenChangesStreamYieldsUserOnSignIn() async throws {
     // Given
     let initialNilExpectation = expectation(description: "Stream should emit initial nil user")
@@ -104,9 +100,10 @@ class IdTokenChangesAsyncTests: RPCBaseTests {
     task.cancel()
   }
 
-  @available(iOS 18.0, *)
   func testIdTokenChangesStreamIsCancelled() async throws {
-    // Given: An inverted expectation that will fail the test if it's fulfilled.
+    // Given
+    let initialNilExpectation =
+      expectation(description: "Stream should emit initial nil user")
     let streamCancelledExpectation =
       expectation(description: "Stream should not emit a value after cancellation")
     streamCancelledExpectation.isInverted = true
@@ -115,7 +112,9 @@ class IdTokenChangesAsyncTests: RPCBaseTests {
     var iteration = 0
     let task = Task {
       for await _ in auth.idTokenChanges {
-        if iteration > 0 {
+        if iteration == 0 {
+          initialNilExpectation.fulfill()
+        } else {
           // This line should not be reached. If it is, the inverted expectation will be
           // fulfilled, and the test will fail as intended.
           streamCancelledExpectation.fulfill()
@@ -124,8 +123,8 @@ class IdTokenChangesAsyncTests: RPCBaseTests {
       }
     }
 
-    // Let the stream emit its initial `nil` value.
-    try await Task.sleep(nanoseconds: 200_000_000)
+    // Wait for the stream to emit its initial `nil` value.
+    await fulfillment(of: [initialNilExpectation], timeout: 1.0)
 
     // When: The listening task is cancelled.
     task.cancel()
@@ -147,7 +146,6 @@ class IdTokenChangesAsyncTests: RPCBaseTests {
     XCTAssertEqual(iteration, 1, "The stream should have only emitted its initial value.")
   }
 
-  @available(iOS 18.0, *)
   func testIdTokenChangesStreamYieldsNilOnSignOut() async throws {
     // Given
     let initialNilExpectation = expectation(description: "Stream should emit initial nil user")
