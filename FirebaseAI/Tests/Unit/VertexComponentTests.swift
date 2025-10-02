@@ -190,7 +190,7 @@ class VertexComponentTests: XCTestCase {
         app: app1,
         apiConfig: APIConfig(
           service: .vertexAI(endpoint: .firebaseProxyProd, location: "transitory location"),
-          version: .v1beta,
+          version: .v1beta
         ),
         useLimitedUseAppCheckTokens: false
       )
