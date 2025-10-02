@@ -47,7 +47,6 @@ public final class FirebaseAI: Sendable {
                                 useLimitedUseAppCheckTokens: Bool = false) -> FirebaseAI {
     let instance = createInstance(
       app: app,
-      location: backend.location,
       apiConfig: backend.apiConfig,
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
@@ -188,21 +187,19 @@ public final class FirebaseAI: Sendable {
 
   let apiConfig: APIConfig
 
-  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp` name and the `location`,
-  /// in the format `appName:location`.
+  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp`,  the `APIConfig`, and `useLimitedUseAppCheckTokens`.
   private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
 
   /// Lock to manage access to the `instances` array to avoid race conditions.
   private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
 
-  let location: String?
-
   static let defaultVertexAIAPIConfig = APIConfig(
     service: .vertexAI(endpoint: .firebaseProxyProd),
-    version: .v1beta
+    version: .v1beta,
+    location: "us-central1"
   )
 
-  static func createInstance(app: FirebaseApp?, location: String?,
+  static func createInstance(app: FirebaseApp?,
                              apiConfig: APIConfig,
                              useLimitedUseAppCheckTokens: Bool) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
@@ -216,7 +213,6 @@ public final class FirebaseAI: Sendable {
 
     let instanceKey = InstanceKey(
       appName: app.name,
-      location: location,
       apiConfig: apiConfig,
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
@@ -225,7 +221,6 @@ public final class FirebaseAI: Sendable {
     }
     let newInstance = FirebaseAI(
       app: app,
-      location: location,
       apiConfig: apiConfig,
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
@@ -233,7 +228,7 @@ public final class FirebaseAI: Sendable {
     return newInstance
   }
 
-  init(app: FirebaseApp, location: String?, apiConfig: APIConfig,
+  init(app: FirebaseApp, apiConfig: APIConfig,
        useLimitedUseAppCheckTokens: Bool) {
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
@@ -254,7 +249,6 @@ public final class FirebaseAI: Sendable {
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
     self.apiConfig = apiConfig
-    self.location = location
   }
 
   func modelResourceName(modelName: String) -> String {
@@ -276,7 +270,7 @@ public final class FirebaseAI: Sendable {
   }
 
   private func vertexAIModelResourceName(modelName: String) -> String {
-    guard let location else {
+    guard let location = apiConfig.location else {
       fatalError("Location must be specified for the Firebase AI service.")
     }
     guard !location.isEmpty && location
@@ -307,7 +301,6 @@ public final class FirebaseAI: Sendable {
   /// This type is `Hashable` so that it can be used as a key in the `instances` dictionary.
   private struct InstanceKey: Sendable, Hashable {
     let appName: String
-    let location: String?
     let apiConfig: APIConfig
     let useLimitedUseAppCheckTokens: Bool
   }

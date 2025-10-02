@@ -22,14 +22,19 @@ struct APIConfig: Sendable, Hashable, Encodable {
   /// The version of the selected API to use, e.g., "v1".
   let version: Version
 
+  /// The server location to use, e.g., "us-central1"
+  let location: String?
+
   /// Initializes an API configuration.
   ///
   /// - Parameters:
   ///   - service: The API service to use for generative AI.
   ///   - version: The version of the API to use.
-  init(service: Service, version: Version) {
+  ///   - location: The server location to use.
+  init(service: Service, version: Version, location: String?) {
     self.service = service
     self.version = version
+    self.location = location
   }
 }
 

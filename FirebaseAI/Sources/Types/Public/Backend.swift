@@ -25,26 +25,30 @@ public struct Backend {
   ///     for a list of supported locations.
   public static func vertexAI(location: String = "us-central1") -> Backend {
     return Backend(
-      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta),
-      location: location
+      apiConfig: APIConfig(
+        service: .vertexAI(endpoint: .firebaseProxyProd),
+        version: .v1beta,
+        location: location
+      )
     )
   }
 
   /// Initializes a `Backend` configured for the Google Developer API.
   public static func googleAI() -> Backend {
     return Backend(
-      apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta),
-      location: nil
+      apiConfig: APIConfig(
+        service: .googleAI(endpoint: .firebaseProxyProd),
+        version: .v1beta,
+        location: nil
+      )
     )
   }
 
   // MARK: - Internal
 
   let apiConfig: APIConfig
-  let location: String?
 
-  init(apiConfig: APIConfig, location: String?) {
+  init(apiConfig: APIConfig) {
     self.apiConfig = apiConfig
-    self.location = location
   }
 }
