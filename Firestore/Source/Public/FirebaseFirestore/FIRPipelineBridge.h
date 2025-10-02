@@ -228,6 +228,9 @@ NS_SWIFT_NAME(__PipelineResultBridge)
 
 - (nullable id)get:(id)field;
 
+- (nullable id)get:(id)field
+    serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
+
 @end
 
 NS_SWIFT_SENDABLE

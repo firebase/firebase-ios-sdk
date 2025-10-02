@@ -37,7 +37,8 @@ RealtimePipeline::RealtimePipeline(const RealtimePipeline& other)
     : stages_(other.stages_),
       rewritten_stages_(other.rewritten_stages_),
       serializer_(std::make_unique<remote::Serializer>(
-          other.serializer_->database_id())) {
+          other.serializer_->database_id())),
+      listen_options_(other.listen_options()) {
 }
 
 RealtimePipeline& RealtimePipeline::operator=(const RealtimePipeline& other) {
@@ -46,6 +47,7 @@ RealtimePipeline& RealtimePipeline::operator=(const RealtimePipeline& other) {
     rewritten_stages_ = other.rewritten_stages_;
     serializer_ =
         std::make_unique<remote::Serializer>(other.serializer_->database_id());
+    listen_options_ = other.listen_options();
   }
   return *this;
 }
@@ -70,7 +72,7 @@ RealtimePipeline::rewritten_stages() const {
 }
 
 EvaluateContext RealtimePipeline::evaluate_context() const {
-  return EvaluateContext(serializer_.get());
+  return EvaluateContext(serializer_.get(), listen_options_);
 }
 
 }  // namespace api
