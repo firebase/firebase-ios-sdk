@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import XCTest
 
-@testable import struct FirebaseAI.CountTokensRequest
+@testable import struct FirebaseAILogic.CountTokensRequest
 
 // TODO(#14405): Migrate to Swift Testing and parameterize tests.
 final class IntegrationTests: XCTestCase {

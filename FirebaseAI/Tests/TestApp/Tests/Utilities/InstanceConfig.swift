@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseCore
 import Testing
 
-@testable import struct FirebaseAI.APIConfig
+@testable import struct FirebaseAILogic.APIConfig
 
 struct InstanceConfig: Equatable, Encodable {
   static let vertexAI_v1beta = InstanceConfig(
