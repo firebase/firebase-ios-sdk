@@ -115,29 +115,36 @@ function RunXcodebuild() {
 
   local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
 
-  local result=0
-  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
-    "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
-    || result=$?
+  # Run xcodebuild and capture the exit status of each command in the pipeline.
+  NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | "${xcbeautify_cmd[@]}"
+  local pipe_statuses=("${PIPESTATUS[@]}")
+  local result=${pipe_statuses[0]}
 
+  # If the first try failed with a potentially transient error (65), retry once.
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
-
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
 
-    result=0
-    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
-      "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
-      || result=$?
+    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | "${xcbeautify_cmd[@]}"
+    pipe_statuses=("${PIPESTATUS[@]}")
+    result=${pipe_statuses[0]}
   fi
 
+  # If the command failed, print the relevant part of the raw log to avoid noise.
   if [[ $result != 0 ]]; then
-    echo "xcodebuild exited with $result" 1>&2
-
+    echo "xcodebuild exited with $result. Showing relevant part of the raw log:" 1>&2
+    # This awk script finds the first line matching one of the error patterns
+    # and prints from that line to the end of the file. This avoids duplicating
+    # successful build output.
+    awk '/error:|fatal:|terminated|\*\* (BUILD|TEST) FAILED \*\*/ {f=1} f' "$log_filename" 1>&2
     ExportLogs "$@"
     return $result
   fi
+
+  # If the command succeeded, check for unexpected test failures which don't
+  # always cause xcodebuild to return a non-zero exit code.
+  CheckUnexpectedFailures "$log_filename" || return $?
 }
 
 # Exports any logs output captured in the xcresult
