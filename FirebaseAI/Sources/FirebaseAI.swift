@@ -196,7 +196,7 @@ public final class FirebaseAI: Sendable {
 
   static let defaultVertexAIAPIConfig = APIConfig(
     service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
-    version: .v1beta,
+    version: .v1beta
   )
 
   static func createInstance(app: FirebaseApp?,
