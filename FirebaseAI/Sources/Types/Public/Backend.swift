@@ -27,7 +27,7 @@ public struct Backend {
     return Backend(
       apiConfig: APIConfig(
         service: .vertexAI(endpoint: .firebaseProxyProd, location: location),
-        version: .v1beta,
+        version: .v1beta
       )
     )
   }
@@ -37,7 +37,7 @@ public struct Backend {
     return Backend(
       apiConfig: APIConfig(
         service: .googleAI(endpoint: .firebaseProxyProd),
-        version: .v1beta,
+        version: .v1beta
       )
     )
   }
