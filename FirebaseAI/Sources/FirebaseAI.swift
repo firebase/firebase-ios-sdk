@@ -194,11 +194,6 @@ public final class FirebaseAI: Sendable {
   /// Lock to manage access to the `instances` array to avoid race conditions.
   private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
 
-  static let defaultVertexAIAPIConfig = APIConfig(
-    service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
-    version: .v1beta
-  )
-
   static func createInstance(app: FirebaseApp?,
                              apiConfig: APIConfig,
                              useLimitedUseAppCheckTokens: Bool) -> FirebaseAI {
