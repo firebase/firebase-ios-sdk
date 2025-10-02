@@ -22,19 +22,15 @@ struct APIConfig: Sendable, Hashable, Encodable {
   /// The version of the selected API to use, e.g., "v1".
   let version: Version
 
-  /// The server location to use, e.g., "us-central1"
-  let location: String?
-
   /// Initializes an API configuration.
   ///
   /// - Parameters:
   ///   - service: The API service to use for generative AI.
   ///   - version: The version of the API to use.
   ///   - location: The server location to use.
-  init(service: Service, version: Version, location: String?) {
+  init(service: Service, version: Version) {
     self.service = service
     self.version = version
-    self.location = location
   }
 }
 
@@ -50,7 +46,7 @@ extension APIConfig {
     /// See the [Cloud
     /// docs](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference) for
     /// more details.
-    case vertexAI(endpoint: Endpoint)
+    case vertexAI(endpoint: Endpoint, location: String)
 
     /// The Gemini Developer API provided by Google AI.
     ///
@@ -62,7 +58,7 @@ extension APIConfig {
     /// This must correspond with the API set in `service`.
     var endpoint: Endpoint {
       switch self {
-      case let .vertexAI(endpoint: endpoint):
+      case let .vertexAI(endpoint: endpoint, location: _):
         return endpoint
       case let .googleAI(endpoint: endpoint):
         return endpoint

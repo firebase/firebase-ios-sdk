@@ -310,8 +310,8 @@ actor LiveSessionService {
   private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
     let host = apiConfig.service.endpoint.rawValue.withoutPrefix("https://")
     let urlString = switch apiConfig.service {
-    case .vertexAI:
-      "wss://\(host)/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/\(apiConfig.location ?? "us-central1")"
+    case let .vertexAI(endpoint: _, location: location):
+      "wss://\(host)/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/\(location)"
     case .googleAI:
       "wss://\(host)/ws/google.firebase.vertexai.v1beta.GenerativeService/BidiGenerateContent"
     }

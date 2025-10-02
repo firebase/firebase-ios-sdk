@@ -195,9 +195,8 @@ public final class FirebaseAI: Sendable {
   private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
 
   static let defaultVertexAIAPIConfig = APIConfig(
-    service: .vertexAI(endpoint: .firebaseProxyProd),
+    service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
     version: .v1beta,
-    location: "us-central1"
   )
 
   static func createInstance(app: FirebaseApp?,
@@ -263,17 +262,14 @@ public final class FirebaseAI: Sendable {
     }
 
     switch apiConfig.service {
-    case .vertexAI:
-      return vertexAIModelResourceName(modelName: modelName)
+    case let .vertexAI(endpoint: _, location: location):
+      return vertexAIModelResourceName(modelName: modelName, location: location)
     case .googleAI:
       return developerModelResourceName(modelName: modelName)
     }
   }
 
-  private func vertexAIModelResourceName(modelName: String) -> String {
-    guard let location = apiConfig.location else {
-      fatalError("Location must be specified for the Firebase AI service.")
-    }
+  private func vertexAIModelResourceName(modelName: String, location: String) -> String {
     guard !location.isEmpty && location
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
