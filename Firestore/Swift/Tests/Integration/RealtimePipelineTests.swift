@@ -174,7 +174,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db
       .realtimePipeline()
       .collection(collRef.path)
-      .where(Field("rating").gte(4.5))
+      .where(Field("rating").greaterThanOrEqual(4.5))
 
     let stream = pipeline.snapshotStream()
     var iterator = stream.makeAsyncIterator()
@@ -222,7 +222,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db
       .realtimePipeline()
       .collection(collRef.path)
-      .where(Field("rating").gte(4.5))
+      .where(Field("rating").greaterThanOrEqual(4.5))
 
     let stream = pipeline.snapshotStream()
     var iterator = stream.makeAsyncIterator()
@@ -280,7 +280,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db
       .realtimePipeline()
       .collection(collRef.path)
-      .where(Field("rating").gte(4.5))
+      .where(Field("rating").greaterThanOrEqual(4.5))
 
     let stream = pipeline.snapshotStream(
       options: PipelineListenOptions(includeMetadataChanges: true, source: .cache)
@@ -313,7 +313,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db
       .realtimePipeline()
       .collection(collRef.path)
-      .where(Field("rating").gte(4.5))
+      .where(Field("rating").greaterThanOrEqual(4.5))
 
     let stream = pipeline.snapshotStream(
       options: PipelineListenOptions(includeMetadataChanges: true)
@@ -349,7 +349,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     ]) { _ in }
 
     let stream = db.realtimePipeline().collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .snapshotStream(options: PipelineListenOptions(serverTimestamps: .estimate))
 
     var iterator = stream.makeAsyncIterator()
@@ -359,6 +359,14 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
     XCTAssertNotNil(result.get("rating") as? Timestamp)
     XCTAssertEqual(result.get("rating") as? Timestamp, result.data["rating"] as? Timestamp)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertNotNil(firstChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      firstChanges[0].result.get("rating") as? Timestamp,
+      result.get("rating") as? Timestamp
+    )
 
     enableNetwork()
 
@@ -367,6 +375,14 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertNotEqual(
       secondSnapshot!.results()[0].get("rating") as? Timestamp,
       result.data["rating"] as? Timestamp
+    )
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
     )
   }
 
@@ -384,7 +400,9 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     ]) { _ in }
 
     let stream = db.realtimePipeline().collection(collRef.path)
-      .where(Field("rating").timestampAdd(Constant("second"), Constant(1)).gt(now))
+      .where(
+        Field("rating").timestampAdd(amount: Constant("second"), unit: Constant(1)).greaterThan(now)
+      )
       .snapshotStream(
         options: PipelineListenOptions(serverTimestamps: .estimate, includeMetadataChanges: true)
       )
@@ -421,7 +439,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     ]) { _ in }
 
     let stream = db.realtimePipeline().collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .snapshotStream(options: PipelineListenOptions(serverTimestamps: .previous))
 
     var iterator = stream.makeAsyncIterator()
@@ -432,12 +450,24 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertNotNil(result.get("rating") as? Double)
     XCTAssertEqual(result.get("rating") as! Double, 4.2)
     XCTAssertEqual(result.get("rating") as! Double, result.data["rating"] as! Double)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertEqual(firstChanges[0].result.get("rating") as! Double, 4.2)
 
     enableNetwork()
 
     let secondSnapshot = try await iterator.next()
     XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
     XCTAssertNotNil(secondSnapshot!.results()[0].get("rating") as? Timestamp)
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
+    )
   }
 
   func testCanEvaluateServerTimestampPreviousProperly() async throws {
@@ -453,7 +483,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     ]) { _ in }
 
     let stream = db.realtimePipeline().collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       .snapshotStream(
         options: PipelineListenOptions(serverTimestamps: .previous)
       )
@@ -482,7 +512,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     ]) { _ in }
 
     let stream = db.realtimePipeline().collection(collRef.path)
-      .where(Field("title").eq("The Hitchhiker's Guide to the Galaxy"))
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
       // .none is the default behavior
       .snapshotStream()
 
@@ -493,12 +523,24 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(firstSnapshot!.metadata.isFromCache, true)
     XCTAssertNil(result.get("rating") as? Timestamp)
     XCTAssertEqual(result.get("rating") as? Timestamp, result.data["rating"] as? Timestamp)
+    let firstChanges = firstSnapshot!.changes
+    XCTAssertEqual(firstChanges.count, 1)
+    XCTAssertEqual(firstChanges[0].type, .added)
+    XCTAssertNil(firstChanges[0].result.get("rating") as? Timestamp)
 
     enableNetwork()
 
     let secondSnapshot = try await iterator.next()
     XCTAssertEqual(secondSnapshot!.metadata.isFromCache, false)
     XCTAssertNotNil(secondSnapshot!.results()[0].get("rating") as? Timestamp)
+    let secondChanges = secondSnapshot!.changes
+    XCTAssertEqual(secondChanges.count, 1)
+    XCTAssertEqual(secondChanges[0].type, .modified)
+    XCTAssertNotNil(secondChanges[0].result.get("rating") as? Timestamp)
+    XCTAssertEqual(
+      secondChanges[0].result.get("rating") as? Timestamp,
+      secondSnapshot!.results()[0].get("rating") as? Timestamp
+    )
   }
 
   func testCanEvaluateServerTimestampNoneProperly() async throws {
@@ -514,7 +556,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     ]) { _ in }
 
     let stream = db.realtimePipeline().collection(collRef.path)
-      .where(Field("title").isNull())
+      .where(Field("title").isNil())
       .snapshotStream(
       )
 
@@ -542,7 +584,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     ]) { _ in }
 
     let pipeline = db.realtimePipeline().collection(collRef.path)
-      .where(Field("title").isNotNull())
+      .where(Field("title").isNotNil())
       .limit(1)
 
     let stream1 = pipeline
