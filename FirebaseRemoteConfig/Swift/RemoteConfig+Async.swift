@@ -16,7 +16,7 @@ import Foundation
 
 @available(iOS 13.0.0, macOS 10.15.0, macCatalyst 13.0.0, tvOS 13.0.0, watchOS 7.0.0, *)
 public extension RemoteConfig {
-  /// Returns an `AsyncThrowingStream` that provides real-time updates to the configuration.
+  /// Returns an `AsyncSequence` that provides real-time updates to the configuration.
   ///
   /// You can listen for updates by iterating over the stream using a `for try await` loop.
   /// The stream will yield a `RemoteConfigUpdate` whenever a change is pushed from the
@@ -26,7 +26,7 @@ public extension RemoteConfig {
   /// The underlying listener is automatically added when you begin iterating and is removed when
   /// the iteration is cancelled or finishes.
   ///
-  /// - Throws: `RemoteConfigUpdateError` if the listener encounters a server-side error or another
+  /// - Throws: An `Error` if the listener encounters a server-side error or another
   ///           issue, causing the stream to terminate.
   ///
   /// ### Example Usage
@@ -47,7 +47,7 @@ public extension RemoteConfig {
   ///   }
   /// }
   /// ```
-  @available(iOS 18.0, *)
+  @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
   var configUpdates: some AsyncSequence<RemoteConfigUpdate, Error> {
     AsyncThrowingStream { continuation in
       let listener = addOnConfigUpdateListener { update, error in
