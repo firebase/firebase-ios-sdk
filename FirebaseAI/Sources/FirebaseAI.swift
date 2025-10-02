@@ -187,7 +187,8 @@ public final class FirebaseAI: Sendable {
 
   let apiConfig: APIConfig
 
-  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp`,  the `APIConfig`, and `useLimitedUseAppCheckTokens`.
+  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp`,  the `APIConfig`, and
+  /// `useLimitedUseAppCheckTokens`.
   private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
 
   /// Lock to manage access to the `instances` array to avoid race conditions.
