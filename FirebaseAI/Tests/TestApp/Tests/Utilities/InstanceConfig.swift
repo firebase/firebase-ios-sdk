@@ -109,16 +109,11 @@ struct InstanceConfig: Equatable, Encodable {
   ]
 
   let appName: String?
-  let location: String?
   let useLimitedUseAppCheckTokens: Bool
   let apiConfig: APIConfig
 
-  init(appName: String? = nil,
-       location: String? = nil,
-       useLimitedUseAppCheckTokens: Bool = false,
-       apiConfig: APIConfig) {
+  init(appName: String? = nil, useLimitedUseAppCheckTokens: Bool = false, apiConfig: APIConfig) {
     self.appName = appName
-    self.location = location
     self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
     self.apiConfig = apiConfig
   }
@@ -152,7 +147,12 @@ extension InstanceConfig: CustomTestStringConvertible {
     case .googleAIBypassProxy:
       " - Bypass Proxy"
     }
-    let locationSuffix = location.map { " - \($0)" } ?? ""
+    let locationSuffix: String
+    if case let .vertexAI(_, location: location) = apiConfig.service {
+      locationSuffix = location
+    } else {
+      locationSuffix = ""
+    }
     let appCheckLimitedUseDesignator = useLimitedUseAppCheckTokens ? " - FAC Limited-Use" : ""
 
     return """
@@ -172,10 +172,6 @@ extension FirebaseAI {
         useLimitedUseAppCheckTokens: instanceConfig.useLimitedUseAppCheckTokens
       )
     case .googleAI:
-      assert(
-        instanceConfig.location == nil,
-        "The Developer API is global and does not support `location`."
-      )
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
         apiConfig: instanceConfig.apiConfig,

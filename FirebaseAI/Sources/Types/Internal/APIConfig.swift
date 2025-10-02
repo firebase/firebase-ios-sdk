@@ -27,7 +27,6 @@ struct APIConfig: Sendable, Hashable, Encodable {
   /// - Parameters:
   ///   - service: The API service to use for generative AI.
   ///   - version: The version of the API to use.
-  ///   - location: The server location to use.
   init(service: Service, version: Version) {
     self.service = service
     self.version = version
