@@ -21,19 +21,29 @@ import Testing
 
 struct InstanceConfig: Equatable, Encodable {
   static let vertexAI_v1beta = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      version: .v1beta
+    )
   )
   static let vertexAI_v1beta_global = InstanceConfig(
-    location: "global",
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
+      version: .v1beta
+    )
   )
   static let vertexAI_v1beta_global_appCheckLimitedUse = InstanceConfig(
-    location: "global",
     useLimitedUseAppCheckTokens: true,
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
+      version: .v1beta
+    )
   )
   static let vertexAI_v1beta_staging = InstanceConfig(
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyStaging), version: .v1beta)
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyStaging, location: "us-central1"),
+      version: .v1beta
+    )
   )
   static let googleAI_v1beta = InstanceConfig(
     apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
@@ -68,12 +78,18 @@ struct InstanceConfig: Equatable, Encodable {
 
   static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      version: .v1beta
+    )
   )
   static let vertexAI_v1beta_appCheckNotConfigured_limitedUseTokens = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     useLimitedUseAppCheckTokens: true,
-    apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      version: .v1beta
+    )
   )
   static let googleAI_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
@@ -150,10 +166,8 @@ extension FirebaseAI {
   static func componentInstance(_ instanceConfig: InstanceConfig) -> FirebaseAI {
     switch instanceConfig.apiConfig.service {
     case .vertexAI:
-      let location = instanceConfig.location ?? "us-central1"
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
-        location: location,
         apiConfig: instanceConfig.apiConfig,
         useLimitedUseAppCheckTokens: instanceConfig.useLimitedUseAppCheckTokens
       )
@@ -164,7 +178,6 @@ extension FirebaseAI {
       )
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
-        location: nil,
         apiConfig: instanceConfig.apiConfig,
         useLimitedUseAppCheckTokens: instanceConfig.useLimitedUseAppCheckTokens
       )
