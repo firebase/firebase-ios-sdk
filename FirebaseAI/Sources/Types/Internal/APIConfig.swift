@@ -45,7 +45,7 @@ extension APIConfig {
     /// See the [Cloud
     /// docs](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference) for
     /// more details.
-    case vertexAI(endpoint: Endpoint)
+    case vertexAI(endpoint: Endpoint, location: String)
 
     /// The Gemini Developer API provided by Google AI.
     ///
@@ -57,7 +57,7 @@ extension APIConfig {
     /// This must correspond with the API set in `service`.
     var endpoint: Endpoint {
       switch self {
-      case let .vertexAI(endpoint: endpoint):
+      case let .vertexAI(endpoint: endpoint, _):
         return endpoint
       case let .googleAI(endpoint: endpoint):
         return endpoint
