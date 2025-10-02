@@ -57,8 +57,9 @@ class VertexComponentTests: XCTestCase {
     XCTAssertNotNil(vertex)
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
-    XCTAssertEqual(vertex.location, "us-central1")
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd))
+    XCTAssertEqual(
+      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1")
+    )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
@@ -71,8 +72,9 @@ class VertexComponentTests: XCTestCase {
     XCTAssertNotNil(vertex)
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
-    XCTAssertEqual(vertex.location, location)
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd))
+    XCTAssertEqual(
+      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: location)
+    )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
@@ -87,8 +89,9 @@ class VertexComponentTests: XCTestCase {
     XCTAssertNotNil(vertex)
     XCTAssertEqual(vertex.firebaseInfo.projectID, VertexComponentTests.projectID)
     XCTAssertEqual(vertex.firebaseInfo.apiKey, VertexComponentTests.apiKey)
-    XCTAssertEqual(vertex.location, location)
-    XCTAssertEqual(vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd))
+    XCTAssertEqual(
+      vertex.apiConfig.service, .vertexAI(endpoint: .firebaseProxyProd, location: location)
+    )
     XCTAssertEqual(vertex.apiConfig.service.endpoint, .firebaseProxyProd)
     XCTAssertEqual(vertex.apiConfig.version, .v1beta)
   }
@@ -154,14 +157,17 @@ class VertexComponentTests: XCTestCase {
   func testSameAppAndDifferentAPI_newInstanceCreated() throws {
     let vertex1 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
-      location: location,
-      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1beta),
+      apiConfig: APIConfig(
+        service: .vertexAI(endpoint: .firebaseProxyProd, location: location),
+        version: .v1beta
+      ),
       useLimitedUseAppCheckTokens: false
     )
     let vertex2 = FirebaseAI.createInstance(
       app: VertexComponentTests.app,
-      location: location,
-      apiConfig: APIConfig(service: .vertexAI(endpoint: .firebaseProxyProd), version: .v1),
+      apiConfig: APIConfig(
+        service: .vertexAI(endpoint: .firebaseProxyProd, location: location), version: .v1
+      ),
       useLimitedUseAppCheckTokens: false
     )
 
@@ -182,8 +188,10 @@ class VertexComponentTests: XCTestCase {
       weakApp = try XCTUnwrap(app1)
       let vertex = FirebaseAI(
         app: app1,
-        location: "transitory location",
-        apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+        apiConfig: APIConfig(
+          service: .vertexAI(endpoint: .firebaseProxyProd, location: "transitory location"),
+          version: .v1beta,
+        ),
         useLimitedUseAppCheckTokens: false
       )
       weakVertex = vertex
@@ -195,13 +203,13 @@ class VertexComponentTests: XCTestCase {
 
   func testModelResourceName_vertexAI() throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
+    let location = "test-location"
     let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
 
     let modelResourceName = vertex.modelResourceName(modelName: model)
 
-    let location = try XCTUnwrap(vertex.location)
     XCTAssertEqual(
       modelResourceName,
       "projects/\(projectID)/locations/\(location)/publishers/google/models/\(model)"
@@ -212,10 +220,7 @@ class VertexComponentTests: XCTestCase {
     let app = try XCTUnwrap(VertexComponentTests.app)
     let apiConfig = APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
     let vertex = FirebaseAI.createInstance(
-      app: app,
-      location: nil,
-      apiConfig: apiConfig,
-      useLimitedUseAppCheckTokens: false
+      app: app, apiConfig: apiConfig, useLimitedUseAppCheckTokens: false
     )
     let model = "test-model-name"
 
@@ -231,10 +236,7 @@ class VertexComponentTests: XCTestCase {
       version: .v1beta
     )
     let vertex = FirebaseAI.createInstance(
-      app: app,
-      location: nil,
-      apiConfig: apiConfig,
-      useLimitedUseAppCheckTokens: false
+      app: app, apiConfig: apiConfig, useLimitedUseAppCheckTokens: false
     )
     let model = "test-model-name"
     let projectID = vertex.firebaseInfo.projectID
@@ -244,20 +246,37 @@ class VertexComponentTests: XCTestCase {
     XCTAssertEqual(modelResourceName, "projects/\(projectID)/models/\(model)")
   }
 
-  func testGenerativeModel_vertexAI() async throws {
+  func testGenerativeModel_vertexAI_defaultLocation() async throws {
     let app = try XCTUnwrap(VertexComponentTests.app)
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
 
     let generativeModel = vertex.generativeModel(
-      modelName: modelName,
-      systemInstruction: systemInstruction
+      modelName: modelName, systemInstruction: systemInstruction
     )
 
     XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
     XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
     XCTAssertEqual(generativeModel.apiConfig, FirebaseAI.defaultVertexAIAPIConfig)
+  }
+
+  func testGenerativeModel_vertexAI_customLocation() async throws {
+    let app = try XCTUnwrap(VertexComponentTests.app)
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI(location: location))
+    let modelResourceName = vertex.modelResourceName(modelName: modelName)
+    let expectedAPIConfig = APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: location), version: .v1beta
+    )
+    let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
+
+    let generativeModel = vertex.generativeModel(
+      modelName: modelName, systemInstruction: systemInstruction
+    )
+
+    XCTAssertEqual(generativeModel.modelResourceName, modelResourceName)
+    XCTAssertEqual(generativeModel.systemInstruction, expectedSystemInstruction)
+    XCTAssertEqual(generativeModel.apiConfig, expectedAPIConfig)
   }
 
   func testGenerativeModel_developerAPI() async throws {
@@ -267,10 +286,7 @@ class VertexComponentTests: XCTestCase {
       version: .v1beta
     )
     let vertex = FirebaseAI.createInstance(
-      app: app,
-      location: nil,
-      apiConfig: apiConfig,
-      useLimitedUseAppCheckTokens: false
+      app: app, apiConfig: apiConfig, useLimitedUseAppCheckTokens: false
     )
     let modelResourceName = vertex.modelResourceName(modelName: modelName)
     let expectedSystemInstruction = ModelContent(role: nil, parts: systemInstruction.parts)
