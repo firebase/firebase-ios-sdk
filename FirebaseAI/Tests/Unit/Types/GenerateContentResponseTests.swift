@@ -172,6 +172,62 @@ final class GenerateContentResponseTests: XCTestCase {
     XCTAssertEqual(candidate.finishReason, .noImage)
   }
 
+  func testDecodeCandidate_withImageSafetyFinishReason() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "IMAGE_SAFETY"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertEqual(candidate.finishReason, .imageSafety)
+  }
+
+  func testDecodeCandidate_withImageProhibitedContentFinishReason() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "IMAGE_PROHIBITED_CONTENT"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertEqual(candidate.finishReason, .imageProhibitedContent)
+  }
+
+  func testDecodeCandidate_withImageRecitationFinishReason() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "IMAGE_RECITATION"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertEqual(candidate.finishReason, .imageRecitation)
+  }
+
+  func testDecodeCandidate_withImageOtherFinishReason() throws {
+    let json = """
+    {
+      "content": { "role": "model", "parts": [ { "text": "Some text." } ] },
+      "finishReason": "IMAGE_OTHER"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let candidate = try jsonDecoder.decode(Candidate.self, from: jsonData)
+
+    XCTAssertEqual(candidate.finishReason, .imageOther)
+  }
+
   // MARK: - Candidate.isEmpty
 
   func testCandidateIsEmpty_allEmpty_isTrue() throws {

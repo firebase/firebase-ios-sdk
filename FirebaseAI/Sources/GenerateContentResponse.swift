@@ -243,6 +243,10 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
     case spii = "SPII"
     case malformedFunctionCall = "MALFORMED_FUNCTION_CALL"
     case noImage = "NO_IMAGE"
+    case imageSafety = "IMAGE_SAFETY"
+    case imageProhibitedContent = "IMAGE_PROHIBITED_CONTENT"
+    case imageRecitation = "IMAGE_RECITATION"
+    case imageOther = "IMAGE_OTHER"
   }
 
   /// Natural stop point of the model or provided stop sequence.
@@ -277,6 +281,18 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
 
   /// The model successfully generated an image, but it was not returned to the user.
   public static let noImage = FinishReason(kind: .noImage)
+
+  /// Image generation stopped due to safety settings.
+  public static let imageSafety = FinishReason(kind: .imageSafety)
+
+  /// Image generation stopped because generated images has other prohibited content.
+  public static let imageProhibitedContent = FinishReason(kind: .imageProhibitedContent)
+
+  /// Image generation stopped due to recitation.
+  public static let imageRecitation = FinishReason(kind: .imageRecitation)
+
+  /// Image generation stopped because of other miscellaneous issue.
+  public static let imageOther = FinishReason(kind: .imageOther)
 
   /// Returns the raw string representation of the `FinishReason` value.
   ///
