@@ -311,9 +311,9 @@ actor LiveSessionService {
     let host = apiConfig.service.endpoint.rawValue.withoutPrefix("https://")
     let urlString = switch apiConfig.service {
     case let .vertexAI(_, location: location):
-      "wss://\(host)/ws/google.firebase.vertexai.v1beta.LlmBidiService/BidiGenerateContent/locations/\(location)"
+      "wss://\(host)/ws/google.firebase.vertexai.\(apiConfig.version.rawValue).LlmBidiService/BidiGenerateContent/locations/\(location)"
     case .googleAI:
-      "wss://\(host)/ws/google.firebase.vertexai.v1beta.GenerativeService/BidiGenerateContent"
+      "wss://\(host)/ws/google.firebase.vertexai.\(apiConfig.version.rawValue).GenerativeService/BidiGenerateContent"
     }
     guard let url = URL(string: urlString) else {
       throw NSError(
