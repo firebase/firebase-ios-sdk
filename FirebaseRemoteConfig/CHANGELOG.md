@@ -1,6 +1,6 @@
 # Unreleased
-- [added] Introduced a new `updates` property to `RemoteConfig` that
-  provides an `AsyncThrowingStream` for consuming real-time config updates.
+- [added] Introduced a new `configUpdates` property to `RemoteConfig` that
+  provides an `AsyncSequence` for consuming real-time config updates.
   This offers a modern, Swift Concurrency-native alternative to the existing
   closure-based listener.
 
