@@ -54,6 +54,9 @@ public struct GenerationConfig: Sendable {
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
   let thinkingConfig: ThinkingConfig?
 
+  /// Image generation parameters.
+  let imageConfig: ImageConfig?
+
   /// Creates a new `GenerationConfig` value.
   ///
   /// See the
@@ -162,7 +165,7 @@ public struct GenerationConfig: Sendable {
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
               stopSequences: [String]? = nil, responseMIMEType: String? = nil,
               responseSchema: Schema? = nil, responseModalities: [ResponseModality]? = nil,
-              thinkingConfig: ThinkingConfig? = nil) {
+              thinkingConfig: ThinkingConfig? = nil, imageConfig: ImageConfig? = nil) {
     // Explicit init because otherwise if we re-arrange the above variables it changes the API
     // surface.
     self.temperature = temperature
@@ -177,6 +180,7 @@ public struct GenerationConfig: Sendable {
     self.responseSchema = responseSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
+    self.imageConfig = imageConfig
   }
 }
 
@@ -197,5 +201,6 @@ extension GenerationConfig: Encodable {
     case responseSchema
     case responseModalities
     case thinkingConfig
+    case imageConfig
   }
 }
