@@ -85,6 +85,11 @@ jobs:
         max_attempts: 3
         retry_wait_seconds: 120
         command: scripts/build.sh Firebase-Package iOS ${{ matrix.test }}
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: spm-build-run-${{ matrix.os }}-${{ matrix.xcode }}-xcodebuild-build.log
+        path: xcodebuild-build.log
 
   # Test iOS Device build since some Firestore dependencies build different files.
   iOS-Device:
