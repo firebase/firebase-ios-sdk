@@ -88,8 +88,8 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: spm-build-run-${{ matrix.os }}-${{ matrix.xcode }}-xcodebuild-test.log
-        path: xcodebuild-test.log
+        name: spm-build-run-${{ matrix.os }}-${{ matrix.xcode }}-logs
+        path: xcodebuild-*.log
         if-no-files-found: error
 
   # Test iOS Device build since some Firestore dependencies build different files.
@@ -122,8 +122,8 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
-        name: spm-ios-device-${{ matrix.os }}-${{ matrix.xcode }}-xcodebuild-build.log
-        path: xcodebuild-build.log
+        name: spm-ios-device-${{ matrix.os }}-${{ matrix.xcode }}-logs
+        path: xcodebuild-*.log
         if-no-files-found: error
 
   platforms:
