@@ -179,6 +179,13 @@ actor LiveSessionService {
         close()
         throw error
       }
+      // the user called close while setup was running
+      // this can't currently happen, but could when we add automatic session resumption
+      // in such case, we don't want to raise an error. this log is more-so to catch any edge cases
+      AILog.debug(
+        code: .liveSessionClosedDuringSetup,
+        "The live session was closed before setup could complete: \(error.localizedDescription)"
+      )
     }
   }
 
