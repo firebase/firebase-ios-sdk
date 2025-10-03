@@ -89,7 +89,8 @@ jobs:
       if: ${{ failure() }}
       with:
         name: spm-build-run-${{ matrix.os }}-${{ matrix.xcode }}-xcodebuild-build.log
-        path: xcodebuild-build.log
+        path: xcodebuild-test.log
+        if-no-files-found: error
 
   # Test iOS Device build since some Firestore dependencies build different files.
   iOS-Device:
