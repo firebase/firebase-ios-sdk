@@ -124,6 +124,7 @@ jobs:
       with:
         name: spm-ios-device-${{ matrix.os }}-${{ matrix.xcode }}-xcodebuild-build.log
         path: xcodebuild-build.log
+        if-no-files-found: error
 
   platforms:
     # Don't run on private repo unless it is a PR.
@@ -164,4 +165,5 @@ jobs:
       with:
         name: spm-platforms-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}-logs
         path: xcodebuild-*.log
+        if-no-files-found: error
 
