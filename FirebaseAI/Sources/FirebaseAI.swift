@@ -135,6 +135,26 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  /// Initializes a new `TemplateGenerativeModel`.
+  ///
+  /// - Returns: A new `TemplateGenerativeModel` instance.
+  public func templateGenerativeModel() -> TemplateGenerativeModel {
+    return TemplateGenerativeModel(generativeAIService: GenerativeAIService(
+      firebaseInfo: firebaseInfo,
+      urlSession: GenAIURLSession.default
+    ))
+  }
+
+  /// Initializes a new `TemplateImagenModel`.
+  ///
+  /// - Returns: A new `TemplateImagenModel` instance.
+  public func templateImagenModel() -> TemplateImagenModel {
+    return TemplateImagenModel(generativeAIService: GenerativeAIService(
+      firebaseInfo: firebaseInfo,
+      urlSession: GenAIURLSession.default
+    ))
+  }
+
   /// **[Public Preview]** Initializes a ``LiveGenerativeModel`` with the given parameters.
   ///
   /// - Note: Refer to [the Firebase docs on the Live
