@@ -37,13 +37,10 @@
     } else {
       _traceBackgroundState = FPRTraceStateForegroundOnly;
     }
-    if ([NSThread isMainThread]) {
-      [self registerNotificationObservers];
-    } else {
-      dispatch_sync(dispatch_get_main_queue(), ^{
-        [self registerNotificationObservers];
-      });
-    }
+    __strong typeof(self) strongSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [strongSelf registerNotificationObservers];
+    });
   }
   return self;
 }

@@ -81,7 +81,7 @@
                     object:[UIApplication sharedApplication]]);
 }
 
-/** Tests rapid creation and deallocation to verify race condition fix. */
+/** Tests rapid creation and deallocation to verify race condition. */
 - (void)testRapidCreationAndDeallocation_noRaceCondition {
   for (int i = 0; i < 100; i++) {
     @autoreleasepool {
