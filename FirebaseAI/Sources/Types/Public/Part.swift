@@ -223,7 +223,8 @@ public struct FunctionResponsePart: Part {
   /// - Parameters:
   ///   - name: The name of the function that was called.
   ///   - response: The function's response.
-  ///   - functionId: Matching ``FunctionCallPart/functionId`` for a ``FunctionCallPart``, if one was provided.
+  ///   - functionId: Matching ``FunctionCallPart/functionId`` for a ``FunctionCallPart``, if one
+  ///     was provided.
   public init(name: String, response: JSONObject, functionId: String? = nil) {
     self.init(
       FunctionResponse(name: name, response: response, id: functionId),

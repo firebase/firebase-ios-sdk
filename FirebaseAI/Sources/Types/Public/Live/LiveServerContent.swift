@@ -45,13 +45,15 @@ public struct LiveServerContent: Sendable {
   /// The model has finished _generating_ data for the current turn.
   ///
   /// For realtime playback, there will be a delay between when the model finishes generating
-  /// content and the client has finished playing back the generated content. ``LiveServerContent/isGenerationComplete``
-  /// indicates that the model is done generating data, while ``LiveServerContent/isTurnComplete`` indicates the model
-  /// is waiting for additional client messages. Sending a message during this delay may cause a
+  /// content and the client has finished playing back the generated content.
+  /// ``LiveServerContent/isGenerationComplete`` indicates that the model is done generating data,
+  /// while ``LiveServerContent/isTurnComplete`` indicates the model is waiting for additional
+  /// client messages. Sending a message during this delay may cause a
   /// ``LiveServerContent/wasInterrupted`` message to be sent.
   ///
-  ///  Note that if the model ``LiveServerContent/wasInterrupted``, this will not be set. The model will go from
-  /// ``LiveServerContent/wasInterrupted`` -> ``LiveServerContent/isTurnComplete``.
+  /// > Important: If the model ``LiveServerContent/wasInterrupted``, this will not be set. The
+  /// > model will go from ``LiveServerContent/wasInterrupted`` ->
+  /// > ``LiveServerContent/isTurnComplete``.
   public var isGenerationComplete: Bool { serverContent.generationComplete ?? false }
 
   /// Metadata specifying the sources used to ground generated content.

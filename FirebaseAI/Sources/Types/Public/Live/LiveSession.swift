@@ -16,9 +16,10 @@ import Foundation
 
 /// A live WebSocket session, capable of streaming content to and from the model.
 ///
-/// Messages are streamed through ``LiveSession/responses``, and can be sent through either the dedicated
-/// realtime API function (such as ``LiveSession/sendAudioRealtime(_:)`` and ``LiveSession/sendTextRealtime(_:)``), or
-/// through the incremental API (such as ``LiveSession/sendContent(_:turnComplete:)-6x3ae``).
+/// Messages are streamed through ``LiveSession/responses``, and can be sent through either the
+/// dedicated realtime API function (such as ``LiveSession/sendAudioRealtime(_:)`` and
+/// ``LiveSession/sendTextRealtime(_:)``), or through the incremental API (such as
+/// ``LiveSession/sendContent(_:turnComplete:)-6x3ae``).
 ///
 /// To create an instance of this class, see ``LiveGenerativeModel``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
