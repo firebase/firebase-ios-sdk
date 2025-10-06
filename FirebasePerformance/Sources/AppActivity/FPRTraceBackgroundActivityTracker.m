@@ -23,6 +23,8 @@
 
 @property(nonatomic, readwrite) FPRTraceState traceBackgroundState;
 
+- (void)registerNotificationObservers;
+
 @end
 
 @implementation FPRTraceBackgroundActivityTracker
