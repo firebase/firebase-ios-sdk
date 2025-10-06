@@ -17,7 +17,7 @@ import Foundation
 /// A multimodal model (like Gemini) capable of real-time content generation based on
 /// various input types, supporting bidirectional streaming.
 ///
-/// You can create a new session via ``connect()``.
+/// You can create a new session via ``LiveGenerativeModel/connect()``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public final class LiveGenerativeModel {

@@ -20,7 +20,7 @@ import Foundation
 /// version, or that the model is just
 /// not supported.
 ///
-/// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+/// Check the `NSUnderlyingErrorKey` entry in ``LiveSessionUnsupportedMessageError/errorUserInfo`` for the error that caused this.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionUnsupportedMessageError: Error, Sendable, CustomNSError {
@@ -40,7 +40,7 @@ public struct LiveSessionUnsupportedMessageError: Error, Sendable, CustomNSError
 
 /// The live session was closed, because the network connection was lost.
 ///
-/// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+/// Check the `NSUnderlyingErrorKey` entry in ``LiveSessionLostConnectionError/errorUserInfo`` for the error that caused this.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionLostConnectionError: Error, Sendable, CustomNSError {
@@ -60,7 +60,7 @@ public struct LiveSessionLostConnectionError: Error, Sendable, CustomNSError {
 
 /// The live session was closed, but not for a reason the SDK expected.
 ///
-/// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+/// Check the `NSUnderlyingErrorKey` entry in ``LiveSessionUnexpectedClosureError/errorUserInfo`` for the error that caused this.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError {
@@ -83,7 +83,7 @@ public struct LiveSessionUnexpectedClosureError: Error, Sendable, CustomNSError 
 /// This can occur due to the model not supporting the requested response modalities, the project
 /// not having access to the model, the model being invalid,  or some internal error.
 ///
-/// Check the `NSUnderlyingErrorKey` entry in ``errorUserInfo`` for the error that caused this.
+/// Check the `NSUnderlyingErrorKey` entry in ``LiveSessionSetupError/errorUserInfo`` for the error that caused this.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionSetupError: Error, Sendable, CustomNSError {
