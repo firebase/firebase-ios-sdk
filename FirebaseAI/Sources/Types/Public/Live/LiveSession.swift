@@ -26,7 +26,7 @@ import Foundation
 public final class LiveSession: Sendable {
   private let service: LiveSessionService
 
-  /// An asyncronous stream of messages from the server.
+  /// An asynchronous stream of messages from the server.
   ///
   /// These messages from the incremental updates from the model, for the current conversation.
   public var responses: AsyncThrowingStream<LiveServerMessage, Error> { service.responses }
