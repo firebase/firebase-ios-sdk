@@ -29,6 +29,6 @@
 public class RandomExpression: FunctionExpression, @unchecked Sendable {
   /// Creates a new `RandomExpression` that generates a random number.
   public init() {
-    super.init("rand", [])
+    super.init(functionName: "rand", args: [])
   }
 }

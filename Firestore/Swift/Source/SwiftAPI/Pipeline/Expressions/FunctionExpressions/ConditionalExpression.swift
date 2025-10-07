@@ -44,6 +44,6 @@ public class ConditionalExpression: FunctionExpression, @unchecked Sendable {
   public init(_ expr: BooleanExpression,
               then thenExpression: Expression,
               else elseExpression: Expression) {
-    super.init("conditional", [expr, thenExpression, elseExpression])
+    super.init(functionName: "conditional", args: [expr, thenExpression, elseExpression])
   }
 }

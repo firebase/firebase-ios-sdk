@@ -31,8 +31,8 @@ import Foundation
 ///   )
 /// ```
 public class BooleanExpression: FunctionExpression, @unchecked Sendable {
-  override public init(_ functionName: String, _ agrs: [Expression]) {
-    super.init(functionName, agrs)
+  override public init(functionName: String, args: [Expression]) {
+    super.init(functionName: functionName, args: args)
   }
 
   /// Creates an aggregation that counts the number of documents for which this boolean expression
@@ -79,7 +79,10 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   /// - Returns: A new `FunctionExpression` representing the conditional logic.
   public func then(_ thenExpression: Expression,
                    else elseExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("conditional", [self, thenExpression, elseExpression])
+    return FunctionExpression(
+      functionName: "conditional",
+      args: [self, thenExpression, elseExpression]
+    )
   }
 
   /// Combines two boolean expressions with a logical AND (`&&`).
@@ -103,7 +106,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   public static func && (lhs: BooleanExpression,
                          rhs: @autoclosure () throws -> BooleanExpression) rethrows
     -> BooleanExpression {
-    try BooleanExpression("and", [lhs, rhs()])
+      try BooleanExpression(functionName: "and", args: [lhs, rhs()])
   }
 
   /// Combines two boolean expressions with a logical OR (`||`).
@@ -127,7 +130,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   public static func || (lhs: BooleanExpression,
                          rhs: @autoclosure () throws -> BooleanExpression) rethrows
     -> BooleanExpression {
-    try BooleanExpression("or", [lhs, rhs()])
+      try BooleanExpression(functionName: "or", args: [lhs, rhs()])
   }
 
   /// Combines two boolean expressions with a logical XOR (`^`).
@@ -151,7 +154,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   public static func ^ (lhs: BooleanExpression,
                         rhs: @autoclosure () throws -> BooleanExpression) rethrows
     -> BooleanExpression {
-    try BooleanExpression("xor", [lhs, rhs()])
+      try BooleanExpression(functionName: "xor", args: [lhs, rhs()])
   }
 
   /// Negates a boolean expression with a logical NOT (`!`).
@@ -168,6 +171,6 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   /// - Parameter lhs: The boolean expression to negate.
   /// - Returns: A new `BooleanExpression` representing the logical NOT.
   public static prefix func ! (lhs: BooleanExpression) -> BooleanExpression {
-    return BooleanExpression("not", [lhs])
+    return BooleanExpression(functionName: "not", args: [lhs])
   }
 }

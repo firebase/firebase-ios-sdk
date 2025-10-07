@@ -16,14 +16,14 @@ public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable 
   let bridge: ExprBridge
 
   let functionName: String
-  let agrs: [Expression]
+  let args: [Expression]
 
-  public init(_ functionName: String, _ agrs: [Expression]) {
+  public init(functionName: String, args: [Expression]) {
     self.functionName = functionName
-    self.agrs = agrs
+    self.args = args
     bridge = FunctionExprBridge(
       name: functionName,
-      args: self.agrs.map { $0.toBridge()
+      args: self.args.map { $0.toBridge()
       }
     )
   }
