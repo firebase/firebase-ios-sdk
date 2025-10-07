@@ -23,6 +23,8 @@
 
 @property(nonatomic, readwrite) FPRTraceState traceBackgroundState;
 
+- (void)registerNotificationObservers;
+
 @end
 
 @implementation FPRTraceBackgroundActivityTracker
@@ -35,19 +37,27 @@
     } else {
       _traceBackgroundState = FPRTraceStateForegroundOnly;
     }
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(applicationDidBecomeActive:)
-                                                   name:UIApplicationDidBecomeActiveNotification
-                                                 object:[UIApplication sharedApplication]];
-
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(applicationDidEnterBackground:)
-                                                   name:UIApplicationDidEnterBackgroundNotification
-                                                 object:[UIApplication sharedApplication]];
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (strongSelf) {
+        [strongSelf registerNotificationObservers];
+      }
     });
   }
   return self;
+}
+
+- (void)registerNotificationObservers {
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(applicationDidBecomeActive:)
+                                               name:UIApplicationDidBecomeActiveNotification
+                                             object:[UIApplication sharedApplication]];
+
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(applicationDidEnterBackground:)
+                                               name:UIApplicationDidEnterBackgroundNotification
+                                             object:[UIApplication sharedApplication]];
 }
 
 - (void)dealloc {
