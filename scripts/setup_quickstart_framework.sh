@@ -22,6 +22,10 @@ QS_SCRIPTS="${REPO}"/quickstart-ios/scripts
 cd quickstart-ios/"${SAMPLE}"
 git checkout nc/quickstarts
 
+# Remove all SPM dependencies from the project. This is necessary to prepare
+# the project for framework-based testing.
+"${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj"
+
 if [[ ! -z "$LEGACY" ]]; then
   cd "Legacy${SAMPLE}Quickstart"
 fi
