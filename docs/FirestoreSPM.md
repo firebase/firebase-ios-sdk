@@ -8,16 +8,49 @@ controlled by the `FIREBASE_SOURCE_FIRESTORE` environment variable.
 ## How to build Firestore from source
 
 To build Firestore from source, set the `FIREBASE_SOURCE_FIRESTORE` environment
-variable before launching Xcode. For example, you can run the following command
-in your terminal:
+variable before building the project.
+
+### Building with Xcode
+
+A direct method for building within Xcode is to pass the environment variable upon
+opening it from the command line. This approach scopes the variable to the Xcode instance.
+To enable an env var within Xcode, first quit any running Xcode instance, and then open
+the project from the command line:
+
+```console
+open --env FIREBASE_SOURCE_FIRESTORE Package.swift
+```
+
+To unset the env var, quit the running Xcode instance. If you need to pass multiple variables,
+repeat the `--env` argument for each:
+```console
+open --env FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT --env FIREBASE_SOURCE_FIRESTORE \
+Package.swift
+```
+
+### Command-Line Builds
+
+For command-line builds using `xcodebuild` or `swift build`, the recommended approach is to
+prefix the build command with the environment variable. This sets the variable only for that
+specific command, avoiding unintended side effects.
+
+```bash
+FIREBASE_SOURCE_FIRESTORE=1 xcodebuild -scheme FirebaseFirestore -destination 'generic/platform=iOS'
+```
+
+Alternatively, if you plan to run multiple commands that require the variable to be set, you
+can `export` it. This will apply the variable to all subsequent commands in that terminal
+session.
 
 ```bash
 export FIREBASE_SOURCE_FIRESTORE=1
-xed .
+xcodebuild -scheme FirebaseFirestore -destination 'generic/platform=iOS'
+# Any other commands here will also have the variable set
 ```
 
-This will open the Xcode project with the environment variable set, and SPM
-will clone and build Firestore from source.
+Once the project is built with the variable set, SPM will clone and build Firestore and its C++
+dependencies (like abseil and gRPC) from source.
+
 
 ## Main product
 
