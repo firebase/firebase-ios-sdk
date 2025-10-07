@@ -4,7 +4,8 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# You may
+# obtain a copy of the License at
 #
 #      http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -15,6 +16,7 @@
 # limitations under the License.
 
 require 'xcodeproj'
+require 'set'
 
 # This script removes all Swift Package Manager dependencies from an Xcode project.
 # It's designed to be used in CI to prepare a project for framework-based testing.
@@ -37,8 +39,61 @@ end
 
 puts "Opened project: #{project.path}"
 
-# Remove package references from the project's root object.
-# This corresponds to the "Package Dependencies" section in Xcode's navigator.
+# --- Step 1: Find all SPM product dependencies ---
+package_product_dependencies = project.objects.select do |obj|
+  obj.is_a?(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+end
+
+if package_product_dependencies.empty?
+  puts "No SPM product dependencies found to remove."
+else
+  puts "Found #{package_product_dependencies.count} SPM product dependencies. Removing all references..."
+  package_product_dep_uuids = package_product_dependencies.map(&:uuid).to_set
+
+  # --- Step 2: Find all BuildFile objects that reference these SPM products ---
+  build_files_to_remove = project.objects.select do |obj|
+    obj.is_a?(Xcodeproj::Project::Object::PBXBuildFile) &&
+    obj.product_ref &&
+    package_product_dep_uuids.include?(obj.product_ref.uuid)
+  end
+  build_file_uuids_to_remove = build_files_to_remove.map(&:uuid).to_set
+
+  # --- Step 3: Remove references from all targets ---
+  project.targets.each do |target|
+    puts "Cleaning target '#{target.name}'..."
+
+    # Remove from target dependencies list
+    removed_deps = target.dependencies.reject! do |dep|
+      package_product_dep_uuids.include?(dep.uuid)
+    end
+    if removed_deps
+      puts "  - Removed #{removed_deps.count} SPM target dependencies."
+    end
+
+    # Remove from build phases (e.g., "Link Binary With Libraries")
+    target.build_phases.each do |phase|
+      next unless phase.respond_to?(:files)
+      
+      original_file_count = phase.files.count
+      phase.files.reject! do |build_file|
+        build_file_uuids_to_remove.include?(build_file.uuid)
+      end
+      removed_count = original_file_count - phase.files.count
+      if removed_count > 0
+        puts "  - Removed #{removed_count} SPM build file references from '#{phase.display_name}'."
+      end
+    end
+  end
+
+  # --- Step 4: Delete the now-orphaned BuildFile and dependency objects ---
+  puts "Deleting #{build_files_to_remove.count} SPM BuildFile object(s)..."
+  build_files_to_remove.each(&:remove_from_project)
+  
+  puts "Deleting #{package_product_dependencies.count} SPM product dependency object(s)..."
+  package_product_dependencies.each(&:remove_from_project)
+end
+
+# --- Step 5: Remove package references from the project root ---
 unless project.root_object.package_references.empty?
   puts "Removing #{project.root_object.package_references.count} package reference(s)..."
   project.root_object.package_references.clear
@@ -47,27 +102,7 @@ else
   puts "No package references found in the project."
 end
 
-# Remove package product dependencies from all targets.
-# This removes the link to the package products in the "Frameworks, Libraries,
-# and Embedded Content" section of each target.
-project.targets.each do |target|
-  dependencies_to_remove = target.dependencies.select do |dependency|
-    dependency.is_a?(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
-  end
-
-  unless dependencies_to_remove.empty?
-    puts "Found #{dependencies_to_remove.count} SPM product dependencies in target '#{target.name}'. Removing..."
-    dependencies_to_remove.each do |dep|
-        puts "Removing #{dep.product_name}"
-        target.dependencies.delete(dep)
-    end
-    puts "SPM product dependencies removed from target '#{target.name}'."
-  else
-    puts "No SPM product dependencies found in target '#{target.name}'."
-  end
-end
-
-# Save the modified project.
+# --- Step 6: Save the modified project ---
 begin
   project.save
   puts "Project saved successfully."
