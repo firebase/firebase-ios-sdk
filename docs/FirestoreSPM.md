@@ -12,35 +12,36 @@ variable before building the project.
 
 ### Building with Xcode
 
-A direct method for building within Xcode is to pass the environment variable upon
-opening it from the command line. This approach scopes the variable to the Xcode instance.
-To enable an env var within Xcode, first quit any running Xcode instance, and then open
-the project from the command line:
+A direct method for building within Xcode is to pass the environment variable
+upon opening it from the command line. This approach scopes the variable to the
+Xcode instance. To enable an env var within Xcode, first quit any running Xcode
+instance, and then open the project from the command line:
 
 ```console
 open --env FIREBASE_SOURCE_FIRESTORE Package.swift
 ```
 
-To unset the env var, quit the running Xcode instance. If you need to pass multiple variables,
-repeat the `--env` argument for each:
+To unset the env var, quit the running Xcode instance. If you need to pass
+multiple variables, repeat the `--env` argument for each:
 ```console
-open --env FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT --env FIREBASE_SOURCE_FIRESTORE \
-Package.swift
+open --env FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT \
+--env FIREBASE_SOURCE_FIRESTORE Package.swift
 ```
 
 ### Command-Line Builds
 
-For command-line builds using `xcodebuild` or `swift build`, the recommended approach is to
-prefix the build command with the environment variable. This sets the variable only for that
-specific command, avoiding unintended side effects.
+For command-line builds using `xcodebuild` or `swift build`, the recommended
+approach is to prefix the build command with the environment variable. This sets
+the variable only for that specific command, avoiding unintended side effects.
 
 ```bash
-FIREBASE_SOURCE_FIRESTORE=1 xcodebuild -scheme FirebaseFirestore -destination 'generic/platform=iOS'
+FIREBASE_SOURCE_FIRESTORE=1 xcodebuild -scheme FirebaseFirestore \
+-destination 'generic/platform=iOS'
 ```
 
-Alternatively, if you plan to run multiple commands that require the variable to be set, you
-can `export` it. This will apply the variable to all subsequent commands in that terminal
-session.
+Alternatively, if you plan to run multiple commands that require the variable to
+be set, you can `export` it. This will apply the variable to all subsequent
+commands in that terminal session.
 
 ```bash
 export FIREBASE_SOURCE_FIRESTORE=1
@@ -48,8 +49,8 @@ xcodebuild -scheme FirebaseFirestore -destination 'generic/platform=iOS'
 # Any other commands here will also have the variable set
 ```
 
-Once the project is built with the variable set, SPM will clone and build Firestore and its C++
-dependencies (like abseil and gRPC) from source.
+Once the project is built with the variable set, SPM will clone and build
+Firestore and its C++ dependencies (like abseil and gRPC) from source.
 
 
 ## Main product
@@ -72,8 +73,8 @@ depends on the appropriate Firestore targets based on the chosen build option.
 ## Wrapper target
 
 The `FirebaseFirestoreTarget` is a thin wrapper that exists to work around a
-limitation in SPM where a single target cannot conditionally
-depend on different sets of targets (source vs. binary).
+limitation in SPM where a single target cannot conditionally depend on different
+sets of targets (source vs. binary).
 
 By having clients depend on the wrapper, the `Package.swift` can internally
 manage the complexity of switching between source and binary builds based on the
@@ -86,8 +87,8 @@ package manifests.
 ## 1. Binary-based build
 
 When the `FIREBASE_SOURCE_FIRESTORE` environment variable is **not** set (which is
-the default), SPM will use pre-compiled binaries for Firestore
-and its heavy dependencies.
+the default), SPM will use pre-compiled binaries for Firestore and its heavy
+dependencies.
 
 ### Dependency hierarchy
 
@@ -180,8 +181,8 @@ use.
 
 ## 4. Test targets
 
-The testing infrastructure for Firestore in SPM is designed to
-be independent of the build choice (source vs. binary).
+The testing infrastructure for Firestore in SPM is designed to be independent of
+the build choice (source vs. binary).
 
 *   **`FirebaseFirestoreTestingSupport`**: This is a library target, not a test
     target. It provides public testing utilities that consumers can use to write
@@ -196,3 +197,5 @@ be independent of the build choice (source vs. binary).
 Because both of these targets depend on the `FirebaseFirestoreTarget` wrapper,
 they seamlessly adapt to either the source-based or binary-based build path
 without any conditional logic.
+
+```
