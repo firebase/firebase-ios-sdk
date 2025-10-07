@@ -5,9 +5,23 @@ This document outlines the hierarchy of the Firestore-related targets in the
 options for Firestore: from source or from a pre-compiled binary. This choice is
 controlled by the `FIREBASE_SOURCE_FIRESTORE` environment variable.
 
-## Main Product
+## How to build Firestore from source
 
-The main entry point for integrating Firestore via Swift Package Manager is the
+To build Firestore from source, set the `FIREBASE_SOURCE_FIRESTORE` environment
+variable before launching Xcode. For example, you can run the following command
+in your terminal:
+
+```bash
+export FIREBASE_SOURCE_FIRESTORE=1
+xed .
+```
+
+This will open the Xcode project with the environment variable set, and SPM
+will clone and build Firestore from source.
+
+## Main product
+
+The main entry point for integrating Firestore via SPM is the
 `FirebaseFirestore` library product.
 
 ```swift
@@ -22,10 +36,10 @@ depends on the appropriate Firestore targets based on the chosen build option.
 
 ---
 
-## Wrapper Target
+## Wrapper target
 
 The `FirebaseFirestoreTarget` is a thin wrapper that exists to work around a
-limitation in Swift Package Manager where a single target cannot conditionally
+limitation in SPM where a single target cannot conditionally
 depend on different sets of targets (source vs. binary).
 
 By having clients depend on the wrapper, the `Package.swift` can internally
@@ -36,13 +50,13 @@ package manifests.
 
 ---
 
-## 1. Binary-Based Build
+## 1. Binary-based build
 
 When the `FIREBASE_SOURCE_FIRESTORE` environment variable is **not** set (which is
-the default), Swift Package Manager will use pre-compiled binaries for Firestore
+the default), SPM will use pre-compiled binaries for Firestore
 and its heavy dependencies.
 
-### Dependency Hierarchy
+### Dependency hierarchy
 
 The dependency tree for a binary-based build is as follows:
 
@@ -62,10 +76,10 @@ FirebaseFirestore (Library Product)
             └── FirebaseFirestoreInternal (Binary Target)
 ```
 
-### Target Breakdown
+### Target breakdown
 
-*   **`FirebaseFirestoreTarget`**: A wrapper target, same as in the source-based
-    build.
+*   **`FirebaseFirestoreTarget`**: The wrapper target that provides a stable entry
+    point for clients.
 *   **`FirebaseFirestore`**: The Swift target containing the public API. In this
     configuration, it depends on the binary versions of abseil and gRPC, as
     well as the `FirebaseFirestoreInternalWrapper`.
@@ -77,12 +91,12 @@ FirebaseFirestore (Library Product)
 
 ---
 
-## 2. Source-Based Build
+## 2. Source-based build
 
 When the `FIREBASE_SOURCE_FIRESTORE` environment variable is set, Firestore and
 its dependencies (like abseil and gRPC) are compiled from source.
 
-### Dependency Hierarchy
+### Dependency hierarchy
 
 The dependency tree for a source-based build looks like this:
 
@@ -99,11 +113,10 @@ FirebaseFirestore (Library Product)
             ├── leveldb
             ├── nanopb
             ├── abseil (source) (from https://github.com/firebase/abseil-cpp-SwiftPM.git)
-            ├── gRPC-cpp (source) (from https://github.com/grpc/grpc-ios.git)
-            └── BoringSSL (source) (from https://github.com/firebase/boringSSL-SwiftPM.git)
+            └── gRPC-cpp (source) (from https://github.com/grpc/grpc-ios.git)
 ```
 
-### Target Breakdown
+### Target breakdown
 
 *   **`FirebaseFirestoreTarget`**: A wrapper target that conditionally depends on
     the main `FirebaseFirestore` target.
@@ -116,7 +129,7 @@ FirebaseFirestore (Library Product)
 
 ---
 
-## 3. Local Binary Build (CI Only)
+## 3. Local binary build (CI only)
 
 A third, less common build option is available for CI environments. When the
 `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP` environment variable is set, the build
@@ -131,9 +144,9 @@ use.
 
 ---
 
-## 4. Test Targets
+## 4. Test targets
 
-The testing infrastructure for Firestore in Swift Package Manager is designed to
+The testing infrastructure for Firestore in SPM is designed to
 be independent of the build choice (source vs. binary).
 
 *   **`FirebaseFirestoreTestingSupport`**: This is a library target, not a test
@@ -149,4 +162,3 @@ be independent of the build choice (source vs. binary).
 Because both of these targets depend on the `FirebaseFirestoreTarget` wrapper,
 they seamlessly adapt to either the source-based or binary-based build path
 without any conditional logic.
-
