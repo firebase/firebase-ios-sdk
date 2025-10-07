@@ -61,7 +61,7 @@ variable before building the project.
 #### Building with Xcode
 
 A direct method for building within Xcode is to pass the environment variable
-upon opening it from the command line. This approach scopes the variable to the
+when opening it from the command line. This approach scopes the variable to the
 Xcode instance. To enable an env var within Xcode, first quit any running Xcode
 instance, and then open the project from the command line:
 
