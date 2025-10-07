@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Prevent race condition crash in FPRTraceBackgroundActivityTracker. (14273)
+- [fixed] Prevent race condition crash in FPRTraceBackgroundActivityTracker. (#14273)
 
 # 12.3.0
 - [fixed] Add missing nanopb dependency to fix SwiftPM builds when building
