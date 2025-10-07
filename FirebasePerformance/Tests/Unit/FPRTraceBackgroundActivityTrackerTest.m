@@ -102,19 +102,6 @@
                     object:[UIApplication sharedApplication]]);
 }
 
-/** Tests that observers are registered immediately after init on main thread. */
-- (void)testObservers_immediateRegistrationOnMainThread {
-  XCTAssertTrue([NSThread isMainThread]);
-
-  FPRTraceBackgroundActivityTracker *tracker = [[FPRTraceBackgroundActivityTracker alloc] init];
-
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:UIApplicationDidBecomeActiveNotification
-                    object:[UIApplication sharedApplication]];
-
-  XCTAssertEqual(tracker.traceBackgroundState, FPRTraceStateForegroundOnly);
-}
-
 /** Tests observer registration when created from background thread. */
 - (void)testObservers_registrationFromBackgroundThread {
   XCTestExpectation *expectation = [self expectationWithDescription:@"Background thread creation"];

@@ -37,9 +37,12 @@
     } else {
       _traceBackgroundState = FPRTraceStateForegroundOnly;
     }
-    __strong typeof(self) strongSelf = self;
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-      [strongSelf registerNotificationObservers];
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (strongSelf) {
+        [strongSelf registerNotificationObservers];
+      }
     });
   }
   return self;
