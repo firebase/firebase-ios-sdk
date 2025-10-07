@@ -222,11 +222,11 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh authentication
-    # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
-    #   with:
-    #     name: quickstart_artifacts_auth
-    #     path: quickstart-ios/
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_auth
+        path: quickstart-ios/
 
 #   quickstart_framework_config:
 # #    needs: package-head
