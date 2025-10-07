@@ -3,17 +3,17 @@
 This document outlines the hierarchy of the Firestore-related targets in the
 `Package.swift` manifest. The setup is designed to support three different
 build options for Firestore: from a pre-compiled binary (the default), from
-source, or from a local binary for CI purposes. The choice between the binary
-and source-based build is controlled by the `FIREBASE_SOURCE_FIRESTORE`
-environment variable.
+source (via the `FIREBASE_SOURCE_FIRESTORE` environment variable), or from a
+local binary for CI purposes (via the `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP`
+environment variable).
 
 ---
 
 ## 1. Binary-based Build (Default)
 
 When the `FIREBASE_SOURCE_FIRESTORE` environment variable is **not** set, SPM
-will use pre-compiled binaries for Firestore and its heavy dependencies. This is
-the default and recommended approach for most users.
+will use pre-compiled binaries for Firestore and its heavy dependencies. This
+is the default and recommended approach for most users.
 
 ### Dependency Hierarchy
 
@@ -87,8 +87,8 @@ FIREBASE_SOURCE_FIRESTORE=1 xcodebuild -scheme FirebaseFirestore \
 -destination 'generic/platform=iOS'
 ```
 
-Alternatively, if you plan to run multiple commands that require the variable to
-be set, you can `export` it. This will apply the variable to all subsequent
+Alternatively, if you plan to run multiple commands that require the variable
+to be set, you can `export` it. This will apply the variable to all subsequent
 commands in that terminal session.
 
 ```bash
@@ -166,8 +166,8 @@ depends on the appropriate Firestore targets based on the chosen build option.
 ### `FirebaseFirestoreTarget` (Wrapper Target)
 
 The `FirebaseFirestoreTarget` is a thin wrapper that exists to work around a
-limitation in SPM where a single target cannot conditionally depend on different
-sets of targets (source vs. binary).
+limitation in SPM where a single target cannot conditionally depend on
+different sets of targets (source vs. binary).
 
 By having clients depend on the wrapper, the `Package.swift` can internally
 manage the complexity of switching between source and binary builds. This
@@ -178,12 +178,12 @@ logic into their own package manifests.
 
 ## Test Targets
 
-The testing infrastructure for Firestore in SPM is designed to be independent of
-the build choice (source vs. binary).
+The testing infrastructure for Firestore in SPM is designed to be independent
+of the build choice (source vs. binary).
 
 *   **`FirebaseFirestoreTestingSupport`**: This is a library target, not a test
-    target. It provides public testing utilities that consumers can use to write
-    unit tests for their Firestore-dependent code. It has a dependency on
+    target. It provides public testing utilities that consumers can use to
+    write unit tests for their Firestore-dependent code. It has a dependency on
     `FirebaseFirestoreTarget`, which means it will link against whichever
     version of Firestore (source or binary) is being used in the build.
 
@@ -194,7 +194,3 @@ the build choice (source vs. binary).
 Because both of these targets depend on the `FirebaseFirestoreTarget` wrapper,
 they seamlessly adapt to either the source-based or binary-based build path
 without any conditional logic.
-
-```
-
-```
