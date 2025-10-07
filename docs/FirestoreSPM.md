@@ -71,7 +71,7 @@ FirebaseFirestore (Library Product)
         ├── leveldb
         ├── nanopb
         ├── abseil (binary) (from https://github.com/google/abseil-cpp-binary.git)
-        ├── gRPC-C++ (binary) (from https://github.com/google/grpc-binary.git)
+        ├── gRPC-C++ (binary) (from https://github.com/google/grpc-binary.git, contains BoringSSL-GRPC target)
         └── FirebaseFirestoreInternalWrapper (Wrapper Target)
             └── FirebaseFirestoreInternal (Binary Target)
 ```
@@ -114,6 +114,7 @@ FirebaseFirestore (Library Product)
             ├── nanopb
             ├── abseil (source) (from https://github.com/firebase/abseil-cpp-SwiftPM.git)
             └── gRPC-cpp (source) (from https://github.com/grpc/grpc-ios.git)
+                └── BoringSSL (source) (from https://github.com/firebase/boringSSL-SwiftPM.git)
 ```
 
 ### Target breakdown
