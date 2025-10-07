@@ -19,6 +19,10 @@ import Foundation
 /// content based on various input types.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class TemplateGenerativeModel: BaseTemplateAPIClientModel {
+  override init(generativeAIService: GenerativeAIService, apiConfig: APIConfig) {
+    super.init(generativeAIService: generativeAIService, apiConfig: apiConfig)
+  }
+
   /// Generates content from a prompt template and variables.
   ///
   /// - Parameters:

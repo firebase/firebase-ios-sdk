@@ -30,7 +30,8 @@ enum GenerativeModelTestUtil {
                                  timeout: TimeInterval = RequestOptions().timeout,
                                  appCheckToken: String? = nil,
                                  authToken: String? = nil,
-                                 dataCollection: Bool = true) throws -> ((URLRequest) throws -> (
+                                 dataCollection: Bool = true,
+                                 isImageRequest: Bool = false) throws -> ((URLRequest) throws -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   )) {
@@ -45,7 +46,9 @@ enum GenerativeModelTestUtil {
       )
       return { request in
         let requestURL = try XCTUnwrap(request.url)
-        XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
+        if !isImageRequest {
+          XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
+        }
         XCTAssertEqual(request.timeoutInterval, timeout)
         let apiClientTags = try XCTUnwrap(request.value(forHTTPHeaderField: "x-goog-api-client"))
           .components(separatedBy: " ")

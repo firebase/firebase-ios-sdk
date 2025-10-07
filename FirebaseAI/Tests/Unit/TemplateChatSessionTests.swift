@@ -27,7 +27,8 @@ final class TemplateChatSessionTests: XCTestCase {
       firebaseInfo: firebaseInfo,
       urlSession: GenAIURLSession.default
     )
-    model = TemplateGenerativeModel(generativeAIService: generativeAIService)
+    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    model = TemplateGenerativeModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
   }
 
   func testSendMessage() async throws {

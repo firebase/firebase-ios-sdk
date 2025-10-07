@@ -15,14 +15,8 @@
 
 import Foundation
 
-/// A base class for template API client models.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class BaseTemplateAPIClientModel {
-  let generativeAIService: GenerativeAIService
-  let apiConfig: APIConfig
-
-  init(generativeAIService: GenerativeAIService, apiConfig: APIConfig) {
-    self.generativeAIService = generativeAIService
-    self.apiConfig = apiConfig
-  }
+enum APIMethod: String {
+  case generateContent
+  case streamGenerateContent
+  case countTokens
 }
