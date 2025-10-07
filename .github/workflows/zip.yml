@@ -219,63 +219,62 @@ jobs:
         quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    # TODO: Can this be reusable?
     - name: Remove data before upload
-      if: ${{ failure() }}
       run: scripts/remove_data.sh authentication
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      # if: ${{ failure() }}
       with:
         name: quickstart_artifacts_auth
         path: quickstart-ios/
 
-#   quickstart_framework_config:
-# #    needs: package-head
-# #    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
-#     env:
-#       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-#       SDK: "Config"
-#     strategy:
-#       matrix:
-#         artifact: [Firebase-actions-dir]
-#         build-env:
-#           - os: macos-15
-#             xcode: Xcode_16.4
-#     runs-on: ${{ matrix.build-env.os }}
-#     steps:
-#     - uses: actions/checkout@v4
-#     - name: Get framework dir
-#       uses: actions/download-artifact@v4.1.7
-#       with:
-#         name: ${{ matrix.artifact }}
-#         run-id: 17965877651 # ${{ github.event.inputs.zip_run_id || github.run_id }}
-#         github-token: ${{ secrets.GITHUB_TOKEN }}
-#     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-#     - name: Xcode
-#       run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
-#     - name: Setup Bundler
-#       run: ./scripts/setup_bundler.sh
-#     - name: Move frameworks
-#       run: |
-#         mkdir -p "${HOME}"/ios_frameworks/
-#         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-#     - name: Setup Swift Quickstart
+  quickstart_framework_config:
+#    needs: package-head
+#    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      SDK: "Config"
+    strategy:
+      matrix:
+        artifact: [Firebase-actions-dir]
+        build-env:
+          - os: macos-15
+            xcode: Xcode_16.4
+    runs-on: ${{ matrix.build-env.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Get framework dir
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ${{ matrix.artifact }}
+        run-id: 17965877651 # ${{ github.event.inputs.zip_run_id || github.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: Move frameworks
+      run: |
+        mkdir -p "${HOME}"/ios_frameworks/
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+    - name: Setup Swift Quickstart
 
-#       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
-#                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
-#                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-#     - name: Install Secret GoogleService-Info.plist
-#       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
-#         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
-#     - name: Test Swift Quickstart
-#       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-#     - name: Remove data before upload
-#       if: ${{ failure() }}
-#       run: scripts/remove_data.sh config
-#     # - uses: actions/upload-artifact@v4
-#     #   if: ${{ failure() }}
-#     #   with:
-#     #     name: quickstart_artifacts_config
-#     #     path: quickstart-ios/
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
+        quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
+    - name: Test Swift Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Remove data before upload
+      run: scripts/remove_data.sh config
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_config
+        path: quickstart-ios/
 
 #   quickstart_framework_crashlytics:
 # #    needs: package-head
