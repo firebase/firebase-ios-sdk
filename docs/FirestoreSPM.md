@@ -1,16 +1,64 @@
 # Firestore Swift Package Manager Target Hierarchy
 
 This document outlines the hierarchy of the Firestore-related targets in the
-`Package.swift` manifest. The setup is designed to support two different build
-options for Firestore: from source or from a pre-compiled binary. This choice is
-controlled by the `FIREBASE_SOURCE_FIRESTORE` environment variable.
+`Package.swift` manifest. The setup is designed to support three different
+build options for Firestore: from a pre-compiled binary (the default), from
+source, or from a local binary for CI purposes. The choice between the binary
+and source-based build is controlled by the `FIREBASE_SOURCE_FIRESTORE`
+environment variable.
 
-## How to build Firestore from source
+---
+
+## 1. Binary-based Build (Default)
+
+When the `FIREBASE_SOURCE_FIRESTORE` environment variable is **not** set, SPM
+will use pre-compiled binaries for Firestore and its heavy dependencies. This is
+the default and recommended approach for most users.
+
+### Dependency Hierarchy
+
+The dependency tree for a binary-based build is as follows:
+
+```
+FirebaseFirestore (Library Product)
+└── FirebaseFirestoreTarget (Wrapper Target)
+    └── FirebaseFirestore (Swift Target)
+        ├── FirebaseAppCheckInterop
+        ├── FirebaseCore
+        ├── FirebaseCoreExtension
+        ├── FirebaseSharedSwift
+        ├── leveldb
+        ├── nanopb
+        ├── abseil (binary) (from https://github.com/google/abseil-cpp-binary.git)
+        ├── gRPC-C++ (binary) (from https://github.com/google/grpc-binary.git, contains BoringSSL-GRPC target)
+        └── FirebaseFirestoreInternalWrapper (Wrapper Target)
+            └── FirebaseFirestoreInternal (Binary Target)
+```
+
+### Target Breakdown
+
+*   **`FirebaseFirestore`**: The Swift target containing the public API. In this
+    configuration, it depends on the binary versions of abseil and gRPC, as
+    well as the `FirebaseFirestoreInternalWrapper`.
+*   **`FirebaseFirestoreInternalWrapper`**: A thin wrapper target that exists to
+    expose the headers from the underlying binary target.
+*   **`FirebaseFirestoreInternal`**: This is a `binaryTarget` that downloads and
+    links the pre-compiled `FirebaseFirestoreInternal.xcframework`. This
+    framework contains the compiled C++ core of Firestore.
+
+---
+
+## 2. Source-based Build
+
+When the `FIREBASE_SOURCE_FIRESTORE` environment variable is set, Firestore and
+its dependencies (like abseil and gRPC) are compiled from source.
+
+### How to Build Firestore from Source
 
 To build Firestore from source, set the `FIREBASE_SOURCE_FIRESTORE` environment
 variable before building the project.
 
-### Building with Xcode
+#### Building with Xcode
 
 A direct method for building within Xcode is to pass the environment variable
 upon opening it from the command line. This approach scopes the variable to the
@@ -28,7 +76,7 @@ open --env FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT \
 --env FIREBASE_SOURCE_FIRESTORE Package.swift
 ```
 
-### Command-Line Builds
+#### Command-Line Builds
 
 For command-line builds using `xcodebuild` or `swift build`, the recommended
 approach is to prefix the build command with the environment variable. This sets
@@ -52,85 +100,7 @@ xcodebuild -scheme FirebaseFirestore -destination 'generic/platform=iOS'
 Once the project is built with the variable set, SPM will clone and build
 Firestore and its C++ dependencies (like abseil and gRPC) from source.
 
-
-## Main product
-
-The main entry point for integrating Firestore via SPM is the
-`FirebaseFirestore` library product.
-
-```swift
-.library(
-  name: "FirebaseFirestore",
-  targets: ["FirebaseFirestoreTarget"]
-)
-```
-
-This product points to a wrapper target, `FirebaseFirestoreTarget`, which then
-depends on the appropriate Firestore targets based on the chosen build option.
-
----
-
-## Wrapper target
-
-The `FirebaseFirestoreTarget` is a thin wrapper that exists to work around a
-limitation in SPM where a single target cannot conditionally depend on different
-sets of targets (source vs. binary).
-
-By having clients depend on the wrapper, the `Package.swift` can internally
-manage the complexity of switching between source and binary builds based on the
-`FIREBASE_SOURCE_FIRESTORE` environment variable. This provides a stable entry
-point for all clients and avoids pushing conditional logic into their own
-package manifests.
-
----
-
-## 1. Binary-based build
-
-When the `FIREBASE_SOURCE_FIRESTORE` environment variable is **not** set (which is
-the default), SPM will use pre-compiled binaries for Firestore and its heavy
-dependencies.
-
-### Dependency hierarchy
-
-The dependency tree for a binary-based build is as follows:
-
-```
-FirebaseFirestore (Library Product)
-└── FirebaseFirestoreTarget (Wrapper Target)
-    └── FirebaseFirestore (Swift Target)
-        ├── FirebaseAppCheckInterop
-        ├── FirebaseCore
-        ├── FirebaseCoreExtension
-        ├── FirebaseSharedSwift
-        ├── leveldb
-        ├── nanopb
-        ├── abseil (binary) (from https://github.com/google/abseil-cpp-binary.git)
-        ├── gRPC-C++ (binary) (from https://github.com/google/grpc-binary.git, contains BoringSSL-GRPC target)
-        └── FirebaseFirestoreInternalWrapper (Wrapper Target)
-            └── FirebaseFirestoreInternal (Binary Target)
-```
-
-### Target breakdown
-
-*   **`FirebaseFirestoreTarget`**: The wrapper target that provides a stable entry
-    point for clients.
-*   **`FirebaseFirestore`**: The Swift target containing the public API. In this
-    configuration, it depends on the binary versions of abseil and gRPC, as
-    well as the `FirebaseFirestoreInternalWrapper`.
-*   **`FirebaseFirestoreInternalWrapper`**: A thin wrapper target that exists to
-    expose the headers from the underlying binary target.
-*   **`FirebaseFirestoreInternal`**: This is a `binaryTarget` that downloads and
-    links the pre-compiled `FirebaseFirestoreInternal.xcframework`. This
-    framework contains the compiled C++ core of Firestore.
-
----
-
-## 2. Source-based build
-
-When the `FIREBASE_SOURCE_FIRESTORE` environment variable is set, Firestore and
-its dependencies (like abseil and gRPC) are compiled from source.
-
-### Dependency hierarchy
+### Dependency Hierarchy
 
 The dependency tree for a source-based build looks like this:
 
@@ -151,10 +121,8 @@ FirebaseFirestore (Library Product)
                 └── BoringSSL (source) (from https://github.com/firebase/boringSSL-SwiftPM.git)
 ```
 
-### Target breakdown
+### Target Breakdown
 
-*   **`FirebaseFirestoreTarget`**: A wrapper target that conditionally depends on
-    the main `FirebaseFirestore` target.
 *   **`FirebaseFirestore`**: The main Swift target containing the public Swift
     API for Firestore. It acts as a bridge to the underlying C++
     implementation.
@@ -164,7 +132,7 @@ FirebaseFirestore (Library Product)
 
 ---
 
-## 3. Local binary build (CI only)
+## 3. Local Binary Build (CI only)
 
 A third, less common build option is available for CI environments. When the
 `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP` environment variable is set, the build
@@ -179,7 +147,36 @@ use.
 
 ---
 
-## 4. Test targets
+## Core Target Explanations
+
+### `FirebaseFirestore` (Library Product)
+
+The main entry point for integrating Firestore via SPM is the
+`FirebaseFirestore` library product.
+
+```swift
+.library(
+  name: "FirebaseFirestore",
+  targets: ["FirebaseFirestoreTarget"])
+```
+
+This product points to a wrapper target, `FirebaseFirestoreTarget`, which then
+depends on the appropriate Firestore targets based on the chosen build option.
+
+### `FirebaseFirestoreTarget` (Wrapper Target)
+
+The `FirebaseFirestoreTarget` is a thin wrapper that exists to work around a
+limitation in SPM where a single target cannot conditionally depend on different
+sets of targets (source vs. binary).
+
+By having clients depend on the wrapper, the `Package.swift` can internally
+manage the complexity of switching between source and binary builds. This
+provides a stable entry point for all clients and avoids pushing conditional
+logic into their own package manifests.
+
+---
+
+## Test Targets
 
 The testing infrastructure for Firestore in SPM is designed to be independent of
 the build choice (source vs. binary).
@@ -197,5 +194,7 @@ the build choice (source vs. binary).
 Because both of these targets depend on the `FirebaseFirestoreTarget` wrapper,
 they seamlessly adapt to either the source-based or binary-based build path
 without any conditional logic.
+
+```
 
 ```
