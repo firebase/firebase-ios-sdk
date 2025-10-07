@@ -17,23 +17,36 @@
 import XCTest
 
 final class TemplateImagenModelTests: XCTestCase {
+  var urlSession: URLSession!
   var model: TemplateImagenModel!
 
   override func setUp() {
     super.setUp()
+    let configuration = URLSessionConfiguration.default
+    configuration.protocolClasses = [MockURLProtocol.self]
+    urlSession = URLSession(configuration: configuration)
     let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
     let generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
-      urlSession: GenAIURLSession.default
+      urlSession: urlSession
     )
-    model = TemplateImagenModel(generativeAIService: generativeAIService)
+    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta) 
+    model = TemplateImagenModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
   }
 
   func testTemplateImagenGenerateImages() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-image-response",
+      withExtension: "json",
+      subdirectory: "vertexai-sdk-test-data/mock-responses",
+      isImageRequest: true
+    )
+
     let response = try await model.templateImagenGenerateImages(
       template: "test-template",
       variables: ["prompt": "a cat picture"]
     )
-    XCTAssertEqual(response.images.count, 0)
+    XCTAssertEqual(response.images.count, 1)
+    XCTAssertEqual(response.images.first, Data(base64Encoded: "aW1hZ2UgZGF0YQ=="))
   }
 }
