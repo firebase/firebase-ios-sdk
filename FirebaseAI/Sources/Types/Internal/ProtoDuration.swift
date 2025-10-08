@@ -113,8 +113,8 @@ extension ProtoDuration: Decodable {
 
 /// Cached powers of 10 for quickly mapping fractional seconds.
 private let pow10: [Int32] = [
-  1, 10, 100, 1_000, 10_000, 100_000,
-  1_000_000, 10_000_000, 100_000_000, 1_000_000_000
+  1, 10, 100, 1000, 10000, 100_000,
+  1_000_000, 10_000_000, 100_000_000, 1_000_000_000,
 ]
 
 /// Converts a fractional second representing a nanosecond to a valid nanosecond value.

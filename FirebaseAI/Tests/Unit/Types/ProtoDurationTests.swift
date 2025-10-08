@@ -61,7 +61,7 @@ final class ProtoDurationTests: XCTestCase {
   func testDecodeProtoDuration_maxNanosecondDigits() throws {
     let duration = try decodeProtoDuration("15.123456789s")
     XCTAssertEqual(duration.seconds, 15)
-    XCTAssertEqual(duration.nanos, 123456789)
+    XCTAssertEqual(duration.nanos, 123_456_789)
 
     XCTAssertEqual(duration.timeInterval, 15.123456789)
   }
@@ -69,7 +69,7 @@ final class ProtoDurationTests: XCTestCase {
   func testDecodeProtoDuration_withMilliseconds() throws {
     let duration = try decodeProtoDuration("15.123s")
     XCTAssertEqual(duration.seconds, 15)
-    XCTAssertEqual(duration.nanos, 123000000)
+    XCTAssertEqual(duration.nanos, 123_000_000)
 
     XCTAssertEqual(duration.timeInterval, 15.123000000)
   }
@@ -92,7 +92,7 @@ final class ProtoDurationTests: XCTestCase {
   func testDecodeProtoDuration_withoutSuffix() throws {
     let duration = try decodeProtoDuration("123.456")
     XCTAssertEqual(duration.seconds, 123)
-    XCTAssertEqual(duration.nanos, 456000000)
+    XCTAssertEqual(duration.nanos, 456_000_000)
 
     XCTAssertEqual(duration.timeInterval, 123.456)
   }

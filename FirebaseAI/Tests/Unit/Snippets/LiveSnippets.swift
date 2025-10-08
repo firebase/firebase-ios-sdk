@@ -33,7 +33,8 @@ final class LiveSnippets: XCTestCase {
   func sendAudioReceiveAudio() async throws {
     // Initialize the Vertex AI Gemini API backend service
     // Set the location to `us-central1` (the flash-live model is only supported in that location)
-    // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports the Live API)
+    // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports
+    // the Live API)
     let model = FirebaseAI.firebaseAI(backend: .vertexAI(location: "us-central1")).liveModel(
       modelName: "gemini-2.0-flash-exp",
       // Configure the model to respond with audio
@@ -76,7 +77,8 @@ final class LiveSnippets: XCTestCase {
   func sendAudioReceiveText() async throws {
     // Initialize the Vertex AI Gemini API backend service
     // Set the location to `us-central1` (the flash-live model is only supported in that location)
-    // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports the Live API)
+    // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports
+    // the Live API)
     let model = FirebaseAI.firebaseAI(backend: .googleAI()).liveModel(
       modelName: "gemini-live-2.5-flash-preview",
       // Configure the model to respond with text
@@ -120,7 +122,8 @@ final class LiveSnippets: XCTestCase {
 
   func sendTextReceiveAudio() async throws {
     // Initialize the Gemini Developer API backend service
-    // Create a `LiveModel` instance with the flash-live model (only model that supports the Live API)
+    // Create a `LiveModel` instance with the flash-live model (only model that supports the Live
+    // API)
     let model = FirebaseAI.firebaseAI(backend: .googleAI()).liveModel(
       modelName: "gemini-live-2.5-flash-preview",
       // Configure the model to respond with audio
@@ -159,7 +162,8 @@ final class LiveSnippets: XCTestCase {
 
   func sendTextReceiveText() async throws {
     // Initialize the Gemini Developer API backend service
-    // Create a `LiveModel` instance with the flash-live model (only model that supports the Live API)
+    // Create a `LiveModel` instance with the flash-live model (only model that supports the Live
+    // API)
     let model = FirebaseAI.firebaseAI(backend: .googleAI()).liveModel(
       modelName: "gemini-live-2.5-flash-preview",
       // Configure the model to respond with audio

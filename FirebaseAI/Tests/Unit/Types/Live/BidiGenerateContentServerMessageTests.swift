@@ -28,7 +28,7 @@ final class BidiGenerateContentServerMessageTests: XCTestCase {
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
     let serverMessage = try decoder.decode(BidiGenerateContentServerMessage.self, from: jsonData)
-    guard case .setupComplete(_) = serverMessage.messageType else {
+    guard case .setupComplete = serverMessage.messageType else {
       XCTFail("Decoded message is not a setupComplete message.")
       return
     }
@@ -184,6 +184,6 @@ final class BidiGenerateContentServerMessageTests: XCTestCase {
     }
 
     XCTAssertEqual(goAway.timeLeft?.seconds, 1)
-    XCTAssertEqual(goAway.timeLeft?.nanos, 234567890)
+    XCTAssertEqual(goAway.timeLeft?.nanos, 234_567_890)
   }
 }

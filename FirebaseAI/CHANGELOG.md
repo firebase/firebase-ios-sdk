@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Fixed minor translation issue for nanosecond conversion when receiving
-  `LiveServerGoingAwayNotice`. (#????) 
+  `LiveServerGoingAwayNotice`. (#????)
 
 # 12.4.0
 - [feature] Added support for the URL context tool, which allows the model to access content
