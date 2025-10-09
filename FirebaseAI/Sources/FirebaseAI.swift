@@ -106,8 +106,6 @@ public final class FirebaseAI: Sendable {
 
   /// Initializes an ``ImagenModel`` with the given parameters.
   ///
-  /// > Important: Only Imagen 3 models (named `imagen-3.0-*`) are supported.
-  ///
   /// - Parameters:
   ///   - modelName: The name of the Imagen 3 model to use, for example `"imagen-3.0-generate-002"`;
   ///     see [model versions](https://firebase.google.com/docs/vertex-ai/models) for a list of
@@ -141,9 +139,6 @@ public final class FirebaseAI: Sendable {
   /// > Warning: Using the Firebase AI Logic SDKs with the Gemini Live API is in Public
   /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
   /// could change in backwards-incompatible ways.
-  ///
-  /// > Important: Only models that support the Gemini Live API (typically containing `live-*` in
-  /// the name) are supported.
   ///
   /// - Parameters:
   ///   - modelName: The name of the model to use, for example
