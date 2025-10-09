@@ -22,7 +22,7 @@
 # Expects the environment variable "secrets_passphrase" to be set.
 # This should be set to gpg password for encrypting/decrypting the files.
 
-if [[ ! "${secrets_passphrase}" ]]; then
+if [[ -n "${secrets_passphrase}" ]]; then
   echo "Missing environment variable (secrets_passphrase) to decrypt the files with."
   exit 1
 fi
