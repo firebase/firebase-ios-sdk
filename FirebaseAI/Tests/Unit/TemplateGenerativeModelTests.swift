@@ -7,18 +7,19 @@
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law of or agreed to in writing, software
+// Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
 @testable import FirebaseAI
+import FirebaseCore
 import XCTest
 
-final class TemplateImagenModelTests: XCTestCase {
+final class TemplateGenerativeModelTests: XCTestCase {
   var urlSession: URLSession!
-  var model: TemplateImagenModel!
+  var model: TemplateGenerativeModel!
 
   override func setUp() {
     super.setUp()
@@ -31,22 +32,21 @@ final class TemplateImagenModelTests: XCTestCase {
       urlSession: urlSession
     )
     let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
-    model = TemplateImagenModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
+    model = TemplateGenerativeModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
   }
 
-  func testGenerateImages() async throws {
+  func testGenerateContent() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
-      forResource: "unary-success-image-response",
+      forResource: "unary-success-response",
       withExtension: "json",
       subdirectory: "mock-responses",
       isTemplateRequest: true
     )
 
-    let response = try await model.generateImages(
+    let response = try await model.generateContent(
       template: "test-template",
-      variables: ["prompt": "a cat picture"]
+      variables: ["name": "test"]
     )
-    XCTAssertEqual(response.images.count, 1)
-    XCTAssertEqual(response.images.first, Data(base64Encoded: "aW1hZ2UgZGF0YQ=="))
+    XCTAssertEqual(response.text, "Hello, world!")
   }
 }

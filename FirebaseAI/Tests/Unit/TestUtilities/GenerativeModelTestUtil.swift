@@ -31,7 +31,7 @@ enum GenerativeModelTestUtil {
                                  appCheckToken: String? = nil,
                                  authToken: String? = nil,
                                  dataCollection: Bool = true,
-                                 isImageRequest: Bool = false) throws -> ((URLRequest) throws -> (
+                                 isTemplateRequest: Bool = false) throws -> ((URLRequest) throws -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   )) {
@@ -46,7 +46,9 @@ enum GenerativeModelTestUtil {
       )
       return { request in
         let requestURL = try XCTUnwrap(request.url)
-        if !isImageRequest {
+        if isTemplateRequest {
+          XCTAssertEqual(requestURL.path.occurrenceCount(of: "templates/test-template.prompt:template"), 1)
+        } else {
           XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
         }
         XCTAssertEqual(request.timeoutInterval, timeout)

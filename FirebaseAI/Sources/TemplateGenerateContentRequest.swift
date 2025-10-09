@@ -20,7 +20,6 @@ struct TemplateGenerateContentRequest: Sendable {
   let variables: [String: TemplateVariable]
   let history: [ModelContent]
   let projectID: String
-
   let apiConfig: APIConfig
   let options: RequestOptions
 }
