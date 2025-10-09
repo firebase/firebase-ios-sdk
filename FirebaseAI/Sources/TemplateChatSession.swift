@@ -18,23 +18,26 @@ import Foundation
 /// A chat session that allows for conversation with a model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public class TemplateChatSession {
-  private let templateGenerateContent: ([ModelContent], String, [String: Any]) async throws
+  private let generateContent: ([ModelContent], String, [String: Any], RequestOptions) async throws
     -> GenerateContentResponse
   private let template: String
   public var history: [ModelContent]
 
-  init(templateGenerateContent: @escaping (([ModelContent], String, [String: Any]) async throws
+  init(generateContent: @escaping (([ModelContent], String, [String: Any],
+                                    RequestOptions) async throws
          -> GenerateContentResponse),
-  template: String, history: [ModelContent]) {
-    self.templateGenerateContent = templateGenerateContent
+       template: String, history: [ModelContent]) {
+    self.generateContent = generateContent
     self.template = template
     self.history = history
   }
 
   /// Sends a message to the model and returns the response.
   public func sendMessage(_ message: any PartsRepresentable,
-                          variables: [String: Any]) async throws -> GenerateContentResponse {
-    let response = try await templateGenerateContent(history, template, variables)
+                          variables: [String: Any],
+                          options: RequestOptions = RequestOptions()) async throws
+    -> GenerateContentResponse {
+    let response = try await generateContent(history, template, variables, options)
     history.append(ModelContent(role: "user", parts: message.partsValue))
     if let modelResponse = response.candidates.first {
       history.append(modelResponse.content)
