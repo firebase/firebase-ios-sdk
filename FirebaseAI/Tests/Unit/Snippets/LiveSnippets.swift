@@ -54,7 +54,6 @@ final class LiveSnippets: XCTestCase {
       // Provide the audio data
       await session.sendAudioRealtime(audioFile.data)
 
-      var outputText = ""
       for try await message in session.responses {
         if case let .content(content) = message.payload {
           content.modelTurn?.parts.forEach { part in
@@ -140,7 +139,6 @@ final class LiveSnippets: XCTestCase {
 
       await session.sendTextRealtime(text)
 
-      var outputText = ""
       for try await message in session.responses {
         if case let .content(content) = message.payload {
           content.modelTurn?.parts.forEach { part in
@@ -180,7 +178,6 @@ final class LiveSnippets: XCTestCase {
 
       await session.sendTextRealtime(text)
 
-      var outputText = ""
       for try await message in session.responses {
         if case let .content(content) = message.payload {
           content.modelTurn?.parts.forEach { part in
@@ -209,6 +206,9 @@ final class LiveSnippets: XCTestCase {
         speech: SpeechConfig(voiceName: "Fenrir")
       )
     )
+
+    // Not part of snippet
+    silenceWarning(model)
   }
 
   func modelParameters() {
@@ -232,6 +232,9 @@ final class LiveSnippets: XCTestCase {
     )
 
     // ...
+
+    // Not part of snippet
+    silenceWarning(model)
   }
 
   func systemInstructions() {
@@ -240,9 +243,17 @@ final class LiveSnippets: XCTestCase {
       modelName: "gemini-live-2.5-flash-preview",
       systemInstruction: ModelContent(role: "system", parts: "You are a cat. Your name is Neko.")
     )
+
+    // Not part of snippet
+    silenceWarning(model)
   }
 
   private func playAudio(_ data: Data) {
     // Use AVAudioPlayerNode or something akin to play back audio
   }
+
+  /// This function only exists to silence the "unused value" warnings.
+  ///
+  /// This allows us to ensure the snippets match devsite.
+  private func silenceWarning(_ model: LiveGenerativeModel) {}
 }
