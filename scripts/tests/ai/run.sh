@@ -43,6 +43,7 @@
 # while manually specifying the Xcode version to use.
 
 shopt -s nullglob
+set -eo pipefail
 
 xcode=$1
 
@@ -100,35 +101,31 @@ check_for_secret_files () {
     done
 }
 
-delete_secrets=true
+cleanup () {
+    # We only delete the decrypted secret files if we were the ones to decrypt them.
+    if [[ "$delete_secrets" ]]; then
+        echo "Removing secret files"
+        for file in "${secret_files[@]}"; do
+            rm -f $file
+        done
+        echo "Secret files removed"
+    fi
+}
+
+# always run cleanup last, even on errors
+trap 'exit_code=$?; cleanup; exit "$exit_code"' ERR
+trap 'cleanup' EXIT
 
 if [[ ! "$secrets_passphrase" ]]; then
     echo "Environment variable 'secrets_passphrase' wasn't set. Checking if files are already present"
     check_for_secret_files
     echo "Files are present, moving forward"
-
-    unset delete_secrets
+    delete_secrets=true
 else
   scripts/tests/ai/decrypt_secrets.sh
 fi
 
-(
-    echo "Selecting Xcode version: $xcode"
-    sudo xcode-select -s /Applications/$xcode.app/Contents/Developer
-
-    echo "Running integration tests for target: $target"
-    scripts/build.sh FirebaseAIIntegration $target
-)
-# We run the tests in a subshell so we can delete the secret files regardless of the exit code.
-exit_code=$?
-
-# We only delete the decrypted secret files if we were the ones to decrypt them.
-if [[ "$delete_secrets" ]]; then
-    echo "Removing secret files"
-    for file in "${secret_files[@]}"; do
-        rm $file
-    done
-    echo "Secret files removed"
-fi
-
-exit $exit_code
+echo "Selecting Xcode version: $xcode"
+sudo xcode-select -s /Applications/$xcode.app/Contents/Developer
+echo "Running integration tests for target: $target"
+scripts/build.sh FirebaseAIIntegration $target
