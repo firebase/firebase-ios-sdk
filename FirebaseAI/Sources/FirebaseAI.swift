@@ -137,7 +137,7 @@ public final class FirebaseAI: Sendable {
 
   /// **[Public Preview]** Initializes a ``LiveGenerativeModel`` with the given parameters.
   ///
-  /// - Note: Refer to [the Firebase docs on the Live API](https://firebase.google.com/docs/vertex-ai/models) for
+  /// - Note: Refer to [the Firebase docs on the Live API](https://firebase.google.com/docs/ai-logic/live-api?api=dev#models-that-support-capability) for
   /// guidance on choosing an appropriate model for your use case.
   ///
   /// > Warning: Using the Firebase AI Logic SDKs with the Gemini Live API is in Public
