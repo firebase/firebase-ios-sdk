@@ -486,8 +486,8 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Parameter expression: The `Expr` (typically a `Field`) that resolves to the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func replace(with expr: Expression) -> Pipeline {
-    return Pipeline(stages: stages + [ReplaceWith(expr: expr)], db: db)
+  public func replace(with expression: Expression) -> Pipeline {
+    return Pipeline(stages: stages + [ReplaceWith(expr: expression)], db: db)
   }
 
   /// Fully overwrites document fields with those from a nested map identified by a field name.
@@ -625,7 +625,7 @@ public struct Pipeline: @unchecked Sendable {
   /// the caller must ensure correct name, order, and types.
   ///
   /// Parameters in `params` and `options` are typically primitive types, `Field`,
-  /// `Function`, `Expr`, or arrays/dictionaries thereof.
+  /// `Function`, `Expression`, or arrays/dictionaries thereof.
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ...

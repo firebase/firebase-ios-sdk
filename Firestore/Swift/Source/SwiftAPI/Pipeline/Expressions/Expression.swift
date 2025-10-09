@@ -27,7 +27,7 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Calculate total price and alias it "totalPrice"
-  /// Field("price").multiply(Field("quantity")).`as`("totalPrice")
+  /// Field("price").multiply(Field("quantity")).as("totalPrice")
   /// ```
   ///
   /// - Parameter name: The alias to assign to this expression.
@@ -56,7 +56,7 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the square root of the number.
   func sqrt() -> FunctionExpression
 
-  /// Creates an expression that returns the value of self raised to the power of Y.
+  /// Creates an expression that returns the value of self raised to the power of self.
   ///
   /// Returns zero on underflow.
   ///
@@ -69,7 +69,7 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the power of the number.
   func pow(_ exponent: Sendable) -> FunctionExpression
 
-  /// Creates an expression that returns the value of self raised to the power of Y.
+  /// Creates an expression that returns the value of self raised to the power of self.
   ///
   /// Returns zero on underflow.
   ///
@@ -455,98 +455,97 @@ public protocol Expression: Sendable {
   /// Field("tags").arrayGet(Field("favoriteTagIndex"))
   /// ```
   ///
-  /// - Parameter offsetExpr: An `Expression` (evaluating to an Int) representing the offset of the
+  /// - Parameter offsetExpression: An `Expression` (evaluating to an Int) representing the offset of the
   /// element to return.
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
   func arrayGet(_ offsetExpression: Expression) -> FunctionExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is greater
+  /// Creates a `BooleanExpression` that returns `true` if this expression is greater
   /// than the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func greaterThan(_ other: Expression) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is greater
+  /// Creates a `BooleanExpression` that returns `true` if this expression is greater
   /// than the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func greaterThan(_ other: Sendable) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is
+  /// Creates a `BooleanExpression` that returns `true` if this expression is
   /// greater than or equal to the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func greaterThanOrEqual(_ other: Expression) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is
+  /// Creates a `BooleanExpression` that returns `true` if this expression is
   /// greater than or equal to the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func greaterThanOrEqual(_ other: Sendable) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is less
+  /// Creates a `BooleanExpression` that returns `true` if this expression is less
   /// than the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func lessThan(_ other: Expression) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is less
+  /// Creates a `BooleanExpression` that returns `true` if this expression is less
   /// than the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func lessThan(_ other: Sendable) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is less
+  /// Creates a `BooleanExpression` that returns `true` if this expression is less
   /// than or equal to the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func lessThanOrEqual(_ other: Expression) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is less
+  /// Creates a `BooleanExpression` that returns `true` if this expression is less
   /// than or equal to the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func lessThanOrEqual(_ other: Sendable) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is equal
+  /// Creates a `BooleanExpression` that returns `true` if this expression is equal
   /// to the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func equal(_ other: Expression) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is equal
+  /// Creates a `BooleanExpression` that returns `true` if this expression is equal
   /// to the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func equal(_ other: Sendable) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is not
+  /// Creates a `BooleanExpression` that returns `true` if this expression is not
   /// equal to the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func notEqual(_ other: Expression) -> BooleanExpression
 
-  /// Creates a `BooleanExpr` that returns `true` if this expression is not
+  /// Creates a `BooleanExpression` that returns `true` if this expression is not
   /// equal to the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func notEqual(_ other: Sendable) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided
   /// expression values.
-  /// This is similar to an "IN" operator in SQL.
   ///
   /// ```swift
   /// // Check if "categoryID" field is equal to "featuredCategory" or "popularCategory" fields
@@ -554,12 +553,11 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter others: An array of at least one `Expression` value to check against.
-  /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func equalAny(_ others: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided literal
   /// values.
-  /// This is similar to an "IN" operator in SQL.
   ///
   /// ```swift
   /// // Check if "category" is "Electronics", "Books", or "Home Goods"
@@ -567,12 +565,11 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter others: An array of at least one `Sendable` literal value to check against.
-  /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func equalAny(_ others: [Sendable]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided
   /// expression values.
-  /// This is similar to an "IN" operator in SQL.
   ///
   /// ```swift
   /// // Check if "categoryID" field is equal to any of "categoryIDs" fields
@@ -580,12 +577,11 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter arrayExpression: An `Expression` elements evaluated to be array.
-  /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func equalAny(_ arrayExpression: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// expression values.
-  /// This is similar to a "NOT IN" operator in SQL.
   ///
   /// ```swift
   /// // Check if "statusValue" is not equal to "archivedStatus" or "deletedStatus" fields
@@ -593,12 +589,11 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter others: An array of at least one `Expression` value to check against.
-  /// - Returns: A new `BooleanExpr` representing the "NOT IN" comparison (not_eq_any).
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func notEqualAny(_ others: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
   /// literal values.
-  /// This is similar to a "NOT IN" operator in SQL.
   ///
   /// ```swift
   /// // Check if "status" is neither "pending" nor "archived"
@@ -606,12 +601,11 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter others: An array of at least one `Sendable` literal value to check against.
-  /// - Returns: A new `BooleanExpr` representing the "NOT IN" comparison (not_eq_any).
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func notEqualAny(_ others: [Sendable]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided
   /// expression values.
-  /// This is similar to an "IN" operator in SQL.
   ///
   /// ```swift
   /// // Check if "categoryID" field is not equal to any of "categoryIDs" fields
@@ -619,18 +613,17 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter arrayExpression: An `Expression` elements evaluated to be array.
-  /// - Returns: A new `BooleanExpr` representing the "IN" comparison (eq_any).
+  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func notEqualAny(_ arrayExpression: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if this expression evaluates to "NaN" (Not a Number).
-  /// Assumes `self` evaluates to a numeric type.
   ///
   /// ```swift
   /// // Check if the result of a calculation is NaN
   /// Field("value").divide(0).isNan()
   /// ```
   ///
-  /// - Returns: A new `BooleanExpr` representing the "isNaN" check.
+  /// - Returns: A new `BooleanExpression` representing the "isNaN" check.
   func isNan() -> BooleanExpression
 
   /// Creates an expression that checks if this expression evaluates to "Nil".
@@ -640,46 +633,38 @@ public protocol Expression: Sendable {
   /// Field("optionalField").isNil()
   /// ```
   ///
-  /// - Returns: A new `BooleanExpr` representing the "isNil" check.
+  /// - Returns: A new `BooleanExpression` representing the "isNil" check.
   func isNil() -> BooleanExpression
 
   /// Creates an expression that checks if a field exists in the document.
-  ///
-  /// - Note: This typically only makes sense when `self` is a `Field` expression.
   ///
   /// ```swift
   /// // Check if the document has a field named "phoneNumber"
   /// Field("phoneNumber").exists()
   /// ```
   ///
-  /// - Returns: A new `BooleanExpr` representing the "exists" check.
+  /// - Returns: A new `BooleanExpression` representing the "exists" check.
   func exists() -> BooleanExpression
 
   /// Creates an expression that checks if this expression produces an error during evaluation.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Check if accessing a non-existent array index causes an error
   /// Field("myArray").arrayGet(100).isError()
   /// ```
   ///
-  /// - Returns: A new `BooleanExpr` representing the "isError" check.
+  /// - Returns: A new `BooleanExpression` representing the "isError" check.
   func isError() -> BooleanExpression
 
   /// Creates an expression that returns `true` if the result of this expression
-  /// is absent (e.g., a field does not exist in a map). Otherwise, returns `false`, even if the
-  /// value is `null`.
-  ///
-  /// - Note: This API is in beta.
-  /// - Note: This typically only makes sense when `self` is a `Field` expression.
+  /// is absent (e.g., a field does not exist in a map). Otherwise, returns `false`.
   ///
   /// ```swift
   /// // Check if the field `value` is absent.
   /// Field("value").isAbsent()
   /// ```
   ///
-  /// - Returns: A new `BooleanExpr` representing the "isAbsent" check.
+  /// - Returns: A new `BooleanExpression` representing the "isAbsent" check.
   func isAbsent() -> BooleanExpression
 
   /// Creates an expression that checks if the result of this expression is not null.
@@ -689,12 +674,11 @@ public protocol Expression: Sendable {
   /// Field("name").isNotNil()
   /// ```
   ///
-  /// - Returns: A new `BooleanExpr` representing the "isNotNil" check.
+  /// - Returns: A new `BooleanExpression` representing the "isNotNil" check.
   func isNotNil() -> BooleanExpression
 
   /// Creates an expression that checks if the results of this expression is NOT "NaN" (Not a
   /// Number).
-  /// Assumes `self` evaluates to a numeric type.
   ///
   /// ```swift
   /// // Check if the result of a calculation is NOT NaN
@@ -750,7 +734,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter pattern: The literal string pattern to search for. Use "%" as a wildcard.
-  /// - Returns: A new `BooleanExpr` representing the "like" comparison.
+  /// - Returns: A new `BooleanExpression` representing the "like" comparison.
   func like(_ pattern: String) -> BooleanExpression
 
   /// Creates an expression that performs a case-sensitive string comparison using wildcards against
@@ -763,14 +747,13 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter pattern: An `Expression` (evaluating to a string) representing the pattern to
-  /// search
-  /// for.
-  /// - Returns: A new `BooleanExpr` representing the "like" comparison.
+  /// search for.
+  /// - Returns: A new `BooleanExpression` representing the "like" comparison.
   func like(_ pattern: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified regular
   /// expression literal as a substring.
-  /// Uses RE2 syntax. Assumes `self` evaluates to a string.
+  /// Assumes `self` evaluates to a string.
   ///
   /// ```swift
   /// // Check if "description" contains "example" (case-insensitive)
@@ -778,12 +761,12 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter pattern: The literal string regular expression to use for the search.
-  /// - Returns: A new `BooleanExpr` representing the "regex_contains" comparison.
+  /// - Returns: A new `BooleanExpression` representing the "regex_contains" comparison.
   func regexContains(_ pattern: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified regular
   /// expression (from an expression) as a substring.
-  /// Uses RE2 syntax. Assumes `self` evaluates to a string, and `pattern` evaluates to a string.
+  /// Assumes `self` evaluates to a string, and `pattern` evaluates to a string.
   ///
   /// ```swift
   /// // Check if "logEntry" contains a pattern from "errorPattern" field
@@ -791,14 +774,13 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter pattern: An `Expression` (evaluating to a string) representing the regular
-  /// expression to
-  /// use for the search.
-  /// - Returns: A new `BooleanExpr` representing the "regex_contains" comparison.
+  /// expression to use for the search.
+  /// - Returns: A new `BooleanExpression` representing the "regex_contains" comparison.
   func regexContains(_ pattern: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) matches a specified regular
   /// expression literal entirely.
-  /// Uses RE2 syntax. Assumes `self` evaluates to a string.
+  /// Assumes `self` evaluates to a string.
   ///
   /// ```swift
   /// // Check if the "email" field matches a valid email pattern
@@ -806,12 +788,12 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter pattern: The literal string regular expression to use for the match.
-  /// - Returns: A new `BooleanExpr` representing the regular expression match.
+  /// - Returns: A new `BooleanExpression` representing the regular expression match.
   func regexMatch(_ pattern: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) matches a specified regular
   /// expression (from an expression) entirely.
-  /// Uses RE2 syntax. Assumes `self` evaluates to a string, and `pattern` evaluates to a string.
+  /// Assumes `self` evaluates to a string, and `pattern` evaluates to a string.
   ///
   /// ```swift
   /// // Check if "input" matches the regex stored in "validationRegex"
@@ -819,9 +801,8 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter pattern: An `Expression` (evaluating to a string) representing the regular
-  /// expression to
-  /// use for the match.
-  /// - Returns: A new `BooleanExpr` representing the regular expression match.
+  /// expression to use for the match.
+  /// - Returns: A new `BooleanExpression` representing the regular expression match.
   func regexMatch(_ pattern: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified literal
@@ -834,7 +815,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter substring: The literal string substring to search for.
-  /// - Returns: A new `BooleanExpr` representing the "stringContains" comparison.
+  /// - Returns: A new `BooleanExpression` representing the "stringContains" comparison.
   func stringContains(_ substring: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified substring
@@ -848,7 +829,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter expression: An `Expression` (evaluating to a string) representing the substring to
   /// search for.
-  /// - Returns: A new `BooleanExpr` representing the "str_contains" comparison.
+  /// - Returns: A new `BooleanExpression` representing the "str_contains" comparison.
   func stringContains(_ expression: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) starts with a given literal prefix
@@ -902,7 +883,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter suffix: An `Expression` (evaluating to a string) representing the suffix to check
   /// for.
-  /// - Returns: A new `BooleanExpr` representing the "ends_with" comparison.
+  /// - Returns: A new `BooleanExpression` representing the "ends_with" comparison.
   func endsWith(_ suffix: Expression) -> BooleanExpression
 
   /// Creates an expression that converts a string (from `self`) to lowercase.
@@ -965,7 +946,7 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the concatenated string.
   func stringConcat(_ strings: [Expression]) -> FunctionExpression
 
-  /// Creates an expression that reverses this string expression.
+  /// Creates an expression that reverses this expression.
   /// Assumes `self` evaluates to a string.
   ///
   /// ```swift
@@ -973,7 +954,7 @@ public protocol Expression: Sendable {
   /// Field("myString").reverse()
   /// ```
   ///
-  /// - Returns: A new `FunctionExpr` representing the reversed string.
+  /// - Returns: A new `FunctionExpression` representing the reversed string.
   func reverse() -> FunctionExpression
 
   /// Creates an expression that reverses this string expression.
@@ -984,11 +965,11 @@ public protocol Expression: Sendable {
   /// Field("myString").stringReverse()
   /// ```
   ///
-  /// - Returns: A new `FunctionExpr` representing the reversed string.
+  /// - Returns: A new `FunctionExpression` representing the reversed string.
   func stringReverse() -> FunctionExpression
 
-  /// Creates an expression that calculates the length of this string or bytes expression in bytes.
-  /// Assumes `self` evaluates to a string or bytes.
+  /// Creates an expression that calculates the length of this expression in bytes.
+  /// Assumes `self` evaluates to a string.
   ///
   /// ```swift
   /// // Calculate the length of the "myString" field in bytes.
@@ -998,48 +979,44 @@ public protocol Expression: Sendable {
   /// Field("avatar").byteLength()
   /// ```
   ///
-  /// - Returns: A new `FunctionExpr` representing the length in bytes.
+  /// - Returns: A new `FunctionExpression` representing the length in bytes.
   func byteLength() -> FunctionExpression
 
-  /// Creates an expression that returns a substring of this expression (String or Bytes) using
+  /// Creates an expression that returns a substring of this expression using
   /// literal integers for position and optional length.
-  /// Indexing is 0-based. Assumes `self` evaluates to a string or bytes.
-  ///
-  /// - Note: This API is in beta.
+  /// Indexing is 0-based. Assumes `self` evaluates to a string.
   ///
   /// ```swift
   /// // Get substring from index 5 with length 10
   /// Field("myString").substring(5, 10)
   ///
   /// // Get substring from "myString" starting at index 3 to the end
-  /// Field("myString").substring(3, nil)
+  /// Field("myString").substring(3) // Default nil
   /// ```
   ///
   /// - Parameter position: Literal `Int` index of the first character/byte.
   /// - Parameter length: Optional literal `Int` length of the substring. If `nil`, goes to the end.
-  /// - Returns: A new `FunctionExpr` representing the substring.
+  /// - Returns: A new `FunctionExpression` representing the substring.
   func substring(position: Int, length: Int?) -> FunctionExpression
 
-  /// Creates an expression that returns a substring of this expression (String or Bytes) using
+  /// Creates an expression that returns a substring of this expression using
   /// expressions for position and optional length.
-  /// Indexing is 0-based. Assumes `self` evaluates to a string or bytes, and parameters evaluate to
+  /// Indexing is 0-based. Assumes `self` evaluates to a string, and parameters evaluate to
   /// integers.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Get substring from index calculated by Field("start") with length from Field("len")
   /// Field("myString").substring(Field("start"), Field("len"))
   ///
   /// // Get substring from index calculated by Field("start") to the end
-  /// Field("myString").substring(Field("start"), nil) // Passing nil for optional Expr length
+  /// Field("myString").substring(Field("start")) // Default nil for optional Expression length
   /// ```
   ///
-  /// - Parameter position: An `Expr` (evaluating to an Int) for the index of the first
-  /// character/byte.
-  /// - Parameter length: Optional `Expr` (evaluating to an Int) for the length of the substring. If
+  /// - Parameter position: An `Expression` (evaluating to an Int) for the index of the first
+  /// character.
+  /// - Parameter length: Optional `Expression` (evaluating to an Int) for the length of the substring. If
   /// `nil`, goes to the end.
-  /// - Returns: A new `FunctionExpr` representing the substring.
+  /// - Returns: A new `FunctionExpression` representing the substring.
   func substring(position: Expression, length: Expression?) -> FunctionExpression
 
   // MARK: Map Operations
@@ -1053,14 +1030,12 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter subfield: The literal string key to access in the map.
-  /// - Returns: A new `FunctionExpr` representing the value associated with the given key.
+  /// - Returns: A new `FunctionExpression` representing the value associated with the given key.
   func mapGet(_ subfield: String) -> FunctionExpression
 
   /// Creates an expression that removes a key (specified by a literal string) from the map produced
   /// by evaluating this expression.
   /// Assumes `self` evaluates to a Map.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Removes the key "baz" from the map held in field "myMap"
@@ -1068,29 +1043,25 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter key: The literal string key to remove from the map.
-  /// - Returns: A new `FunctionExpr` representing the "map_remove" operation.
+  /// - Returns: A new `FunctionExpression` representing the "map_remove" operation.
   func mapRemove(_ key: String) -> FunctionExpression
 
   /// Creates an expression that removes a key (specified by an expression) from the map produced by
   /// evaluating this expression.
-  /// Assumes `self` evaluates to a Map, and `keyExpr` evaluates to a string.
-  ///
-  /// - Note: This API is in beta.
+  /// Assumes `self` evaluates to a Map, and `keyExpression` evaluates to a string.
   ///
   /// ```swift
   /// // Removes the key specified by field "keyToRemove" from the map in "settings"
   /// Field("settings").mapRemove(Field("keyToRemove"))
   /// ```
   ///
-  /// - Parameter keyExpr: An `Expr` (evaluating to a string) representing the key to remove from
+  /// - Parameter keyExpression: An `Expression` (evaluating to a string) representing the key to remove from
   /// the map.
-  /// - Returns: A new `FunctionExpr` representing the "map_remove" operation.
+  /// - Returns: A new `FunctionExpression` representing the "map_remove" operation.
   func mapRemove(_ keyExpression: Expression) -> FunctionExpression
 
   /// Creates an expression that merges this map with multiple other map literals.
   /// Assumes `self` evaluates to a Map. Later maps overwrite keys from earlier maps.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // Merge "settings" field with { "enabled": true } and another map literal { "priority": 1 }
@@ -1099,7 +1070,7 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter maps: Maps (dictionary literals with `Sendable` values)
   /// to merge.
-  /// - Returns: A new `FunctionExpr` representing the "map_merge" operation.
+  /// - Returns: A new `FunctionExpression` representing the "map_merge" operation.
   func mapMerge(_ maps: [[String: Sendable]])
     -> FunctionExpression
 
@@ -1107,15 +1078,13 @@ public protocol Expression: Sendable {
   /// Assumes `self` and other arguments evaluate to Maps. Later maps overwrite keys from earlier
   /// maps.
   ///
-  /// - Note: This API is in beta.
-  ///
   /// ```swift
   /// // Merge "baseSettings" field with "userOverrides" field and "adminConfig" field
   /// Field("baseSettings").mapMerge(Field("userOverrides"), Field("adminConfig"))
   /// ```
   ///
   /// - Parameter maps: Additional `Expression` (evaluating to Maps) to merge.
-  /// - Returns: A new `FunctionExpr` representing the "map_merge" operation.
+  /// - Returns: A new `FunctionExpression` representing the "map_merge" operation.
   func mapMerge(_ maps: [Expression]) -> FunctionExpression
 
   // MARK: Aggregations
@@ -1186,8 +1155,6 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `AggregateFunction` representing the "max" aggregation.
   func maximum() -> AggregateFunction
-
-  // MARK: Logical min/max
 
   /// Creates an expression that returns the larger value between this expression and other
   /// expressions, based on Firestore"s value type ordering.
@@ -1465,8 +1432,7 @@ public protocol Expression: Sendable {
   func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression
 
   /// Creates an expression that subtracts a specified amount of time from this timestamp
-  /// expression,
-  /// where unit and amount are provided as expressions.
+  /// expression, where unit and amount are provided as expressions.
   /// Assumes `self` evaluates to a Timestamp, `unit` evaluates to a unit string, and `amount`
   /// evaluates to an integer.
   ///
@@ -1483,8 +1449,7 @@ public protocol Expression: Sendable {
   func timestampSubtract(amount: Expression, unit: Expression) -> FunctionExpression
 
   /// Creates an expression that subtracts a specified amount of time from this timestamp
-  /// expression,
-  /// where unit and amount are provided as literals.
+  /// expression, where unit and amount are provided as literals.
   /// Assumes `self` evaluates to a Timestamp.
   ///
   /// ```swift
@@ -1499,8 +1464,6 @@ public protocol Expression: Sendable {
 
   /// Creates an expression that returns the document ID from a path.
   ///
-  /// - Note: This API is in beta.
-  ///
   /// ```swift
   /// // Get the document ID from a path.
   /// Field(FieldPath.documentID()).documentId()
@@ -1514,26 +1477,20 @@ public protocol Expression: Sendable {
   /// root itself.
   func collectionId() -> FunctionExpression
 
-  /// Creates an expression that returns the result of `catchExpr` if this expression produces an
-  /// error during evaluation,
-  /// otherwise returns the result of this expression.
-  ///
-  /// - Note: This API is in beta.
+  /// Creates an expression that returns the result of `catchExpression` if this expression produces an
+  /// error during evaluation, otherwise returns the result of this expression.
   ///
   /// ```swift
   /// // Try dividing "a" by "b", return field "fallbackValue" on error (e.g., division by zero)
   /// Field("a").divide(Field("b")).ifError(Field("fallbackValue"))
   /// ```
   ///
-  /// - Parameter catchExpr: The `Expression` to evaluate and return if this expression errors.
+  /// - Parameter catchExpression: The `Expression` to evaluate and return if this expression errors.
   /// - Returns: A new "FunctionExpression" representing the "ifError" operation.
-  func ifError(_ catchExpr: Expression) -> FunctionExpression
+  func ifError(_ catchExpression: Expression) -> FunctionExpression
 
   /// Creates an expression that returns the literal `catchValue` if this expression produces an
-  /// error during evaluation,
-  /// otherwise returns the result of this expression.
-  ///
-  /// - Note: This API is in beta.
+  /// error during evaluation, otherwise returns the result of this expression.
   ///
   /// ```swift
   /// // Get first item in "title" array, or return "Default Title" if error (e.g., empty array)
@@ -1547,8 +1504,6 @@ public protocol Expression: Sendable {
   /// Creates an expression that returns the literal `defaultValue` if this expression is
   /// absent (e.g., a field does not exist in a map).
   /// Otherwise, returns the result of this expression.
-  ///
-  /// - Note: This API is in beta.
   ///
   /// ```swift
   /// // If the "optionalField" is absent, return "default value".
