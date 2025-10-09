@@ -45,13 +45,15 @@ public struct LiveServerContent: Sendable {
   /// The model has finished _generating_ data for the current turn.
   ///
   /// For realtime playback, there will be a delay between when the model finishes generating
-  /// content and the client has finished playing back the generated content. `generationComplete`
-  /// indicates that the model is done generating data, while `isTurnComplete` indicates the model
-  /// is waiting for additional client messages. Sending a message during this delay may cause a
-  /// `wasInterrupted` message to be sent.
+  /// content and the client has finished playing back the generated content.
+  /// ``LiveServerContent/isGenerationComplete`` indicates that the model is done generating data,
+  /// while ``LiveServerContent/isTurnComplete`` indicates the model is waiting for additional
+  /// client messages. Sending a message during this delay may cause a
+  /// ``LiveServerContent/wasInterrupted`` message to be sent.
   ///
-  ///  Note that if the model `wasInterrupted`, this will not be set. The model will go from
-  /// `wasInterrupted` -> `turnComplete`.
+  /// > Important: If the model ``LiveServerContent/wasInterrupted``, this will not be set. The
+  /// > model will go from ``LiveServerContent/wasInterrupted`` ->
+  /// > ``LiveServerContent/isTurnComplete``.
   public var isGenerationComplete: Bool { serverContent.generationComplete ?? false }
 
   /// Metadata specifying the sources used to ground generated content.
@@ -60,7 +62,7 @@ public struct LiveServerContent: Sendable {
   /// The model's interpretation of what the client said in an audio message.
   ///
   /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to
-  /// ``LiveGenerationConfig``.
+  /// the `inputAudioTranscription` field in ``LiveGenerationConfig``.
   public var inputAudioTranscription: LiveAudioTranscription? {
     serverContent.inputTranscription.map { LiveAudioTranscription($0) }
   }
@@ -68,7 +70,7 @@ public struct LiveServerContent: Sendable {
   /// Transcription matching the model's audio response.
   ///
   /// This field is only populated when an ``AudioTranscriptionConfig`` is provided to
-  /// ``LiveGenerationConfig``.
+  /// the  `outputAudioTranscription` field in ``LiveGenerationConfig``.
   ///
   /// > Important: Transcripts are independent to the model turn. This means transcripts may
   /// > come earlier or later than when the model sends the corresponding audio responses.

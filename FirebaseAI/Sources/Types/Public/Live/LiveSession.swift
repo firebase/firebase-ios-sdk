@@ -16,9 +16,10 @@ import Foundation
 
 /// A live WebSocket session, capable of streaming content to and from the model.
 ///
-/// Messages are streamed through ``responses``, and can be sent through either the dedicated
-/// realtime API function (such as ``sendAudioRealtime(audio:)`` or ``sendTextRealtime(text:)``), or
-/// through the incremental API (such as ``sendContent(_:turnComplete:)``).
+/// Messages are streamed through ``LiveSession/responses``, and can be sent through either the
+/// dedicated realtime API function (such as ``LiveSession/sendAudioRealtime(_:)`` and
+/// ``LiveSession/sendTextRealtime(_:)``), or through the incremental API (such as
+/// ``LiveSession/sendContent(_:turnComplete:)-6x3ae``).
 ///
 /// To create an instance of this class, see ``LiveGenerativeModel``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -26,7 +27,7 @@ import Foundation
 public final class LiveSession: Sendable {
   private let service: LiveSessionService
 
-  /// An asyncronous stream of messages from the server.
+  /// An asynchronous stream of messages from the server.
   ///
   /// These messages from the incremental updates from the model, for the current conversation.
   public var responses: AsyncThrowingStream<LiveServerMessage, Error> { service.responses }
@@ -41,7 +42,7 @@ public final class LiveSession: Sendable {
   ///
   /// - Parameters:
   ///   - responses: Client generated function results, matched to their respective
-  ///     ``FunctionCallPart`` by the `functionId` field.
+  ///     ``FunctionCallPart`` by the ``FunctionCallPart/functionId`` field.
   public func sendFunctionResponses(_ responses: [FunctionResponsePart]) async {
     let message = BidiGenerateContentToolResponse(
       functionResponses: responses.map { $0.functionResponse }
