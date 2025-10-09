@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public struct AliasedExpression: Selectable, SelectableWrapper, Sendable {
+/// An `AggregateFunction` that has been given an alias.
+public struct AliasedAggregate {
+  let aggregate: AggregateFunction
+  
   let alias: String
-
-  let expr: Expression
-
-  init(_ expr: Expression, _ alias: String) {
-    self.alias = alias
-    self.expr = expr
-  }
 }

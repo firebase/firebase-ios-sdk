@@ -20,32 +20,41 @@
 #include <memory>
 #include <vector>
 
-#include "Firestore/core/src/api/pipeline_snapshot.h"
+#include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/stages.h"
-#include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/core/core_fwd.h"
 
 namespace firebase {
 namespace firestore {
+namespace remote {
+class Serializer;
+}  // namespace remote
+
 namespace api {
 
 class RealtimePipeline {
  public:
   RealtimePipeline(std::vector<std::shared_ptr<EvaluableStage>> stages,
-                   remote::Serializer serializer);
+                   std::unique_ptr<remote::Serializer> serializer);
+
+  RealtimePipeline(const RealtimePipeline& other);
+  RealtimePipeline& operator=(const RealtimePipeline& other);
 
   RealtimePipeline AddingStage(std::shared_ptr<EvaluableStage> stage);
 
   const std::vector<std::shared_ptr<EvaluableStage>>& stages() const;
   const std::vector<std::shared_ptr<EvaluableStage>>& rewritten_stages() const;
 
-  void SetRewrittenStages(std::vector<std::shared_ptr<EvaluableStage>>);
+  EvaluateContext evaluate_context() const;
 
-  EvaluateContext evaluate_context();
+  std::unique_ptr<api::ListenerRegistration> AddSnapshotListener(
+      core::ListenOptions options,
+      api::RealtimePipelineSnapshotListener&& listener);
 
  private:
   std::vector<std::shared_ptr<EvaluableStage>> stages_;
   std::vector<std::shared_ptr<EvaluableStage>> rewritten_stages_;
-  remote::Serializer serializer_;
+  std::unique_ptr<remote::Serializer> serializer_;
 };
 
 }  // namespace api

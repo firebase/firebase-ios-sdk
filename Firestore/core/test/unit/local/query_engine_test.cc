@@ -20,8 +20,12 @@
 
 #include <functional>
 #include <memory>
+#include <vector>  // For std::vector in ConvertQueryToPipeline
 
+#include "Firestore/core/src/api/realtime_pipeline.h"
+#include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/view.h"
 #include "Firestore/core/src/credentials/user.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
@@ -37,6 +41,10 @@
 #include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/snapshot_version.h"
+#include "Firestore/core/src/remote/serializer.h"
+#include "Firestore/core/src/util/log.h"
+#include "Firestore/core/test/unit/core/pipeline/utils.h"
+#include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
 namespace firebase {
@@ -105,7 +113,7 @@ const SnapshotVersion kMissingLastLimboFreeSnapshot = SnapshotVersion::None();
 }  // namespace
 
 DocumentMap TestLocalDocumentsView::GetDocumentsMatchingQuery(
-    const core::Query& query, const model::IndexOffset& offset) {
+    const core::QueryOrPipeline& query, const model::IndexOffset& offset) {
   bool full_collection_scan = offset.read_time() == SnapshotVersion::None();
 
   EXPECT_TRUE(expect_full_collection_scan_.has_value());
@@ -133,6 +141,8 @@ QueryEngineTestBase::QueryEngineTestBase(
                             document_overlay_cache_,
                             index_manager_),
       target_cache_(persistence_->target_cache()) {
+  // should_use_pipeline_ is initialized by the derived QueryEngineTest
+  // constructor
   remote_document_cache_->SetIndexManager(index_manager_);
   query_engine_.Initialize(&local_documents_view_);
 }
@@ -181,18 +191,40 @@ T QueryEngineTestBase::ExpectFullCollectionScan(
   return fun();
 }
 
+api::RealtimePipeline QueryEngineTestBase::ConvertQueryToPipeline(
+    const core::Query& query) {
+  return {ToPipelineStages(query),
+          std::make_unique<firestore::remote::Serializer>(
+              model::DatabaseId("test-project"))};
+}
+
 DocumentSet QueryEngineTestBase::RunQuery(
     const core::Query& query,
     const SnapshotVersion& last_limbo_free_snapshot_version) {
+  core::QueryOrPipeline query_or_pipeline_to_run =
+      core::QueryOrPipeline(query);  // Default to original query
+
+  if (should_use_pipeline_) {
+    query_or_pipeline_to_run =
+        core::QueryOrPipeline(ConvertQueryToPipeline(query));
+  }
+
   DocumentKeySet remote_keys = target_cache_->GetMatchingKeys(kTestTargetId);
   const auto docs = query_engine_.GetDocumentsMatchingQuery(
-      query, last_limbo_free_snapshot_version, remote_keys);
-  View view(query, DocumentKeySet());
+      query_or_pipeline_to_run, last_limbo_free_snapshot_version, remote_keys);
+
+  // The View is always constructed based on the original query's intent,
+  // regardless of whether it was executed as a query or pipeline.
+  View view(core::QueryOrPipeline{query}, DocumentKeySet());
   ViewDocumentChanges view_doc_changes = view.ComputeDocumentChanges(docs, {});
   return view.ApplyChanges(view_doc_changes).snapshot()->documents();
 }
 
-QueryEngineTest::QueryEngineTest() : QueryEngineTestBase(GetParam()()) {
+QueryEngineTest::QueryEngineTest()
+    : QueryEngineTestBase(GetParam().persistence_factory()) {
+  // Initialize should_use_pipeline_ from the parameter for the specific test
+  // instance
+  should_use_pipeline_ = GetParam().use_pipeline;
 }
 
 TEST_P(QueryEngineTest, UsesTargetMappingForInitialView) {
@@ -493,7 +525,7 @@ TEST_P(QueryEngineTest, DoesNotIncludeDocumentsDeletedByMutation) {
     AddMutation(DeleteMutation(Key("coll/b"), Precondition::None()));
     auto docs = ExpectFullCollectionScan<DocumentMap>([&] {
       return query_engine_.GetDocumentsMatchingQuery(
-          query, kLastLimboFreeSnapshot,
+          core::QueryOrPipeline(query), kLastLimboFreeSnapshot,
           target_cache_->GetMatchingKeys(kTestTargetId));
     });
     DocumentMap result;
@@ -577,11 +609,12 @@ TEST_P(QueryEngineTest, CanPerformOrQueriesUsingFullCollectionScan2) {
         [&] { return RunQuery(query6, kMissingLastLimboFreeSnapshot); });
     EXPECT_EQ(result6, DocSet(query6.Comparator(), {doc1, doc2}));
 
-    // Test with limits (implicit order by DESC): (a==1) || (b > 0)
+    // Test with limits (order by b ASC): (a==1) || (b > 0)
     // LIMIT_TO_LAST 2
     core::Query query7 = Query("coll")
                              .AddingFilter(OrFilters(
                                  {Filter("a", "==", 1), Filter("b", ">", 0)}))
+                             .AddingOrderBy(OrderBy("b", "asc"))
                              .WithLimitToLast(2);
     DocumentSet result7 = ExpectFullCollectionScan<DocumentSet>(
         [&] { return RunQuery(query7, kMissingLastLimboFreeSnapshot); });

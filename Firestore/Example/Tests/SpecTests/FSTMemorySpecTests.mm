@@ -57,4 +57,18 @@ using firebase::firestore::local::Persistence;
 
 @end
 
+/**
+ * An implementation of FSTMemorySpecTests that runs tests in pipeline mode.
+ */
+@interface FSTMemoryPipelineSpecTests : FSTMemorySpecTests
+@end
+
+@implementation FSTMemoryPipelineSpecTests
+
+- (BOOL)usePipelineMode {
+  return YES;
+}
+
+@end
+
 NS_ASSUME_NONNULL_END

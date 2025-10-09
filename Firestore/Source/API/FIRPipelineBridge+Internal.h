@@ -21,6 +21,7 @@
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/firestore.h"
 #include "Firestore/core/src/api/pipeline.h"
+#include "Firestore/core/src/api/pipeline_result_change.h"
 #include "Firestore/core/src/api/stages.h"
 
 @class FIRFilter;
@@ -47,6 +48,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface FIRCollectionSourceStageBridge (Internal)
+- (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::CollectionSource>)stage;
+@end
+
+@interface FIRDatabaseSourceStageBridge (Internal)
+- (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::DatabaseSource>)stage;
+@end
+
+@interface FIRCollectionGroupSourceStageBridge (Internal)
+- (id)initWithCppStage:
+    (std::shared_ptr<const firebase::firestore::api::CollectionGroupSource>)stage;
+@end
+
+@interface FIRDocumentsSourceStageBridge (Internal)
+- (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::DocumentsSource>)stage;
+@end
+
+@interface FIRWhereStageBridge (Internal)
+- (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::Where>)stage;
+@end
+
+@interface FIRLimitStageBridge (Internal)
+- (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::LimitStage>)stage;
+@end
+
+@interface FIROffsetStageBridge (Internal)
+- (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::OffsetStage>)stage;
+@end
+
+@interface FIRSorStageBridge (Internal)
+- (id)initWithCppStage:(std::shared_ptr<const firebase::firestore::api::SortStage>)stage;
+@end
+
 @interface __FIRPipelineSnapshotBridge (Internal)
 
 - (id)initWithCppSnapshot:(api::PipelineSnapshot)snapshot;
@@ -56,6 +90,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface __FIRPipelineResultBridge (Internal)
 
 - (id)initWithCppResult:(api::PipelineResult)result db:(std::shared_ptr<api::Firestore>)db;
+
+@end
+
+@interface __FIRPipelineResultChangeBridge (Internal)
+
+- (id)initWithCppChange:(api::PipelineResultChange)change db:(std::shared_ptr<api::Firestore>)db;
 
 @end
 

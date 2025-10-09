@@ -36,10 +36,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     let query: Query = db.collection("foo").limit(to: 2)
     let _: Pipeline = pipelineSource.create(from: query)
 
-    let aggregateQuery = db.collection("foo").count
-    let _: Pipeline = pipelineSource.create(from: aggregateQuery)
-
-    let _: PipelineSnapshot = try await pipeline.execute()
+    let _: Pipeline.Snapshot = try await pipeline.execute()
   }
 
   func testWhereStage() async throws {
@@ -154,7 +151,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     _ = db.pipeline().collection("books")
       .distinct(
         [
-          Field("author").uppercased().as("authorName"),
+          Field("author").toUpper().as("authorName"),
           Field("genre"),
         ]
       )
@@ -314,7 +311,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     // reserved field values of __name__.
     _ = db.pipeline().collection("books")
       .addFields([
-        DocumentId(),
+        Field(FieldPath.documentID()),
       ])
   }
 
@@ -406,12 +403,12 @@ final class PipelineApiTests: FSTIntegrationTestCase {
 
   func testGeneric() async throws {
     // This is the same of the logicalMin('price', 0)', if it did not exist
-    _ = FunctionExpression("logicalMin", [Field("price"), Constant(0)])
+    _ = FunctionExpression(functionName: "logicalMin", args: [Field("price"), Constant(0)])
 
     // Create a generic BooleanExpr for use where BooleanExpr is required
-    _ = BooleanExpression("eq", [Field("price"), Constant(10)])
+    _ = BooleanExpression(functionName: "eq", args: [Field("price"), Constant(10)])
 
     // Create a generic AggregateFunction for use where AggregateFunction is required
-    _ = AggregateFunction("sum", [Field("price")])
+    _ = AggregateFunction(functionName: "sum", args: [Field("price")])
   }
 }

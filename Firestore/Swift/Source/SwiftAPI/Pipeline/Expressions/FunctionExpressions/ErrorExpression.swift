@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class ArrayExpression: FunctionExpression, @unchecked Sendable {
-  var result: [Expression] = []
-  public init(_ elements: [Sendable]) {
-    for element in elements {
-      result.append(Helper.sendableToExpr(element))
-    }
+import Foundation
 
-    super.init("array", result)
+/// An expression that produces an error with a custom error message.
+/// This is primarily used for debugging purposes.
+///
+/// Example:
+/// ```swift
+/// ErrorExpression("This is a custom error message").as("errorResult")
+/// ```
+public class ErrorExpression: FunctionExpression, @unchecked Sendable {
+  public init(_ errorMessage: String) {
+    super.init(functionName: "error", args: [Constant(errorMessage)])
   }
 }

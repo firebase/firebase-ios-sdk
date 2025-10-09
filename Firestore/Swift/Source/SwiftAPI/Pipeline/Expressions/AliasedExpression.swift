@@ -12,19 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable {
-  let bridge: ExprBridge
+/// An `Expression` that has been given an alias.
+public struct AliasedExpression: Selectable, SelectableWrapper, Sendable {
+  let alias: String
 
-  let functionName: String
-  let agrs: [Expression]
+  let expr: Expression
 
-  public init(_ functionName: String, _ agrs: [Expression]) {
-    self.functionName = functionName
-    self.agrs = agrs
-    bridge = FunctionExprBridge(
-      name: functionName,
-      args: self.agrs.map { $0.toBridge()
-      }
-    )
+  init(_ expr: Expression, _ alias: String) {
+    self.alias = alias
+    self.expr = expr
   }
 }

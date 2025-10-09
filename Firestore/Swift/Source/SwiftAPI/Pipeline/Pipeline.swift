@@ -24,15 +24,10 @@ import Foundation
 ///
 /// A pipeline takes data sources, such as Firestore collections or collection groups, and applies
 /// a series of stages that are chained together. Each stage takes the output from the previous
-/// stage
-/// (or the data source) and produces an output for the next stage (or as the final output of the
+/// stage (or the data source) and produces an output for the next stage (or as the final output of the
 /// pipeline).
 ///
 /// Expressions can be used within each stage to filter and transform data through the stage.
-///
-/// NOTE: The chained stages do not prescribe exactly how Firestore will execute the pipeline.
-/// Instead, Firestore only guarantees that the result is the same as if the chained stages were
-/// executed in order.
 ///
 /// ## Usage Examples
 ///
@@ -88,32 +83,49 @@ public struct Pipeline: @unchecked Sendable {
     bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
-  /// Executes the defined pipeline and returns a `PipelineSnapshot` containing the results.
+  /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
+  public struct Snapshot: Sendable {
+    /// An array of all the results in the `Pipeline.Snapshot`.
+    public let results: [PipelineResult]
+
+    /// The time at which the pipeline producing this result was executed.
+    public let executionTime: Timestamp
+
+    let bridge: __PipelineSnapshotBridge
+
+    init(_ bridge: __PipelineSnapshotBridge) {
+      self.bridge = bridge
+      executionTime = self.bridge.execution_time
+      results = self.bridge.results.map { PipelineResult($0) }
+    }
+  }
+
+  /// Executes the defined pipeline and returns a `Pipeline.Snapshot` containing the results.
   ///
   /// This method asynchronously sends the pipeline definition to Firestore for execution.
   /// The resulting documents, transformed and filtered by the pipeline stages, are returned
-  /// within a `PipelineSnapshot`.
+  /// within a `Pipeline.Snapshot`.
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume a pipeline is already configured.
   /// do {
   ///   let snapshot = try await pipeline.execute()
-  ///   // Process snapshot.documents
-  ///   print("Pipeline executed successfully: \(snapshot.documents)")
+  ///   // Process snapshot.results
+  ///   print("Pipeline executed successfully: \(snapshot.results)")
   /// } catch {
   ///   print("Pipeline execution failed: \(error)")
   /// }
   /// ```
   ///
   /// - Throws: An error if the pipeline execution fails on the backend.
-  /// - Returns: A `PipelineSnapshot` containing the result of the pipeline execution.
-  public func execute() async throws -> PipelineSnapshot {
+  /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
+  public func execute() async throws -> Pipeline.Snapshot {
     return try await withCheckedThrowingContinuation { continuation in
       self.bridge.execute { result, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
-          continuation.resume(returning: PipelineSnapshot(result!, pipeline: self))
+          continuation.resume(returning: Pipeline.Snapshot(result!))
         }
       }
     }
@@ -183,7 +195,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - `String`: Name of an existing field (implicitly converted to `Field`).
   /// - `Field`: References an existing field.
   /// - `FunctionExpression`: Represents the result of a function with an assigned alias
-  ///   (e.g., `Field("address").uppercased().as("upperAddress")`).
+  ///   (e.g., `Field("address").toUpper().as("upperAddress")`).
   ///
   /// If no selections are provided, the output of this stage is typically empty.
   /// Use `addFields` if only additions are desired without replacing the existing document
@@ -194,7 +206,7 @@ public struct Pipeline: @unchecked Sendable {
   /// let projectedPipeline = pipeline.select([
   ///   Field("firstName"),
   ///   Field("lastName"),
-  ///   Field("address").uppercased().as("upperAddress")
+  ///   Field("address").toUpper().as("upperAddress")
   /// ])
   /// // let results = try await projectedPipeline.execute()
   /// ```
@@ -289,7 +301,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Limit results to the top 10 highest-rated books.
   /// let topTenPipeline = pipeline
-  ///                      .sort(Descending(Field("rating")))
+  ///                      .sort([Field("rating").descending()])
   ///                      .limit(10)
   /// // let results = try await topTenPipeline.execute()
   /// ```
@@ -308,7 +320,7 @@ public struct Pipeline: @unchecked Sendable {
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Get a list of unique author and genre combinations.
-  /// let distinctAuthorsGenresPipeline = pipeline.distinct("author", "genre")
+  /// let distinctAuthorsGenresPipeline = pipeline.distinct(["author", "genre"])
   /// // To further select only the author:
   /// //   .select("author")
   /// // let results = try await distinctAuthorsGenresPipeline.execute()
@@ -335,7 +347,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Get unique uppercase author names and genre combinations.
   /// let distinctPipeline = pipeline.distinct(
-  ///   Field("author").uppercased().as("authorName"),
+  ///   Field("author").toUpper().as("authorName"),
   ///   Field("genre")
   /// )
   /// // To select only the transformed author name:
@@ -363,11 +375,11 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume pipeline from "books" collection.
   /// // Calculate the average rating for each genre.
   /// let groupedAggregationPipeline = pipeline.aggregate(
-  ///   [AggregateWithas(aggregate: average(Field("rating")), alias: "avg_rating")],
+  ///   [Field("rating").average().as("avg_rating")],
   ///   groups: [Field("genre")] // Group by the "genre" field.
   /// )
   /// // let results = try await groupedAggregationPipeline.execute()
-  /// // results.documents might be:
+  /// // snapshot.results might be:
   /// // [
   /// //   ["genre": "SciFi", "avg_rating": 4.5],
   /// //   ["genre": "Fantasy", "avg_rating": 4.2]
@@ -453,7 +465,7 @@ public struct Pipeline: @unchecked Sendable {
   /// Fully overwrites document fields with those from a nested map identified by an `Expr`.
   ///
   /// "Promotes" a map value (dictionary) from a field to become the new root document.
-  /// Each key-value pair from the map specified by `expr` becomes a field-value pair
+  /// Each key-value pair from the map specified by `expression` becomes a field-value pair
   /// in the output document, discarding original document fields.
   ///
   /// ```swift
@@ -468,10 +480,10 @@ public struct Pipeline: @unchecked Sendable {
   /// // Output document would be: { "name": "Alex", "age": 30 }
   /// ```
   ///
-  /// - Parameter expr: The `Expr` (typically a `Field`) that resolves to the nested map.
+  /// - Parameter expression: The `Expr` (typically a `Field`) that resolves to the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func replace(with expr: Expression) -> Pipeline {
-    return Pipeline(stages: stages + [ReplaceWith(expr: expr)], db: db)
+  public func replace(with expression: Expression) -> Pipeline {
+    return Pipeline(stages: stages + [ReplaceWith(expr: expression)], db: db)
   }
 
   /// Fully overwrites document fields with those from a nested map identified by a field name.
@@ -550,7 +562,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // Field("topic").as("category")])
   ///
   /// // Emit documents from both "books" and "magazines" collections.
-  /// let combinedPipeline = booksPipeline.union(with: [magazinesPipeline])
+  /// let combinedPipeline = booksPipeline.union(with: magazinesPipeline)
   /// // let results = try await combinedPipeline.execute()
   /// ```
   ///
@@ -609,7 +621,7 @@ public struct Pipeline: @unchecked Sendable {
   /// the caller must ensure correct name, order, and types.
   ///
   /// Parameters in `params` and `options` are typically primitive types, `Field`,
-  /// `Function`, `Expr`, or arrays/dictionaries thereof.
+  /// `Function`, `Expression`, or arrays/dictionaries thereof.
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ...

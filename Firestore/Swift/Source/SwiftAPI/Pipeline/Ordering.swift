@@ -14,29 +14,36 @@
  * limitations under the License.
  */
 
+/// An ordering for the documents in a pipeline.
 public struct Ordering: @unchecked Sendable {
-  let expr: Expression
-  let direction: Direction
+  /// The expression to order by.
+  public let expression: Expression
+  /// The direction to order in.
+  public let direction: Direction
+  
   let bridge: OrderingBridge
 
-  init(expr: Expression, direction: Direction) {
-    self.expr = expr
+  init(expression: Expression, direction: Direction) {
+    self.expression = expression
     self.direction = direction
-    bridge = OrderingBridge(expr: expr.toBridge(), direction: direction.rawValue)
+    bridge = OrderingBridge(expr: expression.toBridge(), direction: direction.rawValue)
   }
 }
 
-struct Direction: Sendable, Equatable, Hashable {
+/// A direction to order results in.
+public struct Direction: Sendable, Equatable, Hashable {
   let kind: Kind
-  let rawValue: String
+  public let rawValue: String
 
   enum Kind: String {
     case ascending
     case descending
   }
 
+  /// The ascending direction.
   static let ascending = Direction(kind: .ascending, rawValue: "ascending")
 
+  /// The descending direction.
   static let descending = Direction(kind: .descending, rawValue: "descending")
 
   init(kind: Kind, rawValue: String) {

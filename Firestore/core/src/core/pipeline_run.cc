@@ -22,6 +22,7 @@
 #include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,10 +31,6 @@ namespace core {
 model::PipelineInputOutputVector RunPipeline(
     api::RealtimePipeline& pipeline,
     const std::vector<model::MutableDocument>& inputs) {
-  if (pipeline.rewritten_stages().empty()) {
-    pipeline.SetRewrittenStages(RewriteStages(pipeline.stages()));
-  }
-
   auto current = std::vector<model::MutableDocument>(inputs);
   for (const auto& stage : pipeline.rewritten_stages()) {
     current = stage->Evaluate(pipeline.evaluate_context(), current);

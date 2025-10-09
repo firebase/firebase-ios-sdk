@@ -12,29 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extension AggregateFunction {
-  func toBridge() -> AggregateFunctionBridge {
-    return (self as AggregateBridgeWrapper).bridge
-  }
-}
-
-public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
-  let bridge: AggregateFunctionBridge
+/// Represents a function call in a pipeline.
+///
+/// A `FunctionExpression` is an expression that represents a function call with a given name and arguments.
+///
+/// `FunctionExpression`s are typically used to perform operations on data in a pipeline, such as mathematical calculations, string manipulations, or array operations.
+public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable {
+  let bridge: ExprBridge
 
   let functionName: String
   let args: [Expression]
 
-  public init(_ functionName: String, _ args: [Expression]) {
+  /// Creates a new `FunctionExpression`.
+  ///
+  /// - Parameters:
+  ///   - functionName: The name of the function.
+  ///   - args: The arguments to the function.
+  public init(functionName: String, args: [Expression]) {
     self.functionName = functionName
     self.args = args
-    bridge = AggregateFunctionBridge(
+    bridge = FunctionExprBridge(
       name: functionName,
       args: self.args.map { $0.toBridge()
       }
     )
-  }
-
-  public func `as`(_ name: String) -> AliasedAggregate {
-    return AliasedAggregate(aggregate: self, alias: name)
   }
 }

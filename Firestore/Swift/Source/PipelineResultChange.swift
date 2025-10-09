@@ -20,22 +20,32 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct PipelineSnapshot: Sendable {
-  /// The Pipeline on which `execute()` was called to obtain this `PipelineSnapshot`.
-  public let pipeline: Pipeline
+struct PipelineResultChange: Sendable {
+  public enum ChangeType {
+    case added, modified, removed
+  }
 
-  /// An array of all the results in the `PipelineSnapshot`.
-  public let results: [PipelineResult]
+  let bridge: __PipelineResultChangeBridge
+  public let result: PipelineResult
 
-  /// The time at which the pipeline producing this result was executed.
-  public let executionTime: Timestamp
+  public let oldIndex: UInt?
+  public let newIndex: UInt?
 
-  let bridge: __PipelineSnapshotBridge
-
-  init(_ bridge: __PipelineSnapshotBridge, pipeline: Pipeline) {
+  init(_ bridge: __PipelineResultChangeBridge) {
     self.bridge = bridge
-    self.pipeline = pipeline
-    executionTime = self.bridge.execution_time
-    results = self.bridge.results.map { PipelineResult($0) }
+    result = PipelineResult(self.bridge.result)
+    oldIndex = self.bridge.oldIndex == NSNotFound ? nil : self.bridge.oldIndex
+    newIndex = self.bridge.newIndex == NSNotFound ? nil : self.bridge.newIndex
+  }
+
+  public var type: ChangeType {
+    switch bridge.type {
+    case .added:
+      return .added
+    case .modified:
+      return .modified
+    case .removed:
+      return .removed
+    }
   }
 }

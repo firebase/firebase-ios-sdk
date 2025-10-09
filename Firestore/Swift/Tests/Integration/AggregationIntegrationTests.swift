@@ -31,6 +31,7 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
     try await collection.addDocument(data: ["author": "authorA",
                                             "title": "titleA",
                                             "pages": 100,
+
                                             "height": 24.5,
                                             "weight": 24.1,
                                             "foo": 1,
@@ -89,7 +90,9 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
       XCTFail("Error expected.")
     } catch let error as NSError {
       XCTAssertNotNil(error)
-      XCTAssertTrue(error.localizedDescription.contains("maximum number of aggregations"))
+      if !AggregationIntegrationTests.isRunningAgainstEmulator() {
+        XCTAssertTrue(error.localizedDescription.contains("maximum number of aggregations"))
+      }
     }
   }
 

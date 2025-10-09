@@ -109,7 +109,7 @@ class MockWatchStream : public WatchStream {
   }
 
   void WatchQuery(const TargetData& query) override {
-    LOG_DEBUG("WatchQuery: %s: %s, %s", query.target_id(), query.target().ToString(),
+    LOG_DEBUG("WatchQuery: %s: %s, %s", query.target_id(), query.target_or_pipeline().ToString(),
               query.resume_token().ToString());
 
     // Snapshot version is ignored on the wire

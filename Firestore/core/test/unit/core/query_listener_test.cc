@@ -65,7 +65,7 @@ using testutil::MarkCurrent;
 namespace {
 
 ViewSnapshot ExcludingMetadataChanges(const ViewSnapshot& snapshot) {
-  return ViewSnapshot{snapshot.query(),
+  return ViewSnapshot{snapshot.query_or_pipeline(),
                       snapshot.documents(),
                       snapshot.old_documents(),
                       snapshot.document_changes(),
@@ -100,7 +100,7 @@ TEST_F(QueryListenerTest, RaisesCollectionEvents) {
   std::vector<ViewSnapshot> accum;
   std::vector<ViewSnapshot> other_accum;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   MutableDocument doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
   MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
   MutableDocument doc2prime =
@@ -129,9 +129,9 @@ TEST_F(QueryListenerTest, RaisesCollectionEvents) {
   ASSERT_THAT(accum[1].document_changes(), ElementsAre(change3));
 
   ViewSnapshot expected_snap2{
-      snap2.query(),
+      snap2.query_or_pipeline(),
       snap2.documents(),
-      /*old_documents=*/DocumentSet{snap2.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap2.query_or_pipeline().Comparator()},
       /*document_changes=*/{change1, change4},
       snap2.mutated_keys(),
       snap2.from_cache(),
@@ -146,10 +146,11 @@ TEST_F(QueryListenerTest, RaisesErrorEvent) {
   Query query = testutil::Query("rooms/Eros");
 
   auto listener = QueryListener::Create(
-      query, EventListener<ViewSnapshot>::Create(
-                 [&accum](const StatusOr<ViewSnapshot>& maybe_snapshot) {
-                   accum.push_back(maybe_snapshot.status());
-                 }));
+      QueryOrPipeline(query),
+      EventListener<ViewSnapshot>::Create(
+          [&accum](const StatusOr<ViewSnapshot>& maybe_snapshot) {
+            accum.push_back(maybe_snapshot.status());
+          }));
 
   Status test_error{Error::kErrorUnauthenticated, "Some info"};
   listener->OnError(test_error);
@@ -159,7 +160,7 @@ TEST_F(QueryListenerTest, RaisesErrorEvent) {
 
 TEST_F(QueryListenerTest, RaisesEventForEmptyCollectionAfterSync) {
   std::vector<ViewSnapshot> accum;
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
 
   auto listener = QueryListener::Create(query, include_metadata_changes_,
                                         Accumulating(&accum));
@@ -178,7 +179,7 @@ TEST_F(QueryListenerTest, RaisesEventForEmptyCollectionAfterSync) {
 TEST_F(QueryListenerTest, MutingAsyncListenerPreventsAllSubsequentEvents) {
   std::vector<ViewSnapshot> accum;
 
-  Query query = testutil::Query("rooms/Eros");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms/Eros"));
   MutableDocument doc1 = Doc("rooms/Eros", 3, Map("name", "Eros"));
   MutableDocument doc2 = Doc("rooms/Eros", 4, Map("name", "Eros2"));
 
@@ -213,7 +214,7 @@ TEST_F(QueryListenerTest, DoesNotRaiseEventsForMetadataChangesUnlessSpecified) {
   std::vector<ViewSnapshot> filtered_accum;
   std::vector<ViewSnapshot> full_accum;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   MutableDocument doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
   MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
@@ -246,7 +247,7 @@ TEST_F(QueryListenerTest, RaisesDocumentMetadataEventsOnlyWhenSpecified) {
   std::vector<ViewSnapshot> filtered_accum;
   std::vector<ViewSnapshot> full_accum;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   MutableDocument doc1 =
       Doc("rooms/Eros", 1, Map("name", "Eros")).SetHasLocalMutations();
   MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
@@ -296,7 +297,7 @@ TEST_F(QueryListenerTest,
        RaisesQueryMetadataEventsOnlyWhenHasPendingWritesOnTheQueryChanges) {
   std::vector<ViewSnapshot> full_accum;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   MutableDocument doc1 =
       Doc("rooms/Eros", 1, Map("name", "Eros")).SetHasLocalMutations();
   MutableDocument doc2 =
@@ -323,7 +324,7 @@ TEST_F(QueryListenerTest,
   full_listener->OnViewSnapshot(snap3);
   full_listener->OnViewSnapshot(snap4);  // Metadata change event.
 
-  ViewSnapshot expected_snap4{snap4.query(),
+  ViewSnapshot expected_snap4{snap4.query_or_pipeline(),
                               snap4.documents(),
                               snap3.documents(),
                               /*document_changes=*/{},
@@ -342,7 +343,7 @@ TEST_F(QueryListenerTest,
        TestMetadataOnlyDocChangesAreRemovedWhenIncludeMetadataChangesIsFalse) {
   std::vector<ViewSnapshot> filtered_accum;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   MutableDocument doc1 =
       Doc("rooms/Eros", 1, Map("name", "Eros")).SetHasLocalMutations();
   MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
@@ -362,7 +363,7 @@ TEST_F(QueryListenerTest,
   filtered_listener->OnViewSnapshot(snap1);
   filtered_listener->OnViewSnapshot(snap2);
 
-  ViewSnapshot expected_snap2{snap2.query(),
+  ViewSnapshot expected_snap2{snap2.query_or_pipeline(),
                               snap2.documents(),
                               snap1.documents(),
                               /*document_changes=*/{change3},
@@ -378,7 +379,7 @@ TEST_F(QueryListenerTest,
 TEST_F(QueryListenerTest, WillWaitForSyncIfOnline) {
   std::vector<ViewSnapshot> events;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   MutableDocument doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
   MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
@@ -403,9 +404,9 @@ TEST_F(QueryListenerTest, WillWaitForSyncIfOnline) {
   DocumentViewChange change1{doc1, DocumentViewChange::Type::Added};
   DocumentViewChange change2{doc2, DocumentViewChange::Type::Added};
   ViewSnapshot expected_snap{
-      snap3.query(),
+      snap3.query_or_pipeline(),
       snap3.documents(),
-      /*old_documents=*/DocumentSet{snap3.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap3.query_or_pipeline().Comparator()},
       /*document_changes=*/{change1, change2},
       snap3.mutated_keys(),
       /*from_cache=*/false,
@@ -418,7 +419,7 @@ TEST_F(QueryListenerTest, WillWaitForSyncIfOnline) {
 TEST_F(QueryListenerTest, WillRaiseInitialEventWhenGoingOffline) {
   std::vector<ViewSnapshot> events;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   MutableDocument doc1 = Doc("rooms/Eros", 1, Map("name", "Eros"));
   MutableDocument doc2 = Doc("rooms/Hades", 2, Map("name", "Hades"));
 
@@ -445,7 +446,7 @@ TEST_F(QueryListenerTest, WillRaiseInitialEventWhenGoingOffline) {
   ViewSnapshot expected_snap1{
       query,
       /*documents=*/snap1.documents(),
-      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap1.query_or_pipeline().Comparator()},
       /*document_changes=*/{change1},
       snap1.mutated_keys(),
       /*from_cache=*/true,
@@ -469,7 +470,7 @@ TEST_F(QueryListenerTest,
        WillRaiseInitialEventWhenGoingOfflineAndThereAreNoDocs) {
   std::vector<ViewSnapshot> events;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   auto listener = QueryListener::Create(query, Accumulating(&events));
 
   View view(query, DocumentKeySet{});
@@ -482,7 +483,7 @@ TEST_F(QueryListenerTest,
   ViewSnapshot expected_snap{
       query,
       /*documents=*/snap1.documents(),
-      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap1.query_or_pipeline().Comparator()},
       /*document_changes=*/{},
       snap1.mutated_keys(),
       /*from_cache=*/true,
@@ -496,7 +497,7 @@ TEST_F(QueryListenerTest,
        WillRaiseInitialEventWhenStartingOfflineAndThereAreNoDocs) {
   std::vector<ViewSnapshot> events;
 
-  Query query = testutil::Query("rooms");
+  QueryOrPipeline query = QueryOrPipeline(testutil::Query("rooms"));
   auto listener = QueryListener::Create(query, Accumulating(&events));
 
   View view(query, DocumentKeySet{});
@@ -508,7 +509,7 @@ TEST_F(QueryListenerTest,
   ViewSnapshot expected_snap{
       query,
       /*documents=*/snap1.documents(),
-      /*old_documents=*/DocumentSet{snap1.query().Comparator()},
+      /*old_documents=*/DocumentSet{snap1.query_or_pipeline().Comparator()},
       /*document_changes=*/{},
       snap1.mutated_keys(),
       /*from_cache=*/true,
