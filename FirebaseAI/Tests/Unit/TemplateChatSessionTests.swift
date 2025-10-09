@@ -32,7 +32,7 @@ final class TemplateChatSessionTests: XCTestCase {
   }
 
   func testSendMessage() async throws {
-    let chat = model.startTemplateChat(template: "test-template")
+    let chat = model.startChat(template: "test-template")
     let response = try await chat.sendMessage("Hello", variables: ["name": "test"])
     XCTAssertEqual(chat.history.count, 2)
     XCTAssertEqual(chat.history[0].role, "user")

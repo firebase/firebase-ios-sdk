@@ -25,9 +25,9 @@ public class GenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
   let apiConfig: APIConfig
 
   let template: String
-  let variables: [String: AnyCodable]
+  let variables: [String: TemplateVariable]
 
-  init(template: String, variables: [String: AnyCodable], apiConfig: APIConfig,
+  init(template: String, variables: [String: TemplateVariable], apiConfig: APIConfig,
        options: RequestOptions) {
     let modelURL =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(template)"

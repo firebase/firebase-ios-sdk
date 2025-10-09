@@ -30,11 +30,11 @@ final class TemplateImagenModelTests: XCTestCase {
       firebaseInfo: firebaseInfo,
       urlSession: urlSession
     )
-    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta) 
+    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
     model = TemplateImagenModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
   }
 
-  func testTemplateImagenGenerateImages() async throws {
+  func testGenerateImages() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-image-response",
       withExtension: "json",
@@ -42,7 +42,7 @@ final class TemplateImagenModelTests: XCTestCase {
       isImageRequest: true
     )
 
-    let response = try await model.templateImagenGenerateImages(
+    let response = try await model.generateImages(
       template: "test-template",
       variables: ["prompt": "a cat picture"]
     )
