@@ -110,8 +110,8 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume a pipeline is already configured.
   /// do {
   ///   let snapshot = try await pipeline.execute()
-  ///   // Process snapshot.documents
-  ///   print("Pipeline executed successfully: \(snapshot.documents)")
+  ///   // Process snapshot.results
+  ///   print("Pipeline executed successfully: \(snapshot.results)")
   /// } catch {
   ///   print("Pipeline execution failed: \(error)")
   /// }
@@ -301,7 +301,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Limit results to the top 10 highest-rated books.
   /// let topTenPipeline = pipeline
-  ///                      .sort(Descending(Field("rating")))
+  ///                      .sort([Field("rating").descending()])
   ///                      .limit(10)
   /// // let results = try await topTenPipeline.execute()
   /// ```
@@ -320,7 +320,7 @@ public struct Pipeline: @unchecked Sendable {
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Get a list of unique author and genre combinations.
-  /// let distinctAuthorsGenresPipeline = pipeline.distinct("author", "genre")
+  /// let distinctAuthorsGenresPipeline = pipeline.distinct(["author", "genre"])
   /// // To further select only the author:
   /// //   .select("author")
   /// // let results = try await distinctAuthorsGenresPipeline.execute()
@@ -375,11 +375,11 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume pipeline from "books" collection.
   /// // Calculate the average rating for each genre.
   /// let groupedAggregationPipeline = pipeline.aggregate(
-  ///   [AggregateWithas(aggregate: average(Field("rating")), alias: "avg_rating")],
+  ///   [Field("rating").average().as("avg_rating")],
   ///   groups: [Field("genre")] // Group by the "genre" field.
   /// )
   /// // let results = try await groupedAggregationPipeline.execute()
-  /// // results.documents might be:
+  /// // snapshot.results might be:
   /// // [
   /// //   ["genre": "SciFi", "avg_rating": 4.5],
   /// //   ["genre": "Fantasy", "avg_rating": 4.2]
@@ -562,7 +562,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // Field("topic").as("category")])
   ///
   /// // Emit documents from both "books" and "magazines" collections.
-  /// let combinedPipeline = booksPipeline.union(with: [magazinesPipeline])
+  /// let combinedPipeline = booksPipeline.union(with: magazinesPipeline)
   /// // let results = try await combinedPipeline.execute()
   /// ```
   ///

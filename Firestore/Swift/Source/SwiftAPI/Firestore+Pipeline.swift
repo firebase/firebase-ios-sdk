@@ -34,6 +34,15 @@ import Foundation
   ///   .where(Field("rating").isGreaterThan(4.5))
   ///   .sort([Field("rating").descending()])
   ///   .limit(2)
+  ///
+  /// do {
+  ///   let snapshot = try await pipeline.execute()
+  ///   for doc in snapshot.results {
+  ///     print(doc.data())
+  ///   }
+  /// } catch {
+  ///   print("Error executing pipeline: \(error)")
+  /// }
   /// ```
   ///
   /// - Returns: A `PipelineSource` that can be used to build and execute a pipeline.
