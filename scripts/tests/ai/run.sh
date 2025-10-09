@@ -48,7 +48,7 @@ set -eo pipefail
 xcode=$1
 
 # Look for Xcode installations if a version wasn't provided explicitly
-if [[ ! "$xcode" ]]; then
+if [[ ! "${xcode}" ]]; then
     apps=(/Applications/Xcode*.app)
     names=()
     for p in "${apps[@]}"; do
@@ -62,7 +62,7 @@ if [[ ! "$xcode" ]]; then
             ;;
         1)
             xcode="${names[0]}"
-            echo "Using Xcode version: $xcode"
+            echo "Using Xcode version: ${xcode}"
             ;;
         *)
             echo "Multiple Xcode installs found:"
@@ -79,7 +79,7 @@ if [[ $# -gt 1 ]]; then
   target="$2"
 fi
 
-if [[ ! "$TEST_RUNNER_FIRAAppCheckDebugToken" ]]; then
+if [[ ! "${TEST_RUNNER_FIRAAppCheckDebugToken}" ]]; then
     echo "Missing required environment variable for app check debug token (TEST_RUNNER_FIRAAppCheckDebugToken)"
     exit 1
 fi
@@ -94,8 +94,8 @@ secret_files=(
 # Checks if any of the secret files are absent, throwing an error if so.
 check_for_secret_files () {
     for file in "${secret_files[@]}"; do
-        if [[ ! -f "$file" ]]; then
-            echo "Missing required decrypted secret file: $file"
+        if [[ ! -f "${file}" ]]; then
+            echo "Missing required decrypted secret file: ${file}"
             exit 1
         fi
     done
@@ -103,10 +103,10 @@ check_for_secret_files () {
 
 cleanup () {
     # We only delete the decrypted secret files if we were the ones to decrypt them.
-    if [[ "$delete_secrets" ]]; then
+    if [[ "${delete_secrets}" ]]; then
         echo "Removing secret files"
         for file in "${secret_files[@]}"; do
-            rm -f $file
+            rm -f "${file}"
         done
         echo "Secret files removed"
     fi
@@ -116,7 +116,7 @@ cleanup () {
 trap 'exit_code=$?; cleanup; exit "$exit_code"' ERR
 trap 'cleanup' EXIT
 
-if [[ ! "$secrets_passphrase" ]]; then
+if [[ ! "${secrets_passphrase}" ]]; then
     echo "Environment variable 'secrets_passphrase' wasn't set. Checking if files are already present"
     check_for_secret_files
     echo "Files are present, moving forward"
@@ -125,7 +125,7 @@ else
   scripts/tests/ai/decrypt_secrets.sh
 fi
 
-echo "Selecting Xcode version: $xcode"
-sudo xcode-select -s /Applications/$xcode.app/Contents/Developer
-echo "Running integration tests for target: $target"
-scripts/build.sh FirebaseAIIntegration $target
+echo "Selecting Xcode version: ${xcode}"
+sudo xcode-select -s /Applications/"${xcode}".app/Contents/Developer
+echo "Running integration tests for target: ${target}"
+scripts/build.sh FirebaseAIIntegration "${target}"

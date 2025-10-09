@@ -22,7 +22,7 @@
 # Expects the environment variable "secrets_passphrase" to be set.
 # This should be set to gpg password for encrypting/decrypting the files.
 
-if [[ ! "$secrets_passphrase" ]]; then
+if [[ ! "${secrets_passphrase}" ]]; then
   echo "Missing environment variable (secrets_passphrase) to decrypt the files with."
   exit 1
 fi
@@ -31,8 +31,8 @@ decrypt () {
     local source=$1
     local dest=$2
 
-    scripts/decrypt_gha_secret.sh $1 $2 "$secrets_passphrase"
-    echo "$source => $dest"
+    scripts/decrypt_gha_secret.sh "$1" "$2" "${secrets_passphrase}"
+    echo "${source} => ${dest}"
 }
 
 echo "Decrypting files"
