@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# USAGE: ./decrypt_secrests.sh
+# USAGE: ./decrypt_secrets.sh
 #
 # Decrypts the secret files used for integration tests with the
 # FirebaseAI sample app.
