@@ -24,15 +24,10 @@ import Foundation
 ///
 /// A pipeline takes data sources, such as Firestore collections or collection groups, and applies
 /// a series of stages that are chained together. Each stage takes the output from the previous
-/// stage
-/// (or the data source) and produces an output for the next stage (or as the final output of the
+/// stage (or the data source) and produces an output for the next stage (or as the final output of the
 /// pipeline).
 ///
 /// Expressions can be used within each stage to filter and transform data through the stage.
-///
-/// NOTE: The chained stages do not prescribe exactly how Firestore will execute the pipeline.
-/// Instead, Firestore only guarantees that the result is the same as if the chained stages were
-/// executed in order.
 ///
 /// ## Usage Examples
 ///
@@ -88,6 +83,7 @@ public struct Pipeline: @unchecked Sendable {
     bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
+  /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
   public struct Snapshot: Sendable {
     /// An array of all the results in the `Pipeline.Snapshot`.
     public let results: [PipelineResult]

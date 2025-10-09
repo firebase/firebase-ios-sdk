@@ -38,6 +38,6 @@
 public class CountAll: AggregateFunction, @unchecked Sendable {
   /// Initializes a new `CountAll` aggregation.
   public init() {
-    super.init("count", [])
+    super.init(functionName: "count", args: [])
   }
 }

@@ -12,4 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// A protocol for expressions that have a name.
+///
+/// `Selectable` is adopted by expressions that can be used in pipeline stages where a named output is required, such as `select` and `distinct`.
+///
+/// A `Field` is a `Selectable` where the name is the field path.
+///
+/// An expression can be made `Selectable` by giving it an alias using the `.as()` method.
 public protocol Selectable: Sendable {}

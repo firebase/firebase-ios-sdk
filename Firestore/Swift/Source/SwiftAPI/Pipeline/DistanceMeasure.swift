@@ -20,6 +20,7 @@
 
 import Foundation
 
+/// Represents the distance measure to be used in a vector similarity search.
 public struct DistanceMeasure: Sendable, Equatable, Hashable {
   let kind: Kind
 
@@ -29,10 +30,13 @@ public struct DistanceMeasure: Sendable, Equatable, Hashable {
     case dotProduct = "dot_product"
   }
 
+  /// The Euclidean distance measure.
   public static let euclidean: DistanceMeasure = .init(kind: .euclidean)
 
+  /// The Cosine distance measure.
   public static let cosine: DistanceMeasure = .init(kind: .cosine)
 
+  /// The Dot Product distance measure.
   public static let dotProduct: DistanceMeasure = .init(kind: .dotProduct)
 
   init(kind: Kind) {

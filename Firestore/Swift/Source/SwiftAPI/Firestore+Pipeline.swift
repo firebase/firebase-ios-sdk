@@ -22,6 +22,21 @@
 import Foundation
 
 @objc public extension Firestore {
+  /// Creates a `PipelineSource` that can be used to build and execute a pipeline of operations on the Firestore database.
+  ///
+  /// A pipeline is a sequence of stages that are executed in order. Each stage can perform an operation on the data, such as filtering, sorting, or transforming it.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// let db = Firestore.firestore()
+  /// let pipeline = db.pipeline()
+  ///   .collection("books")
+  ///   .where(Field("rating").isGreaterThan(4.5))
+  ///   .sort([Field("rating").descending()])
+  ///   .limit(2)
+  /// ```
+  ///
+  /// - Returns: A `PipelineSource` that can be used to build and execute a pipeline.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @nonobjc func pipeline() -> PipelineSource {
     return PipelineSource(db: self) { stages, db in
@@ -29,6 +44,11 @@ import Foundation
     }
   }
 
+  /// Creates a `RealtimePipelineSource` for building and executing a realtime pipeline.
+  ///
+  /// This is an internal method and should not be used directly.
+  ///
+  /// - Returns: A `RealtimePipelineSource` for building a realtime pipeline.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @nonobjc internal func realtimePipeline() -> RealtimePipelineSource {
     return RealtimePipelineSource(db: self) { stages, db in

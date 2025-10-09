@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+/// An ordering for the documents in a pipeline.
 public struct Ordering: @unchecked Sendable {
+  /// The expression to order by.
   public let expression: Expression
+  /// The direction to order in.
   public let direction: Direction
+  
   let bridge: OrderingBridge
 
   init(expression: Expression, direction: Direction) {
@@ -26,6 +30,7 @@ public struct Ordering: @unchecked Sendable {
   }
 }
 
+/// A direction to order results in.
 public struct Direction: Sendable, Equatable, Hashable {
   let kind: Kind
   public let rawValue: String
@@ -35,8 +40,10 @@ public struct Direction: Sendable, Equatable, Hashable {
     case descending
   }
 
+  /// The ascending direction.
   static let ascending = Direction(kind: .ascending, rawValue: "ascending")
 
+  /// The descending direction.
   static let descending = Direction(kind: .descending, rawValue: "descending")
 
   init(kind: Kind, rawValue: String) {

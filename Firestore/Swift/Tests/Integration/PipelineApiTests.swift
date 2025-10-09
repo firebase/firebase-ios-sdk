@@ -409,6 +409,6 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     _ = BooleanExpression(functionName: "eq", args: [Field("price"), Constant(10)])
 
     // Create a generic AggregateFunction for use where AggregateFunction is required
-    _ = AggregateFunction("sum", [Field("price")])
+    _ = AggregateFunction(functionName: "sum", args: [Field("price")])
   }
 }
