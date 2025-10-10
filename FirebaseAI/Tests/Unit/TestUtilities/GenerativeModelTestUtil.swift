@@ -31,10 +31,11 @@ enum GenerativeModelTestUtil {
                                  appCheckToken: String? = nil,
                                  authToken: String? = nil,
                                  dataCollection: Bool = true,
-                                 isTemplateRequest: Bool = false) throws -> ((URLRequest) throws -> (
-    URLResponse,
-    AsyncLineSequence<URL.AsyncBytes>?
-  )) {
+                                 isTemplateRequest: Bool = false) throws
+    -> ((URLRequest) throws -> (
+      URLResponse,
+      AsyncLineSequence<URL.AsyncBytes>?
+    )) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
     #if os(watchOS)
@@ -47,7 +48,10 @@ enum GenerativeModelTestUtil {
       return { request in
         let requestURL = try XCTUnwrap(request.url)
         if isTemplateRequest {
-          XCTAssertEqual(requestURL.path.occurrenceCount(of: "templates/test-template.prompt:template"), 1)
+          XCTAssertEqual(
+            requestURL.path.occurrenceCount(of: "templates/test-template.prompt:template"),
+            1
+          )
         } else {
           XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
         }
