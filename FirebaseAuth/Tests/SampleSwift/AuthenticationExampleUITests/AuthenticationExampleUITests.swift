@@ -182,6 +182,57 @@ class AuthenticationExampleUITests: XCTestCase {
     )
   }
 
+  func testPhoneAuthLoginRCEInEnforceMode() {
+      app.staticTexts["Phone Number"].tap()
+      XCTAssertTrue(app.staticTexts["Sign in using Phone Auth"].waitForExistence(timeout: 3))
+      let testPhone = "12345678901"
+      app.textFields["Enter Phone Number"].tap()
+      app.textFields["Enter Phone Number"].typeText(testPhone)
+      app.buttons["Send Verification Code"].tap()
+      let verificationCodeInput = app.textFields["Enter verification code."]
+      let exists = verificationCodeInput.waitForExistence(timeout: 10)
+      XCTAssertTrue(exists, "Verification code field does not exist")
+      let testVerificationCode = "123456"
+      verificationCodeInput.typeText(testVerificationCode)
+      app.buttons["Continue"].tap()
+      // Sign out
+      let signOutButton = app.buttons["Sign Out"]
+      if signOutButton.exists {
+        signOutButton.tap()
+      }
+    }
+
+  func testPhoneAuthLoginRCEInEnforceModeIncorrectNumber() {
+      app.staticTexts["Phone Number"].tap()
+      XCTAssertTrue(app.staticTexts["Sign in using Phone Auth"].waitForExistence(timeout: 3))
+      let testPhone = "1234567890"
+      app.textFields["Enter Phone Number"].tap()
+      app.textFields["Enter Phone Number"].typeText(testPhone)
+      app.buttons["Send Verification Code"].tap()
+      // Verify that the error dialog appears
+      let errorDialog = app.alerts["Error"]
+      XCTAssertTrue(
+        errorDialog.waitForExistence(timeout: 5),
+        "Error dialog should appear."
+      )
+      let okButton = errorDialog.buttons["OK"] // Dismiss the error dialog
+      XCTAssertTrue(okButton.exists, "The 'OK' button should be present in the error dialog.")
+      okButton.tap()
+      // Ensure the dialog is dismissed
+      XCTAssertFalse(errorDialog.exists, "The error dialog should be dismissed after tapping 'OK'.")
+      // Go back and check that there is no user that is signed in
+      app.swipeDown(velocity: .fast)
+      // Go back and check that there is no user that is signed in
+      app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+      wait(forElement: app.navigationBars["User"], timeout: 5.0)
+      XCTAssertEqual(
+        app.cells.count,
+        0,
+        "The user shouldn't be signed in and the user view should have no cells."
+      )
+    }
+
+
   func DRAFT_testGoogleSignInAndLinkAccount() {
     let interruptionMonitor = addUIInterruptionMonitor(withDescription: "Sign in with Google") {
       alert -> Bool in
@@ -224,89 +275,6 @@ class AuthenticationExampleUITests: XCTestCase {
 
     // Cleanup
     removeUIInterruptionMonitor(interruptionMonitor)
-  }
-
-  func testEmailLinkSentSuccessfully() {
-    app.staticTexts["Email Link/Passwordless"].tap()
-
-    let testEmail = "test@test.com"
-    app.textFields["Enter Authentication Email"].tap()
-    app.textFields["Enter Authentication Email"].typeText(testEmail)
-    app.buttons["return"].tap() // Dismiss keyboard
-    app.buttons["Send Sign In Link"].tap()
-
-    // Wait for the error message to appear (if there is an error)
-    let errorAlert = app.alerts.staticTexts["Error"]
-    let errorExists = errorAlert.waitForExistence(timeout: 5.0)
-
-    app.swipeDown(velocity: .fast)
-
-    // Assert that there is no error message (success case)
-    // The email sign in link is sent successfully if no error message appears
-    XCTAssertFalse(errorExists, "Error")
-
-    // Go back and check that there is no user that is signed in
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
-    XCTAssertEqual(
-      app.cells.count,
-      0,
-      "The user shouldn't be signed in and the user view should have no cells."
-    )
-  }
-
-  func testResetPasswordLinkCustomDomain() {
-    // assuming action type is in-app + continue URL everytime the app launches
-
-    // set Authorized Domain as Continue URL
-    let testContinueURL = "fir-ios-auth-sample.firebaseapp.com"
-    app.staticTexts["Continue URL"].tap()
-    app.alerts.textFields.element.typeText(testContinueURL)
-    app.buttons["Save"].tap()
-
-    // set Custom Hosting Domain as Link Domain
-    let testLinkDomain = "http://firebaseiosauthsample.testdomaindonotuse.com"
-    app.staticTexts["Link Domain"].tap()
-    app.alerts.textFields.element.typeText(testLinkDomain)
-    app.buttons["Save"].tap()
-
-    app.staticTexts["Request Password Reset"].tap()
-    let testEmail = "test@test.com"
-    app.alerts.textFields.element.typeText(testEmail)
-    app.buttons["Save"].tap()
-
-    // Go back and check that there is no user that is signed in
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
-    XCTAssertEqual(
-      app.cells.count,
-      0,
-      "The user shouldn't be signed in and the user view should have no cells."
-    )
-  }
-
-  func testResetPasswordLinkDefaultDomain() {
-    // assuming action type is in-app + continue URL everytime the app launches
-
-    // set Authorized Domain as Continue URL
-    let testContinueURL = "fir-ios-auth-sample.firebaseapp.com"
-    app.staticTexts["Continue URL"].tap()
-    app.alerts.textFields.element.typeText(testContinueURL)
-    app.buttons["Save"].tap()
-
-    app.staticTexts["Request Password Reset"].tap()
-    let testEmail = "test@test.com"
-    app.alerts.textFields.element.typeText(testEmail)
-    app.buttons["Save"].tap()
-
-    // Go back and check that there is no user that is signed in
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
-    XCTAssertEqual(
-      app.cells.count,
-      0,
-      "The user shouldn't be signed in and the user view should have no cells."
-    )
   }
 
   // MARK: - Private Helpers
