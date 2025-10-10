@@ -39,13 +39,11 @@ public class GenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
   }
 
   enum CodingKeys: String, CodingKey {
-    case template
-    case variables
+    case variables = "inputs"
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(template, forKey: .template)
     try container.encode(variables, forKey: .variables)
   }
 }
