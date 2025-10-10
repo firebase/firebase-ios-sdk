@@ -20,8 +20,8 @@
 @available(watchOS, unavailable)
 public struct LiveServerToolCallCancellation: Sendable {
   let serverToolCallCancellation: BidiGenerateContentToolCallCancellation
-  /// A list of `functionId`s matching the `functionId` provided in a previous
-  /// ``LiveServerToolCall``, where only the provided `functionId`s should be cancelled.
+  /// A list of function ids matching the ``FunctionCallPart/functionId`` provided in a previous
+  /// ``LiveServerToolCall``, where only the provided ids should be cancelled.
   public var ids: [String]? { serverToolCallCancellation.ids }
 
   init(_ serverToolCallCancellation: BidiGenerateContentToolCallCancellation) {
