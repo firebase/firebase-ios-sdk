@@ -29,6 +29,11 @@ public struct FunctionDeclaration: Sendable {
   /// Describes the parameters to this function; must be of type `DataType.object`.
   let parameters: Schema?
 
+  /// Describes the parameters to the function in JSON Schema format.
+  ///
+  /// This field is mutually exclusive with `parameters`.
+  let parametersJSONSchema: JSONObject?
+
   /// Constructs a new `FunctionDeclaration`.
   ///
   /// - Parameters:
@@ -47,6 +52,14 @@ public struct FunctionDeclaration: Sendable {
       optionalProperties: optionalParameters,
       nullable: false
     )
+    parametersJSONSchema = nil
+  }
+
+  init(name: String, description: String, parametersJSONSchema: JSONObject) {
+    self.name = name
+    self.description = description
+    parameters = nil
+    self.parametersJSONSchema = parametersJSONSchema
   }
 }
 
@@ -215,13 +228,15 @@ extension FunctionDeclaration: Encodable {
     case name
     case description
     case parameters
+    case parametersJSONSchema = "parametersJsonSchema"
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(name, forKey: .name)
     try container.encode(description, forKey: .description)
-    try container.encode(parameters, forKey: .parameters)
+    try container.encodeIfPresent(parameters, forKey: .parameters)
+    try container.encodeIfPresent(parametersJSONSchema, forKey: .parametersJSONSchema)
   }
 }
 
