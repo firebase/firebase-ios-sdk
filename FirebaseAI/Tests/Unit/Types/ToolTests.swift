@@ -89,4 +89,49 @@ final class ToolTests: XCTestCase {
     }
     """)
   }
+
+  func testEncodeTool_functionDeclarations_parametersJSONSchema() throws {
+    let functionDecl = FunctionDeclaration(
+      name: "test_function",
+      description: "A test function.",
+      parametersJSONSchema: [
+        "type": .string("object"),
+        "properties": .object([
+          "param1": .object(["type": .string("string")])
+        ]),
+        "required": .array([.string("param1")]),
+        "propertyOrdering": .array([.string("param1")]),
+        "additionalProperties": .bool(false)
+      ]
+    )
+    let tool = Tool.functionDeclarations([functionDecl])
+    let jsonData = try encoder.encode(tool)
+
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(jsonString, """
+    {
+      "functionDeclarations" : [
+        {
+          "description" : "A test function.",
+          "name" : "test_function",
+          "parametersJsonSchema" : {
+            "additionalProperties" : false,
+            "properties" : {
+              "param1" : {
+                "type" : "string"
+              }
+            },
+            "propertyOrdering" : [
+              "param1"
+            ],
+            "required" : [
+              "param1"
+            ],
+            "type" : "object"
+          }
+        }
+      ]
+    }
+    """)
+  }
 }
