@@ -221,7 +221,7 @@ final class LiveSnippets: XCTestCase {
       topK: 16,
       maxOutputTokens: 200,
       responseModalities: [.audio],
-      speech: SpeechConfig(voiceName: "Fenrir"),
+      speech: SpeechConfig(voiceName: "Fenrir")
     )
 
     // Initialize the Vertex AI Gemini API backend service
