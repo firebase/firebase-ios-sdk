@@ -24,7 +24,7 @@ public struct SpeechConfig: Sendable {
     self.speechConfig = speechConfig
   }
 
-  /// Creates a new `LiveSpeechConfig` value.
+  /// Creates a new ``SpeechConfig`` value.
   ///
   /// - Parameters:
   ///   - voiceName: The name of the prebuilt voice to be used for the model's speech response.

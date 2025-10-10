@@ -63,7 +63,7 @@ public final class FirebaseAI: Sendable {
   /// guidance on choosing an appropriate model for your use case.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the model to use, for example `"gemini-1.5-flash"`; see
+  ///   - modelName: The name of the model to use; see
   ///     [available model names
   ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names) for a
   ///     list of supported model names.
@@ -106,12 +106,11 @@ public final class FirebaseAI: Sendable {
 
   /// Initializes an ``ImagenModel`` with the given parameters.
   ///
-  /// > Important: Only Imagen 3 models (named `imagen-3.0-*`) are supported.
+  /// - Note: Refer to [Imagen models](https://firebase.google.com/docs/vertex-ai/models) for
+  /// guidance on choosing an appropriate model for your use case.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the Imagen 3 model to use, for example `"imagen-3.0-generate-002"`;
-  ///     see [model versions](https://firebase.google.com/docs/vertex-ai/models) for a list of
-  ///     supported Imagen 3 models.
+  ///   - modelName: The name of the Imagen 3 model to use.
   ///   - generationConfig: Configuration options for generating images with Imagen.
   ///   - safetySettings: Settings describing what types of potentially harmful content your model
   ///     should allow.
@@ -138,18 +137,16 @@ public final class FirebaseAI: Sendable {
 
   /// **[Public Preview]** Initializes a ``LiveGenerativeModel`` with the given parameters.
   ///
+  /// - Note: Refer to [the Firebase docs on the Live
+  /// API](https://firebase.google.com/docs/ai-logic/live-api#models-that-support-capability) for
+  /// guidance on choosing an appropriate model for your use case.
+  ///
   /// > Warning: Using the Firebase AI Logic SDKs with the Gemini Live API is in Public
   /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
   /// could change in backwards-incompatible ways.
   ///
-  /// > Important: Only models that support the Gemini Live API (typically containing `live-*` in
-  /// the name) are supported.
-  ///
   /// - Parameters:
-  ///   - modelName: The name of the model to use, for example
-  ///     `"gemini-live-2.5-flash-preview"`;
-  ///     see [model versions](https://firebase.google.com/docs/ai-logic/live-api?api=dev#models-that-support-capability)
-  ///     for a list of supported models.
+  ///   - modelName: The name of the model to use.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
   ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
