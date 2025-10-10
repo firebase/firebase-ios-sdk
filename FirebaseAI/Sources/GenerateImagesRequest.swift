@@ -19,23 +19,31 @@ import Foundation
 public class GenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
   public typealias Response = GenerateImagesResponse
 
-  public let url: URL
+  public var url: URL {
+    var urlString =
+      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
+    if case let .vertexAI(_, location) = apiConfig.service {
+      urlString += "/locations/\(location)"
+    }
+    urlString += "/templates/\(template):\(ImageAPIMethod.generateImages.rawValue)"
+    return URL(string: urlString)!
+  }
+
   public let options: RequestOptions
 
   let apiConfig: APIConfig
 
   let template: String
   let variables: [String: TemplateVariable]
+  let projectID: String
 
-  init(template: String, variables: [String: TemplateVariable], apiConfig: APIConfig,
-       options: RequestOptions) {
-    let modelURL =
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(template)"
-    url = URL(string: "\(modelURL):\(ImageAPIMethod.generateImages.rawValue)")!
+  init(template: String, variables: [String: TemplateVariable], projectID: String,
+       apiConfig: APIConfig, options: RequestOptions) {
     self.apiConfig = apiConfig
     self.options = options
     self.template = template
     self.variables = variables
+    self.projectID = projectID
   }
 
   enum CodingKeys: String, CodingKey {
