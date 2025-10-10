@@ -19,33 +19,20 @@ import Foundation
 public final class TemplateChatSession: Sendable {
   private let model: TemplateGenerativeModel
   private let template: String
-
-  private let historyLock = NSLock()
-  private nonisolated(unsafe) var _history: [ModelContent] = []
-  public var history: [ModelContent] {
-    get {
-      historyLock.withLock { _history }
-    }
-    set {
-      historyLock.withLock { _history = newValue }
-    }
-  }
+  private let _history: History
 
   init(model: TemplateGenerativeModel, template: String, history: [ModelContent]) {
     self.model = model
     self.template = template
-    self.history = history
+    _history = History(history: history)
   }
 
-  private func appendHistory(contentsOf: [ModelContent]) {
-    historyLock.withLock {
-      _history.append(contentsOf: contentsOf)
+  public var history: [ModelContent] {
+    get {
+      return _history.history
     }
-  }
-
-  private func appendHistory(_ newElement: ModelContent) {
-    historyLock.withLock {
-      _history.append(newElement)
+    set {
+      _history.history = newValue
     }
   }
 
@@ -55,15 +42,16 @@ public final class TemplateChatSession: Sendable {
                           options: RequestOptions = RequestOptions()) async throws
     -> GenerateContentResponse {
     let templateVariables = try variables.mapValues { try TemplateVariable(value: $0) }
+    let newContent = populateContentRole(ModelContent(parts: message.partsValue))
     let response = try await model.generateContentWithHistory(
-      history: history,
+      history: _history.history + [newContent],
       template: template,
       variables: templateVariables,
       options: options
     )
-    appendHistory(ModelContent(role: "user", parts: message.partsValue))
+    _history.append(newContent)
     if let modelResponse = response.candidates.first {
-      appendHistory(modelResponse.content)
+      _history.append(modelResponse.content)
     }
     return response
   }
@@ -73,9 +61,9 @@ public final class TemplateChatSession: Sendable {
                                 options: RequestOptions = RequestOptions()) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     let templateVariables = try variables.mapValues { try TemplateVariable(value: $0) }
-    let newContent = [ModelContent(role: "user", parts: message.partsValue)]
+    let newContent = populateContentRole(ModelContent(parts: message.partsValue))
     let stream = try model.generateContentStreamWithHistory(
-      history: history,
+      history: _history.history + [newContent],
       template: template,
       variables: templateVariables,
       options: options
@@ -101,60 +89,21 @@ public final class TemplateChatSession: Sendable {
         }
 
         // Save the request.
-        appendHistory(contentsOf: newContent)
+        _history.append(newContent)
 
         // Aggregate the content to add it to the history before we finish.
-        let aggregated = aggregatedChunks(aggregatedContent)
-        appendHistory(aggregated)
+        let aggregated = _history.aggregatedChunks(aggregatedContent)
+        _history.append(aggregated)
         continuation.finish()
       }
     }
   }
 
-  private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [InternalPart] = []
-    var combinedText = ""
-    var combinedThoughts = ""
-
-    func flush() {
-      if !combinedThoughts.isEmpty {
-        parts.append(InternalPart(.text(combinedThoughts), isThought: true, thoughtSignature: nil))
-        combinedThoughts = ""
-      }
-      if !combinedText.isEmpty {
-        parts.append(InternalPart(.text(combinedText), isThought: nil, thoughtSignature: nil))
-        combinedText = ""
-      }
+  private func populateContentRole(_ content: ModelContent) -> ModelContent {
+    if content.role != nil {
+      return content
+    } else {
+      return ModelContent(role: "user", parts: content.parts)
     }
-
-    // Loop through all the parts, aggregating the text.
-    for part in chunks.flatMap({ $0.internalParts }) {
-      // Only text parts may be combined.
-      if case let .text(text) = part.data, part.thoughtSignature == nil {
-        // Thought summaries must not be combined with regular text.
-        if part.isThought ?? false {
-          // If we were combining regular text, flush it before handling "thoughts".
-          if !combinedText.isEmpty {
-            flush()
-          }
-          combinedThoughts += text
-        } else {
-          // If we were combining "thoughts", flush it before handling regular text.
-          if !combinedThoughts.isEmpty {
-            flush()
-          }
-          combinedText += text
-        }
-      } else {
-        // This is a non-combinable part (not text), flush any pending text.
-        flush()
-        parts.append(part)
-      }
-    }
-
-    // Flush any remaining text.
-    flush()
-
-    return ModelContent(role: "model", parts: parts)
   }
 }
