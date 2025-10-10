@@ -222,7 +222,7 @@ struct LiveSessionTests {
   }
 
   @Test(arguments: InstanceConfig.liveConfigs.filter {
-    // TODO: (b/XXXX) Remove when vertex adds support
+    // TODO: (b/450982184) Remove when vertex adds support
     switch $0.apiConfig.service {
     case .googleAI:
       true
@@ -231,7 +231,7 @@ struct LiveSessionTests {
     }
   })
   func realtime_functionCalling_cancellation(_ config: InstanceConfig) async throws {
-    // TODO: (b/XXXX) Remove when vertex adds support
+    // TODO: (b/450982184) Remove when vertex adds support
     guard case .googleAI = config.apiConfig.service else {
       Issue.record("Vertex does not currently support function ids or function cancellation.")
       return
