@@ -20,6 +20,8 @@ struct TemplateGenerateContentRequest: Sendable {
   let variables: [String: TemplateVariable]
   let history: [ModelContent]
   let projectID: String
+  let stream: Bool
+
   let apiConfig: APIConfig
   let options: RequestOptions
 }
@@ -50,6 +52,10 @@ extension TemplateGenerateContentRequest: GenerativeAIRequest {
     }
     let templateName = template.hasSuffix(".prompt") ? template : "\(template).prompt"
     urlString += "/templates/\(templateName):templateGenerateContent"
+    if stream {
+      // TODO: Fix this.
+      urlString += "?alt=sse"
+    }
     return URL(string: urlString)!
   }
 }
