@@ -30,6 +30,7 @@ static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;
 static NSDate *applicationDidFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
+static NSTimeInterval gAppStartReasonableValidDuration = 30.0;  // 30 seconds, reasonable app start time???
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
 static BOOL isActivePrewarm = NO;
@@ -70,6 +71,9 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
 /** Tracks if the gauge metrics are dispatched. */
 @property(nonatomic) BOOL appStartGaugeMetricDispatched;
+
+/** Tracks if TTI stage has been started for this instance. */
+@property(nonatomic) BOOL ttiStageStarted;
 
 /** Firebase Performance Configuration object */
 @property(nonatomic) FPRConfigurations *configurations;
@@ -135,6 +139,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   if (self != nil) {
     _applicationState = FPRApplicationStateUnknown;
     _appStartGaugeMetricDispatched = NO;
+    _ttiStageStarted = NO;
     _configurations = [FPRConfigurations sharedInstance];
     [self startTrackingNetwork];
   }
@@ -250,7 +255,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToFirstDraw];
   });
 
-  // If ever the app start trace had it life in background stage, do not send the trace.
+  // If ever the app start trace had its life in background stage, do not send the trace.
   if (self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
     self.appStartTrace = nil;
   }
@@ -266,29 +271,46 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   self.foregroundSessionTrace = appTrace;
 
   // Start measuring time to make the app interactive on the App start trace.
-  static BOOL TTIStageStarted = NO;
-  if (!TTIStageStarted) {
+  if (!self.ttiStageStarted) {
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUserInteraction];
-    TTIStageStarted = YES;
+    self.ttiStageStarted = YES;
 
-    // Assumption here is that - the app becomes interactive in the next runloop cycle.
-    // It is possible that the app does more things later, but for now we are not measuring that.
-    dispatch_async(dispatch_get_main_queue(), ^{
-      NSTimeInterval startTimeSinceEpoch = [self.appStartTrace startTimeSinceEpoch];
-      NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
+    // Use dispatch_async with a higher priority queue to reduce interference from network
+    // operations This ensures trace completion isn't delayed by main queue congestion from network
+    // calls
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+      dispatch_async(dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.appStartTrace) {
+          return;
+        }
 
-      // The below check is to account for 2 scenarios.
-      // 1. The app gets started in the background and might come to foreground a lot later.
-      // 2. The app is launched, but immediately backgrounded for some reason and the actual launch
-      // happens a lot later.
-      // Dropping the app start trace in such situations where the launch time is taking more than
-      // 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
-      if ((currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration) &&
-          [self isAppStartEnabled] && ![self isApplicationPreWarmed]) {
-        [self.appStartTrace stop];
-      } else {
-        [self.appStartTrace cancel];
-      }
+        NSTimeInterval startTimeSinceEpoch = [strongSelf.appStartTrace startTimeSinceEpoch];
+        NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
+        NSTimeInterval elapsed = currentTimeSinceEpoch - startTimeSinceEpoch;
+
+        // The below check accounts for multiple scenarios:
+        // 1. App started in background and comes to foreground later
+        // 2. App launched but immediately backgrounded
+        // 3. Network delays during startup inflating metrics
+        BOOL shouldCompleteTrace = (elapsed < gAppStartMaxValidDuration) &&
+                                   [strongSelf isAppStartEnabled] &&
+                                   ![strongSelf isApplicationPreWarmed];
+
+        // Additional safety: cancel if elapsed time is unreasonably long for app start
+        if (shouldCompleteTrace && elapsed < gAppStartReasonableValidDuration) {
+          [strongSelf.appStartTrace stop];
+        } else {
+          [strongSelf.appStartTrace cancel];
+          if (elapsed >= gAppStartReasonableValidDuration) {
+            // Log for debugging network related delays
+            NSLog(
+                @"Firebase Performance: App start trace cancelled due to excessive duration: %.2fs",
+                elapsed);
+          }
+        }
+      });
     });
   }
 }
