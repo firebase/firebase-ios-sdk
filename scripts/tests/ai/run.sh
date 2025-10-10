@@ -42,6 +42,8 @@
 # installs are found, they will be listed, and the script will prompt you to rerun it,
 # while manually specifying the Xcode version to use.
 
+# TODO: (b/450976183) Implement a generic alternative for all SDKs
+
 shopt -s nullglob
 set -eo pipefail
 
