@@ -40,9 +40,11 @@ public final class TemplateImagenModel: Sendable {
                              options: RequestOptions = RequestOptions()) async throws
     -> GenerateImagesResponse {
     let templateVariables = try variables.mapValues { try TemplateVariable(value: $0) }
+    let projectID = generativeAIService.firebaseInfo.projectID
     let request = GenerateImagesRequest(
       template: template,
       variables: templateVariables,
+      projectID: projectID,
       apiConfig: apiConfig,
       options: options
     )
