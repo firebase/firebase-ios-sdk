@@ -50,7 +50,7 @@ set -eo pipefail
 xcode=$1
 
 # Look for Xcode installations if a version wasn't provided explicitly
-if [[ -n "${xcode}" ]]; then
+if [[ ! "${xcode}" ]]; then
     apps=(/Applications/Xcode*.app)
     names=()
     for p in "${apps[@]}"; do
@@ -81,7 +81,7 @@ if [[ $# -gt 1 ]]; then
   target="$2"
 fi
 
-if [[ -n "${TEST_RUNNER_FIRAAppCheckDebugToken}" ]]; then
+if [[ ! "${TEST_RUNNER_FIRAAppCheckDebugToken}" ]]; then
     echo "Missing required environment variable for app check debug token (TEST_RUNNER_FIRAAppCheckDebugToken)"
     exit 1
 fi
@@ -105,7 +105,7 @@ check_for_secret_files () {
 
 cleanup () {
     # We only delete the decrypted secret files if we were the ones to decrypt them.
-    if [[ -n "${delete_secrets}" ]]; then
+    if [[ "${delete_secrets}" ]]; then
         echo "Removing secret files"
         for file in "${secret_files[@]}"; do
             rm -f "${file}"
@@ -118,7 +118,7 @@ cleanup () {
 trap 'exit_code=$?; cleanup; exit "$exit_code"' ERR
 trap 'cleanup' EXIT
 
-if [[ -n "${secrets_passphrase}" ]]; then
+if [[ ! "${secrets_passphrase}" ]]; then
     echo "Environment variable 'secrets_passphrase' wasn't set. Checking if files are already present"
     check_for_secret_files
     echo "Files are present, moving forward"
