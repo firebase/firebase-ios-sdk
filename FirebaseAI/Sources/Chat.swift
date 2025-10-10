@@ -19,35 +19,21 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class Chat: Sendable {
   private let model: GenerativeModel
+  private let _history: History
 
-  /// Initializes a new chat representing a 1:1 conversation between model and user.
   init(model: GenerativeModel, history: [ModelContent]) {
     self.model = model
-    self.history = history
+    _history = History(history: history)
   }
 
-  private let historyLock = NSLock()
-  private nonisolated(unsafe) var _history: [ModelContent] = []
   /// The previous content from the chat that has been successfully sent and received from the
   /// model. This will be provided to the model for each message sent as context for the discussion.
   public var history: [ModelContent] {
     get {
-      historyLock.withLock { _history }
+      return _history.history
     }
     set {
-      historyLock.withLock { _history = newValue }
-    }
-  }
-
-  private func appendHistory(contentsOf: [ModelContent]) {
-    historyLock.withLock {
-      _history.append(contentsOf: contentsOf)
-    }
-  }
-
-  private func appendHistory(_ newElement: ModelContent) {
-    historyLock.withLock {
-      _history.append(newElement)
+      _history.history = newValue
     }
   }
 
@@ -87,8 +73,8 @@ public final class Chat: Sendable {
     let toAdd = ModelContent(role: "model", parts: reply.parts)
 
     // Append the request and successful result to history, then return the value.
-    appendHistory(contentsOf: newContent)
-    appendHistory(toAdd)
+    _history.append(contentsOf: newContent)
+    _history.append(toAdd)
     return result
   }
 
@@ -136,61 +122,14 @@ public final class Chat: Sendable {
         }
 
         // Save the request.
-        appendHistory(contentsOf: newContent)
+        _history.append(contentsOf: newContent)
 
         // Aggregate the content to add it to the history before we finish.
-        let aggregated = self.aggregatedChunks(aggregatedContent)
-        self.appendHistory(aggregated)
+        let aggregated = self._history.aggregatedChunks(aggregatedContent)
+        self._history.append(aggregated)
         continuation.finish()
       }
     }
-  }
-
-  private func aggregatedChunks(_ chunks: [ModelContent]) -> ModelContent {
-    var parts: [InternalPart] = []
-    var combinedText = ""
-    var combinedThoughts = ""
-
-    func flush() {
-      if !combinedThoughts.isEmpty {
-        parts.append(InternalPart(.text(combinedThoughts), isThought: true, thoughtSignature: nil))
-        combinedThoughts = ""
-      }
-      if !combinedText.isEmpty {
-        parts.append(InternalPart(.text(combinedText), isThought: nil, thoughtSignature: nil))
-        combinedText = ""
-      }
-    }
-
-    // Loop through all the parts, aggregating the text.
-    for part in chunks.flatMap({ $0.internalParts }) {
-      // Only text parts may be combined.
-      if case let .text(text) = part.data, part.thoughtSignature == nil {
-        // Thought summaries must not be combined with regular text.
-        if part.isThought ?? false {
-          // If we were combining regular text, flush it before handling "thoughts".
-          if !combinedText.isEmpty {
-            flush()
-          }
-          combinedThoughts += text
-        } else {
-          // If we were combining "thoughts", flush it before handling regular text.
-          if !combinedThoughts.isEmpty {
-            flush()
-          }
-          combinedText += text
-        }
-      } else {
-        // This is a non-combinable part (not text), flush any pending text.
-        flush()
-        parts.append(part)
-      }
-    }
-
-    // Flush any remaining text.
-    flush()
-
-    return ModelContent(role: "model", parts: parts)
   }
 
   /// Populates the `role` field with `user` if it doesn't exist. Required in chat sessions.
