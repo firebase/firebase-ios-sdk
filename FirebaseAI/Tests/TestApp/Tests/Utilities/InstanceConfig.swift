@@ -26,6 +26,13 @@ struct InstanceConfig: Equatable, Encodable {
       version: .v1beta
     )
   )
+  static let vertexAI_v1beta_appCheckLimitedUse = InstanceConfig(
+    useLimitedUseAppCheckTokens: true,
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      version: .v1beta
+    )
+  )
   static let vertexAI_v1beta_global = InstanceConfig(
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
@@ -74,6 +81,14 @@ struct InstanceConfig: Equatable, Encodable {
     // vertexAI_v1beta_staging,
     // googleAI_v1beta_staging,
     // googleAI_v1beta_freeTier_bypassProxy,
+  ]
+
+  static let liveConfigs = [
+    vertexAI_v1beta,
+    vertexAI_v1beta_appCheckLimitedUse,
+    googleAI_v1beta,
+    googleAI_v1beta_appCheckLimitedUse,
+    googleAI_v1beta_freeTier,
   ]
 
   static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(
