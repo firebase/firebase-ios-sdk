@@ -107,40 +107,6 @@ extension ProtoDuration: Decodable {
     }
 
     self.seconds = secs
-    self.nanos = fractionalSecondsToNanoseconds(nanos, digits: nanoseconds.count)
+    self.nanos = nanos
   }
-}
-
-/// Cached powers of 10 for quickly mapping fractional seconds.
-private let pow10: [Int32] = [
-  1, 10, 100, 1000, 10000, 100_000,
-  1_000_000, 10_000_000, 100_000_000, 1_000_000_000,
-]
-
-/// Converts a fractional second representing a nanosecond to a valid nanosecond value.
-///
-/// ```swift
-/// // 0.123456
-/// XCTAssertEqual(
-///   fractionalSecondsToNanoseconds(123456, 6),
-///   123456000
-/// )
-///
-/// // 0.000123456
-/// XCTAssertEqual(
-///   fractionalSecondsToNanoseconds(123456, 9),
-///   123456
-/// )
-///
-/// // 0.123456789
-/// XCTAssertEqual(
-///   fractionalSecondsToNanoseconds(123456789, 9),
-///   123456789
-/// )
-/// ```
-private func fractionalSecondsToNanoseconds(_ value: Int32, digits: Int) -> Int32 {
-  precondition(digits >= 0 && digits <= 9, "A nanosecond value must fit within 0..9 digits")
-  precondition(value >= 0, "A nanosecond value must be positive")
-
-  return Int32(truncatingIfNeeded: value) &* pow10[9 - digits]
 }
