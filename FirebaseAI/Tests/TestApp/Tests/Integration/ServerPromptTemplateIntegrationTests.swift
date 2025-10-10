@@ -42,6 +42,22 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
     }
   }
 
+  func testGenerateImages() async throws {
+    let imagenModel = FirebaseAI.firebaseAI(backend: .googleAI()).templateImagenModel()
+    let imagenPrompt = "A cat picture"
+    do {
+      let response = try await imagenModel.generateImages(
+        template: "describeImages",
+        variables: [
+          "prompt": imagenPrompt,
+        ]
+      )
+      XCTAssertEqual(response.images.count, 1)
+    } catch {
+      XCTFail("An error occurred: \(error)")
+    }
+  }
+
   func testGenerateContentWithMedia() async throws {
     let model = FirebaseAI.firebaseAI(backend: .googleAI()).templateGenerativeModel()
     let image = UIImage(systemName: "photo")!
@@ -65,22 +81,6 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
       }
     } else {
       XCTFail("Could not get image data.")
-    }
-  }
-
-  func testGenerateImages() async throws {
-    let imagenModel = FirebaseAI.firebaseAI(backend: .googleAI()).templateImagenModel()
-    let imagenPrompt = "A cat picture"
-    do {
-      let response = try await imagenModel.generateImages(
-        template: "generate_images",
-        variables: [
-          "prompt": imagenPrompt,
-        ]
-      )
-      XCTAssertEqual(response.images.count, 1)
-    } catch {
-      XCTFail("An error occurred: \(error)")
     }
   }
 
