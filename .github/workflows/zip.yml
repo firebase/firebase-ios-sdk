@@ -124,6 +124,38 @@ jobs:
   #       # name of.
   #       path: zip_output_dir
 
+#   check_framework_firestore_symbols:
+# #    needs: package-head
+# #    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+#     env:
+#       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+#     runs-on: macos-14
+#     steps:
+#       - name: Xcode 16.2
+#         run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+#       - uses: actions/checkout@v4
+#       - name: Get framework dir
+#         uses: actions/download-artifact@v4.1.7
+#         with:
+#           name: Firebase-actions-dir
+#           run-id: 17965877651 # ${{ github.event.inputs.zip_run_id || github.run_id }}
+#           github-token: ${{ secrets.GITHUB_TOKEN }}
+#       - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+#       - name: Setup Bundler
+#         run: ./scripts/setup_bundler.sh
+#       - name: Install xcpretty
+#         run: gem install xcpretty
+#       - name: Move frameworks
+#         run: |
+#           mkdir -p "${HOME}"/ios_frameworks/
+#           find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+#       - uses: actions/checkout@v4
+#       - name: Check linked Firestore.xcframework for unlinked symbols.
+#         run: |
+#           scripts/check_firestore_symbols.sh \
+#             $(pwd) \
+#             "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/FirebaseFirestoreInternal.xcframework
+
 #   quickstart_framework_abtesting:
 # #    needs: package-head
 # #    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
@@ -443,38 +475,6 @@ jobs:
     #   with:
     #     name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
     #     path: quickstart_artifacts_firestore.zip
-
-#   check_framework_firestore_symbols:
-# #    needs: package-head
-# #    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
-#     env:
-#       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-#     runs-on: macos-14
-#     steps:
-#       - name: Xcode 16.2
-#         run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-#       - uses: actions/checkout@v4
-#       - name: Get framework dir
-#         uses: actions/download-artifact@v4.1.7
-#         with:
-#           name: Firebase-actions-dir
-#           run-id: 17965877651 # ${{ github.event.inputs.zip_run_id || github.run_id }}
-#           github-token: ${{ secrets.GITHUB_TOKEN }}
-#       - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-#       - name: Setup Bundler
-#         run: ./scripts/setup_bundler.sh
-#       - name: Install xcpretty
-#         run: gem install xcpretty
-#       - name: Move frameworks
-#         run: |
-#           mkdir -p "${HOME}"/ios_frameworks/
-#           find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-#       - uses: actions/checkout@v4
-#       - name: Check linked Firestore.xcframework for unlinked symbols.
-#         run: |
-#           scripts/check_firestore_symbols.sh \
-#             $(pwd) \
-#             "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/FirebaseFirestoreInternal.xcframework
 
   quickstart_framework_inappmessaging:
 #    needs: package-head
