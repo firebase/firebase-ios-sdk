@@ -97,11 +97,11 @@ final class ToolTests: XCTestCase {
       parametersJSONSchema: [
         "type": .string("object"),
         "properties": .object([
-          "param1": .object(["type": .string("string")])
+          "param1": .object(["type": .string("string")]),
         ]),
         "required": .array([.string("param1")]),
         "propertyOrdering": .array([.string("param1")]),
-        "additionalProperties": .bool(false)
+        "additionalProperties": .bool(false),
       ]
     )
     let tool = Tool.functionDeclarations([functionDecl])
