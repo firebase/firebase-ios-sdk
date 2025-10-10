@@ -1,5 +1,7 @@
 # Unreleased
 - [fixed] Fixed various links in the Live API doc comments not mapping correctly.
+- [fixed] Fixed minor translation issue for nanosecond conversion when receiving
+  `LiveServerGoingAwayNotice`. (#15410)
 
 # 12.4.0
 - [feature] Added support for the URL context tool, which allows the model to access content
