@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed various links in the Live API doc comments not mapping correctly.
+
 # 12.4.0
 - [feature] Added support for the URL context tool, which allows the model to access content
   from provided public web URLs to inform and enhance its responses. (#15221)
