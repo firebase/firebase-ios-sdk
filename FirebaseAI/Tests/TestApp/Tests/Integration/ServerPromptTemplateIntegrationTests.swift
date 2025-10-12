@@ -1,4 +1,3 @@
-
 // Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,7 +58,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
   }
 
   func testGenerateContentWithMedia() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .googleAI()).templateGenerativeModel()
+    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
     let image = UIImage(systemName: "photo")!
     if let imageBytes = image.jpegData(compressionQuality: 0.8) {
       let base64Image = imageBytes.base64EncodedString()
@@ -85,7 +84,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
   }
 
   func testChat() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .googleAI()).templateGenerativeModel()
+    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
     let initialHistory = [
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
@@ -100,7 +99,8 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
         variables: ["message": userMessage]
       )
       XCTAssert(response.text?.isEmpty == false)
-      XCTAssertEqual(chatSession.history.count, 3)
+      XCTAssertEqual(chatSession.history.count, 4)
+      XCTAssertEqual((chatSession.history[2].parts.first as? TextPart)?.text, userMessage)
     } catch {
       XCTFail("An error occurred: \(error)")
     }
