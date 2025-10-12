@@ -1,4 +1,3 @@
-
 // Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,31 +47,17 @@ public final class TemplateImagenModel: Sendable {
       apiConfig: apiConfig,
       options: options
     )
-    let response: GenerateImagesResponse = try await generativeAIService
+    let response: ImagenGenerationResponse<ImagenInlineImage> = try await generativeAIService
       .loadRequest(request: request)
-    return response
+    return GenerateImagesResponse(images: response.images.map(\.data))
   }
 }
 
 // A placeholder for the response from an image generation request.
-public struct GenerateImagesResponse: Decodable, @unchecked Sendable {
+public struct GenerateImagesResponse: @unchecked Sendable {
   public let images: [Data]
 
-  enum CodingKeys: String, CodingKey {
-    case predictions
-  }
-
-  struct Prediction: Decodable {
-    let images: [String]
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    let predictions = try container.decode([Prediction].self, forKey: .predictions)
-    guard let firstPrediction = predictions.first else {
-      images = []
-      return
-    }
-    images = firstPrediction.images.compactMap { Data(base64Encoded: $0) }
+  public init(images: [Data]) {
+    self.images = images
   }
 }

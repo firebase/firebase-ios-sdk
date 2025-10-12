@@ -52,7 +52,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
           "prompt": imagenPrompt,
         ]
       )
-      XCTAssertEqual(response.images.count, 1)
+      XCTAssertEqual(response.images.count, 3)
     } catch {
       XCTFail("An error occurred: \(error)")
     }
