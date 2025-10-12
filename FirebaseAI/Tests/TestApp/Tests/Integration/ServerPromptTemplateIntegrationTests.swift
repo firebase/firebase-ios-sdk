@@ -43,11 +43,11 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
   }
 
   func testGenerateImages() async throws {
-    let imagenModel = FirebaseAI.firebaseAI(backend: .googleAI()).templateImagenModel()
+    let imagenModel = FirebaseAI.firebaseAI(backend: .vertexAI()).templateImagenModel()
     let imagenPrompt = "A cat picture"
     do {
       let response = try await imagenModel.generateImages(
-        template: "describeImages",
+        template: "generate_images",
         variables: [
           "prompt": imagenPrompt,
         ]

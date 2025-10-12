@@ -16,5 +16,5 @@
 import Foundation
 
 enum ImageAPIMethod: String {
-  case generateImages = "images:generate"
+  case generateImages = "templatePredict"
 }

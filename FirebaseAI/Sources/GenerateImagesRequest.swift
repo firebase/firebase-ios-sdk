@@ -25,7 +25,8 @@ public class GenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
     if case let .vertexAI(_, location) = apiConfig.service {
       urlString += "/locations/\(location)"
     }
-    urlString += "/templates/\(template):\(ImageAPIMethod.generateImages.rawValue)"
+    let templateName = template.hasSuffix(".prompt") ? template : "\(template).prompt"
+    urlString += "/templates/\(templateName):\(ImageAPIMethod.generateImages.rawValue)"
     return URL(string: urlString)!
   }
 
