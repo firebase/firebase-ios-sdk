@@ -37,7 +37,7 @@ public final class TemplateImagenModel: Sendable {
   public func generateImages(template: String,
                              variables: [String: Any],
                              options: RequestOptions = RequestOptions()) async throws
-    -> GenerateImagesResponse {
+    -> ImagenGenerationResponse<ImagenInlineImage> {
     let templateVariables = try variables.mapValues { try TemplateVariable(value: $0) }
     let projectID = generativeAIService.firebaseInfo.projectID
     let request = GenerateImagesRequest(
@@ -47,17 +47,6 @@ public final class TemplateImagenModel: Sendable {
       apiConfig: apiConfig,
       options: options
     )
-    let response: ImagenGenerationResponse<ImagenInlineImage> = try await generativeAIService
-      .loadRequest(request: request)
-    return GenerateImagesResponse(images: response.images.map(\.data))
-  }
-}
-
-// A placeholder for the response from an image generation request.
-public struct GenerateImagesResponse: @unchecked Sendable {
-  public let images: [Data]
-
-  public init(images: [Data]) {
-    self.images = images
+    return try await generativeAIService.loadRequest(request: request)
   }
 }
