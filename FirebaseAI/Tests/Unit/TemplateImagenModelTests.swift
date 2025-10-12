@@ -48,6 +48,6 @@ final class TemplateImagenModelTests: XCTestCase {
       variables: ["prompt": "a cat picture"]
     )
     XCTAssertEqual(response.images.count, 1)
-    XCTAssertEqual(response.images.first, Data(base64Encoded: "aW1hZ2UgZGF0YQ=="))
+    XCTAssertEqual(response.images.first?.data, Data(base64Encoded: "aW1hZ2UgZGF0YQ=="))
   }
 }
