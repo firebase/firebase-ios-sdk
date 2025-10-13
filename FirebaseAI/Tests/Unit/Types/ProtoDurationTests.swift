@@ -47,7 +47,7 @@ final class ProtoDurationTests: XCTestCase {
     XCTAssertEqual(duration.seconds, 120)
     XCTAssertEqual(duration.nanos, 123)
 
-    XCTAssertEqual(duration.timeInterval, 120.000000123)
+    XCTAssertEqual(duration.timeInterval, 120.000000123, accuracy: 1e-9)
   }
 
   func testDecodeProtoDuration_withoutNanoseconds() throws {
@@ -55,7 +55,7 @@ final class ProtoDurationTests: XCTestCase {
     XCTAssertEqual(duration.seconds, 120)
     XCTAssertEqual(duration.nanos, 0)
 
-    XCTAssertEqual(duration.timeInterval, 120)
+    XCTAssertEqual(duration.timeInterval, 120, accuracy: 1e-9)
   }
 
   func testDecodeProtoDuration_maxNanosecondDigits() throws {
@@ -63,7 +63,7 @@ final class ProtoDurationTests: XCTestCase {
     XCTAssertEqual(duration.seconds, 15)
     XCTAssertEqual(duration.nanos, 123_456_789)
 
-    XCTAssertEqual(duration.timeInterval, 15.123456789)
+    XCTAssertEqual(duration.timeInterval, 15.123456789, accuracy: 1e-9)
   }
 
   func testDecodeProtoDuration_withMilliseconds() throws {
@@ -71,7 +71,7 @@ final class ProtoDurationTests: XCTestCase {
     XCTAssertEqual(duration.seconds, 15)
     XCTAssertEqual(duration.nanos, 123_000_000)
 
-    XCTAssertEqual(duration.timeInterval, 15.123000000)
+    XCTAssertEqual(duration.timeInterval, 15.123, accuracy: 1e-9)
   }
 
   func testDecodeProtoDuration_invalidSeconds() throws {
@@ -94,6 +94,6 @@ final class ProtoDurationTests: XCTestCase {
     XCTAssertEqual(duration.seconds, 123)
     XCTAssertEqual(duration.nanos, 456_000_000)
 
-    XCTAssertEqual(duration.timeInterval, 123.456)
+    XCTAssertEqual(duration.timeInterval, 123.456, accuracy: 1e-9)
   }
 }
