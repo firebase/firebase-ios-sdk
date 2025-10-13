@@ -202,6 +202,7 @@ jobs:
 #       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
 #     - name: Remove data before upload
 #       if: ${{ failure() }}
+  if: always()
 #       run: scripts/remove_data.sh abtesting
 #     # - uses: actions/upload-artifact@v4
 #     #   if: ${{ failure() }}
@@ -253,6 +254,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     # TODO: Can this be reusable?
     - name: Remove data before upload
+      if: always()
       run: scripts/remove_data.sh authentication
     - uses: actions/upload-artifact@v4
       # if: ${{ failure() }}
@@ -301,6 +303,7 @@ jobs:
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
+      if: always()
       run: scripts/remove_data.sh config
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -362,6 +365,7 @@ jobs:
     #     LEGACY: true
     #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
+      if: always()
       run: scripts/remove_data.sh crashlytics
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -413,6 +417,7 @@ jobs:
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
+      if: always()
       run: scripts/remove_data.sh database
     # - uses: actions/upload-artifact@v4
     #   if: ${{ failure() }}
@@ -469,6 +474,7 @@ jobs:
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload and zip directory to reduce upload size.
+      if: always()
       run: scripts/remove_data.sh firestore; zip -r --symlinks quickstart_artifacts_firestore.zip quickstart-ios/
     # - uses: actions/upload-artifact@v4
     #   if: ${{ failure() }}
@@ -521,6 +527,7 @@ jobs:
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
+      if: always()
       run: scripts/remove_data.sh inappmessaging
     # - uses: actions/upload-artifact@v4
     #   if: ${{ failure() }}
@@ -573,6 +580,7 @@ jobs:
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
+      if: always()
       run: scripts/remove_data.sh messaging
     # - uses: actions/upload-artifact@v4
     #   if: ${{ failure() }}
@@ -624,6 +632,7 @@ jobs:
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
+      if: always()
       run: scripts/remove_data.sh storage
     # - uses: actions/upload-artifact@v4
     #   if: ${{ failure() }}
