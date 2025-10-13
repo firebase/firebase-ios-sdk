@@ -160,4 +160,33 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
       XCTFail("An error occurred: \(error)")
     }
   }
+
+  func testChatStream() async throws {
+    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
+    let initialHistory = [
+      ModelContent(role: "user", parts: "Hello!"),
+      ModelContent(role: "model", parts: "Hi there! How can I help?"),
+    ]
+    let chatSession = model.startChat(template: "chat_history", history: initialHistory)
+
+    let userMessage = "What's the weather like?"
+
+    do {
+      let stream = try chatSession.sendMessageStream(
+        userMessage,
+        variables: ["message": userMessage]
+      )
+      var resultText = ""
+      for try await response in stream {
+        if let text = response.text {
+          resultText += text
+        }
+      }
+      XCTAssert(resultText.isEmpty == false)
+      XCTAssertEqual(chatSession.history.count, 4)
+      XCTAssertEqual((chatSession.history[2].parts.first as? TextPart)?.text, userMessage)
+    } catch {
+      XCTFail("An error occurred: \(error)")
+    }
+  }
 }
