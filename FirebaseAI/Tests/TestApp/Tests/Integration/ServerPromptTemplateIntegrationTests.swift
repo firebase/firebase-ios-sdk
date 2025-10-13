@@ -33,7 +33,6 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
       ]
     )
     let text = try XCTUnwrap(response.text)
-    print(text)
     XCTAssert(text.contains("Paul"))
   }
 

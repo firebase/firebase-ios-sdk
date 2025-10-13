@@ -30,6 +30,8 @@ enum TemplateVariable: Encodable, Sendable {
       self = .int(value)
     case let value as Double:
       self = .double(value)
+    case let value as Float:
+      self = .double(Double(value))
     case let value as Bool:
       self = .bool(value)
     case let value as [Any]:

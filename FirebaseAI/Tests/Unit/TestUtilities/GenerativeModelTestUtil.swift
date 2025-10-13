@@ -88,6 +88,19 @@ enum GenerativeModelTestUtil {
     #endif // os(watchOS)
   }
 
+  static func collectTextFromStream(_ stream: AsyncThrowingStream<
+    GenerateContentResponse,
+    Error
+  >) async throws -> String {
+    var content = ""
+    for try await response in stream {
+      if let text = response.text {
+        content += text
+      }
+    }
+    return content
+  }
+
   static func nonHTTPRequestHandler() throws -> ((URLRequest) -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?

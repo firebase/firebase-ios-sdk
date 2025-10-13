@@ -65,12 +65,7 @@ final class TemplateChatSessionTests: XCTestCase {
     let chat = model.startChat(template: "test-template")
     let stream = try chat.sendMessageStream("Hello", variables: ["name": "test"])
 
-    var content = ""
-    for try await response in stream {
-      if let text = response.text {
-        content += text
-      }
-    }
+    let content = try await GenerativeModelTestUtil.collectTextFromStream(stream)
 
     XCTAssertEqual(content, "The capital of Wyoming is **Cheyenne**.\n")
     XCTAssertEqual(chat.history.count, 2)
