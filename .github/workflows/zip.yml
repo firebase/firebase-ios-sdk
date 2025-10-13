@@ -363,11 +363,11 @@ jobs:
     #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh crashlytics
-    # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
-    #   with:
-    #     name: quickstart_artifacts_crashlytics
-    #     path: quickstart-ios/
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_crashlytics
+        path: quickstart-ios/
 
   quickstart_framework_database:
 #    needs: package-head
