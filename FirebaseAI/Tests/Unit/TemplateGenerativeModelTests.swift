@@ -49,4 +49,26 @@ final class TemplateGenerativeModelTests: XCTestCase {
     )
     XCTAssertEqual(response.text, "Hello, world!")
   }
+
+  func testGenerateContentStream() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-basic-reply-short",
+      withExtension: "txt",
+      subdirectory: "mock-responses/googleai",
+      isTemplateRequest: true
+    )
+
+    let stream = try model.generateContentStream(
+      template: "test-template",
+      variables: ["name": "test"]
+    )
+
+    var content = ""
+    for try await response in stream {
+      if let text = response.text {
+        content += text
+      }
+    }
+    XCTAssertEqual(content, "The capital of Wyoming is **Cheyenne**.\n")
+  }
 }
