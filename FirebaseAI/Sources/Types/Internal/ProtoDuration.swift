@@ -94,10 +94,10 @@ extension ProtoDuration: Decodable {
       ))
     }
 
-    guard let nanos = Int32(nanoseconds) else {
+    guard let fractionalSeconds = Double("0.\(nanoseconds)") else {
       AILog.warning(
         code: .decodedInvalidProtoDurationNanoseconds,
-        "Failed to parse the nanoseconds to an Int32: \(nanoseconds)."
+        "Failed to parse the nanoseconds to a Double: \(nanoseconds)."
       )
 
       throw DecodingError.dataCorrupted(.init(
@@ -107,44 +107,6 @@ extension ProtoDuration: Decodable {
     }
 
     self.seconds = secs
-    self.nanos = fractionalSecondsToNanoseconds(nanos, digits: nanoseconds.count)
+    self.nanos = Int32(fractionalSeconds * 1_000_000_000)
   }
-}
-
-/// Cached powers of 10 for quickly mapping fractional seconds.
-private let pow10: [Int32] = [
-  1, 10, 100, 1000, 10000, 100_000,
-  1_000_000, 10_000_000, 100_000_000, 1_000_000_000,
-]
-
-/// Converts a fractional second representing a nanosecond to a valid nanosecond value.
-///
-/// It's expected that both parameters are positive and that `digits` fits within 9 digits.
-///
-/// ```swift
-/// // 0.123456
-/// XCTAssertEqual(
-///   fractionalSecondsToNanoseconds(123456, 6),
-///   123456000
-/// )
-///
-/// // 0.000123456
-/// XCTAssertEqual(
-///   fractionalSecondsToNanoseconds(123456, 9),
-///   123456
-/// )
-///
-/// // 0.123456789
-/// XCTAssertEqual(
-///   fractionalSecondsToNanoseconds(123456789, 9),
-///   123456789
-/// )
-/// ```
-private func fractionalSecondsToNanoseconds(_ value: Int32, digits: Int) -> Int32 {
-  // preconditions we expect to be true, but we return a zero value instead of crashing
-  guard value >= 0, digits >= 0, digits <= 9 else {
-    return 0
-  }
-
-  return Int32(truncatingIfNeeded: value) &* pow10[9 - digits]
 }
