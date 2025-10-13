@@ -322,13 +322,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
                                  [strongSelf isAppStartEnabled] &&
                                  ![strongSelf isApplicationPreWarmed];
 
-<<<<<<< HEAD
       if (shouldCompleteTrace) {
-=======
-      // Cancel if elapsed time is unreasonably long for app start this should catch network induced
-      // delays and other edge cases that slip through as an additional safety check
-      if (shouldCompleteTrace && elapsed < gAppStartReasonableValidDuration) {
->>>>>>> origin/JesusRojas/#10733
         [strongSelf.appStartTrace stop];
       } else {
         [strongSelf.appStartTrace cancel];
