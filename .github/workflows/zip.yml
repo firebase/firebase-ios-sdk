@@ -201,8 +201,7 @@ jobs:
 #     - name: Test Quickstart
 #       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
 #     - name: Remove data before upload
-#       if: ${{ failure() }}
-  if: always()
+#       if: always()
 #       run: scripts/remove_data.sh abtesting
 #     # - uses: actions/upload-artifact@v4
 #     #   if: ${{ failure() }}
