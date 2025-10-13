@@ -141,5 +141,10 @@ private let pow10: [Int32] = [
 /// )
 /// ```
 private func fractionalSecondsToNanoseconds(_ value: Int32, digits: Int) -> Int32 {
+  // preconditions we expect to be true, but we return a zero value instead of crashing
+  guard value >= 0, digits >= 0, digits <= 9 else {
+    return 0
+  }
+
   return Int32(truncatingIfNeeded: value) &* pow10[9 - digits]
 }
