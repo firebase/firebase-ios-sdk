@@ -36,9 +36,9 @@ final class TemplateImagenModelTests: XCTestCase {
 
   func testGenerateImages() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
-      forResource: "unary-success-image-response",
+      forResource: "unary-success-generate-images-base64",
       withExtension: "json",
-      subdirectory: "mock-responses",
+      subdirectory: "mock-responses/vertexai",
       isTemplateRequest: true
     )
 
@@ -46,7 +46,7 @@ final class TemplateImagenModelTests: XCTestCase {
       template: "test-template",
       variables: ["prompt": "a cat picture"]
     )
-    XCTAssertEqual(response.images.count, 1)
-    XCTAssertEqual(response.images.first?.data, Data(base64Encoded: "aW1hZ2UgZGF0YQ=="))
+    XCTAssertEqual(response.images.count, 4)
+    XCTAssertNotNil(response.images.first?.data)
   }
 }

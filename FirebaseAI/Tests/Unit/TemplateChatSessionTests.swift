@@ -37,9 +37,9 @@ final class TemplateChatSessionTests: XCTestCase {
 
   func testSendMessage() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
-      forResource: "unary-success-response",
+      forResource: "unary-success-basic-reply-short",
       withExtension: "json",
-      subdirectory: "mock-responses",
+      subdirectory: "mock-responses/googleai",
       isTemplateRequest: true
     )
     let chat = model.startChat(template: "test-template")
@@ -48,6 +48,10 @@ final class TemplateChatSessionTests: XCTestCase {
     XCTAssertEqual(chat.history[0].role, "user")
     XCTAssertEqual((chat.history[0].parts.first as? TextPart)?.text, "Hello")
     XCTAssertEqual(chat.history[1].role, "model")
+    XCTAssertEqual(
+      (chat.history[1].parts.first as? TextPart)?.text,
+      "Google's headquarters, also known as the Googleplex, is located in **Mountain View, California**.\n"
+    )
     XCTAssertEqual(response.candidates.count, 1)
   }
 

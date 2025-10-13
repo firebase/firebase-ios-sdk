@@ -37,9 +37,9 @@ final class TemplateGenerativeModelTests: XCTestCase {
 
   func testGenerateContent() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
-      forResource: "unary-success-response",
+      forResource: "unary-success-basic-reply-short",
       withExtension: "json",
-      subdirectory: "mock-responses",
+      subdirectory: "mock-responses/googleai",
       isTemplateRequest: true
     )
 
@@ -47,7 +47,10 @@ final class TemplateGenerativeModelTests: XCTestCase {
       template: "test-template",
       variables: ["name": "test"]
     )
-    XCTAssertEqual(response.text, "Hello, world!")
+    XCTAssertEqual(
+      response.text,
+      "Google's headquarters, also known as the Googleplex, is located in **Mountain View, California**.\n"
+    )
   }
 
   func testGenerateContentStream() async throws {
