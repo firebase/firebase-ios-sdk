@@ -30,12 +30,35 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
         template: "greeting",
         variables: [
           "name": userName,
-          "language": "English",
+          "language": "Spanish",
         ]
       )
       let text = try XCTUnwrap(response.text)
       print(text)
       XCTAssert(text.contains("Paul"))
+    } catch {
+      XCTFail("An error occurred: \(error)")
+    }
+  }
+
+  func testGenerateContentStream() async throws {
+    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
+    let userName = "paul"
+    do {
+      let stream = try model.generateContentStream(
+        template: "greeting",
+        variables: [
+          "name": userName,
+          "language": "English",
+        ]
+      )
+      var resultText = ""
+      for try await response in stream {
+        if let text = response.text {
+          resultText += text
+        }
+      }
+      XCTAssert(resultText.contains("Paul"))
     } catch {
       XCTFail("An error occurred: \(error)")
     }
@@ -75,6 +98,38 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
           ]
         )
         XCTAssert(response.text?.isEmpty == false)
+      } catch {
+        XCTFail("An error occurred: \(error)")
+      }
+    } else {
+      XCTFail("Could not get image data.")
+    }
+  }
+
+  func testGenerateContentStreamWithMedia() async throws {
+    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
+    let image = UIImage(systemName: "photo")!
+    if let imageBytes = image.jpegData(compressionQuality: 0.8) {
+      let base64Image = imageBytes.base64EncodedString()
+
+      do {
+        let stream = try model.generateContentStream(
+          template: "media",
+          variables: [
+            "imageData": [
+              "isInline": true,
+              "mimeType": "image/jpeg",
+              "contents": base64Image,
+            ],
+          ]
+        )
+        var resultText = ""
+        for try await response in stream {
+          if let text = response.text {
+            resultText += text
+          }
+        }
+        XCTAssert(resultText.isEmpty == false)
       } catch {
         XCTFail("An error occurred: \(error)")
       }
