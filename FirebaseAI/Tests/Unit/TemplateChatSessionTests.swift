@@ -19,19 +19,29 @@ import XCTest
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class TemplateChatSessionTests: XCTestCase {
   var model: TemplateGenerativeModel!
+  var urlSession: URLSession!
 
   override func setUp() {
     super.setUp()
+    let configuration = URLSessionConfiguration.default
+    configuration.protocolClasses = [MockURLProtocol.self]
+    urlSession = URLSession(configuration: configuration)
     let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
     let generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
-      urlSession: GenAIURLSession.default
+      urlSession: urlSession
     )
     let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
     model = TemplateGenerativeModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
   }
 
   func testSendMessage() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-response",
+      withExtension: "json",
+      subdirectory: "mock-responses",
+      isTemplateRequest: true
+    )
     let chat = model.startChat(template: "test-template")
     let response = try await chat.sendMessage("Hello", variables: ["name": "test"])
     XCTAssertEqual(chat.history.count, 2)
