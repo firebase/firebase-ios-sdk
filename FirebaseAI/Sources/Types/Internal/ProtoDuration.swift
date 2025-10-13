@@ -107,6 +107,6 @@ extension ProtoDuration: Decodable {
     }
 
     self.seconds = secs
-    self.nanos = Int32(fractionalSeconds * 1_000_000_000)
+    nanos = Int32(fractionalSeconds * 1_000_000_000)
   }
 }
