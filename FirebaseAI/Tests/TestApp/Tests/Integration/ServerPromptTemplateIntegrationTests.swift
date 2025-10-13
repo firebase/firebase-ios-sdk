@@ -25,59 +25,47 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
   func testGenerateContentWithText() async throws {
     let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
     let userName = "paul"
-    do {
-      let response = try await model.generateContent(
-        template: "greeting",
-        variables: [
-          "name": userName,
-          "language": "Spanish",
-        ]
-      )
-      let text = try XCTUnwrap(response.text)
-      print(text)
-      XCTAssert(text.contains("Paul"))
-    } catch {
-      XCTFail("An error occurred: \(error)")
-    }
+    let response = try await model.generateContent(
+      template: "greeting",
+      variables: [
+        "name": userName,
+        "language": "Spanish",
+      ]
+    )
+    let text = try XCTUnwrap(response.text)
+    print(text)
+    XCTAssert(text.contains("Paul"))
   }
 
   func testGenerateContentStream() async throws {
     let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
     let userName = "paul"
-    do {
-      let stream = try model.generateContentStream(
-        template: "greeting",
-        variables: [
-          "name": userName,
-          "language": "English",
-        ]
-      )
-      var resultText = ""
-      for try await response in stream {
-        if let text = response.text {
-          resultText += text
-        }
+    let stream = try model.generateContentStream(
+      template: "greeting",
+      variables: [
+        "name": userName,
+        "language": "English",
+      ]
+    )
+    var resultText = ""
+    for try await response in stream {
+      if let text = response.text {
+        resultText += text
       }
-      XCTAssert(resultText.contains("Paul"))
-    } catch {
-      XCTFail("An error occurred: \(error)")
     }
+    XCTAssert(resultText.contains("Paul"))
   }
 
   func testGenerateImages() async throws {
     let imagenModel = FirebaseAI.firebaseAI(backend: .vertexAI()).templateImagenModel()
     let imagenPrompt = "A cat picture"
-    do {
-      let response = try await imagenModel.generateImages(
-        template: "generate_images",
-        variables: [
-          "prompt": imagenPrompt,
-        ]
-      )
-      XCTAssertEqual(response.images.count, 3)
-    } catch {
-      XCTFail("An error occurred: \(error)")
-    }
+    let response = try await imagenModel.generateImages(
+      template: "generate_images",
+      variables: [
+        "prompt": imagenPrompt,
+      ]
+    )
+    XCTAssertEqual(response.images.count, 3)
   }
 
   func testGenerateContentWithMedia() async throws {
@@ -86,21 +74,17 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
     if let imageBytes = image.jpegData(compressionQuality: 0.8) {
       let base64Image = imageBytes.base64EncodedString()
 
-      do {
-        let response = try await model.generateContent(
-          template: "media",
-          variables: [
-            "imageData": [
-              "isInline": true,
-              "mimeType": "image/jpeg",
-              "contents": base64Image,
-            ],
-          ]
-        )
-        XCTAssert(response.text?.isEmpty == false)
-      } catch {
-        XCTFail("An error occurred: \(error)")
-      }
+      let response = try await model.generateContent(
+        template: "media",
+        variables: [
+          "imageData": [
+            "isInline": true,
+            "mimeType": "image/jpeg",
+            "contents": base64Image,
+          ],
+        ]
+      )
+      XCTAssert(response.text?.isEmpty == false)
     } else {
       XCTFail("Could not get image data.")
     }
@@ -112,27 +96,23 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
     if let imageBytes = image.jpegData(compressionQuality: 0.8) {
       let base64Image = imageBytes.base64EncodedString()
 
-      do {
-        let stream = try model.generateContentStream(
-          template: "media",
-          variables: [
-            "imageData": [
-              "isInline": true,
-              "mimeType": "image/jpeg",
-              "contents": base64Image,
-            ],
-          ]
-        )
-        var resultText = ""
-        for try await response in stream {
-          if let text = response.text {
-            resultText += text
-          }
+      let stream = try model.generateContentStream(
+        template: "media",
+        variables: [
+          "imageData": [
+            "isInline": true,
+            "mimeType": "image/jpeg",
+            "contents": base64Image,
+          ],
+        ]
+      )
+      var resultText = ""
+      for try await response in stream {
+        if let text = response.text {
+          resultText += text
         }
-        XCTAssert(resultText.isEmpty == false)
-      } catch {
-        XCTFail("An error occurred: \(error)")
       }
+      XCTAssert(resultText.isEmpty == false)
     } else {
       XCTFail("Could not get image data.")
     }
@@ -148,17 +128,13 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
 
     let userMessage = "What's the weather like?"
 
-    do {
-      let response = try await chatSession.sendMessage(
-        userMessage,
-        variables: ["message": userMessage]
-      )
-      XCTAssert(response.text?.isEmpty == false)
-      XCTAssertEqual(chatSession.history.count, 4)
-      XCTAssertEqual((chatSession.history[2].parts.first as? TextPart)?.text, userMessage)
-    } catch {
-      XCTFail("An error occurred: \(error)")
-    }
+    let response = try await chatSession.sendMessage(
+      userMessage,
+      variables: ["message": userMessage]
+    )
+    XCTAssert(response.text?.isEmpty == false)
+    XCTAssertEqual(chatSession.history.count, 4)
+    XCTAssertEqual((chatSession.history[2].parts.first as? TextPart)?.text, userMessage)
   }
 
   func testChatStream() async throws {
@@ -171,22 +147,18 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
 
     let userMessage = "What's the weather like?"
 
-    do {
-      let stream = try chatSession.sendMessageStream(
-        userMessage,
-        variables: ["message": userMessage]
-      )
-      var resultText = ""
-      for try await response in stream {
-        if let text = response.text {
-          resultText += text
-        }
+    let stream = try chatSession.sendMessageStream(
+      userMessage,
+      variables: ["message": userMessage]
+    )
+    var resultText = ""
+    for try await response in stream {
+      if let text = response.text {
+        resultText += text
       }
-      XCTAssert(resultText.isEmpty == false)
-      XCTAssertEqual(chatSession.history.count, 4)
-      XCTAssertEqual((chatSession.history[2].parts.first as? TextPart)?.text, userMessage)
-    } catch {
-      XCTFail("An error occurred: \(error)")
     }
+    XCTAssert(resultText.isEmpty == false)
+    XCTAssertEqual(chatSession.history.count, 4)
+    XCTAssertEqual((chatSession.history[2].parts.first as? TextPart)?.text, userMessage)
   }
 }
