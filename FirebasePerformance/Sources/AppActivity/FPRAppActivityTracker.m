@@ -30,7 +30,8 @@ static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;
 static NSDate *applicationDidFinishLaunchTime = nil;
 static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
-static NSTimeInterval gAppStartReasonableValidDuration = 30.0;  // 30 seconds, reasonable app start time???
+static NSTimeInterval gAppStartReasonableValidDuration =
+    30.0;  // 30 seconds, reasonable app start time???
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
 static BOOL isActivePrewarm = NO;
@@ -117,6 +118,18 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
 + (void)applicationDidFinishLaunching:(NSNotification *)notification {
   applicationDidFinishLaunchTime = [NSDate date];
+
+  // Detect a background launch and invalidate app start time
+  // this prevents we measure duration from background launch
+  UIApplicationState state = [UIApplication sharedApplication].applicationState;
+  if (state == UIApplicationStateBackground) {
+    // App launched in background so we invalidate the captured app start time
+    // to prevent incorrect measurement when user later opens the app
+    appStartTime = nil;
+    NSLog(@"Firebase Performance: Background launch detected. App start measurement will be "
+          @"skipped.");
+  }
+
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidFinishLaunchingNotification
                                                 object:nil];
@@ -247,6 +260,14 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+    // Early bailout if background launch was detected, appStartTime will be nil if the app was
+    // launched in background
+    if (appStartTime == nil) {
+      NSLog(@"Firebase Performance: App start trace skipped due to background launch. "
+            @"This prevents reporting incorrect multi-minute/hour durations.");
+      return;
+    }
+
     self.appStartTrace = [[FIRTrace alloc] initInternalTraceWithName:kFPRAppStartTraceName];
     [self.appStartTrace startWithStartTime:appStartTime];
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUI startTime:appStartTime];
@@ -256,8 +277,12 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   });
 
   // If ever the app start trace had its life in background stage, do not send the trace.
-  if (self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
+  if (self.appStartTrace &&
+      self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
+    [self.appStartTrace cancel];
     self.appStartTrace = nil;
+    NSLog(
+        @"Firebase Performance: App start trace cancelled due to background state contamination.");
   }
 
   // Stop the active background session trace.
@@ -271,46 +296,44 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   self.foregroundSessionTrace = appTrace;
 
   // Start measuring time to make the app interactive on the App start trace.
-  if (!self.ttiStageStarted) {
+  if (!self.ttiStageStarted && self.appStartTrace) {
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUserInteraction];
     self.ttiStageStarted = YES;
 
-    // Use dispatch_async with a higher priority queue to reduce interference from network
-    // operations This ensures trace completion isn't delayed by main queue congestion from network
-    // calls
+    // Defer stopping the trace to the next run loop cycle, this ensures that the app is
+    // fully interactive and gives the UI a chance to settle before measuring completion.
     __weak typeof(self) weakSelf = self;
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-      dispatch_async(dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (!strongSelf || !strongSelf.appStartTrace) {
-          return;
-        }
+    dispatch_async(dispatch_get_main_queue(), ^{
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (!strongSelf || !strongSelf.appStartTrace) {
+        return;
+      }
 
-        NSTimeInterval startTimeSinceEpoch = [strongSelf.appStartTrace startTimeSinceEpoch];
-        NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
-        NSTimeInterval elapsed = currentTimeSinceEpoch - startTimeSinceEpoch;
+      NSTimeInterval startTimeSinceEpoch = [strongSelf.appStartTrace startTimeSinceEpoch];
+      NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
+      NSTimeInterval elapsed = currentTimeSinceEpoch - startTimeSinceEpoch;
 
-        // The below check accounts for multiple scenarios:
-        // 1. App started in background and comes to foreground later
-        // 2. App launched but immediately backgrounded
-        // 3. Network delays during startup inflating metrics
-        BOOL shouldCompleteTrace = (elapsed < gAppStartMaxValidDuration) &&
-                                   [strongSelf isAppStartEnabled] &&
-                                   ![strongSelf isApplicationPreWarmed];
+      // The below check accounts for multiple scenarios:
+      // 1. App started in background and comes to foreground later (60 min or more)
+      // 2. App launched but immediately backgrounded
+      // 3. Network delays during startup inflating metrics (30 sec or more)
+      // 4. iOS prewarm scenarios
+      BOOL shouldCompleteTrace = (elapsed < gAppStartMaxValidDuration) &&
+                                 [strongSelf isAppStartEnabled] &&
+                                 ![strongSelf isApplicationPreWarmed];
 
-        // Additional safety: cancel if elapsed time is unreasonably long for app start
-        if (shouldCompleteTrace && elapsed < gAppStartReasonableValidDuration) {
-          [strongSelf.appStartTrace stop];
-        } else {
-          [strongSelf.appStartTrace cancel];
-          if (elapsed >= gAppStartReasonableValidDuration) {
-            // Log for debugging network related delays
-            NSLog(
-                @"Firebase Performance: App start trace cancelled due to excessive duration: %.2fs",
+      // Cancel if elapsed time is unreasonably long for app start this should catch network induced
+      // delays and other edge cases that slip through as am aditional safety check
+      if (shouldCompleteTrace && elapsed < gAppStartReasonableValidDuration) {
+        [strongSelf.appStartTrace stop];
+      } else {
+        [strongSelf.appStartTrace cancel];
+        if (elapsed >= gAppStartReasonableValidDuration) {
+          // Log for debugging network related delays
+          NSLog(@"Firebase Performance: App start trace cancelled due to excessive duration: %.2fs",
                 elapsed);
-          }
         }
-      });
+      }
     });
   }
 }
