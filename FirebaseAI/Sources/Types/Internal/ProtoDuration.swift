@@ -119,6 +119,8 @@ private let pow10: [Int32] = [
 
 /// Converts a fractional second representing a nanosecond to a valid nanosecond value.
 ///
+/// It's expected that both parameters are positive and that `digits` fits within 9 digits.
+///
 /// ```swift
 /// // 0.123456
 /// XCTAssertEqual(
@@ -139,8 +141,5 @@ private let pow10: [Int32] = [
 /// )
 /// ```
 private func fractionalSecondsToNanoseconds(_ value: Int32, digits: Int) -> Int32 {
-  precondition(digits >= 0 && digits <= 9, "A nanosecond value must fit within 0..9 digits")
-  precondition(value >= 0, "A nanosecond value must be positive")
-
   return Int32(truncatingIfNeeded: value) &* pow10[9 - digits]
 }
