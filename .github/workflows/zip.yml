@@ -343,6 +343,8 @@ jobs:
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: | 
+        rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
+        rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
         SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
           "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
           "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
