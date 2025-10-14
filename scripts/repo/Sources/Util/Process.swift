@@ -17,7 +17,7 @@
 import Dispatch
 import Foundation
 
-extension Process {
+public extension Process {
   /// Creates a new `Process` instance without running it.
   ///
   /// - Parameters:
@@ -25,18 +25,16 @@ extension Process {
   ///   - args: An array of arguments to pass to the executable.
   ///   - env: A map of environment variables to set for the process.
   ///   - inheritEnvironment: When enabled, the parent process' environvment will also be applied
-  ///   to this process. Effectively, this means that any environvment variables declared within the parent
-  ///   process will propogate down to this new process.
-  public convenience init(
-    _ exe: String,
-    _ args: [String] = [],
-    env: [String: String] = [:],
-    inheritEnvironment: Bool = false
-  ) {
+  ///   to this process. Effectively, this means that any environvment variables declared within the
+  ///   parent process will propogate down to this new process.
+  convenience init(_ exe: String,
+                   _ args: [String] = [],
+                   env: [String: String] = [:],
+                   inheritEnvironment: Bool = false) {
     self.init()
-    self.executableURL = URL(filePath: exe)
-    self.arguments = args
-    self.environment = env
+    executableURL = URL(filePath: exe)
+    arguments = args
+    environment = env
     if inheritEnvironment {
       mergeEnvironment(ProcessInfo.processInfo.environment)
     }
@@ -44,19 +42,19 @@ extension Process {
 
   /// Merges the provided environment variables with this process' existing environment variables.
   ///
-  /// If an environment variable is already set, then it will **NOT** be overwritten. Only environment
-  /// variables not currently set on the process will be applied.
+  /// If an environment variable is already set, then it will **NOT** be overwritten. Only
+  /// environment variables not currently set on the process will be applied.
   ///
   /// - Parameters:
   ///   - env: The environment variables to merge with this process.
-  public func mergeEnvironment(_ env: [String: String]) {
+  func mergeEnvironment(_ env: [String: String]) {
     guard environment != nil else {
       // if this process doesn't have an environment, we can just set it instead of merging
       environment = env
       return
     }
 
-    environment = environment?.merging(env) { (current, _) in current }
+    environment = environment?.merging(env) { current, _ in current }
   }
 
   /// Run the process with signals from the parent process.
@@ -71,9 +69,9 @@ extension Process {
   ///
   /// - Returns: The exit code that the process completed with.
   @discardableResult
-  public func runWithSignals(_ args: [String]? = nil) throws -> Int32 {
+  func runWithSignals(_ args: [String]? = nil) throws -> Int32 {
     if let args {
-      self.arguments = args
+      arguments = args
     }
 
     let sigint = bindSignal(signal: SIGINT) {
@@ -109,9 +107,9 @@ extension Process {
 /// - Parameters:
 ///   - signal: The signal to listen for.
 ///   - callback: The function to invoke when the signal is received.
-func bindSignal(
-  signal value: Int32, callback: @escaping DispatchSourceProtocol.DispatchSourceHandler
-) -> any DispatchSourceSignal {
+func bindSignal(signal value: Int32,
+                callback: @escaping DispatchSourceProtocol
+                  .DispatchSourceHandler) -> any DispatchSourceSignal {
   // allow the process to survive long enough to trigger the callback
   signal(value, SIG_IGN)
 

@@ -19,13 +19,13 @@
 
 import PackageDescription
 
-/// Package containing CLI executables for our larger scripts that are a bit harder to follow in bash form, or
-/// that need more advanced flag/optional requirements.
+/// Package containing CLI executables for our larger scripts that are a bit harder to follow in
+/// bash form, or that need more advanced flag/optional requirements.
 let package = Package(
   name: "RepoScripts",
   platforms: [.macOS(.v15)],
   products: [
-    .executable(name: "tests", targets: ["Tests"])
+    .executable(name: "tests", targets: ["Tests"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", exact: "1.6.2"),
@@ -43,7 +43,7 @@ let package = Package(
     .target(
       name: "Util",
       dependencies: [
-        .product(name: "Logging", package: "swift-log")
+        .product(name: "Logging", package: "swift-log"),
       ]
     ),
   ]

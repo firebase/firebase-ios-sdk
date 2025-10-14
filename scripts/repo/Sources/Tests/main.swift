@@ -15,17 +15,17 @@
  */
 
 import ArgumentParser
-import Logging
 import Foundation
+import Logging
 
 struct Tests: ParsableCommand {
   nonisolated(unsafe) static var configuration = CommandConfiguration(
     abstract: "Commands for running and interacting with integration tests.",
     discussion: """
-          A note on logging: by default, only log levels "info" and above are logged. For further \
-          debugging, you can set the "LOG_LEVEL" environment variable to a different minimum level \
-          (eg; "debug").
-        """,
+      A note on logging: by default, only log levels "info" and above are logged. For further \
+      debugging, you can set the "LOG_LEVEL" environment variable to a different minimum level \
+      (eg; "debug").
+    """,
     subcommands: [Decrypt.self]
     // defaultSubcommand: Run.self
   )

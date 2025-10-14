@@ -41,8 +41,8 @@ extension SecretFile {
         "Invalid secret file format. Format should be \"encrypted:destination\". Cause: \(string)"
       )
     }
-    self.encrypted = String(splits[0])
-    self.destination = String(splits[1])
+    encrypted = String(splits[0])
+    destination = String(splits[1])
   }
 
   /// Parses an array of `SecretFile` from a JSON file.
@@ -66,7 +66,8 @@ extension SecretFile {
       return try JSONDecoder().decode([SecretFile].self, from: data)
     } catch {
       throw ValidationError(
-        "Failed to load secret files from json file. Cause: \(error.localizedDescription)")
+        "Failed to load secret files from json file. Cause: \(error.localizedDescription)"
+      )
     }
   }
 }
