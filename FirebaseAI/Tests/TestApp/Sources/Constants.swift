@@ -24,6 +24,7 @@ public enum ModelNames {
   public static let gemini2Flash = "gemini-2.0-flash-001"
   public static let gemini2FlashLite = "gemini-2.0-flash-lite-001"
   public static let gemini2FlashPreviewImageGeneration = "gemini-2.0-flash-preview-image-generation"
+  public static let gemini2FlashLive = "gemini-2.0-flash-live-001"
   public static let gemini2FlashLivePreview = "gemini-2.0-flash-live-preview-04-09"
   public static let gemini2_5_FlashImagePreview = "gemini-2.5-flash-image-preview"
   public static let gemini2_5_Flash = "gemini-2.5-flash"
