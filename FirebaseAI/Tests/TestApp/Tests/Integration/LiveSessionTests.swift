@@ -132,6 +132,7 @@ struct LiveSessionTests {
       return
     }
     await session.sendAudioRealtime(audioFile.data)
+    // The model can't infer that we're done speaking until we send null bytes
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
     let text = try await session.collectNextAudioOutputTranscript()
