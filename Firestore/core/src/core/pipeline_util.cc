@@ -39,6 +39,7 @@
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/comparison.h"
+#include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "absl/strings/str_cat.h"
@@ -652,17 +653,6 @@ std::shared_ptr<api::Expr> ToPipelineBooleanExpr(const Filter& filter) {
   return nullptr;
 }
 
-std::vector<api::Ordering> ReverseOrderings(
-    const std::vector<api::Ordering>& orderings) {
-  std::vector<api::Ordering> reversed;
-  reversed.reserve(orderings.size());
-  for (const auto& o : orderings) {
-    const api::Ordering new_order(o);
-    reversed.push_back(new_order.WithReversedDirection());
-  }
-  return reversed;
-}
-
 std::shared_ptr<api::Expr> WhereConditionsFromCursor(
     const Bound& bound,
     const std::vector<api::Ordering>& orderings,
@@ -678,7 +668,7 @@ std::shared_ptr<api::Expr> WhereConditionsFromCursor(
   std::string func_inclusive_name = is_before ? "lte" : "gte";
 
   std::vector<std::shared_ptr<api::Expr>> or_conditions;
-  for (size_t sub_end = 1; sub_end <= orderings.size(); ++sub_end) {
+  for (size_t sub_end = 1; sub_end <= cursors.size(); ++sub_end) {
     std::vector<std::shared_ptr<api::Expr>> conditions;
     for (size_t index = 0; index < sub_end; ++index) {
       if (index < sub_end - 1) {
@@ -765,48 +755,37 @@ std::vector<std::shared_ptr<api::EvaluableStage>> ToPipelineStages(
             : api::Ordering::Direction::DESCENDING);
   }
 
-  if (!api_orderings.empty()) {
-    if (query.limit_type() == LimitType::Last) {
-      auto reversed_api_orderings = ReverseOrderings(api_orderings);
-      stages.push_back(
-          std::make_shared<api::SortStage>(reversed_api_orderings));
+  if (query.start_at()) {
+    stages.push_back(std::make_shared<api::Where>(WhereConditionsFromCursor(
+        *query.start_at(), api_orderings, /*is_before*/ false)));
+  }
 
-      if (query.start_at()) {
-        // For limitToLast, start_at defines what to exclude from the *end* of
-        // the un-reversed result set. With reversed sort, this becomes a
-        // 'before' cursor.
-        stages.push_back(std::make_shared<api::Where>(WhereConditionsFromCursor(
-            *query.start_at(), api_orderings, /*is_before=*/false)));
-      }
-      if (query.end_at()) {
-        // For limitToLast, end_at defines what to exclude from the *start* of
-        // the un-reversed result set. With reversed sort, this becomes an
-        // 'after' cursor.
-        stages.push_back(std::make_shared<api::Where>(WhereConditionsFromCursor(
-            *query.end_at(), api_orderings, /*is_before=*/true)));
-      }
-      stages.push_back(std::make_shared<api::LimitStage>(query.limit()));
-      stages.push_back(
-          std::make_shared<api::SortStage>(api_orderings));  // Sort back
-    } else {
+  if (query.end_at()) {
+    stages.push_back(std::make_shared<api::Where>(WhereConditionsFromCursor(
+        *query.end_at(), api_orderings, /*is_before*/ true)));
+  }
+
+  if (query.has_limit()) {
+    if (query.limit_type() == LimitType::First) {
       stages.push_back(std::make_shared<api::SortStage>(api_orderings));
-      if (query.start_at()) {
-        stages.push_back(std::make_shared<api::Where>(WhereConditionsFromCursor(
-            *query.start_at(), api_orderings, /*is_before=*/true)));
+      stages.push_back(std::make_shared<api::LimitStage>(query.limit()));
+    } else {
+      if (query.explicit_order_bys().empty()) {
+        util::ThrowInvalidArgument(
+            "limit(toLast:) queries require specifying at least one OrderBy() "
+            "clause.");
       }
-      if (query.end_at()) {
-        stages.push_back(std::make_shared<api::Where>(WhereConditionsFromCursor(
-            *query.end_at(), api_orderings, /*is_before=*/false)));
+
+      std::vector<api::Ordering> reversed_orderings;
+      for (const auto& ordering : api_orderings) {
+        reversed_orderings.push_back(ordering.WithReversedDirection());
       }
-      if (query.limit_type() == LimitType::First && query.limit()) {
-        stages.push_back(std::make_shared<api::LimitStage>(query.limit()));
-      }
+      stages.push_back(std::make_shared<api::SortStage>(reversed_orderings));
+      stages.push_back(std::make_shared<api::LimitStage>(query.limit()));
+      stages.push_back(std::make_shared<api::SortStage>(api_orderings));
     }
-  } else if (query.limit_type() == LimitType::First && query.limit()) {
-    // Limit without order by requires a default sort by __name__
-    stages.push_back(std::make_shared<api::SortStage>(
-        std::vector<api::Ordering>{NewKeyOrdering()}));
-    stages.push_back(std::make_shared<api::LimitStage>(query.limit()));
+  } else {
+    stages.push_back(std::make_shared<api::SortStage>(api_orderings));
   }
 
   return stages;
