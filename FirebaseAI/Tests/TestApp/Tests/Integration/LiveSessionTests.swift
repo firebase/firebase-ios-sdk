@@ -21,7 +21,7 @@ import Testing
 
 @Suite(.serialized)
 struct LiveSessionTests {
-  private let OneSecondInNanoseconds = UInt64(1e+9)
+  private let oneSecondInNanoseconds = UInt64(1e+9)
   private let tools: [Tool] = [
     .functionDeclarations([
       FunctionDeclaration(
@@ -43,7 +43,7 @@ struct LiveSessionTests {
     outputAudioTranscription: AudioTranscriptionConfig()
   )
 
-  private enum systemInstructions {
+  private enum SystemInstructions {
     static let yesOrNo = ModelContent(
       role: "system",
       parts: """
@@ -78,7 +78,7 @@ struct LiveSessionTests {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelForBackend(config),
       generationConfig: textConfig,
-      systemInstruction: systemInstructions.yesOrNo
+      systemInstruction: SystemInstructions.yesOrNo
     )
 
     let session = try await model.connect()
@@ -100,7 +100,7 @@ struct LiveSessionTests {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelForBackend(config),
       generationConfig: audioConfig,
-      systemInstruction: systemInstructions.yesOrNo
+      systemInstruction: SystemInstructions.yesOrNo
     )
 
     let session = try await model.connect()
@@ -122,7 +122,7 @@ struct LiveSessionTests {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelForBackend(config),
       generationConfig: audioConfig,
-      systemInstruction: systemInstructions.helloGoodbye
+      systemInstruction: SystemInstructions.helloGoodbye
     )
 
     let session = try await model.connect()
@@ -150,7 +150,7 @@ struct LiveSessionTests {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelForBackend(config),
       generationConfig: textConfig,
-      systemInstruction: systemInstructions.helloGoodbye
+      systemInstruction: SystemInstructions.helloGoodbye
     )
 
     let session = try await model.connect()
@@ -179,7 +179,7 @@ struct LiveSessionTests {
       modelName: modelForBackend(config),
       generationConfig: textConfig,
       tools: tools,
-      systemInstruction: systemInstructions.lastNames
+      systemInstruction: SystemInstructions.lastNames
     )
 
     let session = try await model.connect()
@@ -241,7 +241,7 @@ struct LiveSessionTests {
       modelName: modelForBackend(config),
       generationConfig: textConfig,
       tools: tools,
-      systemInstruction: systemInstructions.lastNames
+      systemInstruction: SystemInstructions.lastNames
     )
 
     let session = try await model.connect()
@@ -287,7 +287,7 @@ struct LiveSessionTests {
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
     // wait a second to allow the model to start generating (and cuase a proper interruption)
-    try await Task.sleep(nanoseconds: OneSecondInNanoseconds)
+    try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
     await session.sendAudioRealtime(audioFile.data)
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
@@ -308,7 +308,7 @@ struct LiveSessionTests {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelForBackend(config),
       generationConfig: textConfig,
-      systemInstruction: systemInstructions.yesOrNo
+      systemInstruction: SystemInstructions.yesOrNo
     )
 
     let session = try await model.connect()
