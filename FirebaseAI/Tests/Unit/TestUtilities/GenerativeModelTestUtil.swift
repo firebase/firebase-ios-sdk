@@ -49,7 +49,7 @@ enum GenerativeModelTestUtil {
         let requestURL = try XCTUnwrap(request.url)
         if isTemplateRequest {
           XCTAssertEqual(
-            requestURL.path.occurrenceCount(of: "templates/test-template.prompt:template"),
+            requestURL.path.occurrenceCount(of: "templates/test-template:template"),
             1
           )
         } else {

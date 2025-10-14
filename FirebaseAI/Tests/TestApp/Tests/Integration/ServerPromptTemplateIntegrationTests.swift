@@ -23,7 +23,8 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
   }
 
   func testGenerateContentWithText() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global")).templateGenerativeModel()
+    let model = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global"))
+      .templateGenerativeModel()
     let userName = "paul"
     let response = try await model.generateContent(
       template: "greeting2",
