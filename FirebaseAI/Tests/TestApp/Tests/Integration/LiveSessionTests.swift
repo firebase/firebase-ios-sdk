@@ -21,6 +21,20 @@ import Testing
 
 @Suite(.serialized)
 struct LiveSessionTests {
+  private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
+    switch config.apiConfig.service {
+    case .vertexAI:
+      [
+        (config, ModelNames.gemini2FlashLivePreview),
+      ]
+    case .googleAI:
+      [
+        (config, ModelNames.gemini2FlashLive),
+        (config, ModelNames.gemini2_5_FlashLivePreview),
+      ]
+    }
+  }
+
   private let oneSecondInNanoseconds = UInt64(1e+9)
   private let tools: [Tool] = [
     .functionDeclarations([
@@ -64,19 +78,10 @@ struct LiveSessionTests {
     )
   }
 
-  private func modelForBackend(_ config: InstanceConfig) -> String {
-    switch config.apiConfig.service {
-    case .vertexAI:
-      ModelNames.gemini2FlashLivePreview
-    case .googleAI:
-      ModelNames.gemini2_5_FlashLivePreview
-    }
-  }
-
-  @Test(arguments: InstanceConfig.liveConfigs)
-  func sendTextRealtime_receiveText(_ config: InstanceConfig) async throws {
+  @Test(arguments: arguments)
+  func sendTextRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelForBackend(config),
+      modelName: modelName,
       generationConfig: textConfig,
       systemInstruction: SystemInstructions.yesOrNo
     )
@@ -95,10 +100,11 @@ struct LiveSessionTests {
     #expect(modelResponse == "yes")
   }
 
-  @Test(arguments: InstanceConfig.liveConfigs)
-  func sendTextRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig) async throws {
+  @Test(arguments: arguments)
+  func sendTextRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
+                                                      modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelForBackend(config),
+      modelName: modelName,
       generationConfig: audioConfig,
       systemInstruction: SystemInstructions.yesOrNo
     )
@@ -117,10 +123,11 @@ struct LiveSessionTests {
     #expect(modelResponse == "yes")
   }
 
-  @Test(arguments: InstanceConfig.liveConfigs)
-  func sendAudioRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig) async throws {
+  @Test(arguments: arguments)
+  func sendAudioRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
+                                                       modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelForBackend(config),
+      modelName: modelName,
       generationConfig: audioConfig,
       systemInstruction: SystemInstructions.helloGoodbye
     )
@@ -146,10 +153,10 @@ struct LiveSessionTests {
     #expect(modelResponse == "goodbye")
   }
 
-  @Test(arguments: InstanceConfig.liveConfigs)
-  func sendAudioRealtime_receiveText(_ config: InstanceConfig) async throws {
+  @Test(arguments: arguments)
+  func sendAudioRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelForBackend(config),
+      modelName: modelName,
       generationConfig: textConfig,
       systemInstruction: SystemInstructions.helloGoodbye
     )
@@ -174,10 +181,10 @@ struct LiveSessionTests {
     #expect(modelResponse == "goodbye")
   }
 
-  @Test(arguments: InstanceConfig.liveConfigs)
-  func realtime_functionCalling(_ config: InstanceConfig) async throws {
+  @Test(arguments: arguments)
+  func realtime_functionCalling(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelForBackend(config),
+      modelName: modelName,
       generationConfig: textConfig,
       tools: tools,
       systemInstruction: SystemInstructions.lastNames
@@ -222,16 +229,17 @@ struct LiveSessionTests {
     #expect(modelResponse == "smith")
   }
 
-  @Test(arguments: InstanceConfig.liveConfigs.filter {
+  @Test(arguments: arguments.filter {
     // TODO: (b/450982184) Remove when vertex adds support
-    switch $0.apiConfig.service {
+    switch $0.0.apiConfig.service {
     case .googleAI:
       true
     case .vertexAI:
       false
     }
   })
-  func realtime_functionCalling_cancellation(_ config: InstanceConfig) async throws {
+  func realtime_functionCalling_cancellation(_ config: InstanceConfig,
+                                             modelName: String) async throws {
     // TODO: (b/450982184) Remove when vertex adds support
     guard case .googleAI = config.apiConfig.service else {
       Issue.record("Vertex does not currently support function ids or function cancellation.")
@@ -239,7 +247,7 @@ struct LiveSessionTests {
     }
 
     let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelForBackend(config),
+      modelName: modelName,
       generationConfig: textConfig,
       tools: tools,
       systemInstruction: SystemInstructions.lastNames
@@ -270,11 +278,11 @@ struct LiveSessionTests {
 
   // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   @Test(
-    arguments: InstanceConfig.liveConfigs.filter { !$0.useLimitedUseAppCheckTokens }
+    arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens }
   )
-  func realtime_interruption(_ config: InstanceConfig) async throws {
+  func realtime_interruption(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelForBackend(config),
+      modelName: modelName,
       generationConfig: audioConfig
     )
 
@@ -304,10 +312,10 @@ struct LiveSessionTests {
     }
   }
 
-  @Test(arguments: InstanceConfig.liveConfigs)
-  func incremental_works(_ config: InstanceConfig) async throws {
+  @Test(arguments: arguments)
+  func incremental_works(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelForBackend(config),
+      modelName: modelName,
       generationConfig: textConfig,
       systemInstruction: SystemInstructions.yesOrNo
     )
