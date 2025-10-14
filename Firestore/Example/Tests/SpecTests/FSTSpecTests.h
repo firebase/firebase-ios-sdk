@@ -37,13 +37,19 @@ extern NSString *const kDurablePersistence;
  * + Subclass FSTSpecTests
  * + override -persistence to create and return an appropriate Persistence implementation.
  */
-@interface FSTSpecTests : XCTestCase
+@interface FSTSpecTests : XCTestCase {
+ @protected
+  BOOL _convertToPipeline;
+}
 
 /** Based on its tags, determine whether the test case should run. */
 - (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags;
 
 /** Do any necessary setup for a single spec test */
 - (void)setUpForSpecWithConfig:(NSDictionary *)config;
+
+/** Determines if tests should run in pipeline mode. Subclasses can override. */
+- (BOOL)usePipelineMode;
 
 @end
 

@@ -1603,7 +1603,7 @@
               }
             ],
             "errorCode": 0,
-            "fromCache": true,
+            "fromCache": false,
             "hasPendingWrites": false,
             "query": {
               "filters": [
@@ -1655,7 +1655,7 @@
               }
             ],
             "errorCode": 0,
-            "fromCache": true,
+            "fromCache": false,
             "hasPendingWrites": false,
             "query": {
               "filters": [
@@ -1996,7 +1996,8 @@
     "describeName": "Listens source options:",
     "itName": "Mirror queries being listened from different sources while listening to server in primary tab",
     "tags": [
-      "multi-client"
+      "multi-client",
+      "no-pipeline-conversion"
     ],
     "config": {
       "numClients": 2,
@@ -2211,7 +2212,7 @@
               }
             ],
             "errorCode": 0,
-            "fromCache": true,
+            "fromCache": false,
             "hasPendingWrites": false,
             "query": {
               "filters": [
@@ -3233,7 +3234,8 @@
     "describeName": "Listens source options:",
     "itName": "Mirror queries from different sources while listening to server in secondary tab",
     "tags": [
-      "multi-client"
+      "multi-client",
+      "no-pipeline-conversion"
     ],
     "config": {
       "numClients": 2,
@@ -3482,7 +3484,7 @@
               }
             ],
             "errorCode": 0,
-            "fromCache": true,
+            "fromCache": false,
             "hasPendingWrites": false,
             "query": {
               "filters": [
@@ -5490,7 +5492,7 @@
               }
             ],
             "errorCode": 0,
-            "fromCache": true,
+            "fromCache": false,
             "hasPendingWrites": false,
             "query": {
               "filters": [
@@ -5556,7 +5558,7 @@
               }
             ],
             "errorCode": 0,
-            "fromCache": true,
+            "fromCache": false,
             "hasPendingWrites": true,
             "query": {
               "filters": [

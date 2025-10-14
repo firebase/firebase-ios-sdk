@@ -1622,8 +1622,8 @@ std::unique_ptr<api::EvaluableStage> Serializer::DecodeStage(
     document_paths.reserve(args_count);
     for (pb_size_t i = 0; i < args_count; ++i) {
       if (current_args[i].which_value_type ==
-          google_firestore_v1_Value_string_value_tag) {
-        document_paths.push_back(DecodeString(current_args[i].string_value));
+          google_firestore_v1_Value_reference_value_tag) {
+        document_paths.push_back(DecodeString(current_args[i].reference_value));
       } else {
         context->Fail(StringFormat(
             "Invalid argument type for 'documents' stage at index %zu: "

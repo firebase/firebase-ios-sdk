@@ -34,6 +34,7 @@
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/event_manager.h"
 #include "Firestore/core/src/core/listen_options.h"
+#include "Firestore/core/src/core/pipeline_util.h"  // Added for ToRealtimePipeline
 #include "Firestore/core/src/core/query_listener.h"
 #include "Firestore/core/src/core/sync_engine.h"
 #include "Firestore/core/src/credentials/empty_credentials_provider.h"
@@ -48,6 +49,7 @@
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider_noop.h"
 #include "Firestore/core/src/remote/remote_store.h"
+#include "Firestore/core/src/remote/serializer.h"  // Added for RealtimePipeline constructor
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/delayed_constructor.h"
 #include "Firestore/core/src/util/error_apple.h"
@@ -200,7 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet _expectedEnqueuedLimboDocuments;
 
   /** A dictionary for tracking the listens on queries. */
-  std::unordered_map<Query, std::shared_ptr<QueryListener>> _queryListeners;
+  std::unordered_map<core::QueryOrPipeline, std::shared_ptr<QueryListener>> _queryListeners;
 
   DatabaseInfo _databaseInfo;
   User _currentUser;
@@ -216,10 +218,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistence:(std::unique_ptr<Persistence>)persistence
                             eagerGC:(BOOL)eagerGC
+                  convertToPipeline:(BOOL)convertToPipeline
                         initialUser:(const User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
       maxConcurrentLimboResolutions:(size_t)maxConcurrentLimboResolutions {
   if (self = [super init]) {
+    _convertToPipeline = convertToPipeline;  // Store the flag
     _maxConcurrentLimboResolutions = maxConcurrentLimboResolutions;
 
     // Do a deep copy.
@@ -477,28 +481,55 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (TargetId)addUserListenerWithQuery:(Query)query options:(ListenOptions)options {
-  // TODO(dimond): Change spec tests to verify isFromCache on snapshots
-  auto listener =
-      QueryListener::Create(core::QueryOrPipeline(query), options,
-                            [self, query](const StatusOr<ViewSnapshot> &maybe_snapshot) {
-                              FSTQueryEvent *event = [[FSTQueryEvent alloc] init];
-                              event.query = query;
-                              if (maybe_snapshot.ok()) {
-                                [event setViewSnapshot:maybe_snapshot.ValueOrDie()];
-                              } else {
-                                event.error = MakeNSError(maybe_snapshot.status());
-                              }
+  core::QueryOrPipeline qop_for_listen;
+  if (_convertToPipeline) {
+    std::vector<std::shared_ptr<firebase::firestore::api::EvaluableStage>> stages =
+        firebase::firestore::core::ToPipelineStages(query);
+    auto serializer =
+        absl::make_unique<firebase::firestore::remote::Serializer>(_databaseInfo.database_id());
+    firebase::firestore::api::RealtimePipeline pipeline(std::move(stages), std::move(serializer));
+    qop_for_listen = core::QueryOrPipeline(pipeline);
+  } else {
+    qop_for_listen = core::QueryOrPipeline(query);
+  }
 
-                              [self.events addObject:event];
-                            });
-  _queryListeners[query] = listener;
+  auto listener = QueryListener::Create(
+      qop_for_listen, options,
+      [self, qop_for_listen](const StatusOr<ViewSnapshot> &maybe_snapshot) {
+        FSTQueryEvent *event = [[FSTQueryEvent alloc] init];
+        event.queryOrPipeline = qop_for_listen;  // Event now holds QueryOrPipeline
+        if (maybe_snapshot.ok()) {
+          [event setViewSnapshot:maybe_snapshot.ValueOrDie()];
+        } else {
+          event.error = MakeNSError(maybe_snapshot.status());
+        }
+        [self.events addObject:event];
+      });
+
+  _queryListeners[qop_for_listen] = listener;  // Use QueryOrPipeline as key
   TargetId targetID;
+
+  // The actual call to EventManager still uses the listener based on the original Query.
+  // The expectation is that SyncEngine will be made mode-aware if _convertToPipeline is true,
+  // or that EventManager/QueryListener will be updated to handle QueryOrPipeline directly.
   _workerQueue->EnqueueBlocking([&] { targetID = _eventManager->AddQueryListener(listener); });
   return targetID;
 }
 
-- (void)removeUserListenerWithQuery:(const Query &)query {
-  auto found_iter = _queryListeners.find(query);
+- (void)removeUserListenerWithQuery:(const core::Query &)query {
+  core::QueryOrPipeline qop;
+  if (_convertToPipeline) {
+    std::vector<std::shared_ptr<firebase::firestore::api::EvaluableStage>> stages =
+        firebase::firestore::core::ToPipelineStages(query);
+    auto serializer =
+        absl::make_unique<firebase::firestore::remote::Serializer>(_databaseInfo.database_id());
+    firebase::firestore::api::RealtimePipeline pipeline(std::move(stages), std::move(serializer));
+    qop = core::QueryOrPipeline(pipeline);
+  } else {
+    qop = core::QueryOrPipeline(query);
+  }
+
+  auto found_iter = _queryListeners.find(qop);
   if (found_iter != _queryListeners.end()) {
     std::shared_ptr<QueryListener> listener = found_iter->second;
     _queryListeners.erase(found_iter);
