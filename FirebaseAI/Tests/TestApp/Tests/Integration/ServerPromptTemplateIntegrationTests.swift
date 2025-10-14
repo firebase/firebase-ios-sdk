@@ -23,10 +23,10 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
   }
 
   func testGenerateContentWithText() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
+    let model = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global")).templateGenerativeModel()
     let userName = "paul"
     let response = try await model.generateContent(
-      template: "greeting",
+      template: "greeting2",
       variables: [
         "name": userName,
         "language": "Spanish",
@@ -40,7 +40,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
     let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
     let userName = "paul"
     let stream = try model.generateContentStream(
-      template: "greeting",
+      template: "greeting.prompt",
       variables: [
         "name": userName,
         "language": "English",
@@ -59,7 +59,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
     let imagenModel = FirebaseAI.firebaseAI(backend: .vertexAI()).templateImagenModel()
     let imagenPrompt = "A cat picture"
     let response = try await imagenModel.generateImages(
-      template: "generate_images",
+      template: "generate_images.prompt",
       variables: [
         "prompt": imagenPrompt,
       ]
@@ -74,7 +74,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
       let base64Image = imageBytes.base64EncodedString()
 
       let response = try await model.generateContent(
-        template: "media",
+        template: "media.prompt",
         variables: [
           "imageData": [
             "isInline": true,
@@ -96,7 +96,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
       let base64Image = imageBytes.base64EncodedString()
 
       let stream = try model.generateContentStream(
-        template: "media",
+        template: "media.prompt",
         variables: [
           "imageData": [
             "isInline": true,
@@ -123,7 +123,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
     ]
-    let chatSession = model.startChat(template: "chat_history", history: initialHistory)
+    let chatSession = model.startChat(template: "chat_history.prompt", history: initialHistory)
 
     let userMessage = "What's the weather like?"
 
@@ -142,7 +142,7 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
     ]
-    let chatSession = model.startChat(template: "chat_history", history: initialHistory)
+    let chatSession = model.startChat(template: "chat_history.prompt", history: initialHistory)
 
     let userMessage = "What's the weather like?"
 

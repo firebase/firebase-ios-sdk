@@ -49,8 +49,7 @@ extension TemplateGenerateContentRequest: GenerativeAIRequest {
     if case let .vertexAI(_, location) = apiConfig.service {
       urlString += "/locations/\(location)"
     }
-    let templateName = template.hasSuffix(".prompt") ? template : "\(template).prompt"
-    urlString += "/templates/\(templateName):templateGenerateContent"
+    urlString += "/templates/\(template):templateGenerateContent"
     if stream {
       urlString += "?alt=sse"
     }

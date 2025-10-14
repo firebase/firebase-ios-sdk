@@ -1,4 +1,3 @@
-
 // Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,8 +24,7 @@ public class GenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
     if case let .vertexAI(_, location) = apiConfig.service {
       urlString += "/locations/\(location)"
     }
-    let templateName = template.hasSuffix(".prompt") ? template : "\(template).prompt"
-    urlString += "/templates/\(templateName):\(ImageAPIMethod.generateImages.rawValue)"
+    urlString += "/templates/\(template):\(ImageAPIMethod.generateImages.rawValue)"
     return URL(string: urlString)!
   }
 
