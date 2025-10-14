@@ -390,9 +390,9 @@ private extension LiveSession {
   /// any messages it sends (either via `LiveAudioTranscription` or `TextPart`), and will
   /// record an issue describing the message.
   ///
-  /// This is useful when testing function calling, as sometimes the model sends an error message, does
-  /// something unexpected, or will attempt to get clarification. Logging the message (instead of just timing out),
-  /// allows us to more easily debug such situations.
+  /// This is useful when testing function calling, as sometimes the model sends an error message,
+  /// does something unexpected, or will attempt to get clarification. Logging the message (instead
+  /// of just timing out), allows us to more easily debug such situations.
   func collectNextToolCall() async throws -> LiveServerToolCall? {
     var error = ""
     for try await response in responses {
