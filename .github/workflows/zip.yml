@@ -436,7 +436,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAILogic/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/VertexAI/TestApp-GoogleService-Info.plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg \
         quickstart-ios/firebaseai/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
