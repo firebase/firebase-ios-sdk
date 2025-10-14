@@ -94,10 +94,10 @@ extension ProtoDuration: Decodable {
       ))
     }
 
-    guard let nanos = Int32(nanoseconds) else {
+    guard let fractionalSeconds = Double("0.\(nanoseconds)") else {
       AILog.warning(
         code: .decodedInvalidProtoDurationNanoseconds,
-        "Failed to parse the nanoseconds to an Int32: \(nanoseconds)."
+        "Failed to parse the nanoseconds to a Double: \(nanoseconds)."
       )
 
       throw DecodingError.dataCorrupted(.init(
@@ -107,6 +107,6 @@ extension ProtoDuration: Decodable {
     }
 
     self.seconds = secs
-    self.nanos = nanos
+    nanos = Int32(fractionalSeconds * 1_000_000_000)
   }
 }
