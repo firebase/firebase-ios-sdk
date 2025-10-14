@@ -40,7 +40,7 @@ public final class TemplateImagenModel: Sendable {
     -> ImagenGenerationResponse<ImagenInlineImage> {
     let templateVariables = try variables.mapValues { try TemplateVariable(value: $0) }
     let projectID = generativeAIService.firebaseInfo.projectID
-    let request = GenerateImagesRequest(
+    let request = TemplateGenerateImagesRequest(
       template: template,
       variables: templateVariables,
       projectID: projectID,

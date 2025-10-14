@@ -15,10 +15,10 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public class GenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
-  public typealias Response = ImagenGenerationResponse<ImagenInlineImage>
+class TemplateGenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
+  typealias Response = ImagenGenerationResponse<ImagenInlineImage>
 
-  public var url: URL {
+  var url: URL {
     var urlString =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
     if case let .vertexAI(_, location) = apiConfig.service {
@@ -28,7 +28,7 @@ public class GenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
     return URL(string: urlString)!
   }
 
-  public let options: RequestOptions
+  let options: RequestOptions
 
   let apiConfig: APIConfig
 
@@ -49,7 +49,7 @@ public class GenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
     case variables = "inputs"
   }
 
-  public func encode(to encoder: Encoder) throws {
+  func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(variables, forKey: .variables)
   }
