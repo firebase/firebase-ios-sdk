@@ -1,8 +1,19 @@
 # Unreleased
+- [fixed] Fixed various links in the Live API doc comments not mapping correctly.
+- [fixed] Fixed minor translation issue for nanosecond conversion when receiving
+  `LiveServerGoingAwayNotice`. (#15410)
+
+# 12.4.0
 - [feature] Added support for the URL context tool, which allows the model to access content
   from provided public web URLs to inform and enhance its responses. (#15221)
 - [changed] Using Firebase AI Logic with the Gemini Developer API is now Generally Available (GA).
 - [changed] Using Firebase AI Logic with the Imagen generation APIs is now Generally Available (GA).
+- [feature] Added support for the Live API, which allows bidirectional
+  communication with the model in realtime.
+
+  To get started with the Live API, see the Firebase docs on
+  [Bidirectional streaming using the Gemini Live API](https://firebase.google.com/docs/ai-logic/live-api).
+  (#15309)
 
 # 12.3.0
 - [feature] Added support for the Code Execution tool, which enables the model

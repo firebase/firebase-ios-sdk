@@ -47,7 +47,6 @@ public final class FirebaseAI: Sendable {
                                 useLimitedUseAppCheckTokens: Bool = false) -> FirebaseAI {
     let instance = createInstance(
       app: app,
-      location: backend.location,
       apiConfig: backend.apiConfig,
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
@@ -64,7 +63,7 @@ public final class FirebaseAI: Sendable {
   /// guidance on choosing an appropriate model for your use case.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the model to use, for example `"gemini-1.5-flash"`; see
+  ///   - modelName: The name of the model to use; see
   ///     [available model names
   ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names) for a
   ///     list of supported model names.
@@ -107,12 +106,11 @@ public final class FirebaseAI: Sendable {
 
   /// Initializes an ``ImagenModel`` with the given parameters.
   ///
-  /// > Important: Only Imagen 3 models (named `imagen-3.0-*`) are supported.
+  /// - Note: Refer to [Imagen models](https://firebase.google.com/docs/vertex-ai/models) for
+  /// guidance on choosing an appropriate model for your use case.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the Imagen 3 model to use, for example `"imagen-3.0-generate-002"`;
-  ///     see [model versions](https://firebase.google.com/docs/vertex-ai/models) for a list of
-  ///     supported Imagen 3 models.
+  ///   - modelName: The name of the Imagen 3 model to use.
   ///   - generationConfig: Configuration options for generating images with Imagen.
   ///   - safetySettings: Settings describing what types of potentially harmful content your model
   ///     should allow.
@@ -137,6 +135,44 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  /// **[Public Preview]** Initializes a ``LiveGenerativeModel`` with the given parameters.
+  ///
+  /// - Note: Refer to [the Firebase docs on the Live
+  /// API](https://firebase.google.com/docs/ai-logic/live-api#models-that-support-capability) for
+  /// guidance on choosing an appropriate model for your use case.
+  ///
+  /// > Warning: Using the Firebase AI Logic SDKs with the Gemini Live API is in Public
+  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
+  /// could change in backwards-incompatible ways.
+  ///
+  /// - Parameters:
+  ///   - modelName: The name of the model to use.
+  ///   - generationConfig: The content generation parameters your model should use.
+  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
+  ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
+  ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
+  ///     only text content is supported.
+  ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+  @available(watchOS, unavailable)
+  public func liveModel(modelName: String,
+                        generationConfig: LiveGenerationConfig? = nil,
+                        tools: [Tool]? = nil,
+                        toolConfig: ToolConfig? = nil,
+                        systemInstruction: ModelContent? = nil,
+                        requestOptions: RequestOptions = RequestOptions()) -> LiveGenerativeModel {
+    return LiveGenerativeModel(
+      modelResourceName: modelResourceName(modelName: modelName),
+      firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
+      generationConfig: generationConfig,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      requestOptions: requestOptions
+    )
+  }
+
   /// Class to enable FirebaseAI to register via the Objective-C based Firebase component system
   /// to include FirebaseAI in the userAgent.
   @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
@@ -148,21 +184,14 @@ public final class FirebaseAI: Sendable {
 
   let apiConfig: APIConfig
 
-  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp` name and the `location`,
-  /// in the format `appName:location`.
+  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp`,  the `APIConfig`, and
+  /// `useLimitedUseAppCheckTokens`.
   private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
 
   /// Lock to manage access to the `instances` array to avoid race conditions.
   private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
 
-  let location: String?
-
-  static let defaultVertexAIAPIConfig = APIConfig(
-    service: .vertexAI(endpoint: .firebaseProxyProd),
-    version: .v1beta
-  )
-
-  static func createInstance(app: FirebaseApp?, location: String?,
+  static func createInstance(app: FirebaseApp?,
                              apiConfig: APIConfig,
                              useLimitedUseAppCheckTokens: Bool) -> FirebaseAI {
     guard let app = app ?? FirebaseApp.app() else {
@@ -176,7 +205,6 @@ public final class FirebaseAI: Sendable {
 
     let instanceKey = InstanceKey(
       appName: app.name,
-      location: location,
       apiConfig: apiConfig,
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
@@ -185,7 +213,6 @@ public final class FirebaseAI: Sendable {
     }
     let newInstance = FirebaseAI(
       app: app,
-      location: location,
       apiConfig: apiConfig,
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
@@ -193,7 +220,7 @@ public final class FirebaseAI: Sendable {
     return newInstance
   }
 
-  init(app: FirebaseApp, location: String?, apiConfig: APIConfig,
+  init(app: FirebaseApp, apiConfig: APIConfig,
        useLimitedUseAppCheckTokens: Bool) {
     guard let projectID = app.options.projectID else {
       fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
@@ -214,7 +241,6 @@ public final class FirebaseAI: Sendable {
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
     self.apiConfig = apiConfig
-    self.location = location
   }
 
   func modelResourceName(modelName: String) -> String {
@@ -228,17 +254,14 @@ public final class FirebaseAI: Sendable {
     }
 
     switch apiConfig.service {
-    case .vertexAI:
-      return vertexAIModelResourceName(modelName: modelName)
+    case let .vertexAI(endpoint: _, location: location):
+      return vertexAIModelResourceName(modelName: modelName, location: location)
     case .googleAI:
       return developerModelResourceName(modelName: modelName)
     }
   }
 
-  private func vertexAIModelResourceName(modelName: String) -> String {
-    guard let location else {
-      fatalError("Location must be specified for the Firebase AI service.")
-    }
+  private func vertexAIModelResourceName(modelName: String, location: String) -> String {
     guard !location.isEmpty && location
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
@@ -267,7 +290,6 @@ public final class FirebaseAI: Sendable {
   /// This type is `Hashable` so that it can be used as a key in the `instances` dictionary.
   private struct InstanceKey: Sendable, Hashable {
     let appName: String
-    let location: String?
     let apiConfig: APIConfig
     let useLimitedUseAppCheckTokens: Bool
   }
