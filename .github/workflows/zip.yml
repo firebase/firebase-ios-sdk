@@ -18,7 +18,7 @@ on:
     - '.github/workflows/zip.yml'
     - 'scripts/build_non_firebase_sdks.sh'
     - 'scripts/build_zip.sh'
-    - 'scripts/setup_quickstart_framework.sh''
+    - 'scripts/setup_quickstart_framework.sh'
     - 'Gemfile*'
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
