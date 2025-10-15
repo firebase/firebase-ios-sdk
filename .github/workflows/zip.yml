@@ -594,11 +594,11 @@ jobs:
     - name: Remove data before upload
       if: always()
       run: scripts/remove_data.sh messaging
-    # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
-    #   with:
-    #     name: quickstart_artifacts_messaging
-    #     path: quickstart-ios/
+    - uses: actions/upload-artifact@v4
+       if: ${{ failure() }}
+       with:
+         name: quickstart_artifacts_messaging
+         path: quickstart-ios/
 
 # # #   quickstart_framework_storage:
 # # # #    needs: package-head
