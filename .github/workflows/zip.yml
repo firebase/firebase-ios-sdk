@@ -342,7 +342,7 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      run: | 
+      run: |
         rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
         rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
         rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
@@ -350,7 +350,7 @@ jobs:
           "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
           "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Add frameworks to Crashlytics watchOS target
-      run: | 
+      run: |
         cd quickstart-ios/crashlytics
         "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk "Crashlytics" --target "CrashlyticsExample_(watchOS)_Extension" --framework_path Firebase/
     # TODO(#8057): Restore Swift Quickstart
