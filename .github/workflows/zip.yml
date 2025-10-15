@@ -349,10 +349,10 @@ jobs:
 #         SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
 #           "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
 #           "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-#     - name: Add frameworks to Crashlytics watchOS target
-#       run: |
-#         cd quickstart-ios/crashlytics
-#         "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk "Crashlytics" --target "CrashlyticsExample_(watchOS)_Extension" --framework_path Firebase/
+    # - name: Add frameworks to Crashlytics watchOS target
+    #   run: |
+    #     cd quickstart-ios/messaging
+    #     "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk Messaging --target NotificationServiceExtension --framework_path Firebase/FirebaseMessaging.xcframework
 #     - name: Patch Crashlytics Run Script Path
 #       run: scripts/patch_crashlytics_run_path.rb
 #     # TODO(#8057): Restore Swift Quickstart
@@ -580,6 +580,10 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Setup swift quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
+    - name: Add frameworks to Crashlytics watchOS target
+      run: |
+        cd quickstart-ios/messaging
+        "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk Messaging --target NotificationServiceExtension --framework_path Firebase/FirebaseMessaging.xcframework
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
         quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
