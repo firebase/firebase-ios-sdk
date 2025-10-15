@@ -345,6 +345,7 @@ jobs:
       run: | 
         rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
         rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
+        rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
         SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
           "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
           "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
