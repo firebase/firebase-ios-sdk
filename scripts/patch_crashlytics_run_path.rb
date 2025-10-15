@@ -19,21 +19,20 @@ require 'xcodeproj'
 # This script patches the Crashlytics Quickstart's Xcode project to fix the
 # path to the `run` script for XCFramework-based builds.
 #
-# The default project assumes an SPM dependency and has a hardcoded path:
-#  ${BUILD_DIR%Build/*}SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run
-#
-# This script changes it to the path used by the XCFramework distribution:
-#  "${SRCROOT}/Firebase/FirebaseCrashlytics/run"
+# The default project assumes an SPM dependency. This script changes the path
+# to point to the location where the `run` script is placed in the zip
+# distribution test environment.
 
 project_path = 'quickstart-ios/crashlytics/CrashlyticsExample.xcodeproj'
 project = Xcodeproj::Project.open(project_path)
+new_path = '"${SRCROOT}/Firebase/run"'
 
 project.targets.each do |target|
   target.build_phases.each do |phase|
     if phase.is_a?(Xcodeproj::Project::Object::PBXShellScriptBuildPhase) && phase.name == 'Run Script'
       if phase.shell_script.include?('SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run')
-        puts "Patching Run Script phase in target: #{target.name}"
-        phase.shell_script = '"${SRCROOT}/Firebase/FirebaseCrashlytics/run"'
+        puts "Patching Run Script phase in target '#{target.name}' to: #{new_path}"
+        phase.shell_script = new_path
       end
     end
   end
