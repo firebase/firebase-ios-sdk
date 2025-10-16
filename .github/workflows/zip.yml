@@ -547,7 +547,7 @@ jobs:
       SDK: "InAppMessaging"
     strategy:
       matrix:
-        artifact: [Firebase-actions-dir]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
             xcode: Xcode_16.4
