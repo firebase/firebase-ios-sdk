@@ -14,6 +14,7 @@
 
 import Foundation
 import XCTest
+import Testing
 
 enum IntegrationTestUtils {
   /// Skips an XCTest unless the specified environment variable is set.
