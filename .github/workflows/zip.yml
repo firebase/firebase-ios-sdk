@@ -143,15 +143,25 @@ jobs:
   packaging_done:
     runs-on: ubuntu-latest
     needs: [package-head]
-    if: ${{ !cancelled() }}
+    if: always()
+    outputs:
+      run_id: ${{ steps.get_run_id.outputs.run_id }}
     steps:
       - name: Check packaging result
         if: ${{ needs.package-head.result == 'failure' }}
         run: |
           echo "Packaging failed. Aborting."
           exit 1
-      - name: Done
-        run: exit 0
+      - name: Get Run ID
+        id: get_run_id
+        run: |
+          if [[ -n "${{ github.event.inputs.zip_run_id }}" ]]; then
+            echo "run_id=${{ github.event.inputs.zip_run_id }}" >> $GITHUB_OUTPUT
+          elif [[ -n "${{ env.PINNED_RUN_ID }}" ]]; then
+            echo "run_id=${{ env.PINNED_RUN_ID }}" >> $GITHUB_OUTPUT
+          else
+            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
+          fi
 
   check_framework_firestore_symbols:
     needs: packaging_done
@@ -167,7 +177,7 @@ jobs:
         uses: actions/download-artifact@v4.1.7
         with:
           name: Firebase-actions-dir
-          run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+          run-id: ${{ needs.packaging_done.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
       - name: Setup Bundler
@@ -204,7 +214,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -258,7 +268,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -307,7 +317,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -356,7 +366,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -425,7 +435,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -477,7 +487,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -534,7 +544,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -586,7 +596,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -638,7 +648,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || env.PINNED_RUN_ID || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
