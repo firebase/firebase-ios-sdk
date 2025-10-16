@@ -1,4 +1,4 @@
-# Firebase iOS repo commands
+# Firebase Apple repo commands
 
 This project includes commands that are too long and complicated to properly
 maintain in a bash script, or that have unique option/flag constraints that
