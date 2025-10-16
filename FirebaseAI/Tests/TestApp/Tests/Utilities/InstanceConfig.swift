@@ -12,15 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseCore
 import Testing
 
-@testable import struct FirebaseAI.APIConfig
+@testable import struct FirebaseAILogic.APIConfig
 
 struct InstanceConfig: Equatable, Encodable {
   static let vertexAI_v1beta = InstanceConfig(
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      version: .v1beta
+    )
+  )
+  static let vertexAI_v1beta_appCheckLimitedUse = InstanceConfig(
+    useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
@@ -74,6 +81,14 @@ struct InstanceConfig: Equatable, Encodable {
     // vertexAI_v1beta_staging,
     // googleAI_v1beta_staging,
     // googleAI_v1beta_freeTier_bypassProxy,
+  ]
+
+  static let liveConfigs = [
+    vertexAI_v1beta,
+    vertexAI_v1beta_appCheckLimitedUse,
+    googleAI_v1beta,
+    googleAI_v1beta_appCheckLimitedUse,
+    googleAI_v1beta_freeTier,
   ]
 
   static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(

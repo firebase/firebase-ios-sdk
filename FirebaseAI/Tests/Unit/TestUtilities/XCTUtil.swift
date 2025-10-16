@@ -12,12 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseAILogic
+import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FirebaseAI {
-  static let defaultVertexAIAPIConfig = APIConfig(
-    service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
-    version: .v1beta
-  )
+/// Asserts that a string contains another string.
+///
+/// ```swift
+/// XCTAssertContains("my name is", "name")
+/// ```
+///
+/// - Parameters:
+///   - string: The source string that should contain the other.
+///   - contains: The string that should be contained in the source string.
+func XCTAssertContains(_ string: String, _ contains: String) {
+  if !string.contains(contains) {
+    XCTFail("(\"\(string)\") does not contain (\"\(contains)\")")
+  }
 }

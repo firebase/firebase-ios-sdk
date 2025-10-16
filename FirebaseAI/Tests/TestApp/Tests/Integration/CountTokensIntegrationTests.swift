@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import Testing
 
-@testable import struct FirebaseAI.APIConfig
+@testable import struct FirebaseAILogic.APIConfig
 
 @Suite(.serialized)
 struct CountTokensIntegrationTests {

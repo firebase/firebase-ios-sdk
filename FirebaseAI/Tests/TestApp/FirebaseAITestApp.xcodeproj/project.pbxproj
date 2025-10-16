@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E460FAB2E9858E4007E26A6 /* LiveSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E460FAA2E9858E4007E26A6 /* LiveSessionTests.swift */; };
+		0EC8BAE22E98784E0075A4E0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 868A7C532CCC26B500E449DD /* Assets.xcassets */; };
 		862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */; };
 		864F8F712D4980DD0002EA7E /* ImagenIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 864F8F702D4980D60002EA7E /* ImagenIntegrationTests.swift */; };
 		8661385C2CC943DD00F4B78E /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8661385B2CC943DD00F4B78E /* TestApp.swift */; };
@@ -42,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0E460FAA2E9858E4007E26A6 /* LiveSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSessionTests.swift; sourceTree = "<group>"; };
 		862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTestUtils.swift; sourceTree = "<group>"; };
 		864F8F702D4980D60002EA7E /* ImagenIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagenIntegrationTests.swift; sourceTree = "<group>"; };
 		866138582CC943DD00F4B78E /* FirebaseAITestApp-SPM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FirebaseAITestApp-SPM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -141,6 +144,7 @@
 		868A7C572CCC27AF00E449DD /* Integration */ = {
 			isa = PBXGroup;
 			children = (
+				0E460FAA2E9858E4007E26A6 /* LiveSessionTests.swift */,
 				DEF0BB502DA9B7400093E9F4 /* SchemaTests.swift */,
 				DEF0BB4E2DA74F460093E9F4 /* TestHelpers.swift */,
 				8689CDCB2D7F8BCF00BF426B /* CountTokensIntegrationTests.swift */,
@@ -271,6 +275,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0EC8BAE22E98784E0075A4E0 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +300,7 @@
 			files = (
 				8689CDCC2D7F8BD700BF426B /* CountTokensIntegrationTests.swift in Sources */,
 				86D77E042D7B6C9D003D155D /* InstanceConfig.swift in Sources */,
+				0E460FAB2E9858E4007E26A6 /* LiveSessionTests.swift in Sources */,
 				DEF0BB512DA9B7450093E9F4 /* SchemaTests.swift in Sources */,
 				DEF0BB4F2DA74F680093E9F4 /* TestHelpers.swift in Sources */,
 				868A7C4F2CCC229F00E449DD /* Credentials.swift in Sources */,
