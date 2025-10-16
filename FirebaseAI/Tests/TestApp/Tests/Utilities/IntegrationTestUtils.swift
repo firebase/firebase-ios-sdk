@@ -43,3 +43,33 @@ extension Numeric where Self: Strideable, Self.Stride.Magnitude: Comparable {
     return distance(to: other).magnitude <= accuracy.magnitude
   }
 }
+
+/// Retry a flakey test N times before failing.
+///
+/// - Parameters:
+///   - times: The amount of attempts to retry before failing. Must be greater than 0.
+///   - delayInSeconds: How long to wait before performing the next attempt.
+@discardableResult
+internal func retry<T>(
+  times: Int,
+  delayInSeconds: TimeInterval = 0.1,
+  _ test: () async throws -> T
+) async throws -> T {
+  if times <= 0 {
+    fatalError("Times must be greater than 0.")
+  }
+  var delayNanos = UInt64(delayInSeconds * 1e+9)
+  var lastError: Error?
+  for attempt in 1...times {
+    do { return try await test() }
+    catch {
+      lastError = error
+      // only wait if we have more attempts
+      if attempt < times {
+        try? await Task.sleep(nanoseconds: delayNanos)
+      }
+    }
+  }
+  Issue.record("Flaky test failed after \(times) attempt(s): \(String(describing: lastError))")
+  throw lastError!
+}
