@@ -1,3 +1,12 @@
+# This workflow tests the zip distribution of the SDK.
+# There are three ways to configure the source of the zip file for testing:
+# 1. To iterate on a PR: Set the `PINNED_RUN_ID` environment variable in this
+#    file to a successful zip packaging run. This is useful for avoiding
+#    re-running the packaging jobs on every commit.
+# 2. For manual runs: Trigger the workflow via the GitHub UI (`workflow_dispatch`)
+#    and provide a "Run ID of a previous successful zip workflow" in the input.
+# 3. By default (for scheduled and other PR runs): The workflow will build the
+#    zip from the current commit (HEAD).
 name: zip
 
 # TODO(ncooke3): Add FirebaseAI test.
