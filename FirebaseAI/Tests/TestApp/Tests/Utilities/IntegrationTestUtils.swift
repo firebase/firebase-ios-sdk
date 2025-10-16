@@ -57,7 +57,7 @@ func retry<T>(times: Int,
   if times <= 0 {
     fatalError("Times must be greater than 0.")
   }
-  var delayNanos = UInt64(delayInSeconds * 1e+9)
+  let delayNanos = UInt64(delayInSeconds * 1e+9)
   var lastError: Error?
   for attempt in 1 ... times {
     do { return try await test() }
