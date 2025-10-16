@@ -93,14 +93,14 @@ extension Tests {
       if !overwrite {
         log.info("Overwrite is disabled, so we're skipping generation for existing files.")
         files = files.filter { file in
-          let exists = FileManager.default.fileExists(atPath: file.destination)
-          if !exists {
+          let keep = !FileManager.default.fileExists(atPath: file.destination)
+          if !keep {
             log.debug(
               "Skipping generation for existing file",
               metadata: ["destination": "\(file.destination)"]
             )
           }
-          return exists
+          return keep
         }
       }
 
