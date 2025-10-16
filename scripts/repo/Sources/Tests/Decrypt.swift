@@ -17,6 +17,7 @@
 import ArgumentParser
 import Foundation
 import Logging
+import Util
 
 extension Tests {
   /// Command for decrypting the secret files needed for a test run.
