@@ -69,6 +69,10 @@ func retry<T>(times: Int,
       }
     }
   }
+  guard let lastError else {
+    // should not happen unless we change the above code in some way
+    fatalError("Internal error: retry loop finished without error")
+  }
   Issue.record("Flaky test failed after \(times) attempt(s): \(String(describing: lastError))")
-  throw lastError!
+  throw lastError
 }
