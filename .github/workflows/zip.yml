@@ -441,7 +441,7 @@ jobs:
       matrix:
         os: [macos-14]
         xcode: [Xcode_16.2]
-        artifact: [Firebase-actions-dir]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
