@@ -281,33 +281,35 @@ struct LiveSessionTests {
   )
   // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   func realtime_interruption(_ config: InstanceConfig, modelName: String) async throws {
-    let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelName,
-      generationConfig: audioConfig
-    )
+    try await retry(times: 3, delayInSeconds: 2.0) {
+      let model = FirebaseAI.componentInstance(config).liveModel(
+        modelName: modelName,
+        generationConfig: audioConfig
+      )
 
-    let session = try await model.connect()
+      let session = try await model.connect()
 
-    guard let audioFile = NSDataAsset(name: "hello") else {
-      Issue.record("Missing audio file 'hello.wav' in Assets")
-      return
-    }
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
-
-    // wait a second to allow the model to start generating (and cuase a proper interruption)
-    try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
-
-    for try await content in session.responsesOf(LiveServerContent.self) {
-      if content.wasInterrupted {
-        break
-      }
-
-      if content.isTurnComplete {
-        Issue.record("The model never sent an interrupted message.")
+      guard let audioFile = NSDataAsset(name: "hello") else {
+        Issue.record("Missing audio file 'hello.wav' in Assets")
         return
+      }
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+
+      // wait a second to allow the model to start generating (and cuase a proper interruption)
+      try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+
+      for try await content in session.responsesOf(LiveServerContent.self) {
+        if content.wasInterrupted {
+          break
+        }
+
+        if content.isTurnComplete {
+          Issue.record("The model never sent an interrupted message.")
+          return
+        }
       }
     }
   }
