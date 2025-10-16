@@ -143,7 +143,7 @@ jobs:
   packaging_done:
     runs-on: ubuntu-latest
     needs: [package-head]
-    if: always()
+    if: !cancelled()
     steps:
       - name: Check packaging result
         if: ${{ needs.package-head.result == 'failure' }}
