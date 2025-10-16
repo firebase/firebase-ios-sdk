@@ -47,7 +47,6 @@ jobs:
   package-release:
     # Don't run on private repo.
     if: |
-      false &&
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       github.event.inputs.zip_run_id == ''
@@ -79,7 +78,6 @@ jobs:
   build:
     # Don't run on private repo unless it is a PR.
     if: |
-      false &&
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       github.event.inputs.zip_run_id == ''
@@ -120,7 +118,7 @@ jobs:
            build-head \
            ${{ matrix.linking_type }}
     - uses: actions/upload-artifact@v4
-      if: ${{ always() }}
+      if: always()
       with:
         name: ${{ matrix.linking_type == 'static' && 'Firebase-actions-dir' || 'Firebase-actions-dir-dynamic' }}
         # Zip the entire output directory since the builder adds subdirectories we don't know the
@@ -129,7 +127,7 @@ jobs:
 
   check_framework_firestore_symbols:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
@@ -161,7 +159,7 @@ jobs:
 
   quickstart_framework_abtesting:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "ABTesting"
@@ -207,14 +205,14 @@ jobs:
       if: always()
       run: scripts/remove_data.sh abtesting
     # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
+    #   if: failure()
     #   with:
     #     name: quickstart_artifacts_abtesting
     #     path: quickstart-ios/
 
   quickstart_framework_auth:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK:  "Authentication"
@@ -259,14 +257,14 @@ jobs:
       if: always()
       run: scripts/remove_data.sh authentication
     - uses: actions/upload-artifact@v4
-      # if: ${{ failure() }}
+      # if: failure()
       with:
         name: quickstart_artifacts_auth
         path: quickstart-ios/
 
   quickstart_framework_config:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Config"
@@ -308,14 +306,14 @@ jobs:
       if: always()
       run: scripts/remove_data.sh config
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
         name: quickstart_artifacts_config
         path: quickstart-ios/
 
   quickstart_framework_crashlytics:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Crashlytics"
@@ -379,14 +377,14 @@ jobs:
       if: always()
       run: scripts/remove_data.sh crashlytics
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
         name: quickstart_artifacts_crashlytics
         path: quickstart-ios/
 
   quickstart_framework_database:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Database"
@@ -431,14 +429,14 @@ jobs:
       if: always()
       run: scripts/remove_data.sh database
     # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
+    #   if: failure()
     #   with:
     #     name: quickstart_artifacts database
     #     path: quickstart-ios/
 
   quickstart_framework_firestore:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Firestore"
@@ -474,7 +472,7 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Upload build logs on failure
-      if: ${{ failure() }}
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: build_logs_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
@@ -488,14 +486,14 @@ jobs:
       if: always()
       run: scripts/remove_data.sh firestore; zip -r --symlinks quickstart_artifacts_firestore.zip quickstart-ios/
     # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
+    #   if: failure()
     #   with:
     #     name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
     #     path: quickstart_artifacts_firestore.zip
 
   quickstart_framework_inappmessaging:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "InAppMessaging"
@@ -541,14 +539,14 @@ jobs:
       if: always()
       run: scripts/remove_data.sh inappmessaging
     # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
+    #   if: failure()
     #   with:
     #     name: quickstart_artifacts_inappmessaging
     #     path: quickstart-ios/
 
   quickstart_framework_messaging:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Messaging"
@@ -594,14 +592,14 @@ jobs:
       if: always()
       run: scripts/remove_data.sh messaging
     # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
+    #   if: failure()
     #   with:
     #     name: quickstart_artifacts_messaging
     #     path: quickstart-ios/
 
   quickstart_framework_storage:
     needs: package-head
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: !cancelled() && (success() || github.event.inputs.zip_run_id != '')
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Storage"
@@ -646,7 +644,7 @@ jobs:
       if: always()
       run: scripts/remove_data.sh storage
     # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
+    #   if: failure()
     #   with:
     #     name: quickstart_artifacts_storage
     #     path: quickstart-ios/
