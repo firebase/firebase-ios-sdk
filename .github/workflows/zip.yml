@@ -44,17 +44,29 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+  check_pinned_run:
+    runs-on: ubuntu-latest
+    outputs:
+      should_package: ${{ steps.check.outputs.should_package }}
+    steps:
+    - name: Check for pinned run ID
+      id: check
+      run: |
+        if [[ -n "${{ env.PINNED_RUN_ID }}" ]]; then
+          echo "should_package=false" >> $GITHUB_OUTPUT
+        else
+          echo "should_package=true" >> $GITHUB_OUTPUT
+        fi
   package-release:
+    needs: check_pinned_run
     # Don't run on private repo.
     if: |
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
-      github.event.inputs.zip_run_id == ''
+      github.event.inputs.zip_run_id == '' &&
+      needs.check_pinned_run.outputs.should_package == 'true'
     runs-on: macos-14
     steps:
-    - name: Skip packaging if pinned run ID is specified as workflow-level env var.
-      if: env.PINNED_RUN_ID != ''
-      run: exit 1
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
@@ -79,11 +91,13 @@ jobs:
         path: release_zip_dir
 
   build:
+    needs: check_pinned_run
     # Don't run on private repo unless it is a PR.
     if: |
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
-      github.event.inputs.zip_run_id == ''
+      github.event.inputs.zip_run_id == '' &&
+      needs.check_pinned_run.outputs.should_package == 'true'
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
@@ -95,15 +109,13 @@ jobs:
         swift build -v
 
   package-head:
-    needs: build
+    needs: [build, check_pinned_run]
+    if: needs.check_pinned_run.outputs.should_package == 'true'
     strategy:
       matrix:
         linking_type: [static, dynamic]
     runs-on: macos-14
     steps:
-    - name: Skip packaging if pinned run ID is specified as workflow-level env var.
-      if: env.PINNED_RUN_ID != ''
-      run: exit 1
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
