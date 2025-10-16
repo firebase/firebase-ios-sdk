@@ -165,7 +165,7 @@ jobs:
 
   check_framework_firestore_symbols:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
