@@ -27,9 +27,12 @@ permissions:
 
 jobs:
   spm:
+    strategy:
+      matrix:
+        target: [FirebaseAILogicUnit, FirebaseAIUnit]
     uses: ./.github/workflows/common.yml
     with:
-      target: FirebaseAIUnit
+      target: ${{  matrix.target }}
       setup_command: scripts/update_vertexai_responses.sh
 
   testapp-integration:
@@ -77,9 +80,12 @@ jobs:
         retention-days: 2
 
   pod_lib_lint:
+    strategy:
+      matrix:
+        product: [FirebaseAILogic, FirebaseAI]
     uses: ./.github/workflows/common_cocoapods.yml
     with:
-      product: FirebaseAI
+      product: ${{  matrix.product }}
       supports_swift6: true
       setup_command: scripts/update_vertexai_responses.sh
 

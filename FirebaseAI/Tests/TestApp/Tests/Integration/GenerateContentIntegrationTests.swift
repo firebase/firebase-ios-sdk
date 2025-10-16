@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
@@ -23,7 +23,7 @@ import Testing
   import UIKit
 #endif // canImport(UIKit)
 
-@testable import struct FirebaseAI.BackendError
+@testable import struct FirebaseAILogic.BackendError
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
