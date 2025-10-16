@@ -17,7 +17,7 @@ import FirebaseAITestApp
 import SwiftUI
 import Testing
 
-@testable import struct FirebaseAI.APIConfig
+@testable import struct FirebaseAILogic.APIConfig
 
 @Suite(.serialized)
 struct LiveSessionTests {
