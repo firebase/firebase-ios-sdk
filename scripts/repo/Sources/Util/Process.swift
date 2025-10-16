@@ -32,8 +32,8 @@ public extension Process {
                    env: [String: String] = [:],
                    inheritEnvironment: Bool = false) {
     self.init()
-    executableURL = URL(filePath: exe)
-    arguments = args
+    executableURL = URL(filePath: "/usr/bin/env")
+    arguments = [exe] + args
     environment = env
     if inheritEnvironment {
       mergeEnvironment(ProcessInfo.processInfo.environment)
@@ -71,7 +71,7 @@ public extension Process {
   @discardableResult
   func runWithSignals(_ args: [String]? = nil) throws -> Int32 {
     if let args {
-      arguments = args
+      arguments = (arguments ?? []) + args
     }
 
     let sigint = bindSignal(signal: SIGINT) {
