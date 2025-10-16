@@ -276,10 +276,10 @@ struct LiveSessionTests {
     await session.close()
   }
 
-  // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   @Test(
     arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens }
   )
+  // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   func realtime_interruption(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
