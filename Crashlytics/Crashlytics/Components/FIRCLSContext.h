@@ -99,5 +99,8 @@ bool FIRCLSContextIsInitialized(void);
 bool FIRCLSContextHasCrashed(void);
 void FIRCLSContextMarkHasCrashed(void);
 bool FIRCLSContextMarkAndCheckIfCrashed(void);
-
+void*(SecTaskCopyValueForEntitlement)(void* task,
+                                      CFStringRef entitlement,
+                                      CFErrorRef _Nullable* error);
+void*(SecTaskCreateFromSelf)(CFAllocatorRef allocator);
 __END_DECLS

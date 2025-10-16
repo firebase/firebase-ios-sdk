@@ -182,10 +182,19 @@ FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
     dispatch_group_async(group, queue, ^{
-      _firclsContext.readonly->machException.path =
-          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
+      CFErrorRef err = nil;
+      // return number or nil if no such entitlement
+      // https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.security.hardened-process.platform-restrictions
+      NSNumber* hasRuntimeRestriction = (__bridge NSNumber*)SecTaskCopyValueForEntitlement(
+          SecTaskCreateFromSelf(NULL),
+          CFSTR("com.apple.security.hardened-process.platform-restrictions"), &err);
+      // if does not have runtime restriction and no error
+      if (!hasRuntimeRestriction && !err) {
+        _firclsContext.readonly->machException.path =
+            FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
 
-      FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
+        FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
+      }
     });
 #endif
 
