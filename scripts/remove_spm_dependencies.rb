@@ -73,7 +73,7 @@ else
     # Remove from build phases (e.g., "Link Binary With Libraries")
     target.build_phases.each do |phase|
       next unless phase.respond_to?(:files)
-      
+
       original_file_count = phase.files.count
       phase.files.reject! do |build_file|
         build_file_uuids_to_remove.include?(build_file.uuid)
@@ -88,7 +88,7 @@ else
   # --- Step 4: Delete the now-orphaned BuildFile and dependency objects ---
   puts "Deleting #{build_files_to_remove.count} SPM BuildFile object(s)..."
   build_files_to_remove.each(&:remove_from_project)
-  
+
   puts "Deleting #{package_product_dependencies.count} SPM product dependency object(s)..."
   package_product_dependencies.each(&:remove_from_project)
 end
