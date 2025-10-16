@@ -52,6 +52,9 @@ jobs:
       github.event.inputs.zip_run_id == ''
     runs-on: macos-14
     steps:
+    - name: Skip packaging if pinned run ID is specified as workflow-level env var.
+      if: env.PINNED_RUN_ID != ''
+      run: exit 1
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
@@ -100,7 +103,7 @@ jobs:
     steps:
     - name: Skip packaging if pinned run ID is specified as workflow-level env var.
       if: env.PINNED_RUN_ID != ''
-      run: exit 0
+      run: exit 1
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
@@ -252,15 +255,13 @@ jobs:
         quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    # TODO: Can this be reusable?
-    - name: Remove data before upload
-      if: always()
-      run: scripts/remove_data.sh authentication
     - uses: actions/upload-artifact@v4
-      # if: failure()
+      if: failure()
       with:
         name: quickstart_artifacts_auth
-        path: quickstart-ios/
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_config:
     needs: package-head
