@@ -100,6 +100,9 @@ jobs:
         linking_type: [static, dynamic]
     runs-on: macos-14
     steps:
+    - name: Skip packaging if pinned run ID is specified as workflow-level env var.
+      if: env.PINNED_RUN_ID != ''
+      run: exit 0
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
