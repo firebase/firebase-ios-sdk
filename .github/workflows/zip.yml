@@ -150,6 +150,8 @@ jobs:
         run: |
           echo "Packaging failed. Aborting."
           exit 1
+      - name: Done
+        run: exit 0
 
   check_framework_firestore_symbols:
     needs: packaging_done
