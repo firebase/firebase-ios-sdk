@@ -197,7 +197,7 @@ jobs:
 
   quickstart_framework_abtesting:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "ABTesting"
@@ -250,7 +250,7 @@ jobs:
 
   quickstart_framework_auth:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK:  "Authentication"
@@ -300,7 +300,7 @@ jobs:
 
   quickstart_framework_config:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Config"
@@ -349,7 +349,7 @@ jobs:
 
   quickstart_framework_crashlytics:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Crashlytics"
@@ -419,7 +419,7 @@ jobs:
 
   quickstart_framework_database:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Database"
@@ -470,7 +470,7 @@ jobs:
 
   quickstart_framework_firestore:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Firestore"
@@ -527,7 +527,7 @@ jobs:
 
   quickstart_framework_inappmessaging:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "InAppMessaging"
@@ -579,7 +579,7 @@ jobs:
 
   quickstart_framework_messaging:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Messaging"
@@ -631,7 +631,7 @@ jobs:
 
   quickstart_framework_storage:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Storage"
