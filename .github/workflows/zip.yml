@@ -254,7 +254,13 @@ jobs:
     #   if: failure()
     #   with:
     #     name: quickstart_artifacts_abtesting
-    #     path: quickstart-ios/
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: quickstart_artifacts_abtesting
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_auth:
     needs: packaging_done
