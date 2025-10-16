@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-import XCTest
 import Testing
+import XCTest
 
 enum IntegrationTestUtils {
   /// Skips an XCTest unless the specified environment variable is set.
