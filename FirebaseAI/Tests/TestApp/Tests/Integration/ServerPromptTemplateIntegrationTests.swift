@@ -19,10 +19,16 @@ import Testing
 #endif
 
 struct ServerPromptTemplateIntegrationTests {
-  private static let testConfigs: [InstanceConfig] = [.vertexAI_v1beta_global]
+  private static let testConfigs: [InstanceConfig] = [
+    .vertexAI_v1beta,
+    .vertexAI_v1beta_global,
+  ]
   private static let imageGenerationTestConfigs: [InstanceConfig] = [.vertexAI_v1beta]
 
-  @Test(arguments: testConfigs)
+  @Test(arguments: [
+    // The "greeting2" template is only available in the `global` location.
+    InstanceConfig.vertexAI_v1beta_global,
+  ])
   func generateContentWithText(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
