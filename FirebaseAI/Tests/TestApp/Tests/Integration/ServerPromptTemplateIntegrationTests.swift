@@ -91,7 +91,7 @@ struct ServerPromptTemplateIntegrationTests {
         ]
       )
       let text = try #require(response.text)
-      #expect(text.isEmpty == false)
+      #expect(!text.isEmpty)
     }
   #endif // canImport(UIKit)
 
@@ -121,7 +121,7 @@ struct ServerPromptTemplateIntegrationTests {
           resultText += text
         }
       }
-      #expect(resultText.isEmpty == false)
+      #expect(!resultText.isEmpty)
     }
   #endif // canImport(UIKit)
 
@@ -141,7 +141,7 @@ struct ServerPromptTemplateIntegrationTests {
       variables: ["message": userMessage]
     )
     let text = try #require(response.text)
-    #expect(text.isEmpty == false)
+    #expect(!text.isEmpty)
     #expect(chatSession.history.count == 4)
     let textPart = try #require(chatSession.history[2].parts.first as? TextPart)
     #expect(textPart.text == userMessage)
@@ -168,7 +168,7 @@ struct ServerPromptTemplateIntegrationTests {
         resultText += text
       }
     }
-    #expect(resultText.isEmpty == false)
+    #expect(!resultText.isEmpty)
     #expect(chatSession.history.count == 4)
     let textPart = try #require(chatSession.history[2].parts.first as? TextPart)
     #expect(textPart.text == userMessage)
