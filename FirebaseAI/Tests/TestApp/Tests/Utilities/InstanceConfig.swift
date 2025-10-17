@@ -56,6 +56,7 @@ struct InstanceConfig: Equatable, Encodable {
     apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
   )
   static let googleAI_v1beta_appCheckLimitedUse = InstanceConfig(
+    useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
   )
   static let googleAI_v1beta_staging = InstanceConfig(
@@ -164,7 +165,7 @@ extension InstanceConfig: CustomTestStringConvertible {
     }
     let locationSuffix: String
     if case let .vertexAI(_, location: location) = apiConfig.service {
-      locationSuffix = location
+      locationSuffix = " - (\(location))"
     } else {
       locationSuffix = ""
     }
