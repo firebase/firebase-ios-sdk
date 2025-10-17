@@ -12,19 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-
 import FirebaseAI
+import Testing
+#if canImport(UIKit)
+  import UIKit
+#endif
 
-final class ServerPromptTemplateIntegrationTests: XCTestCase {
-  override func setUp() {
-    super.setUp()
-    continueAfterFailure = false
-  }
+struct ServerPromptTemplateIntegrationTests {
+  private static let testConfigs: [InstanceConfig] = [
+    .vertexAI_v1beta,
+    .vertexAI_v1beta_global,
+  ]
+  private static let imageGenerationTestConfigs: [InstanceConfig] = [.vertexAI_v1beta]
 
-  func testGenerateContentWithText() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI(location: "global"))
-      .templateGenerativeModel()
+  @Test(arguments: [
+    // The "greeting2" template is only available in the `global` location.
+    InstanceConfig.vertexAI_v1beta_global,
+  ])
+  func generateContentWithText(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let response = try await model.generateContent(
       template: "greeting2",
@@ -33,12 +39,13 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
         "language": "Spanish",
       ]
     )
-    let text = try XCTUnwrap(response.text)
-    XCTAssert(text.contains("Paul"))
+    let text = try #require(response.text)
+    #expect(text.contains("Paul"))
   }
 
-  func testGenerateContentStream() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
+  @Test(arguments: testConfigs)
+  func generateContentStream(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let stream = try model.generateContentStream(
       template: "greeting.prompt",
@@ -53,11 +60,12 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
         resultText += text
       }
     }
-    XCTAssert(resultText.contains("Paul"))
+    #expect(resultText.contains("Paul"))
   }
 
-  func testGenerateImages() async throws {
-    let imagenModel = FirebaseAI.firebaseAI(backend: .vertexAI()).templateImagenModel()
+  @Test(arguments: imageGenerationTestConfigs)
+  func generateImages(_ config: InstanceConfig) async throws {
+    let imagenModel = FirebaseAI.componentInstance(config).templateImagenModel()
     let imagenPrompt = "A cat picture"
     let response = try await imagenModel.generateImages(
       template: "generate_images.prompt",
@@ -65,13 +73,17 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
         "prompt": imagenPrompt,
       ]
     )
-    XCTAssertEqual(response.images.count, 3)
+    #expect(response.images.count == 3)
   }
 
-  func testGenerateContentWithMedia() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
-    let image = UIImage(systemName: "photo")!
-    if let imageBytes = image.jpegData(compressionQuality: 0.8) {
+  #if canImport(UIKit)
+    @Test(arguments: testConfigs)
+    func generateContentWithMedia(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
+      let image = UIImage(systemName: "photo")!
+      let imageBytes = try #require(
+        image.jpegData(compressionQuality: 0.8), "Could not get image data."
+      )
       let base64Image = imageBytes.base64EncodedString()
 
       let response = try await model.generateContent(
@@ -84,16 +96,19 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
           ],
         ]
       )
-      XCTAssert(response.text?.isEmpty == false)
-    } else {
-      XCTFail("Could not get image data.")
+      let text = try #require(response.text)
+      #expect(!text.isEmpty)
     }
-  }
+  #endif // canImport(UIKit)
 
-  func testGenerateContentStreamWithMedia() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
-    let image = UIImage(systemName: "photo")!
-    if let imageBytes = image.jpegData(compressionQuality: 0.8) {
+  #if canImport(UIKit)
+    @Test(arguments: testConfigs)
+    func generateContentStreamWithMedia(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
+      let image = UIImage(systemName: "photo")!
+      let imageBytes = try #require(
+        image.jpegData(compressionQuality: 0.8), "Could not get image data."
+      )
       let base64Image = imageBytes.base64EncodedString()
 
       let stream = try model.generateContentStream(
@@ -112,14 +127,13 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
           resultText += text
         }
       }
-      XCTAssert(resultText.isEmpty == false)
-    } else {
-      XCTFail("Could not get image data.")
+      #expect(!resultText.isEmpty)
     }
-  }
+  #endif // canImport(UIKit)
 
-  func testChat() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
+  @Test(arguments: testConfigs)
+  func chat(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let initialHistory = [
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
@@ -132,13 +146,16 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
       userMessage,
       variables: ["message": userMessage]
     )
-    XCTAssert(response.text?.isEmpty == false)
-    XCTAssertEqual(chatSession.history.count, 4)
-    XCTAssertEqual((chatSession.history[2].parts.first as? TextPart)?.text, userMessage)
+    let text = try #require(response.text)
+    #expect(!text.isEmpty)
+    #expect(chatSession.history.count == 4)
+    let textPart = try #require(chatSession.history[2].parts.first as? TextPart)
+    #expect(textPart.text == userMessage)
   }
 
-  func testChatStream() async throws {
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI()).templateGenerativeModel()
+  @Test(arguments: testConfigs)
+  func chatStream(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let initialHistory = [
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
@@ -157,8 +174,9 @@ final class ServerPromptTemplateIntegrationTests: XCTestCase {
         resultText += text
       }
     }
-    XCTAssert(resultText.isEmpty == false)
-    XCTAssertEqual(chatSession.history.count, 4)
-    XCTAssertEqual((chatSession.history[2].parts.first as? TextPart)?.text, userMessage)
+    #expect(!resultText.isEmpty)
+    #expect(chatSession.history.count == 4)
+    let textPart = try #require(chatSession.history[2].parts.first as? TextPart)
+    #expect(textPart.text == userMessage)
   }
 }
