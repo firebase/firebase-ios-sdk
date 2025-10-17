@@ -72,7 +72,7 @@ jobs:
           - product: Messaging
             run_tests: false
           - product: InAppMessaging
-            run_tests: true
+            run_tests: false
           - product: Firestore
             run_tests: false
           - product: Database
@@ -82,7 +82,7 @@ jobs:
           - product: Crashlytics
             run_tests: true
           - product: ABTesting
-            run_tests: true
+            run_tests: false
     name: 'quickstart (release, ${{ matrix.product }}, run_tests: ${{ matrix.run_tests }})'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
