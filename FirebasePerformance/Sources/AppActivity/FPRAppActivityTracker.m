@@ -19,13 +19,13 @@
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
+#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
 #import "FirebasePerformance/Sources/Gauges/Memory/FPRMemoryGaugeCollector+Private.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Internal.h"
 #import "FirebasePerformance/Sources/Timer/FIRTrace+Private.h"
-#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 
 static NSDate *appStartTime = nil;
 static NSDate *doubleDispatchTime = nil;
@@ -125,7 +125,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
     // App launched in background so we invalidate the captured app start time
     // to prevent incorrect measurement when user later opens the app
     appStartTime = nil;
-    FPRLogDebug(kFPRTraceNotCreated, 
+    FPRLogDebug(kFPRTraceNotCreated,
                 @"Background launch detected. App start measurement will be skipped.");
   }
 
@@ -262,7 +262,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
     // Early bailout if background launch was detected, appStartTime will be nil if the app was
     // launched in background
     if (appStartTime == nil) {
-      FPRLogDebug(kFPRTraceNotCreated, 
+      FPRLogDebug(kFPRTraceNotCreated,
                   @"App start trace skipped due to background launch. "
                   @"This prevents reporting incorrect multi-minute/hour durations.");
       return;
@@ -281,7 +281,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
       self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
     [self.appStartTrace cancel];
     self.appStartTrace = nil;
-    FPRLogDebug(kFPRTraceNotCreated, 
+    FPRLogDebug(kFPRTraceNotCreated,
                 @"App start trace cancelled due to background state contamination.");
   }
 
@@ -311,24 +311,28 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
       NSTimeInterval startTimeSinceEpoch = [strongSelf.appStartTrace startTimeSinceEpoch];
       NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
-      NSTimeInterval elapsed = currentTimeSinceEpoch - startTimeSinceEpoch;
+      NSTimeInterval measuredAppStartTime = currentTimeSinceEpoch - startTimeSinceEpoch;
 
       // The below check accounts for multiple scenarios:
       // 1. App started in background and comes to foreground later
-      // 2. App launched but immediately backgrounded  
+      // 2. App launched but immediately backgroundedfor some reason and the actual launch
+      // happens a lot later.
       // 3. Network delays during startup inflating metrics
       // 4. iOS prewarm scenarios
-      BOOL shouldCompleteTrace = (elapsed < gAppStartMaxValidDuration) &&
-                                 [strongSelf isAppStartEnabled] &&
-                                 ![strongSelf isApplicationPreWarmed];
+      // 5. Dropping the app start trace in such situations where the launch time is taking more
+      // than 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
+      BOOL shouldDispatchAppStartTrace = (measuredAppStartTime < gAppStartMaxValidDuration) &&
+                                         [strongSelf isAppStartEnabled] &&
+                                         ![strongSelf isApplicationPreWarmed];
 
-      if (shouldCompleteTrace) {
+      if (shouldDispatchAppStartTrace) {
         [strongSelf.appStartTrace stop];
       } else {
         [strongSelf.appStartTrace cancel];
-        if (elapsed >= gAppStartMaxValidDuration) {
-          FPRLogDebug(kFPRTraceInvalidName, 
-                      @"App start trace cancelled due to excessive duration: %.2fs", elapsed);
+        if (measuredAppStartTime >= gAppStartMaxValidDuration) {
+          FPRLogDebug(kFPRTraceInvalidName,
+                      @"App start trace cancelled due to excessive duration: %.2fs",
+                      measuredAppStartTime);
         }
       }
     });
