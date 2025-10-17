@@ -153,4 +153,85 @@ final class GenerationConfigTests: XCTestCase {
     }
     """)
   }
+
+  func testEncodeGenerationConfig_responseJSONSchema() throws {
+    let mimeType = "application/json"
+    let responseJSONSchema: JSONObject = [
+      "type": .string("object"),
+      "title": .string("Person"),
+      "properties": .object([
+        "firstName": .object(["type": .string("string")]),
+        "middleNames": .object([
+          "type": .string("array"),
+          "items": .object(["type": .string("string")]),
+          "minItems": .number(0),
+          "maxItems": .number(3),
+        ]),
+        "lastName": .object(["type": .string("string")]),
+        "age": .object(["type": .string("integer")]),
+      ]),
+      "required": .array([
+        .string("firstName"),
+        .string("middleNames"),
+        .string("lastName"),
+        .string("age"),
+      ]),
+      "propertyOrdering": .array([
+        .string("firstName"),
+        .string("middleNames"),
+        .string("lastName"),
+        .string("age"),
+      ]),
+      "additionalProperties": .bool(false),
+    ]
+    let generationConfig = GenerationConfig(
+      responseMIMEType: mimeType,
+      responseJSONSchema: responseJSONSchema
+    )
+
+    let jsonData = try encoder.encode(generationConfig)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "responseJsonSchema" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "age" : {
+            "type" : "integer"
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "middleNames" : {
+            "items" : {
+              "type" : "string"
+            },
+            "maxItems" : 3,
+            "minItems" : 0,
+            "type" : "array"
+          }
+        },
+        "propertyOrdering" : [
+          "firstName",
+          "middleNames",
+          "lastName",
+          "age"
+        ],
+        "required" : [
+          "firstName",
+          "middleNames",
+          "lastName",
+          "age"
+        ],
+        "title" : "Person",
+        "type" : "object"
+      },
+      "responseMimeType" : "\(mimeType)"
+    }
+    """)
+  }
 }
