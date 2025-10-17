@@ -9,8 +9,6 @@
 #    zip from the current commit (HEAD).
 name: zip
 
-# TODO(ncooke3): Add FirebaseAI test.
-
 permissions:
   actions: read
   contents: read
