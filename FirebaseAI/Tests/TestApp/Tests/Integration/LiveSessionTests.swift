@@ -134,10 +134,9 @@ struct LiveSessionTests {
 
     let session = try await model.connect()
 
-    guard let audioFile = NSDataAsset(name: "hello") else {
-      Issue.record("Missing audio file 'hello.wav' in Assets")
-      return
-    }
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
     await session.sendAudioRealtime(audioFile.data)
     // The model can't infer that we're done speaking until we send null bytes
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
@@ -163,10 +162,9 @@ struct LiveSessionTests {
 
     let session = try await model.connect()
 
-    guard let audioFile = NSDataAsset(name: "hello") else {
-      Issue.record("Missing audio file 'hello.wav' in Assets")
-      return
-    }
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
     await session.sendAudioRealtime(audioFile.data)
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
@@ -230,7 +228,7 @@ struct LiveSessionTests {
   }
 
   @Test(arguments: arguments.filter {
-    // TODO: (b/450982184) Remove when vertex adds support
+    // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
     switch $0.0.apiConfig.service {
     case .googleAI:
       true
@@ -240,12 +238,6 @@ struct LiveSessionTests {
   })
   func realtime_functionCalling_cancellation(_ config: InstanceConfig,
                                              modelName: String) async throws {
-    // TODO: (b/450982184) Remove when vertex adds support
-    guard case .googleAI = config.apiConfig.service else {
-      Issue.record("Vertex does not currently support function ids or function cancellation.")
-      return
-    }
-
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
       generationConfig: textConfig,
@@ -288,14 +280,13 @@ struct LiveSessionTests {
 
     let session = try await model.connect()
 
-    guard let audioFile = NSDataAsset(name: "hello") else {
-      Issue.record("Missing audio file 'hello.wav' in Assets")
-      return
-    }
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
     await session.sendAudioRealtime(audioFile.data)
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    // wait a second to allow the model to start generating (and cuase a proper interruption)
+    // Wait a second to allow the model to start generating (and cause a proper interruption)
     try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
     await session.sendAudioRealtime(audioFile.data)
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
