@@ -63,12 +63,15 @@ struct ServerPromptTemplateIntegrationTests {
     #expect(resultText.contains("Paul"))
   }
 
-  @Test(arguments: imageGenerationTestConfigs)
+  @Test(arguments: [
+    // templatePredict is only currently supported on Developer API.
+    InstanceConfig.googleAI_v1beta,
+  ])
   func generateImages(_ config: InstanceConfig) async throws {
     let imagenModel = FirebaseAI.componentInstance(config).templateImagenModel()
     let imagenPrompt = "A cat picture"
     let response = try await imagenModel.generateImages(
-      template: "generate_images.prompt",
+      template: "generate-images2",
       variables: [
         "prompt": imagenPrompt,
       ]
@@ -76,60 +79,64 @@ struct ServerPromptTemplateIntegrationTests {
     #expect(response.images.count == 3)
   }
 
-  #if canImport(UIKit)
-    @Test(arguments: testConfigs)
-    func generateContentWithMedia(_ config: InstanceConfig) async throws {
-      let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
+  @Test(arguments: testConfigs)
+  func generateContentWithMedia(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
+    #if canImport(UIKit)
       let image = UIImage(systemName: "photo")!
-      let imageBytes = try #require(
-        image.jpegData(compressionQuality: 0.8), "Could not get image data."
-      )
-      let base64Image = imageBytes.base64EncodedString()
+    #elseif canImport(AppKit)
+      let image = NSImage(systemSymbolName: "photo", accessibilityDescription: nil)!
+    #endif
+    let imageBytes = try #require(
+      image.jpegData(compressionQuality: 0.8), "Could not get image data."
+    )
+    let base64Image = imageBytes.base64EncodedString()
 
-      let response = try await model.generateContent(
-        template: "media.prompt",
-        variables: [
-          "imageData": [
-            "isInline": true,
-            "mimeType": "image/jpeg",
-            "contents": base64Image,
-          ],
-        ]
-      )
-      let text = try #require(response.text)
-      #expect(!text.isEmpty)
-    }
-  #endif // canImport(UIKit)
+    let response = try await model.generateContent(
+      template: "media.prompt",
+      variables: [
+        "imageData": [
+          "isInline": true,
+          "mimeType": "image/jpeg",
+          "contents": base64Image,
+        ],
+      ]
+    )
+    let text = try #require(response.text)
+    #expect(!text.isEmpty)
+  }
 
-  #if canImport(UIKit)
-    @Test(arguments: testConfigs)
-    func generateContentStreamWithMedia(_ config: InstanceConfig) async throws {
-      let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
+  @Test(arguments: testConfigs)
+  func generateContentStreamWithMedia(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
+    #if canImport(UIKit)
       let image = UIImage(systemName: "photo")!
-      let imageBytes = try #require(
-        image.jpegData(compressionQuality: 0.8), "Could not get image data."
-      )
-      let base64Image = imageBytes.base64EncodedString()
+    #elseif canImport(AppKit)
+      let image = NSImage(systemSymbolName: "photo", accessibilityDescription: nil)!
+    #endif
+    let imageBytes = try #require(
+      image.jpegData(compressionQuality: 0.8), "Could not get image data."
+    )
+    let base64Image = imageBytes.base64EncodedString()
 
-      let stream = try model.generateContentStream(
-        template: "media.prompt",
-        variables: [
-          "imageData": [
-            "isInline": true,
-            "mimeType": "image/jpeg",
-            "contents": base64Image,
-          ],
-        ]
-      )
-      var resultText = ""
-      for try await response in stream {
-        if let text = response.text {
-          resultText += text
-        }
+    let stream = try model.generateContentStream(
+      template: "media.prompt",
+      variables: [
+        "imageData": [
+          "isInline": true,
+          "mimeType": "image/jpeg",
+          "contents": base64Image,
+        ],
+      ]
+    )
+    var resultText = ""
+    for try await response in stream {
+      if let text = response.text {
+        resultText += text
       }
-      #expect(!resultText.isEmpty)
     }
-  #endif // canImport(UIKit)
+    #expect(!resultText.isEmpty)
+  }
 
   @Test(arguments: testConfigs)
   func chat(_ config: InstanceConfig) async throws {
@@ -180,3 +187,20 @@ struct ServerPromptTemplateIntegrationTests {
     #expect(textPart.text == userMessage)
   }
 }
+
+#if canImport(AppKit)
+  import AppKit
+
+  extension NSImage {
+    func jpegData(compressionQuality: CGFloat) -> Data? {
+      guard let tiffRepresentation = tiffRepresentation,
+            let bitmapImage = NSBitmapImageRep(data: tiffRepresentation) else {
+        return nil
+      }
+      return bitmapImage.representation(
+        using: .jpeg,
+        properties: [.compressionFactor: compressionQuality]
+      )
+    }
+  }
+#endif
