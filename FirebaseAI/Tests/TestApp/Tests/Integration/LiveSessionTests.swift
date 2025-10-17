@@ -307,10 +307,6 @@ struct LiveSessionTests {
         }
 
         if content.isTurnComplete {
-          struct NoInterruptionError: Error,
-            CustomStringConvertible {
-            var description: String { "The model never sent an interrupted message." }
-          }
           throw NoInterruptionError()
         }
       }
@@ -475,6 +471,11 @@ private extension LiveSession {
       return nil
     }
   }
+}
+
+private struct NoInterruptionError: Error,
+  CustomStringConvertible {
+  var description: String { "The model never sent an interrupted message." }
 }
 
 private extension ModelContent {
