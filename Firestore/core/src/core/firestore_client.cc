@@ -523,6 +523,8 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
     if (mutations.empty()) {
       if (callback) {
         user_executor_->Execute([=] { callback(Status::OK()); });
+      } else {
+        LOG_WARN("Skipping callback due to empty mutations");
       }
     } else {
       sync_engine_->WriteMutations(
@@ -530,6 +532,8 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
             // Dispatch the result back onto the user dispatch queue.
             if (callback) {
               user_executor_->Execute([=] { callback(std::move(error)); });
+            } else {
+              LOG_WARN("Skipping callback due to null call back");
             }
           });
     }
