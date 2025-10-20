@@ -73,7 +73,7 @@ public final class LiveSession: Sendable {
   ///   - video: Encoded video data, used to update the model on the client's conversation.
   ///   - format: The format that the video was encoded in (eg; `mp4`, `webm`, `wmv`, etc.,).
   // TODO: (b/448671945) Make public after testing and next release
-  func sendVideoRealtime(_ video: Data, format: String) async {
+  public func sendVideoRealtime(_ video: Data, format: String) async {
     let message = BidiGenerateContentRealtimeInput(
       video: InlineData(data: video, mimeType: "video/\(format)")
     )
