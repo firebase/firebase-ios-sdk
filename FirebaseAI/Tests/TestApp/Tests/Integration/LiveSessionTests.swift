@@ -207,7 +207,7 @@ struct LiveSessionTests {
 
     let frames = try await videoFile.videoFrames()
     for frame in frames {
-      await session.sendVideoRealtime(frame, format: "image/png")
+      await session.sendVideoRealtime(frame, mimeType: "image/png")
     }
 
     // the model doesn't respond unless we send some audio too

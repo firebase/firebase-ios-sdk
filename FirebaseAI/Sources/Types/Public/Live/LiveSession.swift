@@ -78,11 +78,11 @@ public final class LiveSession: Sendable {
   /// - Parameters:
   ///   - video: Encoded image data extracted from a frame of the video, used to update the model on
   ///     the client's conversation.
-  ///   - format: The format that the image was encoded in (eg; `images/png`, `images/jpeg`,
-  ///     etc.,).
-  public func sendVideoRealtime(_ video: Data, format: String) async {
+  ///   - mimeType: The IANA standard MIME type of the video frame data (eg; `images/png`,
+  ///     `images/jpeg`etc.,).
+  public func sendVideoRealtime(_ video: Data, mimeType: String) async {
     let message = BidiGenerateContentRealtimeInput(
-      video: InlineData(data: video, mimeType: format)
+      video: InlineData(data: video, mimeType: mimeType)
     )
     await service.send(.realtimeInput(message))
   }
