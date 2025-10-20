@@ -145,6 +145,53 @@ extension Tests {
       }
     }
 
+    private func findXcodeVersions() throws -> [URL] {
+      let applicationDirs = FileManager.default.urls(
+        for: .applicationDirectory, in: .allDomainsMask
+      ).filter { url in
+        // file manager lists application dirs that CAN exist, so we should check if they actually
+        // do exist before trying to get their contents
+        let exists = FileManager.default.fileExists(atPath: url.path())
+        if !exists {
+          log.debug(
+            "Application directory doesn't exists, so we're skipping it.",
+            metadata: ["directory": "\(url.path())"]
+          )
+        }
+        return exists
+      }
+
+      log.debug(
+        "Searching application directories for Xcode installations.",
+        metadata: ["directories": "\(applicationDirs)"]
+      )
+
+      let allApplications = try applicationDirs.flatMap { URL in
+        try FileManager.default.contentsOfDirectory(
+          at: URL, includingPropertiesForKeys: nil
+        )
+      }
+
+      let xcodes = allApplications.filter { file in
+        let isXcode = file.lastPathComponent.contains(/Xcode.*\.app/)
+        if !isXcode {
+          log.debug(
+            "Application isn't an Xcode installation, so we're skipping it.",
+            metadata: ["application": "\(file.lastPathComponent)"]
+          )
+        }
+        return isXcode
+      }
+      guard !xcodes.isEmpty else {
+        throw ValidationError(
+          "Failed to find any Xcode versions installed. Please install Xcode."
+        )
+      }
+
+      log.debug("Found Xcode installations.", metadata: ["installations": "\(xcodes)"])
+      return xcodes
+    }
+
     mutating func run() throws {
       var secretFiles: [SecretFile] = []
 
@@ -207,53 +254,6 @@ extension Tests {
           throw ExitCode(exitCode)
         }
       }
-    }
-
-    private func findXcodeVersions() throws -> [URL] {
-      let applicationDirs = FileManager.default.urls(
-        for: .applicationDirectory, in: .allDomainsMask
-      ).filter { url in
-        // file manager lists application dirs that CAN exist, so we should check if they actually
-        // do exist before trying to get their contents
-        let exists = FileManager.default.fileExists(atPath: url.path())
-        if !exists {
-          log.debug(
-            "Application directory doesn't exists, so we're skipping it.",
-            metadata: ["directory": "\(url.path())"]
-          )
-        }
-        return exists
-      }
-
-      log.debug(
-        "Searching application directories for Xcode installations.",
-        metadata: ["directories": "\(applicationDirs)"]
-      )
-
-      let allApplications = try applicationDirs.flatMap { URL in
-        try FileManager.default.contentsOfDirectory(
-          at: URL, includingPropertiesForKeys: nil
-        )
-      }
-
-      let xcodes = allApplications.filter { file in
-        let isXcode = file.lastPathComponent.contains(/Xcode.*\.app/)
-        if !isXcode {
-          log.debug(
-            "Application isn't an Xcode installation, so we're skipping it.",
-            metadata: ["application": "\(file.lastPathComponent)"]
-          )
-        }
-        return isXcode
-      }
-      guard !xcodes.isEmpty else {
-        throw ValidationError(
-          "Failed to find any Xcode versions installed. Please install Xcode."
-        )
-      }
-
-      log.debug("Found Xcode installations.", metadata: ["installations": "\(xcodes)"])
-      return xcodes
     }
   }
 }
