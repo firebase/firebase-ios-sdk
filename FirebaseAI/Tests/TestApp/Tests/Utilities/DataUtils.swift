@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import AVFoundation
-import ImageIO
 import SwiftUI
-import UniformTypeIdentifiers
 
 extension NSDataAsset {
   /// The preferred file extension for this asset, if any.
