@@ -97,7 +97,7 @@ extension Tests {
     }
 
     /// When the `xcode` option isn't provided, try to find an installation on disk.
-    mutating func findAndValidateXcodeOnDisk() throws {
+    private mutating func findAndValidateXcodeOnDisk() throws {
       let xcodes = try findXcodeVersions()
       guard xcodes.count == 1 else {
         let formattedXcodes = xcodes.map { $0.path(percentEncoded: false) }
@@ -118,7 +118,7 @@ extension Tests {
     ///
     /// The `xcode` argument can be either a full path to the application, or just the application
     /// name.
-    mutating func validateProvidedXcode() throws {
+    private mutating func validateProvidedXcode() throws {
       if xcode.hasSuffix(".app") {
         // it's a full path to the Xcode, just ensure it exists
         guard FileManager.default.fileExists(atPath: xcode) else {
