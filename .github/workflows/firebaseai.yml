@@ -59,7 +59,7 @@ jobs:
         path: .build
         key: ${{ needs.spm.outputs.cache_key }}
     - name: Run integration tests
-      run: scripts/repo.sh tests run --secrets ./scripts/secrets/AI.json --platform ${{ matrix.target }} --xcode ${{ matrix.xcode }} AI
+      run: scripts/repo.sh tests run --secrets ./scripts/secrets/AI.json --platforms ${{ matrix.target }} --xcode ${{ matrix.xcode }} AI
     - name: Upload xcodebuild logs
       if: failure()
       uses: actions/upload-artifact@v4
