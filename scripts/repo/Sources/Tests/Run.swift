@@ -82,7 +82,7 @@ extension Tests {
     var sdk: String
 
     static let log: Logger = .init(label: "Tests::Run")
-    private var log: Logger { Decrypt.log }
+    private var log: Logger { Self.log }
 
     /// A path to the Xcode to use.
     ///
