@@ -54,11 +54,11 @@ extension NSDataAsset {
       let cg = try generator.copyCGImage(at: time, actualTime: nil)
 
       let image = UIImage(cgImage: cg)
-      guard let jpeg = image.pngData() else {
+      guard let png = image.pngData() else {
         fatalError("Failed to encode image to png")
       }
 
-      return jpeg
+      return png
     }
   }
 }
