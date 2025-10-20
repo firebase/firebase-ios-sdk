@@ -1510,6 +1510,7 @@ func firestoreTargets() -> [Target] {
           .headerSearchPath("../"),
           .headerSearchPath("Source/Public/FirebaseFirestore"),
           .headerSearchPath("Protos/nanopb"),
+          .headerSearchPath("third_party/re2"),
           .define("PB_FIELD_32BIT", to: "1"),
           .define("PB_NO_PACKED_STRUCTS", to: "1"),
           .define("PB_ENABLE_MALLOC", to: "1"),
