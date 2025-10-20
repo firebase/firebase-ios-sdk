@@ -236,7 +236,8 @@ extension Tests {
           metadata: ["sdk": "\(sdk)", "platform": "\(platform)"]
         )
 
-        // instead of using xcode-select (which requires sudo), we can use the env variable `DEVELOPER_DIR` to point to our target xcode
+        // instead of using xcode-select (which requires sudo), we can use the env variable
+        // `DEVELOPER_DIR` to point to our target xcode
         let build = Process(
           buildScript.path(percentEncoded: false),
           env: ["DEVELOPER_DIR": "\(xcodePath)/Contents/Developer"],
