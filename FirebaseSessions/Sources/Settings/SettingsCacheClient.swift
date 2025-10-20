@@ -22,6 +22,8 @@ import Foundation
   @preconcurrency internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
+internal import FirebaseCoreInternal
+
 /// CacheKey is like a "key" to a "safe". It provides necessary metadata about the current cache to
 /// know if it should be expired.
 struct CacheKey: Codable {
@@ -57,53 +59,84 @@ final class SettingsCache: SettingsCacheClient {
     static let forCacheKey = "firebase-sessions-cache-key"
   }
 
-  /// UserDefaults holds values in memory, making access O(1) and synchronous within the app, while
-  /// abstracting away async disk IO.
-  private let cache: GULUserDefaults = .standard()
+  private let userDefaults: GULUserDefaults
+  private let persistenceQueue =
+    DispatchQueue(label: "com.google.firebase.sessions.settings.persistence")
+
+  // This lock protects the in-memory properties.
+  private let inMemoryCacheLock: UnfairLock<CacheData>
+
+  private struct CacheData {
+    var content: [String: Any]
+    var key: CacheKey?
+  }
+
+  init(userDefaults: GULUserDefaults = .standard()) {
+    self.userDefaults = userDefaults
+    let content = (userDefaults.object(forKey: UserDefaultsKeys.forContent) as? [String: Any]) ??
+      [:]
+    var key: CacheKey?
+    if let data = userDefaults.object(forKey: UserDefaultsKeys.forCacheKey) as? Data {
+      do {
+        key = try JSONDecoder().decode(CacheKey.self, from: data)
+      } catch {
+        Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
+      }
+    }
+    inMemoryCacheLock = UnfairLock(CacheData(content: content, key: key))
+  }
 
   /// Converting to dictionary is O(1) because object conversion is O(1)
   var cacheContent: [String: Any] {
     get {
-      return (cache.object(forKey: UserDefaultsKeys.forContent) as? [String: Any]) ?? [:]
+      return inMemoryCacheLock.value().content
     }
     set {
-      cache.setObject(newValue, forKey: UserDefaultsKeys.forContent)
+      inMemoryCacheLock.withLock { $0.content = newValue }
+      persistenceQueue.async {
+        self.userDefaults.setObject(newValue, forKey: UserDefaultsKeys.forContent)
+      }
     }
   }
 
   /// Casting to Codable from Data is O(n)
   var cacheKey: CacheKey? {
     get {
-      if let data = cache.object(forKey: UserDefaultsKeys.forCacheKey) as? Data {
-        do {
-          return try JSONDecoder().decode(CacheKey.self, from: data)
-        } catch {
-          Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
-        }
-      }
-      return nil
+      return inMemoryCacheLock.value().key
     }
     set {
-      do {
-        try cache.setObject(JSONEncoder().encode(newValue), forKey: UserDefaultsKeys.forCacheKey)
-      } catch {
-        Logger.logError("[Settings] Encoding CacheKey failed with error: \(error)")
+      inMemoryCacheLock.withLock { $0.key = newValue }
+      persistenceQueue.async {
+        do {
+          try self.userDefaults.setObject(JSONEncoder().encode(newValue),
+                                          forKey: UserDefaultsKeys.forCacheKey)
+        } catch {
+          Logger.logError("[Settings] Encoding CacheKey failed with error: \(error)")
+        }
       }
     }
   }
 
   /// Removes stored cache
   func removeCache() {
-    cache.setObject(nil, forKey: UserDefaultsKeys.forContent)
-    cache.setObject(nil, forKey: UserDefaultsKeys.forCacheKey)
+    inMemoryCacheLock.withLock {
+      $0.content = [:]
+      $0.key = nil
+    }
+    persistenceQueue.async {
+      self.userDefaults.setObject(nil, forKey: UserDefaultsKeys.forContent)
+      self.userDefaults.setObject(nil, forKey: UserDefaultsKeys.forCacheKey)
+    }
   }
 
   func isExpired(for appInfo: ApplicationInfoProtocol, time: Date) -> Bool {
-    guard !cacheContent.isEmpty else {
+    let (content, key) = inMemoryCacheLock.withLock { ($0.content, $0.key) }
+
+    guard !content.isEmpty else {
       removeCache()
       return true
     }
-    guard let cacheKey = cacheKey else {
+    guard let cacheKey = key else {
       Logger.logError("[Settings] Could not load settings cache key")
       removeCache()
       return true
@@ -126,7 +159,8 @@ final class SettingsCache: SettingsCacheClient {
   }
 
   private func cacheDuration() -> TimeInterval {
-    guard let duration = cacheContent[Self.flagCacheDuration] as? Double else {
+    let content = inMemoryCacheLock.value().content
+    guard let duration = content[Self.flagCacheDuration] as? Double else {
       return Self.cacheDurationSecondsDefault
     }
     Logger.logDebug("[Settings] Cache duration: \(duration)")
