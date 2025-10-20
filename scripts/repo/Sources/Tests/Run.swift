@@ -149,6 +149,7 @@ extension Tests {
       var secretFiles: [SecretFile] = []
 
       defer {
+        // ensure secret files are deleted, regardless of test result
         for file in secretFiles {
           do {
             log.debug("Deleting secret file", metadata: ["file": "\(file.destination)"])
@@ -188,6 +189,7 @@ extension Tests {
           metadata: ["sdk": "\(sdk)", "platform": "\(platform)"]
         )
 
+        // instead of using xcode-select (which requires sudo), we can use the env variable `DEVELOPER_DIR` to point to our target xcode
         let build = Process(
           buildScript.path(percentEncoded: false),
           env: ["DEVELOPER_DIR": "\(xcodePath)/Contents/Developer"],
