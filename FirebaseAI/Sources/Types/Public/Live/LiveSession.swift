@@ -80,7 +80,6 @@ public final class LiveSession: Sendable {
   ///     the client's conversation.
   ///   - format: The format that the image was encoded in (eg; `images/png`, `images/jpeg`,
   ///     etc.,).
-  // TODO: (b/448671945) Make public after testing and next release
   public func sendVideoRealtime(_ video: Data, format: String) async {
     let message = BidiGenerateContentRealtimeInput(
       video: InlineData(data: video, mimeType: format)
