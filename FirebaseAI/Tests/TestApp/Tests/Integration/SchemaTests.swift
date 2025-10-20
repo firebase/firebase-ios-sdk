@@ -402,7 +402,7 @@ extension SchemaTests.MailingAddress: Decodable {
       PostalInfo.UnitedStates.self, forKey: .postalInfo
     )
 
-    if let canadaPostalInfo, let unitedStatesPostalInfo {
+    if canadaPostalInfo != nil, unitedStatesPostalInfo != nil {
       throw DecodingError.dataCorruptedError(
         forKey: .postalInfo,
         in: container,
