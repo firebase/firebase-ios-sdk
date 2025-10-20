@@ -276,38 +276,39 @@ struct LiveSessionTests {
     await session.close()
   }
 
-  // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   @Test(
     arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens }
   )
+  // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   func realtime_interruption(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
       generationConfig: audioConfig
     )
 
-    let session = try await model.connect()
-
     guard let audioFile = NSDataAsset(name: "hello") else {
       Issue.record("Missing audio file 'hello.wav' in Assets")
       return
     }
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    // wait a second to allow the model to start generating (and cuase a proper interruption)
-    try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+    try await retry(times: 3, delayInSeconds: 2.0) {
+      let session = try await model.connect()
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    for try await content in session.responsesOf(LiveServerContent.self) {
-      if content.wasInterrupted {
-        break
-      }
+      // wait a second to allow the model to start generating (and cuase a proper interruption)
+      try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-      if content.isTurnComplete {
-        Issue.record("The model never sent an interrupted message.")
-        return
+      for try await content in session.responsesOf(LiveServerContent.self) {
+        if content.wasInterrupted {
+          break
+        }
+
+        if content.isTurnComplete {
+          throw NoInterruptionError()
+        }
       }
     }
   }
@@ -470,6 +471,11 @@ private extension LiveSession {
       return nil
     }
   }
+}
+
+private struct NoInterruptionError: Error,
+  CustomStringConvertible {
+  var description: String { "The model never sent an interrupted message." }
 }
 
 private extension ModelContent {
