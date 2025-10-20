@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed a potential deadlock in an internal dependency that could occur
+  during app foregrounding when reading cached settings. (#15394)
+
 # 12.3.0
 - [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
   building dynamically linked libraries. (#15276)
