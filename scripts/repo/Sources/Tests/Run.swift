@@ -20,9 +20,10 @@ import Logging
 import Util
 
 extension Tests {
+  /// Command for running the integration tests of a given SDK.
   struct Run: ParsableCommand {
     nonisolated(unsafe) static var configuration = CommandConfiguration(
-      abstract: "Run the integration tests for a given platform.",
+      abstract: "Run the integration tests for a given SDK.",
       usage: """
         tests run [--overwrite] [--secrets <file_path>] [--xcode <version_or_path>] [--platforms <platforms> ...] [<sdk>]
 
@@ -259,6 +260,7 @@ extension Tests {
   }
 }
 
+/// Apple platforms that tests can be ran under.
 enum Platform: String, Codable, ExpressibleByArgument, CaseIterable {
   case iOS
   case iPad
