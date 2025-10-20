@@ -401,21 +401,22 @@ extension SchemaTests.MailingAddress: Decodable {
     let unitedStatesPostalInfo = try? container.decode(
       PostalInfo.UnitedStates.self, forKey: .postalInfo
     )
+
+    if let canadaPostalInfo, let unitedStatesPostalInfo {
+      throw DecodingError.dataCorruptedError(
+        forKey: .postalInfo,
+        in: container,
+        debugDescription: "Ambiguous postal info: matches both Canadian and U.S. formats."
+      )
+    }
+
     if let canadaPostalInfo {
       postalInfo = .canada(
         province: canadaPostalInfo.province, postalCode: canadaPostalInfo.postalCode
       )
-      #expect(
-        unitedStatesPostalInfo == nil,
-        "U.S. postal info should be omitted for Canadian addresses."
-      )
     } else if let unitedStatesPostalInfo {
       postalInfo = .unitedStates(
         state: unitedStatesPostalInfo.state, zipCode: unitedStatesPostalInfo.zipCode
-      )
-      #expect(
-        canadaPostalInfo == nil,
-        "Canadian postal info should be omitted for U.S. addresses."
       )
     } else {
       throw DecodingError.typeMismatch(
