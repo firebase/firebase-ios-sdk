@@ -131,7 +131,7 @@ extension Tests {
         let xcodes = try findXcodeVersions()
         guard
           let match = xcodes.first(where: {
-            $0.path(percentEncoded: false).hasSuffix("\(xcode).app")
+            $0.path(percentEncoded: false).contains("\(xcode).app")
           })
         else {
           let formattedXcodes = xcodes.map { $0.path(percentEncoded: false) }
