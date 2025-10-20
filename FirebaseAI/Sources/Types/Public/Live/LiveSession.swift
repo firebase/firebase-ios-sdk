@@ -75,7 +75,7 @@ public final class LiveSession: Sendable {
   // TODO: (b/448671945) Make public after testing and next release
   public func sendVideoRealtime(_ video: Data, format: String) async {
     let message = BidiGenerateContentRealtimeInput(
-      video: InlineData(data: video, mimeType: "video/\(format)")
+      video: InlineData(data: video, mimeType: format)
     )
     await service.send(.realtimeInput(message))
   }
