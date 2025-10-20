@@ -199,48 +199,17 @@
     override func viewDidLoad() {
       super.viewDidLoad()
       title = "Sign In"
-      
-      // Add cancel button to toolbar or navigation if available
-      setupCancelButton()
     }
 
     override func viewDidAppear() {
       super.viewDidAppear()
       webView?.webView.load(URLRequest(url: url))
-      
-      // Setup toolbar after view appears and window is available
-      DispatchQueue.main.async {
-        self.setupToolbar()
-      }
     }
 
     // MARK: - Public Methods
     
     func handleWindowClose() {
-      // Called when user closes the window manually
-      delegate?.webViewControllerDidCancel(self)
-    }
-
-    // MARK: - Private Methods
-
-    private func setupCancelButton() {
-      // This method is kept for compatibility but toolbar setup is moved to setupToolbar()
-    }
-    
-    private func setupToolbar() {
-      guard let window = view.window else { return }
-      
-      let toolbar = NSToolbar(identifier: "AuthWebViewToolbar")
-      toolbar.delegate = self
-      toolbar.allowsUserCustomization = false
-      toolbar.autosavesConfiguration = false
-      toolbar.displayMode = .iconOnly
-      window.toolbar = toolbar
-    }
-
-    // MARK: - Actions
-
-    @objc private func cancel() {
+      // Called when user closes the window manually using standard macOS controls
       delegate?.webViewControllerDidCancel(self)
     }
 
@@ -277,37 +246,6 @@
       // Forward notification to our delegate.
       self.webView(webView, didFinish: navigation)
       delegate?.webViewController(self, didFailWithError: error)
-    }
-  }
-
-  // MARK: - NSToolbarDelegate
-
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  extension AuthWebViewController: NSToolbarDelegate {
-    func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
-      if itemIdentifier.rawValue == "cancel" {
-        let item = NSToolbarItem(itemIdentifier: itemIdentifier)
-        item.label = "Cancel"
-        item.paletteLabel = "Cancel"
-        item.target = self
-        item.action = #selector(cancel)
-        if #available(macOS 11.0, *) {
-          item.image = NSImage(systemSymbolName: "xmark", accessibilityDescription: "Cancel")
-        } else {
-          // For macOS 10.15, use text-based button
-          item.label = "Cancel"
-        }
-        return item
-      }
-      return nil
-    }
-
-    func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-      return [.flexibleSpace, NSToolbarItem.Identifier("cancel")]
-    }
-
-    func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-      return toolbarDefaultItemIdentifiers(toolbar)
     }
   }
 

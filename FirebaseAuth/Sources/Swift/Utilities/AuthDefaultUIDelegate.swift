@@ -120,7 +120,7 @@
       isReleasedWhenClosed = false
       center()
       level = .floating
-      styleMask = [.titled, .closable, .resizable]
+      styleMask = [.titled, .closable, .miniaturizable, .resizable]
     }
     
     override func performClose(_ sender: Any?) {
@@ -156,7 +156,7 @@
       let windowRect = NSRect(x: 0, y: 0, width: 800, height: 600)
       authWindow = AuthWebWindow(
         contentRect: windowRect,
-        styleMask: [.titled, .closable, .resizable],
+        styleMask: [.titled, .closable, .miniaturizable, .resizable],
         backing: .buffered,
         defer: false
       )

@@ -122,6 +122,8 @@
       spinner.frame = NSRect(x: (width - 32) / 2, y: (height - 32) / 2, width: 32, height: 32)
     }
 
+
+
     private func createWebView() -> WKWebView {
       let webView = WKWebView(frame: .zero)
       webView.wantsLayer = true
