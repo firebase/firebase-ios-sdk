@@ -61,20 +61,25 @@ struct LiveSessionTests {
     static let yesOrNo = ModelContent(
       role: "system",
       parts: """
-        You can only respond with "yes" or "no".
+      You can only respond with "yes" or "no".
       """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
 
     static let helloGoodbye = ModelContent(
       role: "system",
       parts: """
-        When you hear "Hello" say "Goodbye". If you hear anything else, say "The audio file is broken".
+      When you hear "Hello" say "Goodbye". If you hear anything else, say "The audio file is \
+      broken".
       """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
 
     static let lastNames = ModelContent(
       role: "system",
-      parts: "When you receive a message, if the message is a single word, assume it's the first name of a person, and call the getLastName tool to get the last name of said person. Only respond with the last name."
+      parts: """
+      When you receive a message, if the message is a single word, assume it's the first name of a \
+      person, and call the getLastName tool to get the last name of said person. Only respond with \
+      the last name.
+      """
     )
 
     static let animalInVideo = ModelContent(
@@ -333,16 +338,12 @@ struct LiveSessionTests {
       NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
     )
 
-    for try await content in session.responsesOf(LiveServerContent.self) {
-      if content.wasInterrupted {
-        break
-      }
     try await retry(times: 3, delayInSeconds: 2.0) {
       let session = try await model.connect()
       await session.sendAudioRealtime(audioFile.data)
       await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-      // wait a second to allow the model to start generating (and cuase a proper interruption)
+      // Wait a second to allow the model to start generating (and cause a proper interruption)
       try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
       await session.sendAudioRealtime(audioFile.data)
       await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
