@@ -79,7 +79,7 @@ struct LiveSessionTests {
       When you receive a message, if the message is a single word, assume it's the first name of a \
       person, and call the getLastName tool to get the last name of said person. Only respond with \
       the last name.
-      """
+      """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
 
     static let animalInVideo = ModelContent(
