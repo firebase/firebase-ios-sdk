@@ -1,5 +1,4 @@
 # 12.5.0
-- [fixed] Fixed various links in the Live API doc comments not mapping correctly.
 - [fixed] Fixed minor translation issue for nanosecond conversion when receiving
   `LiveServerGoingAwayNotice`. (#15410)
 - [feature] Added support for sending video frames with the Live API via the `sendVideoRealtime`
