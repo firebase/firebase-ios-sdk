@@ -38,15 +38,15 @@ public final class TemplateChatSession: Sendable {
 
   /// Sends a message to the model and returns the response.
   public func sendMessage(_ message: any PartsRepresentable,
-                          variables: [String: Any],
+                          inputs: [String: Any],
                           options: RequestOptions = RequestOptions()) async throws
     -> GenerateContentResponse {
-    let templateVariables = try variables.mapValues { try TemplateVariable(value: $0) }
+    let templateInputs = try inputs.mapValues { try TemplateInput(value: $0) }
     let newContent = populateContentRole(ModelContent(parts: message.partsValue))
     let response = try await model.generateContentWithHistory(
       history: _history.history + [newContent],
       template: template,
-      variables: templateVariables,
+      inputs: templateInputs,
       options: options
     )
     _history.append(newContent)
@@ -57,15 +57,15 @@ public final class TemplateChatSession: Sendable {
   }
 
   public func sendMessageStream(_ message: any PartsRepresentable,
-                                variables: [String: Any],
+                                inputs: [String: Any],
                                 options: RequestOptions = RequestOptions()) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
-    let templateVariables = try variables.mapValues { try TemplateVariable(value: $0) }
+    let templateInputs = try inputs.mapValues { try TemplateInput(value: $0) }
     let newContent = populateContentRole(ModelContent(parts: message.partsValue))
     let stream = try model.generateContentStreamWithHistory(
       history: _history.history + [newContent],
       template: template,
-      variables: templateVariables,
+      inputs: templateInputs,
       options: options
     )
     return AsyncThrowingStream { continuation in

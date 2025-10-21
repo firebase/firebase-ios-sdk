@@ -33,24 +33,24 @@ class TemplateGenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
   let apiConfig: APIConfig
 
   let template: String
-  let variables: [String: TemplateVariable]
+  let inputs: [String: TemplateInput]
   let projectID: String
 
-  init(template: String, variables: [String: TemplateVariable], projectID: String,
+  init(template: String, inputs: [String: TemplateInput], projectID: String,
        apiConfig: APIConfig, options: RequestOptions) {
     self.apiConfig = apiConfig
     self.options = options
     self.template = template
-    self.variables = variables
+    self.inputs = inputs
     self.projectID = projectID
   }
 
   enum CodingKeys: String, CodingKey {
-    case variables = "inputs"
+    case inputs
   }
 
   func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(variables, forKey: .variables)
+    try container.encode(inputs, forKey: .inputs)
   }
 }

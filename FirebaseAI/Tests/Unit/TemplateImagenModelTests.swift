@@ -44,7 +44,7 @@ final class TemplateImagenModelTests: XCTestCase {
 
     let response = try await model.generateImages(
       template: "test-template",
-      variables: ["prompt": "a cat picture"]
+      inputs: ["prompt": "a cat picture"]
     )
     XCTAssertEqual(response.images.count, 4)
     XCTAssertNotNil(response.images.first?.data)

@@ -33,8 +33,8 @@ struct ServerPromptTemplateIntegrationTests {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let response = try await model.generateContent(
-      template: "greeting2",
-      variables: [
+      template: "greeting4",
+      inputs: [
         "name": userName,
         "language": "Spanish",
       ]
@@ -43,13 +43,16 @@ struct ServerPromptTemplateIntegrationTests {
     #expect(text.contains("Paul"))
   }
 
-  @Test(arguments: testConfigs)
+  @Test(arguments: [
+    // The "greeting2" template is only available in the `global` location.
+    InstanceConfig.vertexAI_v1beta_global,
+  ])
   func generateContentStream(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let stream = try model.generateContentStream(
-      template: "greeting.prompt",
-      variables: [
+      template: "greeting2",
+      inputs: [
         "name": userName,
         "language": "English",
       ]
@@ -93,8 +96,8 @@ struct ServerPromptTemplateIntegrationTests {
     let base64Image = imageBytes.base64EncodedString()
 
     let response = try await model.generateContent(
-      template: "media.prompt",
-      variables: [
+      template: "media",
+      inputs: [
         "imageData": [
           "isInline": true,
           "mimeType": "image/jpeg",
@@ -121,7 +124,7 @@ struct ServerPromptTemplateIntegrationTests {
 
     let stream = try model.generateContentStream(
       template: "media.prompt",
-      variables: [
+      inputs: [
         "imageData": [
           "isInline": true,
           "mimeType": "image/jpeg",
@@ -138,14 +141,17 @@ struct ServerPromptTemplateIntegrationTests {
     #expect(!resultText.isEmpty)
   }
 
-  @Test(arguments: testConfigs)
+  @Test(arguments: [
+    // The "greeting2" template is only available in the `global` location.
+    InstanceConfig.vertexAI_v1beta_global,
+  ])
   func chat(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let initialHistory = [
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
     ]
-    let chatSession = model.startChat(template: "chat_history.prompt", history: initialHistory)
+    let chatSession = model.startChat(template: "chat-history", history: initialHistory)
 
     let userMessage = "What's the weather like?"
 

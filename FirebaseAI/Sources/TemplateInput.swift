@@ -14,13 +14,13 @@
 
 import Foundation
 
-enum TemplateVariable: Encodable, Sendable {
+enum TemplateInput: Encodable, Sendable {
   case string(String)
   case int(Int)
   case double(Double)
   case bool(Bool)
-  case array([TemplateVariable])
-  case dictionary([String: TemplateVariable])
+  case array([TemplateInput])
+  case dictionary([String: TemplateInput])
 
   init(value: Any) throws {
     switch value {
@@ -35,9 +35,9 @@ enum TemplateVariable: Encodable, Sendable {
     case let value as Bool:
       self = .bool(value)
     case let value as [Any]:
-      self = try .array(value.map { try TemplateVariable(value: $0) })
+      self = try .array(value.map { try TemplateInput(value: $0) })
     case let value as [String: Any]:
-      self = try .dictionary(value.mapValues { try TemplateVariable(value: $0) })
+      self = try .dictionary(value.mapValues { try TemplateInput(value: $0) })
     default:
       throw EncodingError.invalidValue(
         value,

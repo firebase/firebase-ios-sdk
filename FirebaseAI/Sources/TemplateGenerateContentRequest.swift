@@ -17,7 +17,7 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct TemplateGenerateContentRequest: Sendable {
   let template: String
-  let variables: [String: TemplateVariable]
+  let inputs: [String: TemplateInput]
   let history: [ModelContent]
   let projectID: String
   let stream: Bool
@@ -28,13 +28,13 @@ struct TemplateGenerateContentRequest: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TemplateGenerateContentRequest: Encodable {
   enum CodingKeys: String, CodingKey {
-    case variables = "inputs"
+    case inputs
     case history
   }
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(variables, forKey: .variables)
+    try container.encode(inputs, forKey: .inputs)
     try container.encode(history, forKey: .history)
   }
 }

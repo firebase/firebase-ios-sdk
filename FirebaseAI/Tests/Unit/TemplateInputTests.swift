@@ -16,12 +16,12 @@
 import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class TemplateVariableTests: XCTestCase {
+final class TemplateInputTests: XCTestCase {
   func testInitWithFloat() throws {
     let floatValue: Float = 3.14
-    let templateVariable = try TemplateVariable(value: floatValue)
-    guard case let .double(doubleValue) = templateVariable else {
-      XCTFail("Expected a .double case, but got \(templateVariable)")
+    let templateInput = try TemplateInput(value: floatValue)
+    guard case let .double(doubleValue) = templateInput else {
+      XCTFail("Expected a .double case, but got \(templateInput)")
       return
     }
     XCTAssertEqual(doubleValue, Double(floatValue), accuracy: 1e-6)

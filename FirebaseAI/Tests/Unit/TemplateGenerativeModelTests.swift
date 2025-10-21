@@ -45,7 +45,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
 
     let response = try await model.generateContent(
       template: "test-template",
-      variables: ["name": "test"]
+      inputs: ["name": "test"]
     )
     XCTAssertEqual(
       response.text,
@@ -63,7 +63,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
 
     let stream = try model.generateContentStream(
       template: "test-template",
-      variables: ["name": "test"]
+      inputs: ["name": "test"]
     )
 
     let content = try await GenerativeModelTestUtil.collectTextFromStream(stream)
