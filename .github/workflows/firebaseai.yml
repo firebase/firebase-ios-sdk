@@ -38,12 +38,12 @@ jobs:
   testapp-integration:
     strategy:
       matrix:
-        target: [iOS]
-        os: [macos-15]
         include:
           - os: macos-15
+            target: iOS
             xcode: Xcode_16.4
           - os: macos-26
+            target: iOS
             xcode: Xcode_26.0
     runs-on: ${{ matrix.os }}
     needs: spm
