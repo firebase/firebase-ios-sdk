@@ -75,7 +75,7 @@ struct ServerPromptTemplateIntegrationTests {
     let imagenPrompt = "A cat picture"
     let response = try await imagenModel.generateImages(
       templateID: "generate-images2",
-      variables: [
+      inputs: [
         "prompt": imagenPrompt,
       ]
     )
@@ -157,7 +157,7 @@ struct ServerPromptTemplateIntegrationTests {
 
     let response = try await chatSession.sendMessage(
       userMessage,
-      variables: ["message": userMessage]
+      inputs: ["message": userMessage]
     )
     let text = try #require(response.text)
     #expect(!text.isEmpty)
