@@ -2,6 +2,9 @@
 - [fixed] Fixed various links in the Live API doc comments not mapping correctly.
 - [fixed] Fixed minor translation issue for nanosecond conversion when receiving
   `LiveServerGoingAwayNotice`. (#15410)
+- [feature] Added support for sending video frames with the Live API via the `sendVideoRealtime`
+  method on [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  (#15432)
 
 # 12.4.0
 - [feature] Added support for the URL context tool, which allows the model to access content
