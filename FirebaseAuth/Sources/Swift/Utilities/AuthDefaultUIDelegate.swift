@@ -81,17 +81,9 @@
       viewController?.present(viewControllerToPresent, animated: flag, completion: completion)
     }
 
-    public func dismiss(completion: (() -> Void)?) {
-    // Store a reference to the window so we can close it after the view controller is dismissed
-    let window = currentWebWindow
-    currentWebWindow = nil
-    
-    // Close the window
-    DispatchQueue.main.async {
-      window?.close()
-      completion?()
+    func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+      viewController?.dismiss(animated: flag, completion: completion)
     }
-  }
 
     private let viewController: UIViewController?
   }
