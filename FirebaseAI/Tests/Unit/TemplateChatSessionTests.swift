@@ -73,4 +73,49 @@ final class TemplateChatSessionTests: XCTestCase {
     XCTAssertEqual((chat.history[0].parts.first as? TextPart)?.text, "Hello")
     XCTAssertEqual(chat.history[1].role, "model")
   }
+
+  func testSendMessageWithModelContent() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-basic-reply-short",
+      withExtension: "json",
+      subdirectory: "mock-responses/googleai",
+      isTemplateRequest: true
+    )
+    let chat = model.startChat(templateID: "test-template")
+    let response = try await chat.sendMessage(
+      [ModelContent(parts: [TextPart("Hello")])],
+      inputs: ["name": "test"]
+    )
+    XCTAssertEqual(chat.history.count, 2)
+    XCTAssertEqual(chat.history[0].role, "user")
+    XCTAssertEqual((chat.history[0].parts.first as? TextPart)?.text, "Hello")
+    XCTAssertEqual(chat.history[1].role, "model")
+    XCTAssertEqual(
+      (chat.history[1].parts.first as? TextPart)?.text,
+      "Google's headquarters, also known as the Googleplex, is located in **Mountain View, California**.\n"
+    )
+    XCTAssertEqual(response.candidates.count, 1)
+  }
+
+  func testSendMessageStreamWithModelContent() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-basic-reply-short",
+      withExtension: "txt",
+      subdirectory: "mock-responses/googleai",
+      isTemplateRequest: true
+    )
+    let chat = model.startChat(templateID: "test-template")
+    let stream = try chat.sendMessageStream(
+      [ModelContent(parts: [TextPart("Hello")])],
+      inputs: ["name": "test"]
+    )
+
+    let content = try await GenerativeModelTestUtil.collectTextFromStream(stream)
+
+    XCTAssertEqual(content, "The capital of Wyoming is **Cheyenne**.\n")
+    XCTAssertEqual(chat.history.count, 2)
+    XCTAssertEqual(chat.history[0].role, "user")
+    XCTAssertEqual((chat.history[0].parts.first as? TextPart)?.text, "Hello")
+    XCTAssertEqual(chat.history[1].role, "model")
+  }
 }
