@@ -18,12 +18,12 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class TemplateChatSession: Sendable {
   private let model: TemplateGenerativeModel
-  private let template: String
+  private let templateID: String
   private let _history: History
 
-  init(model: TemplateGenerativeModel, template: String, history: [ModelContent]) {
+  init(model: TemplateGenerativeModel, templateID: String, history: [ModelContent]) {
     self.model = model
-    self.template = template
+    self.templateID = templateID
     _history = History(history: history)
   }
 
@@ -45,7 +45,7 @@ public final class TemplateChatSession: Sendable {
     let newContent = populateContentRole(ModelContent(parts: message.partsValue))
     let response = try await model.generateContentWithHistory(
       history: _history.history + [newContent],
-      template: template,
+      template: templateID,
       inputs: templateInputs,
       options: options
     )
@@ -64,7 +64,7 @@ public final class TemplateChatSession: Sendable {
     let newContent = populateContentRole(ModelContent(parts: message.partsValue))
     let stream = try model.generateContentStreamWithHistory(
       history: _history.history + [newContent],
-      template: template,
+      template: templateID,
       inputs: templateInputs,
       options: options
     )

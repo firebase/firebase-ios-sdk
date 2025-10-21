@@ -33,7 +33,7 @@ struct ServerPromptTemplateIntegrationTests {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let response = try await model.generateContent(
-      template: "greeting4",
+      templateID: "greeting4",
       inputs: [
         "name": userName,
         "language": "Spanish",
@@ -51,7 +51,7 @@ struct ServerPromptTemplateIntegrationTests {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let stream = try model.generateContentStream(
-      template: "greeting2",
+      templateID: "greeting2",
       inputs: [
         "name": userName,
         "language": "English",
@@ -74,7 +74,7 @@ struct ServerPromptTemplateIntegrationTests {
     let imagenModel = FirebaseAI.componentInstance(config).templateImagenModel()
     let imagenPrompt = "A cat picture"
     let response = try await imagenModel.generateImages(
-      template: "generate-images2",
+      templateID: "generate-images2",
       variables: [
         "prompt": imagenPrompt,
       ]
@@ -96,7 +96,7 @@ struct ServerPromptTemplateIntegrationTests {
     let base64Image = imageBytes.base64EncodedString()
 
     let response = try await model.generateContent(
-      template: "media",
+      templateID: "media",
       inputs: [
         "imageData": [
           "isInline": true,
@@ -123,7 +123,7 @@ struct ServerPromptTemplateIntegrationTests {
     let base64Image = imageBytes.base64EncodedString()
 
     let stream = try model.generateContentStream(
-      template: "media.prompt",
+      templateID: "media.prompt",
       inputs: [
         "imageData": [
           "isInline": true,
@@ -151,7 +151,7 @@ struct ServerPromptTemplateIntegrationTests {
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
     ]
-    let chatSession = model.startChat(template: "chat-history", history: initialHistory)
+    let chatSession = model.startChat(templateID: "chat-history", history: initialHistory)
 
     let userMessage = "What's the weather like?"
 
@@ -173,13 +173,13 @@ struct ServerPromptTemplateIntegrationTests {
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
     ]
-    let chatSession = model.startChat(template: "chat_history.prompt", history: initialHistory)
+    let chatSession = model.startChat(templateID: "chat_history.prompt", history: initialHistory)
 
     let userMessage = "What's the weather like?"
 
     let stream = try chatSession.sendMessageStream(
       userMessage,
-      variables: ["message": userMessage]
+      inputs: ["message": userMessage]
     )
     var resultText = ""
     for try await response in stream {

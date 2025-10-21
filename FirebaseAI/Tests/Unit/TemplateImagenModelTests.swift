@@ -43,7 +43,7 @@ final class TemplateImagenModelTests: XCTestCase {
     )
 
     let response = try await model.generateImages(
-      template: "test-template",
+      templateID: "test-template",
       inputs: ["prompt": "a cat picture"]
     )
     XCTAssertEqual(response.images.count, 4)
