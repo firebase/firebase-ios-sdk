@@ -76,6 +76,14 @@ struct LiveSessionTests {
       role: "system",
       parts: "When you receive a message, if the message is a single word, assume it's the first name of a person, and call the getLastName tool to get the last name of said person. Only respond with the last name."
     )
+
+    static let animalInVideo = ModelContent(
+      role: "system",
+      parts: """
+      Send a one word response of what ANIMAL is in the video. \
+      If you don't receive a video, send "Test is broken, I didn't receive a video.".
+      """.trimmingCharacters(in: .whitespacesAndNewlines)
+    )
   }
 
   @Test(arguments: arguments)
@@ -179,6 +187,49 @@ struct LiveSessionTests {
       .lowercased()
 
     #expect(modelResponse == "goodbye")
+  }
+
+  @Test(arguments: arguments.filter { $0.1 != ModelNames.gemini2FlashLive })
+  // gemini-2.0-flash-live-001 is buggy and likes to respond to the audio or system instruction
+  // (eg; it will say 'okay' or 'hello', instead of following the instructions)
+  func sendVideoRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: textConfig,
+      systemInstruction: SystemInstructions.animalInVideo
+    )
+
+    let session = try await model.connect()
+    guard let videoFile = NSDataAsset(name: "cat") else {
+      Issue.record("Missing video file 'cat' in Assets")
+      return
+    }
+
+    let frames = try await videoFile.videoFrames()
+    for frame in frames {
+      await session.sendVideoRealtime(frame, mimeType: "image/png")
+    }
+
+    // the model doesn't respond unless we send some audio too
+    // vertex also responds if you send text, but google ai doesn't
+    // (they both respond with audio though)
+    guard let audioFile = NSDataAsset(name: "hello") else {
+      Issue.record("Missing audio file 'hello.wav' in Assets")
+      return
+    }
+    await session.sendAudioRealtime(audioFile.data)
+    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+
+    let text = try await session.collectNextTextResponse()
+
+    await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    // model response varies
+    #expect(["kitten", "cat", "kitty"].contains(modelResponse))
   }
 
   @Test(arguments: arguments)
