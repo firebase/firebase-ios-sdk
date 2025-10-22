@@ -61,20 +61,33 @@ struct LiveSessionTests {
     static let yesOrNo = ModelContent(
       role: "system",
       parts: """
-        You can only respond with "yes" or "no".
+      You can only respond with "yes" or "no".
       """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
 
     static let helloGoodbye = ModelContent(
       role: "system",
       parts: """
-        When you hear "Hello" say "Goodbye". If you hear anything else, say "The audio file is broken".
+      When you hear "Hello" say "Goodbye". If you hear anything else, say "The audio file is \
+      broken".
       """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
 
     static let lastNames = ModelContent(
       role: "system",
-      parts: "When you receive a message, if the message is a single word, assume it's the first name of a person, and call the getLastName tool to get the last name of said person. Only respond with the last name."
+      parts: """
+      When you receive a message, if the message is a single word, assume it's the first name of a \
+      person, and call the getLastName tool to get the last name of said person. Only respond with \
+      the last name.
+      """.trimmingCharacters(in: .whitespacesAndNewlines)
+    )
+
+    static let animalInVideo = ModelContent(
+      role: "system",
+      parts: """
+      Send a one word response of what ANIMAL is in the video. \
+      If you don't receive a video, send "Test is broken, I didn't receive a video.".
+      """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
   }
 
@@ -134,10 +147,9 @@ struct LiveSessionTests {
 
     let session = try await model.connect()
 
-    guard let audioFile = NSDataAsset(name: "hello") else {
-      Issue.record("Missing audio file 'hello.wav' in Assets")
-      return
-    }
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
     await session.sendAudioRealtime(audioFile.data)
     // The model can't infer that we're done speaking until we send null bytes
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
@@ -163,6 +175,47 @@ struct LiveSessionTests {
 
     let session = try await model.connect()
 
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
+    await session.sendAudioRealtime(audioFile.data)
+    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+
+    let text = try await session.collectNextTextResponse()
+
+    await session.close()
+    let modelResponse = text
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    #expect(modelResponse == "goodbye")
+  }
+
+  @Test(arguments: arguments.filter { $0.1 != ModelNames.gemini2FlashLive })
+  // gemini-2.0-flash-live-001 is buggy and likes to respond to the audio or system instruction
+  // (eg; it will say 'okay' or 'hello', instead of following the instructions)
+  func sendVideoRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: textConfig,
+      systemInstruction: SystemInstructions.animalInVideo
+    )
+
+    let session = try await model.connect()
+    guard let videoFile = NSDataAsset(name: "cat") else {
+      Issue.record("Missing video file 'cat' in Assets")
+      return
+    }
+
+    let frames = try await videoFile.videoFrames()
+    for frame in frames {
+      await session.sendVideoRealtime(frame, mimeType: "image/png")
+    }
+
+    // the model doesn't respond unless we send some audio too
+    // vertex also responds if you send text, but google ai doesn't
+    // (they both respond with audio though)
     guard let audioFile = NSDataAsset(name: "hello") else {
       Issue.record("Missing audio file 'hello.wav' in Assets")
       return
@@ -178,7 +231,8 @@ struct LiveSessionTests {
       .trimmingCharacters(in: .punctuationCharacters)
       .lowercased()
 
-    #expect(modelResponse == "goodbye")
+    // model response varies
+    #expect(["kitten", "cat", "kitty"].contains(modelResponse))
   }
 
   @Test(arguments: arguments)
@@ -230,7 +284,7 @@ struct LiveSessionTests {
   }
 
   @Test(arguments: arguments.filter {
-    // TODO: (b/450982184) Remove when vertex adds support
+    // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
     switch $0.0.apiConfig.service {
     case .googleAI:
       true
@@ -240,12 +294,6 @@ struct LiveSessionTests {
   })
   func realtime_functionCalling_cancellation(_ config: InstanceConfig,
                                              modelName: String) async throws {
-    // TODO: (b/450982184) Remove when vertex adds support
-    guard case .googleAI = config.apiConfig.service else {
-      Issue.record("Vertex does not currently support function ids or function cancellation.")
-      return
-    }
-
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
       generationConfig: textConfig,
@@ -286,17 +334,16 @@ struct LiveSessionTests {
       generationConfig: audioConfig
     )
 
-    guard let audioFile = NSDataAsset(name: "hello") else {
-      Issue.record("Missing audio file 'hello.wav' in Assets")
-      return
-    }
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
 
     try await retry(times: 3, delayInSeconds: 2.0) {
       let session = try await model.connect()
       await session.sendAudioRealtime(audioFile.data)
       await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-      // wait a second to allow the model to start generating (and cuase a proper interruption)
+      // Wait a second to allow the model to start generating (and cause a proper interruption)
       try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
       await session.sendAudioRealtime(audioFile.data)
       await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
