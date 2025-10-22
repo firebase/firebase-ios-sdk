@@ -9,8 +9,6 @@
 #    zip from the current commit (HEAD).
 name: zip
 
-# TODO(ncooke3): Add FirebaseAI test.
-
 permissions:
   actions: read
   contents: read
@@ -247,13 +245,6 @@ jobs:
         quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Remove data before upload
-      if: always()
-      run: scripts/remove_data.sh abtesting
-    # - uses: actions/upload-artifact@v4
-    #   if: failure()
-    #   with:
-    #     name: quickstart_artifacts_abtesting
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
@@ -271,7 +262,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-15]
-        artifact: [Firebase-actions-dir] , Firebase-actions-dir-dynamic]
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         include:
           - os: macos-15
             xcode: Xcode_16.4
@@ -462,7 +453,7 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
@@ -473,7 +464,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-database.plist.gpg \
         quickstart-ios/database/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
@@ -579,8 +570,6 @@ jobs:
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
         quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
-    - name: Test Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - uses: actions/upload-artifact@v4
@@ -633,8 +622,6 @@ jobs:
         quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Test Swift Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
