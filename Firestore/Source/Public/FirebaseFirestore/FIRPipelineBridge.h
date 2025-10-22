@@ -244,22 +244,6 @@ NS_SWIFT_NAME(__PipelineResultChangeBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(__PipelineResultChangeBridge)
-@interface __FIRPipelineResultChangeBridge : NSObject
-
-/** The type of change that occurred (added, modified, or removed). */
-@property(nonatomic, readonly) FIRDocumentChangeType type;
-
-/** The document affected by this change. */
-@property(nonatomic, strong, readonly) __FIRPipelineResultBridge *result;
-
-@property(nonatomic, readonly) NSUInteger oldIndex;
-
-@property(nonatomic, readonly) NSUInteger newIndex;
-
-@end
-
-NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__PipelineSnapshotBridge)
 @interface __FIRPipelineSnapshotBridge : NSObject
 
