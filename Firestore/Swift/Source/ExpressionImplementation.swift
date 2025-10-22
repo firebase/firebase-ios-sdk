@@ -379,6 +379,14 @@ public extension Expression {
     return FunctionExpression("ln", [self])
   }
 
+  func log(_ base: Sendable) -> FunctionExpression {
+    return FunctionExpression("log", [self, Helper.sendableToExpr(base)])
+  }
+
+  func log(_ base: Expression) -> FunctionExpression {
+    return FunctionExpression("log", [self, base])
+  }
+
   func pow(_ exponent: Sendable) -> FunctionExpression {
     return FunctionExpression("pow", [self, Helper.sendableToExpr(exponent)])
   }
