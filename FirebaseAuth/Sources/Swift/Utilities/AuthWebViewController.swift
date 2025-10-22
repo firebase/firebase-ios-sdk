@@ -196,13 +196,8 @@
       self.webView = webView
     }
 
-    override func viewDidLoad() {
-      super.viewDidLoad()
-      title = "Sign In"
-    }
-
     override func viewDidAppear() {
-      super.viewDidAppear()
+      super.viewDidAppear()      
       webView?.webView.load(URLRequest(url: url))
     }
 

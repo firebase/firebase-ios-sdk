@@ -114,13 +114,13 @@
       level = .floating
       styleMask = [.titled, .closable, .miniaturizable, .resizable]
     }
-    
-    override func performClose(_ sender: Any?) {
-      // Notify the auth view controller that user canceled
+            
+    override func close() {
       if let authVC = authViewController as? AuthWebViewController {
         authVC.handleWindowClose()
       }
-      super.performClose(sender)
+      
+      super.close()
     }
   }
 
