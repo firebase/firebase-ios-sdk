@@ -20,20 +20,18 @@ import Testing
 
 struct ServerPromptTemplateIntegrationTests {
   private static let testConfigs: [InstanceConfig] = [
-    .vertexAI_v1beta,
+    .googleAI_v1beta,
+//    .vertexAI_v1beta, // Waiting for backend location propagation.
     .vertexAI_v1beta_global,
   ]
   private static let imageGenerationTestConfigs: [InstanceConfig] = [.vertexAI_v1beta]
 
-  @Test(arguments: [
-    // The "greeting2" template is only available in the `global` location.
-    InstanceConfig.vertexAI_v1beta_global,
-  ])
+  @Test(arguments: testConfigs)
   func generateContentWithText(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let response = try await model.generateContent(
-      templateID: "greeting4",
+      templateID: "greeting-5",
       inputs: [
         "name": userName,
         "language": "Spanish",
@@ -43,10 +41,7 @@ struct ServerPromptTemplateIntegrationTests {
     #expect(text.contains("Paul"))
   }
 
-  @Test(arguments: [
-    // The "greeting2" template is only available in the `global` location.
-    InstanceConfig.vertexAI_v1beta_global,
-  ])
+  @Test(arguments: testConfigs)
   func generateContentStream(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
@@ -141,10 +136,7 @@ struct ServerPromptTemplateIntegrationTests {
     #expect(!resultText.isEmpty)
   }
 
-  @Test(arguments: [
-    // The "greeting2" template is only available in the `global` location.
-    InstanceConfig.vertexAI_v1beta_global,
-  ])
+  @Test(arguments: testConfigs)
   func chat(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let initialHistory = [
