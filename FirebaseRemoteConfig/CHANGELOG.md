@@ -1,3 +1,9 @@
+# Unreleased
+- [added] Introduced a new `configUpdates` property to `RemoteConfig` that
+  provides an `AsyncSequence` for consuming real-time config updates.
+  This offers a modern, Swift Concurrency-native alternative to the existing
+  closure-based listener.
+
 # 12.3.0
 - [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
   building dynamically linked libraries. (#15276)
