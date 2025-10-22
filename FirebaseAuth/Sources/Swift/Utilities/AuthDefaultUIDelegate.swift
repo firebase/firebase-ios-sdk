@@ -90,8 +90,8 @@
 
 #elseif os(macOS)
 
-  import Foundation
   import AppKit
+  import Foundation
   #if COCOAPODS
     internal import GoogleUtilities
   #else
@@ -101,12 +101,13 @@
   /// Custom window class for OAuth flow
   final class AuthWebWindow: NSWindow {
     weak var authViewController: NSViewController?
-    
-    override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
+
+    override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask,
+                  backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
       super.init(contentRect: contentRect, styleMask: style, backing: backingStoreType, defer: flag)
       setupWindow()
     }
-    
+
     private func setupWindow() {
       title = "Sign In"
       isReleasedWhenClosed = false
@@ -114,12 +115,12 @@
       level = .floating
       styleMask = [.titled, .closable, .miniaturizable, .resizable]
     }
-            
+
     override func close() {
       if let authVC = authViewController as? AuthWebViewController {
         authVC.handleWindowClose()
       }
-      
+
       super.close()
     }
   }
@@ -130,7 +131,7 @@
   /// continue a given flow, but none was provided.
   final class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
     private var authWindow: AuthWebWindow?
-    
+
     /// Returns a default AuthUIDelegate object.
     /// - Returns: The default AuthUIDelegate object.
     @MainActor static func defaultUIDelegate() -> AuthUIDelegate? {
@@ -138,7 +139,7 @@
         // macOS App extensions should not access NSApplication.shared.
         return nil
       }
-      
+
       return AuthDefaultUIDelegate()
     }
 
@@ -152,11 +153,11 @@
         backing: .buffered,
         defer: false
       )
-      
+
       authWindow?.authViewController = viewControllerToPresent
       authWindow?.contentViewController = viewControllerToPresent
       authWindow?.makeKeyAndOrderFront(nil)
-      
+
       completion?()
     }
 

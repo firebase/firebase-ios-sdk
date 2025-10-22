@@ -103,8 +103,8 @@
       addSubview(spinner)
 
       layoutSubviews()
-      self.webView = webView
-      self.spinner = spinner
+      webView = webView
+      spinner = spinner
     }
 
     override func resizeSubviews(withOldSize oldSize: NSSize) {

@@ -56,8 +56,8 @@
 
 #elseif os(macOS)
 
-  import Foundation
   import AppKit
+  import Foundation
 
   /// A protocol to handle user interface interactions for Firebase Auth.
   ///

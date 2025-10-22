@@ -132,8 +132,8 @@
 
 #elseif os(macOS)
 
-  import Foundation
   import AppKit
+  import Foundation
   import WebKit
 
   /// Defines a delegate for AuthWebViewController
@@ -197,12 +197,12 @@
     }
 
     override func viewDidAppear() {
-      super.viewDidAppear()      
+      super.viewDidAppear()
       webView?.webView.load(URLRequest(url: url))
     }
 
     // MARK: - Public Methods
-    
+
     func handleWindowClose() {
       // Called when user closes the window manually using standard macOS controls
       delegate?.webViewControllerDidCancel(self)

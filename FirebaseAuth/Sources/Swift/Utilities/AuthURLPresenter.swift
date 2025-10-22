@@ -189,8 +189,8 @@
 
 #elseif os(macOS)
 
-  import Foundation
   import AppKit
+  import Foundation
   import WebKit
 
   /// A Class responsible for presenting URL via WKWebView on macOS.
@@ -310,7 +310,7 @@
       self.completion = nil
       let webViewController = self.webViewController
       self.webViewController = nil
-      
+
       if webViewController != nil {
         DispatchQueue.main.async {
           uiDelegate?.dismiss {
