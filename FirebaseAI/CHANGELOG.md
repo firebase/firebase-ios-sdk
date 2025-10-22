@@ -1,7 +1,6 @@
-# Unreleased
-- [fixed] Fixed various links in the Live API doc comments not mapping correctly.
-- [fixed] Fixed minor translation issue for nanosecond conversion when receiving
-  `LiveServerGoingAwayNotice`. (#15410)
+# 12.5.0
+- [fixed] Fixed a nanoseconds parsing issue in the Live API when receiving a
+  `LiveServerGoingAwayNotice` message. (#15410)
 - [feature] Added support for sending video frames with the Live API via the `sendVideoRealtime`
   method on [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
   (#15432)

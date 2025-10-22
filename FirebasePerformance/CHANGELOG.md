@@ -1,4 +1,4 @@
-# Unreleased
+# 12.5.0
 - [fixed] Prevent race condition crash in FPRTraceBackgroundActivityTracker. (#14273)
 - [fixed] Fix app start trace outliers from network delays. (#10733)
 
