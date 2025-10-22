@@ -581,6 +581,7 @@ let package = Package(
         "CrashlyticsInputFiles.xcfilelist",
         "third_party/libunwind/LICENSE",
         "Crashlytics/Rollouts/",
+        "Crashlytics/Entitlements/",
       ],
       sources: [
         "Crashlytics/",
@@ -616,6 +617,7 @@ let package = Package(
       path: "Crashlytics",
       sources: [
         "Crashlytics/Rollouts/",
+        "Crashlytics/Entitlements/",
       ]
     ),
     .testTarget(
