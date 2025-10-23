@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E0481222EA2E51300A50172 /* DataUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E0481212EA2E51100A50172 /* DataUtils.swift */; };
 		0E460FAB2E9858E4007E26A6 /* LiveSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E460FAA2E9858E4007E26A6 /* LiveSessionTests.swift */; };
 		0EC8BAE22E98784E0075A4E0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 868A7C532CCC26B500E449DD /* Assets.xcassets */; };
 		862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */; };
@@ -44,6 +45,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0E0481212EA2E51100A50172 /* DataUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataUtils.swift; sourceTree = "<group>"; };
 		0E460FAA2E9858E4007E26A6 /* LiveSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveSessionTests.swift; sourceTree = "<group>"; };
 		862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationTestUtils.swift; sourceTree = "<group>"; };
 		864F8F702D4980D60002EA7E /* ImagenIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagenIntegrationTests.swift; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 		8698D7442CD3CEF700ABA833 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				0E0481212EA2E51100A50172 /* DataUtils.swift */,
 				86D77E032D7B6C95003D155D /* InstanceConfig.swift */,
 				862218802D04E08D007ED2D4 /* IntegrationTestUtils.swift */,
 			);
@@ -304,6 +307,7 @@
 				DEF0BB512DA9B7450093E9F4 /* SchemaTests.swift in Sources */,
 				DEF0BB4F2DA74F680093E9F4 /* TestHelpers.swift in Sources */,
 				868A7C4F2CCC229F00E449DD /* Credentials.swift in Sources */,
+				0E0481222EA2E51300A50172 /* DataUtils.swift in Sources */,
 				864F8F712D4980DD0002EA7E /* ImagenIntegrationTests.swift in Sources */,
 				862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */,
 				86D77DFC2D7A5340003D155D /* GenerateContentIntegrationTests.swift in Sources */,
