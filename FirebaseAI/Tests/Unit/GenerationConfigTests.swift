@@ -153,4 +153,22 @@ final class GenerationConfigTests: XCTestCase {
     }
     """)
   }
+
+  func testEncodeGenerationConfig_withImageConfig() throws {
+    let aspectRatio = AspectRatio.square1x1
+    let generationConfig = GenerationConfig(
+      imageConfig: .init(aspectRatio: aspectRatio)
+    )
+
+    let jsonData = try encoder.encode(generationConfig)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "imageConfig" : {
+        "aspectRatio" : "\(aspectRatio.rawValue)"
+      }
+    }
+    """)
+  }
 }
