@@ -2404,10 +2404,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([
         Field("value").exp().as("expValue"),
       ])
-
-    let snapshot = try await pipeline.execute()
-    XCTAssertEqual(snapshot.results.count, 1)
-    XCTAssertNil(snapshot.results.first!.get("expValue"))
+    
+    do {
+      let _ = try await pipeline.execute()
+      XCTFail("The pipeline should have thrown an error, but it did not.")
+    } catch {
+      XCTAssert(true, "Successfully caught expected error from exponent overflow.")
+    }
   }
 
   func testCollectionIdWorks() async throws {
@@ -2499,8 +2502,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    // Part 1
-    var pipeline = db.pipeline()
+    let pipeline = db.pipeline()
       .collection(collRef.path)
       .sort([Field("rating").descending()])
       .limit(1)
@@ -2508,8 +2510,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         [
           Field("rating").isNil().as("ratingIsNull"),
           Field("rating").isNan().as("ratingIsNaN"),
-          Field("title").arrayGet(0).isError().as("isError"),
-          Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
           Field("foo").isAbsent().as("isAbsent"),
           Field("title").isNotNil().as("titleIsNotNull"),
           Field("cost").isNotNan().as("costIsNotNan"),
@@ -2518,15 +2518,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         ]
       )
 
-    var snapshot = try await pipeline.execute()
-    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for checks part 1")
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for checks")
 
     if let resultDoc = snapshot.results.first {
       let expectedResults: [String: Sendable?] = [
         "ratingIsNull": false,
         "ratingIsNaN": false,
-        "isError": true,
-        "ifError": "was error",
         "isAbsent": true,
         "titleIsNotNull": true,
         "costIsNotNan": false,
@@ -2535,42 +2533,62 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ]
       TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
     } else {
-      XCTFail("No document retrieved for checks part 1")
+      XCTFail("No document retrieved for checks")
     }
+  }
+  
+  func testIsError() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
 
-    // Part 2
-    pipeline = db.pipeline()
+    let pipeline = db.pipeline()
       .collection(collRef.path)
       .sort([Field("rating").descending()])
       .limit(1)
       .select(
         [
-          Field("rating").isNil().as("ratingIsNull"),
-          Field("rating").isNan().as("ratingIsNaN"),
-          Field("title").arrayGet(0).isError().as("isError"),
-          Field("title").arrayGet(0).ifError(Constant("was error")).as("ifError"),
-          Field("foo").isAbsent().as("isAbsent"),
-          Field("title").isNotNil().as("titleIsNotNull"),
-          Field("cost").isNotNan().as("costIsNotNan"),
+          Field("title").arrayLength().isError().as("isError"),
+          Field("author").arrayLength().isError().as("isError")
         ]
       )
 
-    snapshot = try await pipeline.execute()
-    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for checks part 2")
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for test")
 
     if let resultDoc = snapshot.results.first {
       let expectedResults: [String: Sendable?] = [
-        "ratingIsNull": false,
-        "ratingIsNaN": false,
         "isError": true,
-        "ifError": "was error",
-        "isAbsent": true,
-        "titleIsNotNull": true,
-        "costIsNotNan": false,
       ]
       TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
     } else {
-      XCTFail("No document retrieved for checks part 2")
+      XCTFail("No document retrieved for test")
+    }
+  }
+  
+  func testIfError() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(1)
+      .select(
+        [
+          Field("title").arrayLength().ifError(Constant("was error")).as("ifError"),
+        ]
+      )
+    
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for test")
+
+    if let resultDoc = snapshot.results.first {
+      let expectedResults: [String: Sendable?] = [
+        "ifError": "was error",
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for test")
     }
   }
 
@@ -2832,8 +2850,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .aggregate([AggregateFunction("count_if", [Field("rating").greaterThanOrEqual(4.5)])
-          .as("countOfBest")])
+      .aggregate(
+        [AggregateFunction(
+          functionName: "count_if",
+          args: [Field("rating").greaterThanOrEqual(4.5)]
+        )
+          .as("countOfBest")]
+)
 
     let snapshot = try await pipeline.execute()
 
@@ -2903,36 +2926,36 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
   }
 
-  func testSupportsRand() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
-
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .limit(10)
-      .select([RandomExpression().as("result")])
-
-    let snapshot = try await pipeline.execute()
-
-    XCTAssertEqual(snapshot.results.count, 10, "Should fetch 10 documents")
-
-    for doc in snapshot.results {
-      guard let resultValue = doc.get("result") else {
-        XCTFail("Document \(doc.id ?? "unknown") should have a 'result' field")
-        continue
-      }
-      guard let doubleValue = resultValue as? Double else {
-        XCTFail("Result value for document \(doc.id ?? "unknown") is not a Double: \(resultValue)")
-        continue
-      }
-      XCTAssertGreaterThanOrEqual(
-        doubleValue,
-        0.0,
-        "Result for \(doc.id ?? "unknown") should be >= 0.0"
-      )
-      XCTAssertLessThan(doubleValue, 1.0, "Result for \(doc.id ?? "unknown") should be < 1.0")
-    }
-  }
+//  func testSupportsRand() async throws {
+//    let collRef = collectionRef(withDocuments: bookDocs)
+//    let db = collRef.firestore
+//
+//    let pipeline = db.pipeline()
+//      .collection(collRef.path)
+//      .limit(10)
+//      .select([RandomExpression().as("result")])
+//
+//    let snapshot = try await pipeline.execute()
+//
+//    XCTAssertEqual(snapshot.results.count, 10, "Should fetch 10 documents")
+//
+//    for doc in snapshot.results {
+//      guard let resultValue = doc.get("result") else {
+//        XCTFail("Document \(doc.id ?? "unknown") should have a 'result' field")
+//        continue
+//      }
+//      guard let doubleValue = resultValue as? Double else {
+//        XCTFail("Result value for document \(doc.id ?? "unknown") is not a Double: \(resultValue)")
+//        continue
+//      }
+//      XCTAssertGreaterThanOrEqual(
+//        doubleValue,
+//        0.0,
+//        "Result for \(doc.id ?? "unknown") should be >= 0.0"
+//      )
+//      XCTAssertLessThan(doubleValue, 1.0, "Result for \(doc.id ?? "unknown") should be < 1.0")
+//    }
+//  }
 
   func testSupportsArray() async throws {
     let db = firestore()

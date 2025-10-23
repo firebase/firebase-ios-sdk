@@ -763,27 +763,27 @@ public extension Expression {
   // --- Added Aggregate Operations (on Expr) ---
 
   func countDistinct() -> AggregateFunction {
-    return AggregateFunction("count_distinct", [self])
+    return AggregateFunction(functionName: "count_distinct", args: [self])
   }
 
   func count() -> AggregateFunction {
-    return AggregateFunction("count", [self])
+    return AggregateFunction(functionName: "count", args: [self])
   }
 
   func sum() -> AggregateFunction {
-    return AggregateFunction("sum", [self])
+    return AggregateFunction(functionName: "sum", args: [self])
   }
 
   func average() -> AggregateFunction {
-    return AggregateFunction("average", [self])
+    return AggregateFunction(functionName: "average", args: [self])
   }
 
   func minimum() -> AggregateFunction {
-    return AggregateFunction("minimum", [self])
+    return AggregateFunction(functionName: "minimum", args: [self])
   }
 
   func maximum() -> AggregateFunction {
-    return AggregateFunction("maximum", [self])
+    return AggregateFunction(functionName: "maximum", args: [self])
   }
 
   // MARK: Logical min/max

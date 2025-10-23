@@ -53,7 +53,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   ///
   /// - Returns: An `AggregateFunction` that performs the conditional count.
   func countIf() -> AggregateFunction {
-    return AggregateFunction("count_if", [self])
+    return AggregateFunction(functionName: "count_if", args: [self])
   }
 
   /// Creates a conditional expression that returns one of two specified expressions based on the
