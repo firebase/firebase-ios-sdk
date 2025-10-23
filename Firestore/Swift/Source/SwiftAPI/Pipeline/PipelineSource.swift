@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A `PipelineSource` is the entry point for building a Firestore pipeline. It allows you to specify the source of the data for the pipeline, which can be a collection, a collection group, a list of documents, or the entire database.
+/// A `PipelineSource` is the entry point for building a Firestore pipeline. It allows you to
+/// specify the source of the data for the pipeline, which can be a collection, a collection group,
+/// a list of documents, or the entire database.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineSource: @unchecked Sendable {
   let db: Firestore
@@ -76,7 +78,8 @@ public struct PipelineSource: @unchecked Sendable {
 
   /// Creates a `Pipeline` from an existing `Query`.
   ///
-  /// This allows you to convert a standard Firestore query into a pipeline, which can then be further modified with additional pipeline stages.
+  /// This allows you to convert a standard Firestore query into a pipeline, which can then be
+  /// further modified with additional pipeline stages.
   ///
   /// - Parameter query: The `Query` to convert into a pipeline.
   /// - Returns: A `Pipeline` that is equivalent to the given query.

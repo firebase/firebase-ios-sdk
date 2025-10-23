@@ -14,7 +14,8 @@
 
 /// A protocol for expressions that have a name.
 ///
-/// `Selectable` is adopted by expressions that can be used in pipeline stages where a named output is required, such as `select` and `distinct`.
+/// `Selectable` is adopted by expressions that can be used in pipeline stages where a named output
+/// is required, such as `select` and `distinct`.
 ///
 /// A `Field` is a `Selectable` where the name is the field path.
 ///

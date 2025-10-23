@@ -15,6 +15,6 @@
 /// An `AggregateFunction` that has been given an alias.
 public struct AliasedAggregate {
   let aggregate: AggregateFunction
-  
+
   let alias: String
 }

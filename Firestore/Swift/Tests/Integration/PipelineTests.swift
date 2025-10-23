@@ -849,27 +849,26 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  // Hide this test due to `.countIf()` design is incomplete.
-//  func testReturnsCountIfAccumulation() async throws {
-//    let collRef = collectionRef(withDocuments: bookDocs)
-//    let db = collRef.firestore
-//
-//    let expectedCount = 3
-//    let expectedResults: [String: Sendable] = ["count": expectedCount]
-//    let condition = Field("rating").greaterThan(4.3)
-//
-//    let pipeline = db.pipeline()
-//      .collection(collRef.path)
-//      .aggregate([condition.countIf().as("count")])
-//    let snapshot = try await pipeline.execute()
-//
-//    XCTAssertEqual(snapshot.results.count, 1, "countIf aggregate should return a single document")
-//    if let result = snapshot.results.first {
-//      TestHelper.compare(pipelineResult: result, expected: expectedResults)
-//    } else {
-//      XCTFail("No result for countIf aggregation")
-//    }
-//  }
+  func testReturnsCountIfAccumulation() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let expectedCount = 3
+    let expectedResults: [String: Sendable] = ["count": expectedCount]
+    let condition = Field("rating").greaterThan(4.3)
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate([condition.countIf().as("count")])
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "countIf aggregate should return a single document")
+    if let result = snapshot.results.first {
+      TestHelper.compare(pipelineResult: result, expected: expectedResults)
+    } else {
+      XCTFail("No result for countIf aggregation")
+    }
+  }
 
   func testDistinctStage() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
@@ -2404,7 +2403,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([
         Field("value").exp().as("expValue"),
       ])
-    
+
     do {
       let _ = try await pipeline.execute()
       XCTFail("The pipeline should have thrown an error, but it did not.")
@@ -2536,7 +2535,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTFail("No document retrieved for checks")
     }
   }
-  
+
   func testIsError() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
@@ -2547,8 +2546,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .select(
         [
-          Field("title").arrayLength().isError().as("isError"),
-          Field("author").arrayLength().isError().as("isError")
+          Field("title").arrayLength().isError().as("isError")
         ]
       )
 
@@ -2564,7 +2562,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTFail("No document retrieved for test")
     }
   }
-  
+
   func testIfError() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
@@ -2578,7 +2576,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           Field("title").arrayLength().ifError(Constant("was error")).as("ifError"),
         ]
       )
-    
+
     let snapshot = try await pipeline.execute()
     XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document for test")
 
@@ -2805,8 +2803,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .where(
         BooleanExpression(functionName: "and", args: [Field("rating").greaterThan(0),
-                                  Field("title").charLength().lessThan(5),
-                                  Field("tags").arrayContains("propaganda")])
+                                                      Field("title").charLength().lessThan(5),
+                                                      Field("tags").arrayContains("propaganda")])
       )
       .select(["title"])
 
@@ -2855,8 +2853,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           functionName: "count_if",
           args: [Field("rating").greaterThanOrEqual(4.5)]
         )
-          .as("countOfBest")]
-)
+        .as("countOfBest")]
+      )
 
     let snapshot = try await pipeline.execute()
 
@@ -2945,7 +2943,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //        continue
 //      }
 //      guard let doubleValue = resultValue as? Double else {
-//        XCTFail("Result value for document \(doc.id ?? "unknown") is not a Double: \(resultValue)")
+//        XCTFail("Result value for document \(doc.id ?? "unknown") is not a Double:
+//        \(resultValue)")
 //        continue
 //      }
 //      XCTAssertGreaterThanOrEqual(

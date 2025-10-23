@@ -129,7 +129,10 @@ extension Expression {
   /// - Parameter otherBits: The integer literal operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise XOR operation.
   func bitXor(_ otherBits: Int) -> FunctionExpression {
-    return FunctionExpression(functionName: "bit_xor", args: [self, Helper.sendableToExpr(otherBits)])
+    return FunctionExpression(
+      functionName: "bit_xor",
+      args: [self, Helper.sendableToExpr(otherBits)]
+    )
   }
 
   /// Creates an expression applying bitwise XOR between this expression and a UInt8 literal.
@@ -226,7 +229,10 @@ extension Expression {
   /// - Parameter y: The number of bits (Int literal) to shift by.
   /// - Returns: A new "FunctionExpression" representing the bitwise right shift operation.
   func bitRightShift(_ y: Int) -> FunctionExpression {
-    return FunctionExpression(functionName: "bit_right_shift", args: [self, Helper.sendableToExpr(y)])
+    return FunctionExpression(
+      functionName: "bit_right_shift",
+      args: [self, Helper.sendableToExpr(y)]
+    )
   }
 
   /// Creates an expression applying bitwise right shift to this expression by a number of bits
@@ -272,7 +278,10 @@ extension Expression {
   /// - Parameter vector: The other vector as a `VectorValue` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
   func manhattanDistance(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression(functionName: "manhattan_distance", args: [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "manhattan_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
@@ -287,7 +296,10 @@ extension Expression {
   /// - Parameter vector: The other vector as `[Double]` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
   func manhattanDistance(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression(functionName: "manhattan_distance", args: [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "manhattan_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   /// Creates an expression that replaces the first occurrence of a literal substring within this
@@ -477,7 +489,10 @@ public extension Expression {
   }
 
   func arrayContains(_ element: Sendable) -> BooleanExpression {
-    return BooleanExpression(functionName: "array_contains", args: [self, Helper.sendableToExpr(element)])
+    return BooleanExpression(
+      functionName: "array_contains",
+      args: [self, Helper.sendableToExpr(element)]
+    )
   }
 
   func arrayContainsAll(_ values: [Expression]) -> BooleanExpression {
@@ -509,7 +524,10 @@ public extension Expression {
   }
 
   func arrayGet(_ offset: Int) -> FunctionExpression {
-    return FunctionExpression(functionName: "array_get", args: [self, Helper.sendableToExpr(offset)])
+    return FunctionExpression(
+      functionName: "array_get",
+      args: [self, Helper.sendableToExpr(offset)]
+    )
   }
 
   func arrayGet(_ offsetExpression: Expression) -> FunctionExpression {
@@ -648,7 +666,10 @@ public extension Expression {
   }
 
   func regexContains(_ pattern: String) -> BooleanExpression {
-    return BooleanExpression(functionName: "regex_contains", args: [self, Helper.sendableToExpr(pattern)])
+    return BooleanExpression(
+      functionName: "regex_contains",
+      args: [self, Helper.sendableToExpr(pattern)]
+    )
   }
 
   func regexContains(_ pattern: Expression) -> BooleanExpression {
@@ -656,7 +677,10 @@ public extension Expression {
   }
 
   func regexMatch(_ pattern: String) -> BooleanExpression {
-    return BooleanExpression(functionName: "regex_match", args: [self, Helper.sendableToExpr(pattern)])
+    return BooleanExpression(
+      functionName: "regex_match",
+      args: [self, Helper.sendableToExpr(pattern)]
+    )
   }
 
   func regexMatch(_ pattern: Expression) -> BooleanExpression {
@@ -664,7 +688,10 @@ public extension Expression {
   }
 
   func stringContains(_ substring: String) -> BooleanExpression {
-    return BooleanExpression(functionName: "string_contains", args: [self, Helper.sendableToExpr(substring)])
+    return BooleanExpression(
+      functionName: "string_contains",
+      args: [self, Helper.sendableToExpr(substring)]
+    )
   }
 
   func stringContains(_ expression: Expression) -> BooleanExpression {
@@ -672,7 +699,10 @@ public extension Expression {
   }
 
   func startsWith(_ prefix: String) -> BooleanExpression {
-    return BooleanExpression(functionName: "starts_with", args: [self, Helper.sendableToExpr(prefix)])
+    return BooleanExpression(
+      functionName: "starts_with",
+      args: [self, Helper.sendableToExpr(prefix)]
+    )
   }
 
   func startsWith(_ prefix: Expression) -> BooleanExpression {
@@ -723,7 +753,10 @@ public extension Expression {
   func substring(position: Int, length: Int? = nil) -> FunctionExpression {
     let positionExpr = Helper.sendableToExpr(position)
     if let length = length {
-      return FunctionExpression(functionName: "substring", args: [self, positionExpr, Helper.sendableToExpr(length)])
+      return FunctionExpression(
+        functionName: "substring",
+        args: [self, positionExpr, Helper.sendableToExpr(length)]
+      )
     } else {
       return FunctionExpression(functionName: "substring", args: [self, positionExpr])
     }
@@ -817,11 +850,17 @@ public extension Expression {
   }
 
   func cosineDistance(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression(functionName: "cosine_distance", args: [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "cosine_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func cosineDistance(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression(functionName: "cosine_distance", args: [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "cosine_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func dotProduct(_ expression: Expression) -> FunctionExpression {
@@ -829,11 +868,17 @@ public extension Expression {
   }
 
   func dotProduct(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression(functionName: "dot_product", args: [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "dot_product",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func dotProduct(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression(functionName: "dot_product", args: [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "dot_product",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func euclideanDistance(_ expression: Expression) -> FunctionExpression {
@@ -841,11 +886,17 @@ public extension Expression {
   }
 
   func euclideanDistance(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression(functionName: "euclidean_distance", args: [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "euclidean_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func euclideanDistance(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression(functionName: "euclidean_distance", args: [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "euclidean_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   // MARK: Timestamp operations
@@ -909,11 +960,17 @@ public extension Expression {
   }
 
   func ifError(_ catchValue: Sendable) -> FunctionExpression {
-    return FunctionExpression(functionName: "if_error", args: [self, Helper.sendableToExpr(catchValue)])
+    return FunctionExpression(
+      functionName: "if_error",
+      args: [self, Helper.sendableToExpr(catchValue)]
+    )
   }
 
   func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression {
-    return FunctionExpression(functionName: "if_absent", args: [self, Helper.sendableToExpr(defaultValue)])
+    return FunctionExpression(
+      functionName: "if_absent",
+      args: [self, Helper.sendableToExpr(defaultValue)]
+    )
   }
 
   // MARK: Sorting

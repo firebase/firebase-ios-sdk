@@ -22,9 +22,11 @@
 import Foundation
 
 @objc public extension Firestore {
-  /// Creates a `PipelineSource` that can be used to build and execute a pipeline of operations on the Firestore database.
+  /// Creates a `PipelineSource` that can be used to build and execute a pipeline of operations on
+  /// the Firestore database.
   ///
-  /// A pipeline is a sequence of stages that are executed in order. Each stage can perform an operation on the data, such as filtering, sorting, or transforming it.
+  /// A pipeline is a sequence of stages that are executed in order. Each stage can perform an
+  /// operation on the data, such as filtering, sorting, or transforming it.
   ///
   /// Example usage:
   /// ```swift

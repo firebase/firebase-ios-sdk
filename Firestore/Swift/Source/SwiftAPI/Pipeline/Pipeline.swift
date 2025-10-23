@@ -24,8 +24,8 @@ import Foundation
 ///
 /// A pipeline takes data sources, such as Firestore collections or collection groups, and applies
 /// a series of stages that are chained together. Each stage takes the output from the previous
-/// stage (or the data source) and produces an output for the next stage (or as the final output of the
-/// pipeline).
+/// stage (or the data source) and produces an output for the next stage (or as the final output of
+/// the pipeline).
 ///
 /// Expressions can be used within each stage to filter and transform data through the stage.
 ///

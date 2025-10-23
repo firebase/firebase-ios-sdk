@@ -455,7 +455,8 @@ public protocol Expression: Sendable {
   /// Field("tags").arrayGet(Field("favoriteTagIndex"))
   /// ```
   ///
-  /// - Parameter offsetExpression: An `Expression` (evaluating to an Int) representing the offset of the
+  /// - Parameter offsetExpression: An `Expression` (evaluating to an Int) representing the offset
+  /// of the
   /// element to return.
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
   func arrayGet(_ offsetExpression: Expression) -> FunctionExpression
@@ -1014,8 +1015,8 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter position: An `Expression` (evaluating to an Int) for the index of the first
   /// character.
-  /// - Parameter length: Optional `Expression` (evaluating to an Int) for the length of the substring. If
-  /// `nil`, goes to the end.
+  /// - Parameter length: Optional `Expression` (evaluating to an Int) for the length of the
+  /// substring. If `nil`, goes to the end.
   /// - Returns: A new `FunctionExpression` representing the substring.
   func substring(position: Expression, length: Expression?) -> FunctionExpression
 
@@ -1055,8 +1056,8 @@ public protocol Expression: Sendable {
   /// Field("settings").mapRemove(Field("keyToRemove"))
   /// ```
   ///
-  /// - Parameter keyExpression: An `Expression` (evaluating to a string) representing the key to remove from
-  /// the map.
+  /// - Parameter keyExpression: An `Expression` (evaluating to a string) representing the key to
+  /// remove from the map.
   /// - Returns: A new `FunctionExpression` representing the "map_remove" operation.
   func mapRemove(_ keyExpression: Expression) -> FunctionExpression
 
@@ -1477,15 +1478,16 @@ public protocol Expression: Sendable {
   /// root itself.
   func collectionId() -> FunctionExpression
 
-  /// Creates an expression that returns the result of `catchExpression` if this expression produces an
-  /// error during evaluation, otherwise returns the result of this expression.
+  /// Creates an expression that returns the result of `catchExpression` if this expression produces
+  /// an error during evaluation, otherwise returns the result of this expression.
   ///
   /// ```swift
   /// // Try dividing "a" by "b", return field "fallbackValue" on error (e.g., division by zero)
   /// Field("a").divide(Field("b")).ifError(Field("fallbackValue"))
   /// ```
   ///
-  /// - Parameter catchExpression: The `Expression` to evaluate and return if this expression errors.
+  /// - Parameter catchExpression: The `Expression` to evaluate and return if this expression
+  /// errors.
   /// - Returns: A new "FunctionExpression" representing the "ifError" operation.
   func ifError(_ catchExpression: Expression) -> FunctionExpression
 

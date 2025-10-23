@@ -14,9 +14,11 @@
 
 /// Represents a function call in a pipeline.
 ///
-/// A `FunctionExpression` is an expression that represents a function call with a given name and arguments.
+/// A `FunctionExpression` is an expression that represents a function call with a given name and
+/// arguments.
 ///
-/// `FunctionExpression`s are typically used to perform operations on data in a pipeline, such as mathematical calculations, string manipulations, or array operations.
+/// `FunctionExpression`s are typically used to perform operations on data in a pipeline, such as
+/// mathematical calculations, string manipulations, or array operations.
 public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable {
   let bridge: ExprBridge
 

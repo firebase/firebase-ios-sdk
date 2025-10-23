@@ -52,7 +52,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   /// ```
   ///
   /// - Returns: An `AggregateFunction` that performs the conditional count.
-  func countIf() -> AggregateFunction {
+  public func countIf() -> AggregateFunction {
     return AggregateFunction(functionName: "count_if", args: [self])
   }
 
@@ -106,7 +106,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   public static func && (lhs: BooleanExpression,
                          rhs: @autoclosure () throws -> BooleanExpression) rethrows
     -> BooleanExpression {
-      try BooleanExpression(functionName: "and", args: [lhs, rhs()])
+    try BooleanExpression(functionName: "and", args: [lhs, rhs()])
   }
 
   /// Combines two boolean expressions with a logical OR (`||`).
@@ -130,7 +130,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   public static func || (lhs: BooleanExpression,
                          rhs: @autoclosure () throws -> BooleanExpression) rethrows
     -> BooleanExpression {
-      try BooleanExpression(functionName: "or", args: [lhs, rhs()])
+    try BooleanExpression(functionName: "or", args: [lhs, rhs()])
   }
 
   /// Combines two boolean expressions with a logical XOR (`^`).
@@ -154,7 +154,7 @@ public class BooleanExpression: FunctionExpression, @unchecked Sendable {
   public static func ^ (lhs: BooleanExpression,
                         rhs: @autoclosure () throws -> BooleanExpression) rethrows
     -> BooleanExpression {
-      try BooleanExpression(functionName: "xor", args: [lhs, rhs()])
+    try BooleanExpression(functionName: "xor", args: [lhs, rhs()])
   }
 
   /// Negates a boolean expression with a logical NOT (`!`).
