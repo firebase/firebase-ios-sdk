@@ -1604,13 +1604,4 @@ public protocol Expression: Sendable {
   /// - Parameter values: The values to concatenate.
   /// - Returns: A new `FunctionExpression` representing the concatenated result.
   func concat(_ values: [Sendable]) -> FunctionExpression
-
-  // MARK: Equivalence Operations
-
-  /// Creates a `BooleanExpr` that returns `true` if this expression is equivalent
-  /// to the given value.
-  ///
-  /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
-  func equivalent(_ other: Sendable) -> BooleanExpression
 }
