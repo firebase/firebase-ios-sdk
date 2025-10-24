@@ -80,8 +80,10 @@ static BOOL RemoteConfigCreateFilePathIfNotExist(NSString *filePath) {
                 @"Failed to create subdirectory for an empty file path.");
     return NO;
   }
+  FIRLogDebug(kFIRLoggerRemoteConfig, @"RC-SDK-DEBUG", @"DBManager: DB file does not exists BEFORE create: 0");
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if (![fileManager fileExistsAtPath:filePath]) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"RC-SDK-DEBUG", @"DBManager: Setting gIsNewDatabase = YES");
     gIsNewDatabase = YES;
     NSError *error;
     [fileManager createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]

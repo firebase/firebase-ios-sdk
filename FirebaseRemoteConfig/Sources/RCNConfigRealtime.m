@@ -723,6 +723,7 @@ static NSInteger const gMaxRetries = 7;
 
 - (FIRConfigUpdateListenerRegistration *)addConfigUpdateListener:
     (void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate, NSError *_Nullable error))listener {
+  FIRLogDebug(kFIRLoggerRemoteConfig, @"RC-SDK-DEBUG", @"Realtime: Check1 local SDK is working");
   if (listener == nil) {
     return nil;
   }

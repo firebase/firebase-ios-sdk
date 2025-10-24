@@ -316,6 +316,7 @@ static NSString *const kRCNUserDefaultsKeyCustomSignals = @"customSignals";
 // Delete any existing userdefaults for this instance.
 - (void)resetInstanceUserDefaults {
   @synchronized(_userDefaults) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"RC-SDK-DEBUG", @"Defaults Manager: Reset is happening");
     NSMutableDictionary *appUserDefaults = [[self appUserDefaults] mutableCopy];
     NSMutableDictionary *appNamespaceUserDefaults = [[self instanceUserDefaults] mutableCopy];
     [appNamespaceUserDefaults removeAllObjects];
