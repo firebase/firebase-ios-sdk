@@ -61,6 +61,15 @@ extension GenerateContentRequest: Encodable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GenerateContentRequest {
+  enum APIMethod: String {
+    case generateContent
+    case streamGenerateContent
+    case countTokens
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 

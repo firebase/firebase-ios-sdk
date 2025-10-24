@@ -49,9 +49,11 @@ extension TemplateGenerateContentRequest: GenerativeAIRequest {
     if case let .vertexAI(_, location) = apiConfig.service {
       urlString += "/locations/\(location)"
     }
-    urlString += "/templates/\(template):templateGenerateContent"
+
     if stream {
-      urlString += "?alt=sse"
+      urlString += "/templates/\(template):templateStreamGenerateContent?alt=sse"
+    } else {
+      urlString += "/templates/\(template):templateGenerateContent"
     }
     guard let url = URL(string: urlString) else {
       throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
