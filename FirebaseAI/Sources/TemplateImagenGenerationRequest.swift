@@ -19,9 +19,27 @@ enum ImageAPIMethod: String {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-class TemplateGenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
-  typealias Response = ImagenGenerationResponse<ImagenInlineImage>
+struct TemplateImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
+  typealias Response = ImagenGenerationResponse<ImageType>
 
+  let template: String
+  let inputs: [String: TemplateInput]
+  let projectID: String
+  let apiConfig: APIConfig
+  let options: RequestOptions
+
+  init(template: String, inputs: [String: TemplateInput], projectID: String,
+       apiConfig: APIConfig, options: RequestOptions) {
+    self.template = template
+    self.inputs = inputs
+    self.projectID = projectID
+    self.apiConfig = apiConfig
+    self.options = options
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension TemplateImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   func getURL() throws -> URL {
     var urlString =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
@@ -34,24 +52,10 @@ class TemplateGenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
     }
     return url
   }
+}
 
-  let options: RequestOptions
-
-  let apiConfig: APIConfig
-
-  let template: String
-  let inputs: [String: TemplateInput]
-  let projectID: String
-
-  init(template: String, inputs: [String: TemplateInput], projectID: String,
-       apiConfig: APIConfig, options: RequestOptions) {
-    self.apiConfig = apiConfig
-    self.options = options
-    self.template = template
-    self.inputs = inputs
-    self.projectID = projectID
-  }
-
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension TemplateImagenGenerationRequest: Encodable {
   enum CodingKeys: String, CodingKey {
     case inputs
   }
