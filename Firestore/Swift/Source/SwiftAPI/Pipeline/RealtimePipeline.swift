@@ -69,16 +69,31 @@ struct PipelineListenOptions: Sendable, Equatable, Hashable {
     self.includeMetadataChanges = includeMetadataChanges
     self.source = source
     bridge = __PipelineListenOptionsBridge(
-      serverTimestampBehavior: (self.serverTimestamps ?? .none).rawValue,
+      serverTimestampBehavior: PipelineListenOptions
+        .toRawValue(servertimestamp: self.serverTimestamps ?? .none),
       includeMetadata: self.includeMetadataChanges ?? false,
       source: self.source ?? ListenSource.default
     )
+  }
+
+  private static func toRawValue(servertimestamp: ServerTimestampBehavior) -> String {
+    switch servertimestamp {
+    case .none:
+      return "none"
+    case .estimate:
+      return "estimate"
+    case .previous:
+      return "previous"
+    default:
+      fatalError("Unknown server timestamp behavior")
+    }
   }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct RealtimePipeline: @unchecked Sendable {
   private var stages: [Stage]
+
   let bridge: RealtimePipelineBridge
   let db: Firestore
 
