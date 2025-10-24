@@ -18,14 +18,17 @@ import Foundation
 class TemplateGenerateImagesRequest: @unchecked Sendable, GenerativeAIRequest {
   typealias Response = ImagenGenerationResponse<ImagenInlineImage>
 
-  var url: URL {
+  func getURL() throws -> URL {
     var urlString =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
     if case let .vertexAI(_, location) = apiConfig.service {
       urlString += "/locations/\(location)"
     }
     urlString += "/templates/\(template):\(ImageAPIMethod.generateImages.rawValue)"
-    return URL(string: urlString)!
+    guard let url = URL(string: urlString) else {
+      throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
+    }
+    return url
   }
 
   let options: RequestOptions

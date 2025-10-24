@@ -167,7 +167,7 @@ struct GenerativeAIService {
   // MARK: - Private Helpers
 
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
-    var urlRequest = URLRequest(url: request.url)
+    var urlRequest = try URLRequest(url: request.getURL())
     urlRequest.httpMethod = "POST"
     urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
     urlRequest.setValue(

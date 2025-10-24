@@ -43,7 +43,7 @@ extension TemplateGenerateContentRequest: Encodable {
 extension TemplateGenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
-  var url: URL {
+  func getURL() throws -> URL {
     var urlString =
       "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
     if case let .vertexAI(_, location) = apiConfig.service {
@@ -53,6 +53,9 @@ extension TemplateGenerateContentRequest: GenerativeAIRequest {
     if stream {
       urlString += "?alt=sse"
     }
-    return URL(string: urlString)!
+    guard let url = URL(string: urlString) else {
+      throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
+    }
+    return url
   }
 }
