@@ -1429,22 +1429,29 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the number of seconds.
   func timestampToUnixSeconds() -> FunctionExpression
 
-  /// Creates an expression that adds a specified amount of time to this timestamp expression,
-  /// where unit and amount are provided as expressions.
-  /// Assumes `self` evaluates to a Timestamp, `unit` evaluates to a unit string, and `amount`
-  /// evaluates to an integer.
+  /// Creates an expression that truncates a timestamp to a specified granularity.
+  /// Assumes `self` evaluates to a Timestamp.
   ///
   /// ```swift
-  /// // Add duration from "unitField"/"amountField" to "timestamp"
-  /// Field("timestamp").timestampAdd(amount: Field("amountField"), unit: Field("unitField"))
+  /// // Truncate "timestamp" field to the nearest day.
+  /// Field("timestamp").timestampTruncate(granularity: .day)
   /// ```
   ///
-  /// - Parameter unit: An `Expr` evaluating to the unit of time string (e.g., "day", "hour").
-  ///                 Valid units are "microsecond", "millisecond", "second", "minute", "hour",
-  /// "day".
-  /// - Parameter amount: An `Expr` evaluating to the amount (Int) of the unit to add.
-  /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
-  func timestampAdd(amount: Expression, unit: Expression) -> FunctionExpression
+  /// - Parameter granularity: A `TimeUnit` enum representing the truncation unit.
+  /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
+  func timestampTruncate(granularity: TimeUnit) -> FunctionExpression
+
+  /// Creates an expression that truncates a timestamp to a specified granularity.
+  /// Assumes `self` evaluates to a Timestamp, and `granularity` is a literal string.
+  ///
+  /// ```swift
+  /// // Truncate "timestamp" field to the nearest day using a literal string.
+  /// Field("timestamp").timestampTruncate(granularity: "day")
+  /// ```
+  ///
+  /// - Parameter granularity: A `Sendable` literal string specifying the truncation unit.
+  /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
+  func timestampTruncate(granularity: Sendable) -> FunctionExpression
 
   /// Creates an expression that adds a specified amount of time to this timestamp expression,
   /// where unit and amount are provided as literals.
@@ -1460,22 +1467,22 @@ public protocol Expression: Sendable {
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
   func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression
 
-  /// Creates an expression that subtracts a specified amount of time from this timestamp
-  /// expression, where unit and amount are provided as expressions.
-  /// Assumes `self` evaluates to a Timestamp, `unit` evaluates to a unit string, and `amount`
-  /// evaluates to an integer.
+  /// Creates an expression that adds a specified amount of time to this timestamp expression,
+  /// where unit and amount are provided as an expression for amount and a literal for unit.
+  /// Assumes `self` evaluates to a Timestamp, `amount` evaluates to an integer, and `unit`
+  /// evaluates to a string.
   ///
   /// ```swift
-  /// // Subtract duration from "unitField"/"amountField" from "timestamp"
-  /// Field("timestamp").timestampSubtract(amount: Field("amountField"), unit: Field("unitField"))
+  /// // Add duration from "amountField" to "timestamp" with a literal unit "day".
+  /// Field("timestamp").timestampAdd(amount: Field("amountField"), unit: "day")
   /// ```
   ///
-  /// - Parameter unit: An `Expression` evaluating to the unit of time string (e.g., "day", "hour").
+  /// - Parameter unit: A `Sendable` literal string specifying the unit of time.
   ///                 Valid units are "microsecond", "millisecond", "second", "minute", "hour",
   /// "day".
-  /// - Parameter amount: An `Expression` evaluating to the amount (Int) of the unit to subtract.
+  /// - Parameter amount: An `Expression` evaluating to the amount (Int) of the unit to add.
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
-  func timestampSubtract(amount: Expression, unit: Expression) -> FunctionExpression
+  func timestampAdd(amount: Expression, unit: Sendable) -> FunctionExpression
 
   /// Creates an expression that subtracts a specified amount of time from this timestamp
   /// expression, where unit and amount are provided as literals.
@@ -1490,6 +1497,24 @@ public protocol Expression: Sendable {
   /// - Parameter amount: The literal `Int` amount of the unit to subtract.
   /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
   func timestampSubtract(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression
+
+  /// Creates an expression that subtracts a specified amount of time from this timestamp
+  /// expression, where unit and amount are provided as an expression for amount and a literal for
+  /// unit.
+  /// Assumes `self` evaluates to a Timestamp, `amount` evaluates to an integer, and `unit`
+  /// evaluates to a string.
+  ///
+  /// ```swift
+  /// // Subtract duration from "amountField" from "timestamp" with a literal unit "day".
+  /// Field("timestamp").timestampSubtract(amount: Field("amountField"), unit: "day")
+  /// ```
+  ///
+  /// - Parameter unit: A `Sendable` literal string specifying the unit of time.
+  ///                 Valid units are "microsecond", "millisecond", "second", "minute", "hour",
+  /// "day".
+  /// - Parameter amount: An `Expression` evaluating to the amount (Int) of the unit to subtract.
+  /// - Returns: A new "FunctionExpression" representing the resulting timestamp.
+  func timestampSubtract(amount: Expression, unit: Sendable) -> FunctionExpression
 
   /// Creates an expression that returns the document ID from a path.
   ///

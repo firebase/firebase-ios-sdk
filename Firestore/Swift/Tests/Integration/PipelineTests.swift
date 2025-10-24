@@ -3330,12 +3330,16 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
           Field("timestamp").timestampAdd(10, .second).as("plus10seconds"),
           Field("timestamp").timestampAdd(10, .microsecond).as("plus10micros"),
           Field("timestamp").timestampAdd(10, .millisecond).as("plus10millis"),
+          Field("timestamp").timestampAdd(amount: Constant(10), unit: "day")
+            .as("plus10daysExprUnitSendable"),
           Field("timestamp").timestampSubtract(10, .day).as("minus10days"),
           Field("timestamp").timestampSubtract(10, .hour).as("minus10hours"),
           Field("timestamp").timestampSubtract(10, .minute).as("minus10minutes"),
           Field("timestamp").timestampSubtract(10, .second).as("minus10seconds"),
           Field("timestamp").timestampSubtract(10, .microsecond).as("minus10micros"),
           Field("timestamp").timestampSubtract(10, .millisecond).as("minus10millis"),
+          Field("timestamp").timestampSubtract(amount: Constant(10), unit: "day")
+            .as("minus10daysExprUnitSendable"),
         ]
       )
 
@@ -3348,12 +3352,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "plus10seconds": Timestamp(seconds: 1_741_380_245, nanoseconds: 0),
       "plus10micros": Timestamp(seconds: 1_741_380_235, nanoseconds: 10000),
       "plus10millis": Timestamp(seconds: 1_741_380_235, nanoseconds: 10_000_000),
+      "plus10daysExprUnitSendable": Timestamp(seconds: 1_742_244_235, nanoseconds: 0),
       "minus10days": Timestamp(seconds: 1_740_516_235, nanoseconds: 0),
       "minus10hours": Timestamp(seconds: 1_741_344_235, nanoseconds: 0),
       "minus10minutes": Timestamp(seconds: 1_741_379_635, nanoseconds: 0),
       "minus10seconds": Timestamp(seconds: 1_741_380_225, nanoseconds: 0),
       "minus10micros": Timestamp(seconds: 1_741_380_234, nanoseconds: 999_990_000),
       "minus10millis": Timestamp(seconds: 1_741_380_234, nanoseconds: 990_000_000),
+      "minus10daysExprUnitSendable": Timestamp(seconds: 1_740_516_235, nanoseconds: 0),
     ]
 
     XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
@@ -3361,6 +3367,56 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
     } else {
       XCTFail("No document retrieved for timestamp math test")
+    }
+  }
+
+  func testTimestampTruncWorks() async throws {
+    let db = firestore()
+    let randomCol = collectionRef()
+    try await randomCol.document("dummyDoc").setData(["field": "value"])
+
+    let baseTimestamp = Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000)
+
+    let pipeline = db.pipeline()
+      .collection(randomCol.path)
+      .limit(1)
+      .select(
+        [
+          Constant(baseTimestamp).timestampTruncate(granularity: "nanosecond").as("truncNano"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .microsecond).as("truncMicro"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .millisecond).as("truncMilli"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .second).as("truncSecond"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .minute).as("truncMinute"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .hour).as("truncHour"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .day).as("truncDay"),
+          Constant(baseTimestamp).timestampTruncate(granularity: "month").as("truncMonth"),
+          Constant(baseTimestamp).timestampTruncate(granularity: "year").as("truncYear"),
+          Constant(baseTimestamp).timestampTruncate(granularity: Constant("day"))
+            .as("truncDayExpr"),
+        ]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+
+    let expectedResults: [String: Timestamp] = [
+      "truncNano": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000),
+      "truncMicro": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000),
+      "truncMilli": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_000_000),
+      "truncSecond": Timestamp(seconds: 1_741_380_235, nanoseconds: 0),
+      "truncMinute": Timestamp(seconds: 1_741_380_180, nanoseconds: 0),
+      "truncHour": Timestamp(seconds: 1_741_377_600, nanoseconds: 0),
+      "truncDay": Timestamp(seconds: 1_741_305_600, nanoseconds: 0), // Assuming UTC day start
+      "truncMonth": Timestamp(seconds: 1_740_787_200, nanoseconds: 0), // Assuming UTC month start
+      "truncYear": Timestamp(seconds: 1_735_689_600, nanoseconds: 0), // Assuming UTC year start
+      "truncDayExpr": Timestamp(seconds: 1_741_305_600, nanoseconds: 0), // Assuming UTC day start
+    ]
+
+    if let resultDoc = snapshot.results.first {
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResults)
+    } else {
+      XCTFail("No document retrieved for timestamp trunc test")
     }
   }
 

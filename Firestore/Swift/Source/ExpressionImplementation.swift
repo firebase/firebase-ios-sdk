@@ -928,8 +928,18 @@ public extension Expression {
     return FunctionExpression(functionName: "timestamp_to_unix_seconds", args: [self])
   }
 
-  func timestampAdd(amount: Expression, unit: Expression) -> FunctionExpression {
-    return FunctionExpression(functionName: "timestamp_add", args: [self, unit, amount])
+  func timestampTruncate(granularity: TimeUnit) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity.rawValue)]
+    )
+  }
+
+  func timestampTruncate(granularity: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity)]
+    )
   }
 
   func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
@@ -939,14 +949,24 @@ public extension Expression {
     )
   }
 
-  func timestampSubtract(amount: Expression, unit: Expression) -> FunctionExpression {
-    return FunctionExpression(functionName: "timestamp_subtract", args: [self, unit, amount])
+  func timestampAdd(amount: Expression, unit: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_add",
+      args: [self, Helper.sendableToExpr(unit), amount]
+    )
   }
 
   func timestampSubtract(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
       functionName: "timestamp_subtract",
       args: [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
+    )
+  }
+
+  func timestampSubtract(amount: Expression, unit: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_subtract",
+      args: [self, Helper.sendableToExpr(unit), amount]
     )
   }
 
