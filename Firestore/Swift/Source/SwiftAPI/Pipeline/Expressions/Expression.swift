@@ -617,26 +617,6 @@ public protocol Expression: Sendable {
   /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   func notEqualAny(_ arrayExpression: Expression) -> BooleanExpression
 
-  /// Creates an expression that checks if this expression evaluates to "NaN" (Not a Number).
-  ///
-  /// ```swift
-  /// // Check if the result of a calculation is NaN
-  /// Field("value").divide(0).isNan()
-  /// ```
-  ///
-  /// - Returns: A new `BooleanExpression` representing the "isNaN" check.
-  func isNan() -> BooleanExpression
-
-  /// Creates an expression that checks if this expression evaluates to "Nil".
-  ///
-  /// ```swift
-  /// // Check if the "optionalField" is null
-  /// Field("optionalField").isNil()
-  /// ```
-  ///
-  /// - Returns: A new `BooleanExpression` representing the "isNil" check.
-  func isNil() -> BooleanExpression
-
   /// Creates an expression that checks if a field exists in the document.
   ///
   /// ```swift
@@ -667,27 +647,6 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `BooleanExpression` representing the "isAbsent" check.
   func isAbsent() -> BooleanExpression
-
-  /// Creates an expression that checks if the result of this expression is not null.
-  ///
-  /// ```swift
-  /// // Check if the value of the "name" field is not null
-  /// Field("name").isNotNil()
-  /// ```
-  ///
-  /// - Returns: A new `BooleanExpression` representing the "isNotNil" check.
-  func isNotNil() -> BooleanExpression
-
-  /// Creates an expression that checks if the results of this expression is NOT "NaN" (Not a
-  /// Number).
-  ///
-  /// ```swift
-  /// // Check if the result of a calculation is NOT NaN
-  /// Field("value").divide(Field("count")).isNotNan() // Assuming count might be 0
-  /// ```
-  ///
-  /// - Returns: A new `BooleanExpr` representing the "isNotNaN" check.
-  func isNotNan() -> BooleanExpression
 
   // MARK: String Operations
 
