@@ -41,9 +41,9 @@ public class ConditionalExpression: FunctionExpression, @unchecked Sendable {
   ///   - expression: The `BooleanExpression` to evaluate.
   ///   - thenExpression: The `Expression` to evaluate if the boolean expression is `true`.
   ///   - elseExpression: The `Expression` to evaluate if the boolean expression is `false`.
-  public init(_ expr: BooleanExpression,
+  public init(_ expression: BooleanExpression,
               then thenExpression: Expression,
               else elseExpression: Expression) {
-    super.init("conditional", [expr, thenExpression, elseExpression])
+    super.init(functionName: "conditional", args: [expression, thenExpression, elseExpression])
   }
 }

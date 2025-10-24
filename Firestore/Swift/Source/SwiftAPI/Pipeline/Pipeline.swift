@@ -24,15 +24,10 @@ import Foundation
 ///
 /// A pipeline takes data sources, such as Firestore collections or collection groups, and applies
 /// a series of stages that are chained together. Each stage takes the output from the previous
-/// stage
-/// (or the data source) and produces an output for the next stage (or as the final output of the
-/// pipeline).
+/// stage (or the data source) and produces an output for the next stage (or as the final output of
+/// the pipeline).
 ///
 /// Expressions can be used within each stage to filter and transform data through the stage.
-///
-/// NOTE: The chained stages do not prescribe exactly how Firestore will execute the pipeline.
-/// Instead, Firestore only guarantees that the result is the same as if the chained stages were
-/// executed in order.
 ///
 /// ## Usage Examples
 ///
@@ -88,6 +83,7 @@ public struct Pipeline: @unchecked Sendable {
     bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
+  /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
   public struct Snapshot: Sendable {
     /// An array of all the results in the `Pipeline.Snapshot`.
     public let results: [PipelineResult]
@@ -114,8 +110,8 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume a pipeline is already configured.
   /// do {
   ///   let snapshot = try await pipeline.execute()
-  ///   // Process snapshot.documents
-  ///   print("Pipeline executed successfully: \(snapshot.documents)")
+  ///   // Process snapshot.results
+  ///   print("Pipeline executed successfully: \(snapshot.results)")
   /// } catch {
   ///   print("Pipeline execution failed: \(error)")
   /// }
@@ -305,7 +301,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Limit results to the top 10 highest-rated books.
   /// let topTenPipeline = pipeline
-  ///                      .sort(Descending(Field("rating")))
+  ///                      .sort([Field("rating").descending()])
   ///                      .limit(10)
   /// // let results = try await topTenPipeline.execute()
   /// ```
@@ -324,7 +320,7 @@ public struct Pipeline: @unchecked Sendable {
   /// ```swift
   /// // let pipeline: Pipeline = ... // Assume initial pipeline.
   /// // Get a list of unique author and genre combinations.
-  /// let distinctAuthorsGenresPipeline = pipeline.distinct("author", "genre")
+  /// let distinctAuthorsGenresPipeline = pipeline.distinct(["author", "genre"])
   /// // To further select only the author:
   /// //   .select("author")
   /// // let results = try await distinctAuthorsGenresPipeline.execute()
@@ -379,11 +375,11 @@ public struct Pipeline: @unchecked Sendable {
   /// // let pipeline: Pipeline = ... // Assume pipeline from "books" collection.
   /// // Calculate the average rating for each genre.
   /// let groupedAggregationPipeline = pipeline.aggregate(
-  ///   [AggregateWithas(aggregate: average(Field("rating")), alias: "avg_rating")],
+  ///   [Field("rating").average().as("avg_rating")],
   ///   groups: [Field("genre")] // Group by the "genre" field.
   /// )
   /// // let results = try await groupedAggregationPipeline.execute()
-  /// // results.documents might be:
+  /// // snapshot.results might be:
   /// // [
   /// //   ["genre": "SciFi", "avg_rating": 4.5],
   /// //   ["genre": "Fantasy", "avg_rating": 4.2]
@@ -486,8 +482,8 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Parameter expression: The `Expr` (typically a `Field`) that resolves to the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func replace(with expr: Expression) -> Pipeline {
-    return Pipeline(stages: stages + [ReplaceWith(expr: expr)], db: db)
+  public func replace(with expression: Expression) -> Pipeline {
+    return Pipeline(stages: stages + [ReplaceWith(expr: expression)], db: db)
   }
 
   /// Fully overwrites document fields with those from a nested map identified by a field name.
@@ -566,7 +562,7 @@ public struct Pipeline: @unchecked Sendable {
   /// // Field("topic").as("category")])
   ///
   /// // Emit documents from both "books" and "magazines" collections.
-  /// let combinedPipeline = booksPipeline.union(with: [magazinesPipeline])
+  /// let combinedPipeline = booksPipeline.union(with: magazinesPipeline)
   /// // let results = try await combinedPipeline.execute()
   /// ```
   ///
@@ -625,7 +621,7 @@ public struct Pipeline: @unchecked Sendable {
   /// the caller must ensure correct name, order, and types.
   ///
   /// Parameters in `params` and `options` are typically primitive types, `Field`,
-  /// `Function`, `Expr`, or arrays/dictionaries thereof.
+  /// `Function`, `Expression`, or arrays/dictionaries thereof.
   ///
   /// ```swift
   /// // let pipeline: Pipeline = ...

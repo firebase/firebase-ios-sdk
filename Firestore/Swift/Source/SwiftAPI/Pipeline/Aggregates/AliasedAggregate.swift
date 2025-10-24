@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// An `AggregateFunction` that has been given an alias.
 public struct AliasedAggregate {
-  public let aggregate: AggregateFunction
-  public let alias: String
+  let aggregate: AggregateFunction
+
+  let alias: String
 }

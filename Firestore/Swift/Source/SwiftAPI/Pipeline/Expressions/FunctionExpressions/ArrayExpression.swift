@@ -38,6 +38,6 @@ public class ArrayExpression: FunctionExpression, @unchecked Sendable {
       result.append(Helper.sendableToExpr(element))
     }
 
-    super.init("array", result)
+    super.init(functionName: "array", args: result)
   }
 }

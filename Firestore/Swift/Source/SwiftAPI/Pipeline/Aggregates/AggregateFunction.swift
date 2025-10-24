@@ -18,13 +18,23 @@ extension AggregateFunction {
   }
 }
 
+/// Represents an aggregate function in a pipeline.
+///
+/// An `AggregateFunction` is a function that computes a single value from a set of input values.
+///
+/// `AggregateFunction`s are typically used in the `aggregate` stage of a pipeline.
 public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   let bridge: AggregateFunctionBridge
 
   let functionName: String
   let args: [Expression]
 
-  public init(_ functionName: String, _ args: [Expression]) {
+  /// Creates a new `AggregateFunction`.
+  ///
+  /// - Parameters:
+  ///   - functionName: The name of the aggregate function.
+  ///   - args: The arguments to the aggregate function.
+  public init(functionName: String, args: [Expression]) {
     self.functionName = functionName
     self.args = args
     bridge = AggregateFunctionBridge(
@@ -34,6 +44,10 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
     )
   }
 
+  /// Creates an `AliasedAggregate` from this aggregate function.
+  ///
+  /// - Parameter name: The alias for the aggregate function.
+  /// - Returns: An `AliasedAggregate` with the given alias.
   public func `as`(_ name: String) -> AliasedAggregate {
     return AliasedAggregate(aggregate: self, alias: name)
   }

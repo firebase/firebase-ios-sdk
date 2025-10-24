@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// An `Expression` that has been given an alias.
 public struct AliasedExpression: Selectable, SelectableWrapper, Sendable {
   let alias: String
 

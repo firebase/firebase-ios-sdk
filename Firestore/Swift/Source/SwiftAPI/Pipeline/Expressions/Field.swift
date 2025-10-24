@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///
 /// A `Field` is an `Expression` that represents a field in a Firestore document.
 ///
 /// It is a central component for building queries and transformations in Firestore pipelines.
@@ -42,9 +41,12 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
     return self
   }
 
+  /// The name of the field.
   public let fieldName: String
 
   /// Creates a new `Field` expression from a field name.
+  ///
+  /// - Parameter name: The name of the field.
   public init(_ name: String) {
     let fieldBridge = FieldBridge(name: name)
     bridge = fieldBridge
@@ -53,6 +55,8 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   }
 
   /// Creates a new `Field` expression from a `FieldPath`.
+  ///
+  /// - Parameter path: The `FieldPath` of the field.
   public init(_ path: FieldPath) {
     let fieldBridge = FieldBridge(path: path)
     bridge = fieldBridge

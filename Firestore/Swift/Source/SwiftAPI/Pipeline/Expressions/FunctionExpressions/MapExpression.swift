@@ -36,6 +36,6 @@ public class MapExpression: FunctionExpression, @unchecked Sendable {
       result.append(Helper.sendableToExpr(element.value))
     }
 
-    super.init("map", result)
+    super.init(functionName: "map", args: result)
   }
 }

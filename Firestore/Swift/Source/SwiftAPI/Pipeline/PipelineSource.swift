@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// A `PipelineSource` is the entry point for building a Firestore pipeline. It allows you to
+/// specify the source of the data for the pipeline, which can be a collection, a collection group,
+/// a list of documents, or the entire database.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct PipelineSource: @unchecked Sendable {
   let db: Firestore
@@ -22,14 +25,26 @@ public struct PipelineSource: @unchecked Sendable {
     self.factory = factory
   }
 
+  /// Specifies a collection as the data source for the pipeline.
+  ///
+  /// - Parameter path: The path to the collection.
+  /// - Returns: A `Pipeline` with the specified collection as its source.
   public func collection(_ path: String) -> Pipeline {
     return factory([CollectionSource(collection: db.collection(path), db: db)], db)
   }
 
+  /// Specifies a collection as the data source for the pipeline.
+  ///
+  /// - Parameter coll: The `CollectionReference` of the collection.
+  /// - Returns: A `Pipeline` with the specified collection as its source.
   public func collection(_ coll: CollectionReference) -> Pipeline {
     return factory([CollectionSource(collection: coll, db: db)], db)
   }
 
+  /// Specifies a collection group as the data source for the pipeline.
+  ///
+  /// - Parameter collectionId: The ID of the collection group.
+  /// - Returns: A `Pipeline` with the specified collection group as its source.
   public func collectionGroup(_ collectionId: String) -> Pipeline {
     return factory(
       [CollectionGroupSource(collectionId: collectionId)],
@@ -37,19 +52,37 @@ public struct PipelineSource: @unchecked Sendable {
     )
   }
 
+  /// Specifies the entire database as the data source for the pipeline.
+  ///
+  /// - Returns: A `Pipeline` with the entire database as its source.
   public func database() -> Pipeline {
     return factory([DatabaseSource()], db)
   }
 
+  /// Specifies a list of documents as the data source for the pipeline.
+  ///
+  /// - Parameter docs: An array of `DocumentReference` objects.
+  /// - Returns: A `Pipeline` with the specified documents as its source.
   public func documents(_ docs: [DocumentReference]) -> Pipeline {
     return factory([DocumentsSource(docs: docs, db: db)], db)
   }
 
+  /// Specifies a list of documents as the data source for the pipeline.
+  ///
+  /// - Parameter paths: An array of document paths.
+  /// - Returns: A `Pipeline` with the specified documents as its source.
   public func documents(_ paths: [String]) -> Pipeline {
     let docs = paths.map { db.document($0) }
     return factory([DocumentsSource(docs: docs, db: db)], db)
   }
 
+  /// Creates a `Pipeline` from an existing `Query`.
+  ///
+  /// This allows you to convert a standard Firestore query into a pipeline, which can then be
+  /// further modified with additional pipeline stages.
+  ///
+  /// - Parameter query: The `Query` to convert into a pipeline.
+  /// - Returns: A `Pipeline` that is equivalent to the given query.
   public func create(from query: Query) -> Pipeline {
     let stageBridges = PipelineBridge.createStageBridges(from: query)
     let stages: [Stage] = stageBridges.map { bridge in

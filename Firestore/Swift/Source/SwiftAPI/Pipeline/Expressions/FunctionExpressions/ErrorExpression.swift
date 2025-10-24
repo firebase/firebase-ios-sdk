@@ -23,6 +23,6 @@ import Foundation
 /// ```
 public class ErrorExpression: FunctionExpression, @unchecked Sendable {
   public init(_ errorMessage: String) {
-    super.init("error", [Constant(errorMessage)])
+    super.init(functionName: "error", args: [Constant(errorMessage)])
   }
 }

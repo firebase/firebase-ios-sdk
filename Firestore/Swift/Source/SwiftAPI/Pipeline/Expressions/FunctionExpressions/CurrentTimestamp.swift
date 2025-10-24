@@ -25,6 +25,6 @@ import Foundation
 /// ```
 public class CurrentTimestamp: FunctionExpression, @unchecked Sendable {
   public init() {
-    super.init("current_timestamp", [])
+    super.init(functionName: "current_timestamp", args: [])
   }
 }
