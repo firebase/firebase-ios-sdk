@@ -142,7 +142,7 @@ enum AILog {
 
   static func makeInternalError(message: String, code: MessageCode) -> GenerateContentError {
     let error = GenerateContentError.internalError(underlying: NSError(
-      domain: "",
+      domain: "com.google.generative-ai",
       code: -1,
       userInfo: [NSLocalizedDescriptionKey: message]
     ))
