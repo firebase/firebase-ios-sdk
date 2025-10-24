@@ -33,6 +33,17 @@
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFeatures.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
+#if SWIFT_PACKAGE
+@import FirebaseCrashlyticsSwift;
+#elif __has_include(<FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>)
+#import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
+#elif __has_include("FirebaseCrashlytics-Swift.h")
+// If frameworks are not available, fall back to importing the header as it
+// should be findable from a header search path pointing to the build
+// directory. See #12611 for more context.
+#import "FirebaseCrashlytics-Swift.h"
+#endif
+
 // The writable size is our handler stack plus whatever scratch we need.  We have to use this space
 // extremely carefully, however, because thread stacks always needs to be page-aligned.  Only the
 // first allocation is guaranteed to be page-aligned.
@@ -182,10 +193,12 @@ FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
     dispatch_group_async(group, queue, ^{
-      _firclsContext.readonly->machException.path =
-          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
-
-      FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
+      FIRCLSEntitlementsReader* entitlementReader = [[FIRCLSEntitlementsReader alloc] init];
+      NSNumber* enableEnhancedSecurity =
+          [[entitlementReader readEntitlements] platformRestrictions];
+      if (!enableEnhancedSecurity) {
+        FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
+      }
     });
 #endif
 
