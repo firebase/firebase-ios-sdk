@@ -793,6 +793,20 @@ public extension Expression {
     return FunctionExpression(functionName: "map_merge", args: [self] + maps)
   }
 
+  func mapSet(key: Expression, value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "map_set",
+      args: [self, key, Helper.sendableToExpr(value)]
+    )
+  }
+
+  func mapSet(key: String, value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "map_set",
+      args: [self, Helper.sendableToExpr(key), Helper.sendableToExpr(value)]
+    )
+  }
+
   // --- Added Aggregate Operations (on Expr) ---
 
   func countDistinct() -> AggregateFunction {

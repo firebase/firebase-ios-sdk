@@ -2546,7 +2546,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .select(
         [
-          Field("title").arrayLength().isError().as("isError")
+          Field("title").arrayLength().isError().as("isError"),
         ]
       )
 
@@ -3123,6 +3123,142 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
     } else {
       XCTFail("No document retrieved for testSupportsMapMerge")
+    }
+  }
+
+  func testMapSetAddsNewField() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
+      .select([
+        Field("awards").mapSet(key: "newAward", value: true).as("modifiedAwards"),
+        Field("title"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      let expectedAwards: [String: Sendable?] = [
+        "hugo": true,
+        "nebula": false,
+        "others": ["unknown": ["year": 1980]],
+        "newAward": true,
+      ]
+      let expectedResult: [String: Sendable?] = [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "modifiedAwards": expectedAwards,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testMapSetAddsNewField")
+    }
+  }
+
+  func testMapSetUpdatesExistingField() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
+      .select([
+        Field("awards").mapSet(key: "hugo", value: false).as("modifiedAwards"),
+        Field("title"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      let expectedAwards: [String: Sendable?] = [
+        "hugo": false,
+        "nebula": false,
+        "others": ["unknown": ["year": 1980]],
+      ]
+      let expectedResult: [String: Sendable?] = [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "modifiedAwards": expectedAwards,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testMapSetUpdatesExistingField")
+    }
+  }
+
+  func testMapSetWithExpressionValue() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
+      .select(
+        [
+          Field("awards")
+            .mapSet(
+              key: "ratingCategory",
+              value: Field("rating").greaterThan(4.0).then(Constant("high"), else: Constant("low"))
+            )
+            .as("modifiedAwards"),
+          Field("title"),
+        ]
+      )
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      let expectedAwards: [String: Sendable?] = [
+        "hugo": true,
+        "nebula": false,
+        "others": ["unknown": ["year": 1980]],
+        "ratingCategory": "high",
+      ]
+      let expectedResult: [String: Sendable?] = [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "modifiedAwards": expectedAwards,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testMapSetWithExpressionValue")
+    }
+  }
+
+  func testMapSetWithExpressionKey() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
+      .select([
+        Field("awards")
+          .mapSet(key: Constant("dynamicKey"), value: "dynamicValue")
+          .as("modifiedAwards"),
+        Field("title"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
+    if let resultDoc = snapshot.results.first {
+      let expectedAwards: [String: Sendable?] = [
+        "hugo": true,
+        "nebula": false,
+        "others": ["unknown": ["year": 1980]],
+        "dynamicKey": "dynamicValue",
+      ]
+      let expectedResult: [String: Sendable?] = [
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "modifiedAwards": expectedAwards,
+      ]
+      TestHelper.compare(pipelineResult: resultDoc, expected: expectedResult)
+    } else {
+      XCTFail("No document retrieved for testMapSetWithExpressionKey")
     }
   }
 

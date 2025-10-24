@@ -1088,6 +1088,34 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the "map_merge" operation.
   func mapMerge(_ maps: [Expression]) -> FunctionExpression
 
+  /// Creates an expression that adds or updates a specified field in a map.
+  /// Assumes `self` evaluates to a Map, `key` evaluates to a string, and `value` can be
+  /// any type.
+  ///
+  /// ```swift
+  /// // Set a field using a key from another field
+  /// Field("config").mapSet(key: Field("keyName"), value: Field("keyValue"))
+  /// ```
+  ///
+  /// - Parameter key: An `Expression` (evaluating to a string) representing the key of
+  /// the field to set or update.
+  /// - Parameter value: The `Expression` representing the value to set for the field.
+  /// - Returns: A new `FunctionExpression` representing the map with the updated field.
+  func mapSet(key: Expression, value: Sendable) -> FunctionExpression
+
+  /// Creates an expression that adds or updates a specified field in a map.
+  /// Assumes `self` evaluates to a Map.
+  ///
+  /// ```swift
+  /// // Set the "status" field to "active" in the "order" map
+  /// Field("order").mapSet(key: "status", value: "active")
+  /// ```
+  ///
+  /// - Parameter key: The literal string key of the field to set or update.
+  /// - Parameter value: The `Sendable` literal value to set for the field.
+  /// - Returns: A new `FunctionExpression` representing the map with the updated field.
+  func mapSet(key: String, value: Sendable) -> FunctionExpression
+
   // MARK: Aggregations
 
   /// Creates an aggregation that counts the number of distinct values of this expression.
