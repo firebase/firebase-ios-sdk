@@ -96,6 +96,7 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                    @"New config database created. Resetting user defaults.");
       [_userDefaultsManager resetUserDefaults];
     }
+
     _isFetchInProgress = NO;
     _lastFetchedTemplateVersion = [_userDefaultsManager lastFetchedTemplateVersion];
     _lastActiveTemplateVersion = [_userDefaultsManager lastActiveTemplateVersion];

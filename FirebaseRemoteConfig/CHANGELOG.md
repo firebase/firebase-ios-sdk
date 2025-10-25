@@ -1,7 +1,7 @@
 # Unreleased
-- [fixed] Fixed a bug where Remote Config does not work after a restore 
+- [fixed] Fixed a bug where Remote Config does not work after a restore
   of a previous backup of the device. (#14459)
-- [fixed] Fixed a data race condition on the global database status flag 
+- [fixed] Fixed a data race condition on the global database status flag
   by synchronizing all read and write operations. (#14715)
 
 # 12.3.0
