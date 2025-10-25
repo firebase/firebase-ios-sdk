@@ -26,7 +26,7 @@ struct GenerativeAIService {
   /// The Firebase SDK version in the format `fire/<version>`.
   static let firebaseVersionTag = "fire/\(FirebaseVersion())"
 
-  private let firebaseInfo: FirebaseInfo
+  let firebaseInfo: FirebaseInfo
 
   private let urlSession: URLSession
 
@@ -167,7 +167,7 @@ struct GenerativeAIService {
   // MARK: - Private Helpers
 
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
-    var urlRequest = URLRequest(url: request.url)
+    var urlRequest = try URLRequest(url: request.getURL())
     urlRequest.httpMethod = "POST"
     urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
     urlRequest.setValue(

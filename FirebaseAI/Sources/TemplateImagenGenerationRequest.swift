@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,34 +14,39 @@
 
 import Foundation
 
+enum ImageAPIMethod: String {
+  case generateImages = "templatePredict"
+}
+
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
-  let model: String
+struct TemplateImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
+  typealias Response = ImagenGenerationResponse<ImageType>
+
+  let template: String
+  let inputs: [String: TemplateInput]
+  let projectID: String
   let apiConfig: APIConfig
   let options: RequestOptions
-  let instances: [ImageGenerationInstance]
-  let parameters: ImageGenerationParameters
 
-  init(model: String,
-       apiConfig: APIConfig,
-       options: RequestOptions,
-       instances: [ImageGenerationInstance],
-       parameters: ImageGenerationParameters) {
-    self.model = model
+  init(template: String, inputs: [String: TemplateInput], projectID: String,
+       apiConfig: APIConfig, options: RequestOptions) {
+    self.template = template
+    self.inputs = inputs
+    self.projectID = projectID
     self.apiConfig = apiConfig
     self.options = options
-    self.instances = instances
-    self.parameters = parameters
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
-  typealias Response = ImagenGenerationResponse<ImageType>
-
+extension TemplateImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   func getURL() throws -> URL {
-    let urlString =
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict"
+    var urlString =
+      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
+    if case let .vertexAI(_, location) = apiConfig.service {
+      urlString += "/locations/\(location)"
+    }
+    urlString += "/templates/\(template):\(ImageAPIMethod.generateImages.rawValue)"
     guard let url = URL(string: urlString) else {
       throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
     }
@@ -50,15 +55,13 @@ extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodabl
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImagenGenerationRequest: Encodable {
-  enum CodingKeys: CodingKey {
-    case instances
-    case parameters
+extension TemplateImagenGenerationRequest: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case inputs
   }
 
-  func encode(to encoder: any Encoder) throws {
+  func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(instances, forKey: .instances)
-    try container.encode(parameters, forKey: .parameters)
+    try container.encode(inputs, forKey: .inputs)
   }
 }

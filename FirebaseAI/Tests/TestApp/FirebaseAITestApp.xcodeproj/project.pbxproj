@@ -32,6 +32,7 @@
 		86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 86E850602DBAFBC3002E8D94 /* FirebaseStorage */; };
 		DEF0BB4F2DA74F680093E9F4 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF0BB4E2DA74F460093E9F4 /* TestHelpers.swift */; };
 		DEF0BB512DA9B7450093E9F4 /* SchemaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF0BB502DA9B7400093E9F4 /* SchemaTests.swift */; };
+		DEF4634B2EA1AA77004E79B1 /* ServerPromptTemplateIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF4634A2EA1AA77004E79B1 /* ServerPromptTemplateIntegrationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,7 @@
 		86D77E032D7B6C95003D155D /* InstanceConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanceConfig.swift; sourceTree = "<group>"; };
 		DEF0BB4E2DA74F460093E9F4 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		DEF0BB502DA9B7400093E9F4 /* SchemaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaTests.swift; sourceTree = "<group>"; };
+		DEF4634A2EA1AA77004E79B1 /* ServerPromptTemplateIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerPromptTemplateIntegrationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
 		868A7C572CCC27AF00E449DD /* Integration */ = {
 			isa = PBXGroup;
 			children = (
+				DEF4634A2EA1AA77004E79B1 /* ServerPromptTemplateIntegrationTests.swift */,
 				0E460FAA2E9858E4007E26A6 /* LiveSessionTests.swift */,
 				DEF0BB502DA9B7400093E9F4 /* SchemaTests.swift */,
 				DEF0BB4E2DA74F460093E9F4 /* TestHelpers.swift */,
@@ -311,6 +314,7 @@
 				864F8F712D4980DD0002EA7E /* ImagenIntegrationTests.swift in Sources */,
 				862218812D04E098007ED2D4 /* IntegrationTestUtils.swift in Sources */,
 				86D77DFC2D7A5340003D155D /* GenerateContentIntegrationTests.swift in Sources */,
+				DEF4634B2EA1AA77004E79B1 /* ServerPromptTemplateIntegrationTests.swift in Sources */,
 				8661386E2CC943DE00F4B78E /* IntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

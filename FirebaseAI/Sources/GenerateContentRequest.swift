@@ -73,15 +73,23 @@ extension GenerateContentRequest {
 extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
-  var url: URL {
+  func getURL() throws -> URL {
     let modelURL = "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"
+    let urlString: String
     switch apiMethod {
     case .generateContent:
-      return URL(string: "\(modelURL):\(apiMethod.rawValue)")!
+      urlString = "\(modelURL):\(apiMethod.rawValue)"
     case .streamGenerateContent:
-      return URL(string: "\(modelURL):\(apiMethod.rawValue)?alt=sse")!
+      urlString = "\(modelURL):\(apiMethod.rawValue)?alt=sse"
     case .countTokens:
-      fatalError("\(Self.self) should be a property of \(CountTokensRequest.self).")
+      throw AILog.makeInternalError(
+        message: "\(Self.self) should be a property of \(CountTokensRequest.self).",
+        code: .malformedURL
+      )
     }
+    guard let url = URL(string: urlString) else {
+      throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
+    }
+    return url
   }
 }
