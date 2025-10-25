@@ -38,6 +38,9 @@ static NSString *const RCNDatabaseName = @"RemoteConfig.sqlite3";
 /// The storage sub-directory that the Remote Config database resides in.
 static NSString *const RCNRemoteConfigStorageSubDirectory = @"Google/RemoteConfig";
 
+/// Introduce a dedicated serial queue for gIsNewDatabase access.
+static dispatch_queue_t gIsNewDatabaseQueue;
+
 /// Remote Config database path for deprecated V0 version.
 static NSString *RemoteConfigPathForOldDatabaseV0(void) {
   NSArray *dirPaths =
@@ -80,11 +83,11 @@ static BOOL RemoteConfigCreateFilePathIfNotExist(NSString *filePath) {
                 @"Failed to create subdirectory for an empty file path.");
     return NO;
   }
-  FIRLogDebug(kFIRLoggerRemoteConfig, @"RC-SDK-DEBUG", @"DBManager: DB file does not exists BEFORE create: 0");
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if (![fileManager fileExistsAtPath:filePath]) {
-    FIRLogDebug(kFIRLoggerRemoteConfig, @"RC-SDK-DEBUG", @"DBManager: Setting gIsNewDatabase = YES");
-    gIsNewDatabase = YES;
+    dispatch_sync(gIsNewDatabaseQueue, ^{
+      gIsNewDatabase = YES;
+    });
     NSError *error;
     [fileManager createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]
            withIntermediateDirectories:YES
@@ -121,6 +124,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   static dispatch_once_t onceToken;
   static RCNConfigDBManager *sharedInstance;
   dispatch_once(&onceToken, ^{
+    gIsNewDatabaseQueue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
+                                                DISPATCH_QUEUE_SERIAL);
     sharedInstance = [[RCNConfigDBManager alloc] init];
   });
   return sharedInstance;
@@ -1221,7 +1226,20 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 }
 
 - (BOOL)isNewDatabase {
-  return gIsNewDatabase;
+  __block BOOL isNew;
+  dispatch_sync(gIsNewDatabaseQueue, ^{
+    isNew = gIsNewDatabase;
+  });
+  return isNew;
+}
+
+- (void)waitForDatabaseOperationQueue {
+  // This dispatch_sync call ensures that all blocks queued before it on _databaseOperationQueue
+  // (including the createOrOpenDatabase setup block) execute and complete before this method
+  // returns.
+  dispatch_sync(_databaseOperationQueue, ^{
+                    // Empty block forces synchronization.
+                });
 }
 
 @end

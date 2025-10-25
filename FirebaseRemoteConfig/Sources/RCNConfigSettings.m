@@ -72,7 +72,6 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
                             googleAppID:(NSString *)googleAppID {
   self = [super init];
   if (self) {
-    FIRLogDebug(kFIRLoggerRemoteConfig, @"RC-SDK-DEBUG", @"Config Settings: Init for namespace");
     _FIRNamespace = FIRNamespace;
     _googleAppID = googleAppID;
     _bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
@@ -93,12 +92,10 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 
     // Check if the config database is new. If so, clear the configs saved in userDefaults.
     if ([_DBManager isNewDatabase]) {
-      FIRLogDebug(kFIRLoggerRemoteConfig, @"RC-SDK-DEBUG", @"isNewDatabase returned: 1");
       FIRLogNotice(kFIRLoggerRemoteConfig, @"I-RCN000072",
                    @"New config database created. Resetting user defaults.");
       [_userDefaultsManager resetUserDefaults];
     }
-
     _isFetchInProgress = NO;
     _lastFetchedTemplateVersion = [_userDefaultsManager lastFetchedTemplateVersion];
     _lastActiveTemplateVersion = [_userDefaultsManager lastActiveTemplateVersion];
