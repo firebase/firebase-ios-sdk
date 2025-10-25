@@ -17,7 +17,6 @@ import os.log
 
 internal import FirebaseCoreExtension
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 enum AILog {
   /// Log message codes for the Firebase AI SDK
   ///
@@ -140,6 +139,7 @@ enum AILog {
     log(level: .debug, code: code, message)
   }
 
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   static func makeInternalError(message: String, code: MessageCode) -> GenerateContentError {
     let error = GenerateContentError.internalError(underlying: NSError(
       domain: "com.google.generative-ai",
