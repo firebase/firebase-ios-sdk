@@ -160,6 +160,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
     // Initialize RCConfigContent if not already.
     _configContent = configContent;
+
+    // We must ensure the DBManager's asynchronous setup (which sets gIsNewDatabase)
+    // completes before RCNConfigSettings tries to read that state for the resetUserDefaults logic.
+    [_DBManager waitForDatabaseOperationQueue];
     _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                          namespace:_FIRNamespace
                                                    firebaseAppName:appName
