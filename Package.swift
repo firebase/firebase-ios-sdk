@@ -28,13 +28,7 @@ let package = Package(
       name: "FirebaseAI",
       targets: [
         "FirebaseAI",
-        "FirebaseAILogic",
-      ]
-    ),
-    .library(
-      name: "FirebaseAILogic",
-      targets: [
-        "FirebaseAILogic",
+        "FirebaseAILogic"
       ]
     ),
     .library(
