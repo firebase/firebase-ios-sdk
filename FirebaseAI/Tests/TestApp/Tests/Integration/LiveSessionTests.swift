@@ -484,7 +484,7 @@ private extension LiveSession {
   /// }
   /// ```
   ///
-  /// Is the equivelent to manually doing:
+  /// Is the equivalent to manually doing:
   /// ```swift
   /// for try await response in session.responses {
   ///   if case let .content(content) = response.payload {
