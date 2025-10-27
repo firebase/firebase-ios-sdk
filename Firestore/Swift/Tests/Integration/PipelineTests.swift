@@ -1700,25 +1700,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
-//  func testEquivalentWorks() async throws {
-//    let collRef = collectionRef(withDocuments: [
-//      "doc1": ["value": 1, "value2": 1],
-//      "doc2": ["value": 1, "value2": 2],
-//      "doc3": ["value": NSNull(), "value2": NSNull()],
-//      "doc4": ["value": NSNull(), "value2": 1],
-//      "doc5": ["value": Double.nan, "value2": Double.nan],
-//      "doc6": ["value": Double.nan, "value2": 1],
-//    ])
-//    let db = collRef.firestore
-//
-//    let pipeline = db.pipeline()
-//      .collection(collRef.path)
-//      .where(Field("value").equivalent(Field("value2")))
-//    let snapshot = try await pipeline.execute()
-//
-//    XCTAssertEqual(snapshot.results.count, 3)
-//  }
-
   func testInWorks() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore

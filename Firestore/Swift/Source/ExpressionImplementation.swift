@@ -373,17 +373,6 @@ extension Expression {
   func stringReplace(_ find: Expression, with replace: Expression) -> FunctionExpression {
     return FunctionExpression(functionName: "string_replace", args: [self, find, replace])
   }
-
-  // MARK: Equivalence Operations
-
-  /// Creates a `BooleanExpr` that returns `true` if this expression is equivalent
-  /// to the given value.
-  ///
-  /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
-  func equivalent(_ other: Sendable) -> BooleanExpression {
-    return BooleanExpression(functionName: "equivalent", args: [self, Helper.sendableToExpr(other)])
-  }
 }
 
 public extension Expression {
