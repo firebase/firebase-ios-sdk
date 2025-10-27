@@ -909,17 +909,32 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the uppercase string.
   func toUpper() -> FunctionExpression
 
-  /// Creates an expression that removes leading and trailing whitespace from a string (from
-  /// `self`).
-  /// Assumes `self` evaluates to a string.
+  /// Creates an expression that removes leading and trailing occurrences of specified characters
+  /// from a string (from `self`).
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
   ///
   /// ```swift
-  /// // Trim whitespace from the "userInput" field
-  /// Field("userInput").trim()
+  /// // Trim leading/trailing "xy" from field
+  /// Field("code").trim(characters: "xy")
   /// ```
   ///
+  /// - Parameter value: A `String` containing the characters to trim.
   /// - Returns: A new `FunctionExpression` representing the trimmed string.
-  func trim() -> FunctionExpression
+  func trim(_ value: String) -> FunctionExpression
+
+  /// Creates an expression that removes leading and trailing occurrences of specified string
+  /// (from an expression) from a string (from `self`).
+  /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Trim characters specified by the "trimChars" field from "data"
+  /// Field("data").trim(characters: Field("trimChars"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` (evaluating to a string) containing the characters to
+  /// trim.
+  /// - Returns: A new `FunctionExpression` representing the trimmed string.
+  func trim(_ value: Expression) -> FunctionExpression
 
   /// Creates an expression that concatenates this string expression with other string expressions.
   /// Assumes `self` and all parameters evaluate to strings.

@@ -3799,22 +3799,39 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  func testTrim() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
+  func testTrimCharactersWithStringLiteral() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .addFields([Constant(" The Hitchhiker's Guide to the Galaxy ").as("spacedTitle")])
-      .select([Field("spacedTitle").trim().as("trimmedTitle"), Field("spacedTitle")])
+      .addFields([Constant("---Hello World---").as("paddedString")])
+      .select([Field("paddedString").trim("-").as("trimmedString")])
       .limit(1)
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       snapshot: snapshot,
       expected: [[
-        "spacedTitle": " The Hitchhiker's Guide to the Galaxy ",
-        "trimmedTitle": "The Hitchhiker's Guide to the Galaxy",
+        "trimmedString": "Hello World",
+      ]],
+      enforceOrder: false
+    )
+  }
+
+  func testTrimCharactersWithExpression() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .addFields([Constant("---Hello World---").as("paddedString"), Constant("-").as("trimChar")])
+      .select([Field("paddedString").trim(Field("trimChar")).as("trimmedString")])
+      .limit(1)
+    let snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [[
+        "trimmedString": "Hello World",
       ]],
       enforceOrder: false
     )

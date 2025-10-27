@@ -725,8 +725,15 @@ public extension Expression {
     return FunctionExpression(functionName: "to_upper", args: [self])
   }
 
-  func trim() -> FunctionExpression {
-    return FunctionExpression(functionName: "trim", args: [self])
+  func trim(_ value: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "trim",
+      args: [self, Helper.sendableToExpr(value)]
+    )
+  }
+
+  func trim(_ value: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "trim", args: [self, value])
   }
 
   func stringConcat(_ strings: [Expression]) -> FunctionExpression {
