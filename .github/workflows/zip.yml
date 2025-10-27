@@ -433,7 +433,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleZip" scripts/setup_quickstart_framework.sh \
-                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAILogic/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAI/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg \
