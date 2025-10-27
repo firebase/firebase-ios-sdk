@@ -72,7 +72,7 @@ public final class LiveSession: Sendable {
   /// Instead of raw video data, the model expects individual frames of the video,
   /// sent as images.
   ///
-  /// If your video has audio, send it seperately through ``LiveSession/sendAudioRealtime(_:)``.
+  /// If your video has audio, send it separately through ``LiveSession/sendAudioRealtime(_:)``.
   ///
   /// For better performance, frames can also be sent at a lower rate than the video;
   /// even as low as 1 frame per second.
