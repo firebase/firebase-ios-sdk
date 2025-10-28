@@ -28,15 +28,15 @@ NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
 /** Frozen frame multiplier: A frozen frame is one that takes longer than approximately 42 times
  *  the current frame duration. This maintains backward compatibility with the old 700ms threshold
  *  at 60Hz (700ms ÷ 16.67ms ≈ 42 frames).
- *  
+ *
  *  NOTE!!!: A "frozen" frame represents missing 42 consecutive frame opportunities,
  *  which looks and feels equally bad to users regardless of refresh rate.
  *
  *  Formula: frozenThreshold = kFPRFrozenFrameMultiplier * actualFrameDuration
- *  
+ *
  *  Examples (all represent missing 42 frame opportunities):
  *  - 60Hz: 42 × 16.67ms = 700ms (same as original threshold)
- *  - 120Hz: 42 × 8.33ms = 350ms (missing 42 frames at higher refresh rate)  
+ *  - 120Hz: 42 × 8.33ms = 350ms (missing 42 frames at higher refresh rate)
  *  - 50Hz: 42 × 20ms = 840ms (missing 42 frames at lower refresh rate)
  */
 static const CFTimeInterval kFPRFrozenFrameMultiplier = 42.0;
@@ -125,7 +125,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     atomic_store_explicit(&_totalFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_frozenFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_slowFramesCount, 0, memory_order_relaxed);
-    atomic_store_explicit(&_currentFrameDuration, 1.0 / 60.0, memory_order_relaxed);  // Default fallback to 60Hz
+    atomic_store_explicit(&_currentFrameDuration, 1.0 / 60.0,
+                          memory_order_relaxed);  // Default fallback to 60Hz
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkStep)];
     [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 
@@ -158,7 +159,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
   // Resume the display link when the app becomes active
   _displayLink.paused = NO;
-  
+
   // To get the most accurate numbers of total, frozen and slow frames, we need to capture them as
   // soon as we're notified of an event.
   int64_t currentTotalFrames = atomic_load_explicit(&_totalFramesCount, memory_order_relaxed);
@@ -179,7 +180,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 - (void)appWillResignActiveNotification:(NSNotification *)notification {
   // Pause the display link when the app goes to background to conserve battery
   _displayLink.paused = YES;
-  
+
   // To get the most accurate numbers of total, frozen and slow frames, we need to capture them as
   // soon as we're notified of an event.
   int64_t currentTotalFrames = atomic_load_explicit(&_totalFramesCount, memory_order_relaxed);
@@ -208,19 +209,20 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 - (void)displayLinkStep {
   static CFAbsoluteTime previousTimestamp = kFPRInvalidTime;
   CFAbsoluteTime currentTimestamp = self.displayLink.timestamp;
-  
+
   // Calculate the current frame duration using targetTimestamp and timestamp
   // This gives us the actual refresh rate of the display
-  CFTimeInterval actualFrameDuration = self.displayLink.targetTimestamp - self.displayLink.timestamp;
-  
+  CFTimeInterval actualFrameDuration =
+      self.displayLink.targetTimestamp - self.displayLink.timestamp;
+
   // Update the frame duration for use by the frame classification logic
   // Only update if we have a valid duration (> 0) to avoid issues with the first frame
   if (actualFrameDuration > 0) {
     atomic_store_explicit(&_currentFrameDuration, actualFrameDuration, memory_order_relaxed);
   }
-  
-  RecordFrameType(currentTimestamp, previousTimestamp, actualFrameDuration, &_slowFramesCount, &_frozenFramesCount,
-                  &_totalFramesCount);
+
+  RecordFrameType(currentTimestamp, previousTimestamp, actualFrameDuration, &_slowFramesCount,
+                  &_frozenFramesCount, &_totalFramesCount);
   previousTimestamp = currentTimestamp;
 }
 
@@ -229,7 +231,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
  *
  *  @param currentTimestamp The current timestamp of the displayLink.
  *  @param previousTimestamp The previous timestamp of the displayLink.
- *  @param actualFrameDuration The actual frame duration calculated from CADisplayLink's targetTimestamp and timestamp.
+ *  @param actualFrameDuration The actual frame duration calculated from CADisplayLink's
+ * targetTimestamp and timestamp.
  *  @param slowFramesCounter The value of the slowFramesCount before this function was called.
  *  @param frozenFramesCounter The value of the frozenFramesCount before this function was called.
  *  @param totalFramesCounter The value of the totalFramesCount before this function was called.
@@ -245,16 +248,16 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
   if (previousTimestamp == kFPRInvalidTime || actualFrameDuration <= 0) {
     return;
   }
-  
+
   if (frameDuration > actualFrameDuration) {
     atomic_fetch_add_explicit(slowFramesCounter, 1, memory_order_relaxed);
   }
-  
+
   CFTimeInterval frozenThreshold = kFPRFrozenFrameMultiplier * actualFrameDuration;
   if (frameDuration > frozenThreshold) {
     atomic_fetch_add_explicit(frozenFramesCounter, 1, memory_order_relaxed);
   }
-  
+
   atomic_fetch_add_explicit(totalFramesCounter, 1, memory_order_relaxed);
 }
 
