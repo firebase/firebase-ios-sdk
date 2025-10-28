@@ -45,6 +45,20 @@ enum Helper {
     return exprMap
   }
 
+  static func aliasedAggregatesToMap(accumulators: [AliasedAggregate])
+    -> [String: AggregateFunction] {
+    let accumulatorMap = accumulators
+      .reduce(into: [String: AggregateFunction]()) { result, aliasedAggregate in
+
+        let alias = aliasedAggregate.alias
+        if result.keys.contains(alias) {
+          fatalError("Duplicate alias '\(alias)' found in accumulators.")
+        }
+        result[alias] = aliasedAggregate.aggregate
+      }
+    return accumulatorMap
+  }
+
   static func map(_ elements: [String: Sendable?]) -> FunctionExpression {
     var result: [Expression] = []
     for (key, value) in elements {

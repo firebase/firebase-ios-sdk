@@ -209,16 +209,12 @@ class Aggregate: Stage {
     if groups != nil {
       self.groups = Helper.selectablesToMap(selectables: groups!)
     }
-    let accumulatorsMap = accumulators
-      .reduce(into: [String: AggregateFunctionBridge]()) { result, accumulator in
-        let alias = accumulator.alias
-        if result.keys.contains(alias) {
-          fatalError("Duplicate alias '\(alias)' found in accumulators.")
-        }
-        result[alias] = accumulator.aggregate.bridge
-      }
+    let accumulatorsMap = Helper.aliasedAggregatesToMap(accumulators: accumulators)
+
+    let accumulatorBridgesMap = accumulatorsMap.mapValues { $0.bridge }
+
     bridge = AggregateStageBridge(
-      accumulators: accumulatorsMap,
+      accumulators: accumulatorBridgesMap,
       groups: self.groups.mapValues { Helper.sendableToExpr($0).toBridge() }
     )
   }

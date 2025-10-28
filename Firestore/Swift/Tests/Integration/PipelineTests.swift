@@ -3243,8 +3243,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-
-
   func testAddFieldsThrowsOnDuplicateAliases() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
