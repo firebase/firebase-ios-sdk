@@ -150,13 +150,8 @@ class AddFields: Stage {
 
   init(selectables: [Selectable]) {
     self.selectables = selectables
-    let objc_accumulators = selectables.reduce(into: [String: ExprBridge]()) {
-      result,
-        selectable
-      in
-      let selectableWrapper = selectable as! SelectableWrapper
-      result[selectableWrapper.alias] = selectableWrapper.expr.toBridge()
-    }
+    let map = Helper.selectablesToMap(selectables: selectables)
+    let objc_accumulators = map.mapValues { $0.toBridge() }
     bridge = AddFieldsStageBridge(fields: objc_accumulators)
   }
 }
@@ -216,7 +211,11 @@ class Aggregate: Stage {
     }
     let accumulatorsMap = accumulators
       .reduce(into: [String: AggregateFunctionBridge]()) { result, accumulator in
-        result[accumulator.alias] = accumulator.aggregate.bridge
+        let alias = accumulator.alias
+        if result.keys.contains(alias) {
+          fatalError("Duplicate alias '\(alias)' found in accumulators.")
+        }
+        result[alias] = accumulator.aggregate.bridge
       }
     bridge = AggregateStageBridge(
       accumulators: accumulatorsMap,

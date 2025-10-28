@@ -36,7 +36,11 @@ enum Helper {
       guard let value = selectable as? SelectableWrapper else {
         fatalError("Selectable class must conform to SelectableWrapper.")
       }
-      result[value.alias] = value.expr
+      let alias = value.alias
+      if result.keys.contains(alias) {
+        fatalError("Duplicate alias '\(alias)' found in selectables.")
+      }
+      result[alias] = value.expr
     }
     return exprMap
   }
