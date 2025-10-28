@@ -90,9 +90,6 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
   /** Instance variable storing the frozen frames observed so far. */
   atomic_int_fast64_t _frozenFramesCount;
-
-  /** Instance variable storing the current frame duration in seconds. */
-  _Atomic(CFTimeInterval) _currentFrameDuration;
 }
 
 @dynamic totalFramesCount;
@@ -125,8 +122,6 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     atomic_store_explicit(&_totalFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_frozenFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_slowFramesCount, 0, memory_order_relaxed);
-    atomic_store_explicit(&_currentFrameDuration, 1.0 / 60.0,
-                          memory_order_relaxed);  // Default fallback to 60Hz
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkStep)];
     [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 
@@ -214,12 +209,6 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   // This gives us the actual refresh rate of the display
   CFTimeInterval actualFrameDuration =
       self.displayLink.targetTimestamp - self.displayLink.timestamp;
-
-  // Update the frame duration for use by the frame classification logic
-  // Only update if we have a valid duration (> 0) to avoid issues with the first frame
-  if (actualFrameDuration > 0) {
-    atomic_store_explicit(&_currentFrameDuration, actualFrameDuration, memory_order_relaxed);
-  }
 
   RecordFrameType(currentTimestamp, previousTimestamp, actualFrameDuration, &_slowFramesCount,
                   &_frozenFramesCount, &_totalFramesCount);
