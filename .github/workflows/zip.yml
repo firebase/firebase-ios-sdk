@@ -248,7 +248,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_abtesting
+        name: quickstart_artifacts_abtesting_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -298,7 +298,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_auth
+        name: quickstart_artifacts_auth_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -417,7 +417,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_crashlytics
+        name: quickstart_artifacts_crashlytics_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -468,7 +468,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_database
+        name: quickstart_artifacts_database_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
