@@ -349,7 +349,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_config
+        name: quickstart_artifacts_config_${{ matrix.artifact }}
         path: quickstart-ios/
 
   quickstart_framework_crashlytics:
@@ -625,7 +625,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_messaging
+        name: quickstart_artifacts_messaging_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
