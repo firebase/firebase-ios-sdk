@@ -464,7 +464,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-database.plist.gpg \
         quickstart-ios/database/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
