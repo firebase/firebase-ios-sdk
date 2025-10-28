@@ -20,7 +20,7 @@ if [ ! -d "quickstart-ios" ]; then
 fi
 QS_SCRIPTS="${REPO}"/quickstart-ios/scripts
 cd quickstart-ios/"${SAMPLE}"
-git checkout nc/script-exit
+git checkout nc/quickstarts
 
 # Remove all SPM dependencies from the project. This is necessary to prepare
 # the project for framework-based testing.
