@@ -29,7 +29,7 @@ NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
  *  the current frame duration. This maintains backward compatibility with the old 700ms threshold
  *  at 60Hz (700ms ÷ 16.67ms ≈ 42 frames).
  *
- *  NOTE!!!: A "frozen" frame represents missing 42 consecutive frame opportunities,
+ *  Note: A "frozen" frame represents missing 42 consecutive frame opportunities,
  *  which looks and feels equally bad to users regardless of refresh rate.
  *
  *  Formula: frozenThreshold = kFPRFrozenFrameMultiplier * actualFrameDuration
