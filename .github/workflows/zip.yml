@@ -248,7 +248,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_abtesting
+        name: quickstart_artifacts_abtesting_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -298,7 +298,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_auth
+        name: quickstart_artifacts_auth_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -349,7 +349,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_config
+        name: quickstart_artifacts_config_${{ matrix.artifact }}
         path: quickstart-ios/
 
   quickstart_framework_crashlytics:
@@ -417,7 +417,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_crashlytics
+        name: quickstart_artifacts_crashlytics_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -453,7 +453,7 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
@@ -464,11 +464,11 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-database.plist.gpg \
         quickstart-ios/database/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_database
+        name: quickstart_artifacts_database_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -565,17 +565,15 @@ jobs:
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-    - name: Setup swift quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
         quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
     - name: Test Swift Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_inappmessaging
+        name: quickstart_artifacts_inappmessaging_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -615,8 +613,6 @@ jobs:
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-    - name: Setup swift quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
         quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
@@ -625,7 +621,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_messaging
+        name: quickstart_artifacts_messaging_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
@@ -666,8 +662,6 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-    - name: Setup swift quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
         quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
@@ -676,7 +670,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: quickstart_artifacts_storage
+        name: quickstart_artifacts_storage_${{ matrix.artifact }}
         path: |
           quickstart-ios/
           !quickstart-ios/**/GoogleService-Info.plist
