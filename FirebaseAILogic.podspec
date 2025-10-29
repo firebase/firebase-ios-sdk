@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAILogic'
-  s.version          = '12.5.0'
+  s.version          = '12.6.0'
   s.summary          = 'Firebase AI Logic SDK'
 
   s.description      = <<-DESC
@@ -43,10 +43,10 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.5.0'
-  s.dependency 'FirebaseAuthInterop', '~> 12.5.0'
-  s.dependency 'FirebaseCore', '~> 12.5.0'
-  s.dependency 'FirebaseCoreExtension', '~> 12.5.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.6.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.6.0'
+  s.dependency 'FirebaseCore', '~> 12.6.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.6.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseAI/Tests/Unit/'
