@@ -23,6 +23,13 @@
 #import <OCMock/OCMock.h>
 #import "FirebasePerformance/Tests/Unit/FPRTestCase.h"
 
+static inline CFTimeInterval FPRFrameBudgetForHz(double hz) {
+  return 1.0 / hz;
+}
+static inline CFTimeInterval FPRFrozenThresholdForBudget(CFTimeInterval budget) {
+  return 42.0 * budget;
+}
+
 /** Registers and returns an instance of a custom subclass of UIViewController. */
 static UIViewController *FPRCustomViewController(NSString *className, BOOL isViewLoaded) {
   Class customClass = NSClassFromString(className);
@@ -603,20 +610,38 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
  *  slow frame counter of the screen trace tracker is incremented.
  */
 - (void)testSlowFrameIsRecorded {
+  CFTimeInterval frameBudget = FPRFrameBudgetForHz(60.0);
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
-  CFAbsoluteTime secondFrameRenderTimestamp =
-      firstFrameRenderTimestamp + kFPRSlowFrameThreshold + 0.005;  // Buffer for float comparison.
+  CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + frameBudget + 0.005;
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
 
-  // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
-  OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
+  // Drive CADisplayLink with matched timestamp/targetTimestamp pairs per tick.
+  __block NSInteger tick = 0;
+  NSArray<NSNumber *> *timestamps =
+      @[ @(firstFrameRenderTimestamp), @(secondFrameRenderTimestamp) ];
+  NSArray<NSNumber *> *targets =
+      @[ @(firstFrameRenderTimestamp + frameBudget), @(secondFrameRenderTimestamp + frameBudget) ];
+
+  OCMStub([displayLinkMock isPaused]).andReturn(NO);
+
+  OCMStub([displayLinkMock timestamp]).andDo(^(NSInvocation *inv) {
+    CFTimeInterval v = timestamps[(NSUInteger)tick].doubleValue;
+    [inv setReturnValue:&v];
+  });
+  OCMStub([displayLinkMock targetTimestamp]).andDo(^(NSInvocation *inv) {
+    CFTimeInterval v = targets[(NSUInteger)tick].doubleValue;
+    [inv setReturnValue:&v];
+  });
+
+  // Tick 1 - prime previous timestamp (no counts expected).
   [self.tracker displayLinkStep];
   int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
 
-  OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
+  // Tick 2 - slow frame: duration > budget.
+  tick++;
   [self.tracker displayLinkStep];
 
   int64_t newSlowFramesCount = self.tracker.slowFramesCount;
@@ -625,13 +650,16 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 /** Tests that the slow and frozen frame counter is not incremented in the case of a good frame. */
 - (void)testSlowAndFrozenFrameIsNotRecordedInCaseOfGoodFrame {
+  CFTimeInterval frameBudget = FPRFrameBudgetForHz(60.0);
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
-  CFAbsoluteTime secondFrameRenderTimestamp =
-      firstFrameRenderTimestamp + kFPRSlowFrameThreshold - 0.005;  // Good frame.
+  CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + frameBudget - 0.005;
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
+  OCMStub([displayLinkMock targetTimestamp])
+      .andReturn(firstFrameRenderTimestamp + frameBudget)
+      .andReturn(secondFrameRenderTimestamp + frameBudget);
 
   // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
@@ -651,13 +679,16 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 /* Tests that the frozen frame counter is not incremented in case of a slow frame. */
 - (void)testFrozenFrameIsNotRecordedInCaseOfSlowFrame {
+  CFTimeInterval frameBudget = FPRFrameBudgetForHz(60.0);
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
-  CFAbsoluteTime secondFrameRenderTimestamp =
-      firstFrameRenderTimestamp + kFPRSlowFrameThreshold + 0.005;  // Slow frame.
+  CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + frameBudget + 0.005;
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
+  OCMStub([displayLinkMock targetTimestamp])
+      .andReturn(firstFrameRenderTimestamp + frameBudget)
+      .andReturn(secondFrameRenderTimestamp + frameBudget);
 
   // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
@@ -675,17 +706,24 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
  *  frames.
  */
 - (void)testTotalFramesAreAlwaysRecorded {
+  CFTimeInterval frameBudget = FPRFrameBudgetForHz(60.0);
+  CFTimeInterval frozenThreshold = FPRFrozenThresholdForBudget(frameBudget);
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   CFAbsoluteTime secondFrameRenderTimestamp =
-      firstFrameRenderTimestamp + kFPRSlowFrameThreshold - 0.005;  // Good frame.
+      firstFrameRenderTimestamp + frameBudget - 0.005;  // Good frame.
   CFAbsoluteTime thirdFrameRenderTimestamp =
-      secondFrameRenderTimestamp + kFPRSlowFrameThreshold + 0.005;  // Slow frame.
+      secondFrameRenderTimestamp + frameBudget + 0.005;  // Slow frame.
   CFAbsoluteTime fourthFrameRenderTimestamp =
-      thirdFrameRenderTimestamp + kFPRFrozenFrameThreshold + 0.005;  // Frozen frame.
+      thirdFrameRenderTimestamp + frozenThreshold + 0.005;  // Frozen frame.
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
+  OCMStub([displayLinkMock targetTimestamp])
+      .andReturn(firstFrameRenderTimestamp + frameBudget)
+      .andReturn(secondFrameRenderTimestamp + frameBudget)
+      .andReturn(thirdFrameRenderTimestamp + frameBudget)
+      .andReturn(fourthFrameRenderTimestamp + frameBudget);
 
   // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
@@ -712,21 +750,41 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
  *  frozen frame counter and slow frame counter of the screen trace tracker is incremented.
  */
 - (void)testFrozenFrameAndSlowFrameIsRecorded {
+  CFTimeInterval frameBudget = FPRFrameBudgetForHz(60.0);
+  CFTimeInterval frozenThreshold = FPRFrozenThresholdForBudget(frameBudget);
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   CFAbsoluteTime secondFrameRenderTimestamp =
-      firstFrameRenderTimestamp + kFPRFrozenFrameThreshold + 0.005;  // Buffer for float comparison.
+      firstFrameRenderTimestamp + frozenThreshold + 0.005;  // Buffer for float comparison.
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
 
-  // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
-  OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
+  // Drive CADisplayLink with matched timestamp/targetTimestamp pairs per tick.
+  __block NSInteger tick = 0;
+  NSArray<NSNumber *> *timestamps =
+      @[ @(firstFrameRenderTimestamp), @(secondFrameRenderTimestamp) ];
+  NSArray<NSNumber *> *targets =
+      @[ @(firstFrameRenderTimestamp + frameBudget), @(secondFrameRenderTimestamp + frameBudget) ];
+
+  OCMStub([displayLinkMock isPaused]).andReturn(NO);
+
+  OCMStub([displayLinkMock timestamp]).andDo(^(NSInvocation *inv) {
+    CFTimeInterval v = timestamps[(NSUInteger)tick].doubleValue;
+    [inv setReturnValue:&v];
+  });
+  OCMStub([displayLinkMock targetTimestamp]).andDo(^(NSInvocation *inv) {
+    CFTimeInterval v = targets[(NSUInteger)tick].doubleValue;
+    [inv setReturnValue:&v];
+  });
+
+  // Tick 1 - prime previous timestamp (no counts expected).
   [self.tracker displayLinkStep];
   int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
   int64_t initialFrozenFramesCount = self.tracker.frozenFramesCount;
 
-  OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
+  // Tick 2 - frozen (also slow): duration > 42 * budget.
+  tick++;
   [self.tracker displayLinkStep];
   int64_t newSlowFramesCount = self.tracker.slowFramesCount;
   int64_t newFrozenFramesCount = self.tracker.frozenFramesCount;
