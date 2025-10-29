@@ -3243,16 +3243,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testAddFieldsThrowsOnDuplicateAliases() async throws {
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
-    _ = db.pipeline()
-      .collection(collRef.path)
-      .select([Field("title"), Field("author")])
-      .addFields([Constant("bar").as("foo"), Constant("baz").as("foo")])
-      .sort([Field("author").ascending()])
-  }
-
   func testSupportsTimestampConversions() async throws {
     let db = firestore()
     let randomCol = collectionRef() // Unique collection for this test

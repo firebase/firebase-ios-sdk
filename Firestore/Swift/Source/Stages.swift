@@ -151,8 +151,8 @@ class AddFields: Stage {
   init(selectables: [Selectable]) {
     self.selectables = selectables
     let map = Helper.selectablesToMap(selectables: selectables)
-    let objc_accumulators = map.mapValues { $0.toBridge() }
-    bridge = AddFieldsStageBridge(fields: objc_accumulators)
+    let objcAccumulators = map.mapValues { $0.toBridge() }
+    bridge = AddFieldsStageBridge(fields: objcAccumulators)
   }
 }
 

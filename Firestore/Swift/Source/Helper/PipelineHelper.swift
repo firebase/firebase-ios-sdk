@@ -38,6 +38,7 @@ enum Helper {
       }
       let alias = value.alias
       if result.keys.contains(alias) {
+        // TODO: Add tests to verify the behaviour.
         fatalError("Duplicate alias '\(alias)' found in selectables.")
       }
       result[alias] = value.expr
@@ -52,6 +53,7 @@ enum Helper {
 
         let alias = aliasedAggregate.alias
         if result.keys.contains(alias) {
+          // TODO: Add tests to verify the behaviour.
           fatalError("Duplicate alias '\(alias)' found in accumulators.")
         }
         result[alias] = aliasedAggregate.aggregate
@@ -84,11 +86,11 @@ enum Helper {
     if let exprValue = value as? Expression {
       return exprValue.toBridge()
     } else if let aggregateFunctionValue = value as? AggregateFunction {
-      return aggregateFunctionValue.toBridge()
+      return aggregateFunctionValue.bridge
     } else if let dictionaryValue = value as? [String: Sendable?] {
       let mappedValue: [String: Sendable] = dictionaryValue.mapValues {
         if let aggFunc = $0 as? AggregateFunction {
-          return aggFunc.toBridge()
+          return aggFunc.bridge
         }
         return sendableToExpr($0).toBridge()
       }
