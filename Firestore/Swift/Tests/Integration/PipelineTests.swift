@@ -3365,15 +3365,22 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .select(
         [
-          Constant(baseTimestamp).timestampTruncate(granularity: "nanosecond").as("truncNano"),
           Constant(baseTimestamp).timestampTruncate(granularity: .microsecond).as("truncMicro"),
           Constant(baseTimestamp).timestampTruncate(granularity: .millisecond).as("truncMilli"),
           Constant(baseTimestamp).timestampTruncate(granularity: .second).as("truncSecond"),
           Constant(baseTimestamp).timestampTruncate(granularity: .minute).as("truncMinute"),
           Constant(baseTimestamp).timestampTruncate(granularity: .hour).as("truncHour"),
           Constant(baseTimestamp).timestampTruncate(granularity: .day).as("truncDay"),
-          Constant(baseTimestamp).timestampTruncate(granularity: "month").as("truncMonth"),
-          Constant(baseTimestamp).timestampTruncate(granularity: "year").as("truncYear"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .week).as("truncWeek"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .weekMonday).as("truncWeekMonday"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .weekTuesday)
+            .as("truncWeekTuesday"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .isoweek).as("truncIsoWeek"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .month).as("truncMonth"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .quarter).as("truncQuarter"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .year).as("truncYear"),
+          Constant(baseTimestamp).timestampTruncate(granularity: .isoyear).as("truncIsoYear"),
+          Constant(baseTimestamp).timestampTruncate(granularity: "day").as("truncDayString"),
           Constant(baseTimestamp).timestampTruncate(granularity: Constant("day"))
             .as("truncDayExpr"),
         ]
@@ -3384,16 +3391,22 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results.count, 1, "Should retrieve one document")
 
     let expectedResults: [String: Timestamp] = [
-      "truncNano": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000),
       "truncMicro": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_000),
       "truncMilli": Timestamp(seconds: 1_741_380_235, nanoseconds: 123_000_000),
       "truncSecond": Timestamp(seconds: 1_741_380_235, nanoseconds: 0),
       "truncMinute": Timestamp(seconds: 1_741_380_180, nanoseconds: 0),
       "truncHour": Timestamp(seconds: 1_741_377_600, nanoseconds: 0),
-      "truncDay": Timestamp(seconds: 1_741_305_600, nanoseconds: 0), // Assuming UTC day start
-      "truncMonth": Timestamp(seconds: 1_740_787_200, nanoseconds: 0), // Assuming UTC month start
-      "truncYear": Timestamp(seconds: 1_735_689_600, nanoseconds: 0), // Assuming UTC year start
-      "truncDayExpr": Timestamp(seconds: 1_741_305_600, nanoseconds: 0), // Assuming UTC day start
+      "truncDay": Timestamp(seconds: 1_741_305_600, nanoseconds: 0),
+      "truncWeek": Timestamp(seconds: 1_740_873_600, nanoseconds: 0),
+      "truncWeekMonday": Timestamp(seconds: 1_740_960_000, nanoseconds: 0),
+      "truncWeekTuesday": Timestamp(seconds: 1_741_046_400, nanoseconds: 0),
+      "truncIsoWeek": Timestamp(seconds: 1_740_960_000, nanoseconds: 0),
+      "truncMonth": Timestamp(seconds: 1_740_787_200, nanoseconds: 0),
+      "truncQuarter": Timestamp(seconds: 1_735_689_600, nanoseconds: 0),
+      "truncYear": Timestamp(seconds: 1_735_689_600, nanoseconds: 0),
+      "truncIsoYear": Timestamp(seconds: 1_735_516_800, nanoseconds: 0),
+      "truncDayString": Timestamp(seconds: 1_741_305_600, nanoseconds: 0),
+      "truncDayExpr": Timestamp(seconds: 1_741_305_600, nanoseconds: 0),
     ]
 
     if let resultDoc = snapshot.results.first {

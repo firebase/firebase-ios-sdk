@@ -935,7 +935,7 @@ public extension Expression {
     return FunctionExpression(functionName: "timestamp_to_unix_seconds", args: [self])
   }
 
-  func timestampTruncate(granularity: TimeUnit) -> FunctionExpression {
+  func timestampTruncate(granularity: TimeGranularity) -> FunctionExpression {
     return FunctionExpression(
       functionName: "timestamp_trunc",
       args: [self, Helper.sendableToExpr(granularity.rawValue)]

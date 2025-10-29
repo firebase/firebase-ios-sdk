@@ -1452,19 +1452,23 @@ public protocol Expression: Sendable {
   /// Field("timestamp").timestampTruncate(granularity: .day)
   /// ```
   ///
-  /// - Parameter granularity: A `TimeUnit` enum representing the truncation unit.
+  /// - Parameter granularity: A `TimeGranularity` representing the truncation unit.
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
-  func timestampTruncate(granularity: TimeUnit) -> FunctionExpression
+  func timestampTruncate(granularity: TimeGranularity) -> FunctionExpression
 
   /// Creates an expression that truncates a timestamp to a specified granularity.
-  /// Assumes `self` evaluates to a Timestamp, and `granularity` is a literal string.
+  /// Assumes `self` evaluates to a Timestamp.
   ///
   /// ```swift
   /// // Truncate "timestamp" field to the nearest day using a literal string.
   /// Field("timestamp").timestampTruncate(granularity: "day")
+  ///
+  /// // Truncate "timestamp" field to the nearest day using an expression.
+  /// Field("timestamp").timestampTruncate(granularity: Field("granularity_field"))
   /// ```
   ///
-  /// - Parameter granularity: A `Sendable` literal string specifying the truncation unit.
+  /// - Parameter granularity: A `Sendable` literal string or an `Expression` that evaluates to a
+  /// string, specifying the truncation unit.
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
   func timestampTruncate(granularity: Sendable) -> FunctionExpression
 
