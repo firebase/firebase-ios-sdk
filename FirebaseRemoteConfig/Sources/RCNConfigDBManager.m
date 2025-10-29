@@ -1238,7 +1238,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   // (including the createOrOpenDatabase setup block) execute and complete before this method
   // returns.
   dispatch_sync(_databaseOperationQueue, ^{
-                    // Empty block forces synchronization.
                 });
 }
 
