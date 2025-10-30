@@ -26,8 +26,8 @@ struct Tests: ParsableCommand {
       debugging, you can set the "LOG_LEVEL" environment variable to a different minimum level \
       (eg; "debug").
     """,
-    subcommands: [Decrypt.self]
-    // defaultSubcommand: Run.self
+    subcommands: [Decrypt.self, Run.self],
+    defaultSubcommand: Run.self
   )
 }
 
