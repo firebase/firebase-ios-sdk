@@ -36,9 +36,29 @@ enum Helper {
       guard let value = selectable as? SelectableWrapper else {
         fatalError("Selectable class must conform to SelectableWrapper.")
       }
-      result[value.alias] = value.expr
+      let alias = value.alias
+      if result.keys.contains(alias) {
+        // TODO: Add tests to verify the behaviour.
+        fatalError("Duplicate alias '\(alias)' found in selectables.")
+      }
+      result[alias] = value.expr
     }
     return exprMap
+  }
+
+  static func aliasedAggregatesToMap(accumulators: [AliasedAggregate])
+    -> [String: AggregateFunction] {
+    let accumulatorMap = accumulators
+      .reduce(into: [String: AggregateFunction]()) { result, aliasedAggregate in
+
+        let alias = aliasedAggregate.alias
+        if result.keys.contains(alias) {
+          // TODO: Add tests to verify the behaviour.
+          fatalError("Duplicate alias '\(alias)' found in accumulators.")
+        }
+        result[alias] = aliasedAggregate.aggregate
+      }
+    return accumulatorMap
   }
 
   static func map(_ elements: [String: Sendable?]) -> FunctionExpression {
@@ -66,11 +86,11 @@ enum Helper {
     if let exprValue = value as? Expression {
       return exprValue.toBridge()
     } else if let aggregateFunctionValue = value as? AggregateFunction {
-      return aggregateFunctionValue.toBridge()
+      return aggregateFunctionValue.bridge
     } else if let dictionaryValue = value as? [String: Sendable?] {
       let mappedValue: [String: Sendable] = dictionaryValue.mapValues {
         if let aggFunc = $0 as? AggregateFunction {
-          return aggFunc.toBridge()
+          return aggFunc.bridge
         }
         return sendableToExpr($0).toBridge()
       }

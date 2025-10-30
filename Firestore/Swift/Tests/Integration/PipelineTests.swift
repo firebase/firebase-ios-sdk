@@ -3253,17 +3253,19 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select([
-        Constant(1_741_380_235).unixSecondsToTimestamp().as("unixSecondsToTimestamp"),
-        Constant(1_741_380_235_123).unixMillisToTimestamp().as("unixMillisToTimestamp"),
-        Constant(1_741_380_235_123_456).unixMicrosToTimestamp().as("unixMicrosToTimestamp"),
-        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
-          .timestampToUnixSeconds().as("timestampToUnixSeconds"),
-        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
-          .timestampToUnixMillis().as("timestampToUnixMillis"),
-        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
-          .timestampToUnixMicros().as("timestampToUnixMicros"),
-      ])
+      .select(
+        [
+          Constant(1_741_380_235).unixSecondsToTimestamp().as("unixSecondsToTimestamp"),
+          Constant(1_741_380_235_123).unixMillisToTimestamp().as("unixMillisToTimestamp"),
+          Constant(1_741_380_235_123_456).unixMicrosToTimestamp().as("unixMicrosToTimestamp"),
+          Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+            .timestampToUnixSeconds().as("timestampToUnixSeconds"),
+          Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+            .timestampToUnixMillis().as("timestampToUnixMillis"),
+          Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+            .timestampToUnixMicros().as("timestampToUnixMicros"),
+        ]
+      )
 
     let snapshot = try await pipeline.execute()
     XCTAssertEqual(

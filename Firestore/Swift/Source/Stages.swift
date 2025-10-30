@@ -150,14 +150,9 @@ class AddFields: Stage {
 
   init(selectables: [Selectable]) {
     self.selectables = selectables
-    let objc_accumulators = selectables.reduce(into: [String: ExprBridge]()) {
-      result,
-        selectable
-      in
-      let selectableWrapper = selectable as! SelectableWrapper
-      result[selectableWrapper.alias] = selectableWrapper.expr.toBridge()
-    }
-    bridge = AddFieldsStageBridge(fields: objc_accumulators)
+    let map = Helper.selectablesToMap(selectables: selectables)
+    let objcAccumulators = map.mapValues { $0.toBridge() }
+    bridge = AddFieldsStageBridge(fields: objcAccumulators)
   }
 }
 
@@ -214,12 +209,12 @@ class Aggregate: Stage {
     if groups != nil {
       self.groups = Helper.selectablesToMap(selectables: groups!)
     }
-    let accumulatorsMap = accumulators
-      .reduce(into: [String: AggregateFunctionBridge]()) { result, accumulator in
-        result[accumulator.alias] = accumulator.aggregate.bridge
-      }
+    let accumulatorsMap = Helper.aliasedAggregatesToMap(accumulators: accumulators)
+
+    let accumulatorBridgesMap = accumulatorsMap.mapValues { $0.bridge }
+
     bridge = AggregateStageBridge(
-      accumulators: accumulatorsMap,
+      accumulators: accumulatorBridgesMap,
       groups: self.groups.mapValues { Helper.sendableToExpr($0).toBridge() }
     )
   }
