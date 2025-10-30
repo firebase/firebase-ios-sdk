@@ -638,6 +638,14 @@ public extension Expression {
     return FunctionExpression(functionName: "join", args: [self, Constant(delimiter)])
   }
 
+  func split(delimiter: String) -> FunctionExpression {
+    return FunctionExpression(functionName: "split", args: [self, Constant(delimiter)])
+  }
+
+  func split(delimiter: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "split", args: [self, delimiter])
+  }
+
   func length() -> FunctionExpression {
     return FunctionExpression(functionName: "length", args: [self])
   }

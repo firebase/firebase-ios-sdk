@@ -704,6 +704,18 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the joined string.
   func join(delimiter: String) -> FunctionExpression
 
+  /// Creates an expression that splits a string into an array of substrings based on a delimiter.
+  ///
+  /// - Parameter delimiter: The string to split on.
+  /// - Returns: A new `FunctionExpression` representing the array of substrings.
+  func split(delimiter: String) -> FunctionExpression
+
+  /// Creates an expression that splits a string into an array of substrings based on a delimiter.
+  ///
+  /// - Parameter delimiter: An expression that evaluates to a string or bytes to split on.
+  /// - Returns: A new `FunctionExpression` representing the array of substrings.
+  func split(delimiter: Expression) -> FunctionExpression
+
   /// Creates an expression that returns the length of a string.
   ///
   /// ```swift

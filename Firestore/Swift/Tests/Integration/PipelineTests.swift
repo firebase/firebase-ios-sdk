@@ -3521,7 +3521,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 //  }
 
   func testDocumentId() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -3529,7 +3528,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .sort([Field("rating").descending()])
       .limit(1)
-      .select([Field("__path__").documentId().as("docId")])
+      .select([Field(FieldPath.documentID()).documentId().as("docId")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
       snapshot: snapshot,
@@ -3843,5 +3842,53 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
       enforceOrder: true
     )
+  }
+
+  func testSplitWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["text": "a-b-c"],
+      "doc2": ["text": "x,y,z", "delimiter": ","],
+      "doc3": ["text": Data([0x61, 0x00, 0x62, 0x00, 0x63]), "delimiter": Data([0x00])],
+    ])
+    let db = collRef.firestore
+
+    // Test with string literal delimiter
+    var pipeline = db.pipeline()
+      .documents([collRef.document("doc1").path])
+      .select([
+        Field("text").split(delimiter: "-").as("split_text"),
+      ])
+    var snapshot = try await pipeline.execute()
+
+    var expectedResults: [[String: Sendable]] = [
+      ["split_text": ["a", "b", "c"]],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+
+    // Test with expression delimiter (string)
+    pipeline = db.pipeline()
+      .documents([collRef.document("doc2").path])
+      .select([
+        Field("text").split(delimiter: Field("delimiter")).as("split_text"),
+      ])
+    snapshot = try await pipeline.execute()
+
+    expectedResults = [
+      ["split_text": ["x", "y", "z"]],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+
+    // Test with expression delimiter (bytes)
+    pipeline = db.pipeline()
+      .documents([collRef.document("doc3").path])
+      .select([
+        Field("text").split(delimiter: Field("delimiter")).as("split_text"),
+      ])
+    snapshot = try await pipeline.execute()
+
+    let expectedByteResults: [[String: Sendable]] = [
+      ["split_text": [Data([0x61]), Data([0x62]), Data([0x63])]],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedByteResults, enforceOrder: false)
   }
 }
