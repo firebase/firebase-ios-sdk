@@ -22,32 +22,31 @@
 import Foundation
 
 @objc public extension Firestore {
-  /// Creates a `PipelineSource` that can be used to build and execute a pipeline of operations on
-  /// the Firestore database.
+  /// Creates a new `PipelineSource` to build and execute a data pipeline.
   ///
-  /// A pipeline is a sequence of stages that are executed in order. Each stage can perform an
-  /// operation on the data, such as filtering, sorting, or transforming it.
+  /// A pipeline is composed of a sequence of stages. Each stage processes the
+  /// output from the previous one, and the final stage's output is the result of the
+  /// pipeline's execution.
   ///
   /// Example usage:
   /// ```swift
-  /// let db = Firestore.firestore()
-  /// let pipeline = db.pipeline()
+  /// let pipeline = firestore.pipeline()
   ///   .collection("books")
   ///   .where(Field("rating").isGreaterThan(4.5))
-  ///   .sort([Field("rating").descending()])
+  ///   .sort(Field("rating").descending())
   ///   .limit(2)
-  ///
-  /// do {
-  ///   let snapshot = try await pipeline.execute()
-  ///   for doc in snapshot.results {
-  ///     print(doc.data())
-  ///   }
-  /// } catch {
-  ///   print("Error executing pipeline: \(error)")
-  /// }
   /// ```
   ///
-  /// - Returns: A `PipelineSource` that can be used to build and execute a pipeline.
+  /// Note on Execution: The stages are conceptual. The Firestore backend may
+  /// optimize execution (e.g., reordering or merging stages) as long as the
+  /// final result remains the same.
+  ///
+  /// Important Limitations:
+  /// - Pipelines operate on a request/response basis only.
+  /// - They do not utilize or update the local SDK cache.
+  /// - They do not support realtime snapshot listeners.
+  ///
+  /// - Returns: A `PipelineSource` to begin defining the pipeline's stages.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @nonobjc func pipeline() -> PipelineSource {
     return PipelineSource(db: self) { stages, db in
