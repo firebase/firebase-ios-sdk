@@ -2488,11 +2488,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .select(
         [
-          Field("rating").isNil().as("ratingIsNull"),
-          Field("rating").isNan().as("ratingIsNaN"),
+          Field("rating").equal(Constant.nil).as("ratingIsNull"),
+          Field("rating").equal(Constant(Double.nan)).as("ratingIsNaN"),
           Field("foo").isAbsent().as("isAbsent"),
-          Field("title").isNotNil().as("titleIsNotNull"),
-          Field("cost").isNotNan().as("costIsNotNan"),
+          Field("title").notEqual(Constant.nil).as("titleIsNotNull"),
+          Field("cost").notEqual(Constant(Double.nan)).as("costIsNotNan"),
           Field("fooBarBaz").exists().as("fooBarBazExists"),
           Field("title").exists().as("titleExists"),
         ]
