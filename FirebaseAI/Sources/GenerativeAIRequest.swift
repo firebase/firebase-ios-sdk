@@ -18,7 +18,7 @@ import Foundation
 protocol GenerativeAIRequest: Sendable, Encodable {
   associatedtype Response: Sendable, Decodable
 
-  var url: URL { get }
+  func getURL() throws -> URL
 
   var options: RequestOptions { get }
 }
