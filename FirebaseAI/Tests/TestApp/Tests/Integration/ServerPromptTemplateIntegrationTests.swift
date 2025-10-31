@@ -22,7 +22,7 @@ import Testing
 struct ServerPromptTemplateIntegrationTests {
   private static let testConfigs: [InstanceConfig] = [
     .googleAI_v1beta,
-//    .vertexAI_v1beta, // Waiting for backend location propagation.
+    .vertexAI_v1beta,
     .vertexAI_v1beta_global,
   ]
   private static let imageGenerationTestConfigs: [InstanceConfig] = [.vertexAI_v1beta]
@@ -47,7 +47,7 @@ struct ServerPromptTemplateIntegrationTests {
     let model = FirebaseAI.componentInstance(config).templateGenerativeModel()
     let userName = "paul"
     let stream = try model.generateContentStream(
-      templateID: "greeting2",
+      templateID: "greeting-5",
       inputs: [
         "name": userName,
         "language": "English",
@@ -63,19 +63,19 @@ struct ServerPromptTemplateIntegrationTests {
   }
 
   @Test(arguments: [
-    // templatePredict is only currently supported on Developer API.
     InstanceConfig.googleAI_v1beta,
+    InstanceConfig.vertexAI_v1beta,
   ])
   func generateImages(_ config: InstanceConfig) async throws {
     let imagenModel = FirebaseAI.componentInstance(config).templateImagenModel()
-    let imagenPrompt = "A cat picture"
+    let imagenPrompt = "firefly"
     let response = try await imagenModel.generateImages(
-      templateID: "generate-images2",
+      templateID: "image-generation-basic",
       inputs: [
         "prompt": imagenPrompt,
       ]
     )
-    #expect(response.images.count == 3)
+    #expect(response.images.count == 4)
   }
 
   @Test(arguments: testConfigs)
