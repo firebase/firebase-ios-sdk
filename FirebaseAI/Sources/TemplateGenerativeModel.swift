@@ -131,7 +131,7 @@ public final class TemplateGenerativeModel: Sendable {
   ///   - history: The conversation history to use.
   /// - Returns: A new ``TemplateChatSession`` instance.
   func startChat(templateID: String,
-                        history: [ModelContent] = []) -> TemplateChatSession {
+                 history: [ModelContent] = []) -> TemplateChatSession {
     return TemplateChatSession(
       model: self,
       templateID: templateID,
