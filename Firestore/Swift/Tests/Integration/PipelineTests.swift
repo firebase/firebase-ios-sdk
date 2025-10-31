@@ -2755,7 +2755,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .limit(1)
       .select(
         [
-          FunctionExpression("add", [Field("rating"), Constant(1)]).as(
+          FunctionExpression(functionName: "add", args: [Field("rating"), Constant(1)]).as(
             "rating"
           ),
         ]
@@ -2807,8 +2807,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(BooleanExpression(
-        "array_contains_any",
-        [Field("tags"), ArrayExpression(["politics"])]
+        functionName: "array_contains_any",
+        args: [Field("tags"), ArrayExpression(["politics"])]
       ))
       .select([Field("title")])
 

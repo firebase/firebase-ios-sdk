@@ -465,7 +465,6 @@ public protocol Expression: Sendable {
   /// than the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
   /// boolean expressions.
   func greaterThan(_ other: Expression) -> BooleanExpression
@@ -740,7 +739,7 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter pattern: The literal string regular expression to use for the search.
-  /// - Returns: A new `BooleanExpr` representing the "regex_contains" comparison.
+  /// - Returns: A new `BooleanExpression` representing the "regex_contains" comparison.
   func regexContains(_ pattern: String) -> BooleanExpression
 
   /// Creates an expression that checks if a string (from `self`) contains a specified regular

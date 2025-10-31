@@ -727,7 +727,7 @@ public extension Expression {
   }
 
   func byteLength() -> FunctionExpression {
-    return FunctionExpression("byte_length", [self])
+    return FunctionExpression(functionName: "byte_length", args: [self])
   }
 
   func substring(position: Int, length: Int? = nil) -> FunctionExpression {
