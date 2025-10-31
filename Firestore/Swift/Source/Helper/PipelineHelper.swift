@@ -47,14 +47,14 @@ enum Helper {
       result.append(Constant(key))
       result.append(sendableToExpr(value))
     }
-    return FunctionExpression("map", result)
+    return FunctionExpression(functionName: "map", args: result)
   }
 
   static func array(_ elements: [Sendable?]) -> FunctionExpression {
     let transformedElements = elements.map { element in
       sendableToExpr(element)
     }
-    return FunctionExpression("array", transformedElements)
+    return FunctionExpression(functionName: "array", args: transformedElements)
   }
 
   // This function is used to convert Swift type into Objective-C type.

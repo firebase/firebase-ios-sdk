@@ -30,7 +30,10 @@ extension Expression {
   /// - Parameter otherBits: The integer literal operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise AND operation.
   func bitAnd(_ otherBits: Int) -> FunctionExpression {
-    return FunctionExpression("bit_and", [self, Helper.sendableToExpr(otherBits)])
+    return FunctionExpression(
+      functionName: "bit_and",
+      args: [self, Helper.sendableToExpr(otherBits)]
+    )
   }
 
   /// Creates an expression applying bitwise AND between this expression and a UInt8 literal (often
@@ -44,7 +47,10 @@ extension Expression {
   /// - Parameter otherBits: The UInt8 literal operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise AND operation.
   func bitAnd(_ otherBits: UInt8) -> FunctionExpression {
-    return FunctionExpression("bit_and", [self, Helper.sendableToExpr(otherBits)])
+    return FunctionExpression(
+      functionName: "bit_and",
+      args: [self, Helper.sendableToExpr(otherBits)]
+    )
   }
 
   /// Creates an expression applying bitwise AND between this expression and another expression.
@@ -58,7 +64,7 @@ extension Expression {
   /// - Parameter bitsExpression: The other `Expr` operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise AND operation.
   func bitAnd(_ bitsExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_and", [self, bitsExpression])
+    return FunctionExpression(functionName: "bit_and", args: [self, bitsExpression])
   }
 
   /// Creates an expression applying bitwise OR between this expression and an integer literal.
@@ -74,7 +80,10 @@ extension Expression {
   /// - Parameter otherBits: The integer literal operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise OR operation.
   func bitOr(_ otherBits: Int) -> FunctionExpression {
-    return FunctionExpression("bit_or", [self, Helper.sendableToExpr(otherBits)])
+    return FunctionExpression(
+      functionName: "bit_or",
+      args: [self, Helper.sendableToExpr(otherBits)]
+    )
   }
 
   /// Creates an expression applying bitwise OR between this expression and a UInt8 literal.
@@ -87,7 +96,10 @@ extension Expression {
   /// - Parameter otherBits: The UInt8 literal operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise OR operation.
   func bitOr(_ otherBits: UInt8) -> FunctionExpression {
-    return FunctionExpression("bit_or", [self, Helper.sendableToExpr(otherBits)])
+    return FunctionExpression(
+      functionName: "bit_or",
+      args: [self, Helper.sendableToExpr(otherBits)]
+    )
   }
 
   /// Creates an expression applying bitwise OR between this expression and another expression.
@@ -101,7 +113,7 @@ extension Expression {
   /// - Parameter bitsExpression: The other `Expr` operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise OR operation.
   func bitOr(_ bitsExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_or", [self, bitsExpression])
+    return FunctionExpression(functionName: "bit_or", args: [self, bitsExpression])
   }
 
   /// Creates an expression applying bitwise XOR between this expression and an integer literal.
@@ -117,7 +129,10 @@ extension Expression {
   /// - Parameter otherBits: The integer literal operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise XOR operation.
   func bitXor(_ otherBits: Int) -> FunctionExpression {
-    return FunctionExpression("bit_xor", [self, Helper.sendableToExpr(otherBits)])
+    return FunctionExpression(
+      functionName: "bit_xor",
+      args: [self, Helper.sendableToExpr(otherBits)]
+    )
   }
 
   /// Creates an expression applying bitwise XOR between this expression and a UInt8 literal.
@@ -130,7 +145,10 @@ extension Expression {
   /// - Parameter otherBits: The UInt8 literal operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise XOR operation.
   func bitXor(_ otherBits: UInt8) -> FunctionExpression {
-    return FunctionExpression("bit_xor", [self, Helper.sendableToExpr(otherBits)])
+    return FunctionExpression(
+      functionName: "bit_xor",
+      args: [self, Helper.sendableToExpr(otherBits)]
+    )
   }
 
   /// Creates an expression applying bitwise XOR between this expression and another expression.
@@ -144,7 +162,7 @@ extension Expression {
   /// - Parameter bitsExpression: The other `Expr` operand.
   /// - Returns: A new "FunctionExpression" representing the bitwise XOR operation.
   func bitXor(_ bitsExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_xor", [self, bitsExpression])
+    return FunctionExpression(functionName: "bit_xor", args: [self, bitsExpression])
   }
 
   /// Creates an expression applying bitwise NOT to this expression.
@@ -159,7 +177,7 @@ extension Expression {
   ///
   /// - Returns: A new "FunctionExpression" representing the bitwise NOT operation.
   func bitNot() -> FunctionExpression {
-    return FunctionExpression("bit_not", [self])
+    return FunctionExpression(functionName: "bit_not", args: [self])
   }
 
   /// Creates an expression applying bitwise left shift to this expression by a literal number of
@@ -176,7 +194,10 @@ extension Expression {
   /// - Parameter y: The number of bits (Int literal) to shift by.
   /// - Returns: A new "FunctionExpression" representing the bitwise left shift operation.
   func bitLeftShift(_ y: Int) -> FunctionExpression {
-    return FunctionExpression("bit_left_shift", [self, Helper.sendableToExpr(y)])
+    return FunctionExpression(
+      functionName: "bit_left_shift",
+      args: [self, Helper.sendableToExpr(y)]
+    )
   }
 
   /// Creates an expression applying bitwise left shift to this expression by a number of bits
@@ -191,7 +212,7 @@ extension Expression {
   /// - Parameter numberExpr: An `Expr` (evaluating to an Int) for the number of bits to shift by.
   /// - Returns: A new "FunctionExpression" representing the bitwise left shift operation.
   func bitLeftShift(_ numberExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_left_shift", [self, numberExpression])
+    return FunctionExpression(functionName: "bit_left_shift", args: [self, numberExpression])
   }
 
   /// Creates an expression applying bitwise right shift to this expression by a literal number of
@@ -208,7 +229,10 @@ extension Expression {
   /// - Parameter y: The number of bits (Int literal) to shift by.
   /// - Returns: A new "FunctionExpression" representing the bitwise right shift operation.
   func bitRightShift(_ y: Int) -> FunctionExpression {
-    return FunctionExpression("bit_right_shift", [self, Helper.sendableToExpr(y)])
+    return FunctionExpression(
+      functionName: "bit_right_shift",
+      args: [self, Helper.sendableToExpr(y)]
+    )
   }
 
   /// Creates an expression applying bitwise right shift to this expression by a number of bits
@@ -223,7 +247,7 @@ extension Expression {
   /// - Parameter numberExpr: An `Expr` (evaluating to an Int) for the number of bits to shift by.
   /// - Returns: A new "FunctionExpression" representing the bitwise right shift operation.
   func bitRightShift(_ numberExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("bit_right_shift", [self, numberExpression])
+    return FunctionExpression(functionName: "bit_right_shift", args: [self, numberExpression])
   }
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
@@ -240,7 +264,7 @@ extension Expression {
   /// - Parameter expression: The other vector as an `Expr` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
   func manhattanDistance(_ expression: Expression) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, expression])
+    return FunctionExpression(functionName: "manhattan_distance", args: [self, expression])
   }
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
@@ -254,7 +278,10 @@ extension Expression {
   /// - Parameter vector: The other vector as a `VectorValue` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
   func manhattanDistance(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "manhattan_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   /// Calculates the Manhattan (L1) distance between this vector expression and another vector
@@ -269,7 +296,10 @@ extension Expression {
   /// - Parameter vector: The other vector as `[Double]` to compare against.
   /// - Returns: A new `FunctionExpression` representing the Manhattan distance.
   func manhattanDistance(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression("manhattan_distance", [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "manhattan_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   /// Creates an expression that replaces the first occurrence of a literal substring within this
@@ -286,8 +316,8 @@ extension Expression {
   /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
   func replaceFirst(_ find: String, with replace: String) -> FunctionExpression {
     return FunctionExpression(
-      "replace_first",
-      [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
+      functionName: "replace_first",
+      args: [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
     )
   }
 
@@ -305,7 +335,7 @@ extension Expression {
   /// occurrence with.
   /// - Returns: A new `FunctionExpr` representing the string with the first occurrence replaced.
   func replaceFirst(_ find: Expression, with replace: Expression) -> FunctionExpression {
-    return FunctionExpression("replace_first", [self, find, replace])
+    return FunctionExpression(functionName: "replace_first", args: [self, find, replace])
   }
 
   /// Creates an expression that replaces all occurrences of a literal substring within this string
@@ -322,8 +352,8 @@ extension Expression {
   /// - Returns: A new `FunctionExpr` representing the string with all occurrences replaced.
   func stringReplace(_ find: String, with replace: String) -> FunctionExpression {
     return FunctionExpression(
-      "string_replace",
-      [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
+      functionName: "string_replace",
+      args: [self, Helper.sendableToExpr(find), Helper.sendableToExpr(replace)]
     )
   }
 
@@ -341,18 +371,7 @@ extension Expression {
   /// occurrences with.
   /// - Returns: A new `FunctionExpression` representing the string with all occurrences replaced.
   func stringReplace(_ find: Expression, with replace: Expression) -> FunctionExpression {
-    return FunctionExpression("string_replace", [self, find, replace])
-  }
-
-  // MARK: Equivalence Operations
-
-  /// Creates a `BooleanExpr` that returns `true` if this expression is equivalent
-  /// to the given value.
-  ///
-  /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpr` that can be used in `where` clauses.
-  func equivalent(_ other: Sendable) -> BooleanExpression {
-    return BooleanExpression("equivalent", [self, Helper.sendableToExpr(other)])
+    return FunctionExpression(functionName: "string_replace", args: [self, find, replace])
   }
 }
 
@@ -364,215 +383,221 @@ public extension Expression {
   // MARK: Arithmetic Operators
 
   func abs() -> FunctionExpression {
-    return FunctionExpression("abs", [self])
+    return FunctionExpression(functionName: "abs", args: [self])
   }
 
   func ceil() -> FunctionExpression {
-    return FunctionExpression("ceil", [self])
+    return FunctionExpression(functionName: "ceil", args: [self])
   }
 
   func floor() -> FunctionExpression {
-    return FunctionExpression("floor", [self])
+    return FunctionExpression(functionName: "floor", args: [self])
   }
 
   func ln() -> FunctionExpression {
-    return FunctionExpression("ln", [self])
+    return FunctionExpression(functionName: "ln", args: [self])
   }
 
   func pow(_ exponent: Sendable) -> FunctionExpression {
-    return FunctionExpression("pow", [self, Helper.sendableToExpr(exponent)])
+    return FunctionExpression(functionName: "pow", args: [self, Helper.sendableToExpr(exponent)])
   }
 
   func pow(_ exponent: Expression) -> FunctionExpression {
-    return FunctionExpression("pow", [self, exponent])
+    return FunctionExpression(functionName: "pow", args: [self, exponent])
   }
 
   func round() -> FunctionExpression {
-    return FunctionExpression("round", [self])
+    return FunctionExpression(functionName: "round", args: [self])
   }
 
   func sqrt() -> FunctionExpression {
-    return FunctionExpression("sqrt", [self])
+    return FunctionExpression(functionName: "sqrt", args: [self])
   }
 
   func exp() -> FunctionExpression {
-    return FunctionExpression("exp", [self])
+    return FunctionExpression(functionName: "exp", args: [self])
   }
 
   func add(_ value: Expression) -> FunctionExpression {
-    return FunctionExpression("add", [self, value])
+    return FunctionExpression(functionName: "add", args: [self, value])
   }
 
   func add(_ value: Sendable) -> FunctionExpression {
-    return FunctionExpression("add", [self, Helper.sendableToExpr(value)])
+    return FunctionExpression(functionName: "add", args: [self, Helper.sendableToExpr(value)])
   }
 
   func subtract(_ other: Expression) -> FunctionExpression {
-    return FunctionExpression("subtract", [self, other])
+    return FunctionExpression(functionName: "subtract", args: [self, other])
   }
 
   func subtract(_ other: Sendable) -> FunctionExpression {
-    return FunctionExpression("subtract", [self, Helper.sendableToExpr(other)])
+    return FunctionExpression(functionName: "subtract", args: [self, Helper.sendableToExpr(other)])
   }
 
   func multiply(_ value: Expression) -> FunctionExpression {
-    return FunctionExpression("multiply", [self, value])
+    return FunctionExpression(functionName: "multiply", args: [self, value])
   }
 
   func multiply(_ value: Sendable) -> FunctionExpression {
-    return FunctionExpression("multiply", [self, Helper.sendableToExpr(value)])
+    return FunctionExpression(functionName: "multiply", args: [self, Helper.sendableToExpr(value)])
   }
 
   func divide(_ other: Expression) -> FunctionExpression {
-    return FunctionExpression("divide", [self, other])
+    return FunctionExpression(functionName: "divide", args: [self, other])
   }
 
   func divide(_ other: Sendable) -> FunctionExpression {
-    return FunctionExpression("divide", [self, Helper.sendableToExpr(other)])
+    return FunctionExpression(functionName: "divide", args: [self, Helper.sendableToExpr(other)])
   }
 
   func mod(_ other: Expression) -> FunctionExpression {
-    return FunctionExpression("mod", [self, other])
+    return FunctionExpression(functionName: "mod", args: [self, other])
   }
 
   func mod(_ other: Sendable) -> FunctionExpression {
-    return FunctionExpression("mod", [self, Helper.sendableToExpr(other)])
+    return FunctionExpression(functionName: "mod", args: [self, Helper.sendableToExpr(other)])
   }
 
   // MARK: Array Operations
 
   func arrayReverse() -> FunctionExpression {
-    return FunctionExpression("array_reverse", [self])
+    return FunctionExpression(functionName: "array_reverse", args: [self])
   }
 
   func arrayConcat(_ arrays: [Expression]) -> FunctionExpression {
-    return FunctionExpression("array_concat", [self] + arrays)
+    return FunctionExpression(functionName: "array_concat", args: [self] + arrays)
   }
 
   func arrayConcat(_ arrays: [[Sendable]]) -> FunctionExpression {
     let exprs = [self] + arrays.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("array_concat", exprs)
+    return FunctionExpression(functionName: "array_concat", args: exprs)
   }
 
   func arrayContains(_ element: Expression) -> BooleanExpression {
-    return BooleanExpression("array_contains", [self, element])
+    return BooleanExpression(functionName: "array_contains", args: [self, element])
   }
 
   func arrayContains(_ element: Sendable) -> BooleanExpression {
-    return BooleanExpression("array_contains", [self, Helper.sendableToExpr(element)])
+    return BooleanExpression(
+      functionName: "array_contains",
+      args: [self, Helper.sendableToExpr(element)]
+    )
   }
 
   func arrayContainsAll(_ values: [Expression]) -> BooleanExpression {
-    return BooleanExpression("array_contains_all", [self, Helper.array(values)])
+    return BooleanExpression(functionName: "array_contains_all", args: [self, Helper.array(values)])
   }
 
   func arrayContainsAll(_ values: [Sendable]) -> BooleanExpression {
-    return BooleanExpression("array_contains_all", [self, Helper.array(values)])
+    return BooleanExpression(functionName: "array_contains_all", args: [self, Helper.array(values)])
   }
 
   func arrayContainsAll(_ arrayExpression: Expression) -> BooleanExpression {
-    return BooleanExpression("array_contains_all", [self, arrayExpression])
+    return BooleanExpression(functionName: "array_contains_all", args: [self, arrayExpression])
   }
 
   func arrayContainsAny(_ values: [Expression]) -> BooleanExpression {
-    return BooleanExpression("array_contains_any", [self, Helper.array(values)])
+    return BooleanExpression(functionName: "array_contains_any", args: [self, Helper.array(values)])
   }
 
   func arrayContainsAny(_ values: [Sendable]) -> BooleanExpression {
-    return BooleanExpression("array_contains_any", [self, Helper.array(values)])
+    return BooleanExpression(functionName: "array_contains_any", args: [self, Helper.array(values)])
   }
 
   func arrayContainsAny(_ arrayExpression: Expression) -> BooleanExpression {
-    return BooleanExpression("array_contains_any", [self, arrayExpression])
+    return BooleanExpression(functionName: "array_contains_any", args: [self, arrayExpression])
   }
 
   func arrayLength() -> FunctionExpression {
-    return FunctionExpression("array_length", [self])
+    return FunctionExpression(functionName: "array_length", args: [self])
   }
 
   func arrayGet(_ offset: Int) -> FunctionExpression {
-    return FunctionExpression("array_get", [self, Helper.sendableToExpr(offset)])
+    return FunctionExpression(
+      functionName: "array_get",
+      args: [self, Helper.sendableToExpr(offset)]
+    )
   }
 
   func arrayGet(_ offsetExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("array_get", [self, offsetExpression])
+    return FunctionExpression(functionName: "array_get", args: [self, offsetExpression])
   }
 
   func greaterThan(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("greater_than", [self, other])
+    return BooleanExpression(functionName: "greater_than", args: [self, other])
   }
 
   func greaterThan(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("greater_than", [self, exprOther])
+    return BooleanExpression(functionName: "greater_than", args: [self, exprOther])
   }
 
   func greaterThanOrEqual(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("greater_than_or_equal", [self, other])
+    return BooleanExpression(functionName: "greater_than_or_equal", args: [self, other])
   }
 
   func greaterThanOrEqual(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("greater_than_or_equal", [self, exprOther])
+    return BooleanExpression(functionName: "greater_than_or_equal", args: [self, exprOther])
   }
 
   func lessThan(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("less_than", [self, other])
+    return BooleanExpression(functionName: "less_than", args: [self, other])
   }
 
   func lessThan(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("less_than", [self, exprOther])
+    return BooleanExpression(functionName: "less_than", args: [self, exprOther])
   }
 
   func lessThanOrEqual(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("less_than_or_equal", [self, other])
+    return BooleanExpression(functionName: "less_than_or_equal", args: [self, other])
   }
 
   func lessThanOrEqual(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("less_than_or_equal", [self, exprOther])
+    return BooleanExpression(functionName: "less_than_or_equal", args: [self, exprOther])
   }
 
   func equal(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("equal", [self, other])
+    return BooleanExpression(functionName: "equal", args: [self, other])
   }
 
   func equal(_ other: Sendable) -> BooleanExpression {
     let exprOther = Helper.sendableToExpr(other)
-    return BooleanExpression("equal", [self, exprOther])
+    return BooleanExpression(functionName: "equal", args: [self, exprOther])
   }
 
   func notEqual(_ other: Expression) -> BooleanExpression {
-    return BooleanExpression("not_equal", [self, other])
+    return BooleanExpression(functionName: "not_equal", args: [self, other])
   }
 
   func notEqual(_ other: Sendable) -> BooleanExpression {
-    return BooleanExpression("not_equal", [self, Helper.sendableToExpr(other)])
+    return BooleanExpression(functionName: "not_equal", args: [self, Helper.sendableToExpr(other)])
   }
 
   func equalAny(_ others: [Expression]) -> BooleanExpression {
-    return BooleanExpression("equal_any", [self, Helper.array(others)])
+    return BooleanExpression(functionName: "equal_any", args: [self, Helper.array(others)])
   }
 
   func equalAny(_ others: [Sendable]) -> BooleanExpression {
-    return BooleanExpression("equal_any", [self, Helper.array(others)])
+    return BooleanExpression(functionName: "equal_any", args: [self, Helper.array(others)])
   }
 
   func equalAny(_ arrayExpression: Expression) -> BooleanExpression {
-    return BooleanExpression("equal_any", [self, arrayExpression])
+    return BooleanExpression(functionName: "equal_any", args: [self, arrayExpression])
   }
 
   func notEqualAny(_ others: [Expression]) -> BooleanExpression {
-    return BooleanExpression("not_equal_any", [self, Helper.array(others)])
+    return BooleanExpression(functionName: "not_equal_any", args: [self, Helper.array(others)])
   }
 
   func notEqualAny(_ others: [Sendable]) -> BooleanExpression {
-    return BooleanExpression("not_equal_any", [self, Helper.array(others)])
+    return BooleanExpression(functionName: "not_equal_any", args: [self, Helper.array(others)])
   }
 
   func notEqualAny(_ arrayExpression: Expression) -> BooleanExpression {
-    return BooleanExpression("not_equal_any", [self, arrayExpression])
+    return BooleanExpression(functionName: "not_equal_any", args: [self, arrayExpression])
   }
 
   // MARK: Checks
@@ -580,322 +605,402 @@ public extension Expression {
   // --- Added Type Check Operations ---
 
   func isNan() -> BooleanExpression {
-    return BooleanExpression("is_nan", [self])
+    return BooleanExpression(functionName: "is_nan", args: [self])
   }
 
   func isNil() -> BooleanExpression {
-    return BooleanExpression("is_null", [self])
+    return BooleanExpression(functionName: "is_null", args: [self])
   }
 
   func exists() -> BooleanExpression {
-    return BooleanExpression("exists", [self])
+    return BooleanExpression(functionName: "exists", args: [self])
   }
 
   func isError() -> BooleanExpression {
-    return BooleanExpression("is_error", [self])
+    return BooleanExpression(functionName: "is_error", args: [self])
   }
 
   func isAbsent() -> BooleanExpression {
-    return BooleanExpression("is_absent", [self])
+    return BooleanExpression(functionName: "is_absent", args: [self])
   }
 
   func isNotNil() -> BooleanExpression {
-    return BooleanExpression("is_not_null", [self])
+    return BooleanExpression(functionName: "is_not_null", args: [self])
   }
 
   func isNotNan() -> BooleanExpression {
-    return BooleanExpression("is_not_nan", [self])
+    return BooleanExpression(functionName: "is_not_nan", args: [self])
   }
 
   // --- Added String Operations ---
 
   func join(delimiter: String) -> FunctionExpression {
-    return FunctionExpression("join", [self, Constant(delimiter)])
+    return FunctionExpression(functionName: "join", args: [self, Constant(delimiter)])
   }
 
   func length() -> FunctionExpression {
-    return FunctionExpression("length", [self])
+    return FunctionExpression(functionName: "length", args: [self])
   }
 
   func charLength() -> FunctionExpression {
-    return FunctionExpression("char_length", [self])
+    return FunctionExpression(functionName: "char_length", args: [self])
   }
 
   func like(_ pattern: String) -> BooleanExpression {
-    return BooleanExpression("like", [self, Helper.sendableToExpr(pattern)])
+    return BooleanExpression(functionName: "like", args: [self, Helper.sendableToExpr(pattern)])
   }
 
   func like(_ pattern: Expression) -> BooleanExpression {
-    return BooleanExpression("like", [self, pattern])
+    return BooleanExpression(functionName: "like", args: [self, pattern])
   }
 
   func regexContains(_ pattern: String) -> BooleanExpression {
-    return BooleanExpression("regex_contains", [self, Helper.sendableToExpr(pattern)])
+    return BooleanExpression(
+      functionName: "regex_contains",
+      args: [self, Helper.sendableToExpr(pattern)]
+    )
   }
 
   func regexContains(_ pattern: Expression) -> BooleanExpression {
-    return BooleanExpression("regex_contains", [self, pattern])
+    return BooleanExpression(functionName: "regex_contains", args: [self, pattern])
   }
 
   func regexMatch(_ pattern: String) -> BooleanExpression {
-    return BooleanExpression("regex_match", [self, Helper.sendableToExpr(pattern)])
+    return BooleanExpression(
+      functionName: "regex_match",
+      args: [self, Helper.sendableToExpr(pattern)]
+    )
   }
 
   func regexMatch(_ pattern: Expression) -> BooleanExpression {
-    return BooleanExpression("regex_match", [self, pattern])
+    return BooleanExpression(functionName: "regex_match", args: [self, pattern])
   }
 
   func stringContains(_ substring: String) -> BooleanExpression {
-    return BooleanExpression("string_contains", [self, Helper.sendableToExpr(substring)])
+    return BooleanExpression(
+      functionName: "string_contains",
+      args: [self, Helper.sendableToExpr(substring)]
+    )
   }
 
   func stringContains(_ expression: Expression) -> BooleanExpression {
-    return BooleanExpression("string_contains", [self, expression])
+    return BooleanExpression(functionName: "string_contains", args: [self, expression])
   }
 
   func startsWith(_ prefix: String) -> BooleanExpression {
-    return BooleanExpression("starts_with", [self, Helper.sendableToExpr(prefix)])
+    return BooleanExpression(
+      functionName: "starts_with",
+      args: [self, Helper.sendableToExpr(prefix)]
+    )
   }
 
   func startsWith(_ prefix: Expression) -> BooleanExpression {
-    return BooleanExpression("starts_with", [self, prefix])
+    return BooleanExpression(functionName: "starts_with", args: [self, prefix])
   }
 
   func endsWith(_ suffix: String) -> BooleanExpression {
-    return BooleanExpression("ends_with", [self, Helper.sendableToExpr(suffix)])
+    return BooleanExpression(functionName: "ends_with", args: [self, Helper.sendableToExpr(suffix)])
   }
 
   func endsWith(_ suffix: Expression) -> BooleanExpression {
-    return BooleanExpression("ends_with", [self, suffix])
+    return BooleanExpression(functionName: "ends_with", args: [self, suffix])
   }
 
   func toLower() -> FunctionExpression {
-    return FunctionExpression("to_lower", [self])
+    return FunctionExpression(functionName: "to_lower", args: [self])
   }
 
   func toUpper() -> FunctionExpression {
-    return FunctionExpression("to_upper", [self])
+    return FunctionExpression(functionName: "to_upper", args: [self])
   }
 
-  func trim() -> FunctionExpression {
-    return FunctionExpression("trim", [self])
+  func trim(_ value: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "trim",
+      args: [self, Helper.sendableToExpr(value)]
+    )
+  }
+
+  func trim(_ value: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "trim", args: [self, value])
   }
 
   func stringConcat(_ strings: [Expression]) -> FunctionExpression {
-    return FunctionExpression("string_concat", [self] + strings)
+    return FunctionExpression(functionName: "string_concat", args: [self] + strings)
   }
 
   func stringConcat(_ strings: [Sendable]) -> FunctionExpression {
     let exprs = [self] + strings.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("string_concat", exprs)
+    return FunctionExpression(functionName: "string_concat", args: exprs)
   }
 
   func reverse() -> FunctionExpression {
-    return FunctionExpression("reverse", [self])
+    return FunctionExpression(functionName: "reverse", args: [self])
   }
 
   func stringReverse() -> FunctionExpression {
-    return FunctionExpression("string_reverse", [self])
+    return FunctionExpression(functionName: "string_reverse", args: [self])
   }
 
   func byteLength() -> FunctionExpression {
-    return FunctionExpression("byte_length", [self])
+    return FunctionExpression(functionName: "byte_length", args: [self])
   }
 
   func substring(position: Int, length: Int? = nil) -> FunctionExpression {
     let positionExpr = Helper.sendableToExpr(position)
     if let length = length {
-      return FunctionExpression("substring", [self, positionExpr, Helper.sendableToExpr(length)])
+      return FunctionExpression(
+        functionName: "substring",
+        args: [self, positionExpr, Helper.sendableToExpr(length)]
+      )
     } else {
-      return FunctionExpression("substring", [self, positionExpr])
+      return FunctionExpression(functionName: "substring", args: [self, positionExpr])
     }
   }
 
   func substring(position: Expression, length: Expression? = nil) -> FunctionExpression {
     if let length = length {
-      return FunctionExpression("substring", [self, position, length])
+      return FunctionExpression(functionName: "substring", args: [self, position, length])
     } else {
-      return FunctionExpression("substring", [self, position])
+      return FunctionExpression(functionName: "substring", args: [self, position])
     }
   }
 
   // --- Added Map Operations ---
 
   func mapGet(_ subfield: String) -> FunctionExpression {
-    return FunctionExpression("map_get", [self, Constant(subfield)])
+    return FunctionExpression(functionName: "map_get", args: [self, Constant(subfield)])
   }
 
   func mapRemove(_ key: String) -> FunctionExpression {
-    return FunctionExpression("map_remove", [self, Helper.sendableToExpr(key)])
+    return FunctionExpression(functionName: "map_remove", args: [self, Helper.sendableToExpr(key)])
   }
 
   func mapRemove(_ keyExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("map_remove", [self, keyExpression])
+    return FunctionExpression(functionName: "map_remove", args: [self, keyExpression])
   }
 
   func mapMerge(_ maps: [[String: Sendable]]) -> FunctionExpression {
     let mapExprs = maps.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("map_merge", [self] + mapExprs)
+    return FunctionExpression(functionName: "map_merge", args: [self] + mapExprs)
   }
 
   func mapMerge(_ maps: [Expression]) -> FunctionExpression {
-    return FunctionExpression("map_merge", [self] + maps)
+    return FunctionExpression(functionName: "map_merge", args: [self] + maps)
+  }
+
+  func mapSet(key: Expression, value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "map_set",
+      args: [self, key, Helper.sendableToExpr(value)]
+    )
+  }
+
+  func mapSet(key: String, value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "map_set",
+      args: [self, Helper.sendableToExpr(key), Helper.sendableToExpr(value)]
+    )
   }
 
   // --- Added Aggregate Operations (on Expr) ---
 
   func countDistinct() -> AggregateFunction {
-    return AggregateFunction("count_distinct", [self])
+    return AggregateFunction(functionName: "count_distinct", args: [self])
   }
 
   func count() -> AggregateFunction {
-    return AggregateFunction("count", [self])
+    return AggregateFunction(functionName: "count", args: [self])
   }
 
   func sum() -> AggregateFunction {
-    return AggregateFunction("sum", [self])
+    return AggregateFunction(functionName: "sum", args: [self])
   }
 
   func average() -> AggregateFunction {
-    return AggregateFunction("average", [self])
+    return AggregateFunction(functionName: "average", args: [self])
   }
 
   func minimum() -> AggregateFunction {
-    return AggregateFunction("minimum", [self])
+    return AggregateFunction(functionName: "minimum", args: [self])
   }
 
   func maximum() -> AggregateFunction {
-    return AggregateFunction("maximum", [self])
+    return AggregateFunction(functionName: "maximum", args: [self])
   }
 
   // MARK: Logical min/max
 
   func logicalMaximum(_ expressions: [Expression]) -> FunctionExpression {
-    return FunctionExpression("maximum", [self] + expressions)
+    return FunctionExpression(functionName: "maximum", args: [self] + expressions)
   }
 
   func logicalMaximum(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("maximum", exprs)
+    return FunctionExpression(functionName: "maximum", args: exprs)
   }
 
   func logicalMinimum(_ expressions: [Expression]) -> FunctionExpression {
-    return FunctionExpression("minimum", [self] + expressions)
+    return FunctionExpression(functionName: "minimum", args: [self] + expressions)
   }
 
   func logicalMinimum(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("minimum", exprs)
+    return FunctionExpression(functionName: "minimum", args: exprs)
   }
 
   // MARK: Vector Operations
 
   func vectorLength() -> FunctionExpression {
-    return FunctionExpression("vector_length", [self])
+    return FunctionExpression(functionName: "vector_length", args: [self])
   }
 
   func cosineDistance(_ expression: Expression) -> FunctionExpression {
-    return FunctionExpression("cosine_distance", [self, expression])
+    return FunctionExpression(functionName: "cosine_distance", args: [self, expression])
   }
 
   func cosineDistance(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression("cosine_distance", [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "cosine_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func cosineDistance(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression("cosine_distance", [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "cosine_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func dotProduct(_ expression: Expression) -> FunctionExpression {
-    return FunctionExpression("dot_product", [self, expression])
+    return FunctionExpression(functionName: "dot_product", args: [self, expression])
   }
 
   func dotProduct(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression("dot_product", [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "dot_product",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func dotProduct(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression("dot_product", [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "dot_product",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func euclideanDistance(_ expression: Expression) -> FunctionExpression {
-    return FunctionExpression("euclidean_distance", [self, expression])
+    return FunctionExpression(functionName: "euclidean_distance", args: [self, expression])
   }
 
   func euclideanDistance(_ vector: VectorValue) -> FunctionExpression {
-    return FunctionExpression("euclidean_distance", [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "euclidean_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   func euclideanDistance(_ vector: [Double]) -> FunctionExpression {
-    return FunctionExpression("euclidean_distance", [self, Helper.sendableToExpr(vector)])
+    return FunctionExpression(
+      functionName: "euclidean_distance",
+      args: [self, Helper.sendableToExpr(vector)]
+    )
   }
 
   // MARK: Timestamp operations
 
   func unixMicrosToTimestamp() -> FunctionExpression {
-    return FunctionExpression("unix_micros_to_timestamp", [self])
+    return FunctionExpression(functionName: "unix_micros_to_timestamp", args: [self])
   }
 
   func timestampToUnixMicros() -> FunctionExpression {
-    return FunctionExpression("timestamp_to_unix_micros", [self])
+    return FunctionExpression(functionName: "timestamp_to_unix_micros", args: [self])
   }
 
   func unixMillisToTimestamp() -> FunctionExpression {
-    return FunctionExpression("unix_millis_to_timestamp", [self])
+    return FunctionExpression(functionName: "unix_millis_to_timestamp", args: [self])
   }
 
   func timestampToUnixMillis() -> FunctionExpression {
-    return FunctionExpression("timestamp_to_unix_millis", [self])
+    return FunctionExpression(functionName: "timestamp_to_unix_millis", args: [self])
   }
 
   func unixSecondsToTimestamp() -> FunctionExpression {
-    return FunctionExpression("unix_seconds_to_timestamp", [self])
+    return FunctionExpression(functionName: "unix_seconds_to_timestamp", args: [self])
   }
 
   func timestampToUnixSeconds() -> FunctionExpression {
-    return FunctionExpression("timestamp_to_unix_seconds", [self])
+    return FunctionExpression(functionName: "timestamp_to_unix_seconds", args: [self])
   }
 
-  func timestampAdd(amount: Expression, unit: Expression) -> FunctionExpression {
-    return FunctionExpression("timestamp_add", [self, unit, amount])
+  func timestampTruncate(granularity: TimeUnit) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity.rawValue)]
+    )
+  }
+
+  func timestampTruncate(granularity: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_trunc",
+      args: [self, Helper.sendableToExpr(granularity)]
+    )
   }
 
   func timestampAdd(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
-      "timestamp_add",
-      [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
+      functionName: "timestamp_add",
+      args: [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
     )
   }
 
-  func timestampSubtract(amount: Expression, unit: Expression) -> FunctionExpression {
-    return FunctionExpression("timestamp_subtract", [self, unit, amount])
+  func timestampAdd(amount: Expression, unit: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_add",
+      args: [self, Helper.sendableToExpr(unit), amount]
+    )
   }
 
   func timestampSubtract(_ amount: Int, _ unit: TimeUnit) -> FunctionExpression {
     return FunctionExpression(
-      "timestamp_subtract",
-      [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
+      functionName: "timestamp_subtract",
+      args: [self, Helper.sendableToExpr(unit), Helper.sendableToExpr(amount)]
+    )
+  }
+
+  func timestampSubtract(amount: Expression, unit: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "timestamp_subtract",
+      args: [self, Helper.sendableToExpr(unit), amount]
     )
   }
 
   func documentId() -> FunctionExpression {
-    return FunctionExpression("document_id", [self])
+    return FunctionExpression(functionName: "document_id", args: [self])
   }
 
   func collectionId() -> FunctionExpression {
-    return FunctionExpression("collection_id", [self])
+    return FunctionExpression(functionName: "collection_id", args: [self])
   }
 
   func ifError(_ catchExpression: Expression) -> FunctionExpression {
-    return FunctionExpression("if_error", [self, catchExpression])
+    return FunctionExpression(functionName: "if_error", args: [self, catchExpression])
   }
 
   func ifError(_ catchValue: Sendable) -> FunctionExpression {
-    return FunctionExpression("if_error", [self, Helper.sendableToExpr(catchValue)])
+    return FunctionExpression(
+      functionName: "if_error",
+      args: [self, Helper.sendableToExpr(catchValue)]
+    )
   }
 
   func ifAbsent(_ defaultValue: Sendable) -> FunctionExpression {
-    return FunctionExpression("if_absent", [self, Helper.sendableToExpr(defaultValue)])
+    return FunctionExpression(
+      functionName: "if_absent",
+      args: [self, Helper.sendableToExpr(defaultValue)]
+    )
   }
 
   // MARK: Sorting
@@ -910,6 +1015,6 @@ public extension Expression {
 
   func concat(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
-    return FunctionExpression("concat", exprs)
+    return FunctionExpression(functionName: "concat", args: exprs)
   }
 }

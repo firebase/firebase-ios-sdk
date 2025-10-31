@@ -26,9 +26,9 @@
 ///   .collection("users")
 ///   .where(RandomExpression().lessThan(0.1))
 /// ```
-public class RandomExpression: FunctionExpression, @unchecked Sendable {
+class RandomExpression: FunctionExpression, @unchecked Sendable {
   /// Creates a new `RandomExpression` that generates a random number.
-  public init() {
-    super.init("rand", [])
+  init() {
+    super.init(functionName: "rand", args: [])
   }
 }

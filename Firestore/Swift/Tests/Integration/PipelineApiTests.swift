@@ -403,12 +403,12 @@ final class PipelineApiTests: FSTIntegrationTestCase {
 
   func testGeneric() async throws {
     // This is the same of the logicalMin('price', 0)', if it did not exist
-    _ = FunctionExpression("logicalMin", [Field("price"), Constant(0)])
+    _ = FunctionExpression(functionName: "logicalMin", args: [Field("price"), Constant(0)])
 
     // Create a generic BooleanExpr for use where BooleanExpr is required
-    _ = BooleanExpression("eq", [Field("price"), Constant(10)])
+    _ = BooleanExpression(functionName: "eq", args: [Field("price"), Constant(10)])
 
     // Create a generic AggregateFunction for use where AggregateFunction is required
-    _ = AggregateFunction("sum", [Field("price")])
+    _ = AggregateFunction(functionName: "sum", args: [Field("price")])
   }
 }
