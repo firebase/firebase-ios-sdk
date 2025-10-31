@@ -19,8 +19,8 @@ import XCTest
 final class TemplateInputTests: XCTestCase {
   func testInitWithFloat() throws {
     let floatValue: Float = 3.14
-    let templateInput = try TemplateInput(value: floatValue)
-    guard case let .double(doubleValue) = templateInput else {
+    let templateInput = TemplateInput(floatValue)
+    guard case let .number(doubleValue) = templateInput.value else {
       XCTFail("Expected a .double case, but got \(templateInput)")
       return
     }
