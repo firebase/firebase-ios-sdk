@@ -34,7 +34,7 @@ extension TemplateGenerateContentRequest: Encodable {
 
   func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(inputs, forKey: .inputs)
+    try container.encode(inputs.mapValues { $0.value }, forKey: .inputs)
     try container.encode(history, forKey: .history)
   }
 }

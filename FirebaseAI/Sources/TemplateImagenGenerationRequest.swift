@@ -62,6 +62,6 @@ extension TemplateImagenGenerationRequest: Encodable {
 
   func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(inputs, forKey: .inputs)
+    try container.encode(inputs.mapValues { $0.value }, forKey: .inputs)
   }
 }

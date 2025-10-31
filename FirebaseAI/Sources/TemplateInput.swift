@@ -14,53 +14,20 @@
 
 import Foundation
 
-enum TemplateInput: Encodable, Sendable {
-  case string(String)
-  case int(Int)
-  case double(Double)
-  case bool(Bool)
-  case array([TemplateInput])
-  case dictionary([String: TemplateInput])
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct TemplateInput: Sendable {
+  let value: JSONValue
 
-  init(value: Any) throws {
-    switch value {
-    case let value as String:
-      self = .string(value)
-    case let value as Int:
-      self = .int(value)
-    case let value as Double:
-      self = .double(value)
-    case let value as Float:
-      self = .double(Double(value))
-    case let value as Bool:
-      self = .bool(value)
-    case let value as [Any]:
-      self = try .array(value.map { try TemplateInput(value: $0) })
-    case let value as [String: Any]:
-      self = try .dictionary(value.mapValues { try TemplateInput(value: $0) })
-    default:
-      throw EncodingError.invalidValue(
-        value,
-        EncodingError.Context(codingPath: [], debugDescription: "Invalid value")
-      )
-    }
+  public init(_ input: some TemplateInputRepresentable) {
+    self = .init(value: input.templateInputRepresentation.value)
   }
 
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    switch self {
-    case let .string(value):
-      try container.encode(value)
-    case let .int(value):
-      try container.encode(value)
-    case let .double(value):
-      try container.encode(value)
-    case let .bool(value):
-      try container.encode(value)
-    case let .array(value):
-      try container.encode(value)
-    case let .dictionary(value):
-      try container.encode(value)
-    }
+  init(value: JSONValue) {
+    self.value = value
   }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension TemplateInput: TemplateInputRepresentable {
+  public var templateInputRepresentation: TemplateInput { self }
 }
