@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed a bug where Remote Config does not work after a restore
+  of a previous backup of the device. (#14459)
+- [fixed] Fixed a data race condition on the global database status flag
+  by synchronizing all read and write operations. (#14715)
+
 # 12.3.0
 - [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
   building dynamically linked libraries. (#15276)

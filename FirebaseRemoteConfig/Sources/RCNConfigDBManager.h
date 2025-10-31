@@ -130,4 +130,8 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 
 /// Returns true if this a new install of the Config database.
 - (BOOL)isNewDatabase;
+
+/// Blocks the calling thread until all pending database operations on the internal serial queue are
+/// completed. Used to enforce initialization order.
+- (void)waitForDatabaseOperationQueue;
 @end
