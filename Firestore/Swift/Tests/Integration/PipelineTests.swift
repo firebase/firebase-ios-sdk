@@ -3917,4 +3917,33 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
+
+  func testArrayMaxMinWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["scores": [10, 20, 5]],
+      "doc2": ["scores": [-1, -5, 0]],
+      "doc3": ["scores": [100.5, 99.5, 100.6]],
+      "doc4": ["scores": []],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .sort([Field(FieldPath.documentID()).ascending()])
+      .select([
+        Field("scores").arrayMaximum().as("maxScore"),
+        Field("scores").arrayMinimum().as("minScore"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      ["maxScore": 20, "minScore": 5],
+      ["maxScore": 0, "minScore": -5],
+      ["maxScore": 100.6, "minScore": 99.5],
+      ["maxScore": nil, "minScore": nil],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
 }

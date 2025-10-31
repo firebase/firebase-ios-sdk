@@ -461,6 +461,30 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
   func arrayGet(_ offsetExpression: Expression) -> FunctionExpression
 
+  /// Creates an expression that returns the maximum element of an array.
+  ///
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the maximum value in the "scores" array.
+  /// Field("scores").arrayMaximum()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the maximum element of the array.
+  func arrayMaximum() -> FunctionExpression
+
+  /// Creates an expression that returns the minimum element of an array.
+  ///
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the minimum value in the "scores" array.
+  /// Field("scores").arrayMinimum()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the minimum element of the array.
+  func arrayMinimum() -> FunctionExpression
+
   /// Creates a `BooleanExpression` that returns `true` if this expression is greater
   /// than the given expression.
   ///

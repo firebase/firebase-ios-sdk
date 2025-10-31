@@ -523,6 +523,14 @@ public extension Expression {
     return FunctionExpression(functionName: "array_get", args: [self, offsetExpression])
   }
 
+  func arrayMaximum() -> FunctionExpression {
+    return FunctionExpression(functionName: "maximum", args: [self])
+  }
+
+  func arrayMinimum() -> FunctionExpression {
+    return FunctionExpression(functionName: "minimum", args: [self])
+  }
+
   func greaterThan(_ other: Expression) -> BooleanExpression {
     return BooleanExpression(functionName: "greater_than", args: [self, other])
   }
