@@ -1023,4 +1023,8 @@ public extension Expression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
     return FunctionExpression(functionName: "concat", args: exprs)
   }
+
+  func type() -> FunctionExpression {
+    return FunctionExpression(functionName: "type", args: [self])
+  }
 }

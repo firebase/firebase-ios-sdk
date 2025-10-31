@@ -1643,4 +1643,14 @@ public protocol Expression: Sendable {
   /// - Parameter values: The values to concatenate.
   /// - Returns: A new `FunctionExpression` representing the concatenated result.
   func concat(_ values: [Sendable]) -> FunctionExpression
+
+  /// Creates an expression that returns the type of the expression.
+  ///
+  /// ```swift
+  /// // Get the type of the "rating" field.
+  /// Field("rating").type()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
+  func type() -> FunctionExpression
 }

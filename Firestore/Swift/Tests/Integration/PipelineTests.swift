@@ -3946,4 +3946,56 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
+
+  func testTypeWorks() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": [
+        "a": 1,
+        "b": "hello",
+        "c": true,
+        "d": [1, 2],
+        "e": ["f": "g"],
+        "f": GeoPoint(latitude: 1, longitude: 2),
+        "g": Timestamp(date: Date()),
+        "h": Data([1, 2, 3]),
+        "i": NSNull(),
+        "j": Double.nan,
+      ],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("a").type().as("type_a"),
+        Field("b").type().as("type_b"),
+        Field("c").type().as("type_c"),
+        Field("d").type().as("type_d"),
+        Field("e").type().as("type_e"),
+        Field("f").type().as("type_f"),
+        Field("g").type().as("type_g"),
+        Field("h").type().as("type_h"),
+        Field("i").type().as("type_i"),
+        Field("j").type().as("type_j"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "type_a": "int64",
+        "type_b": "string",
+        "type_c": "boolean",
+        "type_d": "array",
+        "type_e": "map",
+        "type_f": "geo_point",
+        "type_g": "timestamp",
+        "type_h": "bytes",
+        "type_i": "null",
+        "type_j": "float64",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: false)
+  }
 }
