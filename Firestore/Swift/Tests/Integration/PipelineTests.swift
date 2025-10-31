@@ -3891,4 +3891,30 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedByteResults, enforceOrder: false)
   }
+
+  func testTrimWorksWithoutArguments() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["text": "  hello world  "],
+      "doc2": ["text": "\t\tFirebase\n\n"],
+      "doc3": ["text": "no_whitespace"],
+    ])
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("text").trim().as("trimmedText"),
+      ])
+      .sort([Field("trimmedText").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["trimmedText": "Firebase"],
+      ["trimmedText": "hello world"],
+      ["trimmedText": "no_whitespace"],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
 }

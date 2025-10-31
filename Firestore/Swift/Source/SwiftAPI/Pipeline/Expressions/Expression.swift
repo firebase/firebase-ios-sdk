@@ -921,6 +921,18 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the uppercase string.
   func toUpper() -> FunctionExpression
 
+  /// Creates an expression that removes leading and trailing whitespace from a string.
+  ///
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Trim leading/trailing whitespace from the "comment" field.
+  /// Field("comment").trim()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the trimmed string.
+  func trim() -> FunctionExpression
+
   /// Creates an expression that removes leading and trailing occurrences of specified characters
   /// from a string (from `self`).
   /// Assumes `self` evaluates to a string, and `value` evaluates to a string.

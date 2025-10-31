@@ -733,6 +733,10 @@ public extension Expression {
     return FunctionExpression(functionName: "trim", args: [self, value])
   }
 
+  func trim() -> FunctionExpression {
+    return FunctionExpression(functionName: "trim", args: [self])
+  }
+
   func stringConcat(_ strings: [Expression]) -> FunctionExpression {
     return FunctionExpression(functionName: "string_concat", args: [self] + strings)
   }
