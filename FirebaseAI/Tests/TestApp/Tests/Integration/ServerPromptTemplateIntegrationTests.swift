@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+// TODO: remove @testable when Template Chat is restored to the public API.
+@testable import FirebaseAILogic
 import Testing
 #if canImport(UIKit)
   import UIKit
@@ -118,7 +119,7 @@ struct ServerPromptTemplateIntegrationTests {
     let base64Image = imageBytes.base64EncodedString()
 
     let stream = try model.generateContentStream(
-      templateID: "media.prompt",
+      templateID: "media",
       inputs: [
         "imageData": [
           "isInline": true,
@@ -165,7 +166,7 @@ struct ServerPromptTemplateIntegrationTests {
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
     ]
-    let chatSession = model.startChat(templateID: "chat_history.prompt", history: initialHistory)
+    let chatSession = model.startChat(templateID: "chat-history", history: initialHistory)
 
     let userMessage = "What's the weather like?"
 

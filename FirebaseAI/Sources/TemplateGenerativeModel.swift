@@ -122,13 +122,15 @@ public final class TemplateGenerativeModel: Sendable {
     return generativeAIService.loadRequestStream(request: request)
   }
 
+  // TODO: Restore `public` determined to be releaseable along with the contents of TemplateChatSession.
+
   /// Creates a new chat conversation using this model with the provided history and template.
   ///
   /// - Parameters:
   ///   - templateID: The ID of the prompt template to use.
   ///   - history: The conversation history to use.
   /// - Returns: A new ``TemplateChatSession`` instance.
-  public func startChat(templateID: String,
+  func startChat(templateID: String,
                         history: [ModelContent] = []) -> TemplateChatSession {
     return TemplateChatSession(
       model: self,
