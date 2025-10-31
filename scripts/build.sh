@@ -158,9 +158,13 @@ if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
   echo "Unsupported Xcode major version being used: $xcode_major"
   exit 1
 else
+  iphone_simulator_name="iPhone 16"
+  if [[ "$xcode_major" -gt 16 ]]; then
+    iphone_simulator_name="iPhone 16e"
+  fi
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 16'
+    -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
   )
     watchos_flags=(
     -sdk 'watchsimulator'

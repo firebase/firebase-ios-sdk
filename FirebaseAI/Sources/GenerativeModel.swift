@@ -59,7 +59,7 @@ public final class GenerativeModel: Sendable {
   /// Initializes a new remote model with the given parameters.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the model, for example "gemini-2.0-flash".
+  ///   - modelName: The name of the model.
   ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
   ///     The form depends on the backend and will be one of:
   ///       - Vertex AI via Firebase AI SDK:
