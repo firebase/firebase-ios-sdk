@@ -14,53 +14,45 @@
 
 import Foundation
 
-enum TemplateInput: Encodable, Sendable {
-  case string(String)
-  case int(Int)
-  case double(Double)
-  case bool(Bool)
-  case array([TemplateInput])
-  case dictionary([String: TemplateInput])
+public struct TemplateInput: Sendable {
+  let kind: Kind
 
-  init(value: Any) throws {
-    switch value {
-    case let value as String:
-      self = .string(value)
-    case let value as Int:
-      self = .int(value)
-    case let value as Double:
-      self = .double(value)
-    case let value as Float:
-      self = .double(Double(value))
-    case let value as Bool:
-      self = .bool(value)
-    case let value as [Any]:
-      self = try .array(value.map { try TemplateInput(value: $0) })
-    case let value as [String: Any]:
-      self = try .dictionary(value.mapValues { try TemplateInput(value: $0) })
-    default:
-      throw EncodingError.invalidValue(
-        value,
-        EncodingError.Context(codingPath: [], debugDescription: "Invalid value")
-      )
-    }
+  public init(_ input: some TemplateInputRepresentable) {
+    self = .init(kind: input.templateInputRepresentation.kind)
   }
 
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    switch self {
-    case let .string(value):
-      try container.encode(value)
-    case let .int(value):
-      try container.encode(value)
-    case let .double(value):
-      try container.encode(value)
-    case let .bool(value):
-      try container.encode(value)
-    case let .array(value):
-      try container.encode(value)
-    case let .dictionary(value):
-      try container.encode(value)
+  init(kind: Kind) {
+    self.kind = kind
+  }
+
+  enum Kind: Encodable, Sendable {
+    case string(String)
+    case int(Int)
+    case double(Double)
+    case bool(Bool)
+    case array([Kind])
+    case dictionary([String: Kind])
+
+    func encode(to encoder: Encoder) throws {
+      var container = encoder.singleValueContainer()
+      switch self {
+      case let .string(value):
+        try container.encode(value)
+      case let .int(value):
+        try container.encode(value)
+      case let .double(value):
+        try container.encode(value)
+      case let .bool(value):
+        try container.encode(value)
+      case let .array(value):
+        try container.encode(value)
+      case let .dictionary(value):
+        try container.encode(value)
+      }
     }
   }
+}
+
+extension TemplateInput: TemplateInputRepresentable {
+  public var templateInputRepresentation: TemplateInput { self }
 }
