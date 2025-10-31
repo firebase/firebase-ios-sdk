@@ -20,36 +20,38 @@ public protocol TemplateInputRepresentable: Encodable, Sendable {
 }
 
 extension String: TemplateInputRepresentable {
-  public var templateInputRepresentation: TemplateInput { TemplateInput(kind: .string(self)) }
+  public var templateInputRepresentation: TemplateInput { TemplateInput(value: .string(self)) }
 }
 
 extension Int: TemplateInputRepresentable {
-  public var templateInputRepresentation: TemplateInput { TemplateInput(kind: .int(self)) }
+  public var templateInputRepresentation: TemplateInput {
+    TemplateInput(value: .number(Double(self)))
+  }
 }
 
 extension Double: TemplateInputRepresentable {
-  public var templateInputRepresentation: TemplateInput { TemplateInput(kind: .double(self)) }
+  public var templateInputRepresentation: TemplateInput { TemplateInput(value: .number(self)) }
 }
 
 extension Float: TemplateInputRepresentable {
   public var templateInputRepresentation: TemplateInput {
-    TemplateInput(kind: .double(Double(self)))
+    TemplateInput(value: .number(Double(self)))
   }
 }
 
 extension Bool: TemplateInputRepresentable {
-  public var templateInputRepresentation: TemplateInput { TemplateInput(kind: .bool(self)) }
+  public var templateInputRepresentation: TemplateInput { TemplateInput(value: .bool(self)) }
 }
 
 extension Array: TemplateInputRepresentable where Element: TemplateInputRepresentable {
   public var templateInputRepresentation: TemplateInput {
-    TemplateInput(kind: .array(map { TemplateInput($0).kind }))
+    TemplateInput(value: .array(map { TemplateInput($0).value }))
   }
 }
 
 extension Dictionary: TemplateInputRepresentable
   where Key == String, Value: TemplateInputRepresentable {
   public var templateInputRepresentation: TemplateInput {
-    TemplateInput(kind: .dictionary(mapValues { TemplateInput($0).kind }))
+    TemplateInput(value: .object(mapValues { TemplateInput($0).value }))
   }
 }

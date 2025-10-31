@@ -15,41 +15,14 @@
 import Foundation
 
 public struct TemplateInput: Sendable {
-  let kind: Kind
+  let value: JSONValue
 
   public init(_ input: some TemplateInputRepresentable) {
-    self = .init(kind: input.templateInputRepresentation.kind)
+    self = .init(value: input.templateInputRepresentation.value)
   }
 
-  init(kind: Kind) {
-    self.kind = kind
-  }
-
-  enum Kind: Encodable, Sendable {
-    case string(String)
-    case int(Int)
-    case double(Double)
-    case bool(Bool)
-    case array([Kind])
-    case dictionary([String: Kind])
-
-    func encode(to encoder: Encoder) throws {
-      var container = encoder.singleValueContainer()
-      switch self {
-      case let .string(value):
-        try container.encode(value)
-      case let .int(value):
-        try container.encode(value)
-      case let .double(value):
-        try container.encode(value)
-      case let .bool(value):
-        try container.encode(value)
-      case let .array(value):
-        try container.encode(value)
-      case let .dictionary(value):
-        try container.encode(value)
-      }
-    }
+  init(value: JSONValue) {
+    self.value = value
   }
 }
 
