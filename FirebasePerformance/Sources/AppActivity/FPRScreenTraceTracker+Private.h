@@ -37,16 +37,6 @@ FOUNDATION_EXTERN NSString *const kFPRSlowFrameCounterName;
 /** Counter name for total frames. */
 FOUNDATION_EXTERN NSString *const kFPRTotalFramesCounterName;
 
-/** Slow frame threshold (for time difference between current and previous frame render time)
- *  in sec.
- */
-FOUNDATION_EXTERN CFTimeInterval const kFPRSlowFrameThreshold;
-
-/** Frozen frame threshold (for time difference between current and previous frame render time)
- *  in sec.
- */
-FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
-
 @interface FPRScreenTraceTracker ()
 
 /** A map table of that has the viewControllers as the keys and their associated trace as the value.
