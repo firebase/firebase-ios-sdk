@@ -13,11 +13,17 @@
 // limitations under the License.
 
 enum Helper {
-  
-  enum HelperError: Error {
+  enum HelperError: Error, LocalizedError {
     case duplicateAlias(String)
+
+    public var errorDescription: String? {
+      switch self {
+      case let .duplicateAlias(message):
+        return message
+      }
+    }
   }
-  
+
   static func sendableToExpr(_ value: Sendable?) -> Expression {
     guard let value = value else {
       return Constant.nil
@@ -39,14 +45,14 @@ enum Helper {
   static func selectablesToMap(selectables: [Selectable]) -> ([String: Expression], Error?) {
     var exprMap = [String: Expression]()
     for selectable in selectables {
-        guard let value = selectable as? SelectableWrapper else {
-            fatalError("Selectable class must conform to SelectableWrapper.")
-        }
-        let alias = value.alias
-        if exprMap.keys.contains(alias) {
-            return ([:], HelperError.duplicateAlias("Duplicate alias '\(alias)' found in selectables."))
-        }
-        exprMap[alias] = value.expr
+      guard let value = selectable as? SelectableWrapper else {
+        fatalError("Selectable class must conform to SelectableWrapper.")
+      }
+      let alias = value.alias
+      if exprMap.keys.contains(alias) {
+        return ([:], HelperError.duplicateAlias("Duplicate alias '\(alias)' found in selectables."))
+      }
+      exprMap[alias] = value.expr
     }
     return (exprMap, nil)
   }
@@ -55,11 +61,14 @@ enum Helper {
     -> ([String: AggregateFunction], Error?) {
     var accumulatorMap = [String: AggregateFunction]()
     for aliasedAggregate in accumulators {
-        let alias = aliasedAggregate.alias
-        if accumulatorMap.keys.contains(alias) {
-            return ([:], HelperError.duplicateAlias("Duplicate alias '\(alias)' found in accumulators."))
-        }
-        accumulatorMap[alias] = aliasedAggregate.aggregate
+      let alias = aliasedAggregate.alias
+      if accumulatorMap.keys.contains(alias) {
+        return (
+          [:],
+          HelperError.duplicateAlias("Duplicate alias '\(alias)' found in accumulators.")
+        )
+      }
+      accumulatorMap[alias] = aliasedAggregate.aggregate
     }
     return (accumulatorMap, nil)
   }

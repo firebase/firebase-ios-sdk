@@ -3967,4 +3967,75 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       enforceOrder: true
     )
   }
+
+  func testAggregateThrowsOnDuplicateAliases() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate([
+        CountAll().as("count"),
+        Field("foo").count().as("count"),
+      ])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(error.localizedDescription.contains("Duplicate alias 'count'"))
+    }
+  }
+
+  func testAggregateThrowsOnDuplicateGroupAliases() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate(
+        [CountAll().as("count")],
+        groups: [Field("bax"), Field("bar").as("bax")]
+      )
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(error.localizedDescription.contains("Duplicate alias 'bax'"))
+    }
+  }
+
+  func testSelectThrowsOnDuplicateAliases() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select([
+        Constant(1).as("foo"),
+        Constant(2).as("foo"),
+      ])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(error.localizedDescription.contains("Duplicate alias 'foo'"))
+    }
+  }
+
+  func testAddFieldsThrowsOnDuplicateAliases() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(["title", "author"])
+      .addFields([
+        Constant("bar").as("foo"),
+        Constant("baz").as("foo"),
+      ])
+      .sort([Field("author").ascending()])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(error.localizedDescription.contains("Duplicate alias 'foo'"))
+    }
+  }
 }

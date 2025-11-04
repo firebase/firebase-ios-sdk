@@ -30,9 +30,9 @@ protocol Stage {
 }
 
 extension Stage {
-    var errorMessage: String? {
-        return nil
-    }
+  var errorMessage: String? {
+    return nil
+  }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -160,12 +160,12 @@ class AddFields: Stage {
     self.selectables = selectables
     let (map, error) = Helper.selectablesToMap(selectables: selectables)
     if let error = error {
-        self.errorMessage = error.localizedDescription
-        self.bridge = AddFieldsStageBridge(fields: [:])
+      errorMessage = error.localizedDescription
+      bridge = AddFieldsStageBridge(fields: [:])
     } else {
-        self.errorMessage = nil
-        let objcAccumulators = map.mapValues { $0.toBridge() }
-        self.bridge = AddFieldsStageBridge(fields: objcAccumulators)
+      errorMessage = nil
+      let objcAccumulators = map.mapValues { $0.toBridge() }
+      bridge = AddFieldsStageBridge(fields: objcAccumulators)
     }
   }
 }
@@ -196,12 +196,12 @@ class Select: Stage {
   init(selections: [Selectable]) {
     let (map, error) = Helper.selectablesToMap(selectables: selections)
     if let error = error {
-        self.errorMessage = error.localizedDescription
-        self.bridge = SelectStageBridge(selections: [:])
+      errorMessage = error.localizedDescription
+      bridge = SelectStageBridge(selections: [:])
     } else {
-        self.errorMessage = nil
-        let objcSelections = map.mapValues { Helper.sendableToExpr($0).toBridge() }
-        self.bridge = SelectStageBridge(selections: objcSelections)
+      errorMessage = nil
+      let objcSelections = map.mapValues { Helper.sendableToExpr($0).toBridge() }
+      bridge = SelectStageBridge(selections: objcSelections)
     }
   }
 }
@@ -215,12 +215,12 @@ class Distinct: Stage {
   init(groups: [Selectable]) {
     let (map, error) = Helper.selectablesToMap(selectables: groups)
     if let error = error {
-        self.errorMessage = error.localizedDescription
-        self.bridge = DistinctStageBridge(groups: [:])
+      errorMessage = error.localizedDescription
+      bridge = DistinctStageBridge(groups: [:])
     } else {
-        self.errorMessage = nil
-        let objcGroups = map.mapValues { Helper.sendableToExpr($0).toBridge() }
-        self.bridge = DistinctStageBridge(groups: objcGroups)
+      errorMessage = nil
+      let objcGroups = map.mapValues { Helper.sendableToExpr($0).toBridge() }
+      bridge = DistinctStageBridge(groups: objcGroups)
     }
   }
 }
@@ -237,23 +237,23 @@ class Aggregate: Stage {
     self.accumulators = accumulators
 
     if let groups = groups {
-        let (map, error) = Helper.selectablesToMap(selectables: groups)
-        if let error = error {
-            self.errorMessage = error.localizedDescription
-            self.bridge = AggregateStageBridge(accumulators: [:], groups: [:])
-            return
-        }
-        self.groups = map
+      let (map, error) = Helper.selectablesToMap(selectables: groups)
+      if let error = error {
+        errorMessage = error.localizedDescription
+        bridge = AggregateStageBridge(accumulators: [:], groups: [:])
+        return
+      }
+      self.groups = map
     }
 
     let (accumulatorsMap, error) = Helper.aliasedAggregatesToMap(accumulators: accumulators)
     if let error = error {
-        self.errorMessage = error.localizedDescription
-        self.bridge = AggregateStageBridge(accumulators: [:], groups: [:])
-        return
+      errorMessage = error.localizedDescription
+      bridge = AggregateStageBridge(accumulators: [:], groups: [:])
+      return
     }
-    
-    self.errorMessage = nil
+
+    errorMessage = nil
     let accumulatorBridgesMap = accumulatorsMap.mapValues { $0.bridge }
     bridge = AggregateStageBridge(
       accumulators: accumulatorBridgesMap,
