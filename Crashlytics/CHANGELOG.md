@@ -1,3 +1,6 @@
+# 12.4.0
+- [fixed] Make set development platform APIs to chain on Crashlytics context init promise.
+
 # 12.3.0
 - [fixed] Add missing nanopb dependency to fix SwiftPM builds when building
   dynamically linked libraries. (#15276)

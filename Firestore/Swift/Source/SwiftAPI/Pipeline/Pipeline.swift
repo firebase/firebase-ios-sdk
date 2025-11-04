@@ -250,7 +250,6 @@ public struct Pipeline: @unchecked Sendable {
   /// output documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func select(_ selections: [Selectable]) -> Pipeline {
-    print("errorMessage in ppl: \(errorMessage)")
     if let errorMessage = errorMessage {
       return Pipeline(stages: [], db: db, errorMessage: errorMessage)
     }

@@ -604,14 +604,6 @@ public extension Expression {
 
   // --- Added Type Check Operations ---
 
-  func isNan() -> BooleanExpression {
-    return BooleanExpression(functionName: "is_nan", args: [self])
-  }
-
-  func isNil() -> BooleanExpression {
-    return BooleanExpression(functionName: "is_null", args: [self])
-  }
-
   func exists() -> BooleanExpression {
     return BooleanExpression(functionName: "exists", args: [self])
   }
@@ -622,14 +614,6 @@ public extension Expression {
 
   func isAbsent() -> BooleanExpression {
     return BooleanExpression(functionName: "is_absent", args: [self])
-  }
-
-  func isNotNil() -> BooleanExpression {
-    return BooleanExpression(functionName: "is_not_null", args: [self])
-  }
-
-  func isNotNan() -> BooleanExpression {
-    return BooleanExpression(functionName: "is_not_nan", args: [self])
   }
 
   // --- Added String Operations ---

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
@@ -23,7 +23,7 @@ import Testing
   import UIKit
 #endif // canImport(UIKit)
 
-@testable import struct FirebaseAI.BackendError
+@testable import struct FirebaseAILogic.BackendError
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
@@ -421,6 +421,39 @@ struct GenerateContentIntegrationTests {
       for index in support.groundingChunkIndices {
         #expect(index < groundingMetadata.groundingChunks.count)
       }
+    }
+  }
+
+  @Test(
+    "generateContent with URL Context",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_Flash,
+      tools: [.urlContext()]
+    )
+    let url = "https://developers.googleblog.com/en/introducing-gemma-3-270m/"
+    let prompt = "Write a one paragraph summary of this blog post: \(url)"
+
+    // TODO(#15385): Remove `withKnownIssue` when the URL Context tool works consistently using the
+    // Gemini Developer API.
+    try await withKnownIssue(isIntermittent: true) {
+      let response = try await model.generateContent(prompt)
+
+      let candidate = try #require(response.candidates.first)
+      let urlContextMetadata = try #require(candidate.urlContextMetadata)
+      #expect(urlContextMetadata.urlMetadata.count == 1)
+      let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
+      let retrievedURL = try #require(urlMetadata.retrievedURL)
+      #expect(retrievedURL == URL(string: url))
+      #expect(urlMetadata.retrievalStatus == .success)
+    } when: {
+      // This issue only impacts the Gemini Developer API (Google AI), Vertex AI is unaffected.
+      if case .googleAI = config.apiConfig.service {
+        return true
+      }
+      return false
     }
   }
 
