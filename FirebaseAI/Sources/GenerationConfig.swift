@@ -48,6 +48,11 @@ public struct GenerationConfig: Sendable {
   /// Output schema of the generated candidate text.
   let responseSchema: Schema?
 
+  /// Output schema of the generated response in [JSON Schema](https://json-schema.org/) format.
+  ///
+  /// If set, `responseSchema` must be omitted and `responseMIMEType` is required.
+  let responseJSONSchema: JSONObject?
+
   /// Supported modalities of the response.
   let responseModalities: [ResponseModality]?
 
@@ -175,6 +180,26 @@ public struct GenerationConfig: Sendable {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
+    responseJSONSchema = nil
+    self.responseModalities = responseModalities
+    self.thinkingConfig = thinkingConfig
+  }
+
+  init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
+       maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
+       stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONObject,
+       responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil) {
+    self.temperature = temperature
+    self.topP = topP
+    self.topK = topK
+    self.candidateCount = candidateCount
+    self.maxOutputTokens = maxOutputTokens
+    self.presencePenalty = presencePenalty
+    self.frequencyPenalty = frequencyPenalty
+    self.stopSequences = stopSequences
+    self.responseMIMEType = responseMIMEType
+    responseSchema = nil
+    self.responseJSONSchema = responseJSONSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
   }
@@ -195,6 +220,7 @@ extension GenerationConfig: Encodable {
     case stopSequences
     case responseMIMEType = "responseMimeType"
     case responseSchema
+    case responseJSONSchema = "responseJsonSchema"
     case responseModalities
     case thinkingConfig
   }

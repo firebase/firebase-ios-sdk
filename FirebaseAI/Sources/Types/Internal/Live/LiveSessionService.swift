@@ -105,7 +105,7 @@ actor LiveSessionService {
 
   /// Start a new connection to the backend.
   ///
-  /// Seperated into its own function to make it easier to surface a way to call it seperately when
+  /// Separated into its own function to make it easier to surface a way to call it separately when
   /// resuming the same session.
   ///
   /// This function will yield until the websocket is ready to communicate with the client.

@@ -67,15 +67,24 @@ public final class LiveSession: Sendable {
     await service.send(.realtimeInput(message))
   }
 
-  /// Sends a video input stream to the model, using the realtime API.
+  /// Sends a video frame to the model, using the realtime API.
+  ///
+  /// Instead of raw video data, the model expects individual frames of the video,
+  /// sent as images.
+  ///
+  /// If your video has audio, send it separately through ``LiveSession/sendAudioRealtime(_:)``.
+  ///
+  /// For better performance, frames can also be sent at a lower rate than the video;
+  /// even as low as 1 frame per second.
   ///
   /// - Parameters:
-  ///   - video: Encoded video data, used to update the model on the client's conversation.
-  ///   - format: The format that the video was encoded in (eg; `mp4`, `webm`, `wmv`, etc.,).
-  // TODO: (b/448671945) Make public after testing and next release
-  func sendVideoRealtime(_ video: Data, format: String) async {
+  ///   - video: Encoded image data extracted from a frame of the video, used to update the model on
+  ///     the client's conversation.
+  ///   - mimeType: The IANA standard MIME type of the video frame data (eg; `images/png`,
+  ///     `images/jpeg`etc.,).
+  public func sendVideoRealtime(_ video: Data, mimeType: String) async {
     let message = BidiGenerateContentRealtimeInput(
-      video: InlineData(data: video, mimeType: "video/\(format)")
+      video: InlineData(data: video, mimeType: mimeType)
     )
     await service.send(.realtimeInput(message))
   }

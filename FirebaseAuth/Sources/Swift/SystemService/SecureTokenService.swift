@@ -38,7 +38,7 @@ actor SecureTokenServiceInternal {
 
   /// Makes a request to STS for an access token.
   ///
-  /// This handles both the case that the token has not been granted yet and that it just needs
+  /// This handles both the case that the token has not been granted yet and that it just
   /// needs to be refreshed.
   ///
   /// - Returns: Token and Bool indicating if update occurred.
