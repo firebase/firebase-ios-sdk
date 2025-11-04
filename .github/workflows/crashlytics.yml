@@ -18,7 +18,7 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile*'
   schedule:
-    # Run every day at 11pm (PDT) / 3am (EDT) - cron uses UTC times
+    # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
     - cron:  '0 6 * * *'
 
 concurrency:
