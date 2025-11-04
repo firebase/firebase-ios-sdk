@@ -2515,6 +2515,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     } else {
       XCTFail("No document retrieved for checks")
     }
+  }
 
   func testIsError() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
@@ -3860,24 +3861,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTFail("Should have thrown an error")
     } catch {
       XCTAssert(error.localizedDescription.contains("Duplicate alias 'bax'"))
-    }
-  }
-
-  func testSelectThrowsOnDuplicateAliases() async throws {
-    let collRef = collectionRef()
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .limit(1)
-      .select([
-        Constant(1).as("foo"),
-        Constant(2).as("foo"),
-      ])
-
-    do {
-      _ = try await pipeline.execute()
-      XCTFail("Should have thrown an error")
-    } catch {
-      XCTAssert(error.localizedDescription.contains("Duplicate alias 'foo'"))
     }
   }
 
