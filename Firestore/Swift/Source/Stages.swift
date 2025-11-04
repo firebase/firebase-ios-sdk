@@ -26,6 +26,13 @@ import Foundation
 protocol Stage {
   var name: String { get }
   var bridge: StageBridge { get }
+  var errorMessage: String? { get }
+}
+
+extension Stage {
+    var errorMessage: String? {
+        return nil
+    }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -147,12 +154,19 @@ class AddFields: Stage {
   let name: String = "add_fields"
   let bridge: StageBridge
   private var selectables: [Selectable]
+  let errorMessage: String?
 
   init(selectables: [Selectable]) {
     self.selectables = selectables
-    let map = Helper.selectablesToMap(selectables: selectables)
-    let objcAccumulators = map.mapValues { $0.toBridge() }
-    bridge = AddFieldsStageBridge(fields: objcAccumulators)
+    let (map, error) = Helper.selectablesToMap(selectables: selectables)
+    if let error = error {
+        self.errorMessage = error.localizedDescription
+        self.bridge = AddFieldsStageBridge(fields: [:])
+    } else {
+        self.errorMessage = nil
+        let objcAccumulators = map.mapValues { $0.toBridge() }
+        self.bridge = AddFieldsStageBridge(fields: objcAccumulators)
+    }
   }
 }
 
@@ -177,11 +191,18 @@ class RemoveFieldsStage: Stage {
 class Select: Stage {
   let name: String = "select"
   let bridge: StageBridge
+  let errorMessage: String?
 
   init(selections: [Selectable]) {
-    let map = Helper.selectablesToMap(selectables: selections)
-    bridge = SelectStageBridge(selections: map
-      .mapValues { Helper.sendableToExpr($0).toBridge() })
+    let (map, error) = Helper.selectablesToMap(selectables: selections)
+    if let error = error {
+        self.errorMessage = error.localizedDescription
+        self.bridge = SelectStageBridge(selections: [:])
+    } else {
+        self.errorMessage = nil
+        let objcSelections = map.mapValues { Helper.sendableToExpr($0).toBridge() }
+        self.bridge = SelectStageBridge(selections: objcSelections)
+    }
   }
 }
 
@@ -189,11 +210,18 @@ class Select: Stage {
 class Distinct: Stage {
   let name: String = "distinct"
   let bridge: StageBridge
+  let errorMessage: String?
 
   init(groups: [Selectable]) {
-    let map = Helper.selectablesToMap(selectables: groups)
-    bridge = DistinctStageBridge(groups: map
-      .mapValues { Helper.sendableToExpr($0).toBridge() })
+    let (map, error) = Helper.selectablesToMap(selectables: groups)
+    if let error = error {
+        self.errorMessage = error.localizedDescription
+        self.bridge = DistinctStageBridge(groups: [:])
+    } else {
+        self.errorMessage = nil
+        let objcGroups = map.mapValues { Helper.sendableToExpr($0).toBridge() }
+        self.bridge = DistinctStageBridge(groups: objcGroups)
+    }
   }
 }
 
@@ -203,16 +231,30 @@ class Aggregate: Stage {
   let bridge: StageBridge
   private var accumulators: [AliasedAggregate]
   private var groups: [String: Expression] = [:]
+  let errorMessage: String?
 
   init(accumulators: [AliasedAggregate], groups: [Selectable]?) {
     self.accumulators = accumulators
-    if groups != nil {
-      self.groups = Helper.selectablesToMap(selectables: groups!)
+
+    if let groups = groups {
+        let (map, error) = Helper.selectablesToMap(selectables: groups)
+        if let error = error {
+            self.errorMessage = error.localizedDescription
+            self.bridge = AggregateStageBridge(accumulators: [:], groups: [:])
+            return
+        }
+        self.groups = map
     }
-    let accumulatorsMap = Helper.aliasedAggregatesToMap(accumulators: accumulators)
 
+    let (accumulatorsMap, error) = Helper.aliasedAggregatesToMap(accumulators: accumulators)
+    if let error = error {
+        self.errorMessage = error.localizedDescription
+        self.bridge = AggregateStageBridge(accumulators: [:], groups: [:])
+        return
+    }
+    
+    self.errorMessage = nil
     let accumulatorBridgesMap = accumulatorsMap.mapValues { $0.bridge }
-
     bridge = AggregateStageBridge(
       accumulators: accumulatorBridgesMap,
       groups: self.groups.mapValues { Helper.sendableToExpr($0).toBridge() }
