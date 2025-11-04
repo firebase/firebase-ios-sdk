@@ -7,6 +7,7 @@ on:
     - '.github/workflows/firebaseai.yml'
     - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
+    - 'scripts/build.sh'
     - 'scripts/quickstart_build_spm.sh'
     - 'scripts/update_firebase_spm_dependency.sh'
     - 'Gemfile*'
