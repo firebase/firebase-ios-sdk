@@ -18,8 +18,8 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile*'
   schedule:
-    # Run every day at 7pm (PDT) / 10pm (EDT) - cron uses UTC times
-    - cron:  '0 2 * * *'
+    # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
+    - cron:  '0 6 * * *'
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
