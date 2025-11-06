@@ -1,0 +1,92 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: common_quickstart_framework
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      product:
+        required: true
+        type: string
+      zip_run_id:
+        required: true
+        type: string
+      artifact_name:
+        required: true
+        type: string
+      setup_command:
+        required: true
+        type: string
+      plist_src_path:
+        required: true
+        type: string
+      plist_dst_path:
+        required: true
+        type: string
+      os:
+        required: false
+        type: string
+        default: macos-15
+      xcode:
+        required: false
+        type: string
+        default: Xcode_16.4
+    secrets:
+      plist_secret:
+        required: true
+      github_token:
+        required: true
+
+jobs:
+  quickstart_framework:
+    if: ${{ !cancelled() }}
+    env:
+      plist_secret: ${{ secrets.plist_secret }}
+      SDK: ${{ inputs.product }}
+    runs-on: ${{ inputs.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Get framework dir
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ${{ inputs.artifact_name }}
+        run-id: ${{ inputs.zip_run_id }}
+        github-token: ${{ secrets.github_token }}
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ inputs.xcode }}.app/Contents/Developer
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: Move frameworks
+      run: |
+        mkdir -p "${HOME}"/ios_frameworks/
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+    - name: Setup quickstart
+      run: ${{ inputs.setup_command }}
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh ${{ inputs.plist_src_path }} \
+        ${{ inputs.plist_dst_path }} "$plist_secret"
+    - name: Test Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: quickstart_artifacts_${{ inputs.product }}_${{ inputs.artifact_name }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
