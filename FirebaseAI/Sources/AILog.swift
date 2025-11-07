@@ -20,7 +20,7 @@ internal import FirebaseCoreExtension
 enum AILog {
   /// Log message codes for the Firebase AI SDK
   ///
-  /// These codes should ideally not be re-used in order to facilitate matching error codes in
+  /// These codes should ideally not be reused in order to facilitate matching error codes in
   /// support requests to lines in the SDK. These codes should range between 0 and 999999 to avoid
   /// being truncated in log messages.
   enum MessageCode: Int {
