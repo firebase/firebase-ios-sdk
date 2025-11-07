@@ -102,7 +102,7 @@ public extension Firestore {
   /// explicitly specified in the `updateBlock` parameter.
   /// - Returns Returns the value returned in the `updateBlock` parameter if no errors occurred.
   func runTransaction(_ updateBlock: @escaping (Transaction, NSErrorPointer)
-    -> Any?) async throws -> Any? {
+    -> sending Any?) async throws -> sending Any? {
     // This needs to be wrapped in order to express a nullable return value upon success.
     // See https://github.com/firebase/firebase-ios-sdk/issues/9426 for more details.
     return try await withCheckedThrowingContinuation { continuation in
