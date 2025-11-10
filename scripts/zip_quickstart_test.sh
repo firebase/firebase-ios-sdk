@@ -59,7 +59,7 @@ fi
 xcodebuild \
 -project ${PROJECT_NAME} \
 -scheme  ${SCHEME_NAME} \
--destination "platform=iOS Simulator,name=$device_name" "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase' \
+-destination "platform=iOS Simulator,name=$device_name" "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(inherited) $(PROJECT_DIR)/Firebase' \
 build \
 ) || EXIT_STATUS=$?
 

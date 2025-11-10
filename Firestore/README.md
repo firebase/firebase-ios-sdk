@@ -48,6 +48,9 @@ scripts/build.sh Firestore iOS spm
 
 This is rarely necessary for primary development and is done automatically by CI.
 
+For a detailed explanation of the Firestore target hierarchy in the
+`Package.swift` manifest, see [FirestoreSPM.md](../docs/FirestoreSPM.md).
+
 ### Improving the debugger experience
 
 You can install a set of type formatters to improve the presentation of

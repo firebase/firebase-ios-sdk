@@ -31,7 +31,7 @@ Firebase components that you want to include in your app. Note that
 
 ```
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
-binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAIBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAILogicBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAnalyticsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAppCheckBinary.json"

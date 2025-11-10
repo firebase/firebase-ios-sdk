@@ -29,10 +29,14 @@ extension CountTokensRequest: GenerativeAIRequest {
 
   var apiConfig: APIConfig { generateContentRequest.apiConfig }
 
-  var url: URL {
+  func getURL() throws -> URL {
     let version = apiConfig.version.rawValue
     let endpoint = apiConfig.service.endpoint.rawValue
-    return URL(string: "\(endpoint)/\(version)/\(modelResourceName):countTokens")!
+    let urlString = "\(endpoint)/\(version)/\(modelResourceName):countTokens"
+    guard let url = URL(string: urlString) else {
+      throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
+    }
+    return url
   }
 }
 
