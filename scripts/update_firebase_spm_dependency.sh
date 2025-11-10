@@ -65,7 +65,7 @@ case "$MODE" in
     REPLACEMENT_REGEX="\1kind = branch;\n\t\t\t\tbranch = \"$VERSION\";\2"
     ;;
   --prerelease)
-    COMMIT_HASH=$(git ls-remote https://github.com/firebase/firebase-ios-sdk.git main | cut -f1)
+    COMMIT_HASH=$(git ls-remote https://github.com/firebase/firebase-ios-sdk.git refs/heads/main | cut -f1)
     if [[ -z "$COMMIT_HASH" ]]; then
         echo "Error: Failed to get remote revision for main branch."
         exit 1
