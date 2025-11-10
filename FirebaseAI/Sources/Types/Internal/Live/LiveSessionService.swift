@@ -54,7 +54,7 @@ actor LiveSessionService {
   private let jsonEncoder = JSONEncoder()
   private let jsonDecoder = JSONDecoder()
 
-  /// Long running task that that wraps around the websocket, propogating messages through the
+  /// Long running task that that wraps around the websocket, propagating messages through the
   /// public stream.
   private var responsesTask: Task<Void, Never>?
 
@@ -273,7 +273,7 @@ actor LiveSessionService {
     }
   }
 
-  /// Checks if an error should be propogated up, and maps it accordingly.
+  /// Checks if an error should be propagated up, and maps it accordingly.
   ///
   /// Some errors have public api alternatives. This function will ensure they're mapped
   /// accordingly.
