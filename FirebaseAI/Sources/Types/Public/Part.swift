@@ -147,6 +147,11 @@ public struct FunctionCallPart: Part {
 
   public var isThought: Bool { _isThought ?? false }
 
+  /// Unique id of the function call.
+  ///
+  /// If present, the returned ``FunctionResponsePart`` should have a matching `functionId` field.
+  public var functionId: String? { functionCall.id }
+
   /// Constructs a new function call part.
   ///
   /// > Note: A `FunctionCallPart` is typically received from the model, rather than created
@@ -156,10 +161,24 @@ public struct FunctionCallPart: Part {
   ///   - name: The name of the function to call.
   ///   - args: The function parameters and values.
   public init(name: String, args: JSONObject) {
-    self.init(FunctionCall(name: name, args: args), isThought: nil, thoughtSignature: nil)
+    self.init(FunctionCall(name: name, args: args, id: nil), isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ functionCall: FunctionCall, isThought: Bool?, thoughtSignature: String?) {
+  /// Constructs a new function call part.
+  ///
+  /// > Note: A `FunctionCallPart` is typically received from the model, rather than created
+  /// manually.
+  ///
+  /// - Parameters:
+  ///   - name: The name of the function to call.
+  ///   - args: The function parameters and values.
+  ///   - id: Unique id of the function call. If present, the returned ``FunctionResponsePart``
+  ///     should have a matching ``FunctionResponsePart/functionId`` field.
+  public init(name: String, args: JSONObject, id: String? = nil) {
+    self.init(FunctionCall(name: name, args: args, id: id), isThought: nil, thoughtSignature: nil)
+  }
+
+  init(_ functionCall: FunctionCall, isThought: Bool? = nil, thoughtSignature: String? = nil) {
     self.functionCall = functionCall
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
@@ -177,6 +196,9 @@ public struct FunctionResponsePart: Part {
   let _isThought: Bool?
   let thoughtSignature: String?
 
+  /// Matching ``FunctionCallPart/functionId`` for a ``FunctionCallPart``, if one was provided.
+  public var functionId: String? { functionResponse.id }
+
   /// The name of the function that was called.
   public var name: String { functionResponse.name }
 
@@ -193,6 +215,21 @@ public struct FunctionResponsePart: Part {
   public init(name: String, response: JSONObject) {
     self.init(
       FunctionResponse(name: name, response: response), isThought: nil, thoughtSignature: nil
+    )
+  }
+
+  /// Constructs a new `FunctionResponse`.
+  ///
+  /// - Parameters:
+  ///   - name: The name of the function that was called.
+  ///   - response: The function's response.
+  ///   - functionId: Matching ``FunctionCallPart/functionId`` for a ``FunctionCallPart``, if one
+  ///     was provided.
+  public init(name: String, response: JSONObject, functionId: String? = nil) {
+    self.init(
+      FunctionResponse(name: name, response: response, id: functionId),
+      isThought: nil,
+      thoughtSignature: nil
     )
   }
 

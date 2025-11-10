@@ -490,6 +490,8 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter other: The expression to compare against.
   /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func greaterThan(_ other: Expression) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is greater
@@ -497,6 +499,8 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter other: The value to compare against.
   /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func greaterThan(_ other: Sendable) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is
@@ -504,6 +508,8 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter other: The expression to compare against.
   /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func greaterThanOrEqual(_ other: Expression) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is
@@ -511,6 +517,8 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter other: The value to compare against.
   /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func greaterThanOrEqual(_ other: Sendable) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is less
@@ -518,6 +526,8 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter other: The expression to compare against.
   /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func lessThan(_ other: Expression) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is less
@@ -525,48 +535,56 @@ public protocol Expression: Sendable {
   ///
   /// - Parameter other: The value to compare against.
   /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func lessThan(_ other: Sendable) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is less
   /// than or equal to the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func lessThanOrEqual(_ other: Expression) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is less
   /// than or equal to the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func lessThanOrEqual(_ other: Sendable) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is equal
   /// to the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func equal(_ other: Expression) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is equal
   /// to the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func equal(_ other: Sendable) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is not
   /// equal to the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func notEqual(_ other: Expression) -> BooleanExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is not
   /// equal to the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func notEqual(_ other: Sendable) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided
@@ -578,7 +596,8 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter others: An array of at least one `Expression` value to check against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func equalAny(_ others: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided literal
@@ -590,7 +609,8 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter others: An array of at least one `Sendable` literal value to check against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func equalAny(_ others: [Sendable]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided
@@ -602,7 +622,8 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter arrayExpression: An `Expression` elements evaluated to be array.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func equalAny(_ arrayExpression: Expression) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
@@ -614,7 +635,8 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter others: An array of at least one `Expression` value to check against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func notEqualAny(_ others: [Expression]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is not equal to any of the provided
@@ -626,7 +648,8 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter others: An array of at least one `Sendable` literal value to check against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func notEqualAny(_ others: [Sendable]) -> BooleanExpression
 
   /// Creates an expression that checks if this expression is equal to any of the provided
@@ -638,28 +661,9 @@ public protocol Expression: Sendable {
   /// ```
   ///
   /// - Parameter arrayExpression: An `Expression` elements evaluated to be array.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
+  /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
+  /// boolean expressions.
   func notEqualAny(_ arrayExpression: Expression) -> BooleanExpression
-
-  /// Creates an expression that checks if this expression evaluates to "NaN" (Not a Number).
-  ///
-  /// ```swift
-  /// // Check if the result of a calculation is NaN
-  /// Field("value").divide(0).isNan()
-  /// ```
-  ///
-  /// - Returns: A new `BooleanExpression` representing the "isNaN" check.
-  func isNan() -> BooleanExpression
-
-  /// Creates an expression that checks if this expression evaluates to "Nil".
-  ///
-  /// ```swift
-  /// // Check if the "optionalField" is null
-  /// Field("optionalField").isNil()
-  /// ```
-  ///
-  /// - Returns: A new `BooleanExpression` representing the "isNil" check.
-  func isNil() -> BooleanExpression
 
   /// Creates an expression that checks if a field exists in the document.
   ///
@@ -691,27 +695,6 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `BooleanExpression` representing the "isAbsent" check.
   func isAbsent() -> BooleanExpression
-
-  /// Creates an expression that checks if the result of this expression is not null.
-  ///
-  /// ```swift
-  /// // Check if the value of the "name" field is not null
-  /// Field("name").isNotNil()
-  /// ```
-  ///
-  /// - Returns: A new `BooleanExpression` representing the "isNotNil" check.
-  func isNotNil() -> BooleanExpression
-
-  /// Creates an expression that checks if the results of this expression is NOT "NaN" (Not a
-  /// Number).
-  ///
-  /// ```swift
-  /// // Check if the result of a calculation is NOT NaN
-  /// Field("value").divide(Field("count")).isNotNan() // Assuming count might be 0
-  /// ```
-  ///
-  /// - Returns: A new `BooleanExpr` representing the "isNotNaN" check.
-  func isNotNan() -> BooleanExpression
 
   // MARK: String Operations
 
@@ -1032,8 +1015,8 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the reversed string.
   func stringReverse() -> FunctionExpression
 
-  /// Creates an expression that calculates the length of this expression in bytes.
-  /// Assumes `self` evaluates to a string.
+  /// Creates an expression that calculates the length of this string or bytes expression in bytes.
+  /// Assumes `self` evaluates to a string or bytes.
   ///
   /// ```swift
   /// // Calculate the length of the "myString" field in bytes.
@@ -1046,9 +1029,9 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the length in bytes.
   func byteLength() -> FunctionExpression
 
-  /// Creates an expression that returns a substring of this expression using
+  /// Creates an expression that returns a substring of this expression (String or Bytes) using
   /// literal integers for position and optional length.
-  /// Indexing is 0-based. Assumes `self` evaluates to a string.
+  /// Indexing is 0-based. Assumes `self` evaluates to a string or bytes.
   ///
   /// ```swift
   /// // Get substring from index 5 with length 10
@@ -1063,9 +1046,9 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the substring.
   func substring(position: Int, length: Int?) -> FunctionExpression
 
-  /// Creates an expression that returns a substring of this expression using
+  /// Creates an expression that returns a substring of this expression (String or Bytes) using
   /// expressions for position and optional length.
-  /// Indexing is 0-based. Assumes `self` evaluates to a string, and parameters evaluate to
+  /// Indexing is 0-based. Assumes `self` evaluates to a string or bytes, and parameters evaluate to
   /// integers.
   ///
   /// ```swift

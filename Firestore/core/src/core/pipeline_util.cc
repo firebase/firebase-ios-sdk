@@ -554,87 +554,58 @@ std::shared_ptr<api::Expr> ToPipelineBooleanExpr(const Filter& filter) {
     const google_firestore_v1_Value& value = field_filter.value();
     FieldFilter::Operator op = field_filter.op();
 
-    if (model::IsNaNValue(value)) {
-      auto is_nan_expr = std::make_shared<api::FunctionExpr>(
-          "is_nan", std::vector<std::shared_ptr<api::Expr>>{api_field});
-      if (op == FieldFilter::Operator::Equal) {
-        return std::make_shared<api::FunctionExpr>(
-            "and",
-            std::vector<std::shared_ptr<api::Expr>>{exists_expr, is_nan_expr});
-      } else {  // Assuming NotEqual for IsNotNan
-        auto is_not_nan_expr = std::make_shared<api::FunctionExpr>(
-            "not", std::vector<std::shared_ptr<api::Expr>>{is_nan_expr});
-        return std::make_shared<api::FunctionExpr>(
-            "and", std::vector<std::shared_ptr<api::Expr>>{exists_expr,
-                                                           is_not_nan_expr});
-      }
-    } else if (model::IsNullValue(value)) {
-      auto is_null_expr = std::make_shared<api::FunctionExpr>(
-          "is_null", std::vector<std::shared_ptr<api::Expr>>{api_field});
-      if (op == FieldFilter::Operator::Equal) {
-        return std::make_shared<api::FunctionExpr>(
-            "and",
-            std::vector<std::shared_ptr<api::Expr>>{exists_expr, is_null_expr});
-      } else {  // Assuming NotEqual for IsNotNull
-        auto is_not_null_expr = std::make_shared<api::FunctionExpr>(
-            "not", std::vector<std::shared_ptr<api::Expr>>{is_null_expr});
-        return std::make_shared<api::FunctionExpr>(
-            "and", std::vector<std::shared_ptr<api::Expr>>{exists_expr,
-                                                           is_not_null_expr});
-      }
-    } else {
-      auto api_constant =
-          std::make_shared<api::Constant>(model::DeepClone(value));
-      std::shared_ptr<api::Expr> comparison_expr;
-      std::string func_name;
+    auto api_constant =
+        std::make_shared<api::Constant>(model::DeepClone(value));
+    std::shared_ptr<api::Expr> comparison_expr;
+    std::string func_name;
 
-      switch (op) {
-        case FieldFilter::Operator::LessThan:
-          func_name = "lt";
-          break;
-        case FieldFilter::Operator::LessThanOrEqual:
-          func_name = "lte";
-          break;
-        case FieldFilter::Operator::GreaterThan:
-          func_name = "gt";
-          break;
-        case FieldFilter::Operator::GreaterThanOrEqual:
-          func_name = "gte";
-          break;
-        case FieldFilter::Operator::Equal:
-          func_name = "eq";
-          break;
-        case FieldFilter::Operator::NotEqual:
-          func_name = "neq";
-          break;
-        case FieldFilter::Operator::ArrayContains:
-          func_name = "array_contains";
-          break;
-        case FieldFilter::Operator::In:
-        case FieldFilter::Operator::NotIn:
-        case FieldFilter::Operator::ArrayContainsAny: {
-          HARD_ASSERT(
-              model::IsArray(value),
-              "Value for IN, NOT_IN, ARRAY_CONTAINS_ANY must be an array.");
+    switch (op) {
+      case FieldFilter::Operator::LessThan:
+        func_name = "lt";
+        break;
+      case FieldFilter::Operator::LessThanOrEqual:
+        func_name = "lte";
+        break;
+      case FieldFilter::Operator::GreaterThan:
+        func_name = "gt";
+        break;
+      case FieldFilter::Operator::GreaterThanOrEqual:
+        func_name = "gte";
+        break;
+      case FieldFilter::Operator::Equal:
+        func_name = "eq";
+        break;
+      case FieldFilter::Operator::NotEqual:
+        func_name = "neq";
+        break;
+      case FieldFilter::Operator::ArrayContains:
+        func_name = "array_contains";
+        break;
+      case FieldFilter::Operator::In:
+      case FieldFilter::Operator::NotIn:
+      case FieldFilter::Operator::ArrayContainsAny: {
+        HARD_ASSERT(
+            model::IsArray(value),
+            "Value for IN, NOT_IN, ARRAY_CONTAINS_ANY must be an array.");
 
-          if (op == FieldFilter::Operator::In)
-            func_name = "eq_any";
-          else if (op == FieldFilter::Operator::NotIn)
-            func_name = "not_eq_any";
-          else if (op == FieldFilter::Operator::ArrayContainsAny)
-            func_name = "array_contains_any";
-          break;
-        }
-        default:
-          HARD_FAIL("Unexpected FieldFilter operator.");
+        if (op == FieldFilter::Operator::In)
+          func_name = "eq_any";
+        else if (op == FieldFilter::Operator::NotIn)
+          func_name = "not_eq_any";
+        else if (op == FieldFilter::Operator::ArrayContainsAny)
+          func_name = "array_contains_any";
+        break;
       }
-      comparison_expr = std::make_shared<api::FunctionExpr>(
-          func_name,
-          std::vector<std::shared_ptr<api::Expr>>{api_field, api_constant});
-      return std::make_shared<api::FunctionExpr>(
-          "and", std::vector<std::shared_ptr<api::Expr>>{exists_expr,
-                                                         comparison_expr});
+      default:
+        HARD_FAIL("Unexpected FieldFilter operator.");
     }
+    comparison_expr = std::make_shared<api::FunctionExpr>(
+        func_name,
+        std::vector<std::shared_ptr<api::Expr>>{api_field, api_constant});
+    return std::make_shared<api::FunctionExpr>(
+        "and",
+        std::vector<std::shared_ptr<api::Expr>>{exists_expr, comparison_expr});
+
   } else if (filter.type() == FieldFilter::Type::kCompositeFilter) {
     const auto& composite_filter = static_cast<const CompositeFilter&>(filter);
     std::vector<std::shared_ptr<api::Expr>> sub_exprs;

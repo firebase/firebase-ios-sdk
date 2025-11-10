@@ -1,6 +1,10 @@
 # Unreleased
 - [feature] Add `Pipeline` support.
 
+# 12.4.0
+- [fixed] Implemented an internal workaround to fix
+  [CVE-2025-0838](https://nvd.nist.gov/vuln/detail/CVE-2025-0838). (#15300)
+
 # 12.1.0
 - [fixed] Fixed accidental removal of `pod "Firebase/Firestore"` for tvOS in 12.0.0.
 
