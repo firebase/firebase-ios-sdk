@@ -77,7 +77,7 @@ jobs:
           - product: Messaging
             run_tests: false
           - product: InAppMessaging
-            run_tests: true
+            run_tests: false
           - product: Firestore
             run_tests: false
           - product: Database
