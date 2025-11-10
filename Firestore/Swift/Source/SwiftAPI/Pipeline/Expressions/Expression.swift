@@ -489,7 +489,6 @@ public protocol Expression: Sendable {
   /// than the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
   /// boolean expressions.
   func greaterThan(_ other: Expression) -> BooleanExpression
@@ -498,7 +497,6 @@ public protocol Expression: Sendable {
   /// than the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
   /// boolean expressions.
   func greaterThan(_ other: Sendable) -> BooleanExpression
@@ -507,7 +505,6 @@ public protocol Expression: Sendable {
   /// greater than or equal to the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
   /// boolean expressions.
   func greaterThanOrEqual(_ other: Expression) -> BooleanExpression
@@ -516,7 +513,6 @@ public protocol Expression: Sendable {
   /// greater than or equal to the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
   /// boolean expressions.
   func greaterThanOrEqual(_ other: Sendable) -> BooleanExpression
@@ -525,7 +521,6 @@ public protocol Expression: Sendable {
   /// than the given expression.
   ///
   /// - Parameter other: The expression to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
   /// boolean expressions.
   func lessThan(_ other: Expression) -> BooleanExpression
@@ -534,7 +529,6 @@ public protocol Expression: Sendable {
   /// than the given value.
   ///
   /// - Parameter other: The value to compare against.
-  /// - Returns: A `BooleanExpression` that can be used in `where` clauses.
   /// - Returns: A `BooleanExpression` that can be used in a where stage, together with other
   /// boolean expressions.
   func lessThan(_ other: Sendable) -> BooleanExpression
