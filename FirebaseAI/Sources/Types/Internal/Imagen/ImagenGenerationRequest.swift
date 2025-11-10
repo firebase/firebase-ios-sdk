@@ -39,9 +39,13 @@ struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
 extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   typealias Response = ImagenGenerationResponse<ImageType>
 
-  var url: URL {
-    return URL(string:
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict")!
+  func getURL() throws -> URL {
+    let urlString =
+      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict"
+    guard let url = URL(string: urlString) else {
+      throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
+    }
+    return url
   }
 }
 

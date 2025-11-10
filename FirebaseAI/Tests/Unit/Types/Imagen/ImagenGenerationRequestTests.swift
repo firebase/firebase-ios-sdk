@@ -14,7 +14,7 @@
 
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ImagenGenerationRequestTests: XCTestCase {
@@ -60,7 +60,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(request.instances, [instance])
     XCTAssertEqual(request.parameters, parameters)
     XCTAssertEqual(
-      request.url,
+      try request.getURL(),
       URL(string:
         "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )
@@ -80,7 +80,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(request.instances, [instance])
     XCTAssertEqual(request.parameters, parameters)
     XCTAssertEqual(
-      request.url,
+      try request.getURL(),
       URL(string:
         "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )

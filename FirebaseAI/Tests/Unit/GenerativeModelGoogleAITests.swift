@@ -17,7 +17,7 @@ import FirebaseAuthInterop
 import FirebaseCore
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerativeModelGoogleAITests: XCTestCase {
@@ -333,6 +333,55 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     let textPart = try XCTUnwrap(parts[2] as? TextPart)
     XCTAssertFalse(textPart.isThought)
     XCTAssertTrue(textPart.text.hasPrefix("The first 5 prime numbers are 2, 3, 5, 7, and 11."))
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 160)
+  }
+
+  func testGenerateContent_success_urlContext() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-url-context",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 1)
+    let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try XCTUnwrap(urlMetadata.retrievedURL)
+    XCTAssertEqual(
+      retrievedURL,
+      URL(string: "https://berkshirehathaway.com")
+    )
+    XCTAssertEqual(urlMetadata.retrievalStatus, .success)
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 424)
+  }
+
+  func testGenerateContent_success_urlContext_mixedValidity() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-url-context-mixed-validity",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 3)
+
+    let paywallURLMetadata = urlContextMetadata.urlMetadata[0]
+    XCTAssertEqual(paywallURLMetadata.retrievalStatus, .error)
+
+    let successURLMetadata = urlContextMetadata.urlMetadata[1]
+    XCTAssertEqual(successURLMetadata.retrievalStatus, .success)
+
+    let errorURLMetadata = urlContextMetadata.urlMetadata[2]
+    XCTAssertEqual(errorURLMetadata.retrievalStatus, .error)
   }
 
   func testGenerateContent_failure_invalidAPIKey() async throws {
@@ -641,5 +690,28 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(firstResponse.text, "text1")
     let lastResponse = try XCTUnwrap(responses.last)
     XCTAssertEqual(lastResponse.text, "text8")
+  }
+
+  func testGenerateContentStream_success_urlContext() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-url-context",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var responses = [GenerateContentResponse]()
+    let stream = try model.generateContentStream(testPrompt)
+    for try await response in stream {
+      responses.append(response)
+    }
+
+    let firstResponse = try XCTUnwrap(responses.first)
+    let candidate = try XCTUnwrap(firstResponse.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 1)
+    let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try XCTUnwrap(urlMetadata.retrievedURL)
+    XCTAssertEqual(retrievedURL, URL(string: "https://google.com"))
+    XCTAssertEqual(urlMetadata.retrievalStatus, .success)
   }
 }
