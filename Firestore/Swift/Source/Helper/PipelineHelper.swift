@@ -13,6 +13,17 @@
 // limitations under the License.
 
 enum Helper {
+  enum HelperError: Error, LocalizedError {
+    case duplicateAlias(String)
+
+    public var errorDescription: String? {
+      switch self {
+      case let .duplicateAlias(message):
+        return message
+      }
+    }
+  }
+
   static func sendableToExpr(_ value: Sendable?) -> Expression {
     guard let value = value else {
       return Constant.nil
@@ -31,14 +42,35 @@ enum Helper {
     }
   }
 
-  static func selectablesToMap(selectables: [Selectable]) -> [String: Expression] {
-    let exprMap = selectables.reduce(into: [String: Expression]()) { result, selectable in
+  static func selectablesToMap(selectables: [Selectable]) -> ([String: Expression], Error?) {
+    var exprMap = [String: Expression]()
+    for selectable in selectables {
       guard let value = selectable as? SelectableWrapper else {
         fatalError("Selectable class must conform to SelectableWrapper.")
       }
-      result[value.alias] = value.expr
+      let alias = value.alias
+      if exprMap.keys.contains(alias) {
+        return ([:], HelperError.duplicateAlias("Duplicate alias '\(alias)' found in selectables."))
+      }
+      exprMap[alias] = value.expr
     }
-    return exprMap
+    return (exprMap, nil)
+  }
+
+  static func aliasedAggregatesToMap(accumulators: [AliasedAggregate])
+    -> ([String: AggregateFunction], Error?) {
+    var accumulatorMap = [String: AggregateFunction]()
+    for aliasedAggregate in accumulators {
+      let alias = aliasedAggregate.alias
+      if accumulatorMap.keys.contains(alias) {
+        return (
+          [:],
+          HelperError.duplicateAlias("Duplicate alias '\(alias)' found in accumulators.")
+        )
+      }
+      accumulatorMap[alias] = aliasedAggregate.aggregate
+    }
+    return (accumulatorMap, nil)
   }
 
   static func map(_ elements: [String: Sendable?]) -> FunctionExpression {
@@ -66,11 +98,11 @@ enum Helper {
     if let exprValue = value as? Expression {
       return exprValue.toBridge()
     } else if let aggregateFunctionValue = value as? AggregateFunction {
-      return aggregateFunctionValue.toBridge()
+      return aggregateFunctionValue.bridge
     } else if let dictionaryValue = value as? [String: Sendable?] {
       let mappedValue: [String: Sendable] = dictionaryValue.mapValues {
         if let aggFunc = $0 as? AggregateFunction {
-          return aggFunc.toBridge()
+          return aggFunc.bridge
         }
         return sendableToExpr($0).toBridge()
       }

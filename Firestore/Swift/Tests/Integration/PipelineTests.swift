@@ -3253,17 +3253,19 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(randomCol.path)
       .limit(1)
-      .select([
-        Constant(1_741_380_235).unixSecondsToTimestamp().as("unixSecondsToTimestamp"),
-        Constant(1_741_380_235_123).unixMillisToTimestamp().as("unixMillisToTimestamp"),
-        Constant(1_741_380_235_123_456).unixMicrosToTimestamp().as("unixMicrosToTimestamp"),
-        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
-          .timestampToUnixSeconds().as("timestampToUnixSeconds"),
-        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
-          .timestampToUnixMillis().as("timestampToUnixMillis"),
-        Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
-          .timestampToUnixMicros().as("timestampToUnixMicros"),
-      ])
+      .select(
+        [
+          Constant(1_741_380_235).unixSecondsToTimestamp().as("unixSecondsToTimestamp"),
+          Constant(1_741_380_235_123).unixMillisToTimestamp().as("unixMillisToTimestamp"),
+          Constant(1_741_380_235_123_456).unixMicrosToTimestamp().as("unixMicrosToTimestamp"),
+          Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+            .timestampToUnixSeconds().as("timestampToUnixSeconds"),
+          Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+            .timestampToUnixMillis().as("timestampToUnixMillis"),
+          Constant(Timestamp(seconds: 1_741_380_235, nanoseconds: 123_456_789))
+            .timestampToUnixMicros().as("timestampToUnixMicros"),
+        ]
+      )
 
     let snapshot = try await pipeline.execute()
     XCTAssertEqual(
@@ -3826,5 +3828,58 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
       enforceOrder: true
     )
+  }
+
+  func testAggregateThrowsOnDuplicateAliases() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate([
+        CountAll().as("count"),
+        Field("foo").count().as("count"),
+      ])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(error.localizedDescription.contains("Duplicate alias 'count'"))
+    }
+  }
+
+  func testAggregateThrowsOnDuplicateGroupAliases() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .aggregate(
+        [CountAll().as("count")],
+        groups: [Field("bax"), Field("bar").as("bax")]
+      )
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(error.localizedDescription.contains("Duplicate alias 'bax'"))
+    }
+  }
+
+  func testAddFieldsThrowsOnDuplicateAliases() async throws {
+    let collRef = collectionRef()
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select(["title", "author"])
+      .addFields([
+        Constant("bar").as("foo"),
+        Constant("baz").as("foo"),
+      ])
+      .sort([Field("author").ascending()])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error")
+    } catch {
+      XCTAssert(error.localizedDescription.contains("Duplicate alias 'foo'"))
+    }
   }
 }

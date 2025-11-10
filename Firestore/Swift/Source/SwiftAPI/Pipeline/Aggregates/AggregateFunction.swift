@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extension AggregateFunction {
-  func toBridge() -> AggregateFunctionBridge {
-    return (self as AggregateBridgeWrapper).bridge
-  }
-}
-
 /// Represents an aggregate function in a pipeline.
 ///
 /// An `AggregateFunction` is a function that computes a single value from a set of input values.
