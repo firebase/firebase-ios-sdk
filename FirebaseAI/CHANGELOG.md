@@ -1,6 +1,8 @@
-# 12.5.0
+# 12.6.0
 - [feature] Added support for
   [Server Prompt Templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/get-started).
+
+# 12.5.0
 - [changed] Renamed the `FirebaseAI` module to `FirebaseAILogic`. This is a non-breaking change.
   `FirebaseAI` references will continue to work until a future breaking change release. Going
   forward, imports should be changed to `import FirebaseAILogic` and the `FirebaseAILogic` Swift
