@@ -36,6 +36,7 @@ jobs:
       setup_command: scripts/update_vertexai_responses.sh
 
   testapp-integration:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
         target: [iOS]
@@ -90,6 +91,7 @@ jobs:
       setup_command: scripts/update_vertexai_responses.sh
 
   quickstart:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
         include:
