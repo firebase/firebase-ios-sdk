@@ -3430,60 +3430,78 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testArrayConcat() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
+    let stringArrayDocs = [
+      "doc1": ["tags": ["a", "b"], "more_tags": ["c", "d"]],
+      "doc2": ["tags": ["e", "f"], "more_tags": ["g", "h"]],
+    ]
 
-    var pipeline = db.pipeline()
-      .collection(collRef.path)
-      .limit(1) // Assuming we operate on the first book (book1)
-      .select(
-        [
-          Field("tags").arrayConcat(
-            [
-              ["newTag1", "newTag2"],
-              [Field("tags")],
-              [Constant.nil],
-            ]
-          ).as("modifiedTags"),
-        ]
-      )
-    var snapshot = try await pipeline.execute()
+    let numberArrayDocs = [
+      "doc1": ["tags": [1, 2], "more_tags": [3, 4]],
+      "doc2": ["tags": [5, 6], "more_tags": [7, 8]],
+    ]
 
-    let expectedTags: [Sendable?] = [
-      "comedy", "space", "adventure",
-      "newTag1", "newTag2",
-      "comedy", "space", "adventure",
-      nil,
+    let stringCollRef = collectionRef(withDocuments: stringArrayDocs)
+    let numberCollRef = collectionRef(withDocuments: numberArrayDocs)
+    let db = stringCollRef.firestore
+
+    // Test case 1: Concatenating string arrays.
+    let stringPipeline = db.pipeline()
+      .collection(stringCollRef.path)
+      .select([
+        Field("tags").arrayConcat([Field("more_tags"), ArrayExpression(["i", "j"])])
+          .as("concatenatedTags"),
+      ])
+
+    let stringSnapshot = try await stringPipeline.execute()
+
+    let expectedStringResults: [[String: Sendable]] = [
+      ["concatenatedTags": ["a", "b", "c", "d", "i", "j"]],
+      ["concatenatedTags": ["e", "f", "g", "h", "i", "j"]],
     ]
 
     TestHelper.compare(
-      snapshot: snapshot,
-      expected: [["modifiedTags": expectedTags]],
+      snapshot: stringSnapshot,
+      expected: expectedStringResults,
       enforceOrder: false
     )
 
-    pipeline = db.pipeline()
-      .collection(collRef.path)
-      .limit(1) // Assuming we operate on the first book (book1)
-      .select(
-        [
-          Field("tags").arrayConcat(
-            [
-              Field("newTag1"), Field("newTag2"),
-              Field("tags"),
-              Constant.nil,
-            ]
-          ).as("modifiedTags"),
-        ]
-      )
-    snapshot = try await pipeline.execute()
+    // Test case 2: Concatenating number arrays.
+    let numberPipeline = db.pipeline()
+      .collection(numberCollRef.path)
+      .select([
+        Field("tags").arrayConcat([Field("more_tags"), ArrayExpression([9, 10])])
+          .as("concatenatedTags"),
+      ])
+
+    let numberSnapshot = try await numberPipeline.execute()
+
+    let expectedNumberResults: [[String: Sendable]] = [
+      ["concatenatedTags": [1, 2, 3, 4, 9, 10]],
+      ["concatenatedTags": [5, 6, 7, 8, 9, 10]],
+    ]
 
     TestHelper.compare(
-      snapshot: snapshot,
-      expected: [["modifiedTags": expectedTags]],
+      snapshot: numberSnapshot,
+      expected: expectedNumberResults,
       enforceOrder: false
     )
+
+    // Test case 3: Mix string and number arrays.
+    let mixPipeline = db.pipeline()
+      .collection(numberCollRef.path)
+      .select([
+        Field("tags").arrayConcat([Field("more_tags"), ArrayExpression(["i", "j"])])
+          .as("concatenatedTags"),
+      ])
+
+    let mixSnapshot = try await mixPipeline.execute()
+
+    let expectedMixResults: [[String: Sendable]] = [
+      ["concatenatedTags": [1, 2, 3, 4, "i", "j"]],
+      ["concatenatedTags": [5, 6, 7, 8, "i", "j"]],
+    ]
+
+    TestHelper.compare(snapshot: mixSnapshot, expected: expectedMixResults, enforceOrder: false)
   }
 
   func testToLower() async throws {
