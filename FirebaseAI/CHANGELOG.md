@@ -1,6 +1,14 @@
-# 12.5.0
+# 12.6.0
 - [feature] Added support for
   [Server Prompt Templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/get-started).
+
+# 12.5.0
+- [changed] Renamed the `FirebaseAI` module to `FirebaseAILogic`. This is a non-breaking change.
+  `FirebaseAI` references will continue to work until a future breaking change release. Going
+  forward, imports should be changed to `import FirebaseAILogic` and the `FirebaseAILogic` Swift
+  Package dependency should be selected. See the
+  [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
+  FAQ entry for more details.
 - [fixed] Fixed a nanoseconds parsing issue in the Live API when receiving a
   `LiveServerGoingAwayNotice` message. (#15410)
 - [feature] Added support for sending video frames with the Live API via the `sendVideoRealtime`
