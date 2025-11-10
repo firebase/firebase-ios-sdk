@@ -1,3 +1,7 @@
+# 12.5.0
+- [fixed] Prevent race condition crash in FPRTraceBackgroundActivityTracker. (#14273)
+- [fixed] Fix app start trace outliers from network delays. (#10733)
+
 # 12.3.0
 - [fixed] Add missing nanopb dependency to fix SwiftPM builds when building
   dynamically linked libraries. (#15276)

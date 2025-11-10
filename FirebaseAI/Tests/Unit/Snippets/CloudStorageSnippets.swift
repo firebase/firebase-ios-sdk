@@ -14,7 +14,7 @@
 
 #if SWIFT_PACKAGE // The FirebaseStorage dependency has only been added in Package.swift.
 
-  import FirebaseAI
+  import FirebaseAILogic
   import FirebaseCore
   import FirebaseStorage
 

@@ -66,12 +66,28 @@ enum AILog {
     case codeExecutionResultUnrecognizedOutcome = 3015
     case executableCodeUnrecognizedLanguage = 3016
     case fallbackValueUsed = 3017
+    case urlMetadataUnrecognizedURLRetrievalStatus = 3018
+    case liveSessionUnsupportedMessage = 3019
+    case liveSessionUnsupportedMessagePayload = 3020
+    case liveSessionFailedToEncodeClientMessage = 3021
+    case liveSessionFailedToEncodeClientMessagePayload = 3022
+    case liveSessionFailedToSendClientMessage = 3023
+    case liveSessionUnexpectedResponse = 3024
+    case liveSessionGoingAwaySoon = 3025
+    case liveSessionClosedDuringSetup = 3026
+    case decodedMissingProtoDurationSuffix = 3027
+    case decodedInvalidProtoDurationString = 3028
+    case decodedInvalidProtoDurationSeconds = 3029
+    case decodedInvalidProtoDurationNanoseconds = 3030
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000
     case generateContentResponseNoText = 4001
     case appCheckTokenFetchFailed = 4002
     case generateContentResponseEmptyCandidates = 4003
+    case invalidWebsocketURL = 4004
+    case duplicateLiveSessionSetupComplete = 4005
+    case malformedURL = 4006
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
@@ -121,6 +137,17 @@ enum AILog {
 
   static func debug(code: MessageCode, _ message: String) {
     log(level: .debug, code: code, message)
+  }
+
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  static func makeInternalError(message: String, code: MessageCode) -> GenerateContentError {
+    let error = GenerateContentError.internalError(underlying: NSError(
+      domain: "\(Constants.baseErrorDomain).Internal",
+      code: code.rawValue,
+      userInfo: [NSLocalizedDescriptionKey: message]
+    ))
+    AILog.error(code: code, message)
+    return error
   }
 
   /// Returns `true` if additional logging has been enabled via a launch argument.
