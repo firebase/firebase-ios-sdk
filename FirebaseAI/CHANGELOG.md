@@ -1,4 +1,6 @@
 # 12.5.0
+- [feature] Added support for
+  [Server Prompt Templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/get-started).
 - [fixed] Fixed a nanoseconds parsing issue in the Live API when receiving a
   `LiveServerGoingAwayNotice` message. (#15410)
 - [feature] Added support for sending video frames with the Live API via the `sendVideoRealtime`
