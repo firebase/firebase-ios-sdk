@@ -53,7 +53,7 @@ static inline NSInteger FPRMaxFPS(void) {
  *  A frame is considered slow if it takes longer than this duration to render.
  */
 static inline CFTimeInterval FPRSlowBudgetSeconds(void) {
-  return 1.0 / (double)FPRMaxFPS();
+  return 1.0 / FPRMaxFPS();
 }
 
 /** Returns the class name without the prefixed module name present in Swift classes
