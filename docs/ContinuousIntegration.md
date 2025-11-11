@@ -78,10 +78,10 @@ The release workflow is to test podspecs corresponding to the latest release tag
 create a CocoaPods spec testing repo. Podspecs in this testing repo
 will have tags `Cocoapods-X.Y.Z`. This is to mimic a real released candidate.
 
-#### Prerelease workflow
-[prerelease.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/prerelease.yml)
+#### Prerelease cocoapods workflow
+[prerelease_cocoapods.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/prerelease_cocoapods.yml)
 
-The prerelease workflow is to test podspecs on the `main` branch, and create a testing repo. This is
+The prerelease_cocoapods workflow is to test podspecs on the `main` branch, and create a testing repo. This is
 to make sure podspecs are releasable, which means podspecs in the head can pass all tests and build
 up a candidate.
 
@@ -100,11 +100,11 @@ in the SDK repo. A job to run `pod spec lint` is added to SDK testing workflows,
 Analytics, Auth, Core, Crashlytics, Database, Firestore, Functions, GoogleUtilities,
 InAppMessaging, Installations, Messaging, MLModelDownloader, Performance, RemoteConfig and Storage.
 These jobs will be triggered in presubmit and run pod spec lint with a source of
-Firebase/SpecsTesting repo, which is updated to the head of main nightly in the prerelease
+Firebase/SpecsTesting repo, which is updated to the head of main nightly in the prerelease_cocoapods
 workflow.
 
 When these PRs are merged, then changed podspecs will be pod repo push to the Firebase/SpecsTesting
-repo, through `update_SpecTesting_repo` job in the prerelease workflow, to make sure the podspec
+repo, through `update_SpecTesting_repo` job in the prerelease_cocoapods workflow, to make sure the podspec
 repo is up-to-date.
 
 ### Daily Test Status Notification
