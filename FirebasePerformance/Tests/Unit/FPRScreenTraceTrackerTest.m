@@ -68,6 +68,39 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 @implementation FPRTestPageViewController
 @end
 
+#pragma mark - Test Swizzling Infrastructure
+
+/** Associated object key for test FPS override. */
+static const void *kFPRTestMaxFPSKey = &kFPRTestMaxFPSKey;
+
+/** Original IMP for UIScreen.maximumFramesPerSecond. */
+static IMP gOriginalMaxFPSIMP = NULL;
+
+/** Swizzled implementation of -[UIScreen maximumFramesPerSecond]. */
+static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
+  NSNumber *override = objc_getAssociatedObject(self, kFPRTestMaxFPSKey);
+  if (override) {
+    return [override integerValue];
+  }
+  // Call original implementation
+  NSInteger (*originalIMP)(id, SEL) = (NSInteger (*)(id, SEL))gOriginalMaxFPSIMP;
+  return originalIMP(self, _cmd);
+}
+
+/** Helper to set test FPS override on main screen. */
+static inline void FPRSetTestMaxFPS(NSInteger fps) {
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, @(fps),
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+/** Helper to clear test FPS override on main screen. */
+static inline void FPRClearTestMaxFPS(void) {
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+#pragma mark - Test Class
+
 @interface FPRScreenTraceTrackerTest : FPRTestCase
 
 /** The FPRScreenTraceTracker instance that's being used for a given test. */
@@ -80,8 +113,34 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 @implementation FPRScreenTraceTrackerTest
 
++ (void)setUp {
+  [super setUp];
+  
+  // Perform one-time swizzle of UIScreen.maximumFramesPerSecond
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    Class screenClass = [UIScreen class];
+    SEL originalSelector = @selector(maximumFramesPerSecond);
+    Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
+    
+    // Store original IMP
+    gOriginalMaxFPSIMP = method_getImplementation(originalMethod);
+    
+    // Replace with swizzled implementation
+    method_setImplementation(originalMethod, (IMP)FPRSwizzled_maximumFramesPerSecond);
+  });
+}
+
 - (void)setUp {
   [super setUp];
+  
+  // Clear any existing override before test
+  FPRClearTestMaxFPS();
+  
+  // Guarantee cleanup after test completes
+  [self addTeardownBlock:^{
+    FPRClearTestMaxFPS();
+  }];
 
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:YES];
@@ -91,6 +150,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 }
 
 - (void)tearDown {
+  // Final guarantee to clear override
+  FPRClearTestMaxFPS();
+  
   [super tearDown];
 
   FIRPerformance *performance = [FIRPerformance sharedInstance];
@@ -903,61 +965,11 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 #pragma mark - Dynamic FPS Threshold Tests
 
-/** Category to swizzle UIScreen.maximumFramesPerSecond for testing. */
-@interface UIScreen (FPRTestSwizzle)
-@property(nonatomic) NSInteger fpr_testMaxFPS;
-@end
-
-static NSInteger gFPRTestMaxFPS = 0;
-
-@implementation UIScreen (FPRTestSwizzle)
-
-- (NSInteger)fpr_swizzled_maximumFramesPerSecond {
-  if (gFPRTestMaxFPS > 0) {
-    return gFPRTestMaxFPS;
-  }
-  return [self fpr_swizzled_maximumFramesPerSecond];  // Call original implementation
-}
-
-- (void)setFpr_testMaxFPS:(NSInteger)fps {
-  gFPRTestMaxFPS = fps;
-}
-
-- (NSInteger)fpr_testMaxFPS {
-  return gFPRTestMaxFPS;
-}
-
-@end
-
-/** Helper method to swizzle UIScreen.maximumFramesPerSecond for testing. */
-static void FPRSwizzleMaxFPS(BOOL enable) {
-  static dispatch_once_t onceToken;
-  static Method originalMethod;
-  static Method swizzledMethod;
-
-  dispatch_once(&onceToken, ^{
-    Class class = [UIScreen class];
-    SEL originalSelector = @selector(maximumFramesPerSecond);
-    SEL swizzledSelector = @selector(fpr_swizzled_maximumFramesPerSecond);
-
-    originalMethod = class_getInstanceMethod(class, originalSelector);
-    swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
-  });
-
-  if (enable) {
-    method_exchangeImplementations(originalMethod, swizzledMethod);
-  } else {
-    method_exchangeImplementations(swizzledMethod, originalMethod);
-    gFPRTestMaxFPS = 0;
-  }
-}
-
 /** Tests that the slow frame threshold correctly adapts to 60 FPS displays.
  *  At 60 FPS, slow budget is ~16.67ms (1/60).
  */
 - (void)testSlowThreshold60FPS {
-  FPRSwizzleMaxFPS(YES);
-  [[UIScreen mainScreen] setFpr_testMaxFPS:60];
+  FPRSetTestMaxFPS(60);
 
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   // 0.017s (17ms) should be slow for 60 FPS (budget ~16.67ms)
@@ -994,16 +1006,13 @@ static void FPRSwizzleMaxFPS(BOOL enable) {
   [self.tracker displayLinkStep];
   XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 2);
   XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount + 1);
-
-  FPRSwizzleMaxFPS(NO);
 }
 
 /** Tests that the slow frame threshold correctly adapts to 120 FPS displays (ProMotion).
  *  At 120 FPS, slow budget is ~8.33ms (1/120).
  */
 - (void)testSlowThreshold120FPS {
-  FPRSwizzleMaxFPS(YES);
-  [[UIScreen mainScreen] setFpr_testMaxFPS:120];
+  FPRSetTestMaxFPS(120);
 
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   // 0.009s (9ms) should be slow for 120 FPS (budget ~8.33ms)
@@ -1040,16 +1049,13 @@ static void FPRSwizzleMaxFPS(BOOL enable) {
   [self.tracker displayLinkStep];
   XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 2);
   XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount + 1);
-
-  FPRSwizzleMaxFPS(NO);
 }
 
 /** Tests that the slow frame threshold correctly adapts to 50 FPS displays (some tvOS devices).
  *  At 50 FPS, slow budget is 20ms (1/50).
  */
 - (void)testSlowThreshold50FPS {
-  FPRSwizzleMaxFPS(YES);
-  [[UIScreen mainScreen] setFpr_testMaxFPS:50];
+  FPRSetTestMaxFPS(50);
 
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   // 0.021s (21ms) should be slow for 50 FPS (budget 20ms)
@@ -1086,8 +1092,6 @@ static void FPRSwizzleMaxFPS(BOOL enable) {
   [self.tracker displayLinkStep];
   XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 2);
   XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount + 1);
-
-  FPRSwizzleMaxFPS(NO);
 }
 
 @end
