@@ -73,30 +73,16 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 /** Associated object key for test FPS override. */
 static const void *kFPRTestMaxFPSKey = &kFPRTestMaxFPSKey;
 
-/** Original IMP for UIScreen.maximumFramesPerSecond. */
-static IMP gOriginalMaxFPSIMP = NULL;
-
 /** Swizzled implementation of -[UIScreen maximumFramesPerSecond]. */
 static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   NSNumber *override = objc_getAssociatedObject(self, kFPRTestMaxFPSKey);
   if (override) {
     return [override integerValue];
   }
-  // Call original implementation
-  NSInteger (*originalIMP)(id, SEL) = (NSInteger (*)(id, SEL))gOriginalMaxFPSIMP;
-  return originalIMP(self, _cmd);
-}
-
-/** Helper to set test FPS override on main screen. */
-static inline void FPRSetTestMaxFPS(NSInteger fps) {
-  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, @(fps),
-                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-/** Helper to clear test FPS override on main screen. */
-static inline void FPRClearTestMaxFPS(void) {
-  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
-                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  // If no override, call original implementation via the swizzled selector
+  // After method_exchangeImplementations, the original method is now at the swizzled selector
+  return ((NSInteger (*)(id, SEL))objc_msgSend)(self,
+                                                @selector(fpr_original_maximumFramesPerSecond));
 }
 
 #pragma mark - Test Class
@@ -109,6 +95,12 @@ static inline void FPRClearTestMaxFPS(void) {
 /** The dispatch group a test should wait for completion on before asserting behavior under test. */
 @property(nonatomic, nullable) dispatch_group_t dispatchGroupToWaitOn;
 
+/** Per-test FPS override value. Set this in individual tests. */
+@property(nonatomic, assign) NSInteger testMaxFPS;
+
+/** Whether the current test has swizzled maximumFramesPerSecond. */
+@property(nonatomic, assign) BOOL hasSwizzled;
+
 @end
 
 @implementation FPRScreenTraceTrackerTest
@@ -119,27 +111,44 @@ static inline void FPRClearTestMaxFPS(void) {
   // Perform one-time swizzle of UIScreen.maximumFramesPerSecond
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    Class screenClass = [UIScreen class];
-    SEL originalSelector = @selector(maximumFramesPerSecond);
-    Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
+    @synchronized([UIScreen class]) {
+      Class screenClass = [UIScreen class];
+      SEL originalSelector = @selector(maximumFramesPerSecond);
+      SEL swizzledSelector = @selector(fpr_original_maximumFramesPerSecond);
 
-    // Store original IMP
-    gOriginalMaxFPSIMP = method_getImplementation(originalMethod);
+      Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
 
-    // Replace with swizzled implementation
-    method_setImplementation(originalMethod, (IMP)FPRSwizzled_maximumFramesPerSecond);
+      // Add swizzled method to the class
+      IMP swizzledIMP = (IMP)FPRSwizzled_maximumFramesPerSecond;
+      const char *typeEncoding = method_getTypeEncoding(originalMethod);
+      class_addMethod(screenClass, swizzledSelector, method_getImplementation(originalMethod),
+                      typeEncoding);
+
+      // Replace original with swizzled
+      class_replaceMethod(screenClass, originalSelector, swizzledIMP, typeEncoding);
+    }
   });
 }
 
 - (void)setUp {
   [super setUp];
 
+  // Initialize test state
+  self.testMaxFPS = 0;
+  self.hasSwizzled = NO;
+
   // Clear any existing override before test
-  FPRClearTestMaxFPS();
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
   // Guarantee cleanup after test completes
+  __weak typeof(self) weakSelf = self;
   [self addTeardownBlock:^{
-    FPRClearTestMaxFPS();
+    __strong typeof(weakSelf) strongSelf = weakSelf;
+    if (strongSelf) {
+      objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
+                               OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
   }];
 
   FIRPerformance *performance = [FIRPerformance sharedInstance];
@@ -151,7 +160,8 @@ static inline void FPRClearTestMaxFPS(void) {
 
 - (void)tearDown {
   // Final guarantee to clear override
-  FPRClearTestMaxFPS();
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
   [super tearDown];
 
@@ -159,6 +169,13 @@ static inline void FPRClearTestMaxFPS(void) {
   [performance setDataCollectionEnabled:NO];
   self.tracker = nil;
   self.dispatchGroupToWaitOn = nil;
+}
+
+/** Helper method to set the test FPS override for the current test. */
+- (void)setTestMaxFPSOverride:(NSInteger)fps {
+  self.testMaxFPS = fps;
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, @(fps),
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 /** Tests that shared instance returns the same instance. */
@@ -974,7 +991,7 @@ typedef struct {
 
 /** Helper to run a single FPS test case with the given tracker and expectations. */
 static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFpsCase fpsCase) {
-  FPRSetTestMaxFPS(fpsCase.fps);
+  [testCase setTestMaxFPSOverride:fpsCase.fps];
 
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   // Frame that should be classified as slow (exceeds budget)
