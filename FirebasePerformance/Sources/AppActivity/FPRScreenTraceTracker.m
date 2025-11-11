@@ -49,13 +49,6 @@ static inline NSInteger FPRMaxFPS(void) {
   return maxFPS > 0 ? maxFPS : 60;
 }
 
-/** Returns the slow frame budget in seconds based on the device's maximum FPS.
- *  A frame is considered slow if it takes longer than this duration to render.
- */
-static inline CFTimeInterval FPRSlowBudgetSeconds(void) {
-  return 1.0 / FPRMaxFPS();
-}
-
 /** Returns the class name without the prefixed module name present in Swift classes
  * (e.g. MyModule.MyViewController -> MyViewController).
  */
@@ -176,8 +169,9 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 }
 
 - (void)fpr_refreshFrameRateCache {
-  self.fpr_cachedMaxFPS = FPRMaxFPS();
-  self.fpr_cachedSlowBudget = FPRSlowBudgetSeconds();
+  NSInteger maxFPS = FPRMaxFPS();
+  self.fpr_cachedMaxFPS = maxFPS;
+  self.fpr_cachedSlowBudget = 1.0 / (double)maxFPS;
 }
 
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
