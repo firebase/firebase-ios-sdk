@@ -123,6 +123,22 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   });
 }
 
++ (void)tearDown {
+  [super tearDown];
+
+  // Restore original implementation to prevent test pollution
+  if (gOriginal_maximumFramesPerSecond) {
+    Class screenClass = [UIScreen class];
+    SEL originalSelector = @selector(maximumFramesPerSecond);
+    Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
+    if (originalMethod) {
+      class_replaceMethod(screenClass, originalSelector, gOriginal_maximumFramesPerSecond,
+                          method_getTypeEncoding(originalMethod));
+      gOriginal_maximumFramesPerSecond = NULL;
+    }
+  }
+}
+
 - (void)setUp {
   [super setUp];
 
