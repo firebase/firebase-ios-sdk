@@ -20,10 +20,10 @@
 #include <utility>
 #include <valarray>
 
+#include "Firestore/core/src/core/pipeline_run.h"
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/util/hard_assert.h"  // For HARD_ASSERT and HARD_FAIL
-#include "pipeline_run.h"
 
 namespace firebase {
 namespace firestore {
