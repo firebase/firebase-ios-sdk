@@ -3576,135 +3576,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  private func addBooks(to collectionReference: CollectionReference) async throws {
-    try await collectionReference.document("book11").setData([
-      "title": "Jonathan Strange & Mr Norrell",
-      "author": "Susanna Clarke",
-      "genre": "Fantasy",
-      "published": 2004,
-      "rating": 4.6,
-      "tags": ["historical fantasy", "magic", "alternate history", "england"],
-      "awards": ["hugo": false, "nebula": false],
-    ])
-    try await collectionReference.document("book12").setData([
-      "title": "The Master and Margarita",
-      "author": "Mikhail Bulgakov",
-      "genre": "Satire",
-      "published": 1967,
-      "rating": 4.6,
-      "tags": ["russian literature", "supernatural", "philosophy", "dark comedy"],
-      "awards": [:],
-    ])
-    try await collectionReference.document("book13").setData([
-      "title": "A Long Way to a Small, Angry Planet",
-      "author": "Becky Chambers",
-      "genre": "Science Fiction",
-      "published": 2014,
-      "rating": 4.6,
-      "tags": ["space opera", "found family", "character-driven", "optimistic"],
-      "awards": ["hugo": false, "nebula": false, "kitschies": true],
-    ])
-  }
-
-  func testSupportsPaginationWithOffsetsUsingName() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
-    try await addBooks(to: collRef)
-
-    let pageSize = 2
-
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .select(["title", "rating", "__name__"])
-      .sort(
-        [
-          Field("rating").descending(),
-          Field("__name__").ascending(),
-        ]
-      )
-
-    var snapshot = try await pipeline.limit(Int32(pageSize)).execute()
-
-    TestHelper.compare(
-      snapshot: snapshot,
-      expected: [
-        ["title": "The Lord of the Rings", "rating": 4.7],
-        ["title": "Jonathan Strange & Mr Norrell", "rating": 4.6],
-      ],
-      enforceOrder: true
-    )
-
-    let lastDoc = snapshot.results.last!
-
-    snapshot = try await pipeline.where(
-      (Field("rating").equal(lastDoc.get("rating")!)
-        && Field("rating").lessThan(lastDoc.get("rating")!))
-        || Field("rating").lessThan(lastDoc.get("rating")!)
-    ).limit(Int32(pageSize)).execute()
-
-    TestHelper.compare(
-      snapshot: snapshot,
-      expected: [
-        ["title": "Pride and Prejudice", "rating": 4.5],
-        ["title": "Crime and Punishment", "rating": 4.3],
-      ],
-      enforceOrder: false
-    )
-  }
-
-  func testSupportsPaginationWithOffsetsUsingPath() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
-    try await addBooks(to: collRef)
-
-    let pageSize = 2
-    var currPage = 0
-
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .select(["title", "rating", "__path__"])
-      .sort(
-        [
-          Field("rating").descending(),
-          Field("__path__").ascending(),
-        ]
-      )
-
-    var snapshot = try await pipeline.offset(Int32(currPage) * Int32(pageSize)).limit(
-      Int32(pageSize)
-    ).execute()
-
-    currPage += 1
-
-    TestHelper.compare(
-      snapshot: snapshot,
-      expected: [
-        ["title": "The Lord of the Rings", "rating": 4.7],
-        ["title": "Dune", "rating": 4.6],
-      ],
-      enforceOrder: true
-    )
-
-    snapshot = try await pipeline.offset(Int32(currPage) * Int32(pageSize)).limit(
-      Int32(pageSize)
-    ).execute()
-
-    currPage += 1
-
-    TestHelper.compare(
-      snapshot: snapshot,
-      expected: [
-        ["title": "A Long Way to a Small, Angry Planet", "rating": 4.6],
-        ["title": "Pride and Prejudice", "rating": 4.5],
-      ],
-      enforceOrder: true
-    )
-  }
-
   func testSplitWorks() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": ["text": "a-b-c"],
@@ -3894,8 +3765,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testAddFieldsThrowsOnDuplicateAliases() async throws {
-    let collRef = collectionRef()
+  func testDuplicateAliasInAddFields() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .select(["title", "author"])
@@ -3911,5 +3784,129 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     } catch {
       XCTAssert(error.localizedDescription.contains("Duplicate alias 'foo'"))
     }
+  }
+
+  // MARK: - Pagination Tests
+
+  private var addedDocs: [DocumentReference] = []
+
+  private func addBooks(to collectionReference: CollectionReference) async throws {
+    var newDocs: [DocumentReference] = []
+    var docRef = collectionReference.document("book11")
+    newDocs.append(docRef)
+    try await docRef.setData([
+      "title": "Jonathan Strange & Mr Norrell",
+      "author": "Susanna Clarke",
+      "genre": "Fantasy",
+      "published": 2004,
+      "rating": 4.6,
+      "tags": ["historical fantasy", "magic", "alternate history", "england"],
+      "awards": ["hugo": false, "nebula": false],
+    ])
+
+    docRef = collectionReference.document("book12")
+    newDocs.append(docRef)
+    try await docRef.setData([
+      "title": "The Master and Margarita",
+      "author": "Mikhail Bulgakov",
+      "genre": "Satire",
+      "published": 1967, // Though written much earlier
+      "rating": 4.6,
+      "tags": ["russian literature", "supernatural", "philosophy", "dark comedy"],
+      "awards": [:],
+    ])
+
+    docRef = collectionReference.document("book13")
+    newDocs.append(docRef)
+    try await docRef.setData([
+      "title": "A Long Way to a Small, Angry Planet",
+      "author": "Becky Chambers",
+      "genre": "Science Fiction",
+      "published": 2014,
+      "rating": 4.6,
+      "tags": ["space opera", "found family", "character-driven", "optimistic"],
+      "awards": ["hugo": false, "nebula": false, "kitschies": true],
+    ])
+    addedDocs.append(contentsOf: newDocs)
+  }
+
+  func testPaginationWithFilters() async throws {
+    let randomCol = collectionRef(withDocuments: bookDocs)
+    try await addBooks(to: randomCol)
+
+    let pageSize = 2
+    let pipeline = randomCol.firestore.pipeline()
+      .collection(randomCol.path)
+      .select(["title", "rating", "__name__"])
+      .sort([Field("rating").descending(), Field("__name__").ascending()])
+
+    var snapshot = try await pipeline.limit(Int32(pageSize)).execute()
+    var expectedResults: [[String: Sendable]] = [
+      ["title": "The Lord of the Rings", "rating": 4.7],
+      ["title": "Dune", "rating": 4.6],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    let lastDoc = snapshot.results.last!
+    let lastRating = lastDoc.get("rating")!
+
+    snapshot = try await pipeline
+      .where(
+        (Field("rating").equal(lastRating)
+          && Field("__name__").greaterThan(lastDoc.ref!))
+          || Field("rating").lessThan(lastRating)
+      )
+      .limit(Int32(pageSize))
+      .execute()
+
+    expectedResults = [
+      ["title": "Jonathan Strange & Mr Norrell", "rating": 4.6],
+      ["title": "The Master and Margarita", "rating": 4.6],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testPaginationWithOffsets() async throws {
+    let randomCol = collectionRef(withDocuments: bookDocs)
+    try await addBooks(to: randomCol)
+
+    let secondFilterField = "__name__"
+
+    let pipeline = randomCol.firestore.pipeline()
+      .collection(randomCol.path)
+      .select(["title", "rating", secondFilterField])
+      .sort([
+        Field("rating").descending(),
+        Field(secondFilterField).ascending(),
+      ])
+
+    let pageSize = 2
+    var currPage = 0
+
+    var snapshot = try await pipeline.offset(Int32(currPage * pageSize)).limit(Int32(pageSize))
+      .execute()
+    var expectedResults: [[String: Sendable]] = [
+      ["title": "The Lord of the Rings", "rating": 4.7],
+      ["title": "Dune", "rating": 4.6],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    currPage += 1
+    snapshot = try await pipeline.offset(Int32(currPage * pageSize)).limit(Int32(pageSize))
+      .execute()
+    expectedResults = [
+      ["title": "Jonathan Strange & Mr Norrell", "rating": 4.6],
+      ["title": "The Master and Margarita", "rating": 4.6],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    currPage += 1
+    snapshot = try await pipeline.offset(Int32(currPage * pageSize)).limit(Int32(pageSize))
+      .execute()
+    expectedResults = [
+      ["title": "A Long Way to a Small, Angry Planet", "rating": 4.6],
+      ["title": "Pride and Prejudice", "rating": 4.5],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 }
