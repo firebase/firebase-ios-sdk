@@ -80,7 +80,7 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
     return [override integerValue];
   }
   // If no override, call original implementation via the swizzled selector
-  // After method_exchangeImplementations, the original method is now at the swizzled selector
+  // The original implementation was moved to the `fpr_original_maximumFramesPerSecond` selector.
   return ((NSInteger (*)(id, SEL))objc_msgSend)(self,
                                                 @selector(fpr_original_maximumFramesPerSecond));
 }
