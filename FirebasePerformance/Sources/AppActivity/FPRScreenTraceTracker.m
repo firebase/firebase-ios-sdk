@@ -27,11 +27,13 @@ NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
 
 // Note: The slow frame threshold is now dynamically computed based on UIScreen's
 // maximumFramesPerSecond to align with device capabilities (ProMotion, tvOS, etc.).
+// Slow threshold = 1000 / UIScreen.maximumFramesPerSecond ms (or 1.0 / maxFPS seconds).
 // For devices reporting 60 FPS, the threshold is approximately 16.67ms (1/60).
+// The threshold is cached and refreshed when the app becomes active.
 // TODO(b/73498642): Make these configurable.
 
 // Legacy constant maintained for test compatibility. The actual slow frame detection
-// uses FPRSlowBudgetSeconds() which queries UIScreen.maximumFramesPerSecond dynamically.
+// uses a cached value computed from UIScreen.maximumFramesPerSecond.
 CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 60.0;
 
 CFTimeInterval const kFPRFrozenFrameThreshold = 700.0 / 1000.0;
@@ -91,6 +93,14 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   }
 }
 
+@interface FPRScreenTraceTracker ()
+
+@property(nonatomic) NSInteger fpr_cachedMaxFPS;
+
+@property(nonatomic) CFTimeInterval fpr_cachedSlowBudget;
+
+@end
+
 @implementation FPRScreenTraceTracker {
   /** Instance variable storing the total frames observed so far. */
   atomic_int_fast64_t _totalFramesCount;
@@ -146,6 +156,17 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                              selector:@selector(appWillResignActiveNotification:)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:[UIApplication sharedApplication]];
+
+    // Initialize cached FPS and slow budget
+    NSInteger __fps = UIScreen.mainScreen.maximumFramesPerSecond ?: 60;
+    self.fpr_cachedMaxFPS = __fps;
+    self.fpr_cachedSlowBudget = 1.0 / (double)__fps;
+
+    // Observe app becoming active to refresh FPS cache
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appDidBecomeActive:)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
   }
   return self;
 }
@@ -156,6 +177,9 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidBecomeActiveNotification
                                                 object:[UIApplication sharedApplication]];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIApplicationDidBecomeActiveNotification
+                                                object:nil];
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationWillResignActiveNotification
                                                 object:[UIApplication sharedApplication]];
@@ -177,6 +201,12 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     }
     self.previouslyVisibleViewControllers = nil;
   });
+}
+
+- (void)appDidBecomeActive:(NSNotification *)note {
+  NSInteger __fps = UIScreen.mainScreen.maximumFramesPerSecond ?: 60;
+  self.fpr_cachedMaxFPS = __fps;
+  self.fpr_cachedSlowBudget = 1.0 / (double)__fps;
 }
 
 - (void)appWillResignActiveNotification:(NSNotification *)notification {
@@ -208,8 +238,9 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 - (void)displayLinkStep {
   static CFAbsoluteTime previousTimestamp = kFPRInvalidTime;
   CFAbsoluteTime currentTimestamp = self.displayLink.timestamp;
-  RecordFrameType(currentTimestamp, previousTimestamp, &_slowFramesCount, &_frozenFramesCount,
-                  &_totalFramesCount);
+  CFTimeInterval slowBudget = self.fpr_cachedSlowBudget;
+  RecordFrameType(currentTimestamp, previousTimestamp, slowBudget, &_slowFramesCount,
+                  &_frozenFramesCount, &_totalFramesCount);
   previousTimestamp = currentTimestamp;
 }
 
@@ -218,6 +249,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
  *
  *  @param currentTimestamp The current timestamp of the displayLink.
  *  @param previousTimestamp The previous timestamp of the displayLink.
+ *  @param slowBudget The cached slow frame budget in seconds (1.0 / maxFPS).
  *  @param slowFramesCounter The value of the slowFramesCount before this function was called.
  *  @param frozenFramesCounter The value of the frozenFramesCount before this function was called.
  *  @param totalFramesCounter The value of the totalFramesCount before this function was called.
@@ -225,6 +257,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 FOUNDATION_STATIC_INLINE
 void RecordFrameType(CFAbsoluteTime currentTimestamp,
                      CFAbsoluteTime previousTimestamp,
+                     CFTimeInterval slowBudget,
                      atomic_int_fast64_t *slowFramesCounter,
                      atomic_int_fast64_t *frozenFramesCounter,
                      atomic_int_fast64_t *totalFramesCounter) {
@@ -232,7 +265,6 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
   if (previousTimestamp == kFPRInvalidTime) {
     return;
   }
-  CFTimeInterval slowBudget = FPRSlowBudgetSeconds();
   if (frameDuration > slowBudget) {
     atomic_fetch_add_explicit(slowFramesCounter, 1, memory_order_relaxed);
   }

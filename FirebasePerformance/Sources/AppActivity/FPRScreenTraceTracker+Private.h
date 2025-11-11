@@ -39,13 +39,14 @@ FOUNDATION_EXTERN NSString *const kFPRTotalFramesCounterName;
 
 /** Legacy slow frame threshold constant (formerly 1/59).
  *  NOTE: This constant is deprecated and maintained only for test compatibility.
- *  The actual slow frame detection now uses UIScreen.maximumFramesPerSecond dynamically.
+ *  The actual slow frame detection uses a cached value computed from
+ *  UIScreen.maximumFramesPerSecond (slow threshold = 1000 / maxFPS ms).
  *  New code should not rely on this value.
  */
 FOUNDATION_EXTERN CFTimeInterval const kFPRSlowFrameThreshold;
 
 /** Frozen frame threshold (for time difference between current and previous frame render time)
- *  in sec.
+ *  in sec. Frozen threshold = 700 ms (>700 ms).
  */
 FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 
