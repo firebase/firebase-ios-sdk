@@ -73,18 +73,23 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 /** Associated object key for test FPS override. */
 static const void *kFPRTestMaxFPSKey = &kFPRTestMaxFPSKey;
 
+/** Original IMP for -[UIScreen maximumFramesPerSecond]. */
+static IMP gOriginal_maximumFramesPerSecond = NULL;
+
 /** Swizzled implementation of -[UIScreen maximumFramesPerSecond]. */
 static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   NSNumber *override = objc_getAssociatedObject(self, kFPRTestMaxFPSKey);
   if (override) {
     return [override integerValue];
   }
-  // If no override, call original implementation via the swizzled selector
-  // The original implementation was moved to the `fpr_original_maximumFramesPerSecond` selector.
-  typedef NSInteger (*IMPType)(id, SEL);
-  IMPType originalIMP =
-      (IMPType)[self methodForSelector:@selector(fpr_original_maximumFramesPerSecond)];
-  return originalIMP(self, @selector(fpr_original_maximumFramesPerSecond));
+
+  // Call the original implementation if available
+  if (gOriginal_maximumFramesPerSecond) {
+    return ((NSInteger (*)(id, SEL))gOriginal_maximumFramesPerSecond)(self, _cmd);
+  }
+
+  // Fallback to 60 FPS if original implementation is unavailable
+  return 60;
 }
 
 #pragma mark - Test Class
@@ -110,18 +115,12 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
     @synchronized([UIScreen class]) {
       Class screenClass = [UIScreen class];
       SEL originalSelector = @selector(maximumFramesPerSecond);
-      SEL swizzledSelector = @selector(fpr_original_maximumFramesPerSecond);
-
       Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
 
-      // Add swizzled method to the class
-      IMP swizzledIMP = (IMP)FPRSwizzled_maximumFramesPerSecond;
-      const char *typeEncoding = method_getTypeEncoding(originalMethod);
-      class_addMethod(screenClass, swizzledSelector, method_getImplementation(originalMethod),
-                      typeEncoding);
-
-      // Replace original with swizzled
-      class_replaceMethod(screenClass, originalSelector, swizzledIMP, typeEncoding);
+      // class_replaceMethod returns the original IMP, which we store for later use
+      gOriginal_maximumFramesPerSecond = class_replaceMethod(
+          screenClass, originalSelector, (IMP)FPRSwizzled_maximumFramesPerSecond,
+          method_getTypeEncoding(originalMethod));
     }
   });
 }
