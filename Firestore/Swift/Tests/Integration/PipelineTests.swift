@@ -3505,13 +3505,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testToLower() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["title": "The Hitchhiker's Guide to the Galaxy"],
+    ])
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .limit(1)
       .select([Field("title").toLower().as("lowercaseTitle")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
@@ -3522,13 +3522,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testToUpper() async throws {
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let collRef = collectionRef(withDocuments: bookDocs)
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["author": "Douglas Adams"],
+    ])
     let db = collRef.firestore
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .limit(1)
       .select([Field("author").toUpper().as("uppercaseAuthor")])
     let snapshot = try await pipeline.execute()
     TestHelper.compare(
