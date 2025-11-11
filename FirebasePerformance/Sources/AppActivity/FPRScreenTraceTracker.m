@@ -158,9 +158,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                                object:[UIApplication sharedApplication]];
 
     // Initialize cached FPS and slow budget
-    NSInteger __fps = UIScreen.mainScreen.maximumFramesPerSecond ?: 60;
-    self.fpr_cachedMaxFPS = __fps;
-    self.fpr_cachedSlowBudget = 1.0 / (double)__fps;
+    self.fpr_cachedMaxFPS = FPRMaxFPS();
+    self.fpr_cachedSlowBudget = FPRSlowBudgetSeconds();
 
     // Observe app becoming active to refresh FPS cache
     [[NSNotificationCenter defaultCenter] addObserver:self
