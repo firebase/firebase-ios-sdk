@@ -81,8 +81,10 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   }
   // If no override, call original implementation via the swizzled selector
   // The original implementation was moved to the `fpr_original_maximumFramesPerSecond` selector.
-  return ((NSInteger (*)(id, SEL))objc_msgSend)(self,
-                                                @selector(fpr_original_maximumFramesPerSecond));
+  typedef NSInteger (*IMPType)(id, SEL);
+  IMPType originalIMP =
+      (IMPType)[self methodForSelector:@selector(fpr_original_maximumFramesPerSecond)];
+  return originalIMP(self, @selector(fpr_original_maximumFramesPerSecond));
 }
 
 #pragma mark - Test Class
@@ -94,12 +96,6 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
 
 /** The dispatch group a test should wait for completion on before asserting behavior under test. */
 @property(nonatomic, nullable) dispatch_group_t dispatchGroupToWaitOn;
-
-/** Per-test FPS override value. Set this in individual tests. */
-@property(nonatomic, assign) NSInteger testMaxFPS;
-
-/** Whether the current test has swizzled maximumFramesPerSecond. */
-@property(nonatomic, assign) BOOL hasSwizzled;
 
 @end
 
@@ -132,10 +128,6 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
 
 - (void)setUp {
   [super setUp];
-
-  // Initialize test state
-  self.testMaxFPS = 0;
-  self.hasSwizzled = NO;
 
   // Clear any existing override before test
   objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
@@ -173,7 +165,6 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
 
 /** Helper method to set the test FPS override for the current test. */
 - (void)setTestMaxFPSOverride:(NSInteger)fps {
-  self.testMaxFPS = fps;
   objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, @(fps),
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
