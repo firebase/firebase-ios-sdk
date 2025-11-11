@@ -683,7 +683,7 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
 
-  // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
+  // Initialize previousTimestamp with first frame
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
   [self.tracker displayLinkStep];
   int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
@@ -705,7 +705,7 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
 
-  // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
+  // Initialize previousTimestamp with first frame
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
   [self.tracker displayLinkStep];
   int64_t initialFrozenFramesCount = self.tracker.frozenFramesCount;
@@ -731,7 +731,7 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
 
-  // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
+  // Initialize previousTimestamp with first frame
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
   [self.tracker displayLinkStep];
   int64_t initialFrozenFramesCount = self.tracker.frozenFramesCount;
@@ -759,7 +759,7 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
 
-  // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
+  // Initialize previousTimestamp with first frame
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
   [self.tracker displayLinkStep];
   int64_t initialTotalFramesCount = self.tracker.totalFramesCount;
@@ -792,7 +792,7 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   [self.tracker.displayLink invalidate];
   self.tracker.displayLink = displayLinkMock;
 
-  // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
+  // Initialize previousTimestamp with first frame
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
   [self.tracker displayLinkStep];
   int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
@@ -1004,7 +1004,7 @@ static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFps
   [testCase.tracker.displayLink invalidate];
   testCase.tracker.displayLink = displayLinkMock;
 
-  // Reset previousFrameTimestamp
+  // Initialize previousTimestamp with first frame
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
   [testCase.tracker displayLinkStep];
   int64_t initialSlowFramesCount = testCase.tracker.slowFramesCount;
