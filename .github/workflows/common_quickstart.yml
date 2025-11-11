@@ -103,8 +103,8 @@ jobs:
     - name: Remove data before upload.
       if: ${{ failure() }}
       run: scripts/remove_data.sh ${{ steps.lowercase_product.outputs.lowercase_product }}
-    # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
-    #   with:
-    #     name: quickstart_artifacts_${{ steps.lowercase_product.outputs.lowercase_product }}
-    #     path: quickstart-ios/
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_${{ steps.lowercase_product.outputs.lowercase_product }}
+        path: quickstart-ios/
