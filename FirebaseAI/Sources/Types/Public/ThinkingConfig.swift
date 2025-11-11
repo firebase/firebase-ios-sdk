@@ -37,6 +37,9 @@ public struct ThinkingConfig: Sendable {
   /// feature or if the specified budget is not within the model's supported range.
   let thinkingBudget: Int?
 
+  /// The level of thoughts tokens that the model should generate.
+  let thinkingLevel: ThinkingLevel?
+
   /// Whether summaries of the model's "thoughts" are included in responses.
   ///
   /// When `includeThoughts` is set to `true`, the model will return a summary of its internal
@@ -54,7 +57,60 @@ public struct ThinkingConfig: Sendable {
   ///   - includeThoughts: If true, summaries of the model's "thoughts" are included in responses.
   public init(thinkingBudget: Int? = nil, includeThoughts: Bool? = nil) {
     self.thinkingBudget = thinkingBudget
+    thinkingLevel = nil
     self.includeThoughts = includeThoughts
+  }
+
+  /// Initializes a new `ThinkingConfig`.
+  ///
+  /// - Parameters:
+  ///   - thinkingLevel: The level of thoughts tokens that the model should generate.
+  ///   - includeThoughts: If true, summaries of the model's "thoughts" are included in responses.
+  public init(thinkingLevel: ThinkingLevel, includeThoughts: Bool? = nil) {
+    switch thinkingLevel {
+    case .dynamic:
+      thinkingBudget = -1
+      self.thinkingLevel = nil
+    case .none:
+      thinkingBudget = 0
+      self.thinkingLevel = nil
+    default:
+      thinkingBudget = nil
+      self.thinkingLevel = thinkingLevel
+    }
+    self.includeThoughts = includeThoughts
+  }
+}
+
+public extension ThinkingConfig {
+  /// The thinking level for the model.
+  struct ThinkingLevel: EncodableProtoEnum, Equatable {
+    enum Kind: String {
+      case low = "LOW"
+      case medium = "MEDIUM"
+      case high = "HIGH"
+
+      // The following cases do not exist in the backend and must be mapped to a `thinkingBudget`.
+      case dynamic = "DYNAMIC" // Client-only enum value that maps to a thinking budget of -1.
+      case none = "NONE" // Client-only enum value that maps to a thinking budget of 0.
+    }
+
+    /// The model will adjust the budget based on the complexity of the request.
+    public static let dynamic = ThinkingLevel(kind: .dynamic)
+
+    /// Thinking is disabled.
+    public static let none = ThinkingLevel(kind: .none)
+
+    /// Low thinking level.
+    public static let low = ThinkingLevel(kind: .low)
+
+    /// Medium thinking level.
+    public static let medium = ThinkingLevel(kind: .medium)
+
+    /// High thinking level.
+    public static let high = ThinkingLevel(kind: .high)
+
+    var rawValue: String
   }
 }
 
