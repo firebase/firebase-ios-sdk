@@ -160,12 +160,6 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     // Initialize cached FPS and slow budget
     self.fpr_cachedMaxFPS = FPRMaxFPS();
     self.fpr_cachedSlowBudget = FPRSlowBudgetSeconds();
-
-    // Observe app becoming active to refresh FPS cache
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(appDidBecomeActive:)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
   }
   return self;
 }
@@ -177,14 +171,15 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                                   name:UIApplicationDidBecomeActiveNotification
                                                 object:[UIApplication sharedApplication]];
   [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                  name:UIApplicationDidBecomeActiveNotification
-                                                object:nil];
-  [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationWillResignActiveNotification
                                                 object:[UIApplication sharedApplication]];
 }
 
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
+  // Refresh cached FPS and slow budget when app becomes active
+  self.fpr_cachedMaxFPS = FPRMaxFPS();
+  self.fpr_cachedSlowBudget = FPRSlowBudgetSeconds();
+
   // To get the most accurate numbers of total, frozen and slow frames, we need to capture them as
   // soon as we're notified of an event.
   int64_t currentTotalFrames = atomic_load_explicit(&_totalFramesCount, memory_order_relaxed);
@@ -200,11 +195,6 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     }
     self.previouslyVisibleViewControllers = nil;
   });
-}
-
-- (void)appDidBecomeActive:(NSNotification *)note {
-  self.fpr_cachedMaxFPS = FPRMaxFPS();
-  self.fpr_cachedSlowBudget = FPRSlowBudgetSeconds();
 }
 
 - (void)appWillResignActiveNotification:(NSNotification *)notification {

@@ -969,8 +969,10 @@ typedef struct {
 /** Helper to run a single FPS test case with the given tracker and expectations. */
 static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFpsCase fpsCase) {
   [testCase setTestMaxFPSOverride:fpsCase.fps];
-  // Force the tracker to recompute the cache with the overridden FPS
-  [testCase.tracker appDidBecomeActive:nil];
+  // Force the tracker to recompute the cache with the overridden FPS by posting notification
+  NSNotification *notification =
+      [NSNotification notificationWithName:UIApplicationDidBecomeActiveNotification object:nil];
+  [testCase.tracker appDidBecomeActiveNotification:notification];
 
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   // Frame that should be classified as slow (exceeds budget)
