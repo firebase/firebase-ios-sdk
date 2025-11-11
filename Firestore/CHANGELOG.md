@@ -1,5 +1,7 @@
 # Unreleased
 - [feature] Add `Pipeline` support.
+- [fixed] Fixed an issue where the returned object in transaction blocks could not
+  pass across actor boundaries in Swift 6 (#15467).
 
 # 12.4.0
 - [fixed] Implemented an internal workaround to fix

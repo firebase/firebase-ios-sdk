@@ -26,7 +26,8 @@ import Foundation
 protocol Stage {
   var name: String { get }
   var bridge: StageBridge { get }
-  /// The `errorMessage` defaults to `nil`. Errors during stage construction are captured and thrown later when `execute()` is called.
+  /// The `errorMessage` defaults to `nil`. Errors during stage construction are captured and thrown
+  /// later when `execute()` is called.
   var errorMessage: String? { get }
 }
 
