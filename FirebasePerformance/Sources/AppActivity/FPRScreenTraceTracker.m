@@ -159,8 +159,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                                object:[UIApplication sharedApplication]];
 
     // Initialize cached FPS and slow budget
-    self.fpr_cachedMaxFPS = FPRMaxFPS();
-    self.fpr_cachedSlowBudget = FPRSlowBudgetSeconds();
+    [self fpr_refreshFrameRateCache];
   }
   return self;
 }
@@ -176,10 +175,14 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                                 object:[UIApplication sharedApplication]];
 }
 
-- (void)appDidBecomeActiveNotification:(NSNotification *)notification {
-  // Refresh cached FPS and slow budget when app becomes active
+- (void)fpr_refreshFrameRateCache {
   self.fpr_cachedMaxFPS = FPRMaxFPS();
   self.fpr_cachedSlowBudget = FPRSlowBudgetSeconds();
+}
+
+- (void)appDidBecomeActiveNotification:(NSNotification *)notification {
+  // Refresh cached FPS and slow budget when app becomes active
+  [self fpr_refreshFrameRateCache];
 
   // To get the most accurate numbers of total, frozen and slow frames, we need to capture them as
   // soon as we're notified of an event.

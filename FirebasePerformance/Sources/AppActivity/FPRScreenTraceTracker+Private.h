@@ -87,6 +87,9 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 /** The previous frame timestamp from the display link. Used to calculate frame duration. */
 @property(nonatomic) CFAbsoluteTime previousTimestamp;
 
+/** Refreshes the cached maximum FPS and slow frame budget from UIScreen. */
+- (void)fpr_refreshFrameRateCache;
+
 /** Handles the appDidBecomeActive notification. Restores the screen traces that were active before
  *  the app was backgrounded.
  *
