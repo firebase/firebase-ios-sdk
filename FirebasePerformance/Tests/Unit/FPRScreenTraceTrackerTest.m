@@ -115,17 +115,17 @@ static inline void FPRClearTestMaxFPS(void) {
 
 + (void)setUp {
   [super setUp];
-  
+
   // Perform one-time swizzle of UIScreen.maximumFramesPerSecond
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     Class screenClass = [UIScreen class];
     SEL originalSelector = @selector(maximumFramesPerSecond);
     Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
-    
+
     // Store original IMP
     gOriginalMaxFPSIMP = method_getImplementation(originalMethod);
-    
+
     // Replace with swizzled implementation
     method_setImplementation(originalMethod, (IMP)FPRSwizzled_maximumFramesPerSecond);
   });
@@ -133,10 +133,10 @@ static inline void FPRClearTestMaxFPS(void) {
 
 - (void)setUp {
   [super setUp];
-  
+
   // Clear any existing override before test
   FPRClearTestMaxFPS();
-  
+
   // Guarantee cleanup after test completes
   [self addTeardownBlock:^{
     FPRClearTestMaxFPS();
@@ -152,7 +152,7 @@ static inline void FPRClearTestMaxFPS(void) {
 - (void)tearDown {
   // Final guarantee to clear override
   FPRClearTestMaxFPS();
-  
+
   [super tearDown];
 
   FIRPerformance *performance = [FIRPerformance sharedInstance];
@@ -965,133 +965,115 @@ static inline void FPRClearTestMaxFPS(void) {
 
 #pragma mark - Dynamic FPS Threshold Tests
 
+/** Structure for table-driven FPS test cases. */
+typedef struct {
+  NSInteger fps;
+  CFTimeInterval slowCandidate;  // seconds > budget should be slow
+  CFTimeInterval fastCandidate;  // seconds < budget should NOT be slow
+} FPRFpsCase;
+
+/** Helper to run a single FPS test case with the given tracker and expectations. */
+static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFpsCase fpsCase) {
+  FPRSetTestMaxFPS(fpsCase.fps);
+
+  CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
+  // Frame that should be classified as slow (exceeds budget)
+  CFAbsoluteTime slowFrameTimestamp = firstFrameRenderTimestamp + fpsCase.slowCandidate;
+  // Frame that should NOT be classified as slow (within budget)
+  CFAbsoluteTime fastFrameTimestamp = slowFrameTimestamp + fpsCase.fastCandidate;
+  // Frame that should be classified as frozen (always 701ms)
+  CFAbsoluteTime frozenFrameTimestamp = fastFrameTimestamp + 0.701;
+  // Frame that should NOT be classified as frozen (always 699ms)
+  CFAbsoluteTime notFrozenFrameTimestamp = frozenFrameTimestamp + 0.699;
+
+  id displayLinkMock = OCMClassMock([CADisplayLink class]);
+  [testCase.tracker.displayLink invalidate];
+  testCase.tracker.displayLink = displayLinkMock;
+
+  // Reset previousFrameTimestamp
+  OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
+  [testCase.tracker displayLinkStep];
+  int64_t initialSlowFramesCount = testCase.tracker.slowFramesCount;
+  int64_t initialFrozenFramesCount = testCase.tracker.frozenFramesCount;
+  int64_t initialTotalFramesCount = testCase.tracker.totalFramesCount;
+
+  // Test slow frame (should be classified as slow, not frozen)
+  OCMExpect([displayLinkMock timestamp]).andReturn(slowFrameTimestamp);
+  [testCase.tracker displayLinkStep];
+  XCTAssertEqual(testCase.tracker.slowFramesCount, initialSlowFramesCount + 1,
+                 @"Frame duration %.3fms should be slow at %ld FPS", fpsCase.slowCandidate * 1000.0,
+                 (long)fpsCase.fps);
+  XCTAssertEqual(testCase.tracker.frozenFramesCount, initialFrozenFramesCount,
+                 @"Frame duration %.3fms should not be frozen", fpsCase.slowCandidate * 1000.0);
+  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 1);
+
+  // Test fast frame (should NOT be classified as slow or frozen)
+  OCMExpect([displayLinkMock timestamp]).andReturn(fastFrameTimestamp);
+  [testCase.tracker displayLinkStep];
+  XCTAssertEqual(testCase.tracker.slowFramesCount, initialSlowFramesCount + 1,
+                 @"Frame duration %.3fms should NOT be slow at %ld FPS",
+                 fpsCase.fastCandidate * 1000.0, (long)fpsCase.fps);
+  XCTAssertEqual(testCase.tracker.frozenFramesCount, initialFrozenFramesCount,
+                 @"Frame duration %.3fms should not be frozen", fpsCase.fastCandidate * 1000.0);
+  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 2);
+
+  // Test frozen frame (should be classified as both slow and frozen)
+  OCMExpect([displayLinkMock timestamp]).andReturn(frozenFrameTimestamp);
+  [testCase.tracker displayLinkStep];
+  XCTAssertEqual(testCase.tracker.slowFramesCount, initialSlowFramesCount + 2,
+                 @"Frame duration 701ms should be slow at %ld FPS", (long)fpsCase.fps);
+  XCTAssertEqual(testCase.tracker.frozenFramesCount, initialFrozenFramesCount + 1,
+                 @"Frame duration 701ms should be frozen at %ld FPS", (long)fpsCase.fps);
+  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 3);
+
+  // Test not-frozen frame (should be classified as slow but not frozen)
+  OCMExpect([displayLinkMock timestamp]).andReturn(notFrozenFrameTimestamp);
+  [testCase.tracker displayLinkStep];
+  XCTAssertEqual(testCase.tracker.slowFramesCount, initialSlowFramesCount + 3,
+                 @"Frame duration 699ms should be slow at %ld FPS", (long)fpsCase.fps);
+  XCTAssertEqual(testCase.tracker.frozenFramesCount, initialFrozenFramesCount + 1,
+                 @"Frame duration 699ms should NOT be frozen at %ld FPS", (long)fpsCase.fps);
+  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 4);
+}
+
+/** Tests that the slow frame threshold correctly adapts to various FPS rates.
+ *  Tests 50 FPS (tvOS), 60 FPS (standard), and 120 FPS (ProMotion).
+ */
+- (void)testSlowThresholdAdaptsToDifferentFPS {
+  FPRFpsCase testCases[] = {
+      {50, 0.021, 0.019},   // 50 FPS: budget 20ms (1/50)
+      {60, 0.017, 0.016},   // 60 FPS: budget ~16.67ms (1/60)
+      {120, 0.009, 0.008},  // 120 FPS: budget ~8.33ms (1/120)
+  };
+
+  NSInteger caseCount = sizeof(testCases) / sizeof(testCases[0]);
+  for (NSInteger i = 0; i < caseCount; i++) {
+    FPRRunFpsTestCase(self, testCases[i]);
+  }
+}
+
 /** Tests that the slow frame threshold correctly adapts to 60 FPS displays.
  *  At 60 FPS, slow budget is ~16.67ms (1/60).
  */
 - (void)testSlowThreshold60FPS {
-  FPRSetTestMaxFPS(60);
-
-  CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
-  // 0.017s (17ms) should be slow for 60 FPS (budget ~16.67ms)
-  CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + 0.017;
-  // 0.016s (16ms) should NOT be slow for 60 FPS
-  CFAbsoluteTime thirdFrameRenderTimestamp = secondFrameRenderTimestamp + 0.016;
-  // 0.701s should be frozen
-  CFAbsoluteTime fourthFrameRenderTimestamp = thirdFrameRenderTimestamp + 0.701;
-
-  id displayLinkMock = OCMClassMock([CADisplayLink class]);
-  [self.tracker.displayLink invalidate];
-  self.tracker.displayLink = displayLinkMock;
-
-  // Reset previousFrameTimestamp
-  OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
-  int64_t initialFrozenFramesCount = self.tracker.frozenFramesCount;
-
-  // Test 17ms frame (should be slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 1);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount);
-
-  // Test 16ms frame (should NOT be slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(thirdFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 1);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount);
-
-  // Test 701ms frame (should be frozen and slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(fourthFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 2);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount + 1);
+  FPRFpsCase testCase = {60, 0.017, 0.016};
+  FPRRunFpsTestCase(self, testCase);
 }
 
 /** Tests that the slow frame threshold correctly adapts to 120 FPS displays (ProMotion).
  *  At 120 FPS, slow budget is ~8.33ms (1/120).
  */
 - (void)testSlowThreshold120FPS {
-  FPRSetTestMaxFPS(120);
-
-  CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
-  // 0.009s (9ms) should be slow for 120 FPS (budget ~8.33ms)
-  CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + 0.009;
-  // 0.008s (8ms) should NOT be slow for 120 FPS
-  CFAbsoluteTime thirdFrameRenderTimestamp = secondFrameRenderTimestamp + 0.008;
-  // 0.701s should be frozen (unchanged threshold)
-  CFAbsoluteTime fourthFrameRenderTimestamp = thirdFrameRenderTimestamp + 0.701;
-
-  id displayLinkMock = OCMClassMock([CADisplayLink class]);
-  [self.tracker.displayLink invalidate];
-  self.tracker.displayLink = displayLinkMock;
-
-  // Reset previousFrameTimestamp
-  OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
-  int64_t initialFrozenFramesCount = self.tracker.frozenFramesCount;
-
-  // Test 9ms frame (should be slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 1);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount);
-
-  // Test 8ms frame (should NOT be slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(thirdFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 1);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount);
-
-  // Test 701ms frame (should be frozen and slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(fourthFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 2);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount + 1);
+  FPRFpsCase testCase = {120, 0.009, 0.008};
+  FPRRunFpsTestCase(self, testCase);
 }
 
 /** Tests that the slow frame threshold correctly adapts to 50 FPS displays (some tvOS devices).
  *  At 50 FPS, slow budget is 20ms (1/50).
  */
 - (void)testSlowThreshold50FPS {
-  FPRSetTestMaxFPS(50);
-
-  CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
-  // 0.021s (21ms) should be slow for 50 FPS (budget 20ms)
-  CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + 0.021;
-  // 0.019s (19ms) should NOT be slow for 50 FPS
-  CFAbsoluteTime thirdFrameRenderTimestamp = secondFrameRenderTimestamp + 0.019;
-  // 0.701s should be frozen (unchanged threshold)
-  CFAbsoluteTime fourthFrameRenderTimestamp = thirdFrameRenderTimestamp + 0.701;
-
-  id displayLinkMock = OCMClassMock([CADisplayLink class]);
-  [self.tracker.displayLink invalidate];
-  self.tracker.displayLink = displayLinkMock;
-
-  // Reset previousFrameTimestamp
-  OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
-  int64_t initialFrozenFramesCount = self.tracker.frozenFramesCount;
-
-  // Test 21ms frame (should be slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 1);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount);
-
-  // Test 19ms frame (should NOT be slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(thirdFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 1);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount);
-
-  // Test 701ms frame (should be frozen and slow)
-  OCMExpect([displayLinkMock timestamp]).andReturn(fourthFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  XCTAssertEqual(self.tracker.slowFramesCount, initialSlowFramesCount + 2);
-  XCTAssertEqual(self.tracker.frozenFramesCount, initialFrozenFramesCount + 1);
+  FPRFpsCase testCase = {50, 0.021, 0.019};
+  FPRRunFpsTestCase(self, testCase);
 }
 
 @end
