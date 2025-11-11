@@ -1003,7 +1003,8 @@ static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFps
                  (long)fpsCase.fps);
   XCTAssertEqual(testCase.tracker.frozenFramesCount, initialFrozenFramesCount,
                  @"Frame duration %.3fms should not be frozen", fpsCase.slowCandidate * 1000.0);
-  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 1);
+  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 1,
+                 @"Total frames should increment after a slow frame.");
 
   // Test fast frame (should NOT be classified as slow or frozen)
   OCMExpect([displayLinkMock timestamp]).andReturn(fastFrameTimestamp);
@@ -1013,7 +1014,8 @@ static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFps
                  fpsCase.fastCandidate * 1000.0, (long)fpsCase.fps);
   XCTAssertEqual(testCase.tracker.frozenFramesCount, initialFrozenFramesCount,
                  @"Frame duration %.3fms should not be frozen", fpsCase.fastCandidate * 1000.0);
-  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 2);
+  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 2,
+                 @"Total frames should increment after a fast frame.");
 
   // Test frozen frame (should be classified as both slow and frozen)
   OCMExpect([displayLinkMock timestamp]).andReturn(frozenFrameTimestamp);
@@ -1022,7 +1024,8 @@ static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFps
                  @"Frame duration 701ms should be slow at %ld FPS", (long)fpsCase.fps);
   XCTAssertEqual(testCase.tracker.frozenFramesCount, initialFrozenFramesCount + 1,
                  @"Frame duration 701ms should be frozen at %ld FPS", (long)fpsCase.fps);
-  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 3);
+  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 3,
+                 @"Total frames should increment after a frozen frame.");
 
   // Test not-frozen frame (should be classified as slow but not frozen)
   OCMExpect([displayLinkMock timestamp]).andReturn(notFrozenFrameTimestamp);
@@ -1031,7 +1034,8 @@ static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFps
                  @"Frame duration 699ms should be slow at %ld FPS", (long)fpsCase.fps);
   XCTAssertEqual(testCase.tracker.frozenFramesCount, initialFrozenFramesCount + 1,
                  @"Frame duration 699ms should NOT be frozen at %ld FPS", (long)fpsCase.fps);
-  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 4);
+  XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 4,
+                 @"Total frames should increment after a not-frozen frame.");
 }
 
 // FPS threshold adaptation tests
