@@ -3576,25 +3576,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  func testReverseString() async throws {
-    // Renamed from testReverse to avoid conflict if a generic reverse exists elsewhere
-    try XCTSkipIf(true, "Skip this test since backend has not yet supported.")
-    let collRef = collectionRef(withDocuments: bookDocs)
-    let db = collRef.firestore
-
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .where(Field("title").equal("1984"))
-      .limit(1)
-      .select([Field("title").reverse().as("reverseTitle")])
-    let snapshot = try await pipeline.execute()
-    TestHelper.compare(
-      snapshot: snapshot,
-      expected: [["reverseTitle": "4891"]],
-      enforceOrder: false
-    )
-  }
-
   private func addBooks(to collectionReference: CollectionReference) async throws {
     try await collectionReference.document("book11").setData([
       "title": "Jonathan Strange & Mr Norrell",
