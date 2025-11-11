@@ -84,6 +84,9 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 /** The slow frames counter. */
 @property(atomic) int_fast64_t slowFramesCount;
 
+/** The previous frame timestamp from the display link. Used to calculate frame duration. */
+@property(nonatomic) CFAbsoluteTime previousTimestamp;
+
 /** Handles the appDidBecomeActive notification. Restores the screen traces that were active before
  *  the app was backgrounded.
  *

@@ -142,6 +142,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     atomic_store_explicit(&_totalFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_frozenFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_slowFramesCount, 0, memory_order_relaxed);
+    _previousTimestamp = kFPRInvalidTime;
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkStep)];
     [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 
@@ -224,12 +225,11 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 #pragma mark - Frozen, slow and good frames
 
 - (void)displayLinkStep {
-  static CFAbsoluteTime previousTimestamp = kFPRInvalidTime;
   CFAbsoluteTime currentTimestamp = self.displayLink.timestamp;
   CFTimeInterval slowBudget = self.fpr_cachedSlowBudget;
-  RecordFrameType(currentTimestamp, previousTimestamp, slowBudget, &_slowFramesCount,
+  RecordFrameType(currentTimestamp, self.previousTimestamp, slowBudget, &_slowFramesCount,
                   &_frozenFramesCount, &_totalFramesCount);
-  previousTimestamp = currentTimestamp;
+  self.previousTimestamp = currentTimestamp;
 }
 
 /** This function increments the relevant frame counters based on the current and previous
