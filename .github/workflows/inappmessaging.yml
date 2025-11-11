@@ -41,12 +41,12 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-  # TODO(#12770): Update to macos-14 when tests are updated for Xcode 15.
+# TODO(#12770): Update to macos-14 when tests are updated for Xcode 15.
     runs-on: macos-15
     strategy:
       matrix:
-  # TODO(#8682): Reenable iPad after fixing Xcode 13 test failures.
-  #        platform: [iOS, iPad]
+# TODO(#8682): Reenable iPad after fixing Xcode 13 test failures.
+#        platform: [iOS, iPad]
         platform: [iOS]
         xcode: [Xcode_16.4]
     steps:
