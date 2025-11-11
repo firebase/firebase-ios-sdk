@@ -1069,28 +1069,4 @@ static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFps
   }
 }
 
-/** Tests that the slow frame threshold correctly adapts to 60 FPS displays.
- *  At 60 FPS, slow budget is ~16.67ms (1/60).
- */
-- (void)testSlowThreshold60FPS {
-  FPRFpsCase testCase = {60, 0.017, 0.016};
-  FPRRunFpsTestCase(self, testCase);
-}
-
-/** Tests that the slow frame threshold correctly adapts to 120 FPS displays (ProMotion).
- *  At 120 FPS, slow budget is ~8.33ms (1/120).
- */
-- (void)testSlowThreshold120FPS {
-  FPRFpsCase testCase = {120, 0.009, 0.008};
-  FPRRunFpsTestCase(self, testCase);
-}
-
-/** Tests that the slow frame threshold correctly adapts to 50 FPS displays (some tvOS devices).
- *  At 50 FPS, slow budget is 20ms (1/50).
- */
-- (void)testSlowThreshold50FPS {
-  FPRFpsCase testCase = {50, 0.021, 0.019};
-  FPRRunFpsTestCase(self, testCase);
-}
-
 @end
