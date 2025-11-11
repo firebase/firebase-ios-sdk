@@ -1004,7 +1004,7 @@ static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFps
   [testCase.tracker.displayLink invalidate];
   testCase.tracker.displayLink = displayLinkMock;
 
-  // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
+  // Process an initial frame to set the starting timestamp for duration calculations.
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
   [testCase.tracker displayLinkStep];
   int64_t initialSlowFramesCount = testCase.tracker.slowFramesCount;
