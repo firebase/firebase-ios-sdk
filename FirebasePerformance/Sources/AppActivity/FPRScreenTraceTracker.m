@@ -25,14 +25,34 @@ NSString *const kFPRFrozenFrameCounterName = @"_fr_fzn";
 NSString *const kFPRSlowFrameCounterName = @"_fr_slo";
 NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
 
-// Note: This was previously 60 FPS, but that resulted in 90% +  of all frames collected to be
-// flagged as slow frames, and so the threshold for iOS is being changed to 59 FPS.
+// Note: The slow frame threshold is now dynamically computed based on UIScreen's
+// maximumFramesPerSecond to align with device capabilities (ProMotion, tvOS, etc.).
+// For devices reporting 60 FPS, the threshold is approximately 16.67ms (1/60).
 // TODO(b/73498642): Make these configurable.
-CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 59.0;  // Anything less than 59 FPS is slow.
+
+// Legacy constant maintained for test compatibility. The actual slow frame detection
+// uses FPRSlowBudgetSeconds() which queries UIScreen.maximumFramesPerSecond dynamically.
+CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 60.0;
+
 CFTimeInterval const kFPRFrozenFrameThreshold = 700.0 / 1000.0;
 
 /** Constant that indicates an invalid time. */
 CFAbsoluteTime const kFPRInvalidTime = -1.0;
+
+/** Returns the maximum frames per second supported by the device's main screen.
+ *  Falls back to 60 if the value is unavailable or invalid.
+ */
+static inline NSInteger FPRMaxFPS(void) {
+  NSInteger maxFPS = [UIScreen mainScreen].maximumFramesPerSecond;
+  return maxFPS > 0 ? maxFPS : 60;
+}
+
+/** Returns the slow frame budget in seconds based on the device's maximum FPS.
+ *  A frame is considered slow if it takes longer than this duration to render.
+ */
+static inline CFTimeInterval FPRSlowBudgetSeconds(void) {
+  return 1.0 / (double)FPRMaxFPS();
+}
 
 /** Returns the class name without the prefixed module name present in Swift classes
  * (e.g. MyModule.MyViewController -> MyViewController).
@@ -212,7 +232,8 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
   if (previousTimestamp == kFPRInvalidTime) {
     return;
   }
-  if (frameDuration > kFPRSlowFrameThreshold) {
+  CFTimeInterval slowBudget = FPRSlowBudgetSeconds();
+  if (frameDuration > slowBudget) {
     atomic_fetch_add_explicit(slowFramesCounter, 1, memory_order_relaxed);
   }
   if (frameDuration > kFPRFrozenFrameThreshold) {
