@@ -112,7 +112,7 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   // Perform one-time swizzle of UIScreen.maximumFramesPerSecond
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    @synchronized([UIScreen class]) {
+    {
       Class screenClass = [UIScreen class];
       SEL originalSelector = @selector(maximumFramesPerSecond);
       Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
@@ -121,8 +121,8 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
       gOriginal_maximumFramesPerSecond = class_replaceMethod(
           screenClass, originalSelector, (IMP)FPRSwizzled_maximumFramesPerSecond,
           method_getTypeEncoding(originalMethod));
-    }
-  });
+}
+});
 }
 
 - (void)setUp {
@@ -131,16 +131,6 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   // Clear any existing override before test
   objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
-  // Guarantee cleanup after test completes
-  __weak typeof(self) weakSelf = self;
-  [self addTeardownBlock:^{
-    __strong typeof(weakSelf) strongSelf = weakSelf;
-    if (strongSelf) {
-      objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
-                               OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-  }];
 
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:YES];
@@ -151,6 +141,9 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
 
 - (void)tearDown {
   [super tearDown];
+
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:NO];
@@ -1039,20 +1032,20 @@ static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFps
   XCTAssertEqual(testCase.tracker.totalFramesCount, initialTotalFramesCount + 4);
 }
 
-/** Tests that the slow frame threshold correctly adapts to various FPS rates.
- *  Tests 50 FPS (tvOS), 60 FPS (standard), and 120 FPS (ProMotion).
- */
-- (void)testSlowThresholdAdaptsToDifferentFPS {
-  FPRFpsCase testCases[] = {
-      {50, 0.021, 0.019},   // 50 FPS: budget 20ms (1/50)
-      {60, 0.017, 0.016},   // 60 FPS: budget ~16.67ms (1/60)
-      {120, 0.009, 0.008},  // 120 FPS: budget ~8.33ms (1/120)
-  };
+// FPS threshold adaptation tests
+- (void)testSlowThresholdAdaptsTo50FPS {
+  FPRFpsCase testCase = (FPRFpsCase){50, 0.021, 0.019};  // 50 FPS: budget 20ms (1/50)
+  FPRRunFpsTestCase(self, testCase);
+}
 
-  NSInteger caseCount = sizeof(testCases) / sizeof(testCases[0]);
-  for (NSInteger i = 0; i < caseCount; i++) {
-    FPRRunFpsTestCase(self, testCases[i]);
-  }
+- (void)testSlowThresholdAdaptsTo60FPS {
+  FPRFpsCase testCase = (FPRFpsCase){60, 0.017, 0.016};  // 60 FPS: budget ~16.67ms (1/60)
+  FPRRunFpsTestCase(self, testCase);
+}
+
+- (void)testSlowThresholdAdaptsTo120FPS {
+  FPRFpsCase testCase = (FPRFpsCase){120, 0.009, 0.008};  // 120 FPS: budget ~8.33ms (1/120)
+  FPRRunFpsTestCase(self, testCase);
 }
 
 @end
