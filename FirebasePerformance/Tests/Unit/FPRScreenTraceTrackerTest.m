@@ -112,17 +112,15 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   // Perform one-time swizzle of UIScreen.maximumFramesPerSecond
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    {
-      Class screenClass = [UIScreen class];
-      SEL originalSelector = @selector(maximumFramesPerSecond);
-      Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
+    Class screenClass = [UIScreen class];
+    SEL originalSelector = @selector(maximumFramesPerSecond);
+    Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
 
-      // class_replaceMethod returns the original IMP, which we store for later use
-      gOriginal_maximumFramesPerSecond = class_replaceMethod(
-          screenClass, originalSelector, (IMP)FPRSwizzled_maximumFramesPerSecond,
-          method_getTypeEncoding(originalMethod));
-}
-});
+    // class_replaceMethod returns the original IMP, which we store for later use
+    gOriginal_maximumFramesPerSecond =
+        class_replaceMethod(screenClass, originalSelector, (IMP)FPRSwizzled_maximumFramesPerSecond,
+                            method_getTypeEncoding(originalMethod));
+  });
 }
 
 - (void)setUp {
