@@ -203,9 +203,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 }
 
 - (void)appDidBecomeActive:(NSNotification *)note {
-  NSInteger __fps = UIScreen.mainScreen.maximumFramesPerSecond ?: 60;
-  self.fpr_cachedMaxFPS = __fps;
-  self.fpr_cachedSlowBudget = 1.0 / (double)__fps;
+  self.fpr_cachedMaxFPS = FPRMaxFPS();
+  self.fpr_cachedSlowBudget = FPRSlowBudgetSeconds();
 }
 
 - (void)appWillResignActiveNotification:(NSNotification *)notification {
