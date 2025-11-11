@@ -150,10 +150,6 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
 }
 
 - (void)tearDown {
-  // Final guarantee to clear override
-  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
-                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-
   [super tearDown];
 
   FIRPerformance *performance = [FIRPerformance sharedInstance];
