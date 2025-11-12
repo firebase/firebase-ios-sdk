@@ -22,7 +22,6 @@
 #include <utility>
 #include <vector>
 
-#include <vector>
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/document_change.h"
 #include "Firestore/core/src/api/document_snapshot.h"
