@@ -1552,6 +1552,18 @@ func firestoreTargets() -> [Target] {
           .swiftLanguageMode(SwiftLanguageMode.v5),
         ]
       ),
+      .testTarget(
+        name: "FirebaseFirestoreTests",
+        dependencies: [
+          "Firebase",
+          "FirebaseCore",
+          "FirebaseFirestoreTarget"
+        ],
+        path: "Firestore/Swift/Tests/Unit",
+        cSettings: [
+          .headerSearchPath("../../../"),
+        ]
+      ),
     ]
   }
 
