@@ -117,8 +117,9 @@ TEST_F(DebugTest, IsErrorFieldMissingReturnsFalse) {
 }
 
 TEST_F(DebugTest, IsErrorNonErrorReturnsFalse) {
-  EXPECT_THAT(EvaluateExpr(*IsErrorExpr(SharedConstant(42LL))),
-              Returns(Value(false)));
+  EXPECT_THAT(
+      EvaluateExpr(*IsErrorExpr(SharedConstant(static_cast<int64_t>(42LL)))),
+      Returns(Value(false)));
 }
 
 TEST_F(DebugTest, IsErrorExplicitNullReturnsFalse) {
