@@ -447,6 +447,7 @@ EvaluateResult CoreEq::CompareToResult(const EvaluateResult& left,
     case model::StrictEqualsResult::kNull:
       return EvaluateResult::NewNull();
   }
+  HARD_FAIL("Unhandled case in switch statement");
 }
 
 EvaluateResult CoreNeq::CompareToResult(const EvaluateResult& left,
@@ -469,6 +470,7 @@ EvaluateResult CoreNeq::CompareToResult(const EvaluateResult& left,
     case model::StrictEqualsResult::kNull:
       return EvaluateResult::NewNull();
   }
+  HARD_FAIL("Unhandled case in switch statement");
 }
 
 EvaluateResult CoreLt::CompareToResult(const EvaluateResult& left,
