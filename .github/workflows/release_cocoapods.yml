@@ -1,4 +1,4 @@
-name: release
+name: release_cocoapods
 
 permissions:
   contents: read
@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
     - 'scripts/release_testing_setup.sh'
-    - '.github/workflows/release.yml'
+    - '.github/workflows/release_cocoapods.yml'
     - 'Gemfile*'
   workflow_dispatch:
   schedule:
@@ -36,7 +36,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0 # Required for pulling down repo tags.
     - name: Generate matrix
       id: generate_matrix
       run: |
