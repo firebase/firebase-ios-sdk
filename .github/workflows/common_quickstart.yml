@@ -96,15 +96,17 @@ jobs:
             ${{ inputs.run_tests }}
     # Failure sequence to upload artifact.
     - id: lowercase_product
-      if: ${{ failure() }}
+      if: failure()
       run: |
         lowercase_product=$(echo "${{ inputs.product }}" | tr '[:upper:]' '[:lower:]')
         echo "lowercase_product=$lowercase_product" >> $GITHUB_OUTPUT
     - name: Remove data before upload.
-      if: ${{ failure() }}
+      if: failure()
       run: scripts/remove_data.sh ${{ steps.lowercase_product.outputs.lowercase_product }}
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
         name: quickstart_artifacts_${{ steps.lowercase_product.outputs.lowercase_product }}
-        path: quickstart-ios/
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist

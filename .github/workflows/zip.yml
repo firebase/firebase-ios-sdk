@@ -499,13 +499,15 @@ jobs:
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload
-      if: ${{ failure() }}
+      if: failure()
       run: scripts/remove_data.sh firebaseai
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts_firebaseai
-        path: quickstart-ios/
+        name: quickstart_artifacts_firebaseai_${{ matrix.artifact }}_${{ matrix.build-env.os }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_firestore:
     needs: packaging_done
