@@ -35,7 +35,7 @@ public extension Auth {
   /// ```swift
   /// func monitorAuthState() async {
   ///   for await user in Auth.auth().authStateChanges {
-  ///     if let user = user {
+  ///     if let user {
   ///       print("User signed in: \(user.uid)")
   ///       // Update UI or perform actions for a signed-in user.
   ///     } else {
@@ -133,7 +133,7 @@ public extension Auth {
   /// ```swift
   /// func monitorIDTokenChanges() async {
   ///   for await user in Auth.auth().idTokenChanges {
-  ///     if let user = user {
+  ///     if let user {
   ///       print("ID token changed for user: \(user.uid)")
   ///       // Update UI or perform actions for a signed-in user.
   ///     } else {
