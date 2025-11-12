@@ -81,7 +81,7 @@ const std::vector<std::shared_ptr<Expr>>
         // C++
         SharedConstant("santé"), SharedConstant("santé et bonheur")};
 
-const auto ComparisonValueTestData::BYTE_VALUES =
+const std::vector<std::shared_ptr<Expr>> ComparisonValueTestData::BYTE_VALUES =
     std::vector<std::shared_ptr<Expr>>{
         SharedConstant(*BlobValue()),  // Empty - use default constructor
         SharedConstant(*BlobValue(0, 2, 56, 42)),  // Use variadic args

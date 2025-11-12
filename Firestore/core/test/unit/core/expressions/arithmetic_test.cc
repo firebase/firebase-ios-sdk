@@ -647,8 +647,8 @@ TEST_F(DivideFunctionTest, PositiveInfinityNegativeInfinityReturnsNan) {
 
 TEST_F(ModFunctionTest, DivisorZeroThrowsError) {
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr(
-          {SharedConstant(42LL), SharedConstant(static_cast<int64_t>(0LL))})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(42LL)),
+                             SharedConstant(static_cast<int64_t>(0LL))})),
       ReturnsError());
   // Note: C++ doesn't distinguish -0LL from 0LL
   // EXPECT_TRUE(AssertResultEquals(
@@ -665,9 +665,10 @@ TEST_F(ModFunctionTest, DivisorZeroThrowsError) {
 }
 
 TEST_F(ModFunctionTest, DividendZeroReturnsZero) {
-  EXPECT_THAT(EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(0LL)),
-                                     SharedConstant(42LL)})),
-              Returns(Value(0LL)));
+  EXPECT_THAT(
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(0LL)),
+                             SharedConstant(static_cast<int64_t>(42LL))})),
+      Returns(Value(0LL)));
   // Note: C++ doesn't distinguish -0LL from 0LL
   // EXPECT_THAT(
   //     EvaluateExpr(*ModExpr({SharedConstant(-0LL), SharedConstant(42LL)})),
