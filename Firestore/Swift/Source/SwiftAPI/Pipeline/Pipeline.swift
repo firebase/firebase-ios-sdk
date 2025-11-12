@@ -103,6 +103,17 @@ public struct Pipeline: @unchecked Sendable {
     }
   }
 
+  /// Creates a new `Pipeline` instance in a faulted state.
+  ///
+  /// This function is used to propagate an error through the pipeline chain. When a stage
+  /// fails to initialize or if a preceding stage has already failed, this method is called
+  /// to create a new pipeline that holds the error message. The `stages` array is cleared,
+  /// and the `errorMessage` is set.
+  ///
+  /// The stored error is eventually thrown by the `execute()` method.
+  ///
+  /// - Parameter message: The error message to store in the pipeline.
+  /// - Returns: A new `Pipeline` instance with the specified error message.
   private func withError(_ message: String) -> Pipeline {
     return Pipeline(stages: [], db: db, errorMessage: message)
   }
@@ -127,7 +138,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
   public func execute() async throws -> Pipeline.Snapshot {
-    // Check if any Error exist during Stage contruction
+    // Check if any errors occurred during stage construction.
     if let errorMessage = errorMessage {
       throw NSError(
         domain: "com.google.firebase.firestore",

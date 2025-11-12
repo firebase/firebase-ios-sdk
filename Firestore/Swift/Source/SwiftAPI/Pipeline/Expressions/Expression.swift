@@ -461,6 +461,30 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
   func arrayGet(_ offsetExpression: Expression) -> FunctionExpression
 
+  /// Creates an expression that returns the maximum element of an array.
+  ///
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the maximum value in the "scores" array.
+  /// Field("scores").arrayMaximum()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the maximum element of the array.
+  func arrayMaximum() -> FunctionExpression
+
+  /// Creates an expression that returns the minimum element of an array.
+  ///
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the minimum value in the "scores" array.
+  /// Field("scores").arrayMinimum()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the minimum element of the array.
+  func arrayMinimum() -> FunctionExpression
+
   /// Creates a `BooleanExpression` that returns `true` if this expression is greater
   /// than the given expression.
   ///
@@ -681,6 +705,18 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the joined string.
   func join(delimiter: String) -> FunctionExpression
 
+  /// Creates an expression that splits a string into an array of substrings based on a delimiter.
+  ///
+  /// - Parameter delimiter: The string to split on.
+  /// - Returns: A new `FunctionExpression` representing the array of substrings.
+  func split(delimiter: String) -> FunctionExpression
+
+  /// Creates an expression that splits a string into an array of substrings based on a delimiter.
+  ///
+  /// - Parameter delimiter: An expression that evaluates to a string or bytes to split on.
+  /// - Returns: A new `FunctionExpression` representing the array of substrings.
+  func split(delimiter: Expression) -> FunctionExpression
+
   /// Creates an expression that returns the length of a string.
   ///
   /// ```swift
@@ -886,6 +922,18 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the uppercase string.
   func toUpper() -> FunctionExpression
 
+  /// Creates an expression that removes leading and trailing whitespace from a string.
+  ///
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Trim leading/trailing whitespace from the "comment" field.
+  /// Field("comment").trim()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the trimmed string.
+  func trim() -> FunctionExpression
+
   /// Creates an expression that removes leading and trailing occurrences of specified characters
   /// from a string (from `self`).
   /// Assumes `self` evaluates to a string, and `value` evaluates to a string.
@@ -961,8 +1009,8 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the reversed string.
   func stringReverse() -> FunctionExpression
 
-  /// Creates an expression that calculates the length of this expression in bytes.
-  /// Assumes `self` evaluates to a string.
+  /// Creates an expression that calculates the length of this string or bytes expression in bytes.
+  /// Assumes `self` evaluates to a string or bytes.
   ///
   /// ```swift
   /// // Calculate the length of the "myString" field in bytes.
@@ -975,9 +1023,9 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the length in bytes.
   func byteLength() -> FunctionExpression
 
-  /// Creates an expression that returns a substring of this expression using
+  /// Creates an expression that returns a substring of this expression (String or Bytes) using
   /// literal integers for position and optional length.
-  /// Indexing is 0-based. Assumes `self` evaluates to a string.
+  /// Indexing is 0-based. Assumes `self` evaluates to a string or bytes.
   ///
   /// ```swift
   /// // Get substring from index 5 with length 10
@@ -992,9 +1040,9 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the substring.
   func substring(position: Int, length: Int?) -> FunctionExpression
 
-  /// Creates an expression that returns a substring of this expression using
+  /// Creates an expression that returns a substring of this expression (String or Bytes) using
   /// expressions for position and optional length.
-  /// Indexing is 0-based. Assumes `self` evaluates to a string, and parameters evaluate to
+  /// Indexing is 0-based. Assumes `self` evaluates to a string or bytes, and parameters evaluate to
   /// integers.
   ///
   /// ```swift
@@ -1079,34 +1127,6 @@ public protocol Expression: Sendable {
   /// - Parameter maps: Additional `Expression` (evaluating to Maps) to merge.
   /// - Returns: A new `FunctionExpression` representing the "map_merge" operation.
   func mapMerge(_ maps: [Expression]) -> FunctionExpression
-
-  /// Creates an expression that adds or updates a specified field in a map.
-  /// Assumes `self` evaluates to a Map, `key` evaluates to a string, and `value` can be
-  /// any type.
-  ///
-  /// ```swift
-  /// // Set a field using a key from another field
-  /// Field("config").mapSet(key: Field("keyName"), value: Field("keyValue"))
-  /// ```
-  ///
-  /// - Parameter key: An `Expression` (evaluating to a string) representing the key of
-  /// the field to set or update.
-  /// - Parameter value: The `Expression` representing the value to set for the field.
-  /// - Returns: A new `FunctionExpression` representing the map with the updated field.
-  func mapSet(key: Expression, value: Sendable) -> FunctionExpression
-
-  /// Creates an expression that adds or updates a specified field in a map.
-  /// Assumes `self` evaluates to a Map.
-  ///
-  /// ```swift
-  /// // Set the "status" field to "active" in the "order" map
-  /// Field("order").mapSet(key: "status", value: "active")
-  /// ```
-  ///
-  /// - Parameter key: The literal string key of the field to set or update.
-  /// - Parameter value: The `Sendable` literal value to set for the field.
-  /// - Returns: A new `FunctionExpression` representing the map with the updated field.
-  func mapSet(key: String, value: Sendable) -> FunctionExpression
 
   // MARK: Aggregations
 
@@ -1429,19 +1449,23 @@ public protocol Expression: Sendable {
   /// Field("timestamp").timestampTruncate(granularity: .day)
   /// ```
   ///
-  /// - Parameter granularity: A `TimeUnit` enum representing the truncation unit.
+  /// - Parameter granularity: A `TimeGranularity` representing the truncation unit.
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
-  func timestampTruncate(granularity: TimeUnit) -> FunctionExpression
+  func timestampTruncate(granularity: TimeGranularity) -> FunctionExpression
 
   /// Creates an expression that truncates a timestamp to a specified granularity.
-  /// Assumes `self` evaluates to a Timestamp, and `granularity` is a literal string.
+  /// Assumes `self` evaluates to a Timestamp.
   ///
   /// ```swift
   /// // Truncate "timestamp" field to the nearest day using a literal string.
   /// Field("timestamp").timestampTruncate(granularity: "day")
+  ///
+  /// // Truncate "timestamp" field to the nearest day using an expression.
+  /// Field("timestamp").timestampTruncate(granularity: Field("granularity_field"))
   /// ```
   ///
-  /// - Parameter granularity: A `Sendable` literal string specifying the truncation unit.
+  /// - Parameter granularity: A `Sendable` literal string or an `Expression` that evaluates to a
+  /// string, specifying the truncation unit.
   /// - Returns: A new `FunctionExpression` representing the truncated timestamp.
   func timestampTruncate(granularity: Sendable) -> FunctionExpression
 
@@ -1596,4 +1620,14 @@ public protocol Expression: Sendable {
   /// - Parameter values: The values to concatenate.
   /// - Returns: A new `FunctionExpression` representing the concatenated result.
   func concat(_ values: [Sendable]) -> FunctionExpression
+
+  /// Creates an expression that returns the type of the expression.
+  ///
+  /// ```swift
+  /// // Get the type of the "rating" field.
+  /// Field("rating").type()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
+  func type() -> FunctionExpression
 }
