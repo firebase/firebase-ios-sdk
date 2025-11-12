@@ -112,7 +112,7 @@ jobs:
         retry_wait_seconds: 120
         command: DIR=${{ matrix.product }} scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
     - name: Remove data before upload
-    #  if: ${{ failure() }}
+     if: ${{ failure() }}
       run: scripts/remove_data.sh ${{ matrix.product }}
     # - uses: actions/upload-artifact@v4
     #   if: ${{ failure() }}
