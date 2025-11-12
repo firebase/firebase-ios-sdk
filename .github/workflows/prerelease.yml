@@ -119,8 +119,10 @@ jobs:
     - name: Remove data before upload.
      if: ${{ failure() }}
       run: scripts/remove_data.sh ${{ matrix.product }}
-    # - uses: actions/upload-artifact@v4
-    #   if: ${{ failure() }}
-    #   with:
-    #     name: quickstart_artifacts_${{ matrix.product }}
-    #     path: quickstart-ios/
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: quickstart_artifacts_${{ matrix.product }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
