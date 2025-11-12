@@ -2,8 +2,8 @@
 # There are three ways to configure the source of the zip file for testing:
 # 1. To iterate on a PR: Set the `PINNED_RUN_ID` environment variable in this
 #    file to a successful zip packaging run. This is useful for avoiding
-#    re-running the packaging jobs on every commit.
-# 2. For manual runs: Trigger the workflow via the GitHub UI (`workflow_dispatch`)
+#    having to manually re-run the packaging jobs for each commit.
+# 2. For manual runs: Trigger the workflow via the [GitHub UI](https://github.com/firebase/firebase-ios-sdk/actions/workflows/zip.yml)
 #    and provide a "Run ID of a previous successful zip workflow" in the input.
 # 3. By default (for scheduled and other PR runs): The workflow will build the
 #    zip from the current commit (HEAD).
@@ -341,14 +341,13 @@ jobs:
         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Remove data before upload
-      if: always()
-      run: scripts/remove_data.sh config
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: quickstart_artifacts_config_${{ matrix.artifact }}
-        path: quickstart-ios/
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_crashlytics:
     needs: packaging_done
