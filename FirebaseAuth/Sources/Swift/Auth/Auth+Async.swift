@@ -35,7 +35,7 @@ public extension Auth {
   /// ```swift
   /// func monitorAuthState() async {
   ///   for await user in Auth.auth().authStateChanges {
-  ///     if let user = user {
+  ///     if let user {
   ///       print("User signed in: \(user.uid)")
   ///       // Update UI or perform actions for a signed-in user.
   ///     } else {
@@ -46,14 +46,70 @@ public extension Auth {
   /// }
   /// ```
   @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
-  var authStateChanges: some AsyncSequence<User?, Never> {
-    AsyncStream { continuation in
-      let listenerHandle = addStateDidChangeListener { _, user in
-        continuation.yield(user)
+  var authStateChanges: AuthStateChangesSequence {
+    AuthStateChangesSequence(self)
+  }
+
+  /// An `AsyncSequence` that emits `User?` values whenever the authentication state changes.
+  ///
+  /// This struct is the concrete type returned by the `Auth.authStateChanges` property.
+  ///
+  /// - Important: This type is marked `@unchecked Sendable` because the underlying `Auth` object
+  ///   is not explicitly marked `Sendable` by the framework. However, the operations performed
+  ///   (adding and removing listeners) are known to be thread-safe.
+  @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+  struct AuthStateChangesSequence: AsyncSequence, @unchecked Sendable {
+    public typealias Element = User?
+    public typealias Failure = Never
+    public typealias AsyncIterator = Iterator
+
+    private let auth: Auth
+
+    /// Creates a new sequence for monitoring authentication state changes.
+    /// - Parameter auth: The `Auth` instance to monitor.
+    public init(_ auth: Auth) {
+      self.auth = auth
+    }
+
+    /// Creates and returns an iterator for this asynchronous sequence.
+    /// - Returns: An `Iterator` for `AuthStateChangesSequence`.
+    public func makeAsyncIterator() -> Iterator {
+      Iterator(auth: auth)
+    }
+
+    /// The asynchronous iterator for `AuthStateChangesSequence`.
+    ///
+    /// - Important: This type is marked `@unchecked Sendable` for the same reasons as its parent
+    ///   `AuthStateChangesSequence`.
+    public struct Iterator: AsyncIteratorProtocol, @unchecked Sendable {
+      private let stream: AsyncStream<User?>
+      private var streamIterator: AsyncStream<User?>.Iterator
+
+      /// Initializes the iterator with the provided `Auth` instance.
+      /// This sets up the `AsyncStream` and registers the necessary listener.
+      /// - Parameter auth: The `Auth` instance to monitor.
+      init(auth: Auth) {
+        stream = AsyncStream<User?> { continuation in
+          let handle = auth.addStateDidChangeListener { _, user in
+            continuation.yield(user)
+          }
+
+          continuation.onTermination = { @Sendable _ in
+            auth.removeStateDidChangeListener(handle)
+          }
+        }
+
+        streamIterator = stream.makeAsyncIterator()
       }
 
-      continuation.onTermination = { @Sendable _ in
-        self.removeStateDidChangeListener(listenerHandle)
+      /// Produces the next element in the asynchronous sequence.
+      ///
+      /// Returns a `User?` value (where `nil` indicates no signed-in user) or `nil` if the
+      /// sequence has terminated.
+      /// - Returns: An optional `User?` object, wrapped in another optional to indicate the end of
+      /// the sequence.
+      public mutating func next() async -> User?? {
+        await streamIterator.next()
       }
     }
   }
@@ -77,7 +133,7 @@ public extension Auth {
   /// ```swift
   /// func monitorIDTokenChanges() async {
   ///   for await user in Auth.auth().idTokenChanges {
-  ///     if let user = user {
+  ///     if let user {
   ///       print("ID token changed for user: \(user.uid)")
   ///       // Update UI or perform actions for a signed-in user.
   ///     } else {
@@ -88,14 +144,70 @@ public extension Auth {
   /// }
   /// ```
   @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
-  var idTokenChanges: some AsyncSequence<User?, Never> {
-    AsyncStream { continuation in
-      let listenerHandle = addIDTokenDidChangeListener { _, user in
-        continuation.yield(user)
+  var idTokenChanges: IDTokenChangesSequence {
+    IDTokenChangesSequence(self)
+  }
+
+  /// An `AsyncSequence` that emits `User?` values whenever the ID token changes.
+  ///
+  /// This struct is the concrete type returned by the `Auth.idTokenChanges` property.
+  ///
+  /// - Important: This type is marked `@unchecked Sendable` because the underlying `Auth` object
+  ///   is not explicitly marked `Sendable` by the framework. However, the operations performed
+  ///   (adding and removing listeners) are known to be thread-safe.
+  @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
+  struct IDTokenChangesSequence: AsyncSequence, @unchecked Sendable {
+    public typealias Element = User?
+    public typealias Failure = Never
+    public typealias AsyncIterator = Iterator
+
+    private let auth: Auth
+
+    /// Creates a new sequence for monitoring ID token changes.
+    /// - Parameter auth: The `Auth` instance to monitor.
+    public init(_ auth: Auth) {
+      self.auth = auth
+    }
+
+    /// Creates and returns an iterator for this asynchronous sequence.
+    /// - Returns: An `Iterator` for `IDTokenChangesSequence`.
+    public func makeAsyncIterator() -> Iterator {
+      Iterator(auth: auth)
+    }
+
+    /// The asynchronous iterator for `IDTokenChangesSequence`.
+    ///
+    /// - Important: This type is marked `@unchecked Sendable` for the same reasons as its parent
+    ///   `IDTokenChangesSequence`.
+    public struct Iterator: AsyncIteratorProtocol, @unchecked Sendable {
+      private let stream: AsyncStream<User?>
+      private var streamIterator: AsyncStream<User?>.Iterator
+
+      /// Initializes the iterator with the provided `Auth` instance.
+      /// This sets up the `AsyncStream` and registers the necessary listener.
+      /// - Parameter auth: The `Auth` instance to monitor.
+      init(auth: Auth) {
+        stream = AsyncStream<User?> { continuation in
+          let handle = auth.addIDTokenDidChangeListener { _, user in
+            continuation.yield(user)
+          }
+
+          continuation.onTermination = { @Sendable _ in
+            auth.removeIDTokenDidChangeListener(handle)
+          }
+        }
+
+        streamIterator = stream.makeAsyncIterator()
       }
 
-      continuation.onTermination = { @Sendable _ in
-        self.removeIDTokenDidChangeListener(listenerHandle)
+      /// Produces the next element in the asynchronous sequence.
+      ///
+      /// Returns a `User?` value (where `nil` indicates no signed-in user) or `nil` if the
+      /// sequence has terminated.
+      /// - Returns: An optional `User?` object, wrapped in another optional to indicate the end of
+      /// the sequence.
+      public mutating func next() async -> User?? {
+        await streamIterator.next()
       }
     }
   }
