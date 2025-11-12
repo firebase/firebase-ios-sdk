@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "Firestore/core/src/util/warnings.h"
+#include "gtest/gtest-death-test.h"
 #include "gtest/gtest.h"
 
 SUPPRESS_COMMA_WARNINGS_BEGIN()
@@ -275,6 +276,19 @@ TEST(Timestamp, Comparison) {
 }
 
 TEST(Timestamp, InvalidArguments) {
+#if DEBUG
+  // Negative nanoseconds.
+  ASSERT_DEATH(Timestamp(0, -1), "nanoseconds");
+  ASSERT_DEATH(Timestamp(100, -1), "nanoseconds");
+  ASSERT_DEATH(Timestamp(100, -12346789), "nanoseconds");
+
+  // Nanoseconds that are more than one second.
+  ASSERT_DEATH(Timestamp(0, 999999999 + 1), "nanoseconds");
+
+  // Seconds beyond supported range.
+  ASSERT_DEATH(Timestamp(kLowerBound - 1, 0), "seconds");
+  ASSERT_DEATH(Timestamp(kUpperBound + 1, 0), "seconds");
+#else
   // Negative nanoseconds.
   ASSERT_ANY_THROW(Timestamp(0, -1));
   ASSERT_ANY_THROW(Timestamp(100, -1));
@@ -286,18 +300,30 @@ TEST(Timestamp, InvalidArguments) {
   // Seconds beyond supported range.
   ASSERT_ANY_THROW(Timestamp(kLowerBound - 1, 0));
   ASSERT_ANY_THROW(Timestamp(kUpperBound + 1, 0));
+#endif
 }
 
 TEST(Timestamp, InvalidArgumentsChrono) {
   // Make sure Timestamp doesn't accept values beyond the supported range, if
   // system clock-based time_point on this platform can represent values this
   // large.
+#if DEBUG
+  if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
+    ASSERT_DEATH(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}),
+                 "seconds");
+  }
+  if (CanSystemClockDurationHold(Sec(kLowerBound - 1))) {
+    ASSERT_DEATH(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}),
+                 "seconds");
+  }
+#else
   if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
     ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}));
   }
   if (CanSystemClockDurationHold(Sec(kLowerBound - 1))) {
     ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}));
   }
+#endif
 }
 
 TEST(Timestamp, ToString) {
