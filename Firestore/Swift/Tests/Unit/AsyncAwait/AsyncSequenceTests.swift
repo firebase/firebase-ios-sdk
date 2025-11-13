@@ -14,9 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Testing
 import FirebaseCore
 @testable import FirebaseFirestore
+import Testing
 
 // MARK: - Shared Test Helpers
 
@@ -119,7 +119,8 @@ private struct Swizzler: ~Copyable {
     Self.swizzle(cls, originalSelector: swizzled, swizzledSelector: original)
   }
 
-  private static func swizzle(_ cls: AnyClass, originalSelector: Selector, swizzledSelector: Selector) {
+  private static func swizzle(_ cls: AnyClass, originalSelector: Selector,
+                              swizzledSelector: Selector) {
     guard let originalMethod = class_getInstanceMethod(cls, originalSelector),
           let swizzledMethod = class_getInstanceMethod(cls, swizzledSelector) else {
       #expect(false, "Failed to get methods for swizzling")
@@ -270,7 +271,8 @@ struct DocumentReferenceAsyncSequenceTests {
     let swizzler = Swizzler(
       DocumentReference.self,
       original: #selector(DocumentReference.addSnapshotListener(includeMetadataChanges:listener:)),
-      swizzled: #selector(DocumentReference.swizzled_addSnapshotListener(includeMetadataChanges:listener:))
+      swizzled: #selector(DocumentReference
+        .swizzled_addSnapshotListener(includeMetadataChanges:listener:))
     )
     defer { withExtendedLifetime(swizzler) {} }
 
@@ -299,7 +301,8 @@ struct DocumentReferenceAsyncSequenceTests {
     let swizzler = Swizzler(
       DocumentReference.self,
       original: #selector(DocumentReference.addSnapshotListener(includeMetadataChanges:listener:)),
-      swizzled: #selector(DocumentReference.swizzled_addSnapshotListener(includeMetadataChanges:listener:))
+      swizzled: #selector(DocumentReference
+        .swizzled_addSnapshotListener(includeMetadataChanges:listener:))
     )
     defer { withExtendedLifetime(swizzler) {} }
 
@@ -334,7 +337,8 @@ struct DocumentReferenceAsyncSequenceTests {
     let swizzler = Swizzler(
       DocumentReference.self,
       original: #selector(DocumentReference.addSnapshotListener(includeMetadataChanges:listener:)),
-      swizzled: #selector(DocumentReference.swizzled_addSnapshotListener(includeMetadataChanges:listener:))
+      swizzled: #selector(DocumentReference
+        .swizzled_addSnapshotListener(includeMetadataChanges:listener:))
     )
     defer { withExtendedLifetime(swizzler) {} }
 
@@ -364,10 +368,9 @@ struct DocumentReferenceAsyncSequenceTests {
 // MARK: - Method Swizzling
 
 extension Query {
-  @objc func swizzled_addSnapshotListener(
-    includeMetadataChanges: Bool,
-    listener: @escaping (QuerySnapshot?, Error?) -> Void
-  ) -> ListenerRegistration {
+  @objc func swizzled_addSnapshotListener(includeMetadataChanges: Bool,
+                                          listener: @escaping (QuerySnapshot?, Error?) -> Void)
+    -> ListenerRegistration {
     let key = Unmanaged.passUnretained(QueryAsyncSequenceTests.associationKey).toOpaque()
     let actor = objc_getAssociatedObject(self, key) as! TestStateActor<QuerySnapshot>
     let registration = MockListenerRegistration(actor: actor)
@@ -380,11 +383,11 @@ extension Query {
 }
 
 extension DocumentReference {
-  @objc func swizzled_addSnapshotListener(
-    includeMetadataChanges: Bool,
-    listener: @escaping (DocumentSnapshot?, Error?) -> Void
-  ) -> ListenerRegistration {
-    let key = Unmanaged.passUnretained(DocumentReferenceAsyncSequenceTests.associationKey).toOpaque()
+  @objc func swizzled_addSnapshotListener(includeMetadataChanges: Bool,
+                                          listener: @escaping (DocumentSnapshot?, Error?) -> Void)
+    -> ListenerRegistration {
+    let key = Unmanaged.passUnretained(DocumentReferenceAsyncSequenceTests.associationKey)
+      .toOpaque()
     let actor = objc_getAssociatedObject(self, key) as! TestStateActor<DocumentSnapshot>
     let registration = MockListenerRegistration(actor: actor)
     let wrapper = SendableListenerWrapper(listener)

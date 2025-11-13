@@ -51,9 +51,9 @@ public extension DocumentReference {
     public typealias AsyncIterator = Iterator
 
     @usableFromInline
-    internal let documentReference: DocumentReference
+    let documentReference: DocumentReference
     @usableFromInline
-    internal let includeMetadataChanges: Bool
+    let includeMetadataChanges: Bool
 
     /// Creates a new sequence for monitoring document snapshots.
     /// - Parameters:
@@ -78,9 +78,9 @@ public extension DocumentReference {
     public struct Iterator: AsyncIteratorProtocol {
       public typealias Element = DocumentSnapshot
       @usableFromInline
-      internal let stream: AsyncThrowingStream<DocumentSnapshot, Error>
+      let stream: AsyncThrowingStream<DocumentSnapshot, Error>
       @usableFromInline
-      internal var streamIterator: AsyncThrowingStream<DocumentSnapshot, Error>.Iterator
+      var streamIterator: AsyncThrowingStream<DocumentSnapshot, Error>.Iterator
 
       /// Initializes the iterator with the provided `DocumentReference` instance.
       /// This sets up the `AsyncThrowingStream` and registers the necessary listener.

@@ -1588,7 +1588,7 @@ func firestoreTargets() -> [Target] {
         dependencies: [
           "Firebase",
           "FirebaseCore",
-          "FirebaseFirestoreTarget"
+          "FirebaseFirestoreTarget",
         ],
         path: "Firestore/Swift/Tests/Unit",
         cSettings: [
