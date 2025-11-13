@@ -176,6 +176,7 @@ final class APITests: XCTestCase {
     // Usage Metadata
     guard let usageMetadata = response.usageMetadata else { fatalError() }
     let _: Int = usageMetadata.promptTokenCount
+    let _: Int = usageMetadata.cachedContentTokenCount
     let _: Int = usageMetadata.candidatesTokenCount
     let _: Int = usageMetadata.totalTokenCount
 
