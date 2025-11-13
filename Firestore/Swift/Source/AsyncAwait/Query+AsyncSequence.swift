@@ -53,9 +53,9 @@ public extension Query {
     public typealias AsyncIterator = Iterator
 
     @usableFromInline
-    internal let query: Query
+    let query: Query
     @usableFromInline
-    internal let includeMetadataChanges: Bool
+    let includeMetadataChanges: Bool
 
     /// Creates a new sequence for monitoring query snapshots.
     /// - Parameters:
@@ -80,9 +80,9 @@ public extension Query {
     public struct Iterator: AsyncIteratorProtocol {
       public typealias Element = QuerySnapshot
       @usableFromInline
-      internal let stream: AsyncThrowingStream<QuerySnapshot, Error>
+      let stream: AsyncThrowingStream<QuerySnapshot, Error>
       @usableFromInline
-      internal var streamIterator: AsyncThrowingStream<QuerySnapshot, Error>.Iterator
+      var streamIterator: AsyncThrowingStream<QuerySnapshot, Error>.Iterator
 
       /// Initializes the iterator with the provided `Query` instance.
       /// This sets up the `AsyncThrowingStream` and registers the necessary listener.
