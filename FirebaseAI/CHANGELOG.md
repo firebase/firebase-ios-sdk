@@ -1,6 +1,31 @@
-# Unreleased
+# 12.6.0
+- [feature] Added support for
+  [Server Prompt Templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/get-started).
+
+# 12.5.0
+- [changed] Renamed the `FirebaseAI` module to `FirebaseAILogic`. This is a non-breaking change.
+  `FirebaseAI` references will continue to work until a future breaking change release. Going
+  forward, imports should be changed to `import FirebaseAILogic` and the `FirebaseAILogic` Swift
+  Package dependency should be selected. See the
+  [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
+  FAQ entry for more details.
+- [fixed] Fixed a nanoseconds parsing issue in the Live API when receiving a
+  `LiveServerGoingAwayNotice` message. (#15410)
+- [feature] Added support for sending video frames with the Live API via the `sendVideoRealtime`
+  method on [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  (#15432)
+
+# 12.4.0
+- [feature] Added support for the URL context tool, which allows the model to access content
+  from provided public web URLs to inform and enhance its responses. (#15221)
 - [changed] Using Firebase AI Logic with the Gemini Developer API is now Generally Available (GA).
 - [changed] Using Firebase AI Logic with the Imagen generation APIs is now Generally Available (GA).
+- [feature] Added support for the Live API, which allows bidirectional
+  communication with the model in realtime.
+
+  To get started with the Live API, see the Firebase docs on
+  [Bidirectional streaming using the Gemini Live API](https://firebase.google.com/docs/ai-logic/live-api).
+  (#15309)
 
 # 12.3.0
 - [feature] Added support for the Code Execution tool, which enables the model

@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.4.0"
+let firebaseVersion = "12.6.0"
 
 let package = Package(
   name: "Firebase",
@@ -26,7 +26,16 @@ let package = Package(
   products: [
     .library(
       name: "FirebaseAI",
-      targets: ["FirebaseAI"]
+      targets: [
+        "FirebaseAI",
+        "FirebaseAILogic",
+      ]
+    ),
+    .library(
+      name: "FirebaseAILogic",
+      targets: [
+        "FirebaseAILogic",
+      ]
     ),
     .library(
       name: "FirebaseAnalytics",
@@ -178,7 +187,7 @@ let package = Package(
     // MARK: - Firebase AI
 
     .target(
-      name: "FirebaseAI",
+      name: "FirebaseAILogic",
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
@@ -188,9 +197,9 @@ let package = Package(
       path: "FirebaseAI/Sources"
     ),
     .testTarget(
-      name: "FirebaseAIUnit",
+      name: "FirebaseAILogicUnit",
       dependencies: [
-        "FirebaseAI",
+        "FirebaseAILogic",
         "FirebaseStorage",
       ],
       path: "FirebaseAI/Tests/Unit",
@@ -201,6 +210,16 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../../"),
       ]
+    ),
+    .target(
+      name: "FirebaseAI",
+      dependencies: ["FirebaseAILogic"],
+      path: "FirebaseAI/Wrapper/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseAIUnit",
+      dependencies: ["FirebaseAI"],
+      path: "FirebaseAI/Wrapper/Tests"
     ),
 
     // MARK: - Firebase Core
@@ -329,8 +348,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.3.0/FirebaseAnalytics.zip",
-      checksum: "a7fcb34227d6cc0b2db9b1d3f9dd844801e5a28217f20f1daae6c3d2b7d1e8e1"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.5.0/FirebaseAnalytics.zip",
+      checksum: "7ff922682f5d47e6add687979b3126f391c7d2e8f367599d4ec8d2a58dce8cc9"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -1392,7 +1411,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.3.0")
+  return .package(url: appMeasurementURL, exact: "12.5.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1566,8 +1585,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.0.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "e7add08e9044ef45f7923d0b9ea5518ddc66b090d3f7e9455382f769e74c48c4"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.4.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "58b916624c01a56c5de694cfc9c5cc7aabcafb13b54e7bde8c83bacc51a3460d"
       )
     }
   }()

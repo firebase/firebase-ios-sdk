@@ -1,4 +1,4 @@
-name: prerelease
+name: prerelease_cocoapods
 
 permissions:
   contents: write
@@ -8,7 +8,7 @@ on:
     # closed will be triggered when a pull request is merged. This is to keep https://github.com/firebase/SpecsTesting up to date.
     types: [closed]
     paths:
-    - '.github/workflows/prerelease.yml'
+    - '.github/workflows/prerelease_cocoapods.yml'
   workflow_dispatch:
   schedule:
     # Run every day at 10pm (PDT) / 1am (EDT) - cron uses UTC times
@@ -36,7 +36,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0 # Required for pulling down repo tags.
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Generate matrix
@@ -181,7 +181,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0 # Required for pulling down repo tags.
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Update SpecsTesting repo setup
@@ -340,10 +340,12 @@ jobs:
         command: scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
     # Failure sequence to upload artifact.
     - name: Remove data before upload.
-      if: ${{ failure() }}
+      if: failure()
       run: scripts/remove_data.sh ${{ matrix.product }}
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
         name: quickstart_artifacts_${{ matrix.product }}
-        path: quickstart-ios/
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
