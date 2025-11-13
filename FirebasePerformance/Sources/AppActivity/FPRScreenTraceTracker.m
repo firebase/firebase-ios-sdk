@@ -88,6 +88,11 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
 @interface FPRScreenTraceTracker ()
 
+// fpr_cachedMaxFPS and fpr_cachedSlowBudget are initialized at startup.
+// We update them only on tvOS during appDidBecomeActive because the output
+// mode can change with user settings. iOS ProMotion dynamic changes are
+// intentionally left for a future follow-up (see TODO in the notification
+// handler).
 @property(nonatomic) NSInteger fpr_cachedMaxFPS;
 
 @property(nonatomic) CFTimeInterval fpr_cachedSlowBudget;
@@ -152,7 +157,15 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                                object:[UIApplication sharedApplication]];
 
     // Initialize cached FPS and slow budget
-    [self fpr_refreshFrameRateCache];
+    NSInteger __fps = UIScreen.mainScreen.maximumFramesPerSecond ?: 60;
+#if TARGET_OS_TV
+    // tvOS may report 59 for ~60Hz outputs. Normalize to 60.
+    if (__fps == 59) {
+      __fps = 60;
+    }
+#endif
+    self.fpr_cachedMaxFPS = __fps;
+    self.fpr_cachedSlowBudget = 1.0 / (double)__fps;
   }
   return self;
 }
@@ -168,15 +181,20 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                                 object:[UIApplication sharedApplication]];
 }
 
-- (void)fpr_refreshFrameRateCache {
-  NSInteger maxFPS = FPRMaxFPS();
-  self.fpr_cachedMaxFPS = maxFPS;
-  self.fpr_cachedSlowBudget = 1.0 / (double)maxFPS;
-}
-
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
-  // Refresh cached FPS and slow budget when app becomes active
-  [self fpr_refreshFrameRateCache];
+#if TARGET_OS_TV
+  NSInteger __fps = UIScreen.mainScreen.maximumFramesPerSecond ?: 60;
+  if (__fps == 59) {
+    __fps = 60;  // normalize tvOS 59 -> 60
+  }
+  if (__fps != self.fpr_cachedMaxFPS) {
+    self.fpr_cachedMaxFPS = __fps;
+    self.fpr_cachedSlowBudget = 1.0 / (double)__fps;
+  }
+#else
+  // TODO: Support dynamic ProMotion changes on iOS in a future follow-up.
+  // For now, do not refresh here to avoid incorrect assumptions about timing.
+#endif
 
   // To get the most accurate numbers of total, frozen and slow frames, we need to capture them as
   // soon as we're notified of an event.

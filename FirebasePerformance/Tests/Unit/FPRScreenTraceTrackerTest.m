@@ -695,6 +695,36 @@ static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
   XCTAssertEqual(newSlowFramesCount, initialSlowFramesCount + 1);
 }
 
+#if TARGET_OS_TV
+- (void)testTvOS59FpsIsTreatedAs60AndSlowFrameIsRecorded {
+  // Stub tvOS max FPS to 59, which should be normalized to 60.
+  [self setTestMaxFPSOverride:59];
+
+  // Create a new tracker so it initializes with the overridden FPS value.
+  FPRScreenTraceTracker *tracker = [[FPRScreenTraceTracker alloc] init];
+  tracker.displayLink.paused = YES;
+
+  CFAbsoluteTime first = 1.0;
+  // 17ms is slower than 1/60 (~16.67ms) and should count as slow.
+  CFAbsoluteTime second = first + 0.017;
+
+  id displayLinkMock = OCMClassMock([CADisplayLink class]);
+  [tracker.displayLink invalidate];
+  tracker.displayLink = displayLinkMock;
+
+  // Prime previous timestamp.
+  OCMExpect([displayLinkMock timestamp]).andReturn(first);
+  [tracker displayLinkStep];
+  int64_t initialSlow = tracker.slowFramesCount;
+
+  // Emit a slow frame at ~17ms.
+  OCMExpect([displayLinkMock timestamp]).andReturn(second);
+  [tracker displayLinkStep];
+
+  XCTAssertEqual(tracker.slowFramesCount, initialSlow + 1);
+}
+#endif
+
 /** Tests that the slow and frozen frame counter is not incremented in the case of a good frame. */
 - (void)testSlowAndFrozenFrameIsNotRecordedInCaseOfGoodFrame {
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
