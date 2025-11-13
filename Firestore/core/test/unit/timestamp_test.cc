@@ -307,7 +307,6 @@ TEST(Timestamp, InvalidArgumentsChrono) {
   // Make sure Timestamp doesn't accept values beyond the supported range, if
   // system clock-based time_point on this platform can represent values this
   // large.
-#if !defined(NDEBUG)
   if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
     ASSERT_DEATH(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}),
                  "seconds");
@@ -316,14 +315,6 @@ TEST(Timestamp, InvalidArgumentsChrono) {
     ASSERT_DEATH(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}),
                  "seconds");
   }
-#else
-  if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
-    ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}));
-  }
-  if (CanSystemClockDurationHold(Sec(kLowerBound - 1))) {
-    ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}));
-  }
-#endif
 }
 
 TEST(Timestamp, ToString) {
