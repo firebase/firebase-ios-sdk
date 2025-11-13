@@ -56,7 +56,8 @@ public extension RemoteConfig {
   ///
   /// This struct is the concrete type returned by the `RemoteConfig.configUpdates` property.
   ///
-  /// - Important: This type is marked `Sendable` because `RemoteConfig` is assumed to be `Sendable`.
+  /// - Important: This type is marked `Sendable` because `RemoteConfig` is assumed to be
+  /// `Sendable`.
   @available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *)
   @frozen
   struct RemoteConfigUpdateSequence: AsyncSequence, Sendable {
@@ -65,7 +66,7 @@ public extension RemoteConfig {
     public typealias AsyncIterator = Iterator
 
     @usableFromInline
-    internal let remoteConfig: RemoteConfig
+    let remoteConfig: RemoteConfig
 
     /// Creates a new sequence for monitoring real-time config updates.
     /// - Parameter remoteConfig: The `RemoteConfig` instance to monitor.
@@ -88,9 +89,9 @@ public extension RemoteConfig {
       public typealias Element = RemoteConfigUpdate
 
       @usableFromInline
-      internal let stream: AsyncThrowingStream<RemoteConfigUpdate, Error>
+      let stream: AsyncThrowingStream<RemoteConfigUpdate, Error>
       @usableFromInline
-      internal var streamIterator: AsyncThrowingStream<RemoteConfigUpdate, Error>.Iterator
+      var streamIterator: AsyncThrowingStream<RemoteConfigUpdate, Error>.Iterator
 
       /// Initializes the iterator with the provided `RemoteConfig` instance.
       /// This sets up the `AsyncThrowingStream` and registers the necessary listener.
