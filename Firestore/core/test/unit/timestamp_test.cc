@@ -276,7 +276,7 @@ TEST(Timestamp, Comparison) {
 }
 
 TEST(Timestamp, InvalidArguments) {
-#if DEBUG
+#if !defined(NDEBUG)
   // Negative nanoseconds.
   ASSERT_DEATH(Timestamp(0, -1), "nanoseconds");
   ASSERT_DEATH(Timestamp(100, -1), "nanoseconds");
@@ -307,7 +307,7 @@ TEST(Timestamp, InvalidArgumentsChrono) {
   // Make sure Timestamp doesn't accept values beyond the supported range, if
   // system clock-based time_point on this platform can represent values this
   // large.
-#if DEBUG
+#if !defined(NDEBUG)
   if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
     ASSERT_DEATH(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}),
                  "seconds");
