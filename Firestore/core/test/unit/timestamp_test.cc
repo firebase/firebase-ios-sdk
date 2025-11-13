@@ -308,12 +308,29 @@ TEST(Timestamp, InvalidArgumentsChrono) {
   // system clock-based time_point on this platform can represent values this
   // large.
   if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
-    ASSERT_DEATH(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}),
-                 "seconds");
+    auto action = [] {
+      Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)});
+    };
+
+#if ABSL_HAVE_EXCEPTIONS
+    // Expect a C++ exception to be thrown
+    ASSERT_ANY_THROW(action());
+#else
+    // Expect the process to terminate
+    ASSERT_DEATH(action(), "Timestamp seconds out of range");
+#endif
   }
+
   if (CanSystemClockDurationHold(Sec(kLowerBound - 1))) {
-    ASSERT_DEATH(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}),
-                 "seconds");
+    auto action = [] {
+      Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)});
+    };
+
+#if ABSL_HAVE_EXCEPTIONS
+    ASSERT_ANY_THROW(action());
+#else
+    ASSERT_DEATH(action(), "Timestamp seconds out of range");
+#endif
   }
 }
 
