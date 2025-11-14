@@ -458,7 +458,7 @@ jobs:
 
   quickstart_framework_firebaseai:
     needs: packaging_done
-    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "FirebaseAI"
