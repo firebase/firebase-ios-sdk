@@ -17,6 +17,7 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 #include <cmath>
+#include <cstdio>
 #include <limits>
 #include <utility>
 #include <vector>
@@ -314,9 +315,11 @@ TEST(Timestamp, InvalidArgumentsChrono) {
 
 #if ABSL_HAVE_EXCEPTIONS
     // Expect a C++ exception to be thrown
+    printf("Testing upper bound with exceptions\n");
     ASSERT_ANY_THROW(action());
 #else
     // Expect the process to terminate
+    printf("Testing upper bound without exceptions\n");
     ASSERT_DEATH(action(), "Timestamp seconds out of range");
 #endif
   }
@@ -327,8 +330,10 @@ TEST(Timestamp, InvalidArgumentsChrono) {
     };
 
 #if ABSL_HAVE_EXCEPTIONS
+    printf("Testing lower bound with exceptions\n");
     ASSERT_ANY_THROW(action());
 #else
+    printf("Testing lower bound without exceptions\n");
     ASSERT_DEATH(action(), "Timestamp seconds out of range");
 #endif
   }
