@@ -250,7 +250,8 @@ TEST_F(ArrayContainsTest, ValueNotFoundInArray) {
   auto array_to_search =
       SharedConstant(Array(Value(42LL), Value("matang"), Value(true)));
   EXPECT_THAT(
-      EvaluateExpr(*ArrayContainsExpr({array_to_search, SharedConstant(4LL)})),
+      EvaluateExpr(*ArrayContainsExpr(
+          {array_to_search, SharedConstant(static_cast<int64_t>(4LL))})),
       Returns(Value(false)));
 }
 
@@ -362,7 +363,8 @@ TEST_F(ArrayLengthTest, NotArrayTypeReturnsError) {
   // Test with other non-array types.
   EXPECT_THAT(EvaluateExpr(*ArrayLengthExpr({SharedConstant("notAnArray")})),
               ReturnsError());
-  EXPECT_THAT(EvaluateExpr(*ArrayLengthExpr({SharedConstant(123LL)})),
+  EXPECT_THAT(EvaluateExpr(*ArrayLengthExpr(
+                  {SharedConstant(static_cast<int64_t>(123LL))})),
               ReturnsError());
   EXPECT_THAT(EvaluateExpr(*ArrayLengthExpr({SharedConstant(true)})),
               ReturnsError());

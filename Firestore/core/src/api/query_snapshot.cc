@@ -17,6 +17,7 @@
 #include "Firestore/core/src/api/query_snapshot.h"
 
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/api/document_change.h"
 #include "Firestore/core/src/api/document_snapshot.h"

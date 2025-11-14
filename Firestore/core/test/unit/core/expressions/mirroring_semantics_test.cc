@@ -92,12 +92,14 @@ class MirroringSemanticsTest : public ::testing::Test {
   const std::shared_ptr<Expr> NULL_INPUT = SharedConstant(nullptr);
   // Error: Integer division by zero
   const std::shared_ptr<Expr> ERROR_INPUT =
-      DivideExpr({SharedConstant(1LL), SharedConstant(0LL)});
+      DivideExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                  SharedConstant(static_cast<int64_t>(0LL))});
   // Unset: Field that doesn't exist in the default test document
   const std::shared_ptr<Expr> UNSET_INPUT =
       std::make_shared<Field>("non-existent-field");
   // Valid: A simple valid input for binary tests
-  const std::shared_ptr<Expr> VALID_INPUT = SharedConstant(42LL);
+  const std::shared_ptr<Expr> VALID_INPUT =
+      SharedConstant(static_cast<int64_t>(42LL));
 };
 
 // --- Unary Function Tests ---

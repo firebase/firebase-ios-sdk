@@ -68,4 +68,4 @@ class RealtimePipelineSnapshot {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_API_REAL_TIME_PIPELINE_SNAPSHOT_H_
+#endif  // FIRESTORE_CORE_SRC_API_REALTIME_PIPELINE_SNAPSHOT_H_

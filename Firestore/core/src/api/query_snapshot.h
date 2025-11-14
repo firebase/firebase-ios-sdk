@@ -20,6 +20,7 @@
 #include <functional>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/document_change.h"

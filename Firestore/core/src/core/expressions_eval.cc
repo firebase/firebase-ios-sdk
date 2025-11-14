@@ -447,6 +447,7 @@ EvaluateResult CoreEq::CompareToResult(const EvaluateResult& left,
     case model::StrictEqualsResult::kNull:
       return EvaluateResult::NewNull();
   }
+  HARD_FAIL("Unhandled case in switch statement");
 }
 
 EvaluateResult CoreNeq::CompareToResult(const EvaluateResult& left,
@@ -469,6 +470,7 @@ EvaluateResult CoreNeq::CompareToResult(const EvaluateResult& left,
     case model::StrictEqualsResult::kNull:
       return EvaluateResult::NewNull();
   }
+  HARD_FAIL("Unhandled case in switch statement");
 }
 
 EvaluateResult CoreLt::CompareToResult(const EvaluateResult& left,
@@ -584,8 +586,8 @@ template <typename T>
 bool ProcessUtf8(const std::string& s,
                  T* result,
                  std::function<void(T*, uint32_t, absl::string_view)> func) {
-  int i = 0;
-  const int len = s.size();
+  size_t i = 0;
+  const size_t len = s.size();
   const unsigned char* data = reinterpret_cast<const unsigned char*>(s.data());
 
   while (i < len) {

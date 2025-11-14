@@ -48,20 +48,21 @@ TEST_F(UnixMicrosToTimestampTest, StringTypeReturnsError) {
 }
 
 TEST_F(UnixMicrosToTimestampTest, ZeroValueReturnsTimestampEpoch) {
-  EXPECT_THAT(EvaluateExpr(*UnixMicrosToTimestampExpr(SharedConstant(0LL))),
+  EXPECT_THAT(EvaluateExpr(*UnixMicrosToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(0LL)))),
               Returns(Value(Timestamp(0, 0))));
 }
 
 TEST_F(UnixMicrosToTimestampTest, IntTypeReturnsTimestamp) {
-  EXPECT_THAT(
-      EvaluateExpr(*UnixMicrosToTimestampExpr(SharedConstant(1000000LL))),
-      Returns(Value(Timestamp(1, 0))));
+  EXPECT_THAT(EvaluateExpr(*UnixMicrosToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(1000000LL)))),
+              Returns(Value(Timestamp(1, 0))));
 }
 
 TEST_F(UnixMicrosToTimestampTest, LongTypeReturnsTimestamp) {
-  EXPECT_THAT(
-      EvaluateExpr(*UnixMicrosToTimestampExpr(SharedConstant(9876543210LL))),
-      Returns(Value(Timestamp(9876, 543210000))));
+  EXPECT_THAT(EvaluateExpr(*UnixMicrosToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(9876543210LL)))),
+              Returns(Value(Timestamp(9876, 543210000))));
 }
 
 TEST_F(UnixMicrosToTimestampTest, LongTypeNegativeReturnsTimestamp) {
@@ -70,9 +71,9 @@ TEST_F(UnixMicrosToTimestampTest, LongTypeNegativeReturnsTimestamp) {
   timestamp.which_value_type = google_firestore_v1_Value_timestamp_value_tag;
   timestamp.timestamp_value.seconds = -1;
   timestamp.timestamp_value.nanos = 990000000;
-  EXPECT_THAT(
-      EvaluateExpr(*UnixMicrosToTimestampExpr(SharedConstant(-10000LL))),
-      Returns(nanopb::MakeMessage(timestamp)));
+  EXPECT_THAT(EvaluateExpr(*UnixMicrosToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(-10000LL)))),
+              Returns(nanopb::MakeMessage(timestamp)));
 }
 
 TEST_F(UnixMicrosToTimestampTest, LongTypeNegativeOverflowReturnsError) {
@@ -86,8 +87,8 @@ TEST_F(UnixMicrosToTimestampTest, LongTypeNegativeOverflowReturnsError) {
       Returns(Value(Timestamp(-62135596800LL, 0))));
 
   // Test value just below the boundary (using subtraction)
-  auto below_min_expr =
-      SubtractExpr({SharedConstant(min_micros), SharedConstant(1LL)});
+  auto below_min_expr = SubtractExpr(
+      {SharedConstant(min_micros), SharedConstant(static_cast<int64_t>(1LL))});
   EXPECT_THAT(
       EvaluateExpr(*UnixMicrosToTimestampExpr(std::move(below_min_expr))),
       testutil::ReturnsError());  // Fully qualify
@@ -123,25 +124,27 @@ TEST_F(UnixMillisToTimestampTest, StringTypeReturnsError) {
 }
 
 TEST_F(UnixMillisToTimestampTest, ZeroValueReturnsTimestampEpoch) {
-  EXPECT_THAT(EvaluateExpr(*UnixMillisToTimestampExpr(SharedConstant(0LL))),
+  EXPECT_THAT(EvaluateExpr(*UnixMillisToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(0LL)))),
               Returns(Value(Timestamp(0, 0))));
 }
 
 TEST_F(UnixMillisToTimestampTest, IntTypeReturnsTimestamp) {
-  EXPECT_THAT(EvaluateExpr(*UnixMillisToTimestampExpr(SharedConstant(1000LL))),
+  EXPECT_THAT(EvaluateExpr(*UnixMillisToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(1000LL)))),
               Returns(Value(Timestamp(1, 0))));
 }
 
 TEST_F(UnixMillisToTimestampTest, LongTypeReturnsTimestamp) {
-  EXPECT_THAT(
-      EvaluateExpr(*UnixMillisToTimestampExpr(SharedConstant(9876543210LL))),
-      Returns(Value(Timestamp(9876543, 210000000))));
+  EXPECT_THAT(EvaluateExpr(*UnixMillisToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(9876543210LL)))),
+              Returns(Value(Timestamp(9876543, 210000000))));
 }
 
 TEST_F(UnixMillisToTimestampTest, LongTypeNegativeReturnsTimestamp) {
-  EXPECT_THAT(
-      EvaluateExpr(*UnixMillisToTimestampExpr(SharedConstant(-10000LL))),
-      Returns(Value(Timestamp(-10, 0))));
+  EXPECT_THAT(EvaluateExpr(*UnixMillisToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(-10000LL)))),
+              Returns(Value(Timestamp(-10, 0))));
 }
 
 TEST_F(UnixMillisToTimestampTest, LongTypeNegativeOverflowReturnsError) {
@@ -187,25 +190,27 @@ TEST_F(UnixSecondsToTimestampTest, StringTypeReturnsError) {
 }
 
 TEST_F(UnixSecondsToTimestampTest, ZeroValueReturnsTimestampEpoch) {
-  EXPECT_THAT(EvaluateExpr(*UnixSecondsToTimestampExpr(SharedConstant(0LL))),
+  EXPECT_THAT(EvaluateExpr(*UnixSecondsToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(0LL)))),
               Returns(Value(Timestamp(0, 0))));
 }
 
 TEST_F(UnixSecondsToTimestampTest, IntTypeReturnsTimestamp) {
-  EXPECT_THAT(EvaluateExpr(*UnixSecondsToTimestampExpr(SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*UnixSecondsToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               Returns(Value(Timestamp(1, 0))));
 }
 
 TEST_F(UnixSecondsToTimestampTest, LongTypeReturnsTimestamp) {
-  EXPECT_THAT(
-      EvaluateExpr(*UnixSecondsToTimestampExpr(SharedConstant(9876543210LL))),
-      Returns(Value(Timestamp(9876543210LL, 0))));
+  EXPECT_THAT(EvaluateExpr(*UnixSecondsToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(9876543210LL)))),
+              Returns(Value(Timestamp(9876543210LL, 0))));
 }
 
 TEST_F(UnixSecondsToTimestampTest, LongTypeNegativeReturnsTimestamp) {
-  EXPECT_THAT(
-      EvaluateExpr(*UnixSecondsToTimestampExpr(SharedConstant(-10000LL))),
-      Returns(Value(Timestamp(-10000LL, 0))));
+  EXPECT_THAT(EvaluateExpr(*UnixSecondsToTimestampExpr(
+                  SharedConstant(static_cast<int64_t>(-10000LL)))),
+              Returns(Value(Timestamp(-10000LL, 0))));
 }
 
 TEST_F(UnixSecondsToTimestampTest, LongTypeNegativeOverflowReturnsError) {
@@ -244,7 +249,8 @@ class TimestampToUnixMicrosTest : public TimestampExpressionsTest {};
 using testutil::TimestampToUnixMicrosExpr;  // Add using declaration
 
 TEST_F(TimestampToUnixMicrosTest, NonTimestampTypeReturnsError) {
-  EXPECT_THAT(EvaluateExpr(*TimestampToUnixMicrosExpr(SharedConstant(123LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampToUnixMicrosExpr(
+                  SharedConstant(static_cast<int64_t>(123LL)))),
               testutil::ReturnsError());
 }
 
@@ -324,7 +330,8 @@ class TimestampToUnixMillisTest : public TimestampExpressionsTest {};
 using testutil::TimestampToUnixMillisExpr;  // Add using declaration
 
 TEST_F(TimestampToUnixMillisTest, NonTimestampTypeReturnsError) {
-  EXPECT_THAT(EvaluateExpr(*TimestampToUnixMillisExpr(SharedConstant(123LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampToUnixMillisExpr(
+                  SharedConstant(static_cast<int64_t>(123LL)))),
               testutil::ReturnsError());
 }
 
@@ -397,7 +404,8 @@ class TimestampToUnixSecondsTest : public TimestampExpressionsTest {};
 using testutil::TimestampToUnixSecondsExpr;  // Add using declaration
 
 TEST_F(TimestampToUnixSecondsTest, NonTimestampTypeReturnsError) {
-  EXPECT_THAT(EvaluateExpr(*TimestampToUnixSecondsExpr(SharedConstant(123LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampToUnixSecondsExpr(
+                  SharedConstant(static_cast<int64_t>(123LL)))),
               testutil::ReturnsError());
 }
 
@@ -475,55 +483,55 @@ using testutil::ReturnsNull;       // Add using declaration for null checks
 using testutil::TimestampAddExpr;  // Add using declaration
 
 TEST_F(TimestampAddTest, TimestampAddStringTypeReturnsError) {
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant("abc"),
-                                             SharedConstant("second"),
-                                             SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant("abc"), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               testutil::ReturnsError());
 }
 
 TEST_F(TimestampAddTest, TimestampAddZeroValueReturnsTimestampEpoch) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(epoch),
-                                             SharedConstant("second"),
-                                             SharedConstant(0LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(0LL)))),
               Returns(Value(epoch)));
 }
 
 TEST_F(TimestampAddTest, TimestampAddIntTypeReturnsTimestamp) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(epoch),
-                                             SharedConstant("second"),
-                                             SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               Returns(Value(Timestamp(1, 0))));
 }
 
 TEST_F(TimestampAddTest, TimestampAddLongTypeReturnsTimestamp) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(epoch),
-                                             SharedConstant("second"),
-                                             SharedConstant(9876543210LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(9876543210LL)))),
               Returns(Value(Timestamp(9876543210LL, 0))));
 }
 
 TEST_F(TimestampAddTest, TimestampAddLongTypeNegativeReturnsTimestamp) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(epoch),
-                                             SharedConstant("second"),
-                                             SharedConstant(-10000LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(-10000LL)))),
               Returns(Value(Timestamp(-10000LL, 0))));
 }
 
 TEST_F(TimestampAddTest, TimestampAddLongTypeNegativeOverflowReturnsError) {
   Timestamp min_ts(-62135596800LL, 0);
   // Test adding 0 (boundary)
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(min_ts),
-                                             SharedConstant("second"),
-                                             SharedConstant(0LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(min_ts), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(0LL)))),
               Returns(Value(min_ts)));
   // Test adding -1 (overflow)
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(min_ts),
-                                             SharedConstant("second"),
-                                             SharedConstant(-1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(min_ts), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(-1LL)))),
               testutil::ReturnsError());
 }
 
@@ -533,73 +541,73 @@ TEST_F(TimestampAddTest, TimestampAddLongTypePositiveOverflowReturnsError) {
   EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
                   SharedConstant(max_ts),
                   SharedConstant("microsecond"),  // Smallest unit
-                  SharedConstant(0LL))),
+                  SharedConstant(static_cast<int64_t>(0LL)))),
               Returns(Value(max_ts)));  // Expect the same max timestamp
 
   // Test adding 1 microsecond (should overflow)
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(max_ts),
-                                             SharedConstant("microsecond"),
-                                             SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(max_ts), SharedConstant("microsecond"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               testutil::ReturnsError());
 
   // Test adding 1 second to a timestamp close to max
   Timestamp near_max_ts(253402300799LL, 0);
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(near_max_ts),
-                                             SharedConstant("second"),
-                                             SharedConstant(0LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(near_max_ts), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(0LL)))),
               Returns(Value(near_max_ts)));
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(near_max_ts),
-                                             SharedConstant("second"),
-                                             SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(near_max_ts), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               testutil::ReturnsError());
 }
 
 TEST_F(TimestampAddTest, TimestampAddLongTypeMinuteReturnsTimestamp) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(epoch),
-                                             SharedConstant("minute"),
-                                             SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("minute"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               Returns(Value(Timestamp(60, 0))));
 }
 
 TEST_F(TimestampAddTest, TimestampAddLongTypeHourReturnsTimestamp) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(
-      EvaluateExpr(*TimestampAddExpr(
-          SharedConstant(epoch), SharedConstant("hour"), SharedConstant(1LL))),
-      Returns(Value(Timestamp(3600, 0))));
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("hour"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
+              Returns(Value(Timestamp(3600, 0))));
 }
 
 TEST_F(TimestampAddTest, TimestampAddLongTypeDayReturnsTimestamp) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(
-      EvaluateExpr(*TimestampAddExpr(
-          SharedConstant(epoch), SharedConstant("day"), SharedConstant(1LL))),
-      Returns(Value(Timestamp(86400, 0))));
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("day"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
+              Returns(Value(Timestamp(86400, 0))));
 }
 
 TEST_F(TimestampAddTest, TimestampAddLongTypeMillisecondReturnsTimestamp) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(epoch),
-                                             SharedConstant("millisecond"),
-                                             SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("millisecond"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               Returns(Value(Timestamp(0, 1000000))));
 }
 
 TEST_F(TimestampAddTest, TimestampAddLongTypeMicrosecondReturnsTimestamp) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(epoch),
-                                             SharedConstant("microsecond"),
-                                             SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("microsecond"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               Returns(Value(Timestamp(0, 1000))));
 }
 
 TEST_F(TimestampAddTest, TimestampAddInvalidTimeUnitReturnsError) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(
-      EvaluateExpr(*TimestampAddExpr(
-          SharedConstant(epoch), SharedConstant("abc"), SharedConstant(1LL))),
-      testutil::ReturnsError());
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant("abc"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
+              testutil::ReturnsError());
 }
 
 TEST_F(TimestampAddTest, TimestampAddInvalidAmountReturnsError) {
@@ -620,16 +628,16 @@ TEST_F(TimestampAddTest, TimestampAddNullAmountReturnsNull) {
 
 TEST_F(TimestampAddTest, TimestampAddNullTimeUnitReturnsNull) {
   Timestamp epoch(0, 0);
-  EXPECT_THAT(
-      EvaluateExpr(*TimestampAddExpr(
-          SharedConstant(epoch), SharedConstant(nullptr), SharedConstant(1LL))),
-      ReturnsNull());
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(epoch), SharedConstant(nullptr),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
+              ReturnsNull());
 }
 
 TEST_F(TimestampAddTest, TimestampAddNullTimestampReturnsNull) {
-  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(SharedConstant(nullptr),
-                                             SharedConstant("second"),
-                                             SharedConstant(1LL))),
+  EXPECT_THAT(EvaluateExpr(*TimestampAddExpr(
+                  SharedConstant(nullptr), SharedConstant("second"),
+                  SharedConstant(static_cast<int64_t>(1LL)))),
               ReturnsNull());
 }
 

@@ -129,7 +129,8 @@ TEST_F(ComplexPipelineTest, WhereWithMaxNumberOfStages) {
   for (int i = 1; i <= num_of_fields; ++i) {
     std::string field_name = "field_" + std::to_string(i);
     pipeline = pipeline.AddingStage(std::make_shared<Where>(
-        GtExpr({std::make_shared<Field>(field_name), SharedConstant(0LL)})));
+        GtExpr({std::make_shared<Field>(field_name),
+                SharedConstant(static_cast<int64_t>(0LL))})));
   }
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -382,14 +383,15 @@ TEST_F(ComplexPipelineTest, WhereWithNestedAddFunctionMaxDepth) {
                                 []() { return Value(0LL); });
 
   std::shared_ptr<Expr> add_func =
-      AddExpr({std::make_shared<Field>("field_1"), SharedConstant(1LL)});
+      AddExpr({std::make_shared<Field>("field_1"),
+               SharedConstant(static_cast<int64_t>(1LL))});
   for (int i = 1; i < depth; ++i) {
-    add_func = AddExpr({add_func, SharedConstant(1LL)});
+    add_func = AddExpr({add_func, SharedConstant(static_cast<int64_t>(1LL))});
   }
 
   RealtimePipeline pipeline = StartPipeline("/" + COLLECTION_ID);
-  pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(GtExpr({add_func, SharedConstant(0LL)})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      GtExpr({add_func, SharedConstant(static_cast<int64_t>(0LL))})));
 
   // Since field_1 starts at 0, adding 1 repeatedly will always result in > 0
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -437,7 +439,8 @@ TEST_F(ComplexPipelineTest, WhereWithLargeNumberOfConjunctions) {
   for (int i = 1; i <= num_of_fields; ++i) {
     std::string field_name = "field_" + std::to_string(i);
     and_conditions1.push_back(
-        GtExpr({std::make_shared<Field>(field_name), SharedConstant(0LL)}));
+        GtExpr({std::make_shared<Field>(field_name),
+                SharedConstant(static_cast<int64_t>(0LL))}));
     // Use LtExpr and a large number for the second condition
     and_conditions2.push_back(
         LtExpr({std::make_shared<Field>(field_name),

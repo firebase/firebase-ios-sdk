@@ -44,7 +44,7 @@ const std::vector<std::shared_ptr<Expr>>
         SharedConstant(-std::numeric_limits<double>::max()),
         SharedConstant(std::numeric_limits<int64_t>::min()),
         SharedConstant(-kMaxLongExactlyRepresentableAsDouble),
-        SharedConstant(-1LL),
+        SharedConstant(static_cast<int64_t>(-1LL)),
         SharedConstant(-0.5),
         SharedConstant(-std::numeric_limits<double>::min()),  // -MIN_NORMAL
         SharedConstant(
@@ -57,8 +57,8 @@ const std::vector<std::shared_ptr<Expr>>
                                                              // (denormalized)
         SharedConstant(std::numeric_limits<double>::min()),  // MIN_NORMAL
         SharedConstant(0.5),
-        SharedConstant(1LL),
-        SharedConstant(42LL),
+        SharedConstant(static_cast<int64_t>(1LL)),
+        SharedConstant(static_cast<int64_t>(42LL)),
         SharedConstant(kMaxLongExactlyRepresentableAsDouble),
         SharedConstant(std::numeric_limits<int64_t>::max()),
         SharedConstant(std::numeric_limits<double>::max()),
@@ -81,7 +81,7 @@ const std::vector<std::shared_ptr<Expr>>
         // C++
         SharedConstant("santé"), SharedConstant("santé et bonheur")};
 
-const auto ComparisonValueTestData::BYTE_VALUES =
+const std::vector<std::shared_ptr<Expr>> ComparisonValueTestData::BYTE_VALUES =
     std::vector<std::shared_ptr<Expr>>{
         SharedConstant(*BlobValue()),  // Empty - use default constructor
         SharedConstant(*BlobValue(0, 2, 56, 42)),  // Use variadic args
@@ -109,8 +109,9 @@ const std::vector<std::shared_ptr<Expr>> ComparisonValueTestData::GEO_VALUES = {
 
 const std::vector<std::shared_ptr<Expr>> ComparisonValueTestData::ARRAY_VALUES =
     {SharedConstant(Array()),
-     SharedConstant(Array(true, 15LL)),
-     SharedConstant(Array(1LL, 2LL)),
+     SharedConstant(Array(true, static_cast<int64_t>(15LL))),
+     SharedConstant(
+         Array(static_cast<int64_t>(1LL), static_cast<int64_t>(2LL))),
      SharedConstant(Array(Value(Timestamp(12, 0)))),
      SharedConstant(Array("foo")),
      SharedConstant(Array("foo", "bar")),

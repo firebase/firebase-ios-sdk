@@ -51,7 +51,7 @@ class PipelineResult {
 
   PipelineResult() = default;
 
-  PipelineResult(model::Document document)
+  explicit PipelineResult(model::Document document)
       : internal_key_{document->key()},
         value_{document->shared_data()},
         // TODO(pipeline): add create time support

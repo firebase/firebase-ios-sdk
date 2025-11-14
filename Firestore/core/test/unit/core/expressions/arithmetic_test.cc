@@ -67,13 +67,15 @@ class ModFunctionTest : public ArithmeticExpressionsTest {};
 
 TEST_F(AddFunctionTest, BasicNumerics) {
   EXPECT_THAT(
-      EvaluateExpr(*AddExpr({SharedConstant(1LL), SharedConstant(2LL)})),
+      EvaluateExpr(*AddExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                             SharedConstant(static_cast<int64_t>(2LL))})),
       Returns(Value(3LL)));
+  EXPECT_THAT(EvaluateExpr(*AddExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                     SharedConstant(2.5)})),
+              Returns(Value(3.5)));
   EXPECT_THAT(
-      EvaluateExpr(*AddExpr({SharedConstant(1LL), SharedConstant(2.5)})),
-      Returns(Value(3.5)));
-  EXPECT_THAT(
-      EvaluateExpr(*AddExpr({SharedConstant(1.0), SharedConstant(2LL)})),
+      EvaluateExpr(*AddExpr(
+          {SharedConstant(1.0), SharedConstant(static_cast<int64_t>(2LL))})),
       Returns(Value(3.0)));
   EXPECT_THAT(
       EvaluateExpr(*AddExpr({SharedConstant(1.0), SharedConstant(2.0)})),
@@ -81,9 +83,9 @@ TEST_F(AddFunctionTest, BasicNumerics) {
 }
 
 TEST_F(AddFunctionTest, BasicNonNumerics) {
-  EXPECT_THAT(
-      EvaluateExpr(*AddExpr({SharedConstant(1LL), SharedConstant("1")})),
-      ReturnsError());
+  EXPECT_THAT(EvaluateExpr(*AddExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                     SharedConstant("1")})),
+              ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*AddExpr({SharedConstant("1"), SharedConstant(1.0)})),
       ReturnsError());
@@ -95,12 +97,14 @@ TEST_F(AddFunctionTest, BasicNonNumerics) {
 TEST_F(AddFunctionTest, DoubleLongAdditionOverflow) {
   // Note: C++ double can represent Long.MAX_VALUE + 1.0 exactly, unlike some JS
   // representations.
-  EXPECT_THAT(EvaluateExpr(*AddExpr({SharedConstant(9223372036854775807LL),
-                                     SharedConstant(1.0)})),
+  EXPECT_THAT(EvaluateExpr(*AddExpr(
+                  {SharedConstant(static_cast<int64_t>(9223372036854775807LL)),
+                   SharedConstant(1.0)})),
               Returns(Value(9.223372036854776e+18)));
-  EXPECT_THAT(EvaluateExpr(*AddExpr({SharedConstant(9.223372036854776e+18),
-                                     SharedConstant(100LL)})),
-              Returns(Value(9.223372036854776e+18 + 100.0)));
+  EXPECT_THAT(
+      EvaluateExpr(*AddExpr({SharedConstant(9.223372036854776e+18),
+                             SharedConstant(static_cast<int64_t>(100LL))})),
+      Returns(Value(9.223372036854776e+18 + 100.0)));
 }
 
 TEST_F(AddFunctionTest, DoubleAdditionOverflow) {
@@ -124,31 +128,33 @@ TEST_F(AddFunctionTest, SumPosAndNegInfinityReturnNaN) {
 TEST_F(AddFunctionTest, LongAdditionOverflow) {
   EXPECT_THAT(EvaluateExpr(
                   *AddExpr({SharedConstant(std::numeric_limits<int64_t>::max()),
-                            SharedConstant(1LL)})),
+                            SharedConstant(static_cast<int64_t>(1LL))})),
               ReturnsError());  // Expect error due to overflow
   EXPECT_THAT(EvaluateExpr(
                   *AddExpr({SharedConstant(std::numeric_limits<int64_t>::min()),
-                            SharedConstant(-1LL)})),
+                            SharedConstant(static_cast<int64_t>(-1LL))})),
               ReturnsError());  // Expect error due to overflow
   EXPECT_THAT(EvaluateExpr(*AddExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(std::numeric_limits<int64_t>::max())})),
               ReturnsError());  // Expect error due to overflow
 }
 
 TEST_F(AddFunctionTest, NanNumberReturnNaN) {
   double nan_val = std::numeric_limits<double>::quiet_NaN();
-  EXPECT_THAT(
-      EvaluateExpr(*AddExpr({SharedConstant(1LL), SharedConstant(nan_val)})),
-      Returns(Value(nan_val)));
+  EXPECT_THAT(EvaluateExpr(*AddExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                     SharedConstant(nan_val)})),
+              Returns(Value(nan_val)));
   EXPECT_THAT(
       EvaluateExpr(*AddExpr({SharedConstant(1.0), SharedConstant(nan_val)})),
       Returns(Value(nan_val)));
-  EXPECT_THAT(EvaluateExpr(*AddExpr({SharedConstant(9007199254740991LL),
-                                     SharedConstant(nan_val)})),
+  EXPECT_THAT(EvaluateExpr(*AddExpr(
+                  {SharedConstant(static_cast<int64_t>(9007199254740991LL)),
+                   SharedConstant(nan_val)})),
               Returns(Value(nan_val)));
-  EXPECT_THAT(EvaluateExpr(*AddExpr({SharedConstant(-9007199254740991LL),
-                                     SharedConstant(nan_val)})),
+  EXPECT_THAT(EvaluateExpr(*AddExpr(
+                  {SharedConstant(static_cast<int64_t>(-9007199254740991LL)),
+                   SharedConstant(nan_val)})),
               Returns(Value(nan_val)));
   EXPECT_THAT(
       EvaluateExpr(*AddExpr({SharedConstant(std::numeric_limits<double>::max()),
@@ -177,12 +183,16 @@ TEST_F(AddFunctionTest, NanNotNumberTypeReturnError) {
 
 TEST_F(AddFunctionTest, MultiArgument) {
   // EvaluateExpr handles single expression, so nest calls for multi-arg
-  auto add12 = AddExpr({SharedConstant(1LL), SharedConstant(2LL)});
-  EXPECT_THAT(EvaluateExpr(*AddExpr({add12, SharedConstant(3LL)})),
+  auto add12 = AddExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                        SharedConstant(static_cast<int64_t>(2LL))});
+  EXPECT_THAT(EvaluateExpr(
+                  *AddExpr({add12, SharedConstant(static_cast<int64_t>(3LL))})),
               Returns(Value(6LL)));
 
-  auto add10_2 = AddExpr({SharedConstant(1.0), SharedConstant(2LL)});
-  EXPECT_THAT(EvaluateExpr(*AddExpr({add10_2, SharedConstant(3LL)})),
+  auto add10_2 =
+      AddExpr({SharedConstant(1.0), SharedConstant(static_cast<int64_t>(2LL))});
+  EXPECT_THAT(EvaluateExpr(*AddExpr(
+                  {add10_2, SharedConstant(static_cast<int64_t>(3LL))})),
               Returns(Value(6.0)));
 }
 
@@ -190,13 +200,16 @@ TEST_F(AddFunctionTest, MultiArgument) {
 
 TEST_F(SubtractFunctionTest, BasicNumerics) {
   EXPECT_THAT(
-      EvaluateExpr(*SubtractExpr({SharedConstant(1LL), SharedConstant(2LL)})),
+      EvaluateExpr(*SubtractExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                  SharedConstant(static_cast<int64_t>(2LL))})),
       Returns(Value(-1LL)));
   EXPECT_THAT(
-      EvaluateExpr(*SubtractExpr({SharedConstant(1LL), SharedConstant(2.5)})),
+      EvaluateExpr(*SubtractExpr(
+          {SharedConstant(static_cast<int64_t>(1LL)), SharedConstant(2.5)})),
       Returns(Value(-1.5)));
   EXPECT_THAT(
-      EvaluateExpr(*SubtractExpr({SharedConstant(1.0), SharedConstant(2LL)})),
+      EvaluateExpr(*SubtractExpr(
+          {SharedConstant(1.0), SharedConstant(static_cast<int64_t>(2LL))})),
       Returns(Value(-1.0)));
   EXPECT_THAT(
       EvaluateExpr(*SubtractExpr({SharedConstant(1.0), SharedConstant(2.0)})),
@@ -205,7 +218,8 @@ TEST_F(SubtractFunctionTest, BasicNumerics) {
 
 TEST_F(SubtractFunctionTest, BasicNonNumerics) {
   EXPECT_THAT(
-      EvaluateExpr(*SubtractExpr({SharedConstant(1LL), SharedConstant("1")})),
+      EvaluateExpr(*SubtractExpr(
+          {SharedConstant(static_cast<int64_t>(1LL)), SharedConstant("1")})),
       ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*SubtractExpr({SharedConstant("1"), SharedConstant(1.0)})),
@@ -229,27 +243,30 @@ TEST_F(SubtractFunctionTest, DoubleSubtractionOverflow) {
 TEST_F(SubtractFunctionTest, LongSubtractionOverflow) {
   EXPECT_THAT(EvaluateExpr(*SubtractExpr(
                   {SharedConstant(std::numeric_limits<int64_t>::min()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               ReturnsError());
   EXPECT_THAT(EvaluateExpr(*SubtractExpr(
                   {SharedConstant(std::numeric_limits<int64_t>::max()),
-                   SharedConstant(-1LL)})),
+                   SharedConstant(static_cast<int64_t>(-1LL))})),
               ReturnsError());
 }
 
 TEST_F(SubtractFunctionTest, NanNumberReturnNaN) {
   double nan_val = std::numeric_limits<double>::quiet_NaN();
-  EXPECT_THAT(EvaluateExpr(*SubtractExpr(
-                  {SharedConstant(1LL), SharedConstant(nan_val)})),
-              Returns(Value(nan_val)));
+  EXPECT_THAT(
+      EvaluateExpr(*SubtractExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                  SharedConstant(nan_val)})),
+      Returns(Value(nan_val)));
   EXPECT_THAT(EvaluateExpr(*SubtractExpr(
                   {SharedConstant(1.0), SharedConstant(nan_val)})),
               Returns(Value(nan_val)));
-  EXPECT_THAT(EvaluateExpr(*SubtractExpr({SharedConstant(9007199254740991LL),
-                                          SharedConstant(nan_val)})),
+  EXPECT_THAT(EvaluateExpr(*SubtractExpr(
+                  {SharedConstant(static_cast<int64_t>(9007199254740991LL)),
+                   SharedConstant(nan_val)})),
               Returns(Value(nan_val)));
-  EXPECT_THAT(EvaluateExpr(*SubtractExpr({SharedConstant(-9007199254740991LL),
-                                          SharedConstant(nan_val)})),
+  EXPECT_THAT(EvaluateExpr(*SubtractExpr(
+                  {SharedConstant(static_cast<int64_t>(-9007199254740991LL)),
+                   SharedConstant(nan_val)})),
               Returns(Value(nan_val)));
   EXPECT_THAT(EvaluateExpr(*SubtractExpr(
                   {SharedConstant(std::numeric_limits<double>::max()),
@@ -279,10 +296,10 @@ TEST_F(SubtractFunctionTest, NanNotNumberTypeReturnError) {
 TEST_F(SubtractFunctionTest, PositiveInfinity) {
   EXPECT_THAT(EvaluateExpr(*SubtractExpr(
                   {SharedConstant(std::numeric_limits<double>::infinity()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(Value(std::numeric_limits<double>::infinity())));
   EXPECT_THAT(EvaluateExpr(*SubtractExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(std::numeric_limits<double>::infinity())})),
               Returns(Value(-std::numeric_limits<double>::infinity())));
 }
@@ -290,10 +307,10 @@ TEST_F(SubtractFunctionTest, PositiveInfinity) {
 TEST_F(SubtractFunctionTest, NegativeInfinity) {
   EXPECT_THAT(EvaluateExpr(*SubtractExpr(
                   {SharedConstant(-std::numeric_limits<double>::infinity()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(Value(-std::numeric_limits<double>::infinity())));
   EXPECT_THAT(EvaluateExpr(*SubtractExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(-std::numeric_limits<double>::infinity())})),
               Returns(Value(std::numeric_limits<double>::infinity())));
 }
@@ -313,13 +330,16 @@ TEST_F(SubtractFunctionTest, PositiveInfinityNegativeInfinity) {
 
 TEST_F(MultiplyFunctionTest, BasicNumerics) {
   EXPECT_THAT(
-      EvaluateExpr(*MultiplyExpr({SharedConstant(1LL), SharedConstant(2LL)})),
+      EvaluateExpr(*MultiplyExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                  SharedConstant(static_cast<int64_t>(2LL))})),
       Returns(Value(2LL)));
   EXPECT_THAT(
-      EvaluateExpr(*MultiplyExpr({SharedConstant(3LL), SharedConstant(2.5)})),
+      EvaluateExpr(*MultiplyExpr(
+          {SharedConstant(static_cast<int64_t>(3LL)), SharedConstant(2.5)})),
       Returns(Value(7.5)));
   EXPECT_THAT(
-      EvaluateExpr(*MultiplyExpr({SharedConstant(1.0), SharedConstant(2LL)})),
+      EvaluateExpr(*MultiplyExpr(
+          {SharedConstant(1.0), SharedConstant(static_cast<int64_t>(2LL))})),
       Returns(Value(2.0)));
   EXPECT_THAT(
       EvaluateExpr(*MultiplyExpr({SharedConstant(1.32), SharedConstant(2.0)})),
@@ -328,7 +348,8 @@ TEST_F(MultiplyFunctionTest, BasicNumerics) {
 
 TEST_F(MultiplyFunctionTest, BasicNonNumerics) {
   EXPECT_THAT(
-      EvaluateExpr(*MultiplyExpr({SharedConstant(1LL), SharedConstant("1")})),
+      EvaluateExpr(*MultiplyExpr(
+          {SharedConstant(static_cast<int64_t>(1LL)), SharedConstant("1")})),
       ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*MultiplyExpr({SharedConstant("1"), SharedConstant(1.0)})),
@@ -340,11 +361,13 @@ TEST_F(MultiplyFunctionTest, BasicNonNumerics) {
 
 TEST_F(MultiplyFunctionTest, DoubleLongMultiplicationOverflow) {
   // C++ double handles this fine
-  EXPECT_THAT(EvaluateExpr(*MultiplyExpr({SharedConstant(9223372036854775807LL),
-                                          SharedConstant(100.0)})),
+  EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
+                  {SharedConstant(static_cast<int64_t>(9223372036854775807LL)),
+                   SharedConstant(100.0)})),
               Returns(Value(9.223372036854776e+20)));  // Approx
-  EXPECT_THAT(EvaluateExpr(*MultiplyExpr({SharedConstant(9223372036854775807LL),
-                                          SharedConstant(100LL)})),
+  EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
+                  {SharedConstant(static_cast<int64_t>(9223372036854775807LL)),
+                   SharedConstant(static_cast<int64_t>(100LL))})),
               ReturnsError());  // Integer overflow
 }
 
@@ -362,36 +385,39 @@ TEST_F(MultiplyFunctionTest, DoubleMultiplicationOverflow) {
 TEST_F(MultiplyFunctionTest, LongMultiplicationOverflow) {
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
                   {SharedConstant(std::numeric_limits<int64_t>::max()),
-                   SharedConstant(10LL)})),
+                   SharedConstant(static_cast<int64_t>(10LL))})),
               ReturnsError());
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
                   {SharedConstant(std::numeric_limits<int64_t>::min()),
-                   SharedConstant(10LL)})),
+                   SharedConstant(static_cast<int64_t>(10LL))})),
               ReturnsError());
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
-                  {SharedConstant(-10LL),
+                  {SharedConstant(static_cast<int64_t>(-10LL)),
                    SharedConstant(std::numeric_limits<int64_t>::max())})),
               ReturnsError());
   // Note: min * -10 overflows
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
-                  {SharedConstant(-10LL),
+                  {SharedConstant(static_cast<int64_t>(-10LL)),
                    SharedConstant(std::numeric_limits<int64_t>::min())})),
               ReturnsError());
 }
 
 TEST_F(MultiplyFunctionTest, NanNumberReturnNaN) {
   double nan_val = std::numeric_limits<double>::quiet_NaN();
-  EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
-                  {SharedConstant(1LL), SharedConstant(nan_val)})),
-              Returns(Value(nan_val)));
+  EXPECT_THAT(
+      EvaluateExpr(*MultiplyExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                  SharedConstant(nan_val)})),
+      Returns(Value(nan_val)));
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
                   {SharedConstant(1.0), SharedConstant(nan_val)})),
               Returns(Value(nan_val)));
-  EXPECT_THAT(EvaluateExpr(*MultiplyExpr({SharedConstant(9007199254740991LL),
-                                          SharedConstant(nan_val)})),
+  EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
+                  {SharedConstant(static_cast<int64_t>(9007199254740991LL)),
+                   SharedConstant(nan_val)})),
               Returns(Value(nan_val)));
-  EXPECT_THAT(EvaluateExpr(*MultiplyExpr({SharedConstant(-9007199254740991LL),
-                                          SharedConstant(nan_val)})),
+  EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
+                  {SharedConstant(static_cast<int64_t>(-9007199254740991LL)),
+                   SharedConstant(nan_val)})),
               Returns(Value(nan_val)));
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
                   {SharedConstant(std::numeric_limits<double>::max()),
@@ -421,10 +447,10 @@ TEST_F(MultiplyFunctionTest, NanNotNumberTypeReturnError) {
 TEST_F(MultiplyFunctionTest, PositiveInfinity) {
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
                   {SharedConstant(std::numeric_limits<double>::infinity()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(Value(std::numeric_limits<double>::infinity())));
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(std::numeric_limits<double>::infinity())})),
               Returns(Value(std::numeric_limits<double>::infinity())));
 }
@@ -432,10 +458,10 @@ TEST_F(MultiplyFunctionTest, PositiveInfinity) {
 TEST_F(MultiplyFunctionTest, NegativeInfinity) {
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
                   {SharedConstant(-std::numeric_limits<double>::infinity()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(Value(-std::numeric_limits<double>::infinity())));
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(-std::numeric_limits<double>::infinity())})),
               Returns(Value(-std::numeric_limits<double>::infinity())));
 }
@@ -453,11 +479,14 @@ TEST_F(MultiplyFunctionTest,
 }
 
 TEST_F(MultiplyFunctionTest, MultiArgument) {
-  auto mult12 = MultiplyExpr({SharedConstant(1LL), SharedConstant(2LL)});
-  EXPECT_THAT(EvaluateExpr(*MultiplyExpr({mult12, SharedConstant(3LL)})),
+  auto mult12 = MultiplyExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                              SharedConstant(static_cast<int64_t>(2LL))});
+  EXPECT_THAT(EvaluateExpr(*MultiplyExpr(
+                  {mult12, SharedConstant(static_cast<int64_t>(3LL))})),
               Returns(Value(6LL)));
 
-  auto mult23 = MultiplyExpr({SharedConstant(2LL), SharedConstant(3LL)});
+  auto mult23 = MultiplyExpr({SharedConstant(static_cast<int64_t>(2LL)),
+                              SharedConstant(static_cast<int64_t>(3LL))});
   EXPECT_THAT(EvaluateExpr(*MultiplyExpr({SharedConstant(1.0), mult23})),
               Returns(Value(6.0)));
 }
@@ -466,13 +495,16 @@ TEST_F(MultiplyFunctionTest, MultiArgument) {
 
 TEST_F(DivideFunctionTest, BasicNumerics) {
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(10LL), SharedConstant(2LL)})),
+      EvaluateExpr(*DivideExpr({SharedConstant(static_cast<int64_t>(10LL)),
+                                SharedConstant(static_cast<int64_t>(2LL))})),
       Returns(Value(5LL)));
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(10LL), SharedConstant(2.0)})),
+      EvaluateExpr(*DivideExpr(
+          {SharedConstant(static_cast<int64_t>(10LL)), SharedConstant(2.0)})),
       Returns(Value(5.0)));
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(10.0), SharedConstant(3LL)})),
+      EvaluateExpr(*DivideExpr(
+          {SharedConstant(10.0), SharedConstant(static_cast<int64_t>(3LL))})),
       Returns(Value(10.0 / 3.0)));
   EXPECT_THAT(
       EvaluateExpr(*DivideExpr({SharedConstant(10.0), SharedConstant(7.0)})),
@@ -481,7 +513,8 @@ TEST_F(DivideFunctionTest, BasicNumerics) {
 
 TEST_F(DivideFunctionTest, BasicNonNumerics) {
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(1LL), SharedConstant("1")})),
+      EvaluateExpr(*DivideExpr(
+          {SharedConstant(static_cast<int64_t>(1LL)), SharedConstant("1")})),
       ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*DivideExpr({SharedConstant("1"), SharedConstant(1.0)})),
@@ -493,16 +526,20 @@ TEST_F(DivideFunctionTest, BasicNonNumerics) {
 
 TEST_F(DivideFunctionTest, LongDivision) {
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(10LL), SharedConstant(3LL)})),
+      EvaluateExpr(*DivideExpr({SharedConstant(static_cast<int64_t>(10LL)),
+                                SharedConstant(static_cast<int64_t>(3LL))})),
       Returns(Value(3LL)));  // Integer division
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(-10LL), SharedConstant(3LL)})),
+      EvaluateExpr(*DivideExpr({SharedConstant(static_cast<int64_t>(-10LL)),
+                                SharedConstant(static_cast<int64_t>(3LL))})),
       Returns(Value(-3LL)));  // Integer division
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(10LL), SharedConstant(-3LL)})),
+      EvaluateExpr(*DivideExpr({SharedConstant(static_cast<int64_t>(10LL)),
+                                SharedConstant(static_cast<int64_t>(-3LL))})),
       Returns(Value(-3LL)));  // Integer division
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(-10LL), SharedConstant(-3LL)})),
+      EvaluateExpr(*DivideExpr({SharedConstant(static_cast<int64_t>(-10LL)),
+                                SharedConstant(static_cast<int64_t>(-3LL))})),
       Returns(Value(3LL)));  // Integer division
 }
 
@@ -519,7 +556,8 @@ TEST_F(DivideFunctionTest, DoubleDivisionOverflow) {
 
 TEST_F(DivideFunctionTest, ByZero) {
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(1LL), SharedConstant(0LL)})),
+      EvaluateExpr(*DivideExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                SharedConstant(static_cast<int64_t>(0LL))})),
       ReturnsError());  // Integer division by zero is error
   EXPECT_THAT(
       EvaluateExpr(*DivideExpr({SharedConstant(1.1), SharedConstant(0.0)})),
@@ -535,10 +573,12 @@ TEST_F(DivideFunctionTest, ByZero) {
 TEST_F(DivideFunctionTest, NanNumberReturnNaN) {
   double nan_val = std::numeric_limits<double>::quiet_NaN();
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(1LL), SharedConstant(nan_val)})),
+      EvaluateExpr(*DivideExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                SharedConstant(nan_val)})),
       Returns(Value(nan_val)));
   EXPECT_THAT(
-      EvaluateExpr(*DivideExpr({SharedConstant(nan_val), SharedConstant(1LL)})),
+      EvaluateExpr(*DivideExpr({SharedConstant(nan_val),
+                                SharedConstant(static_cast<int64_t>(1LL))})),
       Returns(Value(nan_val)));
   EXPECT_THAT(
       EvaluateExpr(*DivideExpr({SharedConstant(1.0), SharedConstant(nan_val)})),
@@ -573,10 +613,10 @@ TEST_F(DivideFunctionTest, NanNotNumberTypeReturnError) {
 TEST_F(DivideFunctionTest, PositiveInfinity) {
   EXPECT_THAT(EvaluateExpr(*DivideExpr(
                   {SharedConstant(std::numeric_limits<double>::infinity()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(Value(std::numeric_limits<double>::infinity())));
   EXPECT_THAT(EvaluateExpr(*DivideExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(std::numeric_limits<double>::infinity())})),
               Returns(Value(0.0)));
 }
@@ -584,10 +624,10 @@ TEST_F(DivideFunctionTest, PositiveInfinity) {
 TEST_F(DivideFunctionTest, NegativeInfinity) {
   EXPECT_THAT(EvaluateExpr(*DivideExpr(
                   {SharedConstant(-std::numeric_limits<double>::infinity()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(Value(-std::numeric_limits<double>::infinity())));
   EXPECT_THAT(EvaluateExpr(*DivideExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(-std::numeric_limits<double>::infinity())})),
               Returns(Value(-0.0)));  // Note: -0.0
 }
@@ -607,7 +647,8 @@ TEST_F(DivideFunctionTest, PositiveInfinityNegativeInfinityReturnsNan) {
 
 TEST_F(ModFunctionTest, DivisorZeroThrowsError) {
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(42LL), SharedConstant(0LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(42LL)),
+                             SharedConstant(static_cast<int64_t>(0LL))})),
       ReturnsError());
   // Note: C++ doesn't distinguish -0LL from 0LL
   // EXPECT_TRUE(AssertResultEquals(
@@ -625,7 +666,8 @@ TEST_F(ModFunctionTest, DivisorZeroThrowsError) {
 
 TEST_F(ModFunctionTest, DividendZeroReturnsZero) {
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(0LL), SharedConstant(42LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(0LL)),
+                             SharedConstant(static_cast<int64_t>(42LL))})),
       Returns(Value(0LL)));
   // Note: C++ doesn't distinguish -0LL from 0LL
   // EXPECT_THAT(
@@ -642,25 +684,29 @@ TEST_F(ModFunctionTest, DividendZeroReturnsZero) {
 
 TEST_F(ModFunctionTest, LongPositivePositive) {
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(10LL), SharedConstant(3LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(10LL)),
+                             SharedConstant(static_cast<int64_t>(3LL))})),
       Returns(Value(1LL)));
 }
 
 TEST_F(ModFunctionTest, LongNegativeNegative) {
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(-10LL), SharedConstant(-3LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(-10LL)),
+                             SharedConstant(static_cast<int64_t>(-3LL))})),
       Returns(Value(-1LL)));  // C++ % behavior
 }
 
 TEST_F(ModFunctionTest, LongPositiveNegative) {
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(10LL), SharedConstant(-3LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(10LL)),
+                             SharedConstant(static_cast<int64_t>(-3LL))})),
       Returns(Value(1LL)));  // C++ % behavior
 }
 
 TEST_F(ModFunctionTest, LongNegativePositive) {
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(-10LL), SharedConstant(3LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(-10LL)),
+                             SharedConstant(static_cast<int64_t>(3LL))})),
       Returns(Value(-1LL)));  // C++ % behavior
 }
 
@@ -694,16 +740,20 @@ TEST_F(ModFunctionTest, DoubleNegativePositive) {
 
 TEST_F(ModFunctionTest, LongPerfectlyDivisible) {
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(10LL), SharedConstant(5LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(10LL)),
+                             SharedConstant(static_cast<int64_t>(5LL))})),
       Returns(Value(0LL)));
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(-10LL), SharedConstant(5LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(-10LL)),
+                             SharedConstant(static_cast<int64_t>(5LL))})),
       Returns(Value(0LL)));
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(10LL), SharedConstant(-5LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(10LL)),
+                             SharedConstant(static_cast<int64_t>(-5LL))})),
       Returns(Value(0LL)));
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(-10LL), SharedConstant(-5LL)})),
+      EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(-10LL)),
+                             SharedConstant(static_cast<int64_t>(-5LL))})),
       Returns(Value(0LL)));
 }
 
@@ -723,11 +773,12 @@ TEST_F(ModFunctionTest, DoublePerfectlyDivisible) {
 }
 
 TEST_F(ModFunctionTest, NonNumericsReturnError) {
+  EXPECT_THAT(EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(10LL)),
+                                     SharedConstant("1")})),
+              ReturnsError());
   EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(10LL), SharedConstant("1")})),
-      ReturnsError());
-  EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant("1"), SharedConstant(10LL)})),
+      EvaluateExpr(*ModExpr(
+          {SharedConstant("1"), SharedConstant(static_cast<int64_t>(10LL))})),
       ReturnsError());
   EXPECT_THAT(
       EvaluateExpr(*ModExpr({SharedConstant("1"), SharedConstant("1")})),
@@ -736,9 +787,9 @@ TEST_F(ModFunctionTest, NonNumericsReturnError) {
 
 TEST_F(ModFunctionTest, NanNumberReturnNaN) {
   double nan_val = std::numeric_limits<double>::quiet_NaN();
-  EXPECT_THAT(
-      EvaluateExpr(*ModExpr({SharedConstant(1LL), SharedConstant(nan_val)})),
-      Returns(Value(nan_val)));
+  EXPECT_THAT(EvaluateExpr(*ModExpr({SharedConstant(static_cast<int64_t>(1LL)),
+                                     SharedConstant(nan_val)})),
+              Returns(Value(nan_val)));
   EXPECT_THAT(
       EvaluateExpr(*ModExpr({SharedConstant(1.0), SharedConstant(nan_val)})),
       Returns(Value(nan_val)));
@@ -761,7 +812,7 @@ TEST_F(ModFunctionTest, NanNotNumberTypeReturnError) {
 
 TEST_F(ModFunctionTest, NumberPosInfinityReturnSelf) {
   EXPECT_THAT(EvaluateExpr(*ModExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(std::numeric_limits<double>::infinity())})),
               Returns(Value(1.0)));  // fmod(1, inf) -> 1
   EXPECT_THAT(EvaluateExpr(*ModExpr(
@@ -777,7 +828,7 @@ TEST_F(ModFunctionTest, NumberPosInfinityReturnSelf) {
 TEST_F(ModFunctionTest, PosInfinityNumberReturnNaN) {
   EXPECT_THAT(EvaluateExpr(*ModExpr(
                   {SharedConstant(std::numeric_limits<double>::infinity()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(Value(std::numeric_limits<double>::quiet_NaN())));
   EXPECT_THAT(EvaluateExpr(*ModExpr(
                   {SharedConstant(std::numeric_limits<double>::infinity()),
@@ -791,7 +842,7 @@ TEST_F(ModFunctionTest, PosInfinityNumberReturnNaN) {
 
 TEST_F(ModFunctionTest, NumberNegInfinityReturnSelf) {
   EXPECT_THAT(EvaluateExpr(*ModExpr(
-                  {SharedConstant(1LL),
+                  {SharedConstant(static_cast<int64_t>(1LL)),
                    SharedConstant(-std::numeric_limits<double>::infinity())})),
               Returns(Value(1.0)));  // fmod(1, -inf) -> 1
   EXPECT_THAT(EvaluateExpr(*ModExpr(
@@ -807,7 +858,7 @@ TEST_F(ModFunctionTest, NumberNegInfinityReturnSelf) {
 TEST_F(ModFunctionTest, NegInfinityNumberReturnNaN) {
   EXPECT_THAT(EvaluateExpr(*ModExpr(
                   {SharedConstant(-std::numeric_limits<double>::infinity()),
-                   SharedConstant(1LL)})),
+                   SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(Value(std::numeric_limits<double>::quiet_NaN())));
   EXPECT_THAT(EvaluateExpr(*ModExpr(
                   {SharedConstant(-std::numeric_limits<double>::infinity()),

@@ -43,7 +43,7 @@ class Expr {
 
 class Selectable : public Expr {
  public:
-  virtual ~Selectable() override = default;
+  ~Selectable() override = default;
   virtual const std::string& alias() const = 0;
 };
 
