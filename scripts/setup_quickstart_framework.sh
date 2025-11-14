@@ -24,7 +24,14 @@ git checkout nc/quickstarts
 
 # Remove all SPM dependencies from the project. This is necessary to prepare
 # the project for framework-based testing.
-"${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj"
+if [[ "${SAMPLE}" == "FirebaseAI" ]]; then
+  # For the FirebaseAI quickstart, we only want to remove the local
+  # firebase-ios-sdk package dependency.
+  "${REPO}"/scripts/remove_spm_dependencies.rb "${TARGET}".xcodeproj FirebaseAILogic
+else
+  # For other quickstarts, remove all SPM dependencies.
+  "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj"
+fi
 
 if [[ ! -z "$LEGACY" ]]; then
   cd "Legacy${SAMPLE}Quickstart"
