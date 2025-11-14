@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '12.6.0'
+  s.version          = '12.7.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -35,12 +35,12 @@ Cloud Functions for Firebase.
     'FirebaseFunctions/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseCore', '~> 12.6.0'
-  s.dependency 'FirebaseCoreExtension', '~> 12.6.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.6.0'
-  s.dependency 'FirebaseAuthInterop', '~> 12.6.0'
-  s.dependency 'FirebaseMessagingInterop', '~> 12.6.0'
-  s.dependency 'FirebaseSharedSwift', '~> 12.6.0'
+  s.dependency 'FirebaseCore', '~> 12.7.0'
+  s.dependency 'FirebaseCoreExtension', '~> 12.7.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 12.7.0'
+  s.dependency 'FirebaseAuthInterop', '~> 12.7.0'
+  s.dependency 'FirebaseMessagingInterop', '~> 12.7.0'
+  s.dependency 'FirebaseSharedSwift', '~> 12.7.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 3.4', '< 6.0'
 
   s.test_spec 'objc' do |objc_tests|

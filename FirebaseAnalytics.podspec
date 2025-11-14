@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAnalytics'
-    s.version          = '12.6.0'
+    s.version          = '12.7.0'
     s.summary          = 'Firebase Analytics for iOS'
 
     s.description      = <<-DESC
@@ -26,8 +26,8 @@ Pod::Spec.new do |s|
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'FirebaseCore', '~> 12.6.0'
-    s.dependency 'FirebaseInstallations', '~> 12.6.0'
+    s.dependency 'FirebaseCore', '~> 12.7.0'
+    s.dependency 'FirebaseInstallations', '~> 12.7.0'
     s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 8.1'
     s.dependency 'GoogleUtilities/MethodSwizzler', '~> 8.1'
     s.dependency 'GoogleUtilities/NSData+zlib', '~> 8.1'
@@ -37,17 +37,17 @@ Pod::Spec.new do |s|
     s.default_subspecs = 'Default'
 
     s.subspec 'Default' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Default', '12.6.0'
+        ss.dependency 'GoogleAppMeasurement/Default', '12.7.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'Core' do |ss|
-        ss.dependency 'GoogleAppMeasurement/Core', '12.6.0'
+        ss.dependency 'GoogleAppMeasurement/Core', '12.7.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'IdentitySupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.6.0'
+        ss.dependency 'GoogleAppMeasurement/IdentitySupport', '12.7.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 

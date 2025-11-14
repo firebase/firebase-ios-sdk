@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseABTesting'
-  s.version          = '12.6.0'
+  s.version          = '12.7.0'
   s.summary          = 'Firebase ABTesting'
 
   s.description      = <<-DESC
@@ -51,7 +51,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseCore', '~> 12.6.0'
+  s.dependency 'FirebaseCore', '~> 12.7.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
