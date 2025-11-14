@@ -322,11 +322,20 @@ public final class GenerativeModel: Sendable {
     // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
     // request to the Generative Language backend, which expects the form "models/model-name".
     let generateContentRequestModelResourceName = switch apiConfig.service {
-    case .vertexAI, .googleAI(endpoint: .googleAIBypassProxy):
+    case .vertexAI:
       modelResourceName
-    case .googleAI(endpoint: .firebaseProxyProd),
-         .googleAI(endpoint: .firebaseProxyStaging):
+    case .googleAI(endpoint: .firebaseProxyProd):
       "models/\(modelName)"
+    #if DEBUG
+      case .googleAI(endpoint: .firebaseProxyStaging):
+        "models/\(modelName)"
+      case .googleAI(endpoint: .googleAIBypassProxy):
+        modelResourceName
+      case .googleAI(endpoint: .vertexAIStagingBypassProxy):
+        fatalError(
+          "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
+        )
+    #endif // DEBUG
     }
 
     let generateContentRequest = GenerateContentRequest(
