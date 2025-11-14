@@ -26,7 +26,7 @@ DIR="${SDK}"
 
 TARGET_DIR="quickstart-ios/${DIR}"
 
-if [ ! -d "$TARGET_DIR" ]; then
+if [[ ! -d "$TARGET_DIR" ]]; then
   echo "Error: Directory '$TARGET_DIR' not found." >&2
   echo "Please provide a valid SDK name." >&2
   exit 1
