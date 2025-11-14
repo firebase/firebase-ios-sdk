@@ -180,6 +180,7 @@ TEST(FieldPath, IsPrefixOf) {
 
 TEST(FieldPath, AccessFailures) {
   const FieldPath path;
+#if ABSL_HAVE_EXCEPTIONS
   ASSERT_ANY_THROW(path.first_segment());
   ASSERT_ANY_THROW(path.last_segment());
   ASSERT_ANY_THROW(path[0]);
@@ -187,6 +188,9 @@ TEST(FieldPath, AccessFailures) {
   ASSERT_ANY_THROW(path.PopFirst());
   ASSERT_ANY_THROW(path.PopFirst(2));
   ASSERT_ANY_THROW(path.PopLast());
+#else
+  ASSERT_DEATH(path.first_segment(), "FIRESTORE INTERNAL ASSERTION FAILED")
+#endif
 }
 
 TEST(FieldPath, Parsing) {
