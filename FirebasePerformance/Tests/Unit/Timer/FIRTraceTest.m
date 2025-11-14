@@ -612,7 +612,7 @@
 }
 
 /** Validates if attributes property is immutable. */
-- (void)testImmutablityOfAttributesProperty {
+- (void)testImmutabilityOfAttributesProperty {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
   [trace setValue:@"bar" forAttribute:@"foo"];
   NSMutableDictionary<NSString *, NSString *> *attributes =
