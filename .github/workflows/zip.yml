@@ -477,7 +477,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
