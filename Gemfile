@@ -15,5 +15,3 @@ source 'https://rubygems.org'
 gem 'cocoapods', '1.16.2'
 gem 'cocoapods-generate', '2.2.5'
 gem 'danger', '8.4.5'
-
-# Testing
