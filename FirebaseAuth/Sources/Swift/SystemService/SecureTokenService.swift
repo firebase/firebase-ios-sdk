@@ -19,6 +19,10 @@ private let kFiveMinutes = 5 * 60.0
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 actor SecureTokenServiceInternal {
+  /// Coalescer to deduplicate concurrent token refresh requests.
+  /// When multiple requests arrive at the same time, only one network call is made.
+  private let refreshCoalescer = TokenRefreshCoalescer()
+
   /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token
   ///   received in the callback should be considered short lived and not cached.
   ///
@@ -32,7 +36,20 @@ actor SecureTokenServiceInternal {
       return (service.accessToken, false)
     } else {
       AuthLog.logDebug(code: "I-AUT000017", message: "Fetching new token from backend.")
-      return try await requestAccessToken(retryIfExpired: true, service: service, backend: backend)
+
+      // Use coalescer to deduplicate concurrent refresh requests.
+      // If multiple requests arrive while one is in progress, they all wait
+      // for the same network response instead of making redundant calls.
+      let currentToken = service.accessToken
+      return try await refreshCoalescer.coalescedRefresh(
+        currentToken: currentToken
+      ) {
+        try await self.requestAccessToken(
+          retryIfExpired: true,
+          service: service,
+          backend: backend
+        )
+      }
     }
   }
 
