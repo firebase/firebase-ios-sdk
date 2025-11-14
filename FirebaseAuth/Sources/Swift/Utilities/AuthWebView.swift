@@ -73,4 +73,64 @@
       return UIActivityIndicatorView(style: .medium)
     }
   }
+
+#elseif os(macOS)
+
+  import AppKit
+  import WebKit
+
+  /// A class responsible for creating a WKWebView for use within Firebase Auth.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  class AuthWebView: NSView {
+    lazy var webView: WKWebView = createWebView()
+    lazy var spinner: NSProgressIndicator = createSpinner()
+
+    override init(frame frameRect: NSRect) {
+      super.init(frame: frameRect)
+      wantsLayer = true
+      layer?.backgroundColor = NSColor.white.cgColor
+      initializeSubviews()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+      fatalError("init(coder:) has not been implemented")
+    }
+
+    private func initializeSubviews() {
+      // The order of the following controls z-order.
+      addSubview(webView)
+      addSubview(spinner)
+
+      layoutSubviews()
+      webView = webView
+      spinner = spinner
+    }
+
+    override func resizeSubviews(withOldSize oldSize: NSSize) {
+      super.resizeSubviews(withOldSize: oldSize)
+      layoutSubviews()
+    }
+
+    private func layoutSubviews() {
+      let height = bounds.size.height
+      let width = bounds.size.width
+      webView.frame = NSRect(x: 0, y: 0, width: width, height: height)
+      spinner.frame = NSRect(x: (width - 32) / 2, y: (height - 32) / 2, width: 32, height: 32)
+    }
+
+    private func createWebView() -> WKWebView {
+      let webView = WKWebView(frame: .zero)
+      webView.wantsLayer = true
+      return webView
+    }
+
+    private func createSpinner() -> NSProgressIndicator {
+      let spinner = NSProgressIndicator()
+      spinner.style = .spinning
+      spinner.isIndeterminate = true
+      return spinner
+    }
+  }
+
 #endif
