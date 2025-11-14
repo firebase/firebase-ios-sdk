@@ -63,39 +63,60 @@ else
     puts "Cleaning target '#{target.name}'..."
 
     # Remove from target dependencies list
-    removed_deps = target.dependencies.reject! do |dep|
+    dependencies_to_remove = target.dependencies.select do |dep|
       package_product_dep_uuids.include?(dep.uuid)
     end
-    if removed_deps
-      puts "  - Removed #{removed_deps.count} SPM target dependencies."
+
+    unless dependencies_to_remove.empty?
+      puts "  - Removed #{dependencies_to_remove.count} SPM target dependencies:"
+      dependencies_to_remove.each do |dep|
+        product_name = dep.respond_to?(:product_name) ? dep.product_name : dep.display_name
+        puts "    - #{product_name}"
+      end
+      target.dependencies.reject! { |dep| package_product_dep_uuids.include?(dep.uuid) }
     end
 
     # Remove from build phases (e.g., "Link Binary With Libraries")
     target.build_phases.each do |phase|
       next unless phase.respond_to?(:files)
 
-      original_file_count = phase.files.count
-      phase.files.reject! do |build_file|
+      build_files_to_remove_from_phase = phase.files.select do |build_file|
         build_file_uuids_to_remove.include?(build_file.uuid)
       end
-      removed_count = original_file_count - phase.files.count
-      if removed_count > 0
-        puts "  - Removed #{removed_count} SPM build file references from '#{phase.display_name}'."
+
+      unless build_files_to_remove_from_phase.empty?
+        puts "  - Removed #{build_files_to_remove_from_phase.count} SPM build file references from '#{phase.display_name}':"
+        build_files_to_remove_from_phase.each do |bf|
+          product_name = bf.product_ref ? bf.product_ref.product_name : bf.display_name
+          puts "    - #{product_name}"
+        end
+        phase.files.reject! { |build_file| build_file_uuids_to_remove.include?(build_file.uuid) }
       end
     end
   end
 
   # --- Step 4: Delete the now-orphaned BuildFile and dependency objects ---
   puts "Deleting #{build_files_to_remove.count} SPM BuildFile object(s)..."
-  build_files_to_remove.each(&:remove_from_project)
+  build_files_to_remove.each do |build_file|
+    product_name = build_file.product_ref ? build_file.product_ref.product_name : build_file.display_name
+    puts "  - BuildFile for #{product_name}"
+    build_file.remove_from_project
+  end
 
   puts "Deleting #{package_product_dependencies.count} SPM product dependency object(s)..."
-  package_product_dependencies.each(&:remove_from_project)
+  package_product_dependencies.each do |dependency|
+    puts "  - #{dependency.product_name}"
+    dependency.remove_from_project
+  end
 end
 
 # --- Step 5: Remove package references from the project root ---
 unless project.root_object.package_references.empty?
-  puts "Removing #{project.root_object.package_references.count} package reference(s)..."
+  puts "Removing #{project.root_object.package_references.count} package reference(s):"
+  project.root_object.package_references.each do |ref|
+    name = ref.name || (ref.respond_to?(:repository_url) ? ref.repository_url : ref.path)
+    puts "  - #{name}"
+  end
   project.root_object.package_references.clear
   puts "All package references removed from the project."
 else
