@@ -17,7 +17,7 @@ import FirebaseAuthInterop
 import FirebaseCore
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerativeModelGoogleAITests: XCTestCase {
@@ -262,6 +262,128 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     )
   }
 
+  func testGenerateContent_success_thinking_thoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-thinking-reply-thought-summary",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let thoughtPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+    XCTAssertTrue(thoughtPart.isThought)
+    XCTAssertTrue(thoughtPart.text.hasPrefix("**Thinking About Google's Headquarters**"))
+    XCTAssertEqual(thoughtPart.text, response.thoughtSummary)
+    let textPart = try XCTUnwrap(candidate.content.parts.last as? TextPart)
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertEqual(textPart.text, "Mountain View")
+    XCTAssertEqual(textPart.text, response.text)
+  }
+
+  func testGenerateContent_success_thinking_functionCall_thoughtSummaryAndSignature() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-thinking-function-call-thought-summary-signature",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.finishReason, .stop)
+    XCTAssertEqual(candidate.content.parts.count, 2)
+    let thoughtPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+    XCTAssertTrue(thoughtPart.isThought)
+    XCTAssertTrue(thoughtPart.text.hasPrefix("**Thinking Through the New Year's Eve Calculation**"))
+    let functionCallPart = try XCTUnwrap(candidate.content.parts.last as? FunctionCallPart)
+    XCTAssertFalse(functionCallPart.isThought)
+    XCTAssertEqual(functionCallPart.name, "now")
+    XCTAssertTrue(functionCallPart.args.isEmpty)
+    let thoughtSignature = try XCTUnwrap(functionCallPart.thoughtSignature)
+    XCTAssertTrue(thoughtSignature.hasPrefix("CtQOAVSoXO74PmYr9AFu"))
+  }
+
+  func testGenerateContent_success_codeExecution() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-code-execution",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let parts = candidate.content.parts
+    XCTAssertEqual(candidate.finishReason, .stop)
+    XCTAssertEqual(parts.count, 3)
+    let executableCodePart = try XCTUnwrap(parts[0] as? ExecutableCodePart)
+    XCTAssertFalse(executableCodePart.isThought)
+    XCTAssertEqual(executableCodePart.language, .python)
+    XCTAssertTrue(executableCodePart.code.starts(with: "prime_numbers = [2, 3, 5, 7, 11]"))
+    let codeExecutionResultPart = try XCTUnwrap(parts[1] as? CodeExecutionResultPart)
+    XCTAssertFalse(codeExecutionResultPart.isThought)
+    XCTAssertEqual(codeExecutionResultPart.outcome, .ok)
+    XCTAssertEqual(codeExecutionResultPart.output, "sum_of_primes=28\n")
+    let textPart = try XCTUnwrap(parts[2] as? TextPart)
+    XCTAssertFalse(textPart.isThought)
+    XCTAssertTrue(textPart.text.hasPrefix("The first 5 prime numbers are 2, 3, 5, 7, and 11."))
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 160)
+  }
+
+  func testGenerateContent_success_urlContext() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-url-context",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    XCTAssertEqual(response.candidates.count, 1)
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 1)
+    let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try XCTUnwrap(urlMetadata.retrievedURL)
+    XCTAssertEqual(
+      retrievedURL,
+      URL(string: "https://berkshirehathaway.com")
+    )
+    XCTAssertEqual(urlMetadata.retrievalStatus, .success)
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.toolUsePromptTokenCount, 424)
+  }
+
+  func testGenerateContent_success_urlContext_mixedValidity() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-url-context-mixed-validity",
+      withExtension: "json",
+      subdirectory: googleAISubdirectory
+    )
+
+    let response = try await model.generateContent(testPrompt)
+
+    let candidate = try XCTUnwrap(response.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 3)
+
+    let paywallURLMetadata = urlContextMetadata.urlMetadata[0]
+    XCTAssertEqual(paywallURLMetadata.retrievalStatus, .error)
+
+    let successURLMetadata = urlContextMetadata.urlMetadata[1]
+    XCTAssertEqual(successURLMetadata.retrievalStatus, .success)
+
+    let errorURLMetadata = urlContextMetadata.urlMetadata[2]
+    XCTAssertEqual(errorURLMetadata.retrievalStatus, .error)
+  }
+
   func testGenerateContent_failure_invalidAPIKey() async throws {
     let expectedStatusCode = 400
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -397,6 +519,122 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertNil(citation.publicationDate)
   }
 
+  func testGenerateContentStream_successWithThoughtSummary() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-thinking-reply-thought-summary",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var thoughtSummary = ""
+    var text = ""
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.content.parts.count, 1)
+      let textPart = try XCTUnwrap(candidate.content.parts.first as? TextPart)
+      if textPart.isThought {
+        let newThought = try XCTUnwrap(response.thoughtSummary)
+        XCTAssertEqual(textPart.text, newThought)
+        thoughtSummary.append(newThought)
+      } else {
+        let newText = try XCTUnwrap(response.text)
+        XCTAssertEqual(textPart.text, newText)
+        text.append(newText)
+      }
+    }
+
+    XCTAssertTrue(thoughtSummary.hasPrefix("**Exploring Sky Color**"))
+    XCTAssertTrue(text.hasPrefix("The sky is blue because"))
+  }
+
+  func testGenerateContentStream_success_thinking_functionCall_thoughtSummary_signature() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-thinking-function-call-thought-summary-signature",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var thoughtSummary = ""
+    var functionCalls: [FunctionCallPart] = []
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertEqual(candidate.content.parts.count, 1)
+      let part = try XCTUnwrap(candidate.content.parts.first)
+      if part.isThought {
+        let textPart = try XCTUnwrap(part as? TextPart)
+        let newThought = try XCTUnwrap(response.thoughtSummary)
+        XCTAssertEqual(textPart.text, newThought)
+        thoughtSummary.append(newThought)
+      } else {
+        let functionCallPart = try XCTUnwrap(part as? FunctionCallPart)
+        XCTAssertEqual(response.functionCalls.count, 1)
+        let newFunctionCall = try XCTUnwrap(response.functionCalls.first)
+        XCTAssertEqual(functionCallPart, newFunctionCall)
+        functionCalls.append(newFunctionCall)
+      }
+    }
+
+    XCTAssertTrue(thoughtSummary.hasPrefix("**Calculating the Days**"))
+    XCTAssertEqual(functionCalls.count, 1)
+    let functionCall = try XCTUnwrap(functionCalls.first)
+    XCTAssertEqual(functionCall.name, "now")
+    XCTAssertTrue(functionCall.args.isEmpty)
+    let thoughtSignature = try XCTUnwrap(functionCall.thoughtSignature)
+    XCTAssertTrue(thoughtSignature.hasPrefix("CiIBVKhc7vB+vaaq6rA"))
+  }
+
+  func testGenerateContentStream_success_ignoresEmptyParts() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-empty-parts",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    let stream = try model.generateContentStream("Hi")
+    for try await response in stream {
+      let candidate = try XCTUnwrap(response.candidates.first)
+      XCTAssertGreaterThan(candidate.content.parts.count, 0)
+      let text = response.text
+      let inlineData = response.inlineDataParts.first
+      XCTAssertTrue(text != nil || inlineData != nil, "Response did not contain text or data")
+    }
+  }
+
+  func testGenerateContentStream_success_codeExecution() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-code-execution",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var parts = [any Part]()
+    let stream = try model.generateContentStream(testPrompt)
+    for try await response in stream {
+      if let responseParts = response.candidates.first?.content.parts {
+        parts.append(contentsOf: responseParts)
+      }
+    }
+
+    let thoughtParts = parts.filter { $0.isThought }
+    XCTAssertEqual(thoughtParts.count, 0)
+    let textParts = parts.filter { $0 is TextPart }
+    XCTAssertGreaterThan(textParts.count, 0)
+    let executableCodeParts = parts.compactMap { $0 as? ExecutableCodePart }
+    XCTAssertEqual(executableCodeParts.count, 1)
+    let executableCodePart = try XCTUnwrap(executableCodeParts.first)
+    XCTAssertFalse(executableCodePart.isThought)
+    XCTAssertEqual(executableCodePart.language, .python)
+    XCTAssertTrue(executableCodePart.code.starts(with: "prime_numbers = [2, 3, 5, 7, 11]"))
+    let codeExecutionResultParts = parts.compactMap { $0 as? CodeExecutionResultPart }
+    XCTAssertEqual(codeExecutionResultParts.count, 1)
+    let codeExecutionResultPart = try XCTUnwrap(codeExecutionResultParts.first)
+    XCTAssertFalse(codeExecutionResultPart.isThought)
+    XCTAssertEqual(codeExecutionResultPart.outcome, .ok)
+    XCTAssertEqual(codeExecutionResultPart.output, "The sum of the first 5 prime numbers is: 28\n")
+  }
+
   func testGenerateContentStream_failureInvalidAPIKey() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-failure-api-key",
@@ -452,5 +690,28 @@ final class GenerativeModelGoogleAITests: XCTestCase {
     XCTAssertEqual(firstResponse.text, "text1")
     let lastResponse = try XCTUnwrap(responses.last)
     XCTAssertEqual(lastResponse.text, "text8")
+  }
+
+  func testGenerateContentStream_success_urlContext() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "streaming-success-url-context",
+      withExtension: "txt",
+      subdirectory: googleAISubdirectory
+    )
+
+    var responses = [GenerateContentResponse]()
+    let stream = try model.generateContentStream(testPrompt)
+    for try await response in stream {
+      responses.append(response)
+    }
+
+    let firstResponse = try XCTUnwrap(responses.first)
+    let candidate = try XCTUnwrap(firstResponse.candidates.first)
+    let urlContextMetadata = try XCTUnwrap(candidate.urlContextMetadata)
+    XCTAssertEqual(urlContextMetadata.urlMetadata.count, 1)
+    let urlMetadata = try XCTUnwrap(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try XCTUnwrap(urlMetadata.retrievedURL)
+    XCTAssertEqual(retrievedURL, URL(string: "https://google.com"))
+    XCTAssertEqual(urlMetadata.retrievalStatus, .success)
   }
 }

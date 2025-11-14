@@ -22,10 +22,6 @@ import Foundation
 /// documentation](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
 /// for more details about the image generation capabilities offered by the Imagen model in the
 /// Firebase AI SDK SDK.
-///
-/// > Warning: For Firebase AI SDK, image generation using Imagen 3 models is in Public
-/// Preview, which means that the feature is not subject to any SLA or deprecation policy and
-/// could change in backwards-incompatible ways.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class ImagenModel {
   /// Model name prefix to identify Imagen models.
@@ -65,17 +61,13 @@ public final class ImagenModel {
     self.requestOptions = requestOptions
   }
 
-  /// **[Public Preview]** Generates images using the Imagen model and returns them as inline data.
+  /// Generates images using the Imagen model and returns them as inline data.
   ///
   /// The individual ``ImagenInlineImage/data`` is provided for each of the generated
   /// ``ImagenGenerationResponse/images``.
   ///
   /// > Note: By default, 1 image sample is generated; see ``ImagenGenerationConfig/numberOfImages``
   /// to configure the number of images that are generated.
-  ///
-  /// > Warning: For Firebase AI SDK, image generation using Imagen 3 models is in Public
-  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
-  /// could change in backwards-incompatible ways.
   ///
   /// - Parameters:
   ///   - prompt: A text prompt describing the image(s) to generate.
@@ -91,8 +83,7 @@ public final class ImagenModel {
     )
   }
 
-  /// **[Public Preview]** Generates images using the Imagen model and stores them in Cloud Storage
-  /// (GCS) for Firebase.
+  /// Generates images using the Imagen model and stores them in Cloud Storage (GCS) for Firebase.
   ///
   /// The generated images are stored in a subdirectory of the requested `gcsURI`, named as a random
   /// numeric hash. For example, for the `gcsURI` `"gs://bucket-name/path/"`, the generated images
@@ -104,10 +95,6 @@ public final class ImagenModel {
   ///
   /// > Note: By default, 1 image sample is generated; see ``ImagenGenerationConfig/numberOfImages``
   /// to configure the number of images that are generated.
-  ///
-  /// > Warning: For Firebase AI SDK, image generation using Imagen 3 models is in Public
-  /// Preview, which means that the feature is not subject to any SLA or deprecation policy and
-  /// could change in backwards-incompatible ways.
   ///
   /// - Parameters:
   ///   - prompt: A text prompt describing the image(s) to generate.
@@ -159,7 +146,8 @@ public final class ImagenModel {
         )
       },
       addWatermark: generationConfig?.addWatermark,
-      includeResponsibleAIFilterReason: true
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
     )
   }
 }

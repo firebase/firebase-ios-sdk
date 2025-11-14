@@ -45,9 +45,9 @@ FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataRangeMerge;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerAuthRevoked;
 FOUNDATION_EXPORT NSString *const kFWPASyncServerListenCancelled;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerSecurityDebug;
-FOUNDATION_EXPORT NSString
-    *const kFWPAsyncServerDataUpdateBodyPath; // {"a": "d", "b": {"p": "/", "d":
-                                              // "<data>""}}
+FOUNDATION_EXPORT NSString *const
+    kFWPAsyncServerDataUpdateBodyPath; // {"a": "d", "b": {"p": "/", "d":
+                                       // "<data>""}}
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateBodyData;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateStartPath;
 FOUNDATION_EXPORT NSString *const kFWPAsyncServerDataUpdateEndPath;
@@ -79,9 +79,9 @@ FOUNDATION_EXPORT NSString *const kFWPRequestActionMerge;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionGet;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionTaggedListen;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionTaggedUnlisten;
-FOUNDATION_EXPORT NSString
-    *const kFWPRequestActionListen; // {"t": "d", "d": {"r": 1, "a": "l", "b": {
-                                    // "p": "/" } } }
+FOUNDATION_EXPORT NSString *const
+    kFWPRequestActionListen; // {"t": "d", "d": {"r": 1, "a": "l", "b": {
+                             // "p": "/" } } }
 FOUNDATION_EXPORT NSString *const kFWPRequestActionUnlisten;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionStats;
 FOUNDATION_EXPORT NSString *const kFWPRequestActionDisconnectPut;

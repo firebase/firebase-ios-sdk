@@ -1,5 +1,53 @@
+# 12.6.0
+- [feature] Added support for
+  [Server Prompt Templates](https://firebase.google.com/docs/ai-logic/server-prompt-templates/get-started).
+
+# 12.5.0
+- [changed] Renamed the `FirebaseAI` module to `FirebaseAILogic`. This is a non-breaking change.
+  `FirebaseAI` references will continue to work until a future breaking change release. Going
+  forward, imports should be changed to `import FirebaseAILogic` and the `FirebaseAILogic` Swift
+  Package dependency should be selected. See the
+  [Swift module name change](https://firebase.google.com/docs/ai-logic/faq-and-troubleshooting#swift-module-name-change)
+  FAQ entry for more details.
+- [fixed] Fixed a nanoseconds parsing issue in the Live API when receiving a
+  `LiveServerGoingAwayNotice` message. (#15410)
+- [feature] Added support for sending video frames with the Live API via the `sendVideoRealtime`
+  method on [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  (#15432)
+
+# 12.4.0
+- [feature] Added support for the URL context tool, which allows the model to access content
+  from provided public web URLs to inform and enhance its responses. (#15221)
+- [changed] Using Firebase AI Logic with the Gemini Developer API is now Generally Available (GA).
+- [changed] Using Firebase AI Logic with the Imagen generation APIs is now Generally Available (GA).
+- [feature] Added support for the Live API, which allows bidirectional
+  communication with the model in realtime.
+
+  To get started with the Live API, see the Firebase docs on
+  [Bidirectional streaming using the Gemini Live API](https://firebase.google.com/docs/ai-logic/live-api).
+  (#15309)
+
+# 12.3.0
+- [feature] Added support for the Code Execution tool, which enables the model
+  to generate and run code to perform complex tasks like solving mathematical
+  equations or visualizing data. (#15280)
+- [fixed] Fixed a decoding error when generating images with the
+  `gemini-2.5-flash-image-preview` model using `generateContentStream` or
+  `sendMessageStream` with the Gemini Developer API. (#15262)
+
+# 12.2.0
+- [feature] Added support for returning thought summaries, which are synthesized
+  versions of a model's internal reasoning process. (#15096)
+- [feature] Added support for limited-use tokens with Firebase App Check.
+  These limited-use tokens are required for an upcoming optional feature called
+  _replay protection_. We recommend
+  [enabling the usage of limited-use tokens](https://firebase.google.com/docs/ai-logic/app-check)
+  now so that when replay protection becomes available, you can enable it sooner
+  because more of your users will be on versions of your app that send limited-use tokens.
+  (#15099)
+
 # 12.0.0
-- [added] Added support for Grounding with Google Search. (#15014)
+- [feature] Added support for Grounding with Google Search. (#15014)
 - [removed] Removed `CountTokensResponse.totalBillableCharacters` which was
   deprecated in 11.15.0. Use `totalTokens` instead. (#15056)
 

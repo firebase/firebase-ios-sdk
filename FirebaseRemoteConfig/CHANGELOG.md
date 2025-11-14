@@ -1,3 +1,17 @@
+# 12.6.0
+- [fixed] Fixed a bug where Remote Config does not work after a restore
+  of a previous backup of the device. (#14459)
+- [fixed] Fixed a data race condition on the global database status flag
+  by synchronizing all read and write operations. (#14715)
+
+# 12.3.0
+- [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
+  building dynamically linked libraries. (#15276)
+
+# 12.2.0
+- [fixed] Fixed a race condition that could lead to a crash during network
+  session recreation. (#15087)
+
 # 12.0.0
 - [added] Improved how the SDK handles real-time requests when a Firebase
   project has exceeded its available quota for real-time services.

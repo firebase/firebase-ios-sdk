@@ -14,7 +14,7 @@
 
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ToolTests: XCTestCase {
@@ -27,11 +27,28 @@ final class ToolTests: XCTestCase {
 
   func testEncodeTool_googleSearch() throws {
     let tool = Tool.googleSearch()
+
     let jsonData = try encoder.encode(tool)
+
     let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(jsonString, """
     {
       "googleSearch" : {
+
+      }
+    }
+    """)
+  }
+
+  func testEncodeTool_codeExecution() throws {
+    let tool = Tool.codeExecution()
+
+    let jsonData = try encoder.encode(tool)
+
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(jsonString, """
+    {
+      "codeExecution" : {
 
       }
     }
@@ -45,11 +62,9 @@ final class ToolTests: XCTestCase {
       parameters: ["param1": .string()]
     )
     let tool = Tool.functionDeclarations([functionDecl])
-
-    encoder.outputFormatting.insert(.withoutEscapingSlashes)
     let jsonData = try encoder.encode(tool)
-    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
 
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(jsonString, """
     {
       "functionDeclarations" : [

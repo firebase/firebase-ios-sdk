@@ -26,6 +26,9 @@ public struct GenerateContentResponse: Sendable {
     /// The total number of tokens across the generated response candidates.
     public let candidatesTokenCount: Int
 
+    /// The number of tokens used by tools.
+    public let toolUsePromptTokenCount: Int
+
     /// The number of tokens used by the model's internal "thinking" process.
     ///
     /// For models that support thinking (like Gemini 2.5 Pro and Flash), this represents the actual
@@ -39,11 +42,15 @@ public struct GenerateContentResponse: Sendable {
     /// The total number of tokens in both the request and response.
     public let totalTokenCount: Int
 
-    /// The breakdown, by modality, of how many tokens are consumed by the prompt
+    /// The breakdown, by modality, of how many tokens are consumed by the prompt.
     public let promptTokensDetails: [ModalityTokenCount]
 
     /// The breakdown, by modality, of how many tokens are consumed by the candidates
     public let candidatesTokensDetails: [ModalityTokenCount]
+
+    /// The breakdown, by modality, of how many tokens were consumed by the tools used to process
+    /// the request.
+    public let toolUsePromptTokensDetails: [ModalityTokenCount]
   }
 
   /// A list of candidate response content, ordered from best to worst.
@@ -57,30 +64,19 @@ public struct GenerateContentResponse: Sendable {
   public let usageMetadata: UsageMetadata?
 
   /// The response's content as text, if it exists.
+  ///
+  /// - Note: This does not include thought summaries; see ``thoughtSummary`` for more details.
   public var text: String? {
-    guard let candidate = candidates.first else {
-      AILog.error(
-        code: .generateContentResponseNoCandidates,
-        "Could not get text from a response that had no candidates."
-      )
-      return nil
-    }
-    let textValues: [String] = candidate.content.parts.compactMap { part in
-      switch part {
-      case let textPart as TextPart:
-        return textPart.text
-      default:
-        return nil
-      }
-    }
-    guard textValues.count > 0 else {
-      AILog.error(
-        code: .generateContentResponseNoText,
-        "Could not get a text part from the first candidate."
-      )
-      return nil
-    }
-    return textValues.joined(separator: " ")
+    return text(isThought: false)
+  }
+
+  /// A summary of the model's thinking process, if available.
+  ///
+  /// - Important: Thought summaries are only available when `includeThoughts` is enabled in the
+  ///   ``ThinkingConfig``. For more information, see the
+  ///   [Thinking](https://firebase.google.com/docs/ai-logic/thinking) documentation.
+  public var thoughtSummary: String? {
+    return text(isThought: true)
   }
 
   /// Returns function calls found in any `Part`s of the first candidate of the response, if any.
@@ -89,12 +85,10 @@ public struct GenerateContentResponse: Sendable {
       return []
     }
     return candidate.content.parts.compactMap { part in
-      switch part {
-      case let functionCallPart as FunctionCallPart:
-        return functionCallPart
-      default:
+      guard let functionCallPart = part as? FunctionCallPart, !part.isThought else {
         return nil
       }
+      return functionCallPart
     }
   }
 
@@ -107,7 +101,12 @@ public struct GenerateContentResponse: Sendable {
       """)
       return []
     }
-    return candidate.content.parts.compactMap { $0 as? InlineDataPart }
+    return candidate.content.parts.compactMap { part in
+      guard let inlineDataPart = part as? InlineDataPart, !part.isThought else {
+        return nil
+      }
+      return inlineDataPart
+    }
   }
 
   /// Initializer for SwiftUI previews or tests.
@@ -116,6 +115,30 @@ public struct GenerateContentResponse: Sendable {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
+  }
+
+  func text(isThought: Bool) -> String? {
+    guard let candidate = candidates.first else {
+      AILog.error(
+        code: .generateContentResponseNoCandidates,
+        "Could not get text from a response that had no candidates."
+      )
+      return nil
+    }
+    let textValues: [String] = candidate.content.parts.compactMap { part in
+      guard let textPart = part as? TextPart, part.isThought == isThought else {
+        return nil
+      }
+      return textPart.text
+    }
+    guard textValues.count > 0 else {
+      AILog.error(
+        code: .generateContentResponseNoText,
+        "Could not get a text part from the first candidate."
+      )
+      return nil
+    }
+    return textValues.joined(separator: " ")
   }
 }
 
@@ -138,14 +161,26 @@ public struct Candidate: Sendable {
 
   public let groundingMetadata: GroundingMetadata?
 
+  /// Metadata related to the ``URLContext`` tool.
+  public let urlContextMetadata: URLContextMetadata?
+
   /// Initializer for SwiftUI previews or tests.
   public init(content: ModelContent, safetyRatings: [SafetyRating], finishReason: FinishReason?,
-              citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil) {
+              citationMetadata: CitationMetadata?, groundingMetadata: GroundingMetadata? = nil,
+              urlContextMetadata: URLContextMetadata? = nil) {
     self.content = content
     self.safetyRatings = safetyRatings
     self.finishReason = finishReason
     self.citationMetadata = citationMetadata
     self.groundingMetadata = groundingMetadata
+    self.urlContextMetadata = urlContextMetadata
+  }
+
+  // Returns `true` if the candidate contains no information that a developer could use.
+  var isEmpty: Bool {
+    content.parts
+      .isEmpty && finishReason == nil && citationMetadata == nil && groundingMetadata == nil &&
+      urlContextMetadata == nil
   }
 }
 
@@ -447,10 +482,12 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
     case candidatesTokenCount
+    case toolUsePromptTokenCount
     case thoughtsTokenCount
     case totalTokenCount
     case promptTokensDetails
     case candidatesTokensDetails
+    case toolUsePromptTokensDetails
   }
 
   public init(from decoder: any Decoder) throws {
@@ -458,6 +495,8 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
     candidatesTokenCount =
       try container.decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
+    toolUsePromptTokenCount =
+      try container.decodeIfPresent(Int.self, forKey: .toolUsePromptTokenCount) ?? 0
     thoughtsTokenCount = try container.decodeIfPresent(Int.self, forKey: .thoughtsTokenCount) ?? 0
     totalTokenCount = try container.decodeIfPresent(Int.self, forKey: .totalTokenCount) ?? 0
     promptTokensDetails =
@@ -465,6 +504,9 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     candidatesTokensDetails = try container.decodeIfPresent(
       [ModalityTokenCount].self,
       forKey: .candidatesTokensDetails
+    ) ?? []
+    toolUsePromptTokensDetails = try container.decodeIfPresent(
+      [ModalityTokenCount].self, forKey: .toolUsePromptTokensDetails
     ) ?? []
   }
 }
@@ -477,6 +519,7 @@ extension Candidate: Decodable {
     case finishReason
     case citationMetadata
     case groundingMetadata
+    case urlContextMetadata
   }
 
   /// Initializes a response from a decoder. Used for decoding server responses; not for public
@@ -509,15 +552,6 @@ extension Candidate: Decodable {
 
     finishReason = try container.decodeIfPresent(FinishReason.self, forKey: .finishReason)
 
-    // The `content` may only be empty if a `finishReason` is included; if neither are included in
-    // the response then this is likely the `"content": {}` bug.
-    guard !content.parts.isEmpty || finishReason != nil else {
-      throw InvalidCandidateError.emptyContent(underlyingError: DecodingError.dataCorrupted(.init(
-        codingPath: [CodingKeys.content, CodingKeys.finishReason],
-        debugDescription: "Invalid Candidate: empty content and no finish reason"
-      )))
-    }
-
     citationMetadata = try container.decodeIfPresent(
       CitationMetadata.self,
       forKey: .citationMetadata
@@ -527,6 +561,14 @@ extension Candidate: Decodable {
       GroundingMetadata.self,
       forKey: .groundingMetadata
     )
+
+    if let urlContextMetadata =
+      try container.decodeIfPresent(URLContextMetadata.self, forKey: .urlContextMetadata),
+      !urlContextMetadata.urlMetadata.isEmpty {
+      self.urlContextMetadata = urlContextMetadata
+    } else {
+      urlContextMetadata = nil
+    }
   }
 }
 

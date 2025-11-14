@@ -158,9 +158,13 @@ if [[ "$xcode_major" -lt 16 && "$method" != "cmake" ]]; then
   echo "Unsupported Xcode major version being used: $xcode_major"
   exit 1
 else
+  iphone_simulator_name="iPhone 16"
+  if [[ "$xcode_major" -gt 16 ]]; then
+    iphone_simulator_name="iPhone 16e"
+  fi
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 16'
+    -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
   )
     watchos_flags=(
     -sdk 'watchsimulator'
@@ -514,7 +518,7 @@ case "$product-$platform-$method" in
       -project 'FirebaseAI/Tests/TestApp/FirebaseAITestApp.xcodeproj' \
       -scheme "FirebaseAITestApp-SPM" \
       "${xcb_flags[@]}" \
-      build
+      build-for-testing
 
     # Run tests
     RunXcodebuild \
@@ -524,7 +528,7 @@ case "$product-$platform-$method" in
       -parallel-testing-enabled NO \
       -retry-tests-on-failure \
       -test-iterations 3 \
-      test
+      test-without-building
     ;;
 
   Sessions-*-integration)

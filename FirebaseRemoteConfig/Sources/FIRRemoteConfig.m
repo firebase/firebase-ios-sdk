@@ -160,6 +160,10 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
 
     // Initialize RCConfigContent if not already.
     _configContent = configContent;
+
+    // We must ensure the DBManager's asynchronous setup (which sets gIsNewDatabase)
+    // completes before RCNConfigSettings tries to read that state for the resetUserDefaults logic.
+    [_DBManager waitForDatabaseOperationQueue];
     _settings = [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
                                                          namespace:_FIRNamespace
                                                    firebaseAppName:appName
@@ -700,6 +704,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   dispatch_sync(_queue, ^{
     minimumFetchInterval = self->_settings.minimumFetchInterval;
     fetchTimeout = self->_settings.fetchTimeout;
+    // The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+    [_configFetch recreateNetworkSession];
   });
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000066",
               @"Successfully read configSettings. Minimum Fetch Interval:%f, "
@@ -708,8 +714,6 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
   FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
   settings.minimumFetchInterval = minimumFetchInterval;
   settings.fetchTimeout = fetchTimeout;
-  /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
-  [_configFetch recreateNetworkSession];
   return settings;
 }
 
@@ -721,7 +725,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
     self->_settings.minimumFetchInterval = configSettings.minimumFetchInterval;
     self->_settings.fetchTimeout = configSettings.fetchTimeout;
-    /// The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
+    // The NSURLSession needs to be recreated whenever the fetch timeout may be updated.
     [self->_configFetch recreateNetworkSession];
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000067",
                 @"Successfully set configSettings. Minimum Fetch Interval:%f, "

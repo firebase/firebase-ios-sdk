@@ -70,15 +70,15 @@ To integrate a Firebase SDK with your app:
 10. If you're using Firebase Analytics, disable
     GoogleAdsOnDeviceConversion.xcframework for Mac Catalyst:
 
-   a. In your project settings, open the **Settings** panel for your target.
+    a. In your project settings, open the **Settings** panel for your target.
 
-   b. Go to the Build Phases tab and find the
-      **GoogleAdsOnDeviceConversion.xcframework** setting in the **Link Binary
-      With Libraries** section.
+    b. Go to the Build Phases tab and find the
+       **GoogleAdsOnDeviceConversion.xcframework** setting in the **Link Binary
+       With Libraries** section.
 
-   c. Click on the filter icon button in the
-      **GoogleAdsOnDeviceConversion.xcframework** row and deselect the Mac Catalyst
-      checkbox.
+    c. Click on the filter icon button in the
+       **GoogleAdsOnDeviceConversion.xcframework** row and deselect the Mac Catalyst
+       checkbox.
 
 11. Drag the `Firebase.h` header in this directory into your project. This will
    allow you to `#import "Firebase.h"` and start using any Firebase SDK that you

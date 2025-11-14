@@ -75,6 +75,12 @@ on:
         required: false
         default: true
 
+      # Whether to lint with `--verbose`. Defaults to false.
+      verbose:
+        type: boolean
+        required: false
+        default: false
+
       # Whether to additionally build with Swift 6. Defaults to false.
       supports_swift6:
         type: boolean
@@ -103,6 +109,12 @@ on:
         type: string
         required: false
         default: ""
+
+      # The timeout (in minutes) for the linting to complete. Defaults to 15.
+      timeout_minutes:
+        type: number
+        required: false
+        default: 15
 
 jobs:
   pod-lib-lint:
@@ -139,13 +151,13 @@ jobs:
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       if: contains(join(inputs.platforms), matrix.platform) || matrix.os == 'macos-14'
       with:
-        timeout_minutes: 120
+        timeout_minutes: ${{ inputs.timeout_minutes }}
         max_attempts: 3
-        retry_on: error
         retry_wait_seconds: 120
         command: |
           scripts/pod_lib_lint.rb ${{ inputs.product }}.podspec --platforms=${{ matrix.platform }} \
             ${{ inputs.allow_warnings == true && '--allow-warnings' || '' }} \
+            ${{ inputs.verbose == true && '--verbose' || '' }} \
             ${{ inputs.analyze == false && '--no-analyze' || '' }} \
             ${{ inputs.test_specs != '' && format('--test-specs={0}', inputs.test_specs) || '' }} \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && '--skip-tests' || '' }}

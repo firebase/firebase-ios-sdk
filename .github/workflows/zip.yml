@@ -1,4 +1,22 @@
+# This workflow tests the zip distribution of the SDK.
+# There are three ways to configure the source of the zip file for testing:
+# 1. To iterate on a PR: Set the `PINNED_RUN_ID` environment variable in this
+#    file to a successful zip packaging run. This is useful for avoiding
+#    having to manually re-run the packaging jobs for each commit.
+# 2. For manual runs: Trigger the workflow via the [GitHub UI](https://github.com/firebase/firebase-ios-sdk/actions/workflows/zip.yml)
+#    and provide a "Run ID of a previous successful zip workflow" in the input.
+# 3. By default (for scheduled and other PR runs): The workflow will build the
+#    zip from the current commit (HEAD).
 name: zip
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  # When a run_id is specified, build jobs will be skipped and the specified
+  # run's artifacts will be used for testing.
+  PINNED_RUN_ID: ''
 
 on:
   pull_request:
@@ -12,7 +30,7 @@ on:
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
   schedule:
-    # Run every day at 8pm(PST) - cron uses UTC times
+    # Run every day at 9pm (PDT) / 12am (EDT) - cron uses UTC times
     - cron:  '0 4 * * *'
 
   workflow_dispatch:
@@ -21,15 +39,39 @@ on:
         description: 'Custom Podspec repos'
         required: true
         default: 'https://github.com/firebase/SpecsStaging.git'
+      zip_run_id:
+        # For example, in the below URL, `17335533279` is the run ID:
+        # - https://github.com/firebase/firebase-ios-sdk/actions/runs/17335533279
+        description: 'Run ID of a previous successful zip workflow to use for quickstart testing'
+        required: false
+        default: ''
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
     cancel-in-progress: true
 
 jobs:
+  should_package:
+    runs-on: ubuntu-latest
+    outputs:
+      should_package: ${{ steps.check.outputs.should_package }}
+    steps:
+    - name: Check if packaging should be skipped
+      id: check
+      run: |
+        if [[ -n "${{ env.PINNED_RUN_ID }}" || -n "${{ github.event.inputs.zip_run_id }}" ]]; then
+          echo "should_package=false" >> $GITHUB_OUTPUT
+        else
+          echo "should_package=true" >> $GITHUB_OUTPUT
+        fi
+
   package-release:
+    needs: should_package
     # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.repository == 'firebase/firebase-ios-sdk' &&
+      contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
+      needs.should_package.outputs.should_package == 'true'
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
@@ -56,8 +98,12 @@ jobs:
         path: release_zip_dir
 
   build:
+    needs: should_package
     # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: |
+      github.repository == 'firebase/firebase-ios-sdk' &&
+      contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
+      needs.should_package.outputs.should_package == 'true'
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
@@ -69,9 +115,8 @@ jobs:
         swift build -v
 
   package-head:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: build
+    needs: [build, should_package]
+    if: needs.should_package.outputs.should_package == 'true'
     strategy:
       matrix:
         linking_type: [static, dynamic]
@@ -94,20 +139,72 @@ jobs:
            build-head \
            ${{ matrix.linking_type }}
     - uses: actions/upload-artifact@v4
-      if: ${{ always() }}
+      if: always()
       with:
         name: ${{ matrix.linking_type == 'static' && 'Firebase-actions-dir' || 'Firebase-actions-dir-dynamic' }}
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
         path: zip_output_dir
 
+  packaging_done:
+    runs-on: ubuntu-latest
+    needs: [package-head]
+    if: always()
+    outputs:
+      run_id: ${{ steps.get_run_id.outputs.run_id }}
+    steps:
+      - name: Check packaging result
+        if: ${{ needs.package-head.result == 'failure' }}
+        run: |
+          echo "Packaging failed. Aborting."
+          exit 1
+      - name: Get Run ID
+        id: get_run_id
+        run: |
+          if [[ -n "${{ github.event.inputs.zip_run_id }}" ]]; then
+            echo "run_id=${{ github.event.inputs.zip_run_id }}" >> $GITHUB_OUTPUT
+          elif [[ -n "${{ env.PINNED_RUN_ID }}" ]]; then
+            echo "run_id=${{ env.PINNED_RUN_ID }}" >> $GITHUB_OUTPUT
+          else
+            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
+          fi
+
+  check_framework_firestore_symbols:
+    needs: packaging_done
+    if: ${{ !cancelled() }}
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    runs-on: macos-14
+    steps:
+      - name: Xcode 16.2
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - uses: actions/checkout@v4
+      - name: Get framework dir
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: Firebase-actions-dir
+          run-id: ${{ needs.packaging_done.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+      - name: Setup Bundler
+        run: ./scripts/setup_bundler.sh
+      - name: Install xcpretty
+        run: gem install xcpretty
+      - name: Move frameworks
+        run: |
+          mkdir -p "${HOME}"/ios_frameworks/
+          find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+      - name: Check linked Firestore.xcframework for unlinked symbols.
+        run: |
+          scripts/check_firestore_symbols.sh \
+            $(pwd) \
+            "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/FirebaseFirestoreInternal.xcframework
+
   quickstart_framework_abtesting:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    needs: packaging_done
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "ABTesting"
     strategy:
       matrix:
@@ -122,16 +219,17 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v4
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -149,24 +247,19 @@ jobs:
       env:
         LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Remove data before upload
-      env:
-        LEGACY: true
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh abtesting
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts_abtesting
-        path: quickstart-ios/
+        name: quickstart_artifacts_abtesting_${{ matrix.artifact }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_auth:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    needs: packaging_done
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK:  "Authentication"
     strategy:
       matrix:
@@ -182,15 +275,17 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
@@ -198,26 +293,23 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-auth.plist.gpg \
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-authentication.plist.gpg \
         quickstart-ios/authentication/GoogleService-Info.plist "$plist_secret"
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Remove data before upload
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh authentiation
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts_auth
-        path: quickstart-ios/
+        name: quickstart_artifacts_auth_${{ matrix.artifact }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_config:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    needs: packaging_done
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Config"
     strategy:
       matrix:
@@ -232,15 +324,17 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
 
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
@@ -251,22 +345,19 @@ jobs:
         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Remove data before upload
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh config
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts_config
-        path: quickstart-ios/
+        name: quickstart_artifacts_config_${{ matrix.artifact }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_crashlytics:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    needs: packaging_done
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Crashlytics"
     strategy:
       matrix:
@@ -281,16 +372,17 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v4
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -316,29 +408,19 @@ jobs:
       env:
         LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    # TODO(#8057): Restore Swift Quickstart
-    # - name: Test Swift Quickstart
-    #   env:
-    #     LEGACY: true
-    #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
-    - name: Remove data before upload
-      env:
-        LEGACY: true
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh crashlytics
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts_crashlytics
-        path: quickstart-ios/
+        name: quickstart_artifacts_crashlytics_${{ matrix.artifact }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_database:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    needs: packaging_done
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Database"
     strategy:
       matrix:
@@ -352,16 +434,17 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v4
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
@@ -375,22 +458,72 @@ jobs:
         quickstart-ios/database/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
-    - name: Remove data before upload
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh database
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts database
-        path: quickstart-ios/
+        name: quickstart_artifacts_database_${{ matrix.artifact }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
-  quickstart_framework_firestore:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+  quickstart_framework_firebaseai:
     needs: package-head
+    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      SDK: "FirebaseAI"
+      # This is a workaround to use the FirebaseAIExampleZip scheme that does not have the SPM dependency.
+      SWIFT_SUFFIX: "Zip"
+    strategy:
+      matrix:
+        artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
+        build-env:
+          - os: macos-15
+            xcode: Xcode_16.4
+    runs-on: ${{ matrix.build-env.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Get framework dir
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ${{ matrix.artifact }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: Move frameworks
+      run: |
+        mkdir -p "${HOME}"/ios_frameworks/
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+    - uses: actions/checkout@v4
+    - name: Setup quickstart
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleZip" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAILogic/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg \
+        quickstart-ios/firebaseai/GoogleService-Info.plist "$plist_secret"
+    - name: Test Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Remove data before upload
+      if: failure()
+      run: scripts/remove_data.sh firebaseai
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: quickstart_artifacts_firebaseai_${{ matrix.artifact }}_${{ matrix.build-env.os }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
+
+  quickstart_framework_firestore:
+    needs: packaging_done
+    if: ${{ !cancelled() }}
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Firestore"
     strategy:
       matrix:
@@ -405,14 +538,17 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
@@ -420,65 +556,30 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Upload build logs on failure
-      if: ${{ failure() }}
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: build_logs_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
         path: sdk_zip/build_logs/
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
         quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Remove data before upload and zip directory to reduce upload size.
-      if: ${{ failure() }}
+      if: always()
       run: scripts/remove_data.sh firestore; zip -r --symlinks quickstart_artifacts_firestore.zip quickstart-ios/
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
         name: quickstart_artifacts_firestore_${{ matrix.artifact }}_${{ matrix.build-env.os }}
         path: quickstart_artifacts_firestore.zip
 
-  check_framework_firestore_symbols:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
-    steps:
-      - name: Xcode 16.2
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-      - uses: actions/checkout@v4
-      - name: Get framework dir
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: Firebase-actions-dir
-      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-      - name: Setup Bundler
-        run: ./scripts/setup_bundler.sh
-      - name: Install xcpretty
-        run: gem install xcpretty
-      - name: Move frameworks
-        run: |
-          mkdir -p "${HOME}"/ios_frameworks/
-          find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-      - uses: actions/checkout@v4
-      - name: Check linked Firestore.xcframework for unlinked symbols.
-        run: |
-          scripts/check_firestore_symbols.sh \
-            $(pwd) \
-            "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/FirebaseFirestoreInternal.xcframework
-
   quickstart_framework_inappmessaging:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    needs: packaging_done
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "InAppMessaging"
     strategy:
       matrix:
@@ -493,20 +594,21 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
@@ -516,22 +618,19 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
-    - name: Remove data before upload
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh inappmessaging
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts_inappmessaging
-        path: quickstart-ios/
+        name: quickstart_artifacts_inappmessaging_${{ matrix.artifact }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_messaging:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    needs: packaging_done
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Messaging"
     strategy:
       matrix:
@@ -546,22 +645,27 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
+    - name: Add frameworks to Crashlytics watchOS target
+      run: |
+        cd quickstart-ios/messaging
+        "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk Messaging --target NotificationServiceExtension --framework_path Firebase/
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
         quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
@@ -569,22 +673,19 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - name: Test Swift Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
-    - name: Remove data before upload
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh messaging
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts_messaging
-        path: quickstart-ios/
+        name: quickstart_artifacts_messaging_${{ matrix.artifact }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_storage:
-    # Don't run on private repo.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-    needs: package-head
+    needs: packaging_done
+    if: ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "Storage"
     strategy:
       matrix:
@@ -599,14 +700,17 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
+        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v4
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -614,8 +718,6 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.build-env.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       env:
         LEGACY: true
@@ -631,13 +733,10 @@ jobs:
       env:
         LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
-    - name: Remove data before upload
-      env:
-        LEGACY: true
-      if: ${{ failure() }}
-      run: scripts/remove_data.sh storage
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
+      if: failure()
       with:
-        name: quickstart_artifacts_storage
-        path: quickstart-ios/
+        name: quickstart_artifacts_storage_${{ matrix.artifact }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist

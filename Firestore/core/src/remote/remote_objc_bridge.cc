@@ -17,6 +17,7 @@
 #include "Firestore/core/src/remote/remote_objc_bridge.h"
 
 #include <map>
+#include <unordered_map>
 
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/query.h"
@@ -272,11 +273,13 @@ DatastoreSerializer::MergeLookupResponses(
   return result;
 }
 
+// TODO(b/443765747) Revert back to absl::flat_hash_map after the absl version
+// is upgraded to later than 20250127.0
 Message<google_firestore_v1_RunAggregationQueryRequest>
 DatastoreSerializer::EncodeAggregateQueryRequest(
     const core::Query& query,
     const std::vector<AggregateField>& aggregates,
-    absl::flat_hash_map<std::string, std::string>& aliasMap) const {
+    std::unordered_map<std::string, std::string>& aliasMap) const {
   Message<google_firestore_v1_RunAggregationQueryRequest> result;
   auto encodedTarget = serializer_.EncodeQueryTarget(query.ToAggregateTarget());
   result->parent = encodedTarget.parent;
@@ -291,7 +294,9 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
   // De-duplicate aggregates based on the alias.
   // Since aliases are auto-computed from the operation and path,
   // equal aggregate will have the same alias.
-  absl::flat_hash_map<std::string, AggregateField> uniqueAggregates;
+  // TODO(b/443765747) Revert back to absl::flat_hash_map after the absl version
+  // is upgraded to later than 20250127.0
+  std::unordered_map<std::string, AggregateField> uniqueAggregates;
   for (const AggregateField& aggregate : aggregates) {
     auto pair = std::pair<std::string, AggregateField>(
         aggregate.alias.StringValue(), aggregate);
@@ -365,9 +370,11 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
   return result;
 }
 
+// TODO(b/443765747) Revert back to absl::flat_hash_map after the absl version
+// is upgraded to later than 20250127.0
 util::StatusOr<ObjectValue> DatastoreSerializer::DecodeAggregateQueryResponse(
     const grpc::ByteBuffer& response,
-    const absl::flat_hash_map<std::string, std::string>& aliasMap) const {
+    const std::unordered_map<std::string, std::string>& aliasMap) const {
   ByteBufferReader reader{response};
   auto message =
       Message<google_firestore_v1_RunAggregationQueryResponse>::TryParse(

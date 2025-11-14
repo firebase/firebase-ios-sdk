@@ -18,6 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_SENDABLE
 @protocol FIRAppCheckTokenResultInterop <NSObject>
 
 /// App Check token in the case of success or a dummy token in the case of a failure.

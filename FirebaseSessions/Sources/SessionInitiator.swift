@@ -51,7 +51,7 @@ class SessionInitiator {
 
     let notificationCenter = NotificationCenter.default
     #if os(iOS) || os(tvOS) || os(visionOS)
-      // Change background update event listerner for iPadOS 26 multi-windowing supoort
+      // Change background update event listener for iPadOS 26 multi-windowing support
       if #available(iOS 26, *), GULAppEnvironmentUtil.appleDevicePlatform().contains("ipados") {
         notificationCenter.addObserver(
           self,
