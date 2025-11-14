@@ -101,7 +101,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup testing repo and quickstart
-      run: QUICKSTART_BRANCH=nc/quickstarts scripts/setup_quickstart_spm.sh ${{ matrix.product }} prerelease_testing
+      run: scripts/setup_quickstart_spm.sh ${{ matrix.product }} prerelease_testing
     - name: Install Secret GoogleService-Info.plist
       run: |
         scripts/decrypt_gha_secret.sh \
@@ -117,7 +117,7 @@ jobs:
         command: DIR=${{ matrix.product }} scripts/test_quickstart.sh ${{ matrix.product }} ${{ matrix.run_tests }}
     # Failure sequence to upload artifact.
     - name: Remove data before upload.
-     if: ${{ failure() }}
+      if: ${{ failure() }}
       run: scripts/remove_data.sh ${{ matrix.product }}
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}

@@ -33,8 +33,7 @@ on:
       quickstart_branch:
         type: string
         required: false
-        # default: 'main' # TODO: Revert to main before merging.
-        default: 'nc/quickstarts'
+        default: 'main'
 
       # The path to the encrypted `GoogleService-Info.plist` file.
       plist_src_path:
