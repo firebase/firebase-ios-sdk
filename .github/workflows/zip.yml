@@ -457,7 +457,7 @@ jobs:
   #         !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_firebaseai:
-    needs: package-head
+    needs: packaging_done
     if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
