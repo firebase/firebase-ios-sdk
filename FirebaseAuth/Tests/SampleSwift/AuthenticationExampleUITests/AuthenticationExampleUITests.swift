@@ -182,6 +182,76 @@ class AuthenticationExampleUITests: XCTestCase {
     )
   }
 
+  func testPhoneMultiFactorEnrollUnenroll() {
+    // login with email password
+    app.staticTexts["Email & Password Login"].tap()
+    let testEmail = "sample.auth.ios@gmail.com"
+    app.textFields["Email"].tap()
+    app.typeText(testEmail)
+    let testPassword = "sampleauthios"
+    app.textFields["Password"].tap()
+    app.typeText(testPassword)
+    app.buttons["Login"].tap()
+    // enroll multifactor with phone
+    let authenticationButton = app.tabBars.buttons["Authentication"]
+    let exists = authenticationButton.waitForExistence(timeout: 5)
+    XCTAssertTrue(exists, "Authentication button did not appear in time.")
+    authenticationButton.tap()
+    app.tables.cells.staticTexts["Phone Enroll"].tap()
+    let testSecondFactorPhone = "+11234567890"
+    app.typeText(testSecondFactorPhone)
+    app.buttons["Save"].tap()
+    let testVerificationCode = "123456"
+    app.typeText(testVerificationCode)
+    app.buttons["Save"].tap()
+    let testPhoneSecondFactorDisplayName = "phone1"
+    app.typeText(testPhoneSecondFactorDisplayName)
+    app.buttons["Save"].tap()
+    // unenroll multifactor
+    app.swipeUp(velocity: .fast)
+    app.tables.cells.staticTexts["Multifactor unenroll"].tap()
+    XCTAssertTrue(app.buttons["phone1"].exists) // enrollment successful
+    app.buttons["phone1"].tap()
+    app.swipeUp(velocity: .fast)
+    app.tables.cells.staticTexts["Multifactor unenroll"].tap()
+    XCTAssertFalse(app.buttons["phone1"].exists) // unenrollment successful
+    app.buttons["Cancel"].tap()
+    // sign out after unenroll
+    app.tabBars.buttons["Current User"].tap()
+    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+  }
+
+  func testPhoneSecondFactorSignIn() {
+    // login with email password
+    app.staticTexts["Email & Password Login"].tap()
+    let testEmail = "sample.ios.auth@gmail.com"
+    app.textFields["Email"].tap()
+    app.typeText(testEmail)
+    let testPassword = "sampleios123"
+    app.textFields["Password"].tap()
+    app.typeText(testPassword)
+    app.buttons["Login"].tap()
+    // login with second factor
+    XCTAssertTrue(app.staticTexts["Choose a second factor to continue."]
+      .waitForExistence(timeout: 5))
+    let secondFactor = app.staticTexts["phone2"] // select 'phone2' as second factor
+    XCTAssertTrue(secondFactor.exists, "'phone2' option should be visible.")
+    secondFactor.tap()
+    app.buttons["Send Verification Code"].tap()
+    let verificationCodeInput = app.textFields["Enter verification code."]
+    verificationCodeInput.tap()
+    let testVerificationCode = "123456"
+    verificationCodeInput.typeText(testVerificationCode)
+    let signInButton = app.buttons["Sign in"]
+    XCTAssertTrue(signInButton.waitForExistence(timeout: 2), "'Sign in' button should be visible.")
+    signInButton.tap()
+    // sign out
+    let signOutButton = app.buttons["Sign Out"]
+    if signOutButton.exists {
+      signOutButton.tap()
+    }
+  }
+
   func DRAFT_testGoogleSignInAndLinkAccount() {
     let interruptionMonitor = addUIInterruptionMonitor(withDescription: "Sign in with Google") {
       alert -> Bool in
