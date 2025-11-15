@@ -37,13 +37,16 @@ FOUNDATION_EXTERN NSString *const kFPRSlowFrameCounterName;
 /** Counter name for total frames. */
 FOUNDATION_EXTERN NSString *const kFPRTotalFramesCounterName;
 
-/** Slow frame threshold (for time difference between current and previous frame render time)
- *  in sec.
+/** Legacy slow frame threshold constant (formerly 1/59).
+ *  NOTE: This constant is deprecated and maintained only for test compatibility.
+ *  The actual slow frame detection uses a cached value computed from
+ *  UIScreen.maximumFramesPerSecond (slow threshold = 1000 / maxFPS ms).
+ *  New code should not rely on this value.
  */
 FOUNDATION_EXTERN CFTimeInterval const kFPRSlowFrameThreshold;
 
 /** Frozen frame threshold (for time difference between current and previous frame render time)
- *  in sec.
+ *  in sec. Frozen threshold = 700 ms (>700 ms).
  */
 FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 
@@ -80,6 +83,12 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
 
 /** The slow frames counter. */
 @property(atomic) int_fast64_t slowFramesCount;
+
+/** The previous frame timestamp from the display link. Used to calculate frame duration. */
+@property(nonatomic) CFAbsoluteTime previousTimestamp;
+
+/** Refreshes the cached maximum FPS and slow frame budget from UIScreen. */
+- (void)fpr_refreshFrameRateCache;
 
 /** Handles the appDidBecomeActive notification. Restores the screen traces that were active before
  *  the app was backgrounded.

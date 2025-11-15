@@ -68,6 +68,32 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 @implementation FPRTestPageViewController
 @end
 
+#pragma mark - Test Swizzling Infrastructure
+
+/** Associated object key for test FPS override. */
+static const void *kFPRTestMaxFPSKey = &kFPRTestMaxFPSKey;
+
+/** Original IMP for -[UIScreen maximumFramesPerSecond]. */
+static IMP gOriginal_maximumFramesPerSecond = NULL;
+
+/** Swizzled implementation of -[UIScreen maximumFramesPerSecond]. */
+static NSInteger FPRSwizzled_maximumFramesPerSecond(id self, SEL _cmd) {
+  NSNumber *override = objc_getAssociatedObject(self, kFPRTestMaxFPSKey);
+  if (override) {
+    return [override integerValue];
+  }
+
+  // Call the original implementation if available
+  if (gOriginal_maximumFramesPerSecond) {
+    return ((NSInteger (*)(id, SEL))gOriginal_maximumFramesPerSecond)(self, _cmd);
+  }
+
+  // Fallback to 60 FPS if original implementation is unavailable
+  return 60;
+}
+
+#pragma mark - Test Class
+
 @interface FPRScreenTraceTrackerTest : FPRTestCase
 
 /** The FPRScreenTraceTracker instance that's being used for a given test. */
@@ -80,8 +106,45 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 @implementation FPRScreenTraceTrackerTest
 
++ (void)setUp {
+  [super setUp];
+
+  // Perform one-time swizzle of UIScreen.maximumFramesPerSecond
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    Class screenClass = [UIScreen class];
+    SEL originalSelector = @selector(maximumFramesPerSecond);
+    Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
+
+    // class_replaceMethod returns the original IMP, which we store for later use
+    gOriginal_maximumFramesPerSecond =
+        class_replaceMethod(screenClass, originalSelector, (IMP)FPRSwizzled_maximumFramesPerSecond,
+                            method_getTypeEncoding(originalMethod));
+  });
+}
+
++ (void)tearDown {
+  [super tearDown];
+
+  // Restore original implementation to prevent test pollution
+  if (gOriginal_maximumFramesPerSecond) {
+    Class screenClass = [UIScreen class];
+    SEL originalSelector = @selector(maximumFramesPerSecond);
+    Method originalMethod = class_getInstanceMethod(screenClass, originalSelector);
+    if (originalMethod) {
+      class_replaceMethod(screenClass, originalSelector, gOriginal_maximumFramesPerSecond,
+                          method_getTypeEncoding(originalMethod));
+      gOriginal_maximumFramesPerSecond = NULL;
+    }
+  }
+}
+
 - (void)setUp {
   [super setUp];
+
+  // Clear any existing override before test
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:YES];
@@ -93,10 +156,19 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 - (void)tearDown {
   [super tearDown];
 
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, nil,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
   FIRPerformance *performance = [FIRPerformance sharedInstance];
   [performance setDataCollectionEnabled:NO];
   self.tracker = nil;
   self.dispatchGroupToWaitOn = nil;
+}
+
+/** Helper method to set the test FPS override for the current test. */
+- (void)setTestMaxFPSOverride:(NSInteger)fps {
+  objc_setAssociatedObject([UIScreen mainScreen], kFPRTestMaxFPSKey, @(fps),
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 /** Tests that shared instance returns the same instance. */
@@ -603,47 +675,87 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
  *  slow frame counter of the screen trace tracker is incremented.
  */
 - (void)testSlowFrameIsRecorded {
+  // Set FPS to 60 to match kFPRSlowFrameThreshold constant (1/60)
+  [self setTestMaxFPSOverride:60];
+  FPRScreenTraceTracker *tracker = [[FPRScreenTraceTracker alloc] init];
+  tracker.displayLink.paused = YES;
+
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   CFAbsoluteTime secondFrameRenderTimestamp =
       firstFrameRenderTimestamp + kFPRSlowFrameThreshold + 0.005;  // Buffer for float comparison.
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
-  [self.tracker.displayLink invalidate];
-  self.tracker.displayLink = displayLinkMock;
+  [tracker.displayLink invalidate];
+  tracker.displayLink = displayLinkMock;
 
   // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
+  [tracker displayLinkStep];
+  int64_t initialSlowFramesCount = tracker.slowFramesCount;
 
   OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
+  [tracker displayLinkStep];
 
-  int64_t newSlowFramesCount = self.tracker.slowFramesCount;
+  int64_t newSlowFramesCount = tracker.slowFramesCount;
   XCTAssertEqual(newSlowFramesCount, initialSlowFramesCount + 1);
 }
 
+#if TARGET_OS_TV
+- (void)testTvOS59FpsIsTreatedAs60AndSlowFrameIsRecorded {
+  // Stub tvOS max FPS to 59, which should be normalized to 60.
+  [self setTestMaxFPSOverride:59];
+
+  // Create a new tracker so it initializes with the overridden FPS value.
+  FPRScreenTraceTracker *tracker = [[FPRScreenTraceTracker alloc] init];
+  tracker.displayLink.paused = YES;
+
+  CFAbsoluteTime first = 1.0;
+  // 17ms is slower than 1/60 (~16.67ms) and should count as slow.
+  CFAbsoluteTime second = first + 0.017;
+
+  id displayLinkMock = OCMClassMock([CADisplayLink class]);
+  [tracker.displayLink invalidate];
+  tracker.displayLink = displayLinkMock;
+
+  // Prime previous timestamp.
+  OCMExpect([displayLinkMock timestamp]).andReturn(first);
+  [tracker displayLinkStep];
+  int64_t initialSlow = tracker.slowFramesCount;
+
+  // Emit a slow frame at ~17ms.
+  OCMExpect([displayLinkMock timestamp]).andReturn(second);
+  [tracker displayLinkStep];
+
+  XCTAssertEqual(tracker.slowFramesCount, initialSlow + 1);
+}
+#endif
+
 /** Tests that the slow and frozen frame counter is not incremented in the case of a good frame. */
 - (void)testSlowAndFrozenFrameIsNotRecordedInCaseOfGoodFrame {
+  // Set FPS to 60 to match kFPRSlowFrameThreshold constant (1/60)
+  [self setTestMaxFPSOverride:60];
+  FPRScreenTraceTracker *tracker = [[FPRScreenTraceTracker alloc] init];
+  tracker.displayLink.paused = YES;
+
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   CFAbsoluteTime secondFrameRenderTimestamp =
       firstFrameRenderTimestamp + kFPRSlowFrameThreshold - 0.005;  // Good frame.
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
-  [self.tracker.displayLink invalidate];
-  self.tracker.displayLink = displayLinkMock;
+  [tracker.displayLink invalidate];
+  tracker.displayLink = displayLinkMock;
 
   // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  int64_t initialFrozenFramesCount = self.tracker.frozenFramesCount;
-  int64_t initialSlowFramesCount = self.tracker.slowFramesCount;
+  [tracker displayLinkStep];
+  int64_t initialFrozenFramesCount = tracker.frozenFramesCount;
+  int64_t initialSlowFramesCount = tracker.slowFramesCount;
 
   OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
+  [tracker displayLinkStep];
 
-  int64_t newSlowFramesCount = self.tracker.slowFramesCount;
-  int64_t newFrozenFramesCount = self.tracker.frozenFramesCount;
+  int64_t newSlowFramesCount = tracker.slowFramesCount;
+  int64_t newFrozenFramesCount = tracker.frozenFramesCount;
 
   XCTAssertEqual(newSlowFramesCount, initialSlowFramesCount);
   XCTAssertEqual(newFrozenFramesCount, initialFrozenFramesCount);
@@ -651,23 +763,28 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 /* Tests that the frozen frame counter is not incremented in case of a slow frame. */
 - (void)testFrozenFrameIsNotRecordedInCaseOfSlowFrame {
+  // Set FPS to 60 to match kFPRSlowFrameThreshold constant (1/60)
+  [self setTestMaxFPSOverride:60];
+  FPRScreenTraceTracker *tracker = [[FPRScreenTraceTracker alloc] init];
+  tracker.displayLink.paused = YES;
+
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   CFAbsoluteTime secondFrameRenderTimestamp =
       firstFrameRenderTimestamp + kFPRSlowFrameThreshold + 0.005;  // Slow frame.
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
-  [self.tracker.displayLink invalidate];
-  self.tracker.displayLink = displayLinkMock;
+  [tracker.displayLink invalidate];
+  tracker.displayLink = displayLinkMock;
 
   // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  int64_t initialFrozenFramesCount = self.tracker.frozenFramesCount;
+  [tracker displayLinkStep];
+  int64_t initialFrozenFramesCount = tracker.frozenFramesCount;
 
   OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
+  [tracker displayLinkStep];
 
-  int64_t newFrozenFramesCount = self.tracker.frozenFramesCount;
+  int64_t newFrozenFramesCount = tracker.frozenFramesCount;
   XCTAssertEqual(newFrozenFramesCount, initialFrozenFramesCount);
 }
 
@@ -675,6 +792,11 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
  *  frames.
  */
 - (void)testTotalFramesAreAlwaysRecorded {
+  // Set FPS to 60 to match kFPRSlowFrameThreshold constant (1/60)
+  [self setTestMaxFPSOverride:60];
+  FPRScreenTraceTracker *tracker = [[FPRScreenTraceTracker alloc] init];
+  tracker.displayLink.paused = YES;
+
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
   CFAbsoluteTime secondFrameRenderTimestamp =
       firstFrameRenderTimestamp + kFPRSlowFrameThreshold - 0.005;  // Good frame.
@@ -684,27 +806,27 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
       thirdFrameRenderTimestamp + kFPRFrozenFrameThreshold + 0.005;  // Frozen frame.
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
-  [self.tracker.displayLink invalidate];
-  self.tracker.displayLink = displayLinkMock;
+  [tracker.displayLink invalidate];
+  tracker.displayLink = displayLinkMock;
 
   // Set/Reset the previousFrameTimestamp if it has been set by a previous test.
   OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  int64_t initialTotalFramesCount = self.tracker.totalFramesCount;
+  [tracker displayLinkStep];
+  int64_t initialTotalFramesCount = tracker.totalFramesCount;
 
   OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  int64_t newTotalFramesCount = self.tracker.totalFramesCount;
+  [tracker displayLinkStep];
+  int64_t newTotalFramesCount = tracker.totalFramesCount;
   XCTAssertEqual(newTotalFramesCount, initialTotalFramesCount + 1);
 
   OCMExpect([displayLinkMock timestamp]).andReturn(thirdFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  newTotalFramesCount = self.tracker.totalFramesCount;
+  [tracker displayLinkStep];
+  newTotalFramesCount = tracker.totalFramesCount;
   XCTAssertEqual(newTotalFramesCount, initialTotalFramesCount + 2);
 
   OCMExpect([displayLinkMock timestamp]).andReturn(fourthFrameRenderTimestamp);
-  [self.tracker displayLinkStep];
-  newTotalFramesCount = self.tracker.totalFramesCount;
+  [tracker displayLinkStep];
+  newTotalFramesCount = tracker.totalFramesCount;
   XCTAssertEqual(newTotalFramesCount, initialTotalFramesCount + 3);
 }
 
@@ -899,6 +1021,104 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
 + (NSString *)expectedTraceNameForViewController:(UIViewController *)viewController {
   return [@"_st_" stringByAppendingString:NSStringFromClass([viewController class])];
+}
+
+#pragma mark - Dynamic FPS Threshold Tests
+
+/** Structure for table-driven FPS test cases. */
+typedef struct {
+  NSInteger fps;
+  CFTimeInterval slowCandidate;  // seconds > budget should be slow
+  CFTimeInterval fastCandidate;  // seconds < budget should NOT be slow
+} FPRFpsCase;
+
+/** Helper to run a single FPS test case with the given tracker and expectations. */
+static inline void FPRRunFpsTestCase(FPRScreenTraceTrackerTest *testCase, FPRFpsCase fpsCase) {
+  [testCase setTestMaxFPSOverride:fpsCase.fps];
+  // Create a new tracker so it initializes with the overridden FPS value.
+  // This works on both iOS and tvOS since initialization always reads maxFPS.
+  FPRScreenTraceTracker *tracker = [[FPRScreenTraceTracker alloc] init];
+  tracker.displayLink.paused = YES;
+  testCase.tracker = tracker;
+
+  CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
+  // Frame that should be classified as slow (exceeds budget)
+  CFAbsoluteTime slowFrameTimestamp = firstFrameRenderTimestamp + fpsCase.slowCandidate;
+  // Frame that should NOT be classified as slow (within budget)
+  CFAbsoluteTime fastFrameTimestamp = slowFrameTimestamp + fpsCase.fastCandidate;
+  // Frame that should be classified as frozen (always 701ms)
+  CFAbsoluteTime frozenFrameTimestamp = fastFrameTimestamp + 0.701;
+  // Frame that should NOT be classified as frozen (always 699ms)
+  CFAbsoluteTime notFrozenFrameTimestamp = frozenFrameTimestamp + 0.699;
+
+  id displayLinkMock = OCMClassMock([CADisplayLink class]);
+  [tracker.displayLink invalidate];
+  tracker.displayLink = displayLinkMock;
+
+  // Process an initial frame to set the starting timestamp for duration calculations.
+  OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
+  [tracker displayLinkStep];
+  int64_t initialSlowFramesCount = tracker.slowFramesCount;
+  int64_t initialFrozenFramesCount = tracker.frozenFramesCount;
+  int64_t initialTotalFramesCount = tracker.totalFramesCount;
+
+  // Test slow frame (should be classified as slow, not frozen)
+  OCMExpect([displayLinkMock timestamp]).andReturn(slowFrameTimestamp);
+  [tracker displayLinkStep];
+  XCTAssertEqual(tracker.slowFramesCount, initialSlowFramesCount + 1,
+                 @"Frame duration %.3fms should be slow at %ld FPS", fpsCase.slowCandidate * 1000.0,
+                 (long)fpsCase.fps);
+  XCTAssertEqual(tracker.frozenFramesCount, initialFrozenFramesCount,
+                 @"Frame duration %.3fms should not be frozen", fpsCase.slowCandidate * 1000.0);
+  XCTAssertEqual(tracker.totalFramesCount, initialTotalFramesCount + 1,
+                 @"Total frames should increment after a slow frame.");
+
+  // Test fast frame (should NOT be classified as slow or frozen)
+  OCMExpect([displayLinkMock timestamp]).andReturn(fastFrameTimestamp);
+  [tracker displayLinkStep];
+  XCTAssertEqual(tracker.slowFramesCount, initialSlowFramesCount + 1,
+                 @"Frame duration %.3fms should NOT be slow at %ld FPS",
+                 fpsCase.fastCandidate * 1000.0, (long)fpsCase.fps);
+  XCTAssertEqual(tracker.frozenFramesCount, initialFrozenFramesCount,
+                 @"Frame duration %.3fms should not be frozen", fpsCase.fastCandidate * 1000.0);
+  XCTAssertEqual(tracker.totalFramesCount, initialTotalFramesCount + 2,
+                 @"Total frames should increment after a fast frame.");
+
+  // Test frozen frame (should be classified as both slow and frozen)
+  OCMExpect([displayLinkMock timestamp]).andReturn(frozenFrameTimestamp);
+  [tracker displayLinkStep];
+  XCTAssertEqual(tracker.slowFramesCount, initialSlowFramesCount + 2,
+                 @"Frame duration 701ms should be slow at %ld FPS", (long)fpsCase.fps);
+  XCTAssertEqual(tracker.frozenFramesCount, initialFrozenFramesCount + 1,
+                 @"Frame duration 701ms should be frozen at %ld FPS", (long)fpsCase.fps);
+  XCTAssertEqual(tracker.totalFramesCount, initialTotalFramesCount + 3,
+                 @"Total frames should increment after a frozen frame.");
+
+  // Test not-frozen frame (should be classified as slow but not frozen)
+  OCMExpect([displayLinkMock timestamp]).andReturn(notFrozenFrameTimestamp);
+  [tracker displayLinkStep];
+  XCTAssertEqual(tracker.slowFramesCount, initialSlowFramesCount + 3,
+                 @"Frame duration 699ms should be slow at %ld FPS", (long)fpsCase.fps);
+  XCTAssertEqual(tracker.frozenFramesCount, initialFrozenFramesCount + 1,
+                 @"Frame duration 699ms should NOT be frozen at %ld FPS", (long)fpsCase.fps);
+  XCTAssertEqual(tracker.totalFramesCount, initialTotalFramesCount + 4,
+                 @"Total frames should increment after a not-frozen frame.");
+}
+
+// FPS threshold adaptation tests
+- (void)testSlowThresholdAdaptsTo50FPS {
+  FPRFpsCase testCase = (FPRFpsCase){50, 0.021, 0.019};  // 50 FPS: budget 20ms (1/50)
+  FPRRunFpsTestCase(self, testCase);
+}
+
+- (void)testSlowThresholdAdaptsTo60FPS {
+  FPRFpsCase testCase = (FPRFpsCase){60, 0.017, 0.016};  // 60 FPS: budget ~16.67ms (1/60)
+  FPRRunFpsTestCase(self, testCase);
+}
+
+- (void)testSlowThresholdAdaptsTo120FPS {
+  FPRFpsCase testCase = (FPRFpsCase){120, 0.009, 0.008};  // 120 FPS: budget ~8.33ms (1/120)
+  FPRRunFpsTestCase(self, testCase);
 }
 
 @end

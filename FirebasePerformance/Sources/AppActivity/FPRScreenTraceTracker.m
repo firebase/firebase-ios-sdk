@@ -25,14 +25,29 @@ NSString *const kFPRFrozenFrameCounterName = @"_fr_fzn";
 NSString *const kFPRSlowFrameCounterName = @"_fr_slo";
 NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
 
-// Note: This was previously 60 FPS, but that resulted in 90% +  of all frames collected to be
-// flagged as slow frames, and so the threshold for iOS is being changed to 59 FPS.
+// Note: The slow frame threshold is now dynamically computed based on UIScreen's
+// maximumFramesPerSecond to align with device capabilities (ProMotion, tvOS, etc.).
+// Slow threshold = 1000 / UIScreen.maximumFramesPerSecond ms (or 1.0 / maxFPS seconds).
+// For devices reporting 60 FPS, the threshold is approximately 16.67ms (1/60).
+// The threshold is cached and refreshed when the app becomes active.
 // TODO(b/73498642): Make these configurable.
-CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 59.0;  // Anything less than 59 FPS is slow.
+
+// Legacy constant maintained for test compatibility. The actual slow frame detection
+// uses a cached value computed from UIScreen.maximumFramesPerSecond.
+CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 60.0;
+
 CFTimeInterval const kFPRFrozenFrameThreshold = 700.0 / 1000.0;
 
 /** Constant that indicates an invalid time. */
 CFAbsoluteTime const kFPRInvalidTime = -1.0;
+
+/** Returns the maximum frames per second supported by the device's main screen.
+ *  Falls back to 60 if the value is unavailable or invalid.
+ */
+static inline NSInteger FPRMaxFPS(void) {
+  NSInteger maxFPS = [UIScreen mainScreen].maximumFramesPerSecond;
+  return maxFPS > 0 ? maxFPS : 60;
+}
 
 /** Returns the class name without the prefixed module name present in Swift classes
  * (e.g. MyModule.MyViewController -> MyViewController).
@@ -70,6 +85,19 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     return @"_st_ERROR_NIL_CLASS_NAME";
   }
 }
+
+@interface FPRScreenTraceTracker ()
+
+// fpr_cachedMaxFPS and fpr_cachedSlowBudget are initialized at startup.
+// We update them only on tvOS during appDidBecomeActive because the output
+// mode can change with user settings. iOS ProMotion dynamic changes are
+// intentionally left for a future follow-up (see TODO in the notification
+// handler).
+@property(nonatomic) NSInteger fpr_cachedMaxFPS;
+
+@property(nonatomic) CFTimeInterval fpr_cachedSlowBudget;
+
+@end
 
 @implementation FPRScreenTraceTracker {
   /** Instance variable storing the total frames observed so far. */
@@ -112,6 +140,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     atomic_store_explicit(&_totalFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_frozenFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_slowFramesCount, 0, memory_order_relaxed);
+    _previousTimestamp = kFPRInvalidTime;
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkStep)];
     [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 
@@ -126,6 +155,17 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                              selector:@selector(appWillResignActiveNotification:)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:[UIApplication sharedApplication]];
+
+    // Initialize cached FPS and slow budget
+    NSInteger __fps = UIScreen.mainScreen.maximumFramesPerSecond ?: 60;
+#if TARGET_OS_TV
+    // tvOS may report 59 for ~60Hz outputs. Normalize to 60.
+    if (__fps == 59) {
+      __fps = 60;
+    }
+#endif
+    self.fpr_cachedMaxFPS = __fps;
+    self.fpr_cachedSlowBudget = 1.0 / (double)__fps;
   }
   return self;
 }
@@ -142,6 +182,20 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 }
 
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
+#if TARGET_OS_TV
+  NSInteger __fps = UIScreen.mainScreen.maximumFramesPerSecond ?: 60;
+  if (__fps == 59) {
+    __fps = 60;  // normalize tvOS 59 -> 60
+  }
+  if (__fps != self.fpr_cachedMaxFPS) {
+    self.fpr_cachedMaxFPS = __fps;
+    self.fpr_cachedSlowBudget = 1.0 / (double)__fps;
+  }
+#else
+  // TODO: Support dynamic ProMotion changes on iOS in a future follow-up.
+  // For now, do not refresh here to avoid incorrect assumptions about timing.
+#endif
+
   // To get the most accurate numbers of total, frozen and slow frames, we need to capture them as
   // soon as we're notified of an event.
   int64_t currentTotalFrames = atomic_load_explicit(&_totalFramesCount, memory_order_relaxed);
@@ -186,11 +240,11 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 #pragma mark - Frozen, slow and good frames
 
 - (void)displayLinkStep {
-  static CFAbsoluteTime previousTimestamp = kFPRInvalidTime;
   CFAbsoluteTime currentTimestamp = self.displayLink.timestamp;
-  RecordFrameType(currentTimestamp, previousTimestamp, &_slowFramesCount, &_frozenFramesCount,
-                  &_totalFramesCount);
-  previousTimestamp = currentTimestamp;
+  CFTimeInterval slowBudget = self.fpr_cachedSlowBudget;
+  RecordFrameType(currentTimestamp, self.previousTimestamp, slowBudget, &_slowFramesCount,
+                  &_frozenFramesCount, &_totalFramesCount);
+  self.previousTimestamp = currentTimestamp;
 }
 
 /** This function increments the relevant frame counters based on the current and previous
@@ -198,6 +252,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
  *
  *  @param currentTimestamp The current timestamp of the displayLink.
  *  @param previousTimestamp The previous timestamp of the displayLink.
+ *  @param slowBudget The cached slow frame budget in seconds (1.0 / maxFPS).
  *  @param slowFramesCounter The value of the slowFramesCount before this function was called.
  *  @param frozenFramesCounter The value of the frozenFramesCount before this function was called.
  *  @param totalFramesCounter The value of the totalFramesCount before this function was called.
@@ -205,6 +260,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 FOUNDATION_STATIC_INLINE
 void RecordFrameType(CFAbsoluteTime currentTimestamp,
                      CFAbsoluteTime previousTimestamp,
+                     CFTimeInterval slowBudget,
                      atomic_int_fast64_t *slowFramesCounter,
                      atomic_int_fast64_t *frozenFramesCounter,
                      atomic_int_fast64_t *totalFramesCounter) {
@@ -212,7 +268,7 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
   if (previousTimestamp == kFPRInvalidTime) {
     return;
   }
-  if (frameDuration > kFPRSlowFrameThreshold) {
+  if (frameDuration > slowBudget) {
     atomic_fetch_add_explicit(slowFramesCounter, 1, memory_order_relaxed);
   }
   if (frameDuration > kFPRFrozenFrameThreshold) {
