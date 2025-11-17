@@ -17,13 +17,11 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 #include <cmath>
-#include <cstdio>
 #include <limits>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/util/warnings.h"
-#include "gtest/gtest-death-test.h"
 #include "gtest/gtest.h"
 
 SUPPRESS_COMMA_WARNINGS_BEGIN()
@@ -277,31 +275,15 @@ TEST(Timestamp, Comparison) {
 }
 
 TEST(Timestamp, InvalidArguments) {
-#if !defined(NDEBUG)
-  // Negative nanoseconds.
-  ASSERT_DEATH(Timestamp(0, -1), "nanoseconds");
-  ASSERT_DEATH(Timestamp(100, -1), "nanoseconds");
-  ASSERT_DEATH(Timestamp(100, -12346789), "nanoseconds");
-
-  // Nanoseconds that are more than one second.
-  ASSERT_DEATH(Timestamp(0, 999999999 + 1), "nanoseconds");
-
-  // Seconds beyond supported range.
-  ASSERT_DEATH(Timestamp(kLowerBound - 1, 0), "seconds");
-  ASSERT_DEATH(Timestamp(kUpperBound + 1, 0), "seconds");
-#else
   // Negative nanoseconds.
   ASSERT_ANY_THROW(Timestamp(0, -1));
   ASSERT_ANY_THROW(Timestamp(100, -1));
   ASSERT_ANY_THROW(Timestamp(100, -12346789));
-
   // Nanoseconds that are more than one second.
   ASSERT_ANY_THROW(Timestamp(0, 999999999 + 1));
-
   // Seconds beyond supported range.
   ASSERT_ANY_THROW(Timestamp(kLowerBound - 1, 0));
   ASSERT_ANY_THROW(Timestamp(kUpperBound + 1, 0));
-#endif
 }
 
 TEST(Timestamp, InvalidArgumentsChrono) {
@@ -309,33 +291,10 @@ TEST(Timestamp, InvalidArgumentsChrono) {
   // system clock-based time_point on this platform can represent values this
   // large.
   if (CanSystemClockDurationHold(Sec(kUpperBound + 1))) {
-    auto action = [] {
-      Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)});
-    };
-
-#if ABSL_HAVE_EXCEPTIONS
-    // Expect a C++ exception to be thrown
-    printf("Testing upper bound with exceptions\n");
-    ASSERT_ANY_THROW(action());
-#else
-    // Expect the process to terminate
-    printf("Testing upper bound without exceptions\n");
-    ASSERT_DEATH(action(), "Timestamp seconds out of range");
-#endif
+    ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kUpperBound + 1)}));
   }
-
   if (CanSystemClockDurationHold(Sec(kLowerBound - 1))) {
-    auto action = [] {
-      Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)});
-    };
-
-#if ABSL_HAVE_EXCEPTIONS
-    printf("Testing lower bound with exceptions\n");
-    ASSERT_ANY_THROW(action());
-#else
-    printf("Testing lower bound without exceptions\n");
-    ASSERT_DEATH(action(), "Timestamp seconds out of range");
-#endif
+    ASSERT_ANY_THROW(Timestamp::FromTimePoint(TimePoint{Sec(kLowerBound - 1)}));
   }
 }
 
