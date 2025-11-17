@@ -18,7 +18,6 @@
 #include "Firestore/core/src/credentials/credentials_fwd.h"
 
 #include "Firestore/core/src/util/statusor.h"
-#include "gtest/gtest-death-test.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -30,11 +29,7 @@ TEST(EmptyAuthCredentialsProvider, GetToken) {
   credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
     const AuthToken& token = result.ValueOrDie();
-#if DEBUG
-    EXPECT_DEATH(token.token(), "user_.is_authenticated()");
-#else
     EXPECT_ANY_THROW(token.token());
-#endif
     const User& user = token.user();
     EXPECT_EQ("", user.uid());
     EXPECT_FALSE(user.is_authenticated());

@@ -279,8 +279,10 @@ TEST(Timestamp, InvalidArguments) {
   ASSERT_ANY_THROW(Timestamp(0, -1));
   ASSERT_ANY_THROW(Timestamp(100, -1));
   ASSERT_ANY_THROW(Timestamp(100, -12346789));
+
   // Nanoseconds that are more than one second.
   ASSERT_ANY_THROW(Timestamp(0, 999999999 + 1));
+
   // Seconds beyond supported range.
   ASSERT_ANY_THROW(Timestamp(kLowerBound - 1, 0));
   ASSERT_ANY_THROW(Timestamp(kUpperBound + 1, 0));
