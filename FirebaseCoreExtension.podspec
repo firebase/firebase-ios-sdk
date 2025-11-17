@@ -35,7 +35,7 @@ Pod::Spec.new do |s|
     }
 
     s.pod_target_xcconfig = {
-      'DEFINES_MODULE' => 'YES',
+      'DEFINES_MODULE' => 'YES'
     }
 
     s.dependency 'FirebaseCore', '~> 12.7.0'
