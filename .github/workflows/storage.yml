@@ -83,9 +83,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Storage
-      quickstart_type: swift
-      is_legacy: true
-      setup_command: scripts/setup_quickstart.sh storage
+      setup_command: scripts/setup_quickstart_spm.sh storage
       plist_src_path: scripts/gha-encrypted/qs-storage.plist.gpg
       plist_dst_path: quickstart-ios/storage/GoogleService-Info.plist
       run_tests: false
@@ -97,7 +95,6 @@ jobs:
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      LEGACY: true
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
