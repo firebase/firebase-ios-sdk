@@ -25,7 +25,7 @@ if [[ ! -z "${JAVA_HOME_11_X64:-}" ]]; then
   export JAVA_HOME=$JAVA_HOME_11_X64
 fi
 
-VERSION='1.19.7'
+VERSION='1.19.9'
 FILENAME="cloud-firestore-emulator-v${VERSION}.jar"
 URL="https://storage.googleapis.com/firebase-preview-drop/emulator/${FILENAME}"
 
@@ -53,7 +53,8 @@ function ensure_exists() {
 
 # Runs the emulator synchronously
 function run() {
-  exec java -jar "$jar" "$@"
+  echo "Running command: EXPERIMENTAL_MODE=true java -jar \"$jar\" \"$@\""
+  EXPERIMENTAL_MODE=true exec java -jar "$jar" "$@"
 }
 
 # Verifies the emulator isn't already running at the PID in the pid_file
