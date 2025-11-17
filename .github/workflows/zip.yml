@@ -231,6 +231,8 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
+      env:
+        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
@@ -242,6 +244,8 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
         quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - uses: actions/upload-artifact@v4
       if: failure()
@@ -380,23 +384,29 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
+      env:
+        LEGACY: true
       run: |
-        rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
-        rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
-        rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
-        SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
-          "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
-          "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-    - name: Add frameworks to Crashlytics watchOS target
-      run: |
-        cd quickstart-ios/crashlytics
-        "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk "Crashlytics" --target "CrashlyticsExample_(watchOS)_Extension" --framework_path Firebase/
-    - name: Patch Crashlytics Run Script Path
-      run: scripts/patch_crashlytics_run_path.rb
+              SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
+                                               "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+              cp quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Firebase/run quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart
+              cp quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/Firebase/upload-symbols quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart
+              chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/run
+              chmod +x quickstart-ios/crashlytics/LegacyCrashlyticsQuickstart/upload-symbols
+    # TODO(#8057): Restore Swift Quickstart
+    # - name: Setup swift quickstart
+    #   env:
+    #     LEGACY: true
+    #   run: |
+    #           SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" NON_FIREBASE_SDKS="ReachabilitySwift" scripts/setup_quickstart_framework.sh \
+    #                                            "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/*
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
         quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - uses: actions/upload-artifact@v4
       if: failure()
@@ -457,8 +467,8 @@ jobs:
           !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_firebaseai:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: package-head
+    if: ${{ !cancelled() && (success() || github.event.inputs.zip_run_id != '') }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "FirebaseAI"
@@ -477,7 +487,7 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: ${{ matrix.artifact }}
-        run-id: ${{ needs.packaging_done.outputs.run_id }}
+        run-id: ${{ github.event.inputs.zip_run_id || github.run_id }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
@@ -599,11 +609,15 @@ jobs:
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Setup swift quickstart
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-inappmessaging.plist.gpg \
         quickstart-ios/inappmessaging/GoogleService-Info.plist "$plist_secret"
-    - name: Test Swift Quickstart
+    - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Test Swift Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
@@ -646,15 +660,19 @@ jobs:
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
-    - name: Add frameworks to notification extension target
+    - name: Setup swift quickstart
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
+    - name: Add frameworks to Crashlytics watchOS target
       run: |
         cd quickstart-ios/messaging
-        "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk "Messaging" --target "NotificationServiceExtension" --framework_path Firebase/
+        "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk Messaging --target NotificationServiceExtension --framework_path Firebase/
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
         quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Test Swift Quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
@@ -694,15 +712,27 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
+      env:
+        LEGACY: true
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Setup swift quickstart
+      env:
+        LEGACY: true
+      run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
         quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+    - name: Test Swift Quickstart
+      env:
+        LEGACY: true
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" swift)
     - uses: actions/upload-artifact@v4
       if: failure()
       with:

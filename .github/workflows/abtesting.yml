@@ -45,9 +45,10 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: ABTesting
-      setup_command: scripts/setup_quickstart_spm.sh abtesting
-      plist_src_path: scripts/gha-encrypted/qs-abtesting.plist.gpg
-      plist_dst_path: quickstart-ios/abtesting/GoogleService-Info.plist
+      is_legacy: true
+      setup_command: scripts/setup_quickstart.sh abtesting
+      plist_src_path: scripts/gha-encrypted/qs-database.plist.gpg
+      plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
@@ -65,6 +66,8 @@ jobs:
       with:
         python-version: '3.11'
     - name: Setup quickstart
+      env:
+        LEGACY: true
       run: scripts/setup_quickstart.sh abtesting
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
@@ -72,6 +75,8 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Build swift quickstart
+      env:
+        LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh ABTesting)
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
