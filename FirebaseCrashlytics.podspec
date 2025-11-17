@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '12.6.0'
+  s.version          = '12.7.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -59,10 +59,10 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/CrashlyticsInputFiles.xcfilelist ./CrashlyticsInputFiles.xcfilelist
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 12.6.0'
-  s.dependency 'FirebaseInstallations', '~> 12.6.0'
-  s.dependency 'FirebaseSessions', '~> 12.6.0'
-  s.dependency 'FirebaseRemoteConfigInterop', '~> 12.6.0'
+  s.dependency 'FirebaseCore', '~> 12.7.0'
+  s.dependency 'FirebaseInstallations', '~> 12.7.0'
+  s.dependency 'FirebaseSessions', '~> 12.7.0'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 12.7.0'
   s.dependency 'PromisesObjC', '~> 2.4'
   s.dependency 'GoogleDataTransport', '~> 10.1'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'

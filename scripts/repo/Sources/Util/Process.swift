@@ -26,7 +26,7 @@ public extension Process {
   ///   - env: A map of environment variables to set for the process.
   ///   - inheritEnvironment: When enabled, the parent process' environvment will also be applied
   ///   to this process. Effectively, this means that any environvment variables declared within the
-  ///   parent process will propogate down to this new process.
+  ///   parent process will propagate down to this new process.
   convenience init(_ exe: String,
                    _ args: [String] = [],
                    env: [String: String] = [:],
@@ -59,7 +59,7 @@ public extension Process {
 
   /// Run the process with signals from the parent process.
   ///
-  /// The signals `SIGINT` and `SIGTERM` will both be propogated
+  /// The signals `SIGINT` and `SIGTERM` will both be propagated
   /// down to the process from the parent process.
   ///
   /// This function will not return until the process is done running.

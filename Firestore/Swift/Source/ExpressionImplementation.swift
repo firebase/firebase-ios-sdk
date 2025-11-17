@@ -523,6 +523,14 @@ public extension Expression {
     return FunctionExpression(functionName: "array_get", args: [self, offsetExpression])
   }
 
+  func arrayMaximum() -> FunctionExpression {
+    return FunctionExpression(functionName: "maximum", args: [self])
+  }
+
+  func arrayMinimum() -> FunctionExpression {
+    return FunctionExpression(functionName: "minimum", args: [self])
+  }
+
   func greaterThan(_ other: Expression) -> BooleanExpression {
     return BooleanExpression(functionName: "greater_than", args: [self, other])
   }
@@ -622,6 +630,14 @@ public extension Expression {
     return FunctionExpression(functionName: "join", args: [self, Constant(delimiter)])
   }
 
+  func split(delimiter: String) -> FunctionExpression {
+    return FunctionExpression(functionName: "split", args: [self, Constant(delimiter)])
+  }
+
+  func split(delimiter: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "split", args: [self, delimiter])
+  }
+
   func length() -> FunctionExpression {
     return FunctionExpression(functionName: "length", args: [self])
   }
@@ -709,6 +725,10 @@ public extension Expression {
     return FunctionExpression(functionName: "trim", args: [self, value])
   }
 
+  func trim() -> FunctionExpression {
+    return FunctionExpression(functionName: "trim", args: [self])
+  }
+
   func stringConcat(_ strings: [Expression]) -> FunctionExpression {
     return FunctionExpression(functionName: "string_concat", args: [self] + strings)
   }
@@ -771,20 +791,6 @@ public extension Expression {
 
   func mapMerge(_ maps: [Expression]) -> FunctionExpression {
     return FunctionExpression(functionName: "map_merge", args: [self] + maps)
-  }
-
-  func mapSet(key: Expression, value: Sendable) -> FunctionExpression {
-    return FunctionExpression(
-      functionName: "map_set",
-      args: [self, key, Helper.sendableToExpr(value)]
-    )
-  }
-
-  func mapSet(key: String, value: Sendable) -> FunctionExpression {
-    return FunctionExpression(
-      functionName: "map_set",
-      args: [self, Helper.sendableToExpr(key), Helper.sendableToExpr(value)]
-    )
   }
 
   // --- Added Aggregate Operations (on Expr) ---
@@ -919,7 +925,7 @@ public extension Expression {
     return FunctionExpression(functionName: "timestamp_to_unix_seconds", args: [self])
   }
 
-  func timestampTruncate(granularity: TimeUnit) -> FunctionExpression {
+  func timestampTruncate(granularity: TimeGranularity) -> FunctionExpression {
     return FunctionExpression(
       functionName: "timestamp_trunc",
       args: [self, Helper.sendableToExpr(granularity.rawValue)]
@@ -1000,5 +1006,9 @@ public extension Expression {
   func concat(_ values: [Sendable]) -> FunctionExpression {
     let exprs = [self] + values.map { Helper.sendableToExpr($0) }
     return FunctionExpression(functionName: "concat", args: exprs)
+  }
+
+  func type() -> FunctionExpression {
+    return FunctionExpression(functionName: "type", args: [self])
   }
 }

@@ -94,8 +94,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Config
-      is_legacy: false
-      setup_command: scripts/setup_quickstart.sh config
+      setup_command: scripts/setup_quickstart_spm.sh config
       plist_src_path: scripts/gha-encrypted/qs-config.plist.gpg
       plist_dst_path: quickstart-ios/config/GoogleService-Info.plist
     secrets:
