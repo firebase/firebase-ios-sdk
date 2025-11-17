@@ -990,10 +990,9 @@ EvaluateResult CoreTrim::Evaluate(
 
   switch (evaluated.type()) {
     case EvaluateResult::ResultType::kString: {
-      absl::string_view trimmed_view = absl::StripAsciiWhitespace(
-          nanopb::MakeString(evaluated.value()->string_value));
-      return EvaluateResult::NewValue(
-          model::StringValue(std::move(trimmed_view)));
+      std::string str = nanopb::MakeString(evaluated.value()->string_value);
+      absl::string_view trimmed_view = absl::StripAsciiWhitespace(str);
+      return EvaluateResult::NewValue(model::StringValue(trimmed_view));
     }
     case EvaluateResult::ResultType::kNull:
       return EvaluateResult::NewNull();
