@@ -18,7 +18,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.6.0"
+let firebaseVersion = "12.7.0"
 
 // For private preview, Firestore must be built from source.
 let shouldUseSourceFirestore = true

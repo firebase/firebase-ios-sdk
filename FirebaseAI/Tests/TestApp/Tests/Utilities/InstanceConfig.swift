@@ -52,6 +52,12 @@ struct InstanceConfig: Equatable, Encodable {
       version: .v1beta
     )
   )
+  static let vertexAI_v1beta_staging_global_bypassProxy = InstanceConfig(
+    apiConfig: APIConfig(
+      service: .vertexAI(endpoint: .vertexAIStagingBypassProxy, location: "global"),
+      version: .v1beta1
+    )
+  )
   static let googleAI_v1beta = InstanceConfig(
     apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
   )
@@ -80,6 +86,7 @@ struct InstanceConfig: Equatable, Encodable {
     googleAI_v1beta_freeTier,
     // Note: The following configs are commented out for easy one-off manual testing.
     // vertexAI_v1beta_staging,
+    // vertexAI_v1beta_staging_global_bypassProxy,
     // googleAI_v1beta_staging,
     // googleAI_v1beta_freeTier_bypassProxy,
   ]
@@ -162,6 +169,8 @@ extension InstanceConfig: CustomTestStringConvertible {
       " - Staging"
     case .googleAIBypassProxy:
       " - Bypass Proxy"
+    case .vertexAIStagingBypassProxy:
+      " - Staging - Bypass Proxy"
     }
     let locationSuffix: String
     if case let .vertexAI(_, location: location) = apiConfig.service {

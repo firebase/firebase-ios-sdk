@@ -87,6 +87,7 @@ enum AILog {
     case generateContentResponseEmptyCandidates = 4003
     case invalidWebsocketURL = 4004
     case duplicateLiveSessionSetupComplete = 4005
+    case malformedURL = 4006
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
@@ -136,6 +137,17 @@ enum AILog {
 
   static func debug(code: MessageCode, _ message: String) {
     log(level: .debug, code: code, message)
+  }
+
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  static func makeInternalError(message: String, code: MessageCode) -> GenerateContentError {
+    let error = GenerateContentError.internalError(underlying: NSError(
+      domain: "\(Constants.baseErrorDomain).Internal",
+      code: code.rawValue,
+      userInfo: [NSLocalizedDescriptionKey: message]
+    ))
+    AILog.error(code: code, message)
+    return error
   }
 
   /// Returns `true` if additional logging has been enabled via a launch argument.

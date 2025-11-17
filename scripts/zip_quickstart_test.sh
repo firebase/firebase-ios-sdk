@@ -42,10 +42,23 @@ else
   device_name="iPhone 16"
 fi
 
+# Define project and scheme names
+PROJECT_NAME="${SAMPLE}Example.xcodeproj"
+SCHEME_NAME="${SAMPLE}Example${SWIFT_SUFFIX}"
+
+# Check if the scheme exists before attempting to build.
+# The `awk` command prints all lines from "Schemes:" to the end of the output.
+if ! xcodebuild -list -project "${PROJECT_NAME}" | awk '/Schemes:/,0' | grep -q "^\s*${SCHEME_NAME}"$; then
+    echo "Error: Scheme '${SCHEME_NAME}' not found in project '${PROJECT_NAME}'."
+    echo "Available schemes from '${PROJECT_NAME}':"
+    xcodebuild -list -project "${PROJECT_NAME}"
+    exit 65
+fi
+
 (
 xcodebuild \
--project ${SAMPLE}Example.xcodeproj \
--scheme  ${SAMPLE}Example${SWIFT_SUFFIX} \
+-project ${PROJECT_NAME} \
+-scheme  ${SCHEME_NAME} \
 -destination "platform=iOS Simulator,name=$device_name" "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(inherited) $(PROJECT_DIR)/Firebase' \
 build \
 ) || EXIT_STATUS=$?

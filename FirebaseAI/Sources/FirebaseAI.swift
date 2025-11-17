@@ -135,6 +135,28 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  /// Initializes a new `TemplateGenerativeModel`.
+  ///
+  /// - Returns: A new `TemplateGenerativeModel` instance.
+  public func templateGenerativeModel() -> TemplateGenerativeModel {
+    return TemplateGenerativeModel(
+      generativeAIService: GenerativeAIService(firebaseInfo: firebaseInfo,
+                                               urlSession: GenAIURLSession.default),
+      apiConfig: apiConfig
+    )
+  }
+
+  /// Initializes a new `TemplateImagenModel`.
+  ///
+  /// - Returns: A new `TemplateImagenModel` instance.
+  public func templateImagenModel() -> TemplateImagenModel {
+    return TemplateImagenModel(
+      generativeAIService: GenerativeAIService(firebaseInfo: firebaseInfo,
+                                               urlSession: GenAIURLSession.default),
+      apiConfig: apiConfig
+    )
+  }
+
   /// **[Public Preview]** Initializes a ``LiveGenerativeModel`` with the given parameters.
   ///
   /// - Note: Refer to [the Firebase docs on the Live
@@ -277,11 +299,18 @@ public final class FirebaseAI: Sendable {
 
   private func developerModelResourceName(modelName: String) -> String {
     switch apiConfig.service.endpoint {
-    case .firebaseProxyStaging, .firebaseProxyProd:
-      let projectID = firebaseInfo.projectID
-      return "projects/\(projectID)/models/\(modelName)"
-    case .googleAIBypassProxy:
-      return "models/\(modelName)"
+    case .firebaseProxyProd:
+      return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
+    #if DEBUG
+      case .googleAIBypassProxy:
+        return "models/\(modelName)"
+      case .firebaseProxyStaging:
+        return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
+      case .vertexAIStagingBypassProxy:
+        fatalError(
+          "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
+        )
+    #endif // DEBUG
     }
   }
 

@@ -69,6 +69,13 @@
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "FIRGCloudAuthAccessToken"
+            value = "Run `gcloud auth print-access-token` to obtain as access token for direct Vertex AI testing."
+            isEnabled = "NO">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
