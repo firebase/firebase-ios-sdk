@@ -211,6 +211,10 @@ struct GenerativeAIService {
       }
     }
 
+    if let bundleID = Bundle.main.bundleIdentifier {
+      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
+    }
+
     let encoder = JSONEncoder()
     urlRequest.httpBody = try encoder.encode(request)
     urlRequest.timeoutInterval = request.options.timeout

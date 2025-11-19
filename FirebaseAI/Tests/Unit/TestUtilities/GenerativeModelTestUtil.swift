@@ -69,6 +69,9 @@ enum GenerativeModelTestUtil {
         XCTAssertEqual(firebaseAppID, dataCollection ? "My app ID" : nil)
         XCTAssertEqual(appVersion, dataCollection ? expectedAppVersion : nil)
 
+        let bundleID = request.value(forHTTPHeaderField: "x-ios-bundle-identifier")
+        XCTAssertEqual(bundleID, Bundle.main.bundleIdentifier)
+
         if let authToken {
           XCTAssertEqual(
             request.value(forHTTPHeaderField: "Authorization"),
