@@ -128,8 +128,9 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
     // Initialize cached values with defaults. These will be updated by updateCachedSlowBudget,
     // but having defaults ensures reasonable behavior if initialization is delayed or fails.
-    _cachedMaxFPS = 60;  // Default to 60 FPS.
-    _cachedSlowBudget = 1.0 / 60.0;  // Default to 60 FPS budget.
+    // Use 59 FPS as default to match legacy behavior (60 FPS devices use 59 FPS threshold).
+    _cachedMaxFPS = 59;
+    _cachedSlowBudget = 1.0 / 59.0;
 
     // Initialize cached maxFPS and slowBudget on main thread.
     // UIScreen.maximumFramesPerSecond reflects device capability and can be up to 120 on ProMotion.
@@ -250,16 +251,19 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   if (mainScreen) {
     _cachedMaxFPS = mainScreen.maximumFramesPerSecond;
     if (_cachedMaxFPS > 0) {
-      _cachedSlowBudget = 1.0 / _cachedMaxFPS;
+      // Preserve legacy behavior: 60 FPS devices historically used 59 FPS threshold
+      // to avoid too many false positives for slow frames.
+      NSInteger effectiveFPS = (_cachedMaxFPS == 60) ? 59 : _cachedMaxFPS;
+      _cachedSlowBudget = 1.0 / effectiveFPS;
     } else {
-      // Fallback to 60 FPS if maximumFramesPerSecond is unavailable or invalid.
-      _cachedMaxFPS = 60;
-      _cachedSlowBudget = 1.0 / 60.0;
+      // Fallback to 59 FPS (matching legacy behavior) if maximumFramesPerSecond is unavailable or invalid.
+      _cachedMaxFPS = 59;
+      _cachedSlowBudget = 1.0 / 59.0;
     }
   } else {
     // Fallback if mainScreen is nil.
-    _cachedMaxFPS = 60;
-    _cachedSlowBudget = 1.0 / 60.0;
+    _cachedMaxFPS = 59;
+    _cachedSlowBudget = 1.0 / 59.0;
   }
 }
 
