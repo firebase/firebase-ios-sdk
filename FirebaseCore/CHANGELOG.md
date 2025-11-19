@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] [CocoaPods] Enable module map generation for Firebase pods. This
+  resolves build failures when using static linking
+  (`use_frameworks! :linkage => :static`) in projects using frameworks like
+  React Native (#15506).
+
 # Firebase 12.0.0
 - [changed] **Breaking change**: Firebase's minimum supported versions have
   updated for the following platforms:

@@ -52,6 +52,7 @@ Pod::Spec.new do |s|
 
   preprocessor_definitions = ''
   s.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
