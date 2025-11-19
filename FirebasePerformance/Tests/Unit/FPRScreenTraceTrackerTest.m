@@ -626,8 +626,11 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 /** Tests that the slow and frozen frame counter is not incremented in the case of a good frame. */
 - (void)testSlowAndFrozenFrameIsNotRecordedInCaseOfGoodFrame {
   CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
+  // Use a frame duration that's clearly below any reasonable threshold (even for 120 FPS devices).
+  // For 120 FPS: threshold = 1/120 = 0.008333, with epsilon = 0.001, so slow if > 0.009333.
+  // Using 0.005 ensures it's a good frame on all devices.
   CFAbsoluteTime secondFrameRenderTimestamp =
-      firstFrameRenderTimestamp + kFPRSlowFrameThreshold - 0.005;  // Good frame.
+      firstFrameRenderTimestamp + 0.005;  // Good frame (5ms, well below any threshold).
 
   id displayLinkMock = OCMClassMock([CADisplayLink class]);
   [self.tracker.displayLink invalidate];
@@ -894,6 +897,237 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
   XCTAssertEqual(self.tracker.activeScreenTraces.count, 4);
 }
+
+#pragma mark - Dynamic FPS Tests
+
+#if TARGET_OS_TV
+/** Tests that slow frames are correctly detected with a custom maxFPS value on tvOS.
+ *  This test stubs UIScreen.maximumFramesPerSecond to 50 FPS and verifies that frames
+ *  at ~21ms (slow) and ~19ms (not slow) are correctly classified.
+ */
+- (void)testSlowFrameIsRecordedWithCustomMaxFPSOnTvOS {
+  // Swizzle UIScreen.maximumFramesPerSecond to return 50 FPS.
+  // At 50 FPS, slow budget = 1.0/50 = 0.02 seconds = 20ms.
+  UIScreen *mainScreen = [UIScreen mainScreen];
+  NSInteger originalMaxFPS = mainScreen.maximumFramesPerSecond;
+  
+  // Use method swizzling to stub maximumFramesPerSecond.
+  Method originalMethod = class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
+  IMP originalIMP = method_getImplementation(originalMethod);
+  
+  NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
+    return 50;  // Return 50 FPS for testing.
+  };
+  IMP stubIMP = imp_implementationWithBlock(stubBlock);
+  method_setImplementation(originalMethod, stubIMP);
+
+  @try {
+    // Create a new tracker instance to pick up the stubbed maxFPS value.
+    FPRScreenTraceTracker *testTracker = [[FPRScreenTraceTracker alloc] init];
+    testTracker.displayLink.paused = YES;
+
+    // Update cached budget with stubbed value. Tests run on main thread, so call directly.
+    if ([NSThread isMainThread]) {
+      [testTracker updateCachedSlowBudget];
+    } else {
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        [testTracker updateCachedSlowBudget];
+      });
+    }
+
+    // At 50 FPS, slow budget = 20ms. With epsilon (0.001), frames > 20.001ms are slow.
+    // Test with 21ms frame (should be slow).
+    CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
+    CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + 0.021;  // 21ms, slow
+
+    id displayLinkMock = OCMClassMock([CADisplayLink class]);
+    [testTracker.displayLink invalidate];
+    testTracker.displayLink = displayLinkMock;
+
+    OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+    int64_t initialSlowFramesCount = testTracker.slowFramesCount;
+
+    OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+
+    int64_t newSlowFramesCount = testTracker.slowFramesCount;
+    XCTAssertEqual(newSlowFramesCount, initialSlowFramesCount + 1,
+                   @"Frame at 21ms should be marked as slow at 50 FPS (20ms threshold)");
+
+    // Test with 19ms frame (should NOT be slow).
+    CFAbsoluteTime thirdFrameRenderTimestamp = secondFrameRenderTimestamp + 0.019;  // 19ms, not slow
+    OCMExpect([displayLinkMock timestamp]).andReturn(thirdFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+
+    int64_t finalSlowFramesCount = testTracker.slowFramesCount;
+    XCTAssertEqual(finalSlowFramesCount, newSlowFramesCount,
+                   @"Frame at 19ms should NOT be marked as slow at 50 FPS (20ms threshold)");
+  } @finally {
+    // Restore original implementation.
+    method_setImplementation(originalMethod, originalIMP);
+  }
+}
+#endif
+
+/** Tests that the epsilon value correctly handles edge cases around 59.94 vs 60 Hz displays.
+ *  Frames right at the threshold should not be miscounted due to floating point precision.
+ */
+- (void)testSlowFrameEpsilonHandlesBoundaryCases {
+  // Swizzle UIScreen.maximumFramesPerSecond to return 60 FPS.
+  Method originalMethod = class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
+  IMP originalIMP = method_getImplementation(originalMethod);
+  
+  NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
+    return 60;  // Return 60 FPS for testing.
+  };
+  IMP stubIMP = imp_implementationWithBlock(stubBlock);
+  method_setImplementation(originalMethod, stubIMP);
+
+  @try {
+    // Create a new tracker instance.
+    FPRScreenTraceTracker *testTracker = [[FPRScreenTraceTracker alloc] init];
+    testTracker.displayLink.paused = YES;
+
+    // Update cached budget with stubbed value. Tests run on main thread, so call directly.
+    if ([NSThread isMainThread]) {
+      [testTracker updateCachedSlowBudget];
+    } else {
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        [testTracker updateCachedSlowBudget];
+      });
+    }
+
+    // Verify the stub is working - UIScreen should return 60 FPS.
+    UIScreen *mainScreen = [UIScreen mainScreen];
+    XCTAssertEqual(mainScreen.maximumFramesPerSecond, 60, @"Stub should return 60 FPS");
+
+    // At 60 FPS, slow budget = 1.0/60 = 0.016666... seconds.
+    // With epsilon (0.001), frames > 0.017666... are slow.
+    // Test with frame exactly at threshold (should NOT be slow due to epsilon).
+    CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
+    CFTimeInterval exactThreshold = 1.0 / 60.0;  // Exactly 1/60 second
+    CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + exactThreshold;
+
+    id displayLinkMock = OCMClassMock([CADisplayLink class]);
+    [testTracker.displayLink invalidate];
+    testTracker.displayLink = displayLinkMock;
+
+    OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+    int64_t initialSlowFramesCount = testTracker.slowFramesCount;
+
+    OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+
+    int64_t newSlowFramesCount = testTracker.slowFramesCount;
+    XCTAssertEqual(newSlowFramesCount, initialSlowFramesCount,
+                   @"Frame exactly at threshold should NOT be marked as slow due to epsilon");
+
+    // Test with frame just above threshold + epsilon (should be slow).
+    // Use a value clearly above threshold + epsilon (0.001) to account for floating point precision.
+    // We use 0.002 above threshold to ensure it's clearly above the epsilon threshold.
+    CFTimeInterval justAboveThreshold = exactThreshold + 0.001 + 0.001;  // 0.002 above threshold (epsilon is 0.001)
+    CFAbsoluteTime thirdFrameRenderTimestamp = secondFrameRenderTimestamp + justAboveThreshold;
+    OCMExpect([displayLinkMock timestamp]).andReturn(thirdFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+
+    int64_t finalSlowFramesCount = testTracker.slowFramesCount;
+    XCTAssertEqual(finalSlowFramesCount, newSlowFramesCount + 1,
+                   @"Frame just above threshold + epsilon should be marked as slow");
+  } @finally {
+    // Restore original implementation.
+    method_setImplementation(originalMethod, originalIMP);
+  }
+}
+
+#if TARGET_OS_TV
+/** Tests that the slow budget is recomputed when UIScreenModeDidChangeNotification is posted on tvOS.
+ *  This verifies that the tracker adapts to display mode changes that affect refresh rate.
+ */
+- (void)testScreenModeChangeUpdatesSlowBudgetOnTvOS {
+  // Swizzle UIScreen.maximumFramesPerSecond to return 60 FPS initially, then 50 FPS.
+  Method originalMethod = class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
+  IMP originalIMP = method_getImplementation(originalMethod);
+  
+  __block NSInteger stubbedMaxFPS = 60;
+  NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
+    return stubbedMaxFPS;
+  };
+  IMP stubIMP = imp_implementationWithBlock(stubBlock);
+  method_setImplementation(originalMethod, stubIMP);
+
+  @try {
+    // Create a new tracker instance.
+    FPRScreenTraceTracker *testTracker = [[FPRScreenTraceTracker alloc] init];
+    testTracker.displayLink.paused = YES;
+
+    // Update cached budget with stubbed value. Tests run on main thread, so call directly.
+    if ([NSThread isMainThread]) {
+      [testTracker updateCachedSlowBudget];
+    } else {
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        [testTracker updateCachedSlowBudget];
+      });
+    }
+
+    // Verify initial behavior: at 60 FPS, slow budget = ~16.67ms.
+    // An 18ms frame should be slow at 60 FPS.
+    CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
+    CFAbsoluteTime secondFrameRenderTimestamp = firstFrameRenderTimestamp + 0.018;  // 18ms
+
+    id displayLinkMock = OCMClassMock([CADisplayLink class]);
+    [testTracker.displayLink invalidate];
+    testTracker.displayLink = displayLinkMock;
+
+    OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+    int64_t initialSlowFramesCount = testTracker.slowFramesCount;
+
+    OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+
+    int64_t slowFramesAfter18ms = testTracker.slowFramesCount;
+    // At 60 FPS (~16.67ms threshold), 18ms frame should be slow.
+    XCTAssertEqual(slowFramesAfter18ms, initialSlowFramesCount + 1,
+                   @"At 60 FPS, 18ms frame should be slow (threshold is ~16.67ms)");
+
+    // Change the stubbed maxFPS to 50 FPS.
+    stubbedMaxFPS = 50;
+
+    // Post the notification to trigger recomputation.
+    NSNotification *modeChangeNotification =
+        [NSNotification notificationWithName:UIScreenModeDidChangeNotification object:nil];
+    [testTracker screenModeDidChangeNotification:modeChangeNotification];
+
+    // Wait for the async update to complete. Since screenModeDidChangeNotification dispatches
+    // async to main queue, and tests run on main thread, we need to run the run loop to process it.
+    // Run the run loop once to process the async dispatch.
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+
+    // Verify the new budget is used: at 50 FPS, slow budget = 20ms.
+    // An 18ms frame should NOT be slow at 50 FPS (it's below the 20ms threshold).
+    testTracker.slowFramesCount = 0;
+    firstFrameRenderTimestamp = 2.0;
+    secondFrameRenderTimestamp = firstFrameRenderTimestamp + 0.018;  // 18ms
+
+    OCMExpect([displayLinkMock timestamp]).andReturn(firstFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+    initialSlowFramesCount = testTracker.slowFramesCount;
+
+    OCMExpect([displayLinkMock timestamp]).andReturn(secondFrameRenderTimestamp);
+    [testTracker displayLinkStep];
+
+    int64_t slowFramesAfterModeChange = testTracker.slowFramesCount;
+    // At 50 FPS (20ms threshold), 18ms frame should NOT be slow.
+    XCTAssertEqual(slowFramesAfterModeChange, initialSlowFramesCount,
+                   @"After mode change to 50 FPS, 18ms frame should NOT be slow (threshold is 20ms)");
+  } @finally {
+    // Restore original implementation.
+    method_setImplementation(originalMethod, originalIMP);
+  }
+}
+#endif
 
 #pragma mark - Helper methods
 

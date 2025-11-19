@@ -28,8 +28,13 @@ NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
 // Note: This was previously 60 FPS, but that resulted in 90% +  of all frames collected to be
 // flagged as slow frames, and so the threshold for iOS is being changed to 59 FPS.
 // TODO(b/73498642): Make these configurable.
+// This constant is kept for backward compatibility but is no longer used directly.
+// The actual threshold is computed dynamically from UIScreen.maximumFramesPerSecond.
 CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 59.0;  // Anything less than 59 FPS is slow.
 CFTimeInterval const kFPRFrozenFrameThreshold = 700.0 / 1000.0;
+
+/** Epsilon value to avoid floating point comparison issues (e.g., 59.94 vs 60). */
+static const CFTimeInterval kFPRSlowFrameEpsilon = 0.001;
 
 /** Constant that indicates an invalid time. */
 CFAbsoluteTime const kFPRInvalidTime = -1.0;
@@ -80,6 +85,14 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
   /** Instance variable storing the frozen frames observed so far. */
   atomic_int_fast64_t _frozenFramesCount;
+
+  /** Cached maximum frames per second from UIScreen. */
+  NSInteger _cachedMaxFPS;
+
+  /** Cached slow frame budget computed from maxFPS. Initialized to the old constant value
+   *  for backward compatibility until updateCachedSlowBudget is called.
+   */
+  CFTimeInterval _cachedSlowBudget;
 }
 
 @dynamic totalFramesCount;
@@ -112,6 +125,24 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     atomic_store_explicit(&_totalFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_frozenFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_slowFramesCount, 0, memory_order_relaxed);
+
+    // Initialize cached values with defaults. These will be updated by updateCachedSlowBudget,
+    // but having defaults ensures reasonable behavior if initialization is delayed or fails.
+    _cachedMaxFPS = 60;  // Default to 60 FPS.
+    _cachedSlowBudget = 1.0 / 60.0;  // Default to 60 FPS budget.
+
+    // Initialize cached maxFPS and slowBudget on main thread.
+    // UIScreen.maximumFramesPerSecond reflects device capability and can be up to 120 on ProMotion.
+    // TODO: Support ProMotion devices that dynamically adjust refresh rate based on content.
+    // Use synchronous dispatch to ensure values are set before first frame is recorded.
+    if ([NSThread isMainThread]) {
+      [self updateCachedSlowBudget];
+    } else {
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        [self updateCachedSlowBudget];
+      });
+    }
+
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkStep)];
     [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 
@@ -126,6 +157,15 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                              selector:@selector(appWillResignActiveNotification:)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:[UIApplication sharedApplication]];
+
+#if TARGET_OS_TV
+    // On tvOS, the refresh rate can change when the user switches display modes or connects to
+    // different displays. Listen for mode changes to recompute the slow budget.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(screenModeDidChangeNotification:)
+                                                 name:UIScreenModeDidChangeNotification
+                                               object:nil];
+#endif
   }
   return self;
 }
@@ -139,6 +179,11 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationWillResignActiveNotification
                                                 object:[UIApplication sharedApplication]];
+#if TARGET_OS_TV
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIScreenModeDidChangeNotification
+                                                object:nil];
+#endif
 }
 
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
@@ -183,13 +228,49 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   });
 }
 
+#if TARGET_OS_TV
+/** Handles the UIScreenModeDidChangeNotification. Recomputes the cached slow budget when the screen
+ *  mode changes on tvOS.
+ *
+ *  @param notification The NSNotification object.
+ */
+- (void)screenModeDidChangeNotification:(NSNotification *)notification {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self updateCachedSlowBudget];
+  });
+}
+#endif
+
+/** Updates the cached maxFPS and slowBudget from UIScreen.maximumFramesPerSecond.
+ *  This method must be called on the main thread.
+ */
+- (void)updateCachedSlowBudget {
+  NSAssert([NSThread isMainThread], @"updateCachedSlowBudget must be called on main thread");
+  UIScreen *mainScreen = [UIScreen mainScreen];
+  if (mainScreen) {
+    _cachedMaxFPS = mainScreen.maximumFramesPerSecond;
+    if (_cachedMaxFPS > 0) {
+      _cachedSlowBudget = 1.0 / _cachedMaxFPS;
+    } else {
+      // Fallback to 60 FPS if maximumFramesPerSecond is unavailable or invalid.
+      _cachedMaxFPS = 60;
+      _cachedSlowBudget = 1.0 / 60.0;
+    }
+  } else {
+    // Fallback if mainScreen is nil.
+    _cachedMaxFPS = 60;
+    _cachedSlowBudget = 1.0 / 60.0;
+  }
+}
+
 #pragma mark - Frozen, slow and good frames
 
 - (void)displayLinkStep {
   static CFAbsoluteTime previousTimestamp = kFPRInvalidTime;
   CFAbsoluteTime currentTimestamp = self.displayLink.timestamp;
+  // Use the cached slow budget computed from UIScreen.maximumFramesPerSecond.
   RecordFrameType(currentTimestamp, previousTimestamp, &_slowFramesCount, &_frozenFramesCount,
-                  &_totalFramesCount);
+                  &_totalFramesCount, _cachedSlowBudget);
   previousTimestamp = currentTimestamp;
 }
 
@@ -207,12 +288,15 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
                      CFAbsoluteTime previousTimestamp,
                      atomic_int_fast64_t *slowFramesCounter,
                      atomic_int_fast64_t *frozenFramesCounter,
-                     atomic_int_fast64_t *totalFramesCounter) {
+                     atomic_int_fast64_t *totalFramesCounter,
+                     CFTimeInterval slowBudget) {
   CFTimeInterval frameDuration = currentTimestamp - previousTimestamp;
   if (previousTimestamp == kFPRInvalidTime) {
     return;
   }
-  if (frameDuration > kFPRSlowFrameThreshold) {
+  // Use cached slowBudget with epsilon to avoid floating point comparison issues
+  // (e.g., 59.94 vs 60 Hz displays).
+  if (frameDuration > slowBudget + kFPRSlowFrameEpsilon) {
     atomic_fetch_add_explicit(slowFramesCounter, 1, memory_order_relaxed);
   }
   if (frameDuration > kFPRFrozenFrameThreshold) {
