@@ -53,7 +53,6 @@ function ensure_exists() {
 
 # Runs the emulator synchronously
 function run() {
-  echo "Running command: EXPERIMENTAL_MODE=true java -jar \"$jar\" \"$@\""
   EXPERIMENTAL_MODE=true exec java -jar "$jar" "$@"
 }
 
