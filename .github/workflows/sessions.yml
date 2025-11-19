@@ -9,8 +9,8 @@ on:
     paths:
     - 'FirebaseSessions**'
     - 'FirebaseSessions.podspec'
-    - '.github/workflows/sessions.yml'
-    - '.github/workflows/common.yml'
+#    - '.github/workflows/.*'
+#    - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - 'Gemfile*'
