@@ -248,21 +248,19 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 - (void)updateCachedSlowBudget {
   NSAssert([NSThread isMainThread], @"updateCachedSlowBudget must be called on main thread");
   UIScreen *mainScreen = [UIScreen mainScreen];
+  NSInteger maxFPS = 0;
   if (mainScreen) {
-    _cachedMaxFPS = mainScreen.maximumFramesPerSecond;
-    if (_cachedMaxFPS > 0) {
-      // Preserve legacy behavior: 60 FPS devices historically used 59 FPS threshold
-      // to avoid too many false positives for slow frames.
-      NSInteger effectiveFPS = (_cachedMaxFPS == 60) ? 59 : _cachedMaxFPS;
-      _cachedSlowBudget = 1.0 / effectiveFPS;
-    } else {
-      // Fallback to 59 FPS (matching legacy behavior) if maximumFramesPerSecond is unavailable or
-      // invalid.
-      _cachedMaxFPS = 59;
-      _cachedSlowBudget = 1.0 / 59.0;
-    }
+    maxFPS = mainScreen.maximumFramesPerSecond;
+  }
+  if (maxFPS > 0) {
+    _cachedMaxFPS = maxFPS;
+    // Preserve legacy behavior: 60 FPS devices historically used 59 FPS threshold
+    // to avoid too many false positives for slow frames.
+    NSInteger effectiveFPS = (maxFPS == 60) ? 59 : maxFPS;
+    _cachedSlowBudget = 1.0 / effectiveFPS;
   } else {
-    // Fallback if mainScreen is nil.
+    // Fallback to 59 FPS (matching legacy behavior) if maximumFramesPerSecond is unavailable or
+    // invalid.
     _cachedMaxFPS = 59;
     _cachedSlowBudget = 1.0 / 59.0;
   }
