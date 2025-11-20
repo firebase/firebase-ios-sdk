@@ -1377,6 +1377,18 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+    .testTarget(
+      name: "FirebaseFirestoreTests",
+      dependencies: [
+        "Firebase",
+        "FirebaseCore",
+        "FirebaseFirestoreTarget",
+      ],
+      path: "Firestore/Swift/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
   ] + firestoreTargets(),
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
@@ -1550,18 +1562,6 @@ func firestoreTargets() -> [Target] {
         resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")],
         swiftSettings: [
           .swiftLanguageMode(SwiftLanguageMode.v5),
-        ]
-      ),
-      .testTarget(
-        name: "FirebaseFirestoreTests",
-        dependencies: [
-          "Firebase",
-          "FirebaseCore",
-          "FirebaseFirestoreTarget",
-        ],
-        path: "Firestore/Swift/Tests/Unit",
-        cSettings: [
-          .headerSearchPath("../../../"),
         ]
       ),
     ]
