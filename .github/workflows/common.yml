@@ -123,8 +123,3 @@ jobs:
             ${{ inputs.target }} \
             ${{ matrix.platform }} \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
-    - name: Publish Test Report
-      uses: mikepenz/action-junit-report@v6
-      if: success() || failure()
-      with:
-        report_paths: 'build/reports/junit.xml'
