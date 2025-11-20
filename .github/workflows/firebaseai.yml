@@ -69,6 +69,11 @@ jobs:
         name: xcodebuild-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
         path: xcodebuild-*.log
         retention-days: 2
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v6
+      if: success() || failure()
+      with:
+        report_paths: 'build/reports/junit.xml'
 
   pod_lib_lint:
     strategy:
