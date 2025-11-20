@@ -993,7 +993,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 /** Tests that the epsilon value correctly handles edge cases around 59.94 vs 60 Hz displays.
  *  Frames right at the threshold should not be miscounted due to floating point precision.
  */
-- (void)testSlowFrameEpsilonHandlesBoundaryCases {
+- (void)testSlowFrameRate_isHandled_inEdgeCases {
   [self withStubbedMaxFPS:60
              performBlock:^{
                FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:60];
