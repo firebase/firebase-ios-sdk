@@ -113,7 +113,7 @@ function RunXcodebuild() {
   local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
   local log_filename="xcodebuild-${buildaction}.log"
 
-  local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging --quiet --is-ci --report junit)
+  local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging --is-ci --preserve-unbeautified --report junit)
 
   local result=0
   NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
