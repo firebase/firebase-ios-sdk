@@ -123,7 +123,7 @@ private struct Swizzler: ~Copyable {
                               swizzledSelector: Selector) {
     guard let originalMethod = class_getInstanceMethod(cls, originalSelector),
           let swizzledMethod = class_getInstanceMethod(cls, swizzledSelector) else {
-      #expect(false, "Failed to get methods for swizzling")
+      #expect(Bool(false), "Failed to get methods for swizzling")
       return
     }
     method_exchangeImplementations(originalMethod, swizzledMethod)
@@ -230,7 +230,7 @@ struct QueryAsyncSequenceTests {
 
     let task = Task {
       for try await _ in query.snapshots {
-        #expect(false, "The stream should not have produced any values.")
+        #expect(Bool(false), "The stream should not have produced any values.")
       }
     }
 
@@ -350,7 +350,7 @@ struct DocumentReferenceAsyncSequenceTests {
 
     let task = Task {
       for try await _ in docRef.snapshots {
-        #expect(false, "The stream should not have produced any values.")
+        #expect(Bool(false), "The stream should not have produced any values.")
       }
     }
 
@@ -398,4 +398,4 @@ extension DocumentReference {
   }
 }
 
-extension String: Error {}
+extension String: @retroactive Error {}
