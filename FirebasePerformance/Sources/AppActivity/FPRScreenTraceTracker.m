@@ -256,7 +256,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
       NSInteger effectiveFPS = (_cachedMaxFPS == 60) ? 59 : _cachedMaxFPS;
       _cachedSlowBudget = 1.0 / effectiveFPS;
     } else {
-      // Fallback to 59 FPS (matching legacy behavior) if maximumFramesPerSecond is unavailable or invalid.
+      // Fallback to 59 FPS (matching legacy behavior) if maximumFramesPerSecond is unavailable or
+      // invalid.
       _cachedMaxFPS = 59;
       _cachedSlowBudget = 1.0 / 59.0;
     }

@@ -910,11 +910,12 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   // At 50 FPS, slow budget = 1.0/50 = 0.02 seconds = 20ms.
   UIScreen *mainScreen = [UIScreen mainScreen];
   NSInteger originalMaxFPS = mainScreen.maximumFramesPerSecond;
-  
+
   // Use method swizzling to stub maximumFramesPerSecond.
-  Method originalMethod = class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
+  Method originalMethod =
+      class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
   IMP originalIMP = method_getImplementation(originalMethod);
-  
+
   NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
     return 50;  // Return 50 FPS for testing.
   };
@@ -956,7 +957,8 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
                    @"Frame at 21ms should be marked as slow at 50 FPS (20ms threshold)");
 
     // Test with 19ms frame (should NOT be slow).
-    CFAbsoluteTime thirdFrameRenderTimestamp = secondFrameRenderTimestamp + 0.019;  // 19ms, not slow
+    CFAbsoluteTime thirdFrameRenderTimestamp =
+        secondFrameRenderTimestamp + 0.019;  // 19ms, not slow
     OCMExpect([displayLinkMock timestamp]).andReturn(thirdFrameRenderTimestamp);
     [testTracker displayLinkStep];
 
@@ -975,9 +977,10 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
  */
 - (void)testSlowFrameEpsilonHandlesBoundaryCases {
   // Swizzle UIScreen.maximumFramesPerSecond to return 60 FPS.
-  Method originalMethod = class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
+  Method originalMethod =
+      class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
   IMP originalIMP = method_getImplementation(originalMethod);
-  
+
   NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
     return 60;  // Return 60 FPS for testing.
   };
@@ -1025,9 +1028,10 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
                    @"Frame exactly at threshold should NOT be marked as slow due to epsilon");
 
     // Test with frame just above threshold + epsilon (should be slow).
-    // Use a value clearly above threshold + epsilon (0.001) to account for floating point precision.
-    // We use 0.002 above threshold to ensure it's clearly above the epsilon threshold.
-    CFTimeInterval justAboveThreshold = exactThreshold + 0.001 + 0.001;  // 0.002 above threshold (epsilon is 0.001)
+    // Use a value clearly above threshold + epsilon (0.001) to account for floating point
+    // precision. We use 0.002 above threshold to ensure it's clearly above the epsilon threshold.
+    CFTimeInterval justAboveThreshold =
+        exactThreshold + 0.001 + 0.001;  // 0.002 above threshold (epsilon is 0.001)
     CFAbsoluteTime thirdFrameRenderTimestamp = secondFrameRenderTimestamp + justAboveThreshold;
     OCMExpect([displayLinkMock timestamp]).andReturn(thirdFrameRenderTimestamp);
     [testTracker displayLinkStep];
@@ -1042,14 +1046,15 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 }
 
 #if TARGET_OS_TV
-/** Tests that the slow budget is recomputed when UIScreenModeDidChangeNotification is posted on tvOS.
- *  This verifies that the tracker adapts to display mode changes that affect refresh rate.
+/** Tests that the slow budget is recomputed when UIScreenModeDidChangeNotification is posted on
+ * tvOS. This verifies that the tracker adapts to display mode changes that affect refresh rate.
  */
 - (void)testScreenModeChangeUpdatesSlowBudgetOnTvOS {
   // Swizzle UIScreen.maximumFramesPerSecond to return 60 FPS initially, then 50 FPS.
-  Method originalMethod = class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
+  Method originalMethod =
+      class_getInstanceMethod([UIScreen class], @selector(maximumFramesPerSecond));
   IMP originalIMP = method_getImplementation(originalMethod);
-  
+
   __block NSInteger stubbedMaxFPS = 60;
   NSInteger (^stubBlock)(id) = ^NSInteger(id self) {
     return stubbedMaxFPS;
@@ -1103,7 +1108,8 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
     // Wait for the async update to complete. Since screenModeDidChangeNotification dispatches
     // async to main queue, and tests run on main thread, we need to run the run loop to process it.
     // Run the run loop once to process the async dispatch.
-    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                             beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
 
     // Verify the new budget is used: at 50 FPS, slow budget = 20ms.
     // An 18ms frame should NOT be slow at 50 FPS (it's below the 20ms threshold).
@@ -1120,8 +1126,9 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
     int64_t slowFramesAfterModeChange = testTracker.slowFramesCount;
     // At 50 FPS (20ms threshold), 18ms frame should NOT be slow.
-    XCTAssertEqual(slowFramesAfterModeChange, initialSlowFramesCount,
-                   @"After mode change to 50 FPS, 18ms frame should NOT be slow (threshold is 20ms)");
+    XCTAssertEqual(
+        slowFramesAfterModeChange, initialSlowFramesCount,
+        @"After mode change to 50 FPS, 18ms frame should NOT be slow (threshold is 20ms)");
   } @finally {
     // Restore original implementation.
     method_setImplementation(originalMethod, originalIMP);
