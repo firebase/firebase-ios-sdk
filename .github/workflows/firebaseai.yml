@@ -49,7 +49,7 @@ jobs:
             target: iOS
             xcode: Xcode_26.0
     runs-on: ${{ matrix.os }}
-    needs: spm
+    # needs: spm
     env:
       TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
       TEST_RUNNER_VTXIntegrationImagen: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
