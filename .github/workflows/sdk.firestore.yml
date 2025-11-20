@@ -562,9 +562,8 @@ jobs:
   spm-binary:
     uses: ./.github/workflows/_spm.yml
     with:
-      target: FirebaseFirestore
+      target: FirebaseFirestoreTests
       platforms: iOS
-      buildonly_platforms: iOS
 
   spm-source-cron:
     # Don't run on private repo.
