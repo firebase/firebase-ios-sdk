@@ -1387,8 +1387,8 @@ let package = Package(
       path: "Firestore/Swift/Tests/Unit",
       cSettings: [
         .headerSearchPath("../../../"),
-      ],
-    )
+      ]
+    ),
   ] + firestoreTargets(),
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
