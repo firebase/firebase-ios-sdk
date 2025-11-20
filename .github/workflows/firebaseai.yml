@@ -25,6 +25,7 @@ concurrency:
 permissions:
   contents: read  # Needed for actions/checkout
   actions: write # Needed for actions/cache (save and restore)
+  checks: write
 
 jobs:
   spm:

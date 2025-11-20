@@ -2,6 +2,7 @@ name: common
 
 permissions:
   contents: read
+  checks: write
 
 on:
   workflow_call:
