@@ -1388,7 +1388,7 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../../"),
       ],
-    ),
+    )
   ] + firestoreTargets(),
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
