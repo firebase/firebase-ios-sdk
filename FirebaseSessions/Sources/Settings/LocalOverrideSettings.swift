@@ -29,39 +29,27 @@ class LocalOverrideSettings: SettingsProvider {
   static let PlistKey_sessions_samplingRate = "FirebaseSessionsSampingRate"
 
   var sessionsEnabled: Bool? {
-    let session_enabled = plistValueForConfig(configName: LocalOverrideSettings
-      .PlistKey_sessions_enabled) as? Bool
-    if session_enabled != nil {
-      return Bool(session_enabled!)
-    }
-    return nil
+    let key = LocalOverrideSettings.PlistKey_sessions_enabled
+    let session_enabled = plistValue(for: key)
+    return session_enabled as? Bool
   }
 
   var sessionTimeout: TimeInterval? {
-    let timeout = plistValueForConfig(configName: LocalOverrideSettings
-      .PlistKey_sessions_timeout) as? Double
-    if timeout != nil {
-      return Double(timeout!)
-    }
-    return nil
+    let key = LocalOverrideSettings.PlistKey_sessions_timeout
+    let timeout = plistValue(for: key)
+    return timeout as? Double
   }
 
   var samplingRate: Double? {
-    let rate = plistValueForConfig(configName: LocalOverrideSettings
-      .PlistKey_sessions_samplingRate) as? Double
-    if rate != nil {
-      return Double(rate!)
-    }
-    return nil
+    let key = LocalOverrideSettings.PlistKey_sessions_samplingRate
+    let rate = plistValue(for: key)
+    return rate as? Double
   }
 
-  private func plistValueForConfig(configName: String) -> Any? {
+  private func plistValue(for configName: String) -> Any? {
     return Bundle.main.infoDictionary?[configName]
   }
-}
 
-typealias LocalOverrideSettingsProvider = LocalOverrideSettings
-extension LocalOverrideSettingsProvider {
   func updateSettings() {
     // Nothing to be done since there is nothing to be updated.
   }
