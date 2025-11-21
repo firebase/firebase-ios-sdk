@@ -179,6 +179,9 @@ struct GenerativeAIService {
     } else {
       urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
     }
+    if let bundleID = Bundle.main.bundleIdentifier {
+      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
+    }
     urlRequest.setValue(
       "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
       forHTTPHeaderField: "x-goog-api-client"
