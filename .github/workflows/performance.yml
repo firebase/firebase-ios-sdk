@@ -78,14 +78,11 @@ jobs:
       #TODO: tests are not supported with Xcode 15 because the test spec depends on the iOS 8 GDCWebServer
       buildonly_platforms: iOS, tvOS
 
-  # TODO: The legacy ObjC quickstarts don't run with Xcode 15, re-able if we get these working.
   quickstart:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Performance
-      is_legacy: false
-      quickstart_type: swift
-      setup_command: scripts/setup_quickstart.sh performance
+      setup_command: scripts/setup_quickstart_spm.sh performance
       plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
       plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
     secrets:

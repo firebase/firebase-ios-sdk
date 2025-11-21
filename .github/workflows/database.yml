@@ -72,16 +72,11 @@ jobs:
 
   quickstart:
     uses: ./.github/workflows/common_quickstart.yml
-    strategy:
-      matrix:
-        quickstart_type: [objc, swift]
     with:
       product: Database
-      is_legacy: false
-      setup_command: scripts/setup_quickstart.sh database
+      setup_command: scripts/setup_quickstart_spm.sh database
       plist_src_path: scripts/gha-encrypted/qs-database.plist.gpg
       plist_dst_path: quickstart-ios/database/GoogleService-Info.plist
-      quickstart_type: ${{ matrix.quickstart_type }}
       run_tests: false
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

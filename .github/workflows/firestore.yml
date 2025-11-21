@@ -605,8 +605,7 @@ jobs:
   #   uses: ./.github/workflows/common_quickstart.yml
   #   with:
   #     product: Firestore
-  #     is_legacy: true
-  #     setup_command: scripts/setup_quickstart.sh firestore
+  #     setup_command: scripts/setup_quickstart_spm.sh firestore
   #     plist_src_path: scripts/gha-encrypted/qs-firestore.plist.gpg
   #     plist_dst_path: quickstart-ios/firestore/GoogleService-Info.plist
   #     run_tests: false

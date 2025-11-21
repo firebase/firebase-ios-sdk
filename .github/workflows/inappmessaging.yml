@@ -74,15 +74,11 @@ jobs:
 
   quickstart:
     uses: ./.github/workflows/common_quickstart.yml
-    strategy:
-      matrix:
-        quickstart_type: [objc, swift]
     with:
       product: InAppMessaging
-      is_legacy: false
-      quickstart_type: ${{ matrix.quickstart_type }}
-      setup_command: scripts/setup_quickstart.sh inappmessaging
+      setup_command: scripts/setup_quickstart_spm.sh inappmessaging
       plist_src_path: scripts/gha-encrypted/qs-inappmessaging.plist.gpg
       plist_dst_path: quickstart-ios/inappmessaging/GoogleService-Info.plist
+      run_tests: false
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
