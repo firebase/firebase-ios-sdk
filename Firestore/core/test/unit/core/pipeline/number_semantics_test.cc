@@ -66,15 +66,15 @@ using testutil::ArrayContainsAllExpr;
 using testutil::ArrayContainsAnyExpr;
 using testutil::ArrayContainsExpr;
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
+using testutil::EqualExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
 using testutil::IsNanExpr;
 using testutil::IsNullExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
-using testutil::NeqExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 using testutil::NotEqAnyExpr;
+using testutil::NotEqualExpr;
 using testutil::NotExpr;
 using testutil::OrExpr;
 using testutil::XorExpr;
@@ -101,8 +101,8 @@ TEST_F(NumberSemanticsPipelineTest, ZeroNegativeDoubleZero) {
   RealtimePipeline pipeline =
       StartPipeline("/users");  // Assuming /users based on keys
   // Firestore treats 0, -0, 0.0, -0.0 as equal.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("score"), SharedConstant(Value(-0.0))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("score"), SharedConstant(Value(-0.0))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc2, doc3, doc4));
@@ -117,8 +117,8 @@ TEST_F(NumberSemanticsPipelineTest, ZeroNegativeIntegerZero) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("score"), SharedConstant(Value(-0LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("score"), SharedConstant(Value(-0LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc2, doc3, doc4));
@@ -133,8 +133,8 @@ TEST_F(NumberSemanticsPipelineTest, ZeroPositiveDoubleZero) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("score"), SharedConstant(Value(0.0))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("score"), SharedConstant(Value(0.0))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc2, doc3, doc4));
@@ -149,8 +149,8 @@ TEST_F(NumberSemanticsPipelineTest, ZeroPositiveIntegerZero) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("score"), SharedConstant(Value(0LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("score"), SharedConstant(Value(0LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc2, doc3, doc4));
@@ -166,7 +166,7 @@ TEST_F(NumberSemanticsPipelineTest, EqualNan) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // NaN is not equal to anything, including NaN.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<Field>("age"),
        SharedConstant(Value(std::numeric_limits<double>::quiet_NaN()))})));
 
@@ -183,7 +183,7 @@ TEST_F(NumberSemanticsPipelineTest, LessThanNan) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // Comparisons with NaN are always false.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(LtExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(LessThanExpr(
       {std::make_shared<Field>("age"),
        SharedConstant(Value(std::numeric_limits<double>::quiet_NaN()))})));
 
@@ -200,7 +200,7 @@ TEST_F(NumberSemanticsPipelineTest, LessThanEqualNan) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // Comparisons with NaN are always false.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(LteExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(LessThanOrEqualExpr(
       {std::make_shared<Field>("age"),
        SharedConstant(Value(std::numeric_limits<double>::quiet_NaN()))})));
 
@@ -217,9 +217,10 @@ TEST_F(NumberSemanticsPipelineTest, GreaterThanEqualNan) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // Comparisons with NaN are always false.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(GteExpr(
-      {std::make_shared<Field>("age"),
-       SharedConstant(Value(std::numeric_limits<double>::quiet_NaN()))})));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(GreaterThanOrEqualExpr(
+          {std::make_shared<Field>("age"),
+           SharedConstant(Value(std::numeric_limits<double>::quiet_NaN()))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -234,7 +235,7 @@ TEST_F(NumberSemanticsPipelineTest, GreaterThanNan) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // Comparisons with NaN are always false.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(GtExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(GreaterThanExpr(
       {std::make_shared<Field>("age"),
        SharedConstant(Value(std::numeric_limits<double>::quiet_NaN()))})));
 
@@ -251,7 +252,7 @@ TEST_F(NumberSemanticsPipelineTest, NotEqualNan) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // != NaN is always true (as NaN != NaN).
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(NeqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
       {std::make_shared<Field>("age"),
        SharedConstant(Value(std::numeric_limits<double>::quiet_NaN()))})));
 
@@ -388,10 +389,10 @@ TEST_F(NumberSemanticsPipelineTest, ArrayWithNan) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match NaN values, even within arrays.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("foo"),
-              SharedConstant(Value(
-                  Array(Value(std::numeric_limits<double>::quiet_NaN()))))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("foo"),
+       SharedConstant(
+           Value(Array(Value(std::numeric_limits<double>::quiet_NaN()))))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }

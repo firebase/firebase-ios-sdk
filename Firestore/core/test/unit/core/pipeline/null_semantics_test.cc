@@ -66,16 +66,16 @@ using testutil::ArrayContainsAllExpr;
 using testutil::ArrayContainsAnyExpr;
 using testutil::ArrayContainsExpr;
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
+using testutil::EqualExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
 using testutil::IsErrorExpr;  // Add using for IsErrorExpr
 using testutil::IsNanExpr;
 using testutil::IsNullExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
-using testutil::NeqExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 using testutil::NotEqAnyExpr;
+using testutil::NotEqualExpr;
 using testutil::NotExpr;
 using testutil::OrExpr;
 using testutil::XorExpr;
@@ -166,7 +166,7 @@ TEST_F(NullSemanticsPipelineTest, WhereEqConstantAsNull) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // Equality filters never match null or missing fields.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<Field>("score"), SharedConstant(Value(nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
@@ -183,7 +183,7 @@ TEST_F(NullSemanticsPipelineTest, WhereEqFieldAsNull) {
   RealtimePipeline pipeline = StartPipeline("/users");
   // Equality filters never match null or missing fields, even against other
   // fields.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<Field>("score"), std::make_shared<Field>("rank")})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
@@ -203,8 +203,8 @@ TEST_F(NullSemanticsPipelineTest, WhereEqSegmentField) {
   RealtimePipeline pipeline = StartPipeline("/users");
   // Equality filters never match null or missing fields.
   pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(EqExpr({std::make_shared<Field>("score.bonus"),
-                                      SharedConstant(Value(nullptr))})));
+      std::make_shared<Where>(EqualExpr({std::make_shared<Field>("score.bonus"),
+                                         SharedConstant(Value(nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -228,10 +228,10 @@ TEST_F(NullSemanticsPipelineTest, WhereEqSingleFieldAndSegmentField) {
   RealtimePipeline pipeline = StartPipeline("/users");
   // Equality filters never match null or missing fields.
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      AndExpr({EqExpr({std::make_shared<Field>("score.bonus"),
-                       SharedConstant(Value(nullptr))}),
-               EqExpr({std::make_shared<Field>("rank"),
-                       SharedConstant(Value(nullptr))})})));
+      AndExpr({EqualExpr({std::make_shared<Field>("score.bonus"),
+                          SharedConstant(Value(nullptr))}),
+               EqualExpr({std::make_shared<Field>("rank"),
+                          SharedConstant(Value(nullptr))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -250,8 +250,8 @@ TEST_F(NullSemanticsPipelineTest, WhereEqNullInArray) {
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null values, even within arrays.
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("foo"),
-              SharedConstant(Value(Array(Value(nullptr))))})));
+      EqualExpr({std::make_shared<Field>("foo"),
+                 SharedConstant(Value(Array(Value(nullptr))))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -275,8 +275,8 @@ TEST_F(NullSemanticsPipelineTest, WhereEqNullOtherInArray) {
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null values, even within arrays.
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("foo"),
-              SharedConstant(Value(Array(Value(1.0), Value(nullptr))))})));
+      EqualExpr({std::make_shared<Field>("foo"),
+                 SharedConstant(Value(Array(Value(1.0), Value(nullptr))))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -294,11 +294,11 @@ TEST_F(NullSemanticsPipelineTest, WhereEqNullNanInArray) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null or NaN values, even within arrays.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("foo"),
-              SharedConstant(Value(
-                  Array(Value(nullptr),
-                        Value(std::numeric_limits<double>::quiet_NaN()))))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("foo"),
+       SharedConstant(
+           Value(Array(Value(nullptr),
+                       Value(std::numeric_limits<double>::quiet_NaN()))))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -313,7 +313,7 @@ TEST_F(NullSemanticsPipelineTest, WhereEqNullInMap) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null values, even within maps.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<Field>("foo"), SharedConstant(Map("a", nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
@@ -333,8 +333,8 @@ TEST_F(NullSemanticsPipelineTest, WhereEqNullOtherInMap) {
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null values, even within maps.
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("foo"),
-              SharedConstant(Map("a", 1.0, "b", nullptr))})));
+      EqualExpr({std::make_shared<Field>("foo"),
+                 SharedConstant(Map("a", 1.0, "b", nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -349,10 +349,10 @@ TEST_F(NullSemanticsPipelineTest, WhereEqNullNanInMap) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null or NaN values, even within maps.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("foo"),
-              SharedConstant(Map("a", nullptr, "b",
-                                 std::numeric_limits<double>::quiet_NaN()))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("foo"),
+       SharedConstant(Map("a", nullptr, "b",
+                          std::numeric_limits<double>::quiet_NaN()))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -382,8 +382,8 @@ TEST_F(NullSemanticsPipelineTest, WhereEqMapWithNullArray) {
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null values, even within nested arrays/maps.
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("foo"),
-              SharedConstant(Map("a", Value(Array(Value(nullptr)))))})));
+      EqualExpr({std::make_shared<Field>("foo"),
+                 SharedConstant(Map("a", Value(Array(Value(nullptr)))))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -417,7 +417,7 @@ TEST_F(NullSemanticsPipelineTest, WhereEqMapWithNullOtherArray) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null values, even within nested arrays/maps.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<Field>("foo"),
        SharedConstant(Map("a", Value(Array(Value(1.0), Value(nullptr)))))})));
 
@@ -449,7 +449,7 @@ TEST_F(NullSemanticsPipelineTest, WhereEqMapWithNullNanArray) {
   RealtimePipeline pipeline = StartPipeline("/k");
   // Equality filters never match null or NaN values, even within nested
   // arrays/maps.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<Field>("foo"),
        SharedConstant(Map(
            "a",
@@ -466,10 +466,11 @@ TEST_F(NullSemanticsPipelineTest, WhereCompositeConditionWithNull) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // Equality filters never match null values.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {EqExpr({std::make_shared<Field>("score"), SharedConstant(Value(42LL))}),
-       EqExpr({std::make_shared<Field>("rank"),
-               SharedConstant(Value(nullptr))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({EqualExpr({std::make_shared<Field>("score"),
+                          SharedConstant(Value(42LL))}),
+               EqualExpr({std::make_shared<Field>("rank"),
+                          SharedConstant(Value(nullptr))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -660,7 +661,7 @@ TEST_F(NullSemanticsPipelineTest, WhereNeqConstantAsNull) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // != null is not a supported query.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(NeqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
       {std::make_shared<Field>("score"), SharedConstant(Value(nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
@@ -676,7 +677,7 @@ TEST_F(NullSemanticsPipelineTest, WhereNeqFieldAsNull) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   // != null is not a supported query, even against fields.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(NeqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
       {std::make_shared<Field>("score"), std::make_shared<Field>("rank")})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
@@ -696,8 +697,8 @@ TEST_F(NullSemanticsPipelineTest, WhereNeqNullInArray) {
   RealtimePipeline pipeline = StartPipeline("/k");
   // != [null] is not a supported query.
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      NeqExpr({std::make_shared<Field>("foo"),
-               SharedConstant(Value(Array(Value(nullptr))))})));
+      NotEqualExpr({std::make_shared<Field>("foo"),
+                    SharedConstant(Value(Array(Value(nullptr))))})));
 
   // Based on TS result, this seems to match documents where 'foo' is not
   // exactly `[null]`. This behavior might differ in C++ SDK. Assuming it
@@ -723,9 +724,9 @@ TEST_F(NullSemanticsPipelineTest, WhereNeqNullOtherInArray) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // != [1.0, null] is not a supported query.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      NeqExpr({std::make_shared<Field>("foo"),
-               SharedConstant(Value(Array(Value(1.0), Value(nullptr))))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
+      {std::make_shared<Field>("foo"),
+       SharedConstant(Value(Array(Value(1.0), Value(nullptr))))})));
 
   // Based on TS result.
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
@@ -744,11 +745,11 @@ TEST_F(NullSemanticsPipelineTest, WhereNeqNullNanInArray) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // != [null, NaN] is not a supported query.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      NeqExpr({std::make_shared<Field>("foo"),
-               SharedConstant(Value(
-                   Array(Value(nullptr),
-                         Value(std::numeric_limits<double>::quiet_NaN()))))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
+      {std::make_shared<Field>("foo"),
+       SharedConstant(
+           Value(Array(Value(nullptr),
+                       Value(std::numeric_limits<double>::quiet_NaN()))))})));
 
   // Based on TS result.
   EXPECT_THAT(
@@ -775,7 +776,7 @@ TEST_F(NullSemanticsPipelineTest, WhereNeqNullInMap) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // != {a: null} is not a supported query.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(NeqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
       {std::make_shared<Field>("foo"), SharedConstant(Map("a", nullptr))})));
 
   // Based on TS result.
@@ -797,8 +798,8 @@ TEST_F(NullSemanticsPipelineTest, WhereNeqNullOtherInMap) {
   RealtimePipeline pipeline = StartPipeline("/k");
   // != {a: 1.0, b: null} is not a supported query.
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      NeqExpr({std::make_shared<Field>("foo"),
-               SharedConstant(Map("a", 1.0, "b", nullptr))})));
+      NotEqualExpr({std::make_shared<Field>("foo"),
+                    SharedConstant(Map("a", 1.0, "b", nullptr))})));
 
   // Based on TS result.
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
@@ -814,7 +815,7 @@ TEST_F(NullSemanticsPipelineTest, WhereNeqNullNanInMap) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   // != {a: null, b: NaN} is not a supported query.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(NeqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
       {std::make_shared<Field>("foo"),
        SharedConstant(Map("a", nullptr, "b",
                           std::numeric_limits<double>::quiet_NaN()))})));
@@ -858,7 +859,7 @@ TEST_F(NullSemanticsPipelineTest, WhereGt) {
 
   RealtimePipeline pipeline = StartPipeline("users");
   // > null is not supported.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(GtExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(GreaterThanExpr(
       {std::make_shared<Field>("score"), SharedConstant(Value(nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
@@ -875,8 +876,9 @@ TEST_F(NullSemanticsPipelineTest, WhereGte) {
 
   RealtimePipeline pipeline = StartPipeline("users");
   // >= null is not supported.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(GteExpr(
-      {std::make_shared<Field>("score"), SharedConstant(Value(nullptr))})));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(GreaterThanOrEqualExpr(
+          {std::make_shared<Field>("score"), SharedConstant(Value(nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -892,7 +894,7 @@ TEST_F(NullSemanticsPipelineTest, WhereLt) {
 
   RealtimePipeline pipeline = StartPipeline("users");
   // < null is not supported.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(LtExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(LessThanExpr(
       {std::make_shared<Field>("score"), SharedConstant(Value(nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
@@ -909,7 +911,7 @@ TEST_F(NullSemanticsPipelineTest, WhereLte) {
 
   RealtimePipeline pipeline = StartPipeline("users");
   // <= null is not supported.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(LteExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(LessThanOrEqualExpr(
       {std::make_shared<Field>("score"), SharedConstant(Value(nullptr))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
@@ -930,8 +932,9 @@ TEST_F(NullSemanticsPipelineTest, WhereAnd) {
   RealtimePipeline pipeline = StartPipeline("k");
   // Need explicit boolean comparison
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))})})));
+      {EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("b"), SharedConstant(Value(true))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc4));
 }
@@ -951,8 +954,9 @@ TEST_F(NullSemanticsPipelineTest, WhereIsNullAnd) {
   RealtimePipeline pipeline = StartPipeline("k");
   // Need explicit boolean comparison
   pipeline = pipeline.AddingStage(std::make_shared<Where>(IsNullExpr(AndExpr(
-      {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))})}))));
+      {EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("b"), SharedConstant(Value(true))})}))));
 
   // Expect docs where (a==true AND b==true) evaluates to NULL.
   // This happens if either a or b is null/missing AND the other is not false.
@@ -998,9 +1002,10 @@ TEST_F(NullSemanticsPipelineTest, WhereIsErrorAnd) {
   // This happens if either a or b is missing.
   pipeline = pipeline.AddingStage(
       std::make_shared<Where>(IsErrorExpr(AndExpr(  // Use IsErrorExpr helper
-          {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-           EqExpr({std::make_shared<Field>("b"),
-                   SharedConstant(Value(true))})}))));
+          {EqualExpr(
+               {std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+           EqualExpr({std::make_shared<Field>("b"),
+                      SharedConstant(Value(true))})}))));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc2, doc5, doc8));
@@ -1015,8 +1020,9 @@ TEST_F(NullSemanticsPipelineTest, WhereOr) {
   RealtimePipeline pipeline = StartPipeline("k");
   // Need explicit boolean comparison
   pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))})})));
+      {EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("b"), SharedConstant(Value(true))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
 }
@@ -1036,8 +1042,9 @@ TEST_F(NullSemanticsPipelineTest, WhereIsNullOr) {
   RealtimePipeline pipeline = StartPipeline("k");
   // Need explicit boolean comparison
   pipeline = pipeline.AddingStage(std::make_shared<Where>(IsNullExpr(OrExpr(
-      {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))})}))));
+      {EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("b"), SharedConstant(Value(true))})}))));
 
   // Expect docs where (a==true OR b==true) evaluates to NULL.
   // This happens if neither is true AND at least one is null/missing.
@@ -1084,9 +1091,10 @@ TEST_F(NullSemanticsPipelineTest, WhereIsErrorOr) {
   // This happens if either a or b is missing.
   pipeline = pipeline.AddingStage(
       std::make_shared<Where>(IsErrorExpr(OrExpr(  // Use IsErrorExpr helper
-          {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-           EqExpr({std::make_shared<Field>("b"),
-                   SharedConstant(Value(true))})}))));
+          {EqualExpr(
+               {std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+           EqualExpr({std::make_shared<Field>("b"),
+                      SharedConstant(Value(true))})}))));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc2, doc5, doc8));
@@ -1108,8 +1116,9 @@ TEST_F(NullSemanticsPipelineTest, WhereXor) {
   RealtimePipeline pipeline = StartPipeline("k");
   // Need explicit boolean comparison and assume XorExpr exists
   pipeline = pipeline.AddingStage(std::make_shared<Where>(XorExpr(
-      {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))})})));
+      {EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("b"), SharedConstant(Value(true))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc4));
 }
@@ -1129,8 +1138,9 @@ TEST_F(NullSemanticsPipelineTest, WhereIsNullXor) {
   RealtimePipeline pipeline = StartPipeline("k");
   // Need explicit boolean comparison and assume XorExpr exists
   pipeline = pipeline.AddingStage(std::make_shared<Where>(IsNullExpr(XorExpr(
-      {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))})}))));
+      {EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("b"), SharedConstant(Value(true))})}))));
 
   // Expect docs where (a==true XOR b==true) evaluates to NULL.
   // This happens if either operand is null/missing.
@@ -1177,9 +1187,10 @@ TEST_F(NullSemanticsPipelineTest, WhereIsErrorXor) {
   // This happens if either a or b is missing.
   pipeline = pipeline.AddingStage(
       std::make_shared<Where>(IsErrorExpr(XorExpr(  // Use IsErrorExpr helper
-          {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-           EqExpr({std::make_shared<Field>("b"),
-                   SharedConstant(Value(true))})}))));
+          {EqualExpr(
+               {std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+           EqualExpr({std::make_shared<Field>("b"),
+                      SharedConstant(Value(true))})}))));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc2, doc5, doc8));
@@ -1196,7 +1207,7 @@ TEST_F(NullSemanticsPipelineTest, WhereNot) {
 
   RealtimePipeline pipeline = StartPipeline("k");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(NotExpr(
-      EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}))));
+      EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}))));
 
   // Based on TS result, only doc2 matches. This implies NOT only works if the
   // inner expression evaluates cleanly to a boolean. Let's adjust expectation
@@ -1215,8 +1226,9 @@ TEST_F(NullSemanticsPipelineTest, WhereIsNullNot) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("k");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(IsNullExpr(NotExpr(
-      EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))})))));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(IsNullExpr(NotExpr(EqualExpr(
+          {std::make_shared<Field>("a"), SharedConstant(Value(true))})))));
 
   // Based on TS result, only doc3 matches. This implies NOT(null_operand)
   // results in null. Let's adjust expectation to match TS.
@@ -1243,7 +1255,7 @@ TEST_F(NullSemanticsPipelineTest, WhereIsErrorNot) {
   // This happens if a is missing.
   pipeline = pipeline.AddingStage(
       std::make_shared<Where>(IsErrorExpr(NotExpr(  // Use IsErrorExpr helper
-          EqExpr(
+          EqualExpr(
               {std::make_shared<Field>("a"), SharedConstant(Value(true))})))));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc4));

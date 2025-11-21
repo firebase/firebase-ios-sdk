@@ -66,13 +66,13 @@ using testutil::Map;
 using testutil::SharedConstant;
 using testutil::Value;
 // Expression helpers
-using testutil::EqExpr;
+using testutil::EqualExpr;
 using testutil::ExistsExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
 using testutil::IsNullExpr;
-using testutil::LtExpr;
-using testutil::NeqExpr;
+using testutil::LessThanExpr;
+using testutil::NotEqualExpr;
 using testutil::NotExpr;
 
 // Test Fixture for Nested Properties Pipeline tests
@@ -129,8 +129,8 @@ TEST_F(NestedPropertiesPipelineTest, WhereEqualityDeeplyNested) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("a.b.c.d.e.f.g.h.i.j.k"),
-              SharedConstant(Value(42LL))})));
+      EqualExpr({std::make_shared<Field>("a.b.c.d.e.f.g.h.i.j.k"),
+                 SharedConstant(Value(42LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
 }
@@ -180,8 +180,8 @@ TEST_F(NestedPropertiesPipelineTest, WhereInequalityDeeplyNested) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GteExpr({std::make_shared<Field>("a.b.c.d.e.f.g.h.i.j.k"),
-               SharedConstant(Value(0LL))})));
+      GreaterThanOrEqualExpr({std::make_shared<Field>("a.b.c.d.e.f.g.h.i.j.k"),
+                              SharedConstant(Value(0LL))})));
   pipeline =
       pipeline.AddingStage(std::make_shared<SortStage>(std::vector<Ordering>{
           Ordering(std::make_unique<Field>(FieldPath::kDocumentKeyPath),
@@ -205,9 +205,9 @@ TEST_F(NestedPropertiesPipelineTest, WhereEquality) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(EqExpr({std::make_shared<Field>("address.street"),
-                                      SharedConstant(Value("76"))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      EqualExpr({std::make_shared<Field>("address.street"),
+                 SharedConstant(Value("76"))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc2));
 }
@@ -227,11 +227,11 @@ TEST_F(NestedPropertiesPipelineTest, MultipleFilters) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("address.city"),
-              SharedConstant(Value("San Francisco"))})));
-  pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(GtExpr({std::make_shared<Field>("address.zip"),
-                                      SharedConstant(Value(90000LL))})));
+      EqualExpr({std::make_shared<Field>("address.city"),
+                 SharedConstant(Value("San Francisco"))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      GreaterThanExpr({std::make_shared<Field>("address.zip"),
+                       SharedConstant(Value(90000LL))})));
 
   // city == "San Francisco" AND zip > 90000
   // doc1: T AND 94105 > 90000 (T) -> True
@@ -255,13 +255,13 @@ TEST_F(NestedPropertiesPipelineTest, MultipleFiltersRedundant) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("address"),
+       SharedConstant(Map(  // Use testutil::Map helper
+           "city", "San Francisco", "state", "CA", "zip", 94105LL))})));
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("address"),
-              SharedConstant(Map(  // Use testutil::Map helper
-                  "city", "San Francisco", "state", "CA", "zip", 94105LL))})));
-  pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(GtExpr({std::make_shared<Field>("address.zip"),
-                                      SharedConstant(Value(90000LL))})));
+      GreaterThanExpr({std::make_shared<Field>("address.zip"),
+                       SharedConstant(Value(90000LL))})));
 
   // address == {city: SF, state: CA, zip: 94105} AND address.zip > 90000
   // doc1: T AND 94105 > 90000 (T) -> True
@@ -288,11 +288,11 @@ TEST_F(NestedPropertiesPipelineTest, MultipleFiltersWithCompositeIndex) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("address.city"),
-              SharedConstant(Value("San Francisco"))})));
-  pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(GtExpr({std::make_shared<Field>("address.zip"),
-                                      SharedConstant(Value(90000LL))})));
+      EqualExpr({std::make_shared<Field>("address.city"),
+                 SharedConstant(Value("San Francisco"))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      GreaterThanExpr({std::make_shared<Field>("address.zip"),
+                       SharedConstant(Value(90000LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
 }
@@ -314,26 +314,26 @@ TEST_F(NestedPropertiesPipelineTest, WhereInequality) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline1 = StartPipeline("/users");
-  pipeline1 = pipeline1.AddingStage(
-      std::make_shared<Where>(GtExpr({std::make_shared<Field>("address.zip"),
-                                      SharedConstant(Value(90000LL))})));
+  pipeline1 = pipeline1.AddingStage(std::make_shared<Where>(
+      GreaterThanExpr({std::make_shared<Field>("address.zip"),
+                       SharedConstant(Value(90000LL))})));
   EXPECT_THAT(RunPipeline(pipeline1, documents), ElementsAre(doc1, doc3));
 
   RealtimePipeline pipeline2 = StartPipeline("/users");
-  pipeline2 = pipeline2.AddingStage(
-      std::make_shared<Where>(LtExpr({std::make_shared<Field>("address.zip"),
-                                      SharedConstant(Value(90000LL))})));
+  pipeline2 = pipeline2.AddingStage(std::make_shared<Where>(
+      LessThanExpr({std::make_shared<Field>("address.zip"),
+                    SharedConstant(Value(90000LL))})));
   EXPECT_THAT(RunPipeline(pipeline2, documents), ElementsAre(doc2));
 
   RealtimePipeline pipeline3 = StartPipeline("/users");
-  pipeline3 = pipeline3.AddingStage(std::make_shared<Where>(LtExpr(
+  pipeline3 = pipeline3.AddingStage(std::make_shared<Where>(LessThanExpr(
       {std::make_shared<Field>("address.zip"), SharedConstant(Value(0LL))})));
   EXPECT_THAT(RunPipeline(pipeline3, documents), IsEmpty());
 
   RealtimePipeline pipeline4 = StartPipeline("/users");
-  pipeline4 = pipeline4.AddingStage(
-      std::make_shared<Where>(NeqExpr({std::make_shared<Field>("address.zip"),
-                                       SharedConstant(Value(10011LL))})));
+  pipeline4 = pipeline4.AddingStage(std::make_shared<Where>(
+      NotEqualExpr({std::make_shared<Field>("address.zip"),
+                    SharedConstant(Value(10011LL))})));
   EXPECT_THAT(RunPipeline(pipeline4, documents), ElementsAre(doc1, doc3));
 }
 
@@ -474,8 +474,8 @@ TEST_F(NestedPropertiesPipelineTest, QuotedNestedPropertyFilterNested) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("address.city"),
-              SharedConstant(Value("San Francisco"))})));
+      EqualExpr({std::make_shared<Field>("address.city"),
+                 SharedConstant(Value("San Francisco"))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc2));
 }
@@ -491,8 +491,8 @@ TEST_F(NestedPropertiesPipelineTest, QuotedNestedPropertyFilterQuotedNested) {
   RealtimePipeline pipeline = StartPipeline("/users");
   // Use FieldPath constructor for field names containing dots
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>(FieldPath({"address.city"})),
-              SharedConstant(Value("San Francisco"))})));
+      EqualExpr({std::make_shared<Field>(FieldPath({"address.city"})),
+                 SharedConstant(Value("San Francisco"))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
 }
