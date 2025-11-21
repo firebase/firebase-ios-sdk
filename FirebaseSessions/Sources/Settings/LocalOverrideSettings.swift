@@ -17,37 +17,36 @@ import Foundation
 
 /// Class that manages the local overrides configs related to the library.
 class LocalOverrideSettings: SettingsProvider {
-  // This will disable Sessions SDK Events, but not Settings requests.
-  // If any apps use this flag to disable the Firebase Sessions SDK,
-  // keep in mind this may break metrics future features with products like
-  // FirePerf and Crashlytics. As a result, we would recommend apps
-  // use another way to disable data collection (like disabling it via
-  // the product public data collection APIs themselves).
-  // This flag is internal and may break in the future.
-  static let PlistKey_sessions_enabled = "FirebaseSessionsEnabled"
-  static let PlistKey_sessions_timeout = "FirebaseSessionsTimeout"
-  static let PlistKey_sessions_samplingRate = "FirebaseSessionsSampingRate"
+  private enum PlistKey: String {
+    /// This will disable Sessions SDK Events, but not Settings requests.
+    /// If any apps use this flag to disable the Firebase Sessions SDK,
+    /// keep in mind this may break metrics future features with products like
+    /// FirePerf and Crashlytics. As a result, we would recommend apps
+    /// use another way to disable data collection (like disabling it via
+    /// the product public data collection APIs themselves).
+    /// This flag is internal and may break in the future.
+    case sessionsEnabled = "FirebaseSessionsEnabled"
+    case sessionsTimeout = "FirebaseSessionsTimeout"
+    case sessionsSamplingRate = "FirebaseSessionsSampingRate"
+  }
 
   var sessionsEnabled: Bool? {
-    let key = LocalOverrideSettings.PlistKey_sessions_enabled
-    let session_enabled = plistValue(for: key)
+    let session_enabled = plistValue(for: .sessionsEnabled)
     return session_enabled as? Bool
   }
 
   var sessionTimeout: TimeInterval? {
-    let key = LocalOverrideSettings.PlistKey_sessions_timeout
-    let timeout = plistValue(for: key)
+    let timeout = plistValue(for: .sessionsTimeout)
     return timeout as? Double
   }
 
   var samplingRate: Double? {
-    let key = LocalOverrideSettings.PlistKey_sessions_samplingRate
-    let rate = plistValue(for: key)
+    let rate = plistValue(for: .sessionsSamplingRate)
     return rate as? Double
   }
 
-  private func plistValue(for configName: String) -> Any? {
-    return Bundle.main.infoDictionary?[configName]
+  private func plistValue(for key: PlistKey) -> Any? {
+    return Bundle.main.infoDictionary?[key.rawValue]
   }
 
   func updateSettings() {
