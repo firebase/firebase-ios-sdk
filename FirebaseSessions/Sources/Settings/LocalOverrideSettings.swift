@@ -31,8 +31,8 @@ class LocalOverrideSettings: SettingsProvider {
   }
 
   var sessionsEnabled: Bool? {
-    let session_enabled = plistValue(for: .sessionsEnabled)
-    return session_enabled as? Bool
+    let isEnabled = plistValue(for: .sessionsEnabled)
+    return isEnabled as? Bool
   }
 
   var sessionTimeout: TimeInterval? {
