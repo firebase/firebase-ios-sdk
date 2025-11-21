@@ -112,7 +112,8 @@ class SessionInitiator {
   @objc private func appForegrounded() {
     let interval = currentTime().timeIntervalSince(backgroundTime)
 
-    // If the interval is greater the the session timeout duration, generate a new session.
+    // If the interval is greater than the session timeout duration, generate
+    // a new session.
     if interval > settings.sessionTimeout {
       initiateSessionStart()
     }
