@@ -1,5 +1,5 @@
 # 12.7.0
-- [fixed] Fixed support for API keys with iOS app
+- [fixed] Fixed support for API keys with iOS+ app
   [Bundle ID restrictions](https://docs.cloud.google.com/docs/authentication/api-keys#adding-application-restrictions)
   by setting the `x-ios-bundle-identifier` header. (#15475)
 
