@@ -122,9 +122,10 @@ TEST_F(CanonifyEqPipelineTest, CanonifySimpleWhere) {
   p = p.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
-  EXPECT_EQ(GetPipelineCanonicalId(p),
-            "collection(test)|where(fn(eq[fld(foo),cst(42)]))|sort(fld(__name__"
-            ")asc)");
+  EXPECT_EQ(
+      GetPipelineCanonicalId(p),
+      "collection(test)|where(fn(equal[fld(foo),cst(42)]))|sort(fld(__name__"
+      ")asc)");
 }
 
 TEST_F(CanonifyEqPipelineTest, CanonifyMultipleStages) {
@@ -135,9 +136,10 @@ TEST_F(CanonifyEqPipelineTest, CanonifyMultipleStages) {
   p = p.AddingStage(std::make_shared<SortStage>(
       std::vector<Ordering>{Ordering(std::make_shared<api::Field>("bar"),
                                      api::Ordering::Direction::DESCENDING)}));
-  EXPECT_EQ(GetPipelineCanonicalId(p),
-            "collection(test)|where(fn(eq[fld(foo),cst(42)]))|sort(fld(__name__"
-            ")asc)|limit(10)|sort(fld(bar)desc,fld(__name__)asc)");
+  EXPECT_EQ(
+      GetPipelineCanonicalId(p),
+      "collection(test)|where(fn(equal[fld(foo),cst(42)]))|sort(fld(__name__"
+      ")asc)|limit(10)|sort(fld(bar)desc,fld(__name__)asc)");
 }
 
 // TEST_F(CanonifyEqPipelineTest, CanonifyAddFields) {
@@ -228,7 +230,7 @@ TEST_F(CanonifyEqPipelineTest, CanonifyCollectionGroupSource) {
 //       Value("b"))))));
 //
 //   EXPECT_EQ(GetPipelineCanonicalId(p),
-//             "collection(/foo)|where(fn(eq_any,[fld(bar),list([cst(\"a\"),cst(\"b\")])]))|sort(fld(__name__)asc)");
+//             collection(/foo)|where(fn(equal_any,[fld(bar),list([cst("a"),cst("b")])]))|sort(fld(__name__)asc));
 // }
 
 // ===================================================================

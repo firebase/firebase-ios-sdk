@@ -317,7 +317,7 @@ inline std::shared_ptr<Expr> EqAnyExpr(std::shared_ptr<Expr> search,
   std::vector<std::shared_ptr<Expr>> operands;
   operands.push_back(std::move(search));
   operands.push_back(std::move(values));
-  return std::make_shared<FunctionExpr>("eq_any", std::move(operands));
+  return std::make_shared<FunctionExpr>("equal_any", std::move(operands));
 }
 
 inline std::shared_ptr<Expr> NotEqAnyExpr(std::shared_ptr<Expr> search,
@@ -325,7 +325,7 @@ inline std::shared_ptr<Expr> NotEqAnyExpr(std::shared_ptr<Expr> search,
   std::vector<std::shared_ptr<Expr>> operands;
   operands.push_back(std::move(search));
   operands.push_back(std::move(values));
-  return std::make_shared<FunctionExpr>("not_eq_any", std::move(operands));
+  return std::make_shared<FunctionExpr>("not_equal_any", std::move(operands));
 }
 
 inline std::shared_ptr<Expr> IsNanExpr(std::shared_ptr<Expr> operand) {

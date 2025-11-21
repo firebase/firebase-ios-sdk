@@ -245,9 +245,9 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreXor>(function);
   } else if (function.name() == "cond") {
     return std::make_unique<CoreCond>(function);
-  } else if (function.name() == "eq_any") {
+  } else if (function.name() == "equal_any") {
     return std::make_unique<CoreEqAny>(function);
-  } else if (function.name() == "not_eq_any") {
+  } else if (function.name() == "not_equal_any") {
     return std::make_unique<CoreNotEqAny>(function);
   } else if (function.name() == "is_nan") {
     return std::make_unique<CoreIsNan>(function);
@@ -1292,9 +1292,9 @@ EvaluateResult CoreArrayContains::Evaluate(
 
   std::vector<std::shared_ptr<api::Expr>> reversed_params(
       expr_->params().rbegin(), expr_->params().rend());
-  auto const eq_any =
-      CoreEqAny(api::FunctionExpr("eq_any", std::move(reversed_params)));
-  return eq_any.Evaluate(context, document);
+  auto const equal_any =
+      CoreEqAny(api::FunctionExpr("equal_any", std::move(reversed_params)));
+  return equal_any.Evaluate(context, document);
 }
 
 EvaluateResult CoreArrayContainsAll::Evaluate(
@@ -1689,9 +1689,10 @@ EvaluateResult CoreCond::Evaluate(
 EvaluateResult CoreEqAny::Evaluate(
     const api::EvaluateContext& context,
     const model::PipelineInputOutput& document) const {
-  HARD_ASSERT(expr_->params().size() == 2,
-              "eq_any() function requires exactly 2 params (search value and "
-              "array value)");
+  HARD_ASSERT(
+      expr_->params().size() == 2,
+      "equal_any() function requires exactly 2 params (search value and "
+      "array value)");
 
   bool found_null = false;
 
@@ -1762,7 +1763,8 @@ EvaluateResult CoreNotEqAny::Evaluate(
       "array value)");
 
   CoreNot equivalent(api::FunctionExpr(
-      "not", {std::make_shared<api::FunctionExpr>("eq_any", expr_->params())}));
+      "not",
+      {std::make_shared<api::FunctionExpr>("equal_any", expr_->params())}));
   return equivalent.Evaluate(context, document);
 }
 
