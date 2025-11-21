@@ -211,46 +211,49 @@ inline std::shared_ptr<Expr> TimestampAddExpr(std::shared_ptr<Expr> timestamp,
 
 // --- Comparison Expression Helpers ---
 
-inline std::shared_ptr<Expr> EqExpr(
+inline std::shared_ptr<Expr> EqualExpr(
     std::initializer_list<std::shared_ptr<Expr>> params) {
-  HARD_ASSERT(params.size() == 2, "EqExpr requires exactly 2 parameters");
+  HARD_ASSERT(params.size() == 2, "EqualExpr requires exactly 2 parameters");
   return std::make_shared<FunctionExpr>(
-      "eq", std::vector<std::shared_ptr<Expr>>(params));
+      "equal", std::vector<std::shared_ptr<Expr>>(params));
 }
 
-inline std::shared_ptr<Expr> NeqExpr(
+inline std::shared_ptr<Expr> NotEqualExpr(
     std::initializer_list<std::shared_ptr<Expr>> params) {
-  HARD_ASSERT(params.size() == 2, "NeqExpr requires exactly 2 parameters");
+  HARD_ASSERT(params.size() == 2, "NotEqualExpr requires exactly 2 parameters");
   return std::make_shared<FunctionExpr>(
-      "neq", std::vector<std::shared_ptr<Expr>>(params));
+      "not_equal", std::vector<std::shared_ptr<Expr>>(params));
 }
 
-inline std::shared_ptr<Expr> LtExpr(
+inline std::shared_ptr<Expr> LessThanExpr(
     std::initializer_list<std::shared_ptr<Expr>> params) {
-  HARD_ASSERT(params.size() == 2, "LtExpr requires exactly 2 parameters");
+  HARD_ASSERT(params.size() == 2, "LessThanExpr requires exactly 2 parameters");
   return std::make_shared<FunctionExpr>(
-      "lt", std::vector<std::shared_ptr<Expr>>(params));
+      "less_than", std::vector<std::shared_ptr<Expr>>(params));
 }
 
-inline std::shared_ptr<Expr> LteExpr(
+inline std::shared_ptr<Expr> LessThanOrEqualExpr(
     std::initializer_list<std::shared_ptr<Expr>> params) {
-  HARD_ASSERT(params.size() == 2, "LteExpr requires exactly 2 parameters");
+  HARD_ASSERT(params.size() == 2,
+              "LessThanOrEqualExpr requires exactly 2 parameters");
   return std::make_shared<FunctionExpr>(
-      "lte", std::vector<std::shared_ptr<Expr>>(params));
+      "less_than_or_equal", std::vector<std::shared_ptr<Expr>>(params));
 }
 
-inline std::shared_ptr<Expr> GtExpr(
+inline std::shared_ptr<Expr> GreaterThanExpr(
     std::initializer_list<std::shared_ptr<Expr>> params) {
-  HARD_ASSERT(params.size() == 2, "GtExpr requires exactly 2 parameters");
+  HARD_ASSERT(params.size() == 2,
+              "GreaterThanExpr requires exactly 2 parameters");
   return std::make_shared<FunctionExpr>(
-      "gt", std::vector<std::shared_ptr<Expr>>(params));
+      "greater_than", std::vector<std::shared_ptr<Expr>>(params));
 }
 
-inline std::shared_ptr<Expr> GteExpr(
+inline std::shared_ptr<Expr> GreaterThanOrEqualExpr(
     std::initializer_list<std::shared_ptr<Expr>> params) {
-  HARD_ASSERT(params.size() == 2, "GteExpr requires exactly 2 parameters");
+  HARD_ASSERT(params.size() == 2,
+              "GreaterThanOrEqualExpr requires exactly 2 parameters");
   return std::make_shared<FunctionExpr>(
-      "gte", std::vector<std::shared_ptr<Expr>>(params));
+      "greater_than_or_equal", std::vector<std::shared_ptr<Expr>>(params));
 }
 
 // --- Array Expression Helpers ---
@@ -350,14 +353,14 @@ inline std::shared_ptr<Expr> IsErrorExpr(std::shared_ptr<Expr> operand) {
       "is_error", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
 }
 
-inline std::shared_ptr<Expr> LogicalMaxExpr(
+inline std::shared_ptr<Expr> MaximumExpr(
     std::vector<std::shared_ptr<Expr>> operands) {
-  return std::make_shared<FunctionExpr>("logical_maximum", std::move(operands));
+  return std::make_shared<FunctionExpr>("maximum", std::move(operands));
 }
 
-inline std::shared_ptr<Expr> LogicalMinExpr(
+inline std::shared_ptr<Expr> MinimumExpr(
     std::vector<std::shared_ptr<Expr>> operands) {
-  return std::make_shared<FunctionExpr>("logical_minimum", std::move(operands));
+  return std::make_shared<FunctionExpr>("minimum", std::move(operands));
 }
 
 // --- Debugging Expression Helpers ---
@@ -669,9 +672,9 @@ inline std::shared_ptr<Expr> ToUpperExpr(std::shared_ptr<Expr> operand) {
       "to_upper", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
 }
 
-inline std::shared_ptr<Expr> ReverseExpr(std::shared_ptr<Expr> operand) {
+inline std::shared_ptr<Expr> StringReverseExpr(std::shared_ptr<Expr> operand) {
   return std::make_shared<FunctionExpr>(
-      "reverse", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
+      "string_reverse", std::vector<std::shared_ptr<Expr>>{std::move(operand)});
 }
 
 inline std::shared_ptr<Expr> TrimExpr(std::shared_ptr<Expr> operand) {
@@ -700,10 +703,10 @@ inline std::shared_ptr<Expr> RegexMatchExpr(std::shared_ptr<Expr> value,
       std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(regex)});
 }
 
-inline std::shared_ptr<Expr> StrContainsExpr(std::shared_ptr<Expr> value,
-                                             std::shared_ptr<Expr> search) {
+inline std::shared_ptr<Expr> StringContainsExpr(std::shared_ptr<Expr> value,
+                                                std::shared_ptr<Expr> search) {
   return std::make_shared<FunctionExpr>(
-      "str_contains",
+      "string_contains",
       std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(search)});
 }
 
@@ -721,9 +724,9 @@ inline std::shared_ptr<Expr> EndsWithExpr(std::shared_ptr<Expr> value,
       std::vector<std::shared_ptr<Expr>>{std::move(value), std::move(suffix)});
 }
 
-inline std::shared_ptr<Expr> StrConcatExpr(
+inline std::shared_ptr<Expr> StringConcatExpr(
     std::vector<std::shared_ptr<Expr>> operands) {
-  return std::make_shared<FunctionExpr>("str_concat", std::move(operands));
+  return std::make_shared<FunctionExpr>("string_concat", std::move(operands));
 }
 
 // --- Vector Expression Helpers ---

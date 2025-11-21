@@ -163,9 +163,9 @@ class ComparisonBase : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreEq : public ComparisonBase {
+class CoreEqual : public ComparisonBase {
  public:
-  explicit CoreEq(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  explicit CoreEqual(const api::FunctionExpr& expr) : ComparisonBase(expr) {
   }
 
  protected:
@@ -173,9 +173,9 @@ class CoreEq : public ComparisonBase {
                                  const EvaluateResult& right) const override;
 };
 
-class CoreNeq : public ComparisonBase {
+class CoreNotEqual : public ComparisonBase {
  public:
-  explicit CoreNeq(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  explicit CoreNotEqual(const api::FunctionExpr& expr) : ComparisonBase(expr) {
   }
 
  protected:
@@ -183,9 +183,9 @@ class CoreNeq : public ComparisonBase {
                                  const EvaluateResult& right) const override;
 };
 
-class CoreLt : public ComparisonBase {
+class CoreLessThan : public ComparisonBase {
  public:
-  explicit CoreLt(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  explicit CoreLessThan(const api::FunctionExpr& expr) : ComparisonBase(expr) {
   }
 
  protected:
@@ -193,9 +193,10 @@ class CoreLt : public ComparisonBase {
                                  const EvaluateResult& right) const override;
 };
 
-class CoreLte : public ComparisonBase {
+class CoreLessThanOrEqual : public ComparisonBase {
  public:
-  explicit CoreLte(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  explicit CoreLessThanOrEqual(const api::FunctionExpr& expr)
+      : ComparisonBase(expr) {
   }
 
  protected:
@@ -203,9 +204,10 @@ class CoreLte : public ComparisonBase {
                                  const EvaluateResult& right) const override;
 };
 
-class CoreGt : public ComparisonBase {
+class CoreGreaterThan : public ComparisonBase {
  public:
-  explicit CoreGt(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  explicit CoreGreaterThan(const api::FunctionExpr& expr)
+      : ComparisonBase(expr) {
   }
 
  protected:
@@ -213,9 +215,10 @@ class CoreGt : public ComparisonBase {
                                  const EvaluateResult& right) const override;
 };
 
-class CoreGte : public ComparisonBase {
+class CoreGreaterThanOrEqual : public ComparisonBase {
  public:
-  explicit CoreGte(const api::FunctionExpr& expr) : ComparisonBase(expr) {
+  explicit CoreGreaterThanOrEqual(const api::FunctionExpr& expr)
+      : ComparisonBase(expr) {
   }
 
  protected:
@@ -431,9 +434,9 @@ class CoreCharLength : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreStrConcat : public EvaluableExpr {
+class CoreStringConcat : public EvaluableExpr {
  public:
-  explicit CoreStrConcat(const api::FunctionExpr& expr)
+  explicit CoreStringConcat(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -466,9 +469,9 @@ class CoreStartsWith : public StringSearchBase {
                                const std::string& search) const override;
 };
 
-class CoreStrContains : public StringSearchBase {
+class CoreStringContains : public StringSearchBase {
  public:
-  explicit CoreStrContains(const api::FunctionExpr& expr)
+  explicit CoreStringContains(const api::FunctionExpr& expr)
       : StringSearchBase(expr) {
   }
 
@@ -516,9 +519,9 @@ class CoreTrim : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreReverse : public EvaluableExpr {
+class CoreStringReverse : public EvaluableExpr {
  public:
-  explicit CoreReverse(const api::FunctionExpr& expr)
+  explicit CoreStringReverse(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -721,9 +724,9 @@ class CoreIsError : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreLogicalMaximum : public EvaluableExpr {
+class CoreMaximum : public EvaluableExpr {
  public:
-  explicit CoreLogicalMaximum(const api::FunctionExpr& expr)
+  explicit CoreMaximum(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -734,9 +737,9 @@ class CoreLogicalMaximum : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreLogicalMinimum : public EvaluableExpr {
+class CoreMinimum : public EvaluableExpr {
  public:
-  explicit CoreLogicalMinimum(const api::FunctionExpr& expr)
+  explicit CoreMinimum(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(

@@ -66,11 +66,11 @@ using testutil::Value;
 // Expression helpers
 using testutil::AndExpr;
 using testutil::Constant;  // Renamed from ConstantExpr
-using testutil::EqExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
+using testutil::EqualExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 
 // Test Fixture for Unicode Pipeline tests
 class UnicodePipelineTest : public ::testing::Test {
@@ -111,10 +111,11 @@ TEST_F(UnicodePipelineTest, UnicodeSurrogates) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
   RealtimePipeline pipeline = StartDatabasePipeline();
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LteExpr({std::make_shared<Field>("str"),
-                SharedConstant("🄟")}),  // Renamed from ConstantExpr
-       GteExpr({std::make_shared<Field>("str"),
-                SharedConstant("Ｐ")})})));  // Renamed from ConstantExpr
+      {LessThanOrEqualExpr({std::make_shared<Field>("str"),
+                            SharedConstant("🄟")}),  // Renamed from ConstantExpr
+       GreaterThanOrEqualExpr(
+           {std::make_shared<Field>("str"),
+            SharedConstant("Ｐ")})})));  // Renamed from ConstantExpr
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("str"), Ordering::Direction::ASCENDING)}));

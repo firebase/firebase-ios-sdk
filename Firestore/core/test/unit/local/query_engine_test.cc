@@ -1082,10 +1082,11 @@ TEST_P(QueryEngineTest, HandlesServerTimestampEstimate) {
 
     auto pipeline = api::RealtimePipeline(
         {std::make_shared<api::CollectionSource>("coll")}, TestSerializer());
-    pipeline = pipeline.AddingStage(std::make_shared<api::Where>(
-        testutil::GtExpr({testutil::TimestampToUnixMillisExpr(
-                              {std::make_shared<api::Field>("timestamp")}),
-                          testutil::SharedConstant(testutil::Value(1000))})));
+    pipeline = pipeline.AddingStage(
+        std::make_shared<api::Where>(testutil::GreaterThanExpr(
+            {testutil::TimestampToUnixMillisExpr(
+                 {std::make_shared<api::Field>("timestamp")}),
+             testutil::SharedConstant(testutil::Value(1000))})));
 
     DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
         [&] { return RunPipeline(pipeline, kMissingLastLimboFreeSnapshot); });
@@ -1118,9 +1119,10 @@ TEST_P(QueryEngineTest, HandlesServerTimestampPrevious) {
 
     auto pipeline = api::RealtimePipeline(
         {std::make_shared<api::CollectionSource>("coll")}, TestSerializer());
-    pipeline = pipeline.AddingStage(std::make_shared<api::Where>(
-        testutil::EqExpr({std::make_shared<api::Field>("matches"),
-                          testutil::SharedConstant(testutil::Value(true))})));
+    pipeline =
+        pipeline.AddingStage(std::make_shared<api::Where>(testutil::EqualExpr(
+            {std::make_shared<api::Field>("matches"),
+             testutil::SharedConstant(testutil::Value(true))})));
 
     DocumentSet result1 = ExpectFullCollectionScan<DocumentSet>(
         [&] { return RunPipeline(pipeline, kMissingLastLimboFreeSnapshot); });

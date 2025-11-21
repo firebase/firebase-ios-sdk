@@ -561,22 +561,22 @@ std::shared_ptr<api::Expr> ToPipelineBooleanExpr(const Filter& filter) {
 
     switch (op) {
       case FieldFilter::Operator::LessThan:
-        func_name = "lt";
+        func_name = "less_than";
         break;
       case FieldFilter::Operator::LessThanOrEqual:
-        func_name = "lte";
+        func_name = "less_than_or_equal";
         break;
       case FieldFilter::Operator::GreaterThan:
-        func_name = "gt";
+        func_name = "greater_than";
         break;
       case FieldFilter::Operator::GreaterThanOrEqual:
-        func_name = "gte";
+        func_name = "greater_than_or_equal";
         break;
       case FieldFilter::Operator::Equal:
-        func_name = "eq";
+        func_name = "equal";
         break;
       case FieldFilter::Operator::NotEqual:
-        func_name = "neq";
+        func_name = "not_equal";
         break;
       case FieldFilter::Operator::ArrayContains:
         func_name = "array_contains";
@@ -589,9 +589,9 @@ std::shared_ptr<api::Expr> ToPipelineBooleanExpr(const Filter& filter) {
             "Value for IN, NOT_IN, ARRAY_CONTAINS_ANY must be an array.");
 
         if (op == FieldFilter::Operator::In)
-          func_name = "eq_any";
+          func_name = "equal_any";
         else if (op == FieldFilter::Operator::NotIn)
-          func_name = "not_eq_any";
+          func_name = "not_equal_any";
         else if (op == FieldFilter::Operator::ArrayContainsAny)
           func_name = "array_contains_any";
         break;
@@ -635,8 +635,9 @@ std::shared_ptr<api::Expr> WhereConditionsFromCursor(
         std::make_shared<api::Constant>(model::DeepClone(pos->values[i])));
   }
 
-  std::string func_name = is_before ? "lt" : "gt";
-  std::string func_inclusive_name = is_before ? "lte" : "gte";
+  std::string func_name = is_before ? "less_than" : "greater_than";
+  std::string func_inclusive_name =
+      is_before ? "less_than_or_equal" : "greater_than_or_equal";
 
   std::vector<std::shared_ptr<api::Expr>> or_conditions;
   for (size_t sub_end = 1; sub_end <= cursors.size(); ++sub_end) {

@@ -201,8 +201,8 @@ EvaluateResult EvaluateResult::NewValue(
 
 std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     const api::FunctionExpr& function) {
-  if (function.name() == "eq") {
-    return std::make_unique<CoreEq>(function);
+  if (function.name() == "equal") {
+    return std::make_unique<CoreEqual>(function);
   } else if (function.name() == "add") {
     return std::make_unique<CoreAdd>(function);
   } else if (function.name() == "subtract") {
@@ -213,16 +213,16 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreDivide>(function);
   } else if (function.name() == "mod") {
     return std::make_unique<CoreMod>(function);
-  } else if (function.name() == "neq") {
-    return std::make_unique<CoreNeq>(function);
-  } else if (function.name() == "lt") {
-    return std::make_unique<CoreLt>(function);
-  } else if (function.name() == "lte") {
-    return std::make_unique<CoreLte>(function);
-  } else if (function.name() == "gt") {
-    return std::make_unique<CoreGt>(function);
-  } else if (function.name() == "gte") {
-    return std::make_unique<CoreGte>(function);
+  } else if (function.name() == "not_equal") {
+    return std::make_unique<CoreNotEqual>(function);
+  } else if (function.name() == "less_than") {
+    return std::make_unique<CoreLessThan>(function);
+  } else if (function.name() == "less_than_or_equal") {
+    return std::make_unique<CoreLessThanOrEqual>(function);
+  } else if (function.name() == "greater_than") {
+    return std::make_unique<CoreGreaterThan>(function);
+  } else if (function.name() == "greater_than_or_equal") {
+    return std::make_unique<CoreGreaterThanOrEqual>(function);
   } else if (function.name() == "array_reverse") {  // Removed array_concat
     return std::make_unique<CoreArrayReverse>(function);
   } else if (function.name() == "array_contains") {
@@ -259,33 +259,32 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreIsNotNull>(function);
   } else if (function.name() == "is_error") {
     return std::make_unique<CoreIsError>(function);
-  } else if (function.name() == "logical_maximum") {
-    return std::make_unique<CoreLogicalMaximum>(function);
-  } else if (function.name() == "logical_minimum") {
-    return std::make_unique<CoreLogicalMinimum>(function);
+  } else if (function.name() == "maximum") {
+    return std::make_unique<CoreMaximum>(function);
+  } else if (function.name() == "minimum") {
+    return std::make_unique<CoreMinimum>(function);
   } else if (function.name() == "map_get") {
     return std::make_unique<CoreMapGet>(function);
   } else if (function.name() == "byte_length") {
     return std::make_unique<CoreByteLength>(function);
   } else if (function.name() == "char_length") {
     return std::make_unique<CoreCharLength>(function);
-  } else if (function.name() == "str_concat") {
-    return std::make_unique<CoreStrConcat>(function);
+  } else if (function.name() == "string_concat") {
+    return std::make_unique<CoreStringConcat>(function);
   } else if (function.name() == "ends_with") {
     return std::make_unique<CoreEndsWith>(function);
   } else if (function.name() == "starts_with") {
     return std::make_unique<CoreStartsWith>(function);
-  } else if (function.name() == "str_contains") {
-    return std::make_unique<CoreStrContains>(function);
+  } else if (function.name() == "string_contains") {
+    return std::make_unique<CoreStringContains>(function);
   } else if (function.name() == "to_lower") {
     return std::make_unique<CoreToLower>(function);
   } else if (function.name() == "to_upper") {
     return std::make_unique<CoreToUpper>(function);
   } else if (function.name() == "trim") {
     return std::make_unique<CoreTrim>(function);
-  } else if (function.name() == "reverse") {
-    // Note: This handles string reverse. Array reverse is separate.
-    return std::make_unique<CoreReverse>(function);
+  } else if (function.name() == "string_reverse") {
+    return std::make_unique<CoreStringReverse>(function);
   } else if (function.name() == "regex_contains") {
     return std::make_unique<CoreRegexContains>(function);
   } else if (function.name() == "regex_match") {
@@ -427,8 +426,8 @@ EvaluateResult ComparisonBase::Evaluate(
   return CompareToResult(left, right);
 }
 
-EvaluateResult CoreEq::CompareToResult(const EvaluateResult& left,
-                                       const EvaluateResult& right) const {
+EvaluateResult CoreEqual::CompareToResult(const EvaluateResult& left,
+                                          const EvaluateResult& right) const {
   // Type mismatch always results in false for Eq
   if (model::GetTypeOrder(*left.value()) !=
       model::GetTypeOrder(*right.value())) {
@@ -450,8 +449,8 @@ EvaluateResult CoreEq::CompareToResult(const EvaluateResult& left,
   HARD_FAIL("Unhandled case in switch statement");
 }
 
-EvaluateResult CoreNeq::CompareToResult(const EvaluateResult& left,
-                                        const EvaluateResult& right) const {
+EvaluateResult CoreNotEqual::CompareToResult(
+    const EvaluateResult& left, const EvaluateResult& right) const {
   // NaN != anything (including NaN) is true
   if (model::IsNaNValue(*left.value()) || model::IsNaNValue(*right.value())) {
     return EvaluateResult::NewValue(nanopb::MakeMessage(model::TrueValue()));
@@ -473,8 +472,8 @@ EvaluateResult CoreNeq::CompareToResult(const EvaluateResult& left,
   HARD_FAIL("Unhandled case in switch statement");
 }
 
-EvaluateResult CoreLt::CompareToResult(const EvaluateResult& left,
-                                       const EvaluateResult& right) const {
+EvaluateResult CoreLessThan::CompareToResult(
+    const EvaluateResult& left, const EvaluateResult& right) const {
   // Type mismatch always results in false
   if (model::GetTypeOrder(*left.value()) !=
       model::GetTypeOrder(*right.value())) {
@@ -491,8 +490,8 @@ EvaluateResult CoreLt::CompareToResult(const EvaluateResult& left,
       nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
 }
 
-EvaluateResult CoreLte::CompareToResult(const EvaluateResult& left,
-                                        const EvaluateResult& right) const {
+EvaluateResult CoreLessThanOrEqual::CompareToResult(
+    const EvaluateResult& left, const EvaluateResult& right) const {
   // Type mismatch always results in false
   if (model::GetTypeOrder(*left.value()) !=
       model::GetTypeOrder(*right.value())) {
@@ -516,8 +515,8 @@ EvaluateResult CoreLte::CompareToResult(const EvaluateResult& left,
       nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
 }
 
-EvaluateResult CoreGt::CompareToResult(const EvaluateResult& left,
-                                       const EvaluateResult& right) const {
+EvaluateResult CoreGreaterThan::CompareToResult(
+    const EvaluateResult& left, const EvaluateResult& right) const {
   // Type mismatch always results in false
   if (model::GetTypeOrder(*left.value()) !=
       model::GetTypeOrder(*right.value())) {
@@ -534,8 +533,8 @@ EvaluateResult CoreGt::CompareToResult(const EvaluateResult& left,
       nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
 }
 
-EvaluateResult CoreGte::CompareToResult(const EvaluateResult& left,
-                                        const EvaluateResult& right) const {
+EvaluateResult CoreGreaterThanOrEqual::CompareToResult(
+    const EvaluateResult& left, const EvaluateResult& right) const {
   // Type mismatch always results in false
   if (model::GetTypeOrder(*left.value()) !=
       model::GetTypeOrder(*right.value())) {
@@ -881,7 +880,7 @@ EvaluateResult CoreCharLength::Evaluate(
   }
 }
 
-EvaluateResult CoreStrConcat::Evaluate(
+EvaluateResult CoreStringConcat::Evaluate(
     const api::EvaluateContext& context,
     const model::PipelineInputOutput& document) const {
   std::string result_string;
@@ -928,8 +927,8 @@ EvaluateResult CoreStartsWith::PerformSearch(const std::string& value,
       nanopb::MakeMessage(result ? model::TrueValue() : model::FalseValue()));
 }
 
-EvaluateResult CoreStrContains::PerformSearch(const std::string& value,
-                                              const std::string& search) const {
+EvaluateResult CoreStringContains::PerformSearch(
+    const std::string& value, const std::string& search) const {
   // Use absl::StrContains
   bool result = absl::StrContains(value, search);
   return EvaluateResult::NewValue(
@@ -1001,7 +1000,7 @@ EvaluateResult CoreTrim::Evaluate(
   }
 }
 
-EvaluateResult CoreReverse::Evaluate(
+EvaluateResult CoreStringReverse::Evaluate(
     const api::EvaluateContext& context,
     const model::PipelineInputOutput& document) const {
   HARD_ASSERT(expr_->params().size() == 1,
@@ -1853,7 +1852,7 @@ EvaluateResult CoreIsError::Evaluate(
   }
 }
 
-EvaluateResult CoreLogicalMaximum::Evaluate(
+EvaluateResult CoreMaximum::Evaluate(
     const api::EvaluateContext& context,
     const model::PipelineInputOutput& document) const {
   // Store the underlying Value proto in the optional, not EvaluateResult
@@ -1887,7 +1886,7 @@ EvaluateResult CoreLogicalMaximum::Evaluate(
   return EvaluateResult::NewNull();
 }
 
-EvaluateResult CoreLogicalMinimum::Evaluate(
+EvaluateResult CoreMinimum::Evaluate(
     const api::EvaluateContext& context,
     const model::PipelineInputOutput& document) const {
   // Store the underlying Value proto in the optional, not EvaluateResult
