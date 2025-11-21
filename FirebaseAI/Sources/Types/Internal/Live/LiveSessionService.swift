@@ -365,7 +365,9 @@ actor LiveSessionService {
     var urlRequest = URLRequest(url: url)
     urlRequest.timeoutInterval = requestOptions.timeout
     urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
-    urlRequest.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "x-ios-bundle-identifier")
+    if let bundleID = Bundle.main.bundleIdentifier {
+      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
+    }
     urlRequest.setValue(
       "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
       forHTTPHeaderField: "x-goog-api-client"

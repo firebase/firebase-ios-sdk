@@ -179,7 +179,9 @@ struct GenerativeAIService {
     } else {
       urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
     }
-    urlRequest.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "x-ios-bundle-identifier")
+    if let bundleID = Bundle.main.bundleIdentifier {
+      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
+    }
     urlRequest.setValue(
       "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
       forHTTPHeaderField: "x-goog-api-client"
@@ -210,10 +212,6 @@ struct GenerativeAIService {
       if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
         urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
       }
-    }
-
-    if let bundleID = Bundle.main.bundleIdentifier {
-      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
     }
 
     let encoder = JSONEncoder()
