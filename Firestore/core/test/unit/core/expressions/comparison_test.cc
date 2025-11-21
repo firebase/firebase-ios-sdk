@@ -206,7 +206,8 @@ TEST_F(EqFunctionTest, NaNComparisonsReturnFalse) {
 // eq.null_missingInMap_equality
 TEST_F(EqFunctionTest, NullContainerEquality) {
   auto null_array = SharedConstant(testutil::Array(testutil::Value(nullptr)));
-  EXPECT_THAT(EvaluateExpr(*EqExpr({null_array, SharedConstant(1LL)})),
+  EXPECT_THAT(EvaluateExpr(*EqExpr(
+                  {null_array, SharedConstant(static_cast<int64_t>(1LL))})),
               Returns(testutil::Value(false)));
   EXPECT_THAT(EvaluateExpr(*EqExpr({null_array, SharedConstant("1")})),
               Returns(testutil::Value(false)));

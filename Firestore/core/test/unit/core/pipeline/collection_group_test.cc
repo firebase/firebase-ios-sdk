@@ -229,8 +229,8 @@ TEST_F(CollectionGroupTest, WhereOnValues) {
 
 TEST_F(CollectionGroupTest, WhereInequalityOnValues) {
   RealtimePipeline pipeline = StartPipeline("users");
-  auto where_expr =
-      GtExpr({std::make_shared<Field>("score"), SharedConstant(80LL)});
+  auto where_expr = GtExpr({std::make_shared<Field>("score"),
+                            SharedConstant(static_cast<int64_t>(80LL))});
   pipeline = pipeline.AddingStage(std::make_shared<Where>(where_expr));
 
   auto doc1 = Doc("users/bob", 1000, Map("score", 90LL));
@@ -249,8 +249,8 @@ TEST_F(CollectionGroupTest, WhereInequalityOnValues) {
 
 TEST_F(CollectionGroupTest, WhereNotEqualOnValues) {
   RealtimePipeline pipeline = StartPipeline("users");
-  auto where_expr =
-      NeqExpr({std::make_shared<Field>("score"), SharedConstant(50LL)});
+  auto where_expr = NeqExpr({std::make_shared<Field>("score"),
+                             SharedConstant(static_cast<int64_t>(50LL))});
   pipeline = pipeline.AddingStage(std::make_shared<Where>(where_expr));
 
   auto doc1 = Doc("users/bob", 1000, Map("score", 90LL));

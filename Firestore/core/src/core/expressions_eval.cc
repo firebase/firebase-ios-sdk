@@ -447,6 +447,7 @@ EvaluateResult CoreEq::CompareToResult(const EvaluateResult& left,
     case model::StrictEqualsResult::kNull:
       return EvaluateResult::NewNull();
   }
+  HARD_FAIL("Unhandled case in switch statement");
 }
 
 EvaluateResult CoreNeq::CompareToResult(const EvaluateResult& left,
@@ -469,6 +470,7 @@ EvaluateResult CoreNeq::CompareToResult(const EvaluateResult& left,
     case model::StrictEqualsResult::kNull:
       return EvaluateResult::NewNull();
   }
+  HARD_FAIL("Unhandled case in switch statement");
 }
 
 EvaluateResult CoreLt::CompareToResult(const EvaluateResult& left,
@@ -584,8 +586,8 @@ template <typename T>
 bool ProcessUtf8(const std::string& s,
                  T* result,
                  std::function<void(T*, uint32_t, absl::string_view)> func) {
-  int i = 0;
-  const int len = s.size();
+  size_t i = 0;
+  const size_t len = s.size();
   const unsigned char* data = reinterpret_cast<const unsigned char*>(s.data());
 
   while (i < len) {
@@ -988,10 +990,9 @@ EvaluateResult CoreTrim::Evaluate(
 
   switch (evaluated.type()) {
     case EvaluateResult::ResultType::kString: {
-      absl::string_view trimmed_view = absl::StripAsciiWhitespace(
-          nanopb::MakeString(evaluated.value()->string_value));
-      return EvaluateResult::NewValue(
-          model::StringValue(std::move(trimmed_view)));
+      std::string str = nanopb::MakeString(evaluated.value()->string_value);
+      absl::string_view trimmed_view = absl::StripAsciiWhitespace(str);
+      return EvaluateResult::NewValue(model::StringValue(trimmed_view));
     }
     case EvaluateResult::ResultType::kNull:
       return EvaluateResult::NewNull();

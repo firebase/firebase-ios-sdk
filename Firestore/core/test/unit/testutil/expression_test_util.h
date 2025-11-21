@@ -445,19 +445,27 @@ struct ComparisonValueTestData {
       results.push_back({value, value});
     }
 
-    results.push_back({SharedConstant(-42LL), SharedConstant(-42.0)});
-    results.push_back({SharedConstant(-42.0), SharedConstant(-42LL)});
-    results.push_back({SharedConstant(42LL), SharedConstant(42.0)});
-    results.push_back({SharedConstant(42.0), SharedConstant(42LL)});
+    results.push_back(
+        {SharedConstant(static_cast<int64_t>(-42LL)), SharedConstant(-42.0)});
+    results.push_back(
+        {SharedConstant(-42.0), SharedConstant(static_cast<int64_t>(-42LL))});
+    results.push_back(
+        {SharedConstant(static_cast<int64_t>(42LL)), SharedConstant(42.0)});
+    results.push_back(
+        {SharedConstant(42.0), SharedConstant(static_cast<int64_t>(42LL))});
 
     results.push_back({SharedConstant(0.0), SharedConstant(-0.0)});
     results.push_back({SharedConstant(-0.0), SharedConstant(0.0)});
 
-    results.push_back({SharedConstant(0LL), SharedConstant(-0.0)});
-    results.push_back({SharedConstant(-0.0), SharedConstant(0LL)});
+    results.push_back(
+        {SharedConstant(static_cast<int64_t>(0LL)), SharedConstant(-0.0)});
+    results.push_back(
+        {SharedConstant(-0.0), SharedConstant(static_cast<int64_t>(0LL))});
 
-    results.push_back({SharedConstant(0LL), SharedConstant(0.0)});
-    results.push_back({SharedConstant(0.0), SharedConstant(0LL)});
+    results.push_back(
+        {SharedConstant(static_cast<int64_t>(0LL)), SharedConstant(0.0)});
+    results.push_back(
+        {SharedConstant(0.0), SharedConstant(static_cast<int64_t>(0LL))});
 
     return results;
   }

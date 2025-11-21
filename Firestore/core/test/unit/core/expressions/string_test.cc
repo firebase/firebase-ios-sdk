@@ -83,7 +83,8 @@ TEST_F(ByteLengthTest, EmptyByte) {
 }
 
 TEST_F(ByteLengthTest, NonStringOrBytesReturnsError) {
-  EXPECT_THAT(EvaluateExpr(*ByteLengthExpr(SharedConstant(123LL))),
+  EXPECT_THAT(EvaluateExpr(
+                  *ByteLengthExpr(SharedConstant(static_cast<int64_t>(123LL)))),
               ReturnsError());
   EXPECT_THAT(EvaluateExpr(*ByteLengthExpr(SharedConstant(true))),
               ReturnsError());
@@ -352,7 +353,8 @@ TEST_F(StrConcatTest, MultipleStringChildrenReturnsCombination) {
 
 TEST_F(StrConcatTest, MultipleNonStringChildrenReturnsError) {
   EXPECT_THAT(
-      EvaluateExpr(*StrConcatExpr({SharedConstant("foo"), SharedConstant(42LL),
+      EvaluateExpr(*StrConcatExpr({SharedConstant("foo"),
+                                   SharedConstant(static_cast<int64_t>(42LL)),
                                    SharedConstant("bar")})),
       ReturnsError());
 }
@@ -392,15 +394,17 @@ TEST_F(StrConcatTest, LargeStrings) {
 
 // --- EndsWith Tests ---
 TEST_F(EndsWithTest, GetNonStringValueIsError) {
-  EXPECT_THAT(EvaluateExpr(*EndsWithExpr(SharedConstant(42LL),
-                                         SharedConstant("search"))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*EndsWithExpr(SharedConstant(static_cast<int64_t>(42LL)),
+                                 SharedConstant("search"))),
+      ReturnsError());
 }
 
 TEST_F(EndsWithTest, GetNonStringSuffixIsError) {
-  EXPECT_THAT(EvaluateExpr(*EndsWithExpr(SharedConstant("search"),
-                                         SharedConstant(42LL))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*EndsWithExpr(SharedConstant("search"),
+                                 SharedConstant(static_cast<int64_t>(42LL)))),
+      ReturnsError());
 }
 
 TEST_F(EndsWithTest, GetEmptyInputsReturnsTrue) {
@@ -441,14 +445,15 @@ TEST_F(EndsWithTest, GetLargeSuffixReturnsFalse) {
 
 // --- Like Tests ---
 TEST_F(LikeTest, GetNonStringLikeIsError) {
-  EXPECT_THAT(
-      EvaluateExpr(*LikeExpr(SharedConstant(42LL), SharedConstant("search"))),
-      ReturnsError());
+  EXPECT_THAT(EvaluateExpr(*LikeExpr(SharedConstant(static_cast<int64_t>(42LL)),
+                                     SharedConstant("search"))),
+              ReturnsError());
 }
 
 TEST_F(LikeTest, GetNonStringValueIsError) {
   EXPECT_THAT(
-      EvaluateExpr(*LikeExpr(SharedConstant("ear"), SharedConstant(42LL))),
+      EvaluateExpr(*LikeExpr(SharedConstant("ear"),
+                             SharedConstant(static_cast<int64_t>(42LL)))),
       ReturnsError());
 }
 
@@ -495,15 +500,17 @@ TEST_F(LikeTest, GetDynamicLike) {
 
 // --- RegexContains Tests ---
 TEST_F(RegexContainsTest, GetNonStringRegexIsError) {
-  EXPECT_THAT(EvaluateExpr(*RegexContainsExpr(SharedConstant(42LL),
-                                              SharedConstant("search"))),
+  EXPECT_THAT(EvaluateExpr(
+                  *RegexContainsExpr(SharedConstant(static_cast<int64_t>(42LL)),
+                                     SharedConstant("search"))),
               ReturnsError());
 }
 
 TEST_F(RegexContainsTest, GetNonStringValueIsError) {
-  EXPECT_THAT(EvaluateExpr(*RegexContainsExpr(SharedConstant("ear"),
-                                              SharedConstant(42LL))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*RegexContainsExpr(
+          SharedConstant("ear"), SharedConstant(static_cast<int64_t>(42LL)))),
+      ReturnsError());
 }
 
 TEST_F(RegexContainsTest, GetInvalidRegexIsError) {
@@ -553,15 +560,17 @@ TEST_F(RegexContainsTest, GetDynamicRegex) {
 
 // --- RegexMatch Tests ---
 TEST_F(RegexMatchTest, GetNonStringRegexIsError) {
-  EXPECT_THAT(EvaluateExpr(*RegexMatchExpr(SharedConstant(42LL),
-                                           SharedConstant("search"))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*RegexMatchExpr(SharedConstant(static_cast<int64_t>(42LL)),
+                                   SharedConstant("search"))),
+      ReturnsError());
 }
 
 TEST_F(RegexMatchTest, GetNonStringValueIsError) {
-  EXPECT_THAT(EvaluateExpr(
-                  *RegexMatchExpr(SharedConstant("ear"), SharedConstant(42LL))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*RegexMatchExpr(SharedConstant("ear"),
+                                   SharedConstant(static_cast<int64_t>(42LL)))),
+      ReturnsError());
 }
 
 TEST_F(RegexMatchTest, GetInvalidRegexIsError) {
@@ -617,15 +626,17 @@ TEST_F(RegexMatchTest, GetDynamicRegex) {
 
 // --- StartsWith Tests ---
 TEST_F(StartsWithTest, GetNonStringValueIsError) {
-  EXPECT_THAT(EvaluateExpr(*StartsWithExpr(SharedConstant(42LL),
-                                           SharedConstant("search"))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*StartsWithExpr(SharedConstant(static_cast<int64_t>(42LL)),
+                                   SharedConstant("search"))),
+      ReturnsError());
 }
 
 TEST_F(StartsWithTest, GetNonStringPrefixIsError) {
-  EXPECT_THAT(EvaluateExpr(*StartsWithExpr(SharedConstant("search"),
-                                           SharedConstant(42LL))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*StartsWithExpr(SharedConstant("search"),
+                                   SharedConstant(static_cast<int64_t>(42LL)))),
+      ReturnsError());
 }
 
 TEST_F(StartsWithTest, GetEmptyInputsReturnsTrue) {
@@ -666,14 +677,16 @@ TEST_F(StartsWithTest, GetLargePrefixReturnsFalse) {
 
 // --- StrContains Tests ---
 TEST_F(StrContainsTest, ValueNonStringIsError) {
-  EXPECT_THAT(EvaluateExpr(*StrContainsExpr(SharedConstant(42LL),
-                                            SharedConstant("value"))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*StrContainsExpr(SharedConstant(static_cast<int64_t>(42LL)),
+                                    SharedConstant("value"))),
+      ReturnsError());
 }
 
 TEST_F(StrContainsTest, SubStringNonStringIsError) {
-  EXPECT_THAT(EvaluateExpr(*StrContainsExpr(SharedConstant("search space"),
-                                            SharedConstant(42LL))),
+  EXPECT_THAT(EvaluateExpr(
+                  *StrContainsExpr(SharedConstant("search space"),
+                                   SharedConstant(static_cast<int64_t>(42LL)))),
               ReturnsError());
 }
 
@@ -725,8 +738,9 @@ TEST_F(ToLowerTest, Empty) {
 }
 
 TEST_F(ToLowerTest, NonString) {
-  EXPECT_THAT(EvaluateExpr(*ToLowerExpr(SharedConstant(123LL))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*ToLowerExpr(SharedConstant(static_cast<int64_t>(123LL)))),
+      ReturnsError());
 }
 
 TEST_F(ToLowerTest, Null) {
@@ -746,8 +760,9 @@ TEST_F(ToUpperTest, Empty) {
 }
 
 TEST_F(ToUpperTest, NonString) {
-  EXPECT_THAT(EvaluateExpr(*ToUpperExpr(SharedConstant(123LL))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*ToUpperExpr(SharedConstant(static_cast<int64_t>(123LL)))),
+      ReturnsError());
 }
 
 TEST_F(ToUpperTest, Null) {
@@ -776,7 +791,9 @@ TEST_F(TrimTest, Empty) {
 }
 
 TEST_F(TrimTest, NonString) {
-  EXPECT_THAT(EvaluateExpr(*TrimExpr(SharedConstant(123LL))), ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*TrimExpr(SharedConstant(static_cast<int64_t>(123LL)))),
+      ReturnsError());
 }
 
 TEST_F(TrimTest, Null) {
@@ -800,8 +817,9 @@ TEST_F(ReverseTest, Unicode) {
 }
 
 TEST_F(ReverseTest, NonString) {
-  EXPECT_THAT(EvaluateExpr(*ReverseExpr(SharedConstant(123LL))),
-              ReturnsError());
+  EXPECT_THAT(
+      EvaluateExpr(*ReverseExpr(SharedConstant(static_cast<int64_t>(123LL)))),
+      ReturnsError());
 }
 
 TEST_F(ReverseTest, Null) {
