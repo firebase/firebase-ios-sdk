@@ -97,8 +97,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Authentication
-      is_legacy: false
-      setup_command: scripts/setup_quickstart.sh authentication
+      setup_command: scripts/setup_quickstart_spm.sh authentication
       plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
       plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
       run_tests: false
@@ -141,6 +140,5 @@ jobs:
       platforms: '[ "ios", "tvos --skip-tests", "macos --skip-tests", "watchos --skip-tests" ]'
       flags: '[ "--use-static-frameworks" ]'
       setup_command: scripts/configure_test_keychain.sh
-      ignore_deprecation_warnings: true
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

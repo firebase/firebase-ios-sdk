@@ -29,10 +29,11 @@ on:
         type: string
         required: true
 
-      # Whether to test the legacy version of the quickstart.
-      is_legacy:
-        type: boolean
-        required: true
+      # The branch to checkout in the quickstart repo.
+      quickstart_branch:
+        type: string
+        required: false
+        default: 'main'
 
       # The path to the encrypted `GoogleService-Info.plist` file.
       plist_src_path:
@@ -43,14 +44,6 @@ on:
       plist_dst_path:
         type: string
         required: true
-
-      # The type of quickstart to test.
-      #
-      # Options: [swift, objc]
-      quickstart_type:
-        type: string
-        required: false
-        default: objc
 
       # Whether to run tests or just build. Defaults to true.
       run_tests:
@@ -68,15 +61,18 @@ on:
 
 jobs:
   quickstart:
+    name: quickstart (${{ inputs.product }})
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     env:
       plist_secret: ${{ secrets.plist_secret }}
-      LEGACY: ${{ inputs.is_legacy && true || '' }}
+      QUICKSTART_BRANCH: ${{ inputs.quickstart_branch }}
     runs-on: macos-15
     steps:
     - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Prereqs
+      run: gem install xcpretty
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Run setup command.
@@ -87,17 +83,16 @@ jobs:
             ${{ inputs.plist_src_path }} \
             ${{ inputs.plist_dst_path }} \
             "$plist_secret"
-    - name: Build ${{ inputs.product }} Quickstart (${{ inputs.quickstart_type }} / ${{ inputs.is_legacy && 'Legacy' || 'Non-Legacy' }})
+    - name: Build ${{ inputs.product }} Quickstart
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
         command: |
-          scripts/test_quickstart.sh \
+          SPM=true DIR=${{ inputs.product }} scripts/test_quickstart.sh \
             ${{ inputs.product }} \
-            ${{ inputs.run_tests }} \
-            ${{ inputs.quickstart_type }}
+            ${{ inputs.run_tests }}
     # Failure sequence to upload artifact.
     - id: lowercase_product
       if: failure()
