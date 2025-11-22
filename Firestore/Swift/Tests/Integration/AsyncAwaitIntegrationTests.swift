@@ -35,6 +35,41 @@ let emptyBundle = """
 #if swift(>=5.5.2)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AsyncAwaitIntegrationTests: FSTIntegrationTestCase {
+    func assertQuerySnapshotDataEquals(_ snapshot: Any,
+                                       _ expectedData: [[String: Any]]) throws {
+      let extractedData = FIRQuerySnapshotGetData(snapshot as! QuerySnapshot)
+      guard extractedData.count == expectedData.count else {
+        XCTFail(
+          "Result count mismatch: Expected \(expectedData.count), got \(extractedData.count)"
+        )
+        return
+      }
+      for index in 0 ..< extractedData.count {
+        XCTAssertTrue(areDictionariesEqual(extractedData[index], expectedData[index]))
+      }
+    }
+
+    // TODO(swift testing): update the function to be able to check other value types as well.
+    func areDictionariesEqual(_ dict1: [String: Any], _ dict2: [String: Any]) -> Bool {
+      guard dict1.count == dict2.count
+      else { return false } // Check if the number of elements matches
+
+      for (key, value1) in dict1 {
+        guard let value2 = dict2[key] else { return false }
+
+        // Value Checks (Assuming consistent types after the type check)
+        if let str1 = value1 as? String, let str2 = value2 as? String {
+          if str1 != str2 { return false }
+        } else if let int1 = value1 as? Int, let int2 = value2 as? Int {
+          if int1 != int2 { return false }
+        } else {
+          // Handle other potential types or return false for mismatch
+          return false
+        }
+      }
+      return true
+    }
+
     func testAddData() async throws {
       let collection = collectionRef()
       let document = try await collection.addDocument(data: [:])
