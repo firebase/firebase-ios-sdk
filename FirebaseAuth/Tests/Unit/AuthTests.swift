@@ -2364,6 +2364,22 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(auth.application(UIApplication.shared, open: url, options: [:]))
       XCTAssertTrue(fakeURLPresenter.canHandled)
     }
+
+    func testAppHandleURL_AuthPresenterHandleURL() throws {
+      class FakeURLPresenter: AuthURLPresenter {
+        var canHandled = false
+        override func canHandle(url: URL) -> Bool {
+          canHandled = true
+          return true
+        }
+      }
+      let url = try XCTUnwrap(URL(string: "https://localhost"))
+      let fakeURLPresenter = FakeURLPresenter()
+      auth.authURLPresenter = fakeURLPresenter
+      XCTAssertFalse(fakeURLPresenter.canHandled)
+      try auth.handle(url)
+      XCTAssertTrue(fakeURLPresenter.canHandled)
+    }
   #endif // os(iOS)
 
   // MARK: Interoperability Tests
