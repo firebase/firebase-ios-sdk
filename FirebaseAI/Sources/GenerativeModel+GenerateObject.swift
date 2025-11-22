@@ -29,15 +29,29 @@ public extension GenerativeModel {
   ///           the response cannot be decoded into the specified type.
   func generateObject<T: FirebaseGenerable>(as type: T.Type,
                                             from prompt: String) async throws -> T {
+    // Create a new generation config, inheriting previous settings and overriding for JSON output.
+    let newGenerationConfig = GenerationConfig(
+      temperature: generationConfig?.temperature,
+      topP: generationConfig?.topP,
+      topK: generationConfig?.topK,
+      candidateCount: generationConfig?.candidateCount,
+      maxOutputTokens: generationConfig?.maxOutputTokens,
+      presencePenalty: generationConfig?.presencePenalty,
+      frequencyPenalty: generationConfig?.frequencyPenalty,
+      stopSequences: generationConfig?.stopSequences,
+      responseMIMEType: "application/json", // Override for JSON output.
+      responseSchema: T.firebaseGenerationSchema, // Override for JSON output.
+      responseModalities: generationConfig?.responseModalities,
+      thinkingConfig: generationConfig?.thinkingConfig
+    )
+
+    // Create a new model instance with the overridden config.
     let model = GenerativeModel(
       modelName: modelName,
       modelResourceName: modelResourceName,
       firebaseInfo: generativeAIService.firebaseInfo,
       apiConfig: apiConfig,
-      generationConfig: GenerationConfig(
-        responseMIMEType: "application/json",
-        responseSchema: T.firebaseGenerationSchema
-      ),
+      generationConfig: newGenerationConfig,
       safetySettings: safetySettings,
       tools: tools,
       toolConfig: toolConfig,

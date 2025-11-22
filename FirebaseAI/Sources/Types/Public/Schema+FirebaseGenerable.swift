@@ -22,6 +22,14 @@ public extension Schema {
       return type.firebaseGenerationSchema
     }
 
-    return .object(properties: [:])
+    fatalError("""
+    '\(T.self)' does not conform to 'FirebaseGenerable'.
+    To generate a schema for a Decodable type, it must be annotated with the '@FirebaseGenerable' macro.
+    Example:
+      @FirebaseGenerable
+      struct MyType: Decodable {
+        // ...
+      }
+    """)
   }
 }

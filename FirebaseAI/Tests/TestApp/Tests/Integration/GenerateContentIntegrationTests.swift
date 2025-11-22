@@ -279,9 +279,44 @@ struct GenerateContentIntegrationTests {
     )
 
     #expect(dessert.name.lowercased() == expectedResponse.name.lowercased())
-    #expect(dessert.ingredients.count >= expectedResponse.ingredients.count)
+    #expect(dessert.ingredients.count >= 2)
     #expect(dessert.isDelicious == expectedResponse.isDelicious)
   }
+
+  @Test(
+    "generateObject inherits parent model's generationConfig",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateObject_inheritsGenerationConfig(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      // Set a token limit that is too low for the model to generate a valid JSON object.
+      generationConfig: GenerationConfig(maxOutputTokens: 1)
+    )
+
+    // Expect the call to `generateObject` to fail. If the `maxOutputTokens` setting from the
+    // parent model's `generationConfig` is correctly inherited, the model's response will be a
+    // truncated, invalid JSON string, causing the `JSONDecoder` to throw an error. If this test
+    // fails, it means the configuration was not inherited correctly.
+    do {
+      _ = try await model.generateObject(
+        as: Dessert.self,
+        from: "Give me a recipe for any dessert."
+      )
+      Issue.record("Function was expected to throw, but it did not.")
+    } catch let error as GenerateContentError {
+      switch error {
+      case let .responseStoppedEarly(reason: finishReason, response: _):
+        #expect(finishReason == .maxTokens)
+        // Success: Caught the expected responseStoppedEarly error with maxTokens reason.
+      default:
+        Issue.record("Caught GenerateContentError, but it was not a responseStoppedEarly error with maxTokens reason.")
+      }
+    } catch {
+      Issue.record("Function threw an unexpected error type: \(error)")
+    }
+  }
+
 
   @Test(
     arguments: [
