@@ -143,11 +143,11 @@ struct GenerateContentIntegrationTests {
   func generateContentJSONObject(_ config: InstanceConfig) async throws {
     struct Recipe: Codable {
       let name: String
-      let ingredients: [Ingredient]
+      let ingredients: [RecipeIngredient]
       let isDelicious: Bool
     }
 
-    struct Ingredient: Codable, Equatable {
+    struct RecipeIngredient: Codable, Equatable {
       let name: String
       let quantity: Int
     }
@@ -155,9 +155,9 @@ struct GenerateContentIntegrationTests {
     let expectedResponse = Recipe(
       name: "Apple Pie",
       ingredients: [
-        Ingredient(name: "Apple", quantity: 6),
-        Ingredient(name: "Cinnamon", quantity: 1),
-        Ingredient(name: "Sugar", quantity: 1),
+        RecipeIngredient(name: "Apple", quantity: 6),
+        RecipeIngredient(name: "Cinnamon", quantity: 1),
+        RecipeIngredient(name: "Sugar", quantity: 1),
       ],
       isDelicious: true
     )

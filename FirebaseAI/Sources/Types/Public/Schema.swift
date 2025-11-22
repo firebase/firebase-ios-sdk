@@ -155,6 +155,27 @@ public final class Schema: Sendable {
     self.propertyOrdering = propertyOrdering
   }
 
+  /// Private initializer to create a new schema by copying an existing one with specific overrides.
+  private convenience init(copying other: Schema, nullable: Bool? = nil) {
+    self.init(
+      type: other.dataType,
+      format: other.format,
+      description: other.description,
+      title: other.title,
+      nullable: nullable ?? other.nullable,
+      enumValues: other.enumValues,
+      items: other.items,
+      minItems: other.minItems,
+      maxItems: other.maxItems,
+      minimum: other.minimum,
+      maximum: other.maximum,
+      anyOf: other.anyOf,
+      properties: other.properties,
+      requiredProperties: other.requiredProperties,
+      propertyOrdering: other.propertyOrdering
+    )
+  }
+
   /// Returns a `Schema` representing a string value.
   ///
   /// This schema instructs the model to produce data of type `"STRING"`, which is suitable for
@@ -494,23 +515,6 @@ public extension Schema {
   /// `userSchema.nullable()`.
   ///
   /// - Returns: A new `Schema` instance with `nullable` set to `true`.
-  func asNullable() -> Schema {
-    return Schema(
-      type: dataType,
-      format: format,
-      description: description,
-      title: title,
-      nullable: true,
-      enumValues: enumValues,
-      items: items,
-      minItems: minItems,
-      maxItems: maxItems,
-      minimum: minimum,
-      maximum: maximum,
-      anyOf: anyOf,
-      properties: properties,
-      requiredProperties: requiredProperties,
-      propertyOrdering: propertyOrdering
-    )
-  }
-}
+    func asNullable() -> Schema {
+      return Schema(copying: self, nullable: true)
+    }}
