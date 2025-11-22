@@ -31,18 +31,9 @@ public extension GenerativeModel {
                                             from prompt: String) async throws -> T {
     // Create a new generation config, inheriting previous settings and overriding for JSON output.
     let newGenerationConfig = GenerationConfig(
-      temperature: generationConfig?.temperature,
-      topP: generationConfig?.topP,
-      topK: generationConfig?.topK,
-      candidateCount: generationConfig?.candidateCount,
-      maxOutputTokens: generationConfig?.maxOutputTokens,
-      presencePenalty: generationConfig?.presencePenalty,
-      frequencyPenalty: generationConfig?.frequencyPenalty,
-      stopSequences: generationConfig?.stopSequences,
-      responseMIMEType: "application/json", // Override for JSON output.
-      responseSchema: T.firebaseGenerationSchema, // Override for JSON output.
-      responseModalities: generationConfig?.responseModalities,
-      thinkingConfig: generationConfig?.thinkingConfig
+      from: generationConfig,
+      responseMIMEType: "application/json",
+      responseSchema: T.firebaseGenerationSchema
     )
 
     // Create a new model instance with the overridden config.
