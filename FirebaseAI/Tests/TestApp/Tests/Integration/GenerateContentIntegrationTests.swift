@@ -151,7 +151,7 @@ struct GenerateContentIntegrationTests {
       let name: String
       let quantity: Int
     }
-    
+
     let expectedResponse = Recipe(
       name: "Apple Pie",
       ingredients: [
@@ -254,7 +254,34 @@ struct GenerateContentIntegrationTests {
     #expect(dessert.isDelicious == expectedResponse.isDelicious)
   }
 
+  @Test("Generate a JSON object with generateObject", arguments: InstanceConfig.allConfigs)
+  func generateObject(_ config: InstanceConfig) async throws {
+    let expectedResponse = Dessert(
+      name: "Apple Pie",
+      ingredients: [
+        Ingredient(name: "Apple", quantity: 6),
+        Ingredient(name: "Cinnamon", quantity: 1),
+        Ingredient(name: "Sugar", quantity: 1),
+      ],
+      isDelicious: true
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      systemInstruction: ModelContent(
+        role: "system",
+        parts: "Always respond with a recipe for apple pie."
+      )
+    )
 
+    let dessert = try await model.generateObject(
+      as: Dessert.self,
+      from: "Give me a recipe for a dessert."
+    )
+
+    #expect(dessert.name.lowercased() == expectedResponse.name.lowercased())
+    #expect(dessert.ingredients.count >= expectedResponse.ingredients.count)
+    #expect(dessert.isDelicious == expectedResponse.isDelicious)
+  }
 
   @Test(
     arguments: [
