@@ -81,7 +81,9 @@ public struct FirebaseGenerableMacro: MemberMacro, ExtensionMacro {
       case "Int", "Int8", "Int16", "Int32", "Int64",
            "UInt", "UInt8", "UInt16", "UInt32", "UInt64":
         return ".integer()"
-      case "Float", "Double":
+      case "Float":
+        return ".float()"
+      case "Double":
         return ".double()"
       case "Bool":
         return ".boolean()"
