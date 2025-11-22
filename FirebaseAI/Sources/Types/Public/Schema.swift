@@ -481,3 +481,36 @@ extension Schema: Encodable {
     case propertyOrdering
   }
 }
+
+// MARK: - Helpers
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension Schema {
+  /// Returns a new schema that is identical to the receiver, but with the `nullable`
+  /// property set to `true`.
+  ///
+  /// This is useful for representing optional types. For example, if you have a schema
+  /// for a `User` object, you can represent an optional `User?` by calling
+  /// `userSchema.nullable()`.
+  ///
+  /// - Returns: A new `Schema` instance with `nullable` set to `true`.
+  func asNullable() -> Schema {
+    return Schema(
+      type: dataType,
+      format: format,
+      description: description,
+      title: title,
+      nullable: true,
+      enumValues: enumValues,
+      items: items,
+      minItems: minItems,
+      maxItems: maxItems,
+      minimum: minimum,
+      maximum: maximum,
+      anyOf: anyOf,
+      properties: properties,
+      requiredProperties: requiredProperties,
+      propertyOrdering: propertyOrdering
+    )
+  }
+}

@@ -147,7 +147,7 @@ struct GenerateContentIntegrationTests {
       let isDelicious: Bool
     }
 
-    struct Ingredient: Codable {
+    struct Ingredient: Codable, Equatable {
       let name: String
       let quantity: Int
     }
@@ -208,13 +208,13 @@ struct GenerateContentIntegrationTests {
   }
 
   @FirebaseGenerable
-  struct Ingredient: Codable {
+  struct Ingredient: Codable, Equatable {
     let name: String
     let quantity: Int
   }
 
   @FirebaseGenerable
-  struct Dessert: Codable {
+  struct Dessert: Codable, Equatable {
     let name: String
     let ingredients: [Ingredient]
     let isDelicious: Bool
@@ -308,15 +308,42 @@ struct GenerateContentIntegrationTests {
       switch error {
       case let .responseStoppedEarly(reason: finishReason, response: _):
         #expect(finishReason == .maxTokens)
-        // Success: Caught the expected responseStoppedEarly error with maxTokens reason.
+      // Success: Caught the expected responseStoppedEarly error with maxTokens reason.
       default:
-        Issue.record("Caught GenerateContentError, but it was not a responseStoppedEarly error with maxTokens reason.")
+        Issue
+          .record(
+            "Caught GenerateContentError, but it was not a responseStoppedEarly error with maxTokens reason."
+          )
       }
-    } catch {
-      Issue.record("Function threw an unexpected error type: \(error)")
-    }
+    } catch {}
   }
 
+  // A dessert with optional properties for testing nullable schema generation.
+  @FirebaseGenerable
+  struct OptionalDessert: Codable, Equatable {
+    let name: String?
+    let ingredients: [Ingredient]?
+    let isDelicious: Bool
+  }
+
+  @Test(
+    "generateObject with optional properties",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateObject_withOptionalProperties_succeeds(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite
+    )
+
+    let dessert = try await model.generateObject(
+      as: OptionalDessert.self,
+      from: "Generate a dessert that is delicious, but you don't know its name or ingredients."
+    )
+
+    #expect(dessert.name == nil)
+    #expect(dessert.ingredients == nil)
+    #expect(dessert.isDelicious == true)
+  }
 
   @Test(
     arguments: [

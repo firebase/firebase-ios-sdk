@@ -199,6 +199,14 @@ let package = Package(
       ],
       path: "FirebaseAILogicMacros/Sources/FirebaseAILogicMacro"
     ),
+    .testTarget(
+      name: "FirebaseAILogicMacroTests",
+      dependencies: [
+        "FirebaseAILogicMacro",
+        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+      ],
+      path: "FirebaseAILogicMacros/Tests/FirebaseAILogicMacroTests"
+    ),
     .target(
       name: "FirebaseAILogic",
       dependencies: [

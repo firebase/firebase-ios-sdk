@@ -74,29 +74,31 @@ public struct FirebaseGenerableMacro: MemberMacro, ExtensionMacro {
   }
 
   private static func schema(for type: TypeSyntax) throws -> String {
+    let schemaPrefix = "FirebaseAILogic.Schema"
     if let type = type.as(IdentifierTypeSyntax.self) {
       switch type.name.text {
       case "String":
-        return ".string()"
+        return "\(schemaPrefix).string()"
       case "Int", "Int8", "Int16", "Int32", "Int64",
            "UInt", "UInt8", "UInt16", "UInt32", "UInt64":
         return ".integer()"
       case "Float":
-        return ".float()"
+        return "\(schemaPrefix).float()"
       case "Double":
-        return ".double()"
+        return "\(schemaPrefix).double()"
       case "Bool":
-        return ".boolean()"
+        return "\(schemaPrefix).boolean()"
       default:
-        return """
-        .from(\(type).self)
-        """
+        // For a custom type, generate a call to its static schema property.
+        return "\(type).firebaseGenerationSchema"
       }
     } else if let type = type.as(OptionalTypeSyntax.self) {
-      return try schema(for: type.wrappedType)
+      // For an optional type, get the wrapped type's schema and make it nullable.
+      let wrappedSchema = try schema(for: type.wrappedType)
+      return "(\(wrappedSchema)).asNullable()"
     } else if let type = type.as(ArrayTypeSyntax.self) {
       return try """
-      .array(items: \(schema(for: type.element)))
+      \(schemaPrefix).array(items: \(schema(for: type.element)))
       """
     }
 
