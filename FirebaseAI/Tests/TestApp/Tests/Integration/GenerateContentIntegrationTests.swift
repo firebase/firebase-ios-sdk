@@ -139,6 +139,74 @@ struct GenerateContentIntegrationTests {
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 
+  @Test("Generate a JSON object", arguments: InstanceConfig.allConfigs)
+  func generateContentJSONObject(_ config: InstanceConfig) async throws {
+    struct Recipe: Codable {
+      let name: String
+      let ingredients: [Ingredient]
+      let isDelicious: Bool
+    }
+
+    struct Ingredient: Codable {
+      let name: String
+      let quantity: Int
+    }
+    
+    let expectedResponse = Recipe(
+      name: "Apple Pie",
+      ingredients: [
+        Ingredient(name: "Apple", quantity: 6),
+        Ingredient(name: "Cinnamon", quantity: 1),
+        Ingredient(name: "Sugar", quantity: 1),
+      ],
+      isDelicious: true
+    )
+    let recipeSchema = Schema.object(properties: [
+      "name": .string(),
+      "ingredients": .array(items: .object(properties: [
+        "name": .string(),
+        "quantity": .integer(),
+      ])),
+      "isDelicious": .boolean(),
+    ])
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: GenerationConfig(
+        responseMIMEType: "application/json",
+        responseSchema: recipeSchema
+      ),
+      safetySettings: safetySettings,
+      systemInstruction: ModelContent(
+        role: "system",
+        parts: "Always respond with a recipe for apple pie."
+      )
+    )
+    let prompt = "Give me a recipe for a dessert."
+
+    let response = try await model.generateContent(prompt)
+
+    let responseData = try #require(response.text?.data(using: .utf8))
+    let recipe = try JSONDecoder().decode(Recipe.self, from: responseData)
+    #expect(recipe.name.lowercased() == expectedResponse.name.lowercased())
+    #expect(recipe.ingredients.count >= expectedResponse.ingredients.count)
+    #expect(recipe.isDelicious == expectedResponse.isDelicious)
+
+    let usageMetadata = try #require(response.usageMetadata)
+    #expect(usageMetadata.promptTokenCount.isEqual(to: 36, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.candidatesTokenCount >= 92)
+    #expect(usageMetadata.thoughtsTokenCount == 0)
+    #expect(usageMetadata.totalTokenCount
+      == usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount)
+    #expect(usageMetadata.promptTokensDetails.count == 1)
+    let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
+    #expect(promptTokensDetails.modality == .text)
+    #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
+    #expect(usageMetadata.candidatesTokensDetails.count == 1)
+    let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+    #expect(candidatesTokensDetails.modality == .text)
+    #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+  }
+
   @Test(
     arguments: [
       (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
