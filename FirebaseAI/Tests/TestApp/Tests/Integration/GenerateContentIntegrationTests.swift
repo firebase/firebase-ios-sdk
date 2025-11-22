@@ -207,6 +207,55 @@ struct GenerateContentIntegrationTests {
     #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 
+  @FirebaseGenerable
+  struct Ingredient: Codable {
+    let name: String
+    let quantity: Int
+  }
+
+  @FirebaseGenerable
+  struct Dessert: Codable {
+    let name: String
+    let ingredients: [Ingredient]
+    let isDelicious: Bool
+  }
+
+  @Test("Generate a JSON object with @FirebaseGenerable", arguments: InstanceConfig.allConfigs)
+  func generateContentWithFirebaseGenerable(_ config: InstanceConfig) async throws {
+    let expectedResponse = Dessert(
+      name: "Apple Pie",
+      ingredients: [
+        Ingredient(name: "Apple", quantity: 6),
+        Ingredient(name: "Cinnamon", quantity: 1),
+        Ingredient(name: "Sugar", quantity: 1),
+      ],
+      isDelicious: true
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: GenerationConfig(
+        responseMIMEType: "application/json",
+        responseSchema: Dessert.firebaseGenerationSchema
+      ),
+      safetySettings: safetySettings,
+      systemInstruction: ModelContent(
+        role: "system",
+        parts: "Always respond with a recipe for apple pie."
+      )
+    )
+    let prompt = "Give me a recipe for a dessert."
+
+    let response = try await model.generateContent(prompt)
+
+    let responseData = try #require(response.text?.data(using: .utf8))
+    let dessert = try JSONDecoder().decode(Dessert.self, from: responseData)
+    #expect(dessert.name.lowercased() == expectedResponse.name.lowercased())
+    #expect(dessert.ingredients.count >= expectedResponse.ingredients.count)
+    #expect(dessert.isDelicious == expectedResponse.isDelicious)
+  }
+
+
+
   @Test(
     arguments: [
       (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
