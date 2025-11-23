@@ -71,24 +71,22 @@ public struct FirebaseGenerableMacro: MemberMacro, ExtensionMacro {
                                conformingTo protocols: [SwiftSyntax.TypeSyntax],
                                in context: some SwiftSyntaxMacros
                                  .MacroExpansionContext) throws
-    -> [SwiftSyntax.ExtensionDeclSyntax] {
+  -> [SwiftSyntax.ExtensionDeclSyntax] {
     if protocols.isEmpty {
       return []
     }
-
+    
     let inheritanceClause = InheritanceClauseSyntax {
-      for protocolType in protocols {
-        InheritedTypeSyntax(type: protocolType)
-      }
+      InheritedTypeSyntax(type: TypeSyntax("FirebaseAILogic.FirebaseGenerable"))
     }
-
+    
     let extensionDecl = ExtensionDeclSyntax(
       extendedType: type.trimmed,
       inheritanceClause: inheritanceClause
     ) {
       // Empty member block
     }
-
+    
     return [extensionDecl]
   }
 
