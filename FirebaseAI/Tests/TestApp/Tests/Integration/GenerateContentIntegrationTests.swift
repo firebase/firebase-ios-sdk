@@ -295,9 +295,11 @@ struct GenerateContentIntegrationTests {
     )
 
     // Expect the call to `generateObject` to fail. If the `maxOutputTokens` setting from the
-    // parent model's `generationConfig` is correctly inherited, the model's response will be a
-    // truncated, invalid JSON string, causing the `JSONDecoder` to throw an error. If this test
-    // fails, it means the configuration was not inherited correctly.
+    // parent model's `generationConfig` is correctly inherited, the model's response will be
+    // truncated
+    // (due to `maxOutputTokens`), causing a `.responseStoppedEarly` error with a `.maxTokens`
+    // reason
+    // to be thrown. If this test fails, it means the configuration was not inherited correctly.
     do {
       _ = try await model.generateObject(
         as: Dessert.self,

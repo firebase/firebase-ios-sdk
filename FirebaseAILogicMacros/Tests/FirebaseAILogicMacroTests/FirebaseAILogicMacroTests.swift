@@ -48,6 +48,8 @@ final class FirebaseGenerableMacroTests: XCTestCase {
     """
 
     assertMacroExpansion(originalSource, expandedSource: expectedSource, macros: macros)
+  }
+
   func testExpansion_handlesMultiBindingAndComputedProperties() {
     let originalSource = """
     @FirebaseGenerable
