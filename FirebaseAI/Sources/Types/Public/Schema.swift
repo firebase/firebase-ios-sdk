@@ -515,6 +515,7 @@ public extension Schema {
   /// `userSchema.nullable()`.
   ///
   /// - Returns: A new `Schema` instance with `nullable` set to `true`.
-    func asNullable() -> Schema {
-      return Schema(copying: self, nullable: true)
-    }}
+  func asNullable() -> Schema {
+    return Schema(copying: self, nullable: true)
+  }
+}

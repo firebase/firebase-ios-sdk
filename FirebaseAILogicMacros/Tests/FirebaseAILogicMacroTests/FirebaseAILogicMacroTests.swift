@@ -48,5 +48,33 @@ final class FirebaseGenerableMacroTests: XCTestCase {
     """
 
     assertMacroExpansion(originalSource, expandedSource: expectedSource, macros: macros)
+  func testExpansion_handlesMultiBindingAndComputedProperties() {
+    let originalSource = """
+    @FirebaseGenerable
+    struct MyType: Decodable {
+      let a, b: String
+      let c: Int
+      var isComputed: Bool { return true }
+    }
+    """
+
+    let expectedSource = """
+    struct MyType: Decodable {
+      let a, b: String
+      let c: Int
+      var isComputed: Bool { return true }
+      public static var firebaseGenerationSchema: FirebaseAILogic.Schema {
+        .object(properties: [
+          "a": FirebaseAILogic.Schema.string(),
+          "b": FirebaseAILogic.Schema.string(),
+          "c": FirebaseAILogic.Schema.integer()
+        ])
+      }
+    }
+
+    extension MyType: FirebaseAILogic.FirebaseGenerable {}
+    """
+
+    assertMacroExpansion(originalSource, expandedSource: expectedSource, macros: macros)
   }
 }

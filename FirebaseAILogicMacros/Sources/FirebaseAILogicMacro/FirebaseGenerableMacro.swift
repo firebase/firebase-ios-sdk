@@ -24,15 +24,34 @@ public struct FirebaseGenerableMacro: MemberMacro, ExtensionMacro {
     -> [SwiftSyntax.DeclSyntax]
     where Declaration: SwiftSyntax.DeclGroupSyntax,
     Context: SwiftSyntaxMacros.MacroExpansionContext {
-    let properties = declaration.memberBlock.members.compactMap {
-      $0.decl.as(VariableDeclSyntax.self)
-    }
+    // 1. Get all variable declarations from the member block.
+    let varDecls = declaration.memberBlock.members
+      .compactMap { $0.decl.as(VariableDeclSyntax.self) }
 
-    let schemaProperties: [String] = try properties.map { property in
-      let (name, type) = try property.toNameAndType()
-      return try """
-      "\(name)": \(schema(for: type))
-      """
+    // 2. Process each declaration to extract schema properties from its bindings.
+    let schemaProperties = try varDecls.flatMap { varDecl -> [String] in
+      // For declarations like `let a, b: String`, the type annotation is on the last binding.
+      let typeAnnotationFromDecl = varDecl.bindings.last?.typeAnnotation
+
+      return try varDecl.bindings.compactMap { binding -> String? in
+        // 3. Filter out computed properties. Stored properties do not have a getter/setter block.
+        guard binding.accessorBlock == nil else {
+          return nil
+        }
+
+        // 4. Get the property's name. Skip complex patterns like tuples.
+        guard let name = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier.text else {
+          return nil
+        }
+
+        // 5. Determine the property's type. It can be on the binding itself or on the declaration.
+        guard let type = binding.typeAnnotation?.type ?? typeAnnotationFromDecl?.type else {
+          throw MacroError.missingExplicitType(for: name)
+        }
+
+        // 6. Generate the schema string for this property.
+        return try "\"\(name)\": \(schema(for: type))"
+      }
     }
 
     return [
@@ -106,29 +125,16 @@ public struct FirebaseGenerableMacro: MemberMacro, ExtensionMacro {
   }
 }
 
-private extension VariableDeclSyntax {
-  func toNameAndType() throws -> (String, TypeSyntax) {
-    guard let binding = bindings.first else {
-      throw MacroError.unsupportedType(Syntax(self))
-    }
-    guard let name = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier.text else {
-      throw MacroError.unsupportedType(Syntax(self))
-    }
-    guard let type = binding.typeAnnotation?.type else {
-      throw MacroError.unsupportedType(Syntax(self))
-    }
-
-    return (name, type)
-  }
-}
-
 private enum MacroError: Error, CustomStringConvertible {
   case unsupportedType(Syntax)
+  case missingExplicitType(for: String)
 
   var description: String {
     switch self {
-    case let .unsupportedType(type):
-      return "Unsupported type: \(type)"
+    case let .unsupportedType(syntax):
+      return "Unsupported type syntax: \(syntax)"
+    case let .missingExplicitType(name):
+      return "Property '\(name)' must have an explicit type annotation to be used with @FirebaseGenerable."
     }
   }
 }

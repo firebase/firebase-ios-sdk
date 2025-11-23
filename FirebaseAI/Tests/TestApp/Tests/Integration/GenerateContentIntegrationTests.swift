@@ -315,7 +315,9 @@ struct GenerateContentIntegrationTests {
             "Caught GenerateContentError, but it was not a responseStoppedEarly error with maxTokens reason."
           )
       }
-    } catch {}
+    } catch {
+      Issue.record("Function threw an unexpected error type: \(error)")
+    }
   }
 
   // A dessert with optional properties for testing nullable schema generation.

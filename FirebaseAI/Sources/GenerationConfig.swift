@@ -205,11 +205,9 @@ public struct GenerationConfig: Sendable {
   }
 
   /// Internal initializer to create a new config by overriding specific values of another.
-  internal init(
-    from base: GenerationConfig?,
-    responseMIMEType: String,
-    responseSchema: Schema
-  ) {
+  init(from base: GenerationConfig?,
+       responseMIMEType: String,
+       responseSchema: Schema) {
     self.init(
       temperature: base?.temperature,
       topP: base?.topP,

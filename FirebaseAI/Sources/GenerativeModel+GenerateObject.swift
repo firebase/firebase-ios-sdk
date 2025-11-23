@@ -37,18 +37,7 @@ public extension GenerativeModel {
     )
 
     // Create a new model instance with the overridden config.
-    let model = GenerativeModel(
-      modelName: modelName,
-      modelResourceName: modelResourceName,
-      firebaseInfo: generativeAIService.firebaseInfo,
-      apiConfig: apiConfig,
-      generationConfig: newGenerationConfig,
-      safetySettings: safetySettings,
-      tools: tools,
-      toolConfig: toolConfig,
-      systemInstruction: systemInstruction,
-      requestOptions: requestOptions
-    )
+    let model = GenerativeModel(copying: self, generationConfig: newGenerationConfig)
     let response = try await model.generateContent(prompt)
 
     guard let text = response.text, let data = text.data(using: .utf8) else {
