@@ -108,20 +108,12 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
       run: scripts/setup_quickstart_spm.sh messaging
-      # run: scripts/setup_quickstart.sh messaging
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
           quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"
-    # - name: Build objc quickstart
-    #   run: ([ -z $plist_secret ] ||
-    #         scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Messaging)
-    # - name: Build swift quickstart
-    #   run: ([ -z $plist_secret ] ||
-    #         scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Messaging swift)
-    - name: Build objc quickstart
-      run: ([ -z $plist_secret ] || scripts/test_quickstart_ftl.sh Messaging)
-    - name: Build swift quickstart
-      run: ([ -z $plist_secret ] || scripts/test_quickstart_ftl.sh Messaging swift)
+    - name: Build quickstart
+      run: ([ -z $plist_secret ] ||
+            scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Messaging)
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
       with:
