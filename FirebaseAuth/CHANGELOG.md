@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Add a mechanism to prevent concurrent token refreshes. (#15474)
+
 # 12.2.0
 - [added] Added TOTP support for macOS.
 
