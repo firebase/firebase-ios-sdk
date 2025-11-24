@@ -40,8 +40,8 @@ import Foundation
 /// - SeeAlso: `@Generable` macro ``Generable(description:)`` and  `@Guide` macro
 /// ``Guide(description:)``.
 public protocol Generable: ConvertibleFromGeneratedContent, ConvertibleToGeneratedContent {
-  /// An instance of the generation schema.
-  static var generationSchema: GenerationSchema { get }
+  /// An instance of the JSON schema.
+  static var jsonSchema: JSONSchema { get }
 }
 
 extension Optional where Wrapped: Generable {}
@@ -55,8 +55,8 @@ extension Optional: ConvertibleToGeneratedContent where Wrapped: ConvertibleToGe
 }
 
 extension Bool: Generable {
-  public static var generationSchema: GenerationSchema {
-    GenerationSchema(kind: .boolean, source: "Bool")
+  public static var jsonSchema: JSONSchema {
+    JSONSchema(kind: .boolean, source: "Bool")
   }
 
   public init(_ content: GeneratedContent) throws {
@@ -73,8 +73,8 @@ extension Bool: Generable {
 }
 
 extension String: Generable {
-  public static var generationSchema: GenerationSchema {
-    GenerationSchema(kind: .string, source: "String")
+  public static var jsonSchema: JSONSchema {
+    JSONSchema(kind: .string, source: "String")
   }
 
   public init(_ content: GeneratedContent) throws {
@@ -91,8 +91,8 @@ extension String: Generable {
 }
 
 extension Int: Generable {
-  public static var generationSchema: GenerationSchema {
-    GenerationSchema(kind: .integer, source: "Int")
+  public static var jsonSchema: JSONSchema {
+    JSONSchema(kind: .integer, source: "Int")
   }
 
   public init(_ content: GeneratedContent) throws {
@@ -112,8 +112,8 @@ extension Int: Generable {
 }
 
 extension Float: Generable {
-  public static var generationSchema: GenerationSchema {
-    GenerationSchema(kind: .double, source: "Number")
+  public static var jsonSchema: JSONSchema {
+    JSONSchema(kind: .double, source: "Number")
   }
 
   public init(_ content: GeneratedContent) throws {
@@ -133,8 +133,8 @@ extension Float: Generable {
 }
 
 extension Double: Generable {
-  public static var generationSchema: GenerationSchema {
-    GenerationSchema(kind: .double, source: "Number")
+  public static var jsonSchema: JSONSchema {
+    JSONSchema(kind: .double, source: "Number")
   }
 
   public init(_ content: GeneratedContent) throws {
@@ -154,8 +154,8 @@ extension Double: Generable {
 }
 
 extension Decimal: Generable {
-  public static var generationSchema: GenerationSchema {
-    GenerationSchema(kind: .double, source: "Number")
+  public static var jsonSchema: JSONSchema {
+    JSONSchema(kind: .double, source: "Number")
   }
 
   public init(_ content: GeneratedContent) throws {
@@ -173,8 +173,8 @@ extension Decimal: Generable {
 }
 
 extension Array: Generable where Element: Generable {
-  public static var generationSchema: GenerationSchema {
-    GenerationSchema(kind: .array(item: Element.self), source: String(describing: self))
+  public static var jsonSchema: JSONSchema {
+    JSONSchema(kind: .array(item: Element.self), source: String(describing: self))
   }
 }
 

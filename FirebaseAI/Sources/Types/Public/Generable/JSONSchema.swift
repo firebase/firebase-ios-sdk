@@ -18,7 +18,7 @@ import Foundation
 ///
 /// Generation  schemas guide the output of the model to deterministically ensure the output is in
 /// the desired format.
-public struct GenerationSchema: Sendable {
+public struct JSONSchema: Sendable {
   enum Kind {
     case string
     case integer
@@ -36,7 +36,7 @@ public struct GenerationSchema: Sendable {
     self.source = source
   }
 
-  /// A property that belongs to a generation schema.
+  /// A property that belongs to a JSON schema.
   ///
   /// Fields are named members of object types. Fields are strongly typed and have optional
   /// descriptions and guides.
@@ -89,7 +89,7 @@ public struct GenerationSchema: Sendable {
   ///   - description: A natural language description of this schema.
   ///   - properties: An array of properties.
   public init(type: any Generable.Type, description: String? = nil,
-              properties: [GenerationSchema.Property]) {
+              properties: [JSONSchema.Property]) {
     let name = String(describing: type)
     kind = .object(name: name, description: description, properties: properties)
     source = name
@@ -116,7 +116,7 @@ public struct GenerationSchema: Sendable {
     fatalError("`GenerationSchema.init(type:description:anyOf:)` is not implemented.")
   }
 
-  /// A error that occurs when there is a problem creating a generation schema.
+  /// A error that occurs when there is a problem creating a JSON schema.
   public enum SchemaError: Error, LocalizedError {
     /// The context in which the error occurred.
     public struct Context: Sendable {
@@ -132,26 +132,26 @@ public struct GenerationSchema: Sendable {
 
     /// An error that represents an attempt to construct a schema from dynamic schemas, and two or
     /// more of the subschemas have the same type name.
-    case duplicateType(schema: String?, type: String, context: GenerationSchema.SchemaError.Context)
+    case duplicateType(schema: String?, type: String, context: JSONSchema.SchemaError.Context)
 
     /// An error that represents an attempt to construct a dynamic schema with properties that have
     /// conflicting names.
     case duplicateProperty(
       schema: String,
       property: String,
-      context: GenerationSchema.SchemaError.Context
+      context: JSONSchema.SchemaError.Context
     )
 
     /// An error that represents an attempt to construct an anyOf schema with an empty array of type
     /// choices.
-    case emptyTypeChoices(schema: String, context: GenerationSchema.SchemaError.Context)
+    case emptyTypeChoices(schema: String, context: JSONSchema.SchemaError.Context)
 
     /// An error that represents an attempt to construct a schema from dynamic schemas, and one of
     /// those schemas references an undefined schema.
     case undefinedReferences(
       schema: String?,
       references: [String],
-      context: GenerationSchema.SchemaError.Context
+      context: JSONSchema.SchemaError.Context
     )
 
     /// A string representation of the error description.
@@ -174,11 +174,11 @@ public struct GenerationSchema: Sendable {
     case .boolean:
       return .boolean()
     case let .array(item: item):
-      return .array(items: item.generationSchema.asOpenAPISchema())
+      return .array(items: item.jsonSchema.asOpenAPISchema())
     case let .object(name: name, description: description, properties: properties):
       var objectProperties = [String: Schema]()
       for property in properties {
-        objectProperties[property.name] = property.type.generationSchema.asOpenAPISchema()
+        objectProperties[property.name] = property.type.jsonSchema.asOpenAPISchema()
       }
       return .object(
         properties: objectProperties,

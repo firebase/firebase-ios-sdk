@@ -22,8 +22,8 @@ public struct GeneratedContent: Sendable, Generable {
   /// preserving the hierarchical structure of the data and the  data's ``GenerationID`` ids.
   public let kind: Kind
 
-  /// An instance of the generation schema.
-  public static var generationSchema: GenerationSchema {
+  /// An instance of the JSON schema.
+  public static var jsonSchema: JSONSchema {
     // Return a schema equivalent to any legal JSON, i.e.:
     // {
     //   "anyOf" : [
