@@ -153,14 +153,31 @@ public struct ModelOutput: Sendable, Generable {
   public func value<Value>(_ type: Value.Type = Value.self,
                            forProperty property: String) throws -> Value
     where Value: ConvertibleFromModelOutput {
-    fatalError("`ModelOutput.value(_:forProperty:)` is not implemented.")
+    guard case let .structure(properties, _) = kind else {
+      // TODO: Throw an error instead
+      fatalError("Attempting to access a property on a non-object ModelOutput.")
+    }
+    guard let value = properties[property] else {
+      // TODO: Throw an error instead
+      fatalError("Property '\(property)' not found in model output.")
+    }
+
+    return try Value(value)
   }
 
   /// Reads an optional, concrete generable type from named property.
   public func value<Value>(_ type: Value?.Type = Value?.self,
                            forProperty property: String) throws -> Value?
     where Value: ConvertibleFromModelOutput {
-    fatalError("`ModelOutput.value(_:forProperty:)` is not implemented.")
+    guard case let .structure(properties, _) = kind else {
+      // TODO: Throw an error instead
+      fatalError("Attempting to access a property on a non-object ModelOutput.")
+    }
+    guard let value = properties[property] else {
+      return nil
+    }
+
+    return try Value(value)
   }
 }
 

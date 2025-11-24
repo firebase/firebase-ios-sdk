@@ -12,6 +12,69 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAILogic
+import Testing
+
+struct GenerableTests {
+  @Test
+  func initializeGenerableTypeFromModelOutput() throws {
+    let properties: [(String, any ConvertibleToModelOutput)] =
+      [("firstName", "John"), ("lastName", "Doe"), ("age", 40)]
+    let modelOutput = ModelOutput(
+      properties: properties, uniquingKeysWith: { _, second in second }
+    )
+
+    let person = try Person(modelOutput)
+
+    #expect(person.firstName == "John")
+    #expect(person.lastName == "Doe")
+    #expect(person.age == 40)
+  }
+
+  @Test
+  func convertGenerableTypeToModelOutput() throws {
+    let person = Person(firstName: "Jane", middleName: "Marie", lastName: "Smith", age: 32)
+
+    let modelOutput = person.modelOutput
+
+    guard case let .structure(properties, orderedKeys) = modelOutput.kind else {
+      Issue.record("Model output is not a structure.")
+      return
+    }
+    let firstNameProperty = try #require(properties["firstName"])
+    guard case let .string(firstName) = firstNameProperty.kind else {
+      Issue.record("The 'firstName' property is not a string: \(firstNameProperty.kind)")
+      return
+    }
+    #expect(firstName == person.firstName)
+    #expect(try modelOutput.value(forProperty: "firstName") == person.firstName)
+    let middleNameProperty = try #require(properties["middleName"])
+    guard case let .string(middleName) = middleNameProperty.kind else {
+      Issue.record("The 'middleName' property is not a string: \(middleNameProperty.kind)")
+      return
+    }
+    #expect(middleName == person.middleName)
+    #expect(try modelOutput.value(forProperty: "middleName") == person.middleName)
+    let lastNameProperty = try #require(properties["lastName"])
+    guard case let .string(lastName) = lastNameProperty.kind else {
+      Issue.record("The 'lastName' property is not a string: \(lastNameProperty.kind)")
+      return
+    }
+    #expect(lastName == person.lastName)
+    #expect(try modelOutput.value(forProperty: "lastName") == person.lastName)
+    let ageProperty = try #require(properties["age"])
+    guard case let .number(age) = ageProperty.kind else {
+      Issue.record("The 'age' property is not a number: \(ageProperty.kind)")
+      return
+    }
+    #expect(Int(age) == person.age)
+    #expect(try modelOutput.value(forProperty: "age") == person.age)
+    // TODO: Implement `ModelOutput.value(_:)` and uncomment
+    // #expect(try modelOutput.value() == person)
+    #expect(orderedKeys == ["firstName", "middleName", "lastName", "age"])
+  }
+}
+
 // An example of the expected output from the `@FirebaseAILogic.Generable` macro.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct Person: Equatable {
