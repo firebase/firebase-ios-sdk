@@ -27,8 +27,9 @@ language="${2-}"
 # Source function to check if CI secrets are available.
 source scripts/check_secrets.sh
 
-if check_secrets; then
+if check_secrets || true; then
   cd quickstart-ios
+  git checkout nc/bft
   DIR=$(echo "$sample" | tr '[:upper:]' '[:lower:]')
   if [ "$language" = "swift" ]; then
     have_secrets=true SAMPLE="$sample" SPM=true SWIFT_SUFFIX="Swift" DIR="$DIR" ./scripts/build-for-testing.sh
