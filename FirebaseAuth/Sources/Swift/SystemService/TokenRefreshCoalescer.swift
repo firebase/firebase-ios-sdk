@@ -27,9 +27,9 @@ import Foundation
 /// Example:
 /// ```
 /// // Multiple concurrent requests arrive at the same time
-/// Task { try await tokenRefreshCoalescer.coalescedRefresh(backend: backend, ...) }  // 1
-/// Task { try await tokenRefreshCoalescer.coalescedRefresh(backend: backend, ...) }  // 2
-/// Task { try await tokenRefreshCoalescer.coalescedRefresh(backend: backend, ...) }  // 3
+/// Task { try await tokenRefreshCoalescer.coalescedRefresh(currentToken: token, ...) }  // 1
+/// Task { try await tokenRefreshCoalescer.coalescedRefresh(currentToken: token, ...) }  // 2
+/// Task { try await tokenRefreshCoalescer.coalescedRefresh(currentToken: token, ...) }  // 3
 ///
 /// // Only ONE network call is made. All three tasks receive the same refreshed token.
 /// ```
