@@ -823,6 +823,9 @@
 		621D620B28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */; };
 		621D620C28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */; };
 		623AA12C3481646B0715006D /* string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0EE5300F8233D14025EF0456 /* string_apple_test.mm */; };
+		6271643C2ED4D5F400D2CD1D /* RealtimePipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6271643B2ED4D5EE00D2CD1D /* RealtimePipelineTests.swift */; };
+		6271643D2ED4D5F400D2CD1D /* RealtimePipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6271643B2ED4D5EE00D2CD1D /* RealtimePipelineTests.swift */; };
+		6271643E2ED4D5F400D2CD1D /* RealtimePipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6271643B2ED4D5EE00D2CD1D /* RealtimePipelineTests.swift */; };
 		627253FDEC6BB5549FE77F4E /* tree_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */; };
 		62B1C1100A8C68D94565916C /* document_overlay_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = FFCA39825D9678A03D1845D0 /* document_overlay_cache_test.cc */; };
 		62C86789E72E624A27BF6AE5 /* complex_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B32C2DDDEC16F6465317B8AE /* complex_test.cc */; };
@@ -2143,6 +2146,7 @@
 		61F72C5520BC48FD001A68CB /* serializer_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer_test.cc; sourceTree = "<group>"; };
 		620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
 		621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryIntegrationTests.swift; sourceTree = "<group>"; };
+		6271643B2ED4D5EE00D2CD1D /* RealtimePipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimePipelineTests.swift; sourceTree = "<group>"; };
 		62CF8E2E7611B285B46228FE /* Pods-Firestore_IntegrationTests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_iOS.release.xcconfig"; path = "Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		62E54B832A9E910A003347C8 /* IndexingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexingTests.swift; sourceTree = "<group>"; };
 		63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = target_index_matcher_test.cc; sourceTree = "<group>"; };
@@ -2499,6 +2503,7 @@
 				861684E49DAC993D153E60D0 /* PipelineTests.swift */,
 				621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */,
 				128F2B002E254E2C0006327E /* QueryToPipelineTests.swift */,
+				6271643B2ED4D5EE00D2CD1D /* RealtimePipelineTests.swift */,
 				4D65F6E69993611D47DC8E7C /* SnapshotListenerSourceTests.swift */,
 				EFF22EA92C5060A4009A369B /* VectorIntegrationTests.swift */,
 			);
@@ -4978,6 +4983,7 @@
 				655F8647F57E5F2155DFF7B5 /* PipelineTests.swift in Sources */,
 				621D620C28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				128F2B022E254E2C0006327E /* QueryToPipelineTests.swift in Sources */,
+				6271643E2ED4D5F400D2CD1D /* RealtimePipelineTests.swift in Sources */,
 				1CFBD4563960D8A20C4679A3 /* SnapshotListenerSourceTests.swift in Sources */,
 				EE4C4BE7F93366AE6368EE02 /* TestHelper.swift in Sources */,
 				EFF22EAC2C5060A4009A369B /* VectorIntegrationTests.swift in Sources */,
@@ -5012,8 +5018,8 @@
 				E3E6B368A755D892F937DBF7 /* collection_group_test.cc in Sources */,
 				064689971747DA312770AB7A /* collection_test.cc in Sources */,
 				1DB3013C5FC736B519CD65A3 /* common.pb.cc in Sources */,
-				99F97B28DA546D42AB14214B /* comparison_test.cc in Sources */,
 				555161D6DB2DDC8B57F72A70 /* comparison_test.cc in Sources */,
+				99F97B28DA546D42AB14214B /* comparison_test.cc in Sources */,
 				BB5F19878EA5A8D9C7276D40 /* complex_test.cc in Sources */,
 				7394B5C29C6E524C2AF964E6 /* counting_query_engine.cc in Sources */,
 				C02A969BF4BB63ABCB531B4B /* create_noop_connectivity_monitor.cc in Sources */,
@@ -5259,6 +5265,7 @@
 				C8C2B945D84DD98391145F3F /* PipelineTests.swift in Sources */,
 				621D620B28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				128F2B032E254E2C0006327E /* QueryToPipelineTests.swift in Sources */,
+				6271643C2ED4D5F400D2CD1D /* RealtimePipelineTests.swift in Sources */,
 				A0BC30D482B0ABD1A3A24CDC /* SnapshotListenerSourceTests.swift in Sources */,
 				A78366DBE0BFDE42474A728A /* TestHelper.swift in Sources */,
 				EFF22EAB2C5060A4009A369B /* VectorIntegrationTests.swift in Sources */,
@@ -5293,8 +5300,8 @@
 				1CDA0E10BC669276E0EAA1E8 /* collection_group_test.cc in Sources */,
 				C87DF880BADEA1CBF8365700 /* collection_test.cc in Sources */,
 				1D71CA6BBA1E3433F243188E /* common.pb.cc in Sources */,
-				476AE05E0878007DE1BF5460 /* comparison_test.cc in Sources */,
 				9C86EEDEA131BFD50255EEF1 /* comparison_test.cc in Sources */,
+				476AE05E0878007DE1BF5460 /* comparison_test.cc in Sources */,
 				C5434EF8A0C8B79A71F0784C /* complex_test.cc in Sources */,
 				DCD83C545D764FB15FD88B02 /* counting_query_engine.cc in Sources */,
 				ECC433628575AE994C621C54 /* create_noop_connectivity_monitor.cc in Sources */,
@@ -5822,6 +5829,7 @@
 				E04CB0D580980748D5DC453F /* PipelineTests.swift in Sources */,
 				621D620A28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				128F2B012E254E2C0006327E /* QueryToPipelineTests.swift in Sources */,
+				6271643D2ED4D5F400D2CD1D /* RealtimePipelineTests.swift in Sources */,
 				B00F8D1819EE20C45B660940 /* SnapshotListenerSourceTests.swift in Sources */,
 				AD34726BFD3461FF64BBD56D /* TestHelper.swift in Sources */,
 				EFF22EAA2C5060A4009A369B /* VectorIntegrationTests.swift in Sources */,
@@ -5856,8 +5864,8 @@
 				4A6B1E0B678E31367A55DC17 /* collection_group_test.cc in Sources */,
 				BACA9CDF0F2E926926B5F36F /* collection_test.cc in Sources */,
 				4C66806697D7BCA730FA3697 /* common.pb.cc in Sources */,
-				C885C84B7549C860784E4E3C /* comparison_test.cc in Sources */,
 				EC7A44792A5513FBB6F501EE /* comparison_test.cc in Sources */,
+				C885C84B7549C860784E4E3C /* comparison_test.cc in Sources */,
 				62C86789E72E624A27BF6AE5 /* complex_test.cc in Sources */,
 				BDF3A6C121F2773BB3A347A7 /* counting_query_engine.cc in Sources */,
 				1F4930A8366F74288121F627 /* create_noop_connectivity_monitor.cc in Sources */,

@@ -60,7 +60,7 @@ import Foundation
   ///
   /// - Returns: A `RealtimePipelineSource` for building a realtime pipeline.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @nonobjc internal func realtimePipeline() -> RealtimePipelineSource {
+  @nonobjc func realtimePipeline() -> RealtimePipelineSource {
     return RealtimePipelineSource(db: self) { stages, db in
       RealtimePipeline(stages: stages, db: db)
     }

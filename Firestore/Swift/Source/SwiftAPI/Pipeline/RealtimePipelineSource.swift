@@ -13,7 +13,7 @@
 // limitations under the License.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-struct RealtimePipelineSource: @unchecked Sendable {
+public struct RealtimePipelineSource: @unchecked Sendable {
   let db: Firestore
   let factory: ([Stage], Firestore) -> RealtimePipeline
 
@@ -22,27 +22,62 @@ struct RealtimePipelineSource: @unchecked Sendable {
     self.factory = factory
   }
 
-  func collection(_ path: String) -> RealtimePipeline {
+  public func collection(_ path: String) -> RealtimePipeline {
     return factory([CollectionSource(collection: db.collection(path), db: db)], db)
   }
 
-  func collection(_ coll: CollectionReference) -> RealtimePipeline {
+  public func collection(_ coll: CollectionReference) -> RealtimePipeline {
     return factory([CollectionSource(collection: coll, db: db)], db)
   }
 
-  func collectionGroup(_ collectionId: String) -> RealtimePipeline {
+  public func collectionGroup(_ collectionId: String) -> RealtimePipeline {
     return factory(
       [CollectionGroupSource(collectionId: collectionId)],
       db
     )
   }
 
-  func documents(_ docs: [DocumentReference]) -> RealtimePipeline {
+  public func documents(_ docs: [DocumentReference]) -> RealtimePipeline {
     return factory([DocumentsSource(docs: docs, db: db)], db)
   }
 
-  func documents(_ paths: [String]) -> RealtimePipeline {
+  public func documents(_ paths: [String]) -> RealtimePipeline {
     let docs = paths.map { db.document($0) }
     return factory([DocumentsSource(docs: docs, db: db)], db)
+  }
+
+  /// Creates a `RealtimePipeline` from an existing `Query`.
+  ///
+  /// This allows you to convert a standard Firestore query into a pipeline, which can then be
+  /// further modified with additional pipeline stages.
+  ///
+  /// - Parameter query: The `Query` to convert into a pipeline.
+  /// - Returns: A `RealtimePipeline` that is equivalent to the given query.
+  public func create(from query: Query) -> RealtimePipeline {
+    let stageBridges = PipelineBridge.createStageBridges(from: query)
+    let stages: [Stage] = stageBridges.map { bridge in
+      switch bridge.name {
+      case "collection":
+        return CollectionSource(
+          bridge: bridge as! CollectionSourceStageBridge,
+          db: query.firestore
+        )
+      case "collection_group":
+        return CollectionGroupSource(bridge: bridge as! CollectionGroupSourceStageBridge)
+      case "documents":
+        return DocumentsSource(bridge: bridge as! DocumentsSourceStageBridge, db: query.firestore)
+      case "where":
+        return Where(bridge: bridge as! WhereStageBridge)
+      case "limit":
+        return Limit(bridge: bridge as! LimitStageBridge)
+      case "sort":
+        return Sort(bridge: bridge as! SortStageBridge)
+      case "offset":
+        return Offset(bridge: bridge as! OffsetStageBridge)
+      default:
+        fatalError("Unknown stage type \(bridge.name)")
+      }
+    }
+    return factory(stages, db)
   }
 }
