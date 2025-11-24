@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A type that can be converted to generated content.
-public protocol ConvertibleToGeneratedContent {
-  /// This instance represented as generated content.
+/// A type that can be converted to model output.
+public protocol ConvertibleToModelOutput {
+  /// This instance represented as model output.
   ///
   /// Conformance to this protocol is provided by the `@Generable` macro. A manual implementation
-  /// may be used to map values onto properties using different names. Use the generated content
-  /// property as shown below, to manually return a new ``GeneratedContent`` with the properties
+  /// may be used to map values onto properties using different names. Use the `modelOutput`
+  /// property as shown below, to manually return a new ``ModelOutput`` with the properties
   /// you specify.
   ///
   /// ```swift
-  /// struct Person: ConvertibleToGeneratedContent {
+  /// struct Person: ConvertibleToModelOutput {
   ///    var name: String
   ///    var age: Int
   ///
-  ///    var generatedContent: GeneratedContent {
-  ///        GeneratedContent(properties: [
+  ///    var modelOutput: ModelOutput {
+  ///        ModelOutput(properties: [
   ///            "firstName": name,
   ///            "ageInYears": age
   ///        ])
@@ -35,8 +35,8 @@ public protocol ConvertibleToGeneratedContent {
   /// }
   /// ```
   ///
-  /// - Important: If your type also conforms to ``ConvertibleFromGeneratedContent``, it is
+  /// - Important: If your type also conforms to ``ConvertibleFromModelOutput``, it is
   /// critical that this implementation be symmetrical with
-  /// ``ConvertibleFromGeneratedContent/init(_:)``.
-  var generatedContent: GeneratedContent { get }
+  /// ``ConvertibleFromModelOutput/init(_:)``.
+  var modelOutput: ModelOutput { get }
 }

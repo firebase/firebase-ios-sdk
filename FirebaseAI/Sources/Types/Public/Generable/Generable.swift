@@ -39,18 +39,18 @@ import Foundation
 /// ```
 /// - SeeAlso: `@Generable` macro ``Generable(description:)`` and  `@Guide` macro
 /// ``Guide(description:)``.
-public protocol Generable: ConvertibleFromGeneratedContent, ConvertibleToGeneratedContent {
+public protocol Generable: ConvertibleFromModelOutput, ConvertibleToModelOutput {
   /// An instance of the JSON schema.
   static var jsonSchema: JSONSchema { get }
 }
 
 extension Optional where Wrapped: Generable {}
 
-extension Optional: ConvertibleToGeneratedContent where Wrapped: ConvertibleToGeneratedContent {
-  public var generatedContent: GeneratedContent {
-    guard let self else { return GeneratedContent(kind: .null) }
+extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOutput {
+  public var modelOutput: ModelOutput {
+    guard let self else { return ModelOutput(kind: .null) }
 
-    return GeneratedContent(self)
+    return ModelOutput(self)
   }
 }
 
@@ -59,7 +59,7 @@ extension Bool: Generable {
     JSONSchema(kind: .boolean, source: "Bool")
   }
 
-  public init(_ content: GeneratedContent) throws {
+  public init(_ content: ModelOutput) throws {
     guard case let .bool(value) = content.kind else {
       // TODO: Determine the correct error to throw.
       fatalError("Expected a boolean but found \(content.kind)")
@@ -67,8 +67,8 @@ extension Bool: Generable {
     self = value
   }
 
-  public var generatedContent: GeneratedContent {
-    return GeneratedContent(kind: .bool(self))
+  public var modelOutput: ModelOutput {
+    return ModelOutput(kind: .bool(self))
   }
 }
 
@@ -77,7 +77,7 @@ extension String: Generable {
     JSONSchema(kind: .string, source: "String")
   }
 
-  public init(_ content: GeneratedContent) throws {
+  public init(_ content: ModelOutput) throws {
     guard case let .string(value) = content.kind else {
       // TODO: Determine the correct error to throw.
       fatalError("Expected a string but found \(content.kind)")
@@ -85,8 +85,8 @@ extension String: Generable {
     self = value
   }
 
-  public var generatedContent: GeneratedContent {
-    return GeneratedContent(kind: .string(self))
+  public var modelOutput: ModelOutput {
+    return ModelOutput(kind: .string(self))
   }
 }
 
@@ -95,7 +95,7 @@ extension Int: Generable {
     JSONSchema(kind: .integer, source: "Int")
   }
 
-  public init(_ content: GeneratedContent) throws {
+  public init(_ content: ModelOutput) throws {
     // TODO: Determine the correct errors to throw.
     guard case let .number(value) = content.kind else {
       fatalError("Expected a number but found \(content.kind)")
@@ -106,8 +106,8 @@ extension Int: Generable {
     self = integer
   }
 
-  public var generatedContent: GeneratedContent {
-    return GeneratedContent(kind: .number(Double(self)))
+  public var modelOutput: ModelOutput {
+    return ModelOutput(kind: .number(Double(self)))
   }
 }
 
@@ -116,7 +116,7 @@ extension Float: Generable {
     JSONSchema(kind: .double, source: "Number")
   }
 
-  public init(_ content: GeneratedContent) throws {
+  public init(_ content: ModelOutput) throws {
     // TODO: Determine the correct error to throw.
     guard case let .number(value) = content.kind else {
       fatalError("Expected a number but found \(content.kind)")
@@ -127,8 +127,8 @@ extension Float: Generable {
     self = float
   }
 
-  public var generatedContent: GeneratedContent {
-    return GeneratedContent(kind: .number(Double(self)))
+  public var modelOutput: ModelOutput {
+    return ModelOutput(kind: .number(Double(self)))
   }
 }
 
@@ -137,7 +137,7 @@ extension Double: Generable {
     JSONSchema(kind: .double, source: "Number")
   }
 
-  public init(_ content: GeneratedContent) throws {
+  public init(_ content: ModelOutput) throws {
     // TODO: Determine the correct error to throw.
     guard case let .number(value) = content.kind else {
       fatalError("Expected a number but found \(content.kind)")
@@ -148,8 +148,8 @@ extension Double: Generable {
     self = double
   }
 
-  public var generatedContent: GeneratedContent {
-    return GeneratedContent(kind: .number(self))
+  public var modelOutput: ModelOutput {
+    return ModelOutput(kind: .number(self))
   }
 }
 
@@ -158,7 +158,7 @@ extension Decimal: Generable {
     JSONSchema(kind: .double, source: "Number")
   }
 
-  public init(_ content: GeneratedContent) throws {
+  public init(_ content: ModelOutput) throws {
     // TODO: Determine the correct error to throw.
     guard case let .number(value) = content.kind else {
       fatalError("Expected a number but found \(content.kind)")
@@ -166,9 +166,9 @@ extension Decimal: Generable {
     self = Decimal(value)
   }
 
-  public var generatedContent: GeneratedContent {
+  public var modelOutput: ModelOutput {
     let doubleValue = (self as NSDecimalNumber).doubleValue
-    return GeneratedContent(kind: .number(doubleValue))
+    return ModelOutput(kind: .number(doubleValue))
   }
 }
 
@@ -178,15 +178,15 @@ extension Array: Generable where Element: Generable {
   }
 }
 
-extension Array: ConvertibleToGeneratedContent where Element: ConvertibleToGeneratedContent {
-  public var generatedContent: GeneratedContent {
-    let values = map { $0.generatedContent }
-    return GeneratedContent(kind: .array(values))
+extension Array: ConvertibleToModelOutput where Element: ConvertibleToModelOutput {
+  public var modelOutput: ModelOutput {
+    let values = map { $0.modelOutput }
+    return ModelOutput(kind: .array(values))
   }
 }
 
-extension Array: ConvertibleFromGeneratedContent where Element: ConvertibleFromGeneratedContent {
-  public init(_ content: GeneratedContent) throws {
+extension Array: ConvertibleFromModelOutput where Element: ConvertibleFromModelOutput {
+  public init(_ content: ModelOutput) throws {
     // TODO: Determine the correct error to throw.
     guard case let .array(values) = content.kind else {
       fatalError("Expected an array but found \(content.kind)")
