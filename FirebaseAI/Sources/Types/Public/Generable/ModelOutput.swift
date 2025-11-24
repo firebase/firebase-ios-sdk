@@ -15,6 +15,7 @@
 /// A type that represents structured model output.
 ///
 /// Model output may contain a single value, an array, or key-value pairs with unique keys.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelOutput: Sendable, Generable {
   /// The kind representation of this model output.
   ///

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 /// A type that can be converted to model output.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol ConvertibleToModelOutput {
   /// This instance represented as model output.
   ///

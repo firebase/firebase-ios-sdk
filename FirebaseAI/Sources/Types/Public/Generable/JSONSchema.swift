@@ -18,6 +18,7 @@ import Foundation
 ///
 /// Generation  schemas guide the output of the model to deterministically ensure the output is in
 /// the desired format.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct JSONSchema: Sendable {
   enum Kind {
     case string

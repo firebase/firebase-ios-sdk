@@ -39,13 +39,16 @@ import Foundation
 /// ```
 /// - SeeAlso: `@Generable` macro ``Generable(description:)`` and  `@Guide` macro
 /// ``Guide(description:)``.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol Generable: ConvertibleFromModelOutput, ConvertibleToModelOutput {
   /// An instance of the JSON schema.
   static var jsonSchema: JSONSchema { get }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Optional where Wrapped: Generable {}
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOutput {
   public var modelOutput: ModelOutput {
     guard let self else { return ModelOutput(kind: .null) }
@@ -54,6 +57,7 @@ extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOu
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Bool: Generable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .boolean, source: "Bool")
@@ -72,6 +76,7 @@ extension Bool: Generable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension String: Generable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .string, source: "String")
@@ -90,6 +95,7 @@ extension String: Generable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Int: Generable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .integer, source: "Int")
@@ -111,6 +117,7 @@ extension Int: Generable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Float: Generable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .double, source: "Number")
@@ -132,6 +139,7 @@ extension Float: Generable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Double: Generable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .double, source: "Number")
@@ -153,6 +161,7 @@ extension Double: Generable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Decimal: Generable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .double, source: "Number")
@@ -172,12 +181,14 @@ extension Decimal: Generable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Array: Generable where Element: Generable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .array(item: Element.self), source: String(describing: self))
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Array: ConvertibleToModelOutput where Element: ConvertibleToModelOutput {
   public var modelOutput: ModelOutput {
     let values = map { $0.modelOutput }
@@ -185,6 +196,7 @@ extension Array: ConvertibleToModelOutput where Element: ConvertibleToModelOutpu
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Array: ConvertibleFromModelOutput where Element: ConvertibleFromModelOutput {
   public init(_ content: ModelOutput) throws {
     // TODO: Determine the correct error to throw.
