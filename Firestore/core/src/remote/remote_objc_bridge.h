@@ -164,6 +164,10 @@ class DatastoreSerializer {
       const grpc::ByteBuffer& response,
       std::shared_ptr<api::Firestore> db) const;
 
+  util::StatusOr<api::PipelineSnapshot> MergeExecutePipelineResponses(
+      const std::vector<grpc::ByteBuffer>& responses,
+      std::shared_ptr<api::Firestore> db) const;
+
  private:
   Serializer serializer_;
 };
