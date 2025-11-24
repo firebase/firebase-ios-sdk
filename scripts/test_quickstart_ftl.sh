@@ -27,7 +27,7 @@ language="${2-}"
 # Source function to check if CI secrets are available.
 source scripts/check_secrets.sh
 
-if check_secrets || true; then
+if check_secrets; then
   cd quickstart-ios
   git checkout nc/bft
   DIR=$(echo "$sample" | tr '[:upper:]' '[:lower:]')
