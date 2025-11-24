@@ -160,4 +160,36 @@ public struct GenerationSchema: Sendable {
     /// A suggestion that indicates how to handle the error.
     public var recoverySuggestion: String? { nil }
   }
+
+  /// Returns an OpenAPI ``Schema`` equivalent of this JSON schema for testing.
+  public func asOpenAPISchema() -> Schema {
+    // TODO: Make this method internal or remove it when JSON Schema serialization is implemented.
+    switch kind {
+    case .string:
+      return .string()
+    case .integer:
+      return .integer()
+    case .double:
+      return .double()
+    case .boolean:
+      return .boolean()
+    case let .array(item: item):
+      return .array(items: item.generationSchema.asOpenAPISchema())
+    case let .object(name: name, description: description, properties: properties):
+      var objectProperties = [String: Schema]()
+      for property in properties {
+        objectProperties[property.name] = property.type.generationSchema.asOpenAPISchema()
+      }
+      return .object(
+        properties: objectProperties,
+        optionalProperties: properties.compactMap { property in
+          guard property.isOptional else { return nil }
+          return property.name
+        },
+        propertyOrdering: properties.map { $0.name },
+        description: description,
+        title: name
+      )
+    }
+  }
 }
