@@ -90,6 +90,24 @@ struct GenerableTests {
   }
 
   @Test
+  func initializeGenerableWithLossyNumericConversion() throws {
+    let properties: [(String, any ConvertibleToModelOutput)] =
+      [("firstName", "John"), ("lastName", "Doe"), ("age", 40.5)]
+    let modelOutput = ModelOutput(
+      properties: properties, uniquingKeysWith: { _, second in second }
+    )
+
+    do {
+      _ = try Person(modelOutput)
+      Issue.record("Did not throw an error.")
+    } catch let ModelOutput.DecodingError.dataCorrupted(context) {
+      #expect(context.debugDescription.contains("ModelOutput cannot be represented as Int."))
+    } catch {
+      Issue.record("Threw an unexpected error: \(error)")
+    }
+  }
+
+  @Test
   func initializeGenerableWithExtraProperties() throws {
     let addressProperties: [(String, any ConvertibleToModelOutput)] =
       [("street", "123 Main St"), ("city", "Anytown"), ("zipCode", "12345")]

@@ -195,6 +195,9 @@ public extension ModelOutput {
     /// The type of a property in the `ModelOutput` did not match the expected type.
     case typeMismatch(context: Context)
 
+    /// The data is corrupted or invalid.
+    case dataCorrupted(context: Context)
+
     /// The context for a decoding error.
     public struct Context {
       /// A description of the error.
@@ -208,6 +211,8 @@ public extension ModelOutput {
       case .notAStructure:
         return "Not a structure"
       case let .typeMismatch(context):
+        return context.debugDescription
+      case let .dataCorrupted(context):
         return context.debugDescription
       }
     }
