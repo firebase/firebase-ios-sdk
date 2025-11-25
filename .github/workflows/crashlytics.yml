@@ -75,7 +75,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
           quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
     - name: Build swift quickstart
-      run: | 
+      run: |
         ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Crashlytics swift)
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
