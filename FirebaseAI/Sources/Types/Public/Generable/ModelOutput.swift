@@ -181,6 +181,7 @@ public struct ModelOutput: Sendable, Generable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ModelOutput {
   /// A representation of the different types of content that can be stored in `ModelOutput`.
   ///
