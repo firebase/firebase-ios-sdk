@@ -36,8 +36,9 @@ on:
     secrets:
       plist_secret:
         required: true
-      github_token:
-        required: true
+      # TODO(ncooke3): Delete?
+      # github_token:
+      #   required: true
 
 jobs:
   quickstart_framework:
