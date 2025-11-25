@@ -307,7 +307,7 @@ jobs:
           "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk "Crashlytics" \
             --target "CrashlyticsExample_(watchOS)_Extension" \
             --framework_path Firebase/
-          "${GITHUB_WORKSPACE}"/scripts/patch_crashlytics_run_path.rb
+          ../../scripts/patch_crashlytics_run_path.rb
       plist_src_path: scripts/gha-encrypted/qs-crashlytics.plist.gpg
       plist_dst_path: quickstart-ios/crashlytics/GoogleService-Info.plist
       os: ${{ matrix.build-env.os }}
