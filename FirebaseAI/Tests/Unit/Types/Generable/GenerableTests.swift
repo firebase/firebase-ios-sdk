@@ -264,56 +264,109 @@ struct GenerableTests {
   }
 }
 
-// An example of the expected output from the `@FirebaseAILogic.Generable` macro.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct Person: Equatable {
-  let firstName: String
-  let middleName: String?
-  let lastName: String
-  let age: Int
-  let address: Address
+#if compiler(>=6.2)
+  // An example of the expected output from the `@FirebaseAILogic.Generable` macro.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  struct Person: Equatable {
+    let firstName: String
+    let middleName: String?
+    let lastName: String
+    let age: Int
+    let address: Address
 
-  nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-    FirebaseAILogic.JSONSchema(
-      type: Self.self,
-      properties: [
-        FirebaseAILogic.JSONSchema.Property(name: "firstName", type: String.self),
-        FirebaseAILogic.JSONSchema.Property(name: "middleName", type: String?.self),
-        FirebaseAILogic.JSONSchema.Property(name: "lastName", type: String.self),
-        FirebaseAILogic.JSONSchema.Property(name: "age", type: Int.self),
-        FirebaseAILogic.JSONSchema.Property(name: "address", type: Address.self),
-      ]
-    )
-  }
-
-  nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-    var properties: [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)] = []
-    properties.append(("firstName", firstName))
-    if let middleName {
-      properties.append(("middleName", middleName))
+    nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
+      FirebaseAILogic.JSONSchema(
+        type: Self.self,
+        properties: [
+          FirebaseAILogic.JSONSchema.Property(name: "firstName", type: String.self),
+          FirebaseAILogic.JSONSchema.Property(name: "middleName", type: String?.self),
+          FirebaseAILogic.JSONSchema.Property(name: "lastName", type: String.self),
+          FirebaseAILogic.JSONSchema.Property(name: "age", type: Int.self),
+          FirebaseAILogic.JSONSchema.Property(name: "address", type: Address.self),
+        ]
+      )
     }
-    properties.append(("lastName", lastName))
-    properties.append(("age", age))
-    properties.append(("address", address))
-    return ModelOutput(
-      properties: properties,
-      uniquingKeysWith: { _, second in
-        second
-      }
-    )
-  }
-}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Person: nonisolated FirebaseAILogic.Generable {
-  nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
-    firstName = try content.value(forProperty: "firstName")
-    middleName = try content.value(forProperty: "middleName")
-    lastName = try content.value(forProperty: "lastName")
-    age = try content.value(forProperty: "age")
-    address = try content.value(forProperty: "address")
+    nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+      var properties: [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)] = []
+      properties.append(("firstName", firstName))
+      if let middleName {
+        properties.append(("middleName", middleName))
+      }
+      properties.append(("lastName", lastName))
+      properties.append(("age", age))
+      properties.append(("address", address))
+      return ModelOutput(
+        properties: properties,
+        uniquingKeysWith: { _, second in
+          second
+        }
+      )
+    }
   }
-}
+
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  extension Person: nonisolated FirebaseAILogic.Generable {
+    nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+      firstName = try content.value(forProperty: "firstName")
+      middleName = try content.value(forProperty: "middleName")
+      lastName = try content.value(forProperty: "lastName")
+      age = try content.value(forProperty: "age")
+      address = try content.value(forProperty: "address")
+    }
+  }
+#else
+  // An example of the expected output from the `@FirebaseAILogic.Generable` macro.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  struct Person: Equatable {
+    let firstName: String
+    let middleName: String?
+    let lastName: String
+    let age: Int
+    let address: Address
+
+    static var jsonSchema: FirebaseAILogic.JSONSchema {
+      FirebaseAILogic.JSONSchema(
+        type: Self.self,
+        properties: [
+          FirebaseAILogic.JSONSchema.Property(name: "firstName", type: String.self),
+          FirebaseAILogic.JSONSchema.Property(name: "middleName", type: String?.self),
+          FirebaseAILogic.JSONSchema.Property(name: "lastName", type: String.self),
+          FirebaseAILogic.JSONSchema.Property(name: "age", type: Int.self),
+          FirebaseAILogic.JSONSchema.Property(name: "address", type: Address.self),
+        ]
+      )
+    }
+
+    var modelOutput: FirebaseAILogic.ModelOutput {
+      var properties: [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)] = []
+      properties.append(("firstName", firstName))
+      if let middleName {
+        properties.append(("middleName", middleName))
+      }
+      properties.append(("lastName", lastName))
+      properties.append(("age", age))
+      properties.append(("address", address))
+      return ModelOutput(
+        properties: properties,
+        uniquingKeysWith: { _, second in
+          second
+        }
+      )
+    }
+  }
+
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  extension Person: FirebaseAILogic.Generable {
+    init(_ content: FirebaseAILogic.ModelOutput) throws {
+      firstName = try content.value(forProperty: "firstName")
+      middleName = try content.value(forProperty: "middleName")
+      lastName = try content.value(forProperty: "lastName")
+      age = try content.value(forProperty: "age")
+      address = try content.value(forProperty: "address")
+    }
+  }
+#endif
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct Address: Equatable {
@@ -322,36 +375,72 @@ struct Address: Equatable {
   let zipCode: String
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Address: nonisolated FirebaseAILogic.Generable {
-  nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-    FirebaseAILogic.JSONSchema(
-      type: Self.self,
-      properties: [
-        FirebaseAILogic.JSONSchema.Property(name: "street", type: String.self),
-        FirebaseAILogic.JSONSchema.Property(name: "city", type: String.self),
-        FirebaseAILogic.JSONSchema.Property(name: "zipCode", type: String.self),
+#if compiler(>=6.2)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  extension Address: nonisolated FirebaseAILogic.Generable {
+    nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
+      FirebaseAILogic.JSONSchema(
+        type: Self.self,
+        properties: [
+          FirebaseAILogic.JSONSchema.Property(name: "street", type: String.self),
+          FirebaseAILogic.JSONSchema.Property(name: "city", type: String.self),
+          FirebaseAILogic.JSONSchema.Property(name: "zipCode", type: String.self),
+        ]
+      )
+    }
+
+    nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+      let properties: [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)] = [
+        ("street", street),
+        ("city", city),
+        ("zipCode", zipCode),
       ]
-    )
-  }
+      return ModelOutput(
+        properties: properties,
+        uniquingKeysWith: { _, second in
+          second
+        }
+      )
+    }
 
-  nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-    let properties: [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)] = [
-      ("street", street),
-      ("city", city),
-      ("zipCode", zipCode),
-    ]
-    return ModelOutput(
-      properties: properties,
-      uniquingKeysWith: { _, second in
-        second
-      }
-    )
+    nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+      street = try content.value(forProperty: "street")
+      city = try content.value(forProperty: "city")
+      zipCode = try content.value(forProperty: "zipCode")
+    }
   }
+#else
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  extension Address: FirebaseAILogic.Generable {
+    static var jsonSchema: FirebaseAILogic.JSONSchema {
+      FirebaseAILogic.JSONSchema(
+        type: Self.self,
+        properties: [
+          FirebaseAILogic.JSONSchema.Property(name: "street", type: String.self),
+          FirebaseAILogic.JSONSchema.Property(name: "city", type: String.self),
+          FirebaseAILogic.JSONSchema.Property(name: "zipCode", type: String.self),
+        ]
+      )
+    }
 
-  nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
-    street = try content.value(forProperty: "street")
-    city = try content.value(forProperty: "city")
-    zipCode = try content.value(forProperty: "zipCode")
+    var modelOutput: FirebaseAILogic.ModelOutput {
+      let properties: [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)] = [
+        ("street", street),
+        ("city", city),
+        ("zipCode", zipCode),
+      ]
+      return ModelOutput(
+        properties: properties,
+        uniquingKeysWith: { _, second in
+          second
+        }
+      )
+    }
+
+    init(_ content: FirebaseAILogic.ModelOutput) throws {
+      street = try content.value(forProperty: "street")
+      city = try content.value(forProperty: "city")
+      zipCode = try content.value(forProperty: "zipCode")
+    }
   }
-}
+#endif
