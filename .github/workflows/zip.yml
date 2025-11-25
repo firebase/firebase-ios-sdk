@@ -56,6 +56,11 @@ jobs:
     outputs:
       should_package: ${{ steps.check.outputs.should_package }}
     steps:
+    - name: Fail workflow if PINNED_RUN_ID is set on a schedule
+      if: github.event_name == 'schedule' && env.PINNED_RUN_ID != ''
+      run: |
+        echo "ERROR: PINNED_RUN_ID is set for a scheduled run. Unset it to allow the workflow to proceed."
+        exit 1
     - name: Check if packaging should be skipped
       id: check
       run: |
