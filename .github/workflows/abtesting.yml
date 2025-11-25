@@ -81,10 +81,10 @@ jobs:
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
 
-abtesting-cron-only:
-    needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
-    with:
-      product: FirebaseABTesting
-      platforms: '[ "ios", "tvos", "macos" ]'
-      flags: '[ "--use-static-frameworks" ]'
+  # abtesting-cron-only:
+  #   needs: pod_lib_lint
+  #   uses: ./.github/workflows/common_cocoapods_cron.yml
+  #   with:
+  #     product: FirebaseABTesting
+  #     platforms: '[ "ios", "tvos", "macos" ]'
+  #     flags: '[ "--use-static-frameworks" ]'
