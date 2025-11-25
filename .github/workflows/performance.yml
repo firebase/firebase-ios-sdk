@@ -107,7 +107,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
-      run: scripts/setup_quickstart.sh performance
+      run: scripts/setup_quickstart_spm.sh performance
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
           quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
