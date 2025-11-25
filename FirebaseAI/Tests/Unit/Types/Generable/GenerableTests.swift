@@ -47,8 +47,13 @@ struct GenerableTests {
       properties: properties, uniquingKeysWith: { _, second in second }
     )
 
-    #expect(throws: ModelOutput.DecodingError.self) {
+    do {
       _ = try Person(modelOutput)
+      Issue.record("Did not throw an error.")
+    } catch let ModelOutput.DecodingError.missingProperty(name) {
+      #expect(name == "lastName")
+    } catch {
+      Issue.record("Threw an unexpected error: \(error)")
     }
   }
 
@@ -56,8 +61,13 @@ struct GenerableTests {
   func initializeGenerableFromNonStructure() throws {
     let modelOutput = ModelOutput("not a structure")
 
-    #expect(throws: ModelOutput.DecodingError.self) {
+    do {
       _ = try Person(modelOutput)
+      Issue.record("Did not throw an error.")
+    } catch ModelOutput.DecodingError.notAStructure {
+      // Expected error
+    } catch {
+      Issue.record("Threw an unexpected error: \(error)")
     }
   }
 
@@ -69,8 +79,13 @@ struct GenerableTests {
       properties: properties, uniquingKeysWith: { _, second in second }
     )
 
-    #expect(throws: ModelOutput.DecodingError.self) {
+    do {
       _ = try Person(modelOutput)
+      Issue.record("Did not throw an error.")
+    } catch let ModelOutput.DecodingError.typeMismatch(context) {
+      #expect(context.debugDescription.contains("ModelOutput does not contain Int."))
+    } catch {
+      Issue.record("Threw an unexpected error: \(error)")
     }
   }
 

@@ -16,7 +16,7 @@
 ///
 /// Model output may contain a single value, an array, or key-value pairs with unique keys.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelOutput: Sendable, Generable {
+public struct ModelOutput: Sendable, Generable, CustomDebugStringConvertible {
   /// The kind representation of this model output.
   ///
   /// This property provides access to the content in a strongly-typed enum representation,
@@ -69,6 +69,10 @@ public struct ModelOutput: Sendable, Generable {
 
   /// A representation of this instance.
   public var modelOutput: ModelOutput { self }
+
+  public var debugDescription: String {
+    return kind.debugDescription
+  }
 
   /// Creates model output representing a structure with the properties you specify.
   ///
@@ -181,7 +185,7 @@ public struct ModelOutput: Sendable, Generable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ModelOutput {
   /// An error that occurs when decoding a value from `ModelOutput`.
-  enum DecodingError: Error {
+  enum DecodingError: Error, CustomDebugStringConvertible {
     /// A required property was not found in the `ModelOutput`.
     case missingProperty(name: String)
 
@@ -189,14 +193,31 @@ public extension ModelOutput {
     case notAStructure
 
     /// The type of a property in the `ModelOutput` did not match the expected type.
-    case typeMismatch(expected: Any.Type, actual: Any.Type)
+    case typeMismatch(context: Context)
+
+    /// The context for a decoding error.
+    public struct Context {
+      /// A description of the error.
+      public let debugDescription: String
+    }
+
+    public var debugDescription: String {
+      switch self {
+      case let .missingProperty(name):
+        return "Missing property: \(name)"
+      case .notAStructure:
+        return "Not a structure"
+      case let .typeMismatch(context):
+        return context.debugDescription
+      }
+    }
   }
 
   /// A representation of the different types of content that can be stored in `ModelOutput`.
   ///
   /// `Kind` represents the various types of JSON-compatible data that can be held within a
   /// ``ModelOutput`` instance, including primitive types, arrays, and structured objects.
-  enum Kind: Sendable {
+  enum Kind: Sendable, CustomDebugStringConvertible {
     /// Represents a null value.
     case null
 
@@ -221,5 +242,27 @@ public extension ModelOutput {
     ///   - properties: A dictionary mapping string keys to ``ModelOutput`` values.
     ///   - orderedKeys: An array of keys that specifies the order of properties.
     case structure(properties: [String: ModelOutput], orderedKeys: [String])
+
+    public var debugDescription: String {
+      switch self {
+      case .null:
+        return "null"
+      case let .bool(value):
+        return String(describing: value)
+      case let .number(value):
+        return String(describing: value)
+      case let .string(value):
+        return #""\#(value)""#
+      case let .array(elements):
+        let descriptions = elements.map { $0.debugDescription }
+        return "[\(descriptions.joined(separator: ", "))]"
+      case let .structure(properties, orderedKeys):
+        let descriptions = orderedKeys.compactMap { key -> String? in
+          guard let value = properties[key] else { return nil }
+          return #""\#(key)": \#(value.debugDescription)"#
+        }
+        return "{\(descriptions.joined(separator: ", "))}"
+      }
+    }
   }
 }
