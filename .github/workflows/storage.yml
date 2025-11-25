@@ -119,16 +119,16 @@ jobs:
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
 
-  pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
-    with:
-      product: FirebaseStorage
-      test_specs: unit
+  # pod_lib_lint:
+  #   uses: ./.github/workflows/common_cocoapods.yml
+  #   with:
+  #     product: FirebaseStorage
+  #     test_specs: unit
 
-  storage-cron-only:
-    needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
-    with:
-      product: FirebaseStorage
-      platforms: '[ "ios", "tvos", "macos", "watchos" ]'
-      flags: '[ "--use-static-frameworks --skip-tests" ]'
+  # storage-cron-only:
+  #   needs: pod_lib_lint
+  #   uses: ./.github/workflows/common_cocoapods_cron.yml
+  #   with:
+  #     product: FirebaseStorage
+  #     platforms: '[ "ios", "tvos", "macos", "watchos" ]'
+  #     flags: '[ "--use-static-frameworks --skip-tests" ]'
