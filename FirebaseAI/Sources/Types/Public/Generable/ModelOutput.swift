@@ -199,7 +199,7 @@ public extension ModelOutput {
     case dataCorrupted(context: Context)
 
     /// The context for a decoding error.
-    public struct Context {
+    public struct Context: Sendable {
       /// A description of the error.
       public let debugDescription: String
     }
