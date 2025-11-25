@@ -192,9 +192,6 @@ public extension ModelOutput {
     /// A property was accessed on a `ModelOutput` that is not a structure.
     case notAStructure
 
-    /// The type of a property in the `ModelOutput` did not match the expected type.
-    case typeMismatch(context: Context)
-
     /// The data is corrupted or invalid.
     case dataCorrupted(context: Context)
 
@@ -210,8 +207,6 @@ public extension ModelOutput {
         return "Missing property: \(name)"
       case .notAStructure:
         return "Not a structure"
-      case let .typeMismatch(context):
-        return context.debugDescription
       case let .dataCorrupted(context):
         return context.debugDescription
       }
