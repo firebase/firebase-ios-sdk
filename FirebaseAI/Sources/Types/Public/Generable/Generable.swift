@@ -203,6 +203,7 @@ extension Array: ConvertibleFromModelOutput where Element: ConvertibleFromModelO
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 private extension ConvertibleFromModelOutput {
   /// Helper method to create ``GenerativeModel/GenerationError/decodingFailure(_:)`` instances.
   static func decodingFailure(_ content: ModelOutput) -> GenerativeModel.GenerationError {

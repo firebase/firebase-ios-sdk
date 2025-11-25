@@ -16,8 +16,8 @@ import FirebaseAILogic
 import Testing
 
 struct GenerableTests {
-  @Test
-  func initializeGenerableTypeFromModelOutput() throws {
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  @Test func initializeGenerableTypeFromModelOutput() throws {
     let properties: [(String, any ConvertibleToModelOutput)] =
       [("firstName", "John"), ("lastName", "Doe"), ("age", 40)]
     let modelOutput = ModelOutput(
@@ -31,8 +31,8 @@ struct GenerableTests {
     #expect(person.age == 40)
   }
 
-  @Test
-  func convertGenerableTypeToModelOutput() throws {
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  @Test func convertGenerableTypeToModelOutput() throws {
     let person = Person(firstName: "Jane", middleName: "Marie", lastName: "Smith", age: 32)
 
     let modelOutput = person.modelOutput
