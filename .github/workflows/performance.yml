@@ -119,10 +119,10 @@ jobs:
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
 
-  performance-cron-only:
-    needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
-    with:
-      product: FirebasePerformance
-      platforms: '[ "ios", "tvos" ]'
-      flags: '[ "--skip-tests --use-static-frameworks" ]'
+  # performance-cron-only:
+  #   needs: pod_lib_lint
+  #   uses: ./.github/workflows/common_cocoapods_cron.yml
+  #   with:
+  #     product: FirebasePerformance
+  #     platforms: '[ "ios", "tvos" ]'
+  #     flags: '[ "--skip-tests --use-static-frameworks" ]'

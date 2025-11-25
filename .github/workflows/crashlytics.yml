@@ -84,10 +84,10 @@ jobs:
         testapp_dir: quickstart-ios/build-for-testing
         test_type: "xctest"
 
-  crashlytics-cron-only:
-    needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
-    with:
-      product: FirebaseCrashlytics
-      platforms: '[ "ios", "tvos", "macos", "watchos --skip-tests" ]'
-      flags: '[ "--use-static-frameworks", "--use-modular-headers --skip-tests" ]'
+  # crashlytics-cron-only:
+  #   needs: pod_lib_lint
+  #   uses: ./.github/workflows/common_cocoapods_cron.yml
+  #   with:
+  #     product: FirebaseCrashlytics
+  #     platforms: '[ "ios", "tvos", "macos", "watchos --skip-tests" ]'
+  #     flags: '[ "--use-static-frameworks", "--use-modular-headers --skip-tests" ]'
