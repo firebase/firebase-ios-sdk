@@ -65,8 +65,7 @@ extension Bool: Generable {
 
   public init(_ content: ModelOutput) throws {
     guard case let .bool(value) = content.kind else {
-      // TODO: Determine the correct error to throw.
-      fatalError("Expected a boolean but found \(content.kind)")
+      throw Self.decodingFailure(content)
     }
     self = value
   }
@@ -84,8 +83,7 @@ extension String: Generable {
 
   public init(_ content: ModelOutput) throws {
     guard case let .string(value) = content.kind else {
-      // TODO: Determine the correct error to throw.
-      fatalError("Expected a string but found \(content.kind)")
+      throw Self.decodingFailure(content)
     }
     self = value
   }
@@ -102,10 +100,10 @@ extension Int: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    // TODO: Determine the correct errors to throw.
     guard case let .number(value) = content.kind else {
-      fatalError("Expected a number but found \(content.kind)")
+      throw Self.decodingFailure(content)
     }
+    // TODO: Determine the correct error to throw.
     guard let integer = Int(exactly: value) else {
       fatalError("Expected an integer but found \(value)")
     }
@@ -124,10 +122,10 @@ extension Float: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    // TODO: Determine the correct error to throw.
     guard case let .number(value) = content.kind else {
-      fatalError("Expected a number but found \(content.kind)")
+      throw Self.decodingFailure(content)
     }
+    // TODO: Determine the correct error to throw.
     guard let float = Float(exactly: value) else {
       fatalError("Expected a float but found \(value)")
     }
@@ -146,10 +144,10 @@ extension Double: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    // TODO: Determine the correct error to throw.
     guard case let .number(value) = content.kind else {
-      fatalError("Expected a number but found \(content.kind)")
+      throw Self.decodingFailure(content)
     }
+    // TODO: Determine the correct error to throw.
     guard let double = Double(exactly: value) else {
       fatalError("Expected a double but found \(value)")
     }
@@ -168,9 +166,8 @@ extension Decimal: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    // TODO: Determine the correct error to throw.
     guard case let .number(value) = content.kind else {
-      fatalError("Expected a number but found \(content.kind)")
+      throw Self.decodingFailure(content)
     }
     self = Decimal(value)
   }
@@ -199,10 +196,21 @@ extension Array: ConvertibleToModelOutput where Element: ConvertibleToModelOutpu
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Array: ConvertibleFromModelOutput where Element: ConvertibleFromModelOutput {
   public init(_ content: ModelOutput) throws {
-    // TODO: Determine the correct error to throw.
     guard case let .array(values) = content.kind else {
-      fatalError("Expected an array but found \(content.kind)")
+      throw Self.decodingFailure(content)
     }
     self = try values.map { try Element($0) }
+  }
+}
+
+private extension ConvertibleFromModelOutput {
+  /// Helper method to create ``GenerativeModel/GenerationError/decodingFailure(_:)`` instances.
+  static func decodingFailure(_ content: ModelOutput) -> GenerativeModel.GenerationError {
+    return GenerativeModel.GenerationError.decodingFailure(
+      GenerativeModel.GenerationError.Context(debugDescription: """
+      \(content.self) does not contain \(Self.self).
+      Content: \(content)
+      """)
+    )
   }
 }
