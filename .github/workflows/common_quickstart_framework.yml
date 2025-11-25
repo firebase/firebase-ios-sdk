@@ -4,36 +4,46 @@ permissions:
   contents: read
 
 on:
-  # TODO(ncooke3): Document.
   workflow_call:
     inputs:
+      # The product to test be tested (e.g. `ABTesting`).
       product:
         required: true
         type: string
+      # The Run ID of a successful zip packaging workflow.
       zip_run_id:
         required: true
         type: string
+      # The name of the artifact from the zip packaging workflow to download.
       artifact_name:
         required: true
         type: string
+      # A command to execute before testing.
+      #
+      # Example: `scripts/setup_quickstart.sh functions`
       setup_command:
         required: true
         type: string
+      # The path to the encrypted `GoogleService-Info.plist` file.
       plist_src_path:
         required: true
         type: string
+      # The destination path for the decrypted `GoogleService-Info.plist` file.
       plist_dst_path:
         required: true
         type: string
+      # The runner to use.
       os:
         required: false
         type: string
         default: macos-15
+      # The version of Xcode to use.
       xcode:
         required: false
         type: string
         default: Xcode_16.4
     secrets:
+      # The passphrase for decrypting the GoogleService-Info.plist.
       plist_secret:
         required: true
 
