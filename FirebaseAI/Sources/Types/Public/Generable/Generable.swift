@@ -100,12 +100,8 @@ extension Int: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    guard case let .number(value) = content.kind else {
+    guard case let .number(value) = content.kind, let integer = Int(exactly: value) else {
       throw Self.decodingFailure(content)
-    }
-    // TODO: Determine the correct error to throw.
-    guard let integer = Int(exactly: value) else {
-      fatalError("Expected an integer but found \(value)")
     }
     self = integer
   }
@@ -122,12 +118,9 @@ extension Float: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    guard case let .number(value) = content.kind else {
+    // TODO: Determine if we need to use `exactly: ` or be more lenient.
+    guard case let .number(value) = content.kind, let float = Float(exactly: value) else {
       throw Self.decodingFailure(content)
-    }
-    // TODO: Determine the correct error to throw.
-    guard let float = Float(exactly: value) else {
-      fatalError("Expected a float but found \(value)")
     }
     self = float
   }
@@ -144,12 +137,9 @@ extension Double: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    guard case let .number(value) = content.kind else {
+    // TODO: Determine if we need to use `exactly: ` or be more lenient.
+    guard case let .number(value) = content.kind, let double = Double(exactly: value) else {
       throw Self.decodingFailure(content)
-    }
-    // TODO: Determine the correct error to throw.
-    guard let double = Double(exactly: value) else {
-      fatalError("Expected a double but found \(value)")
     }
     self = double
   }
