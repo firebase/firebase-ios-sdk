@@ -4,6 +4,7 @@ permissions:
   contents: read
 
 on:
+  # TODO(ncooke3): Document.
   workflow_call:
     inputs:
       product:
@@ -68,6 +69,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh ${{ inputs.plist_src_path }} \
         ${{ inputs.plist_dst_path }} "$plist_secret"
     - name: Test Quickstart
+      # TODO(ncooke3): Use retry action?
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
     - uses: actions/upload-artifact@v4
       if: failure()

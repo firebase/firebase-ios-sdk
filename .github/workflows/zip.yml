@@ -343,6 +343,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       github_token: ${{ secrets.GITHUB_TOKEN }}
 
+  # TODO(ncooke3): Migrate to use shared workflow.
   quickstart_framework_firebaseai:
     needs: packaging_done
     if: ${{ !cancelled() }}
