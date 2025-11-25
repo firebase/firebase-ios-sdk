@@ -1,0 +1,93 @@
+name: common_quickstart_framework
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      # The product to test be tested (e.g. `ABTesting`).
+      product:
+        required: true
+        type: string
+      # The Run ID of a successful zip packaging workflow.
+      zip_run_id:
+        required: true
+        type: string
+      # The name of the artifact from the zip packaging workflow to download.
+      artifact_name:
+        required: true
+        type: string
+      # A command to execute before testing.
+      #
+      # Example: `scripts/setup_quickstart.sh functions`
+      setup_command:
+        required: true
+        type: string
+      # The path to the encrypted `GoogleService-Info.plist` file.
+      plist_src_path:
+        required: true
+        type: string
+      # The destination path for the decrypted `GoogleService-Info.plist` file.
+      plist_dst_path:
+        required: true
+        type: string
+      # The runner to use.
+      os:
+        required: false
+        type: string
+        default: macos-15
+      # The version of Xcode to use.
+      xcode:
+        required: false
+        type: string
+        default: Xcode_16.4
+    secrets:
+      # The passphrase for decrypting the GoogleService-Info.plist.
+      plist_secret:
+        required: true
+
+jobs:
+  quickstart_framework:
+    if: ${{ !cancelled() }}
+    env:
+      plist_secret: ${{ secrets.plist_secret }}
+      SDK: ${{ inputs.product }}
+    runs-on: ${{ inputs.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Get framework dir
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: ${{ inputs.artifact_name }}
+        run-id: ${{ inputs.zip_run_id }}
+        github-token: ${{ secrets.github_token }}
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ inputs.xcode }}.app/Contents/Developer
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+    - name: Move frameworks
+      run: |
+        mkdir -p "${HOME}"/ios_frameworks/
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+    - name: Setup quickstart
+      run: ${{ inputs.setup_command }}
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh ${{ inputs.plist_src_path }} \
+        ${{ inputs.plist_dst_path }} "$plist_secret"
+    - name: Test Quickstart
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 2
+        retry_wait_seconds: 120
+        command: ([ -z $plist_secret ] || scripts/test_quickstart_framework.sh "${SDK}")
+    # Failure sequence to upload artifact.
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: quickstart_artifacts_${{ inputs.product }}_${{ inputs.artifact_name }}
+        path: |
+          quickstart-ios/
+          !quickstart-ios/**/GoogleService-Info.plist
