@@ -228,7 +228,7 @@ jobs:
       xcode: ${{ matrix.build-env.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
 
   quickstart_framework_auth:
     needs: packaging_done
@@ -257,7 +257,7 @@ jobs:
       xcode: ${{ matrix.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
 
   quickstart_framework_config:
     needs: packaging_done
@@ -283,7 +283,7 @@ jobs:
       xcode: ${{ matrix.build-env.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
 
   quickstart_framework_crashlytics:
     needs: packaging_done
@@ -312,7 +312,7 @@ jobs:
       xcode: ${{ matrix.build-env.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
 
   quickstart_framework_database:
     needs: packaging_done
@@ -341,7 +341,7 @@ jobs:
       xcode: ${{ matrix.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
 
   # TODO(ncooke3): Migrate to use shared workflow.
   quickstart_framework_firebaseai:
@@ -423,7 +423,7 @@ jobs:
       xcode: ${{ matrix.build-env.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
 
   quickstart_framework_inappmessaging:
     needs: packaging_done
@@ -449,7 +449,7 @@ jobs:
       xcode: ${{ matrix.build-env.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
 
   quickstart_framework_messaging:
     needs: packaging_done
@@ -480,7 +480,7 @@ jobs:
       xcode: ${{ matrix.build-env.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
 
   quickstart_framework_storage:
     needs: packaging_done
@@ -507,4 +507,4 @@ jobs:
       xcode: ${{ matrix.build-env.xcode }}
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      # github_token: ${{ secrets.GITHUB_TOKEN }}
