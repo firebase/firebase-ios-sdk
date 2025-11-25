@@ -191,10 +191,7 @@ public extension ModelOutput {
     /// The type of a property in the `ModelOutput` did not match the expected type.
     case typeMismatch(expected: Any.Type, actual: Any.Type)
   }
-}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension ModelOutput {
   /// A representation of the different types of content that can be stored in `ModelOutput`.
   ///
   /// `Kind` represents the various types of JSON-compatible data that can be held within a

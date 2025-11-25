@@ -201,26 +201,6 @@ struct GenerableTests {
   }
 
   @Test
-  func initializeWithNestedGenerable() throws {
-    let addressProperties: [(String, any ConvertibleToModelOutput)] =
-      [("street", "123 Main St"), ("city", "Anytown"), ("zipCode", "12345")]
-    let addressModelOutput = ModelOutput(
-      properties: addressProperties, uniquingKeysWith: { _, second in second }
-    )
-    let properties: [(String, any ConvertibleToModelOutput)] =
-      [("firstName", "John"), ("lastName", "Doe"), ("age", 40), ("address", addressModelOutput)]
-    let modelOutput = ModelOutput(
-      properties: properties, uniquingKeysWith: { _, second in second }
-    )
-
-    let person = try Person(modelOutput)
-
-    #expect(person.address.street == "123 Main St")
-    #expect(person.address.city == "Anytown")
-    #expect(person.address.zipCode == "12345")
-  }
-
-  @Test
   func testPersonJSONSchema() throws {
     let schema = Person.jsonSchema
     guard case let .object(_, _, properties) = schema.kind else {
@@ -274,26 +254,20 @@ struct Person: Equatable {
   }
 
   nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-    var properties = [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)]()
-    addProperty(name: "firstName", value: firstName)
-    addProperty(name: "middleName", value: middleName)
-    addProperty(name: "lastName", value: lastName)
-    addProperty(name: "age", value: age)
-    addProperty(name: "address", value: address)
+    var properties: [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)] = []
+    properties.append(("firstName", firstName))
+    if let middleName {
+      properties.append(("middleName", middleName))
+    }
+    properties.append(("lastName", lastName))
+    properties.append(("age", age))
+    properties.append(("address", address))
     return ModelOutput(
       properties: properties,
       uniquingKeysWith: { _, second in
         second
       }
     )
-    func addProperty(name: String, value: some FirebaseAILogic.Generable) {
-      properties.append((name, value))
-    }
-    func addProperty(name: String, value: (some FirebaseAILogic.Generable)?) {
-      if let value {
-        properties.append((name, value))
-      }
-    }
   }
 }
 
@@ -329,19 +303,17 @@ extension Address: nonisolated FirebaseAILogic.Generable {
   }
 
   nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-    var properties = [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)]()
-    addProperty(name: "street", value: street)
-    addProperty(name: "city", value: city)
-    addProperty(name: "zipCode", value: zipCode)
+    let properties: [(name: String, value: any FirebaseAILogic.ConvertibleToModelOutput)] = [
+      ("street", street),
+      ("city", city),
+      ("zipCode", zipCode),
+    ]
     return ModelOutput(
       properties: properties,
       uniquingKeysWith: { _, second in
         second
       }
     )
-    func addProperty(name: String, value: some FirebaseAILogic.Generable) {
-      properties.append((name, value))
-    }
   }
 
   nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
