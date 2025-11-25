@@ -146,7 +146,7 @@ public struct ModelOutput: Sendable, Generable {
   /// Reads a top level, concrete partially `Generable` type from a named property.
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
     where Value: ConvertibleFromModelOutput {
-    fatalError("`ModelOutput.value(_:)` is not implemented.")
+    return try Value(self)
   }
 
   /// Reads a concrete `Generable` type from named property.
@@ -154,12 +154,10 @@ public struct ModelOutput: Sendable, Generable {
                            forProperty property: String) throws -> Value
     where Value: ConvertibleFromModelOutput {
     guard case let .structure(properties, _) = kind else {
-      // TODO: Throw an error instead
-      fatalError("Attempting to access a property on a non-object ModelOutput.")
+      throw DecodingError.notAStructure
     }
     guard let value = properties[property] else {
-      // TODO: Throw an error instead
-      fatalError("Property '\(property)' not found in model output.")
+      throw DecodingError.missingProperty(name: property)
     }
 
     return try Value(value)
@@ -170,14 +168,28 @@ public struct ModelOutput: Sendable, Generable {
                            forProperty property: String) throws -> Value?
     where Value: ConvertibleFromModelOutput {
     guard case let .structure(properties, _) = kind else {
-      // TODO: Throw an error instead
-      fatalError("Attempting to access a property on a non-object ModelOutput.")
+      throw DecodingError.notAStructure
     }
     guard let value = properties[property] else {
       return nil
     }
 
     return try Value(value)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension ModelOutput {
+  /// An error that occurs when decoding a value from `ModelOutput`.
+  enum DecodingError: Error {
+    /// A required property was not found in the `ModelOutput`.
+    case missingProperty(name: String)
+
+    /// A property was accessed on a `ModelOutput` that is not a structure.
+    case notAStructure
+
+    /// The type of a property in the `ModelOutput` did not match the expected type.
+    case typeMismatch(expected: Any.Type, actual: Any.Type)
   }
 }
 
