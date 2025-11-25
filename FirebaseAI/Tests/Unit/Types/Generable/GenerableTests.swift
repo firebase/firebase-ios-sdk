@@ -83,7 +83,6 @@ struct GenerableTests {
       _ = try Person(modelOutput)
       Issue.record("Did not throw an error.")
     } catch let GenerativeModel.GenerationError.decodingFailure(context) {
-      print(context.debugDescription)
       #expect(context.debugDescription.contains("\"forty\" does not contain Int"))
     } catch {
       Issue.record("Threw an unexpected error: \(error)")
