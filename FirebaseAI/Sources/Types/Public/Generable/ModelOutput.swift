@@ -192,9 +192,6 @@ public extension ModelOutput {
     /// A property was accessed on a `ModelOutput` that is not a structure.
     case notAStructure
 
-    /// The data is corrupted or invalid.
-    case dataCorrupted(context: Context)
-
     /// The context for a decoding error.
     public struct Context: Sendable {
       /// A description of the error.
@@ -207,8 +204,6 @@ public extension ModelOutput {
         return "Missing property: \(name)"
       case .notAStructure:
         return "Not a structure"
-      case let .dataCorrupted(context):
-        return context.debugDescription
       }
     }
   }
