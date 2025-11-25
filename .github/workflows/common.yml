@@ -96,7 +96,7 @@ jobs:
             xcode: Xcode_16.2
             platform: iOS
           - os: macos-26
-            xcode: Xcode_26.0
+            xcode: Xcode_26.1
             platform: iOS
     runs-on: ${{ matrix.os }}
     steps:
