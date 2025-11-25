@@ -36,9 +36,6 @@ on:
     secrets:
       plist_secret:
         required: true
-      # TODO(ncooke3): Delete?
-      # github_token:
-      #   required: true
 
 jobs:
   quickstart_framework:
@@ -70,8 +67,13 @@ jobs:
       run: scripts/decrypt_gha_secret.sh ${{ inputs.plist_src_path }} \
         ${{ inputs.plist_dst_path }} "$plist_secret"
     - name: Test Quickstart
-      # TODO(ncooke3): Use retry action?
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 2
+        retry_wait_seconds: 120
+        command: ([ -z $plist_secret ] || scripts/test_quickstart_framework.sh "${SDK}")
+    # Failure sequence to upload artifact.
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
