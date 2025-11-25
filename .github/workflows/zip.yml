@@ -23,6 +23,7 @@ on:
     paths:
     - 'ReleaseTooling/Sources/**'
     - '.github/workflows/zip.yml'
+    - '.github/workflows/common_quickstart_framework.yml'
     - 'scripts/build_non_firebase_sdks.sh'
     - 'scripts/build_zip.sh'
     - 'scripts/setup_quickstart_framework.sh'
