@@ -118,12 +118,24 @@ struct Person: Equatable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Person: nonisolated FirebaseAILogic.Generable {
-  nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
-    firstName = try content.value(forProperty: "firstName")
-    middleName = try content.value(forProperty: "middleName")
-    lastName = try content.value(forProperty: "lastName")
-    age = try content.value(forProperty: "age")
+#if compiler(>=6.2)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  extension Person: nonisolated FirebaseAILogic.Generable {
+    nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+      firstName = try content.value(forProperty: "firstName")
+      middleName = try content.value(forProperty: "middleName")
+      lastName = try content.value(forProperty: "lastName")
+      age = try content.value(forProperty: "age")
+    }
   }
-}
+#else
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  extension Person: FirebaseAILogic.Generable {
+    nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+      firstName = try content.value(forProperty: "firstName")
+      middleName = try content.value(forProperty: "middleName")
+      lastName = try content.value(forProperty: "lastName")
+      age = try content.value(forProperty: "age")
+    }
+  }
+#endif
