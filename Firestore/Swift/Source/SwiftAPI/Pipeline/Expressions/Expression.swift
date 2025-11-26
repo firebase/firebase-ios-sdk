@@ -20,6 +20,11 @@
 import Foundation
 
 public protocol Expression: Sendable {
+  /// Casts the expression to a `BooleanExpression`.
+  ///
+  /// - Returns: A `BooleanExpression` representing the same expression.
+  func asBoolean() -> BooleanExpression
+
   /// Assigns an alias to this expression.
   ///
   /// Aliases are useful for renaming fields in the output of a stage or for giving meaningful
