@@ -16,7 +16,7 @@
 ///
 /// Model output may contain a single value, an array, or key-value pairs with unique keys.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelOutput: Sendable, Generable {
+public struct ModelOutput: Sendable, Generable, CustomDebugStringConvertible {
   /// The kind representation of this model output.
   ///
   /// This property provides access to the content in a strongly-typed enum representation,
@@ -69,6 +69,10 @@ public struct ModelOutput: Sendable, Generable {
 
   /// A representation of this instance.
   public var modelOutput: ModelOutput { self }
+
+  public var debugDescription: String {
+    return kind.debugDescription
+  }
 
   /// Creates model output representing a structure with the properties you specify.
   ///
@@ -146,7 +150,7 @@ public struct ModelOutput: Sendable, Generable {
   /// Reads a top level, concrete partially `Generable` type from a named property.
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
     where Value: ConvertibleFromModelOutput {
-    fatalError("`ModelOutput.value(_:)` is not implemented.")
+    return try Value(self)
   }
 
   /// Reads a concrete `Generable` type from named property.
@@ -154,12 +158,10 @@ public struct ModelOutput: Sendable, Generable {
                            forProperty property: String) throws -> Value
     where Value: ConvertibleFromModelOutput {
     guard case let .structure(properties, _) = kind else {
-      // TODO: Throw an error instead
-      fatalError("Attempting to access a property on a non-object ModelOutput.")
+      throw DecodingError.notAStructure
     }
     guard let value = properties[property] else {
-      // TODO: Throw an error instead
-      fatalError("Property '\(property)' not found in model output.")
+      throw DecodingError.missingProperty(name: property)
     }
 
     return try Value(value)
@@ -170,8 +172,7 @@ public struct ModelOutput: Sendable, Generable {
                            forProperty property: String) throws -> Value?
     where Value: ConvertibleFromModelOutput {
     guard case let .structure(properties, _) = kind else {
-      // TODO: Throw an error instead
-      fatalError("Attempting to access a property on a non-object ModelOutput.")
+      throw DecodingError.notAStructure
     }
     guard let value = properties[property] else {
       return nil
@@ -183,11 +184,35 @@ public struct ModelOutput: Sendable, Generable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ModelOutput {
+  /// An error that occurs when decoding a value from `ModelOutput`.
+  enum DecodingError: Error, CustomDebugStringConvertible {
+    /// A required property was not found in the `ModelOutput`.
+    case missingProperty(name: String)
+
+    /// A property was accessed on a `ModelOutput` that is not a structure.
+    case notAStructure
+
+    /// The context for a decoding error.
+    public struct Context: Sendable {
+      /// A description of the error.
+      public let debugDescription: String
+    }
+
+    public var debugDescription: String {
+      switch self {
+      case let .missingProperty(name):
+        return "Missing property: \(name)"
+      case .notAStructure:
+        return "Not a structure"
+      }
+    }
+  }
+
   /// A representation of the different types of content that can be stored in `ModelOutput`.
   ///
   /// `Kind` represents the various types of JSON-compatible data that can be held within a
   /// ``ModelOutput`` instance, including primitive types, arrays, and structured objects.
-  enum Kind: Sendable {
+  enum Kind: Sendable, CustomDebugStringConvertible {
     /// Represents a null value.
     case null
 
@@ -212,5 +237,27 @@ public extension ModelOutput {
     ///   - properties: A dictionary mapping string keys to ``ModelOutput`` values.
     ///   - orderedKeys: An array of keys that specifies the order of properties.
     case structure(properties: [String: ModelOutput], orderedKeys: [String])
+
+    public var debugDescription: String {
+      switch self {
+      case .null:
+        return "null"
+      case let .bool(value):
+        return String(describing: value)
+      case let .number(value):
+        return String(describing: value)
+      case let .string(value):
+        return #""\#(value)""#
+      case let .array(elements):
+        let descriptions = elements.map { $0.debugDescription }
+        return "[\(descriptions.joined(separator: ", "))]"
+      case let .structure(properties, orderedKeys):
+        let descriptions = orderedKeys.compactMap { key -> String? in
+          guard let value = properties[key] else { return nil }
+          return #""\#(key)": \#(value.debugDescription)"#
+        }
+        return "{\(descriptions.joined(separator: ", "))}"
+      }
+    }
   }
 }
