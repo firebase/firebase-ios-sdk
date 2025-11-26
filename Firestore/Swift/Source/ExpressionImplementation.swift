@@ -390,7 +390,9 @@ public extension Expression {
       return BooleanFunctionExpression(funcExpr)
     }
     // This should be unreachable if all expression types are handled.
-    fatalError("Unknown expression type \(Swift.type(of: self)) cannot be converted to BooleanExpression")
+    fatalError(
+      "Unknown expression type \(Swift.type(of: self)) cannot be converted to BooleanExpression"
+    )
   }
 
   func `as`(_ name: String) -> AliasedExpression {
@@ -502,27 +504,45 @@ public extension Expression {
   }
 
   func arrayContainsAll(_ values: [Expression]) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "array_contains_all", args: [self, Helper.array(values)])
+    return BooleanFunctionExpression(
+      functionName: "array_contains_all",
+      args: [self, Helper.array(values)]
+    )
   }
 
   func arrayContainsAll(_ values: [Sendable]) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "array_contains_all", args: [self, Helper.array(values)])
+    return BooleanFunctionExpression(
+      functionName: "array_contains_all",
+      args: [self, Helper.array(values)]
+    )
   }
 
   func arrayContainsAll(_ arrayExpression: Expression) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "array_contains_all", args: [self, arrayExpression])
+    return BooleanFunctionExpression(
+      functionName: "array_contains_all",
+      args: [self, arrayExpression]
+    )
   }
 
   func arrayContainsAny(_ values: [Expression]) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "array_contains_any", args: [self, Helper.array(values)])
+    return BooleanFunctionExpression(
+      functionName: "array_contains_any",
+      args: [self, Helper.array(values)]
+    )
   }
 
   func arrayContainsAny(_ values: [Sendable]) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "array_contains_any", args: [self, Helper.array(values)])
+    return BooleanFunctionExpression(
+      functionName: "array_contains_any",
+      args: [self, Helper.array(values)]
+    )
   }
 
   func arrayContainsAny(_ arrayExpression: Expression) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "array_contains_any", args: [self, arrayExpression])
+    return BooleanFunctionExpression(
+      functionName: "array_contains_any",
+      args: [self, arrayExpression]
+    )
   }
 
   func arrayLength() -> FunctionExpression {
@@ -598,7 +618,10 @@ public extension Expression {
   }
 
   func notEqual(_ other: Sendable) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "not_equal", args: [self, Helper.sendableToExpr(other)])
+    return BooleanFunctionExpression(
+      functionName: "not_equal",
+      args: [self, Helper.sendableToExpr(other)]
+    )
   }
 
   func equalAny(_ others: [Expression]) -> BooleanExpression {
@@ -614,11 +637,17 @@ public extension Expression {
   }
 
   func notEqualAny(_ others: [Expression]) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "not_equal_any", args: [self, Helper.array(others)])
+    return BooleanFunctionExpression(
+      functionName: "not_equal_any",
+      args: [self, Helper.array(others)]
+    )
   }
 
   func notEqualAny(_ others: [Sendable]) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "not_equal_any", args: [self, Helper.array(others)])
+    return BooleanFunctionExpression(
+      functionName: "not_equal_any",
+      args: [self, Helper.array(others)]
+    )
   }
 
   func notEqualAny(_ arrayExpression: Expression) -> BooleanExpression {
@@ -664,7 +693,10 @@ public extension Expression {
   }
 
   func like(_ pattern: String) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "like", args: [self, Helper.sendableToExpr(pattern)])
+    return BooleanFunctionExpression(
+      functionName: "like",
+      args: [self, Helper.sendableToExpr(pattern)]
+    )
   }
 
   func like(_ pattern: Expression) -> BooleanExpression {
@@ -716,7 +748,10 @@ public extension Expression {
   }
 
   func endsWith(_ suffix: String) -> BooleanExpression {
-    return BooleanFunctionExpression(functionName: "ends_with", args: [self, Helper.sendableToExpr(suffix)])
+    return BooleanFunctionExpression(
+      functionName: "ends_with",
+      args: [self, Helper.sendableToExpr(suffix)]
+    )
   }
 
   func endsWith(_ suffix: Expression) -> BooleanExpression {

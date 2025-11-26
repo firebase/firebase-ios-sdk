@@ -2784,9 +2784,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .where(
         FunctionExpression(functionName: "and", args: [Field("rating").greaterThan(0),
-                                                      Field("title").charLength().lessThan(5),
+                                                       Field("title").charLength().lessThan(5),
                                                        Field("tags")
-          .arrayContains("propaganda")]).asBoolean()
+                                                         .arrayContains("propaganda")]).asBoolean()
       )
       .select(["title"])
 
@@ -3909,5 +3909,36 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ["title": "Pride and Prejudice", "rating": 4.5],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testFieldAndConstantAsBooleanExpression() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["a": true],
+      "doc2": ["a": false],
+      "doc3": ["b": true],
+    ])
+    let db = collRef.firestore
+
+    var pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("a").asBoolean())
+    var snapshot = try await pipeline.execute()
+    TestHelper.compare(snapshot: snapshot, expectedIDs: ["doc1"], enforceOrder: false)
+
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Constant(true).asBoolean())
+    snapshot = try await pipeline.execute()
+    TestHelper.compare(
+      snapshot: snapshot,
+      expectedIDs: ["doc1", "doc2", "doc3"],
+      enforceOrder: false
+    )
+
+    pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Constant(false).asBoolean())
+    snapshot = try await pipeline.execute()
+    TestHelper.compare(snapshot: snapshot, expectedCount: 0)
   }
 }

@@ -16,49 +16,49 @@ import Foundation
 
 public protocol BooleanExpression: Expression {}
 
-internal struct BooleanFunctionExpression: BooleanExpression, BridgeWrapper {
-  internal let expr: FunctionExpression
+struct BooleanFunctionExpression: BooleanExpression, BridgeWrapper {
+  let expr: FunctionExpression
   public var bridge: ExprBridge { return expr.bridge }
 
-  internal init(_ expr: FunctionExpression) {
+  init(_ expr: FunctionExpression) {
     self.expr = expr
   }
 
-  internal init(functionName: String, args: [Expression]) {
+  init(functionName: String, args: [Expression]) {
     expr = FunctionExpression(functionName: functionName, args: args)
   }
 }
 
-internal struct BooleanConstant: BooleanExpression, BridgeWrapper {
+struct BooleanConstant: BooleanExpression, BridgeWrapper {
   private let constant: Constant
   public var bridge: ExprBridge { return constant.bridge }
 
-  internal init(_ constant: Constant) {
+  init(_ constant: Constant) {
     self.constant = constant
   }
 }
 
-internal struct BooleanField: BooleanExpression, BridgeWrapper {
+struct BooleanField: BooleanExpression, BridgeWrapper {
   private let field: Field
   public var bridge: ExprBridge { return field.bridge }
 
-  internal init(_ field: Field) {
+  init(_ field: Field) {
     self.field = field
   }
 }
 
 public func && (lhs: BooleanExpression,
-                   rhs: @autoclosure () throws -> BooleanExpression) rethrows -> BooleanExpression {
+                rhs: @autoclosure () throws -> BooleanExpression) rethrows -> BooleanExpression {
   return try BooleanFunctionExpression(functionName: "and", args: [lhs, rhs()])
 }
 
 public func || (lhs: BooleanExpression,
-                   rhs: @autoclosure () throws -> BooleanExpression) rethrows -> BooleanExpression {
+                rhs: @autoclosure () throws -> BooleanExpression) rethrows -> BooleanExpression {
   return try BooleanFunctionExpression(functionName: "or", args: [lhs, rhs()])
 }
 
 public func ^ (lhs: BooleanExpression,
-                rhs: @autoclosure () throws -> BooleanExpression) rethrows -> BooleanExpression {
+               rhs: @autoclosure () throws -> BooleanExpression) rethrows -> BooleanExpression {
   return try BooleanFunctionExpression(functionName: "xor", args: [lhs, rhs()])
 }
 
