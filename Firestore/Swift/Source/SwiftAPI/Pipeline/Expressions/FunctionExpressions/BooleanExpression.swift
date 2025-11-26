@@ -167,7 +167,7 @@ public extension BooleanExpression {
   /// ```
   ///
   /// - Returns: An `AggregateFunction` that performs the conditional count.
-  func countIf() -> AggregateFunction {
+  public func countIf() -> AggregateFunction {
     return AggregateFunction(functionName: "count_if", args: [self])
   }
 
