@@ -74,7 +74,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
-      run: QUICKSTART_BRANCH=nc/strg-tests scripts/setup_quickstart_spm.sh crashlytics
+      run: scripts/setup_quickstart_spm.sh crashlytics
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-crashlytics.plist.gpg \
           quickstart-ios/crashlytics/GoogleService-Info.plist "$plist_secret"
