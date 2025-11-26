@@ -377,22 +377,21 @@ extension Expression {
 
 public extension Expression {
   func asBoolean() -> BooleanExpression {
-    if let boolExpr = self as? BooleanExpression {
+    switch self {
+    case let boolExpr as BooleanExpression:
       return boolExpr
-    }
-    if let constant = self as? Constant {
+    case let constant as Constant:
       return BooleanConstant(constant)
-    }
-    if let field = self as? Field {
+    case let field as Field:
       return BooleanField(field)
-    }
-    if let funcExpr = self as? FunctionExpression {
+    case let funcExpr as FunctionExpression:
       return BooleanFunctionExpression(funcExpr)
+    default:
+      // This should be unreachable if all expression types are handled.
+      fatalError(
+        "Unknown expression type \(Swift.type(of: self)) cannot be converted to BooleanExpression"
+      )
     }
-    // This should be unreachable if all expression types are handled.
-    fatalError(
-      "Unknown expression type \(Swift.type(of: self)) cannot be converted to BooleanExpression"
-    )
   }
 
   func `as`(_ name: String) -> AliasedExpression {

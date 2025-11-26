@@ -167,7 +167,7 @@ public extension BooleanExpression {
   /// ```
   ///
   /// - Returns: An `AggregateFunction` that performs the conditional count.
-  public func countIf() -> AggregateFunction {
+  func countIf() -> AggregateFunction {
     return AggregateFunction(functionName: "count_if", args: [self])
   }
 
@@ -192,7 +192,7 @@ public extension BooleanExpression {
   ///   - thenExpression: The `Expression` to evaluate if this boolean expression is `true`.
   ///   - elseExpression: The `Expression` to evaluate if this boolean expression is `false`.
   /// - Returns: A new `FunctionExpression` representing the conditional logic.
-  public func then(_ thenExpression: Expression,
+  func then(_ thenExpression: Expression,
             else elseExpression: Expression) -> FunctionExpression {
     return FunctionExpression(
       functionName: "conditional",
