@@ -118,11 +118,10 @@ extension Float: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    // TODO: Determine if we need to use `exactly: ` or be more lenient.
-    guard case let .number(value) = content.kind, let float = Float(exactly: value) else {
+    guard case let .number(value) = content.kind else {
       throw Self.decodingFailure(content)
     }
-    self = float
+    self = Float(value)
   }
 
   public var modelOutput: ModelOutput {
@@ -137,11 +136,10 @@ extension Double: Generable {
   }
 
   public init(_ content: ModelOutput) throws {
-    // TODO: Determine if we need to use `exactly: ` or be more lenient.
-    guard case let .number(value) = content.kind, let double = Double(exactly: value) else {
+    guard case let .number(value) = content.kind else {
       throw Self.decodingFailure(content)
     }
-    self = double
+    self = value
   }
 
   public var modelOutput: ModelOutput {
