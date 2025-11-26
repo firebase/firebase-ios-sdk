@@ -158,10 +158,20 @@ public struct ModelOutput: Sendable, Generable, CustomDebugStringConvertible {
                            forProperty property: String) throws -> Value
     where Value: ConvertibleFromModelOutput {
     guard case let .structure(properties, _) = kind else {
-      throw DecodingError.notAStructure
+      throw GenerativeModel.GenerationError.decodingFailure(
+        GenerativeModel.GenerationError.Context(debugDescription: """
+        \(Self.self) does not contain an object.
+        Content: \(self.kind)
+        """)
+      )
     }
     guard let value = properties[property] else {
-      throw DecodingError.missingProperty(name: property)
+      throw GenerativeModel.GenerationError.decodingFailure(
+        GenerativeModel.GenerationError.Context(debugDescription: """
+        \(Self.self) does not contain a property '\(property)'.
+        Content: \(self)
+        """)
+      )
     }
 
     return try Value(value)
