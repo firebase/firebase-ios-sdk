@@ -2783,9 +2783,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline()
       .collection(collRef.path)
       .where(
-        BooleanExpression(functionName: "and", args: [Field("rating").greaterThan(0),
+        FunctionExpression(functionName: "and", args: [Field("rating").greaterThan(0),
                                                       Field("title").charLength().lessThan(5),
-                                                      Field("tags").arrayContains("propaganda")])
+                                                       Field("tags")
+          .arrayContains("propaganda")]).asBoolean()
       )
       .select(["title"])
 
@@ -2806,10 +2807,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     let pipeline = db.pipeline()
       .collection(collRef.path)
-      .where(BooleanExpression(
+      .where(FunctionExpression(
         functionName: "array_contains_any",
         args: [Field("tags"), ArrayExpression(["politics"])]
-      ))
+      ).asBoolean())
       .select([Field("title")])
 
     let snapshot = try await pipeline.execute()
