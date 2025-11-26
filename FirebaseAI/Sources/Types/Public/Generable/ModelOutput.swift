@@ -161,7 +161,7 @@ public struct ModelOutput: Sendable, Generable, CustomDebugStringConvertible {
       throw GenerativeModel.GenerationError.decodingFailure(
         GenerativeModel.GenerationError.Context(debugDescription: """
         \(Self.self) does not contain an object.
-        Content: \(self.kind)
+        Content: \(kind)
         """)
       )
     }
@@ -182,7 +182,12 @@ public struct ModelOutput: Sendable, Generable, CustomDebugStringConvertible {
                            forProperty property: String) throws -> Value?
     where Value: ConvertibleFromModelOutput {
     guard case let .structure(properties, _) = kind else {
-      throw DecodingError.notAStructure
+      throw GenerativeModel.GenerationError.decodingFailure(
+        GenerativeModel.GenerationError.Context(debugDescription: """
+        \(Self.self) does not contain an object.
+        Content: \(kind)
+        """)
+      )
     }
     guard let value = properties[property] else {
       return nil
@@ -194,30 +199,6 @@ public struct ModelOutput: Sendable, Generable, CustomDebugStringConvertible {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ModelOutput {
-  /// An error that occurs when decoding a value from `ModelOutput`.
-  enum DecodingError: Error, CustomDebugStringConvertible {
-    /// A required property was not found in the `ModelOutput`.
-    case missingProperty(name: String)
-
-    /// A property was accessed on a `ModelOutput` that is not a structure.
-    case notAStructure
-
-    /// The context for a decoding error.
-    public struct Context: Sendable {
-      /// A description of the error.
-      public let debugDescription: String
-    }
-
-    public var debugDescription: String {
-      switch self {
-      case let .missingProperty(name):
-        return "Missing property: \(name)"
-      case .notAStructure:
-        return "Not a structure"
-      }
-    }
-  }
-
   /// A representation of the different types of content that can be stored in `ModelOutput`.
   ///
   /// `Kind` represents the various types of JSON-compatible data that can be held within a
