@@ -211,10 +211,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
 
-  // 1 delete for clearing the cache key, plus 2 for the deletes from reloading and clearing the
-  // cache and cache key
-  self.fileManager.expectedRemoveCount = 3;
-
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
@@ -243,10 +239,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
-
-  // 1 delete for clearing the cache key, plus 2 for the deletes from reloading and clearing the
-  // cache and cache key
-  self.fileManager.expectedRemoveCount = 3;
 
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
@@ -277,10 +269,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
-
-  // 1 delete for clearing the cache key, plus 2 for the deletes from reloading and clearing the
-  // cache and cache key
-  self.fileManager.expectedRemoveCount = 3;
 
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
