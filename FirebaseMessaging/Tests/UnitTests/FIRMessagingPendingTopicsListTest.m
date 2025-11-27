@@ -156,7 +156,9 @@
         FIRMessagingTopicOperationCompletion completion) {
         // Typically, our callbacks happen asynchronously, but to ensure resilience,
         // call back the operation on the same thread it was called in.
-        completion(nil);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+          completion(nil);
+        });
       };
 
   self.alwaysReadyDelegate.updateHandler = ^{
@@ -195,7 +197,7 @@
         // Add a 0.5 second delay to the completion, to give time to add a straggler before the
         // batch is completed
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
-                       dispatch_get_main_queue(), ^{
+                       dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                          completion(nil);
                        });
       };
@@ -206,7 +208,7 @@
                            completion:nil];
   // While waiting for the first topic to complete, we add another topic after a slight delay
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)),
-                 dispatch_get_main_queue(), ^{
+                 dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                    [pendingTopics addOperationForTopic:stragglerTopic
                                             withAction:FIRMessagingTopicActionSubscribe
                                             completion:nil];
