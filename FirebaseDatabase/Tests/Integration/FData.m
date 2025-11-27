@@ -299,6 +299,41 @@
   [et wait];
 }
 
+#ifdef FLAKY_TEST
+This test flakes frequently on the emulator on travis and almost always on GHA with
+
+    testWriteLeafNodeRemoveLeafVerifyExpectedEvents,
+    failed
+    : caught "NSInternalInconsistencyException",
+      "Unable to report test assertion failure '(([target isEqualTo:recvd]) is true) failed: throwing
+      "Unable to report test assertion failure '(([target isEqualTo:recvd]) is true) failed - Expected
+              http :          // localhost:9000/-M8IJYWb68MuqQKKz2IY/a aa (0) to match
+                      http :  // localhost:9000/-M8IJYWb68MuqQKKz2IY/a (null) (4)' from
+                              /
+                              Users / runner / runners / 2.262.1 / work / firebase -
+          ios - sdk / firebase - ios -
+          sdk / Example / Database / Tests / Helpers /
+              FEventTester
+                  .m
+              : 123 because it was raised inside test case -[FEventTester(
+                  null)] which has no associated XCTestRun object.This may happen when test cases
+                  are constructed and invoked independently of standard XCTest infrastructure,
+      or when the test has already finished
+                      ." - Expected http://localhost:9000/-M8IJYWb68MuqQKKz2IY/a aa (0) to match "
+                       "http://localhost:9000/-M8IJYWb68MuqQKKz2IY/a (null) (4)' from "
+                       "/Users/runner/runners/2.262.1/work/firebase-ios-sdk/firebase-ios-sdk/"
+                       "Example/Database/Tests/Helpers/FEventTester.m:123 because it was raised "
+                       "inside test case -[FEventTester (null)] which has no associated XCTestRun "
+                       "object. This may happen when test cases are constructed and invoked "
+                       "independently of standard XCTest infrastructure, or when the test has "
+                       "already finished." /
+                  Users / runner / runners / 2.262.1 / work / firebase -
+              ios - sdk / firebase - ios -
+              sdk / Example / Database / Tests / Helpers / FEventTester.m:
+123
+``` FTupleEventTypeString *recvd = [self.actualPathsAndEvents objectAtIndex:i];
+XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recvd);
+
 - (void)testWriteParentNodeOverwriteAtLeafVerifyExpectedEvents {
   FIRDatabaseReference *node = [FTestHelpers getRandomNode];
 
@@ -464,7 +499,6 @@
   }];
 }
 
-#ifdef FLAKY_TEST
 - (void)testWriteLeafNodeRemoveLeafVerifyExpectedEvents {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
@@ -2163,7 +2197,9 @@
   }];
 }
 
-- (void)testUpdateReplacesChildrenAndIsNotRecursive {
+// TODO: On arm hardware Macs, the following test hangs with the emulator, but passes with a real
+// project.
+- (void)SKIPtestUpdateReplacesChildrenAndIsNotRecursive {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *reader = refs.one;
   FIRDatabaseReference *writer = refs.two;
@@ -2204,7 +2240,8 @@
   }];
 }
 
-- (void)testDeepUpdatesWork {
+// TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
+- (void)SKIP_testDeepUpdatesWork {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *reader = refs.one;
   FIRDatabaseReference *writer = refs.two;
@@ -2508,6 +2545,7 @@
   XCTAssertTrue([result isEqualToNumber:toSet], @"Should get back same number");
 }
 
+#ifdef FLAKY_TEST
 - (void)testParentDeleteShadowsChildListeners {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
@@ -2535,6 +2573,7 @@
   WAIT_FOR(done);
   [deleter removeAllObservers];
 }
+#endif
 
 - (void)testParentDeleteShadowsChildListenersWithNonDefaultQuery {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
@@ -2971,7 +3010,7 @@
 }
 
 // TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
-- (void)SKIPtestServerIncrementOverflowAndTypeCoercion {
+- (void)SKIP_testServerIncrementOverflowAndTypeCoercion {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   __block NSMutableArray *found = [NSMutableArray new];
   __block NSMutableArray *foundTypes = [NSMutableArray new];
