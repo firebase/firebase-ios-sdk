@@ -47,7 +47,12 @@ class SessionInitiator {
 
   func beginListening(initiateSessionStart: @escaping () -> Void) {
     self.initiateSessionStart = initiateSessionStart
-    self.initiateSessionStart()
+
+    // Dispatching asynchronously to allow the Sessions SDK to finish its
+    // initialization before the callback is called.
+    DispatchQueue.main.async {
+      self.initiateSessionStart()
+    }
 
     let notificationCenter = NotificationCenter.default
     #if os(iOS) || os(tvOS) || os(visionOS)
