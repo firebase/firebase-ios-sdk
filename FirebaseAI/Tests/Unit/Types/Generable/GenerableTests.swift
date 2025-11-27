@@ -13,11 +13,10 @@
 // limitations under the License.
 
 @testable import FirebaseAILogic
-import Testing
+import XCTest
 
-struct GenerableTests {
-  @Test
-  func initializeGenerableTypeFromModelOutput() throws {
+final class GenerableTests: XCTestCase {
+  func testInitializeGenerableTypeFromModelOutput() throws {
     let addressProperties: [(String, any ConvertibleToModelOutput)] =
       [("street", "123 Main St"), ("city", "Anytown"), ("zipCode", "12345")]
     let addressModelOutput = ModelOutput(
@@ -31,84 +30,79 @@ struct GenerableTests {
 
     let person = try Person(modelOutput)
 
-    #expect(person.firstName == "John")
-    #expect(person.lastName == "Doe")
-    #expect(person.age == 40)
-    #expect(person.address.street == "123 Main St")
-    #expect(person.address.city == "Anytown")
-    #expect(person.address.zipCode == "12345")
+    XCTAssertEqual(person.firstName, "John")
+    XCTAssertEqual(person.lastName, "Doe")
+    XCTAssertEqual(person.age, 40)
+    XCTAssertEqual(person.address.street, "123 Main St")
+    XCTAssertEqual(person.address.city, "Anytown")
+    XCTAssertEqual(person.address.zipCode, "12345")
   }
 
-  @Test
-  func initializeGenerableWithMissingPropertyThrows() throws {
+  func testInitializeGenerableWithMissingPropertyThrows() throws {
     let properties: [(String, any ConvertibleToModelOutput)] =
       [("firstName", "John"), ("age", 40)]
     let modelOutput = ModelOutput(
       properties: properties, uniquingKeysWith: { _, second in second }
     )
 
-    do {
-      _ = try Person(modelOutput)
-      Issue.record("Did not throw an error.")
-    } catch let GenerativeModel.GenerationError.decodingFailure(context) {
-      #expect(context.debugDescription.contains("lastName"))
-    } catch {
-      Issue.record("Threw an unexpected error: \(error)")
+    XCTAssertThrowsError(try Person(modelOutput)) { error in
+      guard let error = error as? GenerativeModel.GenerationError,
+            case let .decodingFailure(context) = error else {
+        XCTFail("Threw an unexpected error: \(error)")
+        return
+      }
+      XCTAssertContains(context.debugDescription, "lastName")
     }
   }
 
-  @Test
-  func initializeGenerableFromNonStructureThrows() throws {
+  func testInitializeGenerableFromNonStructureThrows() throws {
     let modelOutput = ModelOutput("not a structure")
 
-    do {
-      _ = try Person(modelOutput)
-      Issue.record("Did not throw an error.")
-    } catch let GenerativeModel.GenerationError.decodingFailure(context) {
-      #expect(context.debugDescription.contains("does not contain an object"))
-    } catch {
-      Issue.record("Threw an unexpected error: \(error)")
+    XCTAssertThrowsError(try Person(modelOutput)) { error in
+      guard let error = error as? GenerativeModel.GenerationError,
+            case let .decodingFailure(context) = error else {
+        XCTFail("Threw an unexpected error: \(error)")
+        return
+      }
+      XCTAssertContains(context.debugDescription, "does not contain an object")
     }
   }
 
-  @Test
-  func initializeGenerableWithTypeMismatchThrows() throws {
+  func testInitializeGenerableWithTypeMismatchThrows() throws {
     let properties: [(String, any ConvertibleToModelOutput)] =
       [("firstName", "John"), ("lastName", "Doe"), ("age", "forty")]
     let modelOutput = ModelOutput(
       properties: properties, uniquingKeysWith: { _, second in second }
     )
 
-    do {
-      _ = try Person(modelOutput)
-      Issue.record("Did not throw an error.")
-    } catch let GenerativeModel.GenerationError.decodingFailure(context) {
-      #expect(context.debugDescription.contains("\"forty\" does not contain Int"))
-    } catch {
-      Issue.record("Threw an unexpected error: \(error)")
+    XCTAssertThrowsError(try Person(modelOutput)) { error in
+      guard let error = error as? GenerativeModel.GenerationError,
+            case let .decodingFailure(context) = error else {
+        XCTFail("Threw an unexpected error: \(error)")
+        return
+      }
+      XCTAssertContains(context.debugDescription, "\"forty\" does not contain Int")
     }
   }
 
-  @Test
-  func initializeGenerableWithLossyNumericConversion() throws {
+  func testInitializeGenerableWithLossyNumericConversion() throws {
     let properties: [(String, any ConvertibleToModelOutput)] =
       [("firstName", "John"), ("lastName", "Doe"), ("age", 40.5)]
     let modelOutput = ModelOutput(
       properties: properties, uniquingKeysWith: { _, second in second }
     )
 
-    do {
-      _ = try Person(modelOutput)
-      Issue.record("Did not throw an error.")
-    } catch let GenerativeModel.GenerationError.decodingFailure(context) {
-      #expect(context.debugDescription.contains("40.5 does not contain Int."))
-    } catch {
-      Issue.record("Threw an unexpected error: \(error)")
+    XCTAssertThrowsError(try Person(modelOutput)) { error in
+      guard let error = error as? GenerativeModel.GenerationError,
+            case let .decodingFailure(context) = error else {
+        XCTFail("Threw an unexpected error: \(error)")
+        return
+      }
+      XCTAssertContains(context.debugDescription, "40.5 does not contain Int.")
     }
   }
 
-  @Test
-  func initializeGenerableWithExtraProperties() throws {
+  func testInitializeGenerableWithExtraProperties() throws {
     let addressProperties: [(String, any ConvertibleToModelOutput)] =
       [("street", "123 Main St"), ("city", "Anytown"), ("zipCode", "12345")]
     let addressModelOutput = ModelOutput(
@@ -128,16 +122,15 @@ struct GenerableTests {
 
     let person = try Person(modelOutput)
 
-    #expect(person.firstName == "John")
-    #expect(person.lastName == "Doe")
-    #expect(person.age == 40)
-    #expect(person.address.street == "123 Main St")
-    #expect(person.address.city == "Anytown")
-    #expect(person.address.zipCode == "12345")
+    XCTAssertEqual(person.firstName, "John")
+    XCTAssertEqual(person.lastName, "Doe")
+    XCTAssertEqual(person.age, 40)
+    XCTAssertEqual(person.address.street, "123 Main St")
+    XCTAssertEqual(person.address.city, "Anytown")
+    XCTAssertEqual(person.address.zipCode, "12345")
   }
 
-  @Test
-  func initializeGenerableWithMissingOptionalProperty() throws {
+  func testInitializeGenerableWithMissingOptionalProperty() throws {
     let addressProperties: [(String, any ConvertibleToModelOutput)] =
       [("street", "123 Main St"), ("city", "Anytown"), ("zipCode", "12345")]
     let addressModelOutput = ModelOutput(
@@ -151,17 +144,16 @@ struct GenerableTests {
 
     let person = try Person(modelOutput)
 
-    #expect(person.firstName == "John")
-    #expect(person.lastName == "Doe")
-    #expect(person.age == 40)
-    #expect(person.middleName == nil)
-    #expect(person.address.street == "123 Main St")
-    #expect(person.address.city == "Anytown")
-    #expect(person.address.zipCode == "12345")
+    XCTAssertEqual(person.firstName, "John")
+    XCTAssertEqual(person.lastName, "Doe")
+    XCTAssertEqual(person.age, 40)
+    XCTAssertNil(person.middleName)
+    XCTAssertEqual(person.address.street, "123 Main St")
+    XCTAssertEqual(person.address.city, "Anytown")
+    XCTAssertEqual(person.address.zipCode, "12345")
   }
 
-  @Test
-  func convertGenerableTypeToModelOutput() throws {
+  func testConvertGenerableTypeToModelOutput() throws {
     let address = Address(street: "456 Oak Ave", city: "Someplace", zipCode: "54321")
     let person = Person(
       firstName: "Jane",
@@ -174,45 +166,44 @@ struct GenerableTests {
     let modelOutput = person.modelOutput
 
     guard case let .structure(properties, orderedKeys) = modelOutput.kind else {
-      Issue.record("Model output is not a structure.")
+      XCTFail("Model output is not a structure.")
       return
     }
-    let firstNameProperty = try #require(properties["firstName"])
+    let firstNameProperty = try XCTUnwrap(properties["firstName"])
     guard case let .string(firstName) = firstNameProperty.kind else {
-      Issue.record("The 'firstName' property is not a string: \(firstNameProperty.kind)")
+      XCTFail("The 'firstName' property is not a string: \(firstNameProperty.kind)")
       return
     }
-    #expect(firstName == person.firstName)
-    #expect(try modelOutput.value(forProperty: "firstName") == person.firstName)
-    let middleNameProperty = try #require(properties["middleName"])
+    XCTAssertEqual(firstName, person.firstName)
+    XCTAssertEqual(try modelOutput.value(forProperty: "firstName"), person.firstName)
+    let middleNameProperty = try XCTUnwrap(properties["middleName"])
     guard case let .string(middleName) = middleNameProperty.kind else {
-      Issue.record("The 'middleName' property is not a string: \(middleNameProperty.kind)")
+      XCTFail("The 'middleName' property is not a string: \(middleNameProperty.kind)")
       return
     }
-    #expect(middleName == person.middleName)
-    #expect(try modelOutput.value(forProperty: "middleName") == person.middleName)
-    let lastNameProperty = try #require(properties["lastName"])
+    XCTAssertEqual(middleName, person.middleName)
+    XCTAssertEqual(try modelOutput.value(forProperty: "middleName"), person.middleName)
+    let lastNameProperty = try XCTUnwrap(properties["lastName"])
     guard case let .string(lastName) = lastNameProperty.kind else {
-      Issue.record("The 'lastName' property is not a string: \(lastNameProperty.kind)")
+      XCTFail("The 'lastName' property is not a string: \(lastNameProperty.kind)")
       return
     }
-    #expect(lastName == person.lastName)
-    #expect(try modelOutput.value(forProperty: "lastName") == person.lastName)
-    let ageProperty = try #require(properties["age"])
+    XCTAssertEqual(lastName, person.lastName)
+    XCTAssertEqual(try modelOutput.value(forProperty: "lastName"), person.lastName)
+    let ageProperty = try XCTUnwrap(properties["age"])
     guard case let .number(age) = ageProperty.kind else {
-      Issue.record("The 'age' property is not a number: \(ageProperty.kind)")
+      XCTFail("The 'age' property is not a number: \(ageProperty.kind)")
       return
     }
-    #expect(Int(age) == person.age)
-    #expect(try modelOutput.value(forProperty: "age") == person.age)
+    XCTAssertEqual(Int(age), person.age)
+    XCTAssertEqual(try modelOutput.value(forProperty: "age"), person.age)
     let addressProperty: Address = try modelOutput.value(forProperty: "address")
-    #expect(addressProperty == person.address)
-    #expect(try modelOutput.value() == person)
-    #expect(orderedKeys == ["firstName", "middleName", "lastName", "age", "address"])
+    XCTAssertEqual(addressProperty, person.address)
+    XCTAssertEqual(try modelOutput.value(), person)
+    XCTAssertEqual(orderedKeys, ["firstName", "middleName", "lastName", "age", "address"])
   }
 
-  @Test
-  func convertGenerableWithNilOptionalPropertyToModelOutput() throws {
+  func testConvertGenerableWithNilOptionalPropertyToModelOutput() throws {
     let address = Address(street: "789 Pine Ln", city: "Nowhere", zipCode: "00000")
     let person = Person(
       firstName: "Jane",
@@ -225,38 +216,37 @@ struct GenerableTests {
     let modelOutput = person.modelOutput
 
     guard case let .structure(properties, orderedKeys) = modelOutput.kind else {
-      Issue.record("Model output is not a structure.")
+      XCTFail("Model output is not a structure.")
       return
     }
-    #expect(properties["middleName"] == nil)
-    #expect(orderedKeys == ["firstName", "lastName", "age", "address"])
+    XCTAssertNil(properties["middleName"])
+    XCTAssertEqual(orderedKeys, ["firstName", "lastName", "age", "address"])
   }
 
-  @Test
   func testPersonJSONSchema() throws {
     let schema = Person.jsonSchema
 
     guard case let .object(_, _, properties) = schema.kind else {
-      Issue.record("Schema kind is not an object.")
+      XCTFail("Schema kind is not an object.")
       return
     }
 
-    #expect(properties.count == 5)
-    let firstName = try #require(properties.first { $0.name == "firstName" })
-    #expect(ObjectIdentifier(firstName.type) == ObjectIdentifier(String.self))
-    #expect(firstName.isOptional == false)
-    let middleName = try #require(properties.first { $0.name == "middleName" })
-    #expect(ObjectIdentifier(middleName.type) == ObjectIdentifier(String.self))
-    #expect(middleName.isOptional == true)
-    let lastName = try #require(properties.first { $0.name == "lastName" })
-    #expect(ObjectIdentifier(lastName.type) == ObjectIdentifier(String.self))
-    #expect(lastName.isOptional == false)
-    let age = try #require(properties.first { $0.name == "age" })
-    #expect(ObjectIdentifier(age.type) == ObjectIdentifier(Int.self))
-    #expect(age.isOptional == false)
-    let address = try #require(properties.first { $0.name == "address" })
-    #expect(ObjectIdentifier(address.type) == ObjectIdentifier(Address.self))
-    #expect(address.isOptional == false)
+    XCTAssertEqual(properties.count, 5)
+    let firstName = try XCTUnwrap(properties.first { $0.name == "firstName" })
+    XCTAssert(firstName.type == String.self)
+    XCTAssertFalse(firstName.isOptional)
+    let middleName = try XCTUnwrap(properties.first { $0.name == "middleName" })
+    XCTAssert(middleName.type == String.self)
+    XCTAssertTrue(middleName.isOptional)
+    let lastName = try XCTUnwrap(properties.first { $0.name == "lastName" })
+    XCTAssert(lastName.type == String.self)
+    XCTAssertFalse(lastName.isOptional)
+    let age = try XCTUnwrap(properties.first { $0.name == "age" })
+    XCTAssert(age.type == Int.self)
+    XCTAssertFalse(age.isOptional)
+    let address = try XCTUnwrap(properties.first { $0.name == "address" })
+    XCTAssert(address.type == Address.self)
+    XCTAssertFalse(address.isOptional)
   }
 }
 
