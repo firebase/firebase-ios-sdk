@@ -214,9 +214,16 @@ let package = Package(
       name: "FirebaseAILogicUnit",
       dependencies: [
         "FirebaseAILogic",
-        "FirebaseAILogicMacros",
         "FirebaseStorage",
-        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+        .target(
+          name: "FirebaseAILogicMacros",
+          condition: .when(platforms: [.macOS])
+        ),
+        .product(
+          name: "SwiftSyntaxMacrosTestSupport",
+          package: "swift-syntax",
+          condition: .when(platforms: [.macOS])
+        ),
       ],
       path: "FirebaseAI/Tests/Unit",
       resources: [

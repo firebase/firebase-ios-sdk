@@ -12,52 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftSyntax
-import SwiftSyntaxBuilder
-import SwiftSyntaxMacros
-import SwiftSyntaxMacrosTestSupport
-import XCTest
-
 // Macro implementations build for the host, so the corresponding module is not available when
 // cross-compiling. Cross-compiled tests may still make use of the macro itself in end-to-end tests.
 #if canImport(FirebaseAILogicMacros)
   import FirebaseAILogicMacros
-#endif
+  import SwiftSyntax
+  import SwiftSyntaxBuilder
+  import SwiftSyntaxMacros
+  import SwiftSyntaxMacrosTestSupport
+  import XCTest
 
-final class GenerableMacroTests: XCTestCase {
-  #if canImport(FirebaseAILogicMacros)
+  final class GenerableMacroTests: XCTestCase {
     let testMacros: [String: Macro.Type] = [
       "stringify": StringifyMacro.self,
     ]
-  #else
-    let testMacros = [String: Macro.Type]()
 
-    override func setUpWithError() throws {
-      throw XCTSkip("Macros are only supported when running tests for the host platform.")
+    func testMacro() throws {
+      assertMacroExpansion(
+        """
+        #stringify(a + b)
+        """,
+        expandedSource: """
+        (a + b, "a + b")
+        """,
+        macros: testMacros
+      )
     }
-  #endif // canImport(FirebaseAILogicMacros)
 
-  func testMacro() throws {
-    assertMacroExpansion(
-      """
-      #stringify(a + b)
-      """,
-      expandedSource: """
-      (a + b, "a + b")
-      """,
-      macros: testMacros
-    )
+    func testMacroWithStringLiteral() throws {
+      assertMacroExpansion(
+        #"""
+        #stringify("Hello, \(name)")
+        """#,
+        expandedSource: #"""
+        ("Hello, \(name)", #""Hello, \(name)""#)
+        """#,
+        macros: testMacros
+      )
+    }
   }
-
-  func testMacroWithStringLiteral() throws {
-    assertMacroExpansion(
-      #"""
-      #stringify("Hello, \(name)")
-      """#,
-      expandedSource: #"""
-      ("Hello, \(name)", #""Hello, \(name)""#)
-      """#,
-      macros: testMacros
-    )
-  }
-}
+#endif // canImport(FirebaseAILogicMacros)
