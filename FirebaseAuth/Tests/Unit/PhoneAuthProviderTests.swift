@@ -762,10 +762,12 @@
                                     bothClientAndAppID: Bool = false,
                                     reCAPTCHAfallback: Bool = false,
                                     forwardingNotification: Bool = true,
-                                    presenterError: Error? = nil) async throws {
+                                    presenterError: Error? = nil,
+                                    fakeAppCheck: FakeAppCheck? = nil) async throws {
       initApp(function, useClientID: useClientID, bothClientAndAppID: bothClientAndAppID,
               testMode: testMode,
-              forwardingNotification: forwardingNotification)
+              forwardingNotification: forwardingNotification,
+              fakeAppCheck: fakeAppCheck)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
       var expectations: [XCTestExpectation] = []
@@ -861,7 +863,8 @@
                          bothClientAndAppID: Bool = false,
                          testMode: Bool = false,
                          forwardingNotification: Bool = true,
-                         fakeToken: Bool = false) {
+                         fakeToken: Bool = false,
+                         fakeAppCheck: FakeAppCheck? = nil) {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
       options.apiKey = PhoneAuthProviderTests.kFakeAPIKey
@@ -884,6 +887,9 @@
       kAuthGlobalWorkQueue.sync {
         // Wait for Auth protectedDataInitialization to finish.
         PhoneAuthProviderTests.auth = auth
+        if let fakeAppCheck = fakeAppCheck {
+          auth.requestConfiguration.appCheck = fakeAppCheck
+        }
         if testMode {
           // Disable app verification.
           let settings = AuthSettings()
@@ -1095,5 +1101,18 @@
       "://firebaseauth/" +
       "link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fcallback%3FauthType%" +
       "3DverifyApp%26recaptchaToken%3DfakeReCAPTCHAToken"
+
+    func testVerifyPhoneNumberWithAppCheckError() async throws {
+      let fakeAppCheck = FakeAppCheck()
+      let expectedError = NSError(domain: "appCheckError", code: -1)
+      fakeAppCheck.error = expectedError
+      try await internalTestVerify(
+        errorCode: expectedError.code,
+        function: #function,
+        reCAPTCHAfallback: true,
+        presenterError: nil,
+        fakeAppCheck: fakeAppCheck
+      )
+    }
   }
 #endif
