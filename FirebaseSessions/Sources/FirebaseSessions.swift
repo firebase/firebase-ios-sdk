@@ -15,6 +15,7 @@
 import Foundation
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
+internal import FirebaseCoreInternal
 internal import FirebaseCoreExtension
 internal import FirebaseInstallations
 internal import GoogleDataTransport
@@ -48,8 +49,7 @@ private enum GoogleDataTransportConfig {
   /// Subscribers
   /// `subscribers` are used to determine the Data Collection state of the Sessions SDK.
   /// If any Subscribers has Data Collection enabled, the Sessions SDK will send events
-  private var subscribers: [SessionsSubscriber] = []
-  private let subscribersLock = UnfairLock<Void>()
+  private let subscribers = UnfairLock<[SessionsSubscriber]>([])
 
   /// `subscriberPromises` are used to wait until all Subscribers have registered
   /// themselves. Subscribers must have Data Collection state available upon registering.
@@ -227,7 +227,7 @@ private enum GoogleDataTransportConfig {
   // MARK: - Data Collection
 
   var isAnyDataCollectionEnabled: Bool {
-    subscribersLock.withLock {
+    subscribers.withLock { subscribers in
       for subscriber in subscribers {
         if subscriber.isDataCollectionEnabled {
           return true
@@ -238,7 +238,7 @@ private enum GoogleDataTransportConfig {
   }
 
   func addSubscriberFields(event: SessionStartEvent) {
-    subscribersLock.withLock {
+    subscribers.withLock { subscribers in
       for subscriber in subscribers {
         event.set(subscriber: subscriber.sessionsSubscriberName,
                   isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
@@ -293,7 +293,7 @@ private enum GoogleDataTransportConfig {
     subscriber.onSessionChanged(currentSessionDetails)
 
     // Fulfil this subscriber's promise
-    subscribersLock.withLock {
+    subscribers.withLock { subscribers in
       subscribers.append(subscriber)
     }
     subscriberPromises[subscriber.sessionsSubscriberName]?.fulfill(())
