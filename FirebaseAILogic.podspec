@@ -34,6 +34,9 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.source_files = [
     'FirebaseAI/Sources/**/*.swift',
   ]
+  s.exclude_files = [
+    'FirebaseAI/Sources/Macros',
+  ]
 
   s.swift_version = '6.0'
 
@@ -60,6 +63,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
       unit_tests_dir + '**/*.swift',
     ]
     unit_tests.exclude_files = [
+      unit_tests_dir + 'Macros/**/*.swift',
       unit_tests_dir + 'Snippets/**/*.swift',
     ]
     unit_tests.resources = [
