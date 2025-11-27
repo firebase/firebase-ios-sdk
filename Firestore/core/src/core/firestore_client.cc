@@ -690,8 +690,7 @@ void FirestoreClient::LoadBundle(
       std::move(bundle_serializer), std::move(bundle_data));
   worker_queue_->Enqueue([this, reader, result_task] {
     if (is_terminated()) {
-      result_task->SetState(0, 0, 0, 0,
-                            Status(Error::kErrorFailedPrecondition,
+      result_task->SetError(Status(Error::kErrorFailedPrecondition,
                                    "The client has already been terminated."));
       return;
     }
