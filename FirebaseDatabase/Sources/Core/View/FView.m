@@ -202,15 +202,13 @@
         }
 
         if (eventRegistration) {
-            NSUInteger i = 0;
-            while (i < self.eventRegistrations.count) {
-                id<FEventRegistration> existing = self.eventRegistrations[i];
-                if ([existing matches:eventRegistration]) {
-                    [self.eventRegistrations removeObjectAtIndex:i];
-                } else {
-                    i++;
-                }
-            }
+            NSIndexSet *indexesToRemove =
+                [self.eventRegistrations indexesOfObjectsPassingTest:^BOOL(
+                                             id<FEventRegistration> existing,
+                                             NSUInteger idx, BOOL *stop) {
+                  return [existing matches:eventRegistration];
+                }];
+            [self.eventRegistrations removeObjectsAtIndexes:indexesToRemove];
         } else {
             [self.eventRegistrations removeAllObjects];
         }
