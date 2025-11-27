@@ -131,7 +131,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   XCTestExpectation *expectation =
       [self expectationForNotification:FIRCLSMockFileManagerDidRemoveItemNotification
-                                object:self.fileManager
+                                object:nil
                                handler:nil];
   expectation.expectedFulfillmentCount = expectedRemoveCount;
 
@@ -147,7 +147,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   XCTestExpectation *expectation =
       [self expectationForNotification:FIRCLSMockFileManagerDidRemoveItemNotification
-                                object:self.fileManager
+                                object:nil
                                handler:nil];
   expectation.expectedFulfillmentCount = expectedRemoveCount;
 
@@ -381,7 +381,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   // Cache them, and reload. Since it's corrupted we should delete it all
   [self cacheSettingsWithGoogleAppID:TestGoogleAppID
                     currentTimestamp:currentTimestamp
-                 expectedRemoveCount:2];
+                 expectedRemoveCount:3];
 
   // Should have default values because we deleted the cache and settingsDictionary
   XCTAssertEqual(self.settings.isCacheExpired, YES);
