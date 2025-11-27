@@ -47,30 +47,28 @@ struct GenerableTests {
       properties: properties, uniquingKeysWith: { _, second in second }
     )
 
-    let error = try #require(throws: GenerativeModel.GenerationError.self) {
-      try Person(modelOutput)
-    }
-
-    guard case let .decodingFailure(context) = error else {
+    do {
+      _ = try Person(modelOutput)
+      Issue.record("Did not throw an error.")
+    } catch let GenerativeModel.GenerationError.decodingFailure(context) {
+      #expect(context.debugDescription.contains("lastName"))
+    } catch {
       Issue.record("Threw an unexpected error: \(error)")
-      return
     }
-    #expect(context.debugDescription.contains("lastName"))
   }
 
   @Test
   func initializeGenerableFromNonStructureThrows() throws {
     let modelOutput = ModelOutput("not a structure")
 
-    let error = try #require(throws: GenerativeModel.GenerationError.self) {
-      try Person(modelOutput)
-    }
-
-    guard case let .decodingFailure(context) = error else {
+    do {
+      _ = try Person(modelOutput)
+      Issue.record("Did not throw an error.")
+    } catch let GenerativeModel.GenerationError.decodingFailure(context) {
+      #expect(context.debugDescription.contains("does not contain an object"))
+    } catch {
       Issue.record("Threw an unexpected error: \(error)")
-      return
     }
-    #expect(context.debugDescription.contains("does not contain an object"))
   }
 
   @Test
@@ -81,15 +79,14 @@ struct GenerableTests {
       properties: properties, uniquingKeysWith: { _, second in second }
     )
 
-    let error = try #require(throws: GenerativeModel.GenerationError.self) {
-      try Person(modelOutput)
-    }
-
-    guard case let .decodingFailure(context) = error else {
+    do {
+      _ = try Person(modelOutput)
+      Issue.record("Did not throw an error.")
+    } catch let GenerativeModel.GenerationError.decodingFailure(context) {
+      #expect(context.debugDescription.contains("\"forty\" does not contain Int"))
+    } catch {
       Issue.record("Threw an unexpected error: \(error)")
-      return
     }
-    #expect(context.debugDescription.contains("\"forty\" does not contain Int"))
   }
 
   @Test
@@ -100,15 +97,14 @@ struct GenerableTests {
       properties: properties, uniquingKeysWith: { _, second in second }
     )
 
-    let error = try #require(throws: GenerativeModel.GenerationError.self) {
-      try Person(modelOutput)
-    }
-
-    guard case let .decodingFailure(context) = error else {
+    do {
+      _ = try Person(modelOutput)
+      Issue.record("Did not throw an error.")
+    } catch let GenerativeModel.GenerationError.decodingFailure(context) {
+      #expect(context.debugDescription.contains("40.5 does not contain Int."))
+    } catch {
       Issue.record("Threw an unexpected error: \(error)")
-      return
     }
-    #expect(context.debugDescription.contains("40.5 does not contain Int."))
   }
 
   @Test
