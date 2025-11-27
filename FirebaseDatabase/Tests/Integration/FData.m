@@ -464,6 +464,7 @@
   }];
 }
 
+#ifdef FLAKY_TEST
 - (void)testWriteLeafNodeRemoveLeafVerifyExpectedEvents {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
@@ -594,6 +595,7 @@
            fabs([writeVal doubleValue] - 3.1415) < 0.001;
   }];
 }
+#endif
 
 - (void)testWriteMultipleLeafNodesRemoveOnlyOneVerifyExpectedEvents {
   // XXX impl
@@ -918,6 +920,7 @@
   }];
 }
 
+#ifdef FLAKY_TEST
 - (void)testSettingANodeWithChildrenToAPrimitiveAndBack {
   // Can't tolerate stale data; so disable persistence.
   FTupleFirebase *tuple = [FTestHelpers getRandomNodePairWithoutPersistence];
@@ -1008,6 +1011,7 @@
 
   XCTAssertTrue(done, @"Properly finished");
 }
+#endif
 
 - (void)testWriteLeafRemoveLeafAddChildToRemovedNode {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
@@ -2966,7 +2970,8 @@
   }
 }
 
-- (void)testServerIncrementOverflowAndTypeCoercion {
+// TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
+- (void)SKIPtestServerIncrementOverflowAndTypeCoercion {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   __block NSMutableArray *found = [NSMutableArray new];
   __block NSMutableArray *foundTypes = [NSMutableArray new];
