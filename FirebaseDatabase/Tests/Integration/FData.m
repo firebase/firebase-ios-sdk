@@ -299,41 +299,6 @@
   [et wait];
 }
 
-#ifdef FLAKY_TEST
-This test flakes frequently on the emulator on travis and almost always on GHA with
-
-    testWriteLeafNodeRemoveLeafVerifyExpectedEvents,
-    failed
-    : caught "NSInternalInconsistencyException",
-      "Unable to report test assertion failure '(([target isEqualTo:recvd]) is true) failed: throwing
-      "Unable to report test assertion failure '(([target isEqualTo:recvd]) is true) failed - Expected
-              http :          // localhost:9000/-M8IJYWb68MuqQKKz2IY/a aa (0) to match
-                      http :  // localhost:9000/-M8IJYWb68MuqQKKz2IY/a (null) (4)' from
-                              /
-                              Users / runner / runners / 2.262.1 / work / firebase -
-          ios - sdk / firebase - ios -
-          sdk / Example / Database / Tests / Helpers /
-              FEventTester
-                  .m
-              : 123 because it was raised inside test case -[FEventTester(
-                  null)] which has no associated XCTestRun object.This may happen when test cases
-                  are constructed and invoked independently of standard XCTest infrastructure,
-      or when the test has already finished
-                      ." - Expected http://localhost:9000/-M8IJYWb68MuqQKKz2IY/a aa (0) to match "
-                       "http://localhost:9000/-M8IJYWb68MuqQKKz2IY/a (null) (4)' from "
-                       "/Users/runner/runners/2.262.1/work/firebase-ios-sdk/firebase-ios-sdk/"
-                       "Example/Database/Tests/Helpers/FEventTester.m:123 because it was raised "
-                       "inside test case -[FEventTester (null)] which has no associated XCTestRun "
-                       "object. This may happen when test cases are constructed and invoked "
-                       "independently of standard XCTest infrastructure, or when the test has "
-                       "already finished." /
-                  Users / runner / runners / 2.262.1 / work / firebase -
-              ios - sdk / firebase - ios -
-              sdk / Example / Database / Tests / Helpers / FEventTester.m:
-123
-``` FTupleEventTypeString *recvd = [self.actualPathsAndEvents objectAtIndex:i];
-XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recvd);
-
 - (void)testWriteParentNodeOverwriteAtLeafVerifyExpectedEvents {
   FIRDatabaseReference *node = [FTestHelpers getRandomNode];
 
@@ -629,7 +594,6 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
            fabs([writeVal doubleValue] - 3.1415) < 0.001;
   }];
 }
-#endif
 
 - (void)testWriteMultipleLeafNodesRemoveOnlyOneVerifyExpectedEvents {
   // XXX impl
@@ -954,7 +918,6 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }];
 }
 
-#ifdef FLAKY_TEST
 - (void)testSettingANodeWithChildrenToAPrimitiveAndBack {
   // Can't tolerate stale data; so disable persistence.
   FTupleFirebase *tuple = [FTestHelpers getRandomNodePairWithoutPersistence];
@@ -1045,7 +1008,6 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
 
   XCTAssertTrue(done, @"Properly finished");
 }
-#endif
 
 - (void)testWriteLeafRemoveLeafAddChildToRemovedNode {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
@@ -2197,9 +2159,7 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }];
 }
 
-// TODO: On arm hardware Macs, the following test hangs with the emulator, but passes with a real
-// project.
-- (void)SKIPtestUpdateReplacesChildrenAndIsNotRecursive {
+- (void)testUpdateReplacesChildrenAndIsNotRecursive {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *reader = refs.one;
   FIRDatabaseReference *writer = refs.two;
@@ -2240,8 +2200,7 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }];
 }
 
-// TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
-- (void)SKIP_testDeepUpdatesWork {
+- (void)testDeepUpdatesWork {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *reader = refs.one;
   FIRDatabaseReference *writer = refs.two;
@@ -2545,7 +2504,6 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   XCTAssertTrue([result isEqualToNumber:toSet], @"Should get back same number");
 }
 
-#ifdef FLAKY_TEST
 - (void)testParentDeleteShadowsChildListeners {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
   FIRDatabaseReference *writer = refs.one;
@@ -2573,7 +2531,6 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   WAIT_FOR(done);
   [deleter removeAllObservers];
 }
-#endif
 
 - (void)testParentDeleteShadowsChildListenersWithNonDefaultQuery {
   FTupleFirebase *refs = [FTestHelpers getRandomNodePair];
@@ -3009,8 +2966,7 @@ XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recv
   }
 }
 
-// TODO: https://github.com/firebase/firebase-ios-sdk/issues/15103
-- (void)SKIP_testServerIncrementOverflowAndTypeCoercion {
+- (void)testServerIncrementOverflowAndTypeCoercion {
   FIRDatabaseReference *ref = [FTestHelpers getRandomNode];
   __block NSMutableArray *found = [NSMutableArray new];
   __block NSMutableArray *foundTypes = [NSMutableArray new];
