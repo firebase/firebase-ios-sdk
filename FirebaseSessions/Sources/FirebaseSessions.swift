@@ -49,6 +49,8 @@ private enum GoogleDataTransportConfig {
   /// `subscribers` are used to determine the Data Collection state of the Sessions SDK.
   /// If any Subscribers has Data Collection enabled, the Sessions SDK will send events
   private var subscribers: [SessionsSubscriber] = []
+  private let subscribersLock = UnfairLock<Void>()
+
   /// `subscriberPromises` are used to wait until all Subscribers have registered
   /// themselves. Subscribers must have Data Collection state available upon registering.
   private var subscriberPromises: [SessionsSubscriberName: Promise<Void>] = [:]
@@ -179,7 +181,7 @@ private enum GoogleDataTransportConfig {
 
       // Wait until all subscriber promises have been fulfilled before
       // doing any data collection.
-      all(self.subscriberPromises.values).then(on: .main) { _ in
+      all(self.subscriberPromises.values).then(on: .global(qos: .background)) { _ in
         guard self.isAnyDataCollectionEnabled else {
           loggedEventCallback(.failure(.DataCollectionError))
           return
@@ -225,19 +227,23 @@ private enum GoogleDataTransportConfig {
   // MARK: - Data Collection
 
   var isAnyDataCollectionEnabled: Bool {
-    for subscriber in subscribers {
-      if subscriber.isDataCollectionEnabled {
-        return true
+    subscribersLock.withLock {
+      for subscriber in subscribers {
+        if subscriber.isDataCollectionEnabled {
+          return true
+        }
       }
+      return false
     }
-    return false
   }
 
   func addSubscriberFields(event: SessionStartEvent) {
-    for subscriber in subscribers {
-      event.set(subscriber: subscriber.sessionsSubscriberName,
-                isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
-                appInfo: appInfo)
+    subscribersLock.withLock {
+      for subscriber in subscribers {
+        event.set(subscriber: subscriber.sessionsSubscriberName,
+                  isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
+                  appInfo: appInfo)
+      }
     }
   }
 
@@ -287,7 +293,9 @@ private enum GoogleDataTransportConfig {
     subscriber.onSessionChanged(currentSessionDetails)
 
     // Fulfil this subscriber's promise
-    subscribers.append(subscriber)
+    subscribersLock.withLock {
+      subscribers.append(subscriber)
+    }
     subscriberPromises[subscriber.sessionsSubscriberName]?.fulfill(())
   }
 
