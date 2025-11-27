@@ -78,9 +78,7 @@ jobs:
     with:
       product: ${{  matrix.product }}
       supports_swift6: true
-      setup_command: |
-        scripts/update_vertexai_responses.sh; \
-        sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '6.0'/" ${{  matrix.product }}.podspec
+      setup_command: scripts/update_vertexai_responses.sh
 
   quickstart:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
