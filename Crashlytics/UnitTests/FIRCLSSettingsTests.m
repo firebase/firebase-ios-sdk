@@ -127,27 +127,33 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 - (void)cacheSettingsWithGoogleAppID:(NSString *)googleAppID
                     currentTimestamp:(NSTimeInterval)currentTimestamp
                  expectedRemoveCount:(NSInteger)expectedRemoveCount {
-  self.fileManager.removeExpectation = [[XCTestExpectation alloc]
-      initWithDescription:@"FIRCLSMockFileManager.removeExpectation.cache"];
   self.fileManager.removeCount = 0;
-  self.fileManager.expectedRemoveCount = expectedRemoveCount;
+
+  XCTestExpectation *expectation =
+      [self expectationForNotification:FIRCLSMockFileManagerDidRemoveItemNotification
+                                object:self.fileManager
+                               handler:nil];
+  expectation.expectedFulfillmentCount = expectedRemoveCount;
 
   [self.settings cacheSettingsWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:1];
+  [self waitForExpectations:@[ expectation ] timeout:1];
 }
 
 - (void)reloadFromCacheWithGoogleAppID:(NSString *)googleAppID
                       currentTimestamp:(NSTimeInterval)currentTimestamp
                    expectedRemoveCount:(NSInteger)expectedRemoveCount {
-  self.fileManager.removeExpectation = [[XCTestExpectation alloc]
-      initWithDescription:@"FIRCLSMockFileManager.removeExpectation.reload"];
   self.fileManager.removeCount = 0;
-  self.fileManager.expectedRemoveCount = expectedRemoveCount;
+
+  XCTestExpectation *expectation =
+      [self expectationForNotification:FIRCLSMockFileManagerDidRemoveItemNotification
+                                object:self.fileManager
+                               handler:nil];
+  expectation.expectedFulfillmentCount = expectedRemoveCount;
 
   [self.settings reloadFromCacheWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:5.0];
+  [self waitForExpectations:@[ expectation ] timeout:5.0];
 }
 
 - (void)testActivatedSettingsCached {
