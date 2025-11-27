@@ -179,7 +179,7 @@ private enum GoogleDataTransportConfig {
 
       // Wait until all subscriber promises have been fulfilled before
       // doing any data collection.
-      all(self.subscriberPromises.values).then(on: .global(qos: .background)) { _ in
+      all(self.subscriberPromises.values).then(on: .main) { _ in
         guard self.isAnyDataCollectionEnabled else {
           loggedEventCallback(.failure(.DataCollectionError))
           return
