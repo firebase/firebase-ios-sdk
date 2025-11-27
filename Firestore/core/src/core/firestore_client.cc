@@ -369,9 +369,18 @@ void FirestoreClient::ScheduleIndexBackfiller() {
 }
 
 void FirestoreClient::DisableNetwork(StatusCallback callback) {
-  VerifyNotTerminated();
-
   worker_queue_->Enqueue([this, callback] {
+    if (is_terminated()) {
+      if (callback) {
+        user_executor_->Execute([=] {
+          callback(util::Status(
+              firestore::Error::kErrorFailedPrecondition,
+              "The client has already been terminated."));
+        });
+      }
+      return;
+    }
+
     remote_store_->DisableNetwork();
     if (callback) {
       user_executor_->Execute([=] { callback(Status::OK()); });
@@ -380,9 +389,18 @@ void FirestoreClient::DisableNetwork(StatusCallback callback) {
 }
 
 void FirestoreClient::EnableNetwork(StatusCallback callback) {
-  VerifyNotTerminated();
-
   worker_queue_->Enqueue([this, callback] {
+    if (is_terminated()) {
+      if (callback) {
+        user_executor_->Execute([=] {
+          callback(util::Status(
+              firestore::Error::kErrorFailedPrecondition,
+              "The client has already been terminated."));
+        });
+      }
+      return;
+    }
+
     remote_store_->EnableNetwork();
     if (callback) {
       user_executor_->Execute([=] { callback(Status::OK()); });
@@ -391,8 +409,6 @@ void FirestoreClient::EnableNetwork(StatusCallback callback) {
 }
 
 void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
-  VerifyNotTerminated();
-
   // Dispatch the result back onto the user dispatch queue.
   auto async_callback = [this, callback](util::Status status) {
     if (callback) {
@@ -401,6 +417,11 @@ void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
   };
 
   worker_queue_->Enqueue([this, async_callback] {
+    if (is_terminated()) {
+      async_callback(util::Status(firestore::Error::kErrorFailedPrecondition,
+                                  "The client has already been terminated."));
+      return;
+    }
     sync_engine_->RegisterPendingWritesCallback(std::move(async_callback));
   });
 }
@@ -421,15 +442,14 @@ bool FirestoreClient::is_terminated() const {
 }
 
 std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
-    QueryOrPipeline query,
-    ListenOptions options,
-    ViewSnapshotSharedListener&& listener) {
+    Query query, ListenOptions options, ViewSnapshotSharedListener&& listener) {
   VerifyNotTerminated();
 
   auto query_listener = QueryListener::Create(
       std::move(query), std::move(options), std::move(listener));
 
   worker_queue_->Enqueue([this, query_listener] {
+    if (is_terminated()) return;
     event_manager_->AddQueryListener(std::move(query_listener));
   });
 
@@ -449,11 +469,20 @@ void FirestoreClient::RemoveListener(
 
 void FirestoreClient::GetDocumentFromLocalCache(
     const DocumentReference& doc, DocumentSnapshotListener&& callback) {
-  VerifyNotTerminated();
-
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   worker_queue_->Enqueue([this, doc, shared_callback] {
+    if (is_terminated()) {
+      if (shared_callback) {
+        user_executor_->Execute([=] {
+          shared_callback->OnEvent(Status(
+              Error::kErrorFailedPrecondition,
+              "The client has already been terminated."));
+        });
+      }
+      return;
+    }
+
     Document document = local_store_->ReadDocument(doc.key());
     StatusOr<DocumentSnapshot> maybe_snapshot;
 
@@ -484,11 +513,20 @@ void FirestoreClient::GetDocumentFromLocalCache(
 
 void FirestoreClient::GetDocumentsFromLocalCache(
     const api::Query& query, QuerySnapshotListener&& callback) {
-  VerifyNotTerminated();
-
   // TODO(c++14): move `callback` into lambda.
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   worker_queue_->Enqueue([this, query, shared_callback] {
+    if (is_terminated()) {
+      if (shared_callback) {
+        user_executor_->Execute([=] {
+          shared_callback->OnEvent(Status(
+              Error::kErrorFailedPrecondition,
+              "The client has already been terminated."));
+        });
+      }
+      return;
+    }
+
     QueryResult query_result = local_store_->ExecuteQuery(
         QueryOrPipeline(query.query()), /* use_previous_results= */ true);
 
@@ -518,10 +556,18 @@ void FirestoreClient::GetDocumentsFromLocalCache(
 
 void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
                                      StatusCallback callback) {
-  VerifyNotTerminated();
-
-  // TODO(c++14): move `mutations` into lambda (C++14).
   worker_queue_->Enqueue([this, mutations, callback]() mutable {
+    if (is_terminated()) {
+      if (callback) {
+        user_executor_->Execute([=] {
+          callback(util::Status(
+              firestore::Error::kErrorFailedPrecondition,
+              "The client has already been terminated."));
+        });
+      }
+      return;
+    }
+
     if (mutations.empty()) {
       if (callback) {
         user_executor_->Execute([=] { callback(Status::OK()); });
@@ -541,8 +587,6 @@ void FirestoreClient::WriteMutations(std::vector<Mutation>&& mutations,
 void FirestoreClient::Transaction(int max_attempts,
                                   TransactionUpdateCallback update_callback,
                                   TransactionResultCallback result_callback) {
-  VerifyNotTerminated();
-
   // Dispatch the result back onto the user dispatch queue.
   auto async_callback = [this, result_callback](Status status) {
     if (result_callback) {
@@ -551,6 +595,11 @@ void FirestoreClient::Transaction(int max_attempts,
   };
 
   worker_queue_->Enqueue([this, max_attempts, update_callback, async_callback] {
+    if (is_terminated()) {
+      async_callback(util::Status(firestore::Error::kErrorFailedPrecondition,
+                                  "The client has already been terminated."));
+      return;
+    }
     sync_engine_->Transaction(max_attempts, worker_queue_,
                               std::move(update_callback),
                               std::move(async_callback));
@@ -561,8 +610,6 @@ void FirestoreClient::RunAggregateQuery(
     const Query& query,
     const std::vector<AggregateField>& aggregates,
     api::AggregateQueryCallback&& result_callback) {
-  VerifyNotTerminated();
-
   // Dispatch the result back onto the user dispatch queue.
   auto async_callback = [this,
                          result_callback](const StatusOr<ObjectValue>& status) {
@@ -572,6 +619,11 @@ void FirestoreClient::RunAggregateQuery(
   };
 
   worker_queue_->Enqueue([this, query, aggregates, async_callback] {
+    if (is_terminated()) {
+      async_callback(Status(Error::kErrorFailedPrecondition,
+                            "The client has already been terminated."));
+      return;
+    }
     sync_engine_->RunAggregateQuery(query, aggregates,
                                     std::move(async_callback));
   });
@@ -612,42 +664,47 @@ void FirestoreClient::RemoveSnapshotsInSyncListener(
 
 void FirestoreClient::ConfigureFieldIndexes(
     std::vector<FieldIndex> parsed_indexes) {
-  VerifyNotTerminated();
   worker_queue_->Enqueue([this, parsed_indexes] {
+    if (is_terminated()) return;
     local_store_->ConfigureFieldIndexes(std::move(parsed_indexes));
   });
 }
 
 void FirestoreClient::SetIndexAutoCreationEnabled(bool is_enabled) const {
-  VerifyNotTerminated();
   worker_queue_->Enqueue([this, is_enabled] {
+    if (is_terminated()) return;
     local_store_->SetIndexAutoCreationEnabled(is_enabled);
   });
 }
 
 void FirestoreClient::DeleteAllFieldIndexes() {
-  VerifyNotTerminated();
-  worker_queue_->Enqueue([this] { local_store_->DeleteAllFieldIndexes(); });
+  worker_queue_->Enqueue([this] {
+    if (is_terminated()) return;
+    local_store_->DeleteAllFieldIndexes();
+  });
 }
 
 void FirestoreClient::LoadBundle(
     std::unique_ptr<util::ByteStream> bundle_data,
     std::shared_ptr<api::LoadBundleTask> result_task) {
-  VerifyNotTerminated();
-
   bundle::BundleSerializer bundle_serializer(
       remote::Serializer(database_info_.database_id()));
   auto reader = std::make_shared<bundle::BundleReader>(
       std::move(bundle_serializer), std::move(bundle_data));
   worker_queue_->Enqueue([this, reader, result_task] {
+    if (is_terminated()) {
+      result_task->SetState(
+          0, 0, 0, 0,
+          Status(Error::kErrorFailedPrecondition,
+                 "The client has already been terminated."));
+      return;
+    }
     sync_engine_->LoadBundle(std::move(reader), std::move(result_task));
   });
 }
 
 void FirestoreClient::GetNamedQuery(const std::string& name,
                                     api::QueryCallback callback) {
-  VerifyNotTerminated();
-
   // Dispatch the result back onto the user dispatch queue.
   auto async_callback =
       [this, callback](const absl::optional<bundle::NamedQuery>& named_query) {
@@ -668,7 +725,12 @@ void FirestoreClient::GetNamedQuery(const std::string& name,
         }
       };
 
-  worker_queue_->Enqueue([this, name, async_callback] {
+  worker_queue_->Enqueue([this, name, async_callback, callback] {
+    if (is_terminated()) {
+      user_executor_->Execute(
+          [callback] { callback(Query(), /*found=*/false); });
+      return;
+    }
     async_callback(local_store_->GetNamedQuery(name));
   });
 }
