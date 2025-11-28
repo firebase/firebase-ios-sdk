@@ -809,7 +809,7 @@
             presenterError: presenterError
           )
       }
-      if errorURLString == nil, presenterError == nil {
+      if errorURLString == nil, presenterError == nil, fakeAppCheck?.error == nil {
         let requestExpectation = expectation(description: "verifyRequester")
         expectations.append(requestExpectation)
         rpcIssuer.verifyRequester = { request in
@@ -823,7 +823,7 @@
             XCTAssertTrue(reCAPTCHAfallback)
             XCTAssertEqual(token, self.kFakeReCAPTCHAToken)
           case .empty:
-            XCTAssertTrue(testMode)
+            XCTFail("Should not be empty")
           }
           requestExpectation.fulfill()
           do {
