@@ -78,15 +78,11 @@ public extension ThinkingConfig {
   struct ThinkingLevel: EncodableProtoEnum, Equatable {
     enum Kind: String {
       case low = "LOW"
-      case medium = "MEDIUM"
       case high = "HIGH"
     }
 
     /// Low thinking level.
     public static let low = ThinkingLevel(kind: .low)
-
-    /// Medium thinking level.
-    public static let medium = ThinkingLevel(kind: .medium)
 
     /// High thinking level.
     public static let high = ThinkingLevel(kind: .high)
