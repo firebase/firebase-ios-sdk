@@ -627,8 +627,8 @@ import Foundation
         let tokenResult = await appCheck.getToken(forcingRefresh: false)
         if let error = tokenResult.error {
           AuthLog.logWarning(code: "I-AUT000018",
-                             message: "Error getting App Check token; using placeholder " +
-                               "token instead. Error: \(error)")
+                             message: "Error getting App Check token. Error: \(error)")
+          throw error
         }
         let appCheckTokenFragment = "fac=\(tokenResult.token)"
         components?.fragment = appCheckTokenFragment

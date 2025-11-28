@@ -18,9 +18,10 @@ import Foundation
 
 class FakeAppCheck: NSObject, AppCheckInterop {
   let fakeAppCheckToken = "fakeAppCheckToken"
+  var error: Error?
 
   func getToken(forcingRefresh: Bool, completion: @escaping AppCheckTokenHandlerInterop) {
-    completion(FakeAppCheckResult(token: "fakeAppCheckToken"))
+    completion(FakeAppCheckResult(token: "fakeAppCheckToken", error: error))
   }
 
   func tokenDidChangeNotificationName() -> String {
@@ -40,7 +41,8 @@ class FakeAppCheckResult: NSObject, FIRAppCheckTokenResultInterop {
   var token: String
   var error: Error?
 
-  init(token: String) {
+  init(token: String, error: Error? = nil) {
     self.token = token
+    self.error = error
   }
 }

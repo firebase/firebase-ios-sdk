@@ -229,6 +229,38 @@ import FirebaseCore
       OAuthProviderTests.testAppCheck = false
     }
 
+    func testGetCredentialWithUIDelegateWithAppCheckError() throws {
+      let expectation = self.expectation(description: "App Check error propagated")
+      let fakeAppCheck = FakeAppCheck()
+      let expectedError = NSError(domain: "appCheckError", code: -1)
+      fakeAppCheck.error = expectedError
+      initApp(#function, useAppID: true)
+      let auth = try XCTUnwrap(OAuthProviderTests.auth)
+      auth.requestConfiguration.appCheck = fakeAppCheck
+      let provider = OAuthProvider(providerID: kFakeProviderID, auth: auth)
+
+      let projectConfigExpectation = self.expectation(description: "projectConfiguration")
+      rpcIssuer.projectConfigRequester = { request in
+        projectConfigExpectation.fulfill()
+        do {
+          return try self.rpcIssuer.respond(withJSON: ["authorizedDomains": [
+            Self.kFakeAuthorizedWebDomain,
+            Self.kFakeAuthorizedDomain,
+          ]])
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+          return (nil, nil)
+        }
+      }
+
+      provider.getCredentialWith(nil) { credential, error in
+        XCTAssertNil(credential)
+        XCTAssertEqual(error as? NSError, expectedError)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 2.0)
+    }
+
     /** @fn testOAuthCredentialCoding
         @brief Tests successful archiving and unarchiving of @c GoogleAuthCredential.
      */
