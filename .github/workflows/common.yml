@@ -105,6 +105,12 @@ jobs:
       with:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
+    - name: Disable SwiftPM prebuilts in Xcode
+      run: |
+        defaults write com.apple.dt.Xcode IDEPackageEnablePrebuilts -bool NO
+        defaults read com.apple.dt.Xcode IDEPackageEnablePrebuilts
+    - name: Clear SwiftPM caches
+      run: rm -rf ~/.swiftpm/artifacts ~/.swiftpm/cache
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Run setup command, if needed.
