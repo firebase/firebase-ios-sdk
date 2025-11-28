@@ -68,16 +68,16 @@ using testutil::ArrayContainsAnyExpr;
 using testutil::ArrayContainsExpr;
 using testutil::DivideExpr;  // Added for divide test
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
+using testutil::EqualExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
 using testutil::IsNanExpr;
 using testutil::IsNullExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 using testutil::LikeExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
-using testutil::NeqExpr;
 using testutil::NotEqAnyExpr;
+using testutil::NotEqualExpr;
 using testutil::NotExpr;
 using testutil::OrExpr;
 using testutil::XorExpr;
@@ -123,16 +123,17 @@ TEST_F(ErrorHandlingPipelineTest, WherePartialErrorOr) {
 
   RealtimePipeline pipeline = StartPipeline("/k");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr({std::make_shared<Field>("a"),
-               SharedConstant(Value(true))}),  // Expects boolean true
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("c"), SharedConstant(Value(true))})})));
+      {EqualExpr({std::make_shared<Field>("a"),
+                  SharedConstant(Value(true))}),  // Expects boolean true
+       EqualExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("c"), SharedConstant(Value(true))})})));
 
   // In Firestore, comparisons between different types are generally false.
   // The OR evaluates to true if *any* of the fields 'a', 'b', or 'c' is the
   // boolean value `true`. All documents have at least one field that is boolean
   // `true` or can be evaluated. Assuming type mismatches evaluate to false in
-  // EqExpr for OR.
+  // EqualExpr for OR.
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc2, doc3, doc4, doc5, doc6));
 }
@@ -164,12 +165,13 @@ TEST_F(ErrorHandlingPipelineTest, WherePartialErrorAnd) {
 
   RealtimePipeline pipeline = StartPipeline("k");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("c"), SharedConstant(Value(true))})})));
+      {EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+       EqualExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("c"), SharedConstant(Value(true))})})));
 
-  // AND requires all conditions to be true. Type mismatches evaluate EqExpr to
-  // false. Only doc7 has a=true, b=true, AND c=true.
+  // AND requires all conditions to be true. Type mismatches evaluate EqualExpr
+  // to false. Only doc7 has a=true, b=true, AND c=true.
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc7));
 }
 
@@ -201,12 +203,13 @@ TEST_F(ErrorHandlingPipelineTest, WherePartialErrorXor) {
 
   RealtimePipeline pipeline = StartPipeline("k");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(XorExpr(
-      {// Casting might not work directly, using EqExpr for boolean check
-       EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))}),
-       EqExpr({std::make_shared<Field>("c"), SharedConstant(Value(true))})})));
+      {// Casting might not work directly, using EqualExpr for boolean check
+       EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(true))}),
+       EqualExpr({std::make_shared<Field>("b"), SharedConstant(Value(true))}),
+       EqualExpr(
+           {std::make_shared<Field>("c"), SharedConstant(Value(true))})})));
 
-  // Assuming type mismatches evaluate EqExpr to false:
+  // Assuming type mismatches evaluate EqualExpr to false:
   // doc1: F ^ T ^ F = T
   // doc2: T ^ F ^ F = T
   // doc3: T ^ F ^ F = T
@@ -243,7 +246,7 @@ TEST_F(ErrorHandlingPipelineTest, WhereErrorProducingFunctionReturnsEmpty) {
   RealtimePipeline pipeline = StartPipeline("k");
   // Division operation with string constants - this should likely cause an
   // evaluation error.
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqExpr({
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr({
       DivideExpr({SharedConstant(Value("100")),
                   SharedConstant(Value("50"))}),  // Error here
       SharedConstant(Value(2LL))  // Comparing result to integer 2

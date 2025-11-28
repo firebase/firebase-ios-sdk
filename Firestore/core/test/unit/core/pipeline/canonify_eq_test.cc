@@ -71,7 +71,7 @@ using testutil::SharedConstant;
 using testutil::Value;
 // Expression helpers
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
+using testutil::EqualExpr;
 
 // Helper to get canonical ID directly for RealtimePipeline
 std::string GetPipelineCanonicalId(const RealtimePipeline& pipeline) {
@@ -119,25 +119,27 @@ class CanonifyEqPipelineTest : public ::testing::Test {
 
 TEST_F(CanonifyEqPipelineTest, CanonifySimpleWhere) {
   RealtimePipeline p = StartPipeline("test");
-  p = p.AddingStage(std::make_shared<Where>(EqExpr(
+  p = p.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
-  EXPECT_EQ(GetPipelineCanonicalId(p),
-            "collection(test)|where(fn(eq[fld(foo),cst(42)]))|sort(fld(__name__"
-            ")asc)");
+  EXPECT_EQ(
+      GetPipelineCanonicalId(p),
+      "collection(test)|where(fn(equal[fld(foo),cst(42)]))|sort(fld(__name__"
+      ")asc)");
 }
 
 TEST_F(CanonifyEqPipelineTest, CanonifyMultipleStages) {
   RealtimePipeline p = StartPipeline("test");
-  p = p.AddingStage(std::make_shared<Where>(EqExpr(
+  p = p.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
   p = p.AddingStage(std::make_shared<LimitStage>(10));
   p = p.AddingStage(std::make_shared<SortStage>(
       std::vector<Ordering>{Ordering(std::make_shared<api::Field>("bar"),
                                      api::Ordering::Direction::DESCENDING)}));
-  EXPECT_EQ(GetPipelineCanonicalId(p),
-            "collection(test)|where(fn(eq[fld(foo),cst(42)]))|sort(fld(__name__"
-            ")asc)|limit(10)|sort(fld(bar)desc,fld(__name__)asc)");
+  EXPECT_EQ(
+      GetPipelineCanonicalId(p),
+      "collection(test)|where(fn(equal[fld(foo),cst(42)]))|sort(fld(__name__"
+      ")asc)|limit(10)|sort(fld(bar)desc,fld(__name__)asc)");
 }
 
 // TEST_F(CanonifyEqPipelineTest, CanonifyAddFields) {
@@ -228,7 +230,7 @@ TEST_F(CanonifyEqPipelineTest, CanonifyCollectionGroupSource) {
 //       Value("b"))))));
 //
 //   EXPECT_EQ(GetPipelineCanonicalId(p),
-//             "collection(/foo)|where(fn(eq_any,[fld(bar),list([cst(\"a\"),cst(\"b\")])]))|sort(fld(__name__)asc)");
+//             collection(/foo)|where(fn(equal_any,[fld(bar),list([cst("a"),cst("b")])]))|sort(fld(__name__)asc));
 // }
 
 // ===================================================================
@@ -239,11 +241,11 @@ TEST_F(CanonifyEqPipelineTest, CanonifyCollectionGroupSource) {
 
 TEST_F(CanonifyEqPipelineTest, EqReturnsTrueForIdenticalPipelines) {
   RealtimePipeline p1 = StartPipeline("test");
-  p1 = p1.AddingStage(std::make_shared<Where>(EqExpr(
+  p1 = p1.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
   RealtimePipeline p2 = StartPipeline("test");
-  p2 = p2.AddingStage(std::make_shared<Where>(EqExpr(
+  p2 = p2.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
   QueryOrPipeline v1 = QueryOrPipeline(p1);
@@ -253,7 +255,7 @@ TEST_F(CanonifyEqPipelineTest, EqReturnsTrueForIdenticalPipelines) {
 
 TEST_F(CanonifyEqPipelineTest, EqReturnsFalseForDifferentStages) {
   RealtimePipeline p1 = StartPipeline("test");
-  p1 = p1.AddingStage(std::make_shared<Where>(EqExpr(
+  p1 = p1.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
   RealtimePipeline p2 = StartPipeline("test");
@@ -266,13 +268,13 @@ TEST_F(CanonifyEqPipelineTest, EqReturnsFalseForDifferentStages) {
 
 TEST_F(CanonifyEqPipelineTest, EqReturnsFalseForDifferentParamsInStage) {
   RealtimePipeline p1 = StartPipeline("test");
-  p1 = p1.AddingStage(std::make_shared<Where>(EqExpr(
+  p1 = p1.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
   RealtimePipeline p2 = StartPipeline("test");
   p2 = p2.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<api::Field>("bar"),
-              SharedConstant(Value(42LL))})));  // Different field
+      EqualExpr({std::make_shared<api::Field>("bar"),
+                 SharedConstant(Value(42LL))})));  // Different field
 
   QueryOrPipeline v1 = QueryOrPipeline(p1);
   QueryOrPipeline v2 = QueryOrPipeline(p2);
@@ -281,13 +283,13 @@ TEST_F(CanonifyEqPipelineTest, EqReturnsFalseForDifferentParamsInStage) {
 
 TEST_F(CanonifyEqPipelineTest, EqReturnsFalseForDifferentStageOrder) {
   RealtimePipeline p1 = StartPipeline("test");
-  p1 = p1.AddingStage(std::make_shared<Where>(EqExpr(
+  p1 = p1.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
   p1 = p1.AddingStage(std::make_shared<LimitStage>(10));
 
   RealtimePipeline p2 = StartPipeline("test");
   p2 = p2.AddingStage(std::make_shared<LimitStage>(10));
-  p2 = p2.AddingStage(std::make_shared<Where>(EqExpr(
+  p2 = p2.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<api::Field>("foo"), SharedConstant(Value(42LL))})));
 
   QueryOrPipeline v1 = QueryOrPipeline(p1);
