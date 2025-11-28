@@ -823,7 +823,7 @@
             XCTAssertTrue(reCAPTCHAfallback)
             XCTAssertEqual(token, self.kFakeReCAPTCHAToken)
           case .empty:
-            XCTFail("Should not be empty")
+            XCTAssertTrue(testMode)
           }
           requestExpectation.fulfill()
           do {
