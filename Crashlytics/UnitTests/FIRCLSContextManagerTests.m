@@ -42,6 +42,10 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 
 - (void)setUp {
   self.fileManager = [[FIRCLSMockFileManager alloc] init];
+  [[NSFileManager defaultManager] createDirectoryAtPath:self.fileManager.rootPath
+                              withIntermediateDirectories:YES
+                                               attributes:nil
+                                                    error:nil];
   [self.fileManager createReportDirectories];
   [self.fileManager setupNewPathForExecutionIdentifier:TestContextReportID];
 
