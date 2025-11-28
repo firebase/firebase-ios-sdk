@@ -39,9 +39,8 @@ NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification =
 - (BOOL)removeItemAtPath:(NSString *)path {
   @synchronized(self) {
     [self.fileSystemDict removeObjectForKey:path];
+    self.removeCount += 1;
   }
-
-  self.removeCount += 1;
 
   [[NSNotificationCenter defaultCenter]
       postNotificationName:FIRCLSMockFileManagerDidRemoveItemNotification
