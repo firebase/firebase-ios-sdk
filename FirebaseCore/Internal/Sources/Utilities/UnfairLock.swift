@@ -1,3 +1,4 @@
+
 // Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,54 +14,35 @@
 // limitations under the License.
 
 import Foundation
-private import os.lock
 
-/// A reference wrapper around `os_unfair_lock`. Replace this class with
-/// `OSAllocatedUnfairLock` once we support only iOS 16+. For an explanation
-/// on why this is necessary, see the docs:
-/// https://developer.apple.com/documentation/os/osallocatedunfairlock
+/// A thread-safe wrapper around a value.
 public final class UnfairLock<Value>: @unchecked Sendable {
-  private var lockPointer: UnsafeMutablePointer<os_unfair_lock>
+  private var lock: NSRecursiveLock = .init()
   private var _value: Value
 
   public init(_ value: consuming sending Value) {
-    lockPointer = UnsafeMutablePointer<os_unfair_lock>
-      .allocate(capacity: 1)
-    lockPointer.initialize(to: os_unfair_lock())
     _value = value
   }
 
-  deinit {
-    lockPointer.deallocate()
-  }
-
   public func value() -> Value {
-    lock()
-    defer { unlock() }
+    lock.lock()
+    defer { lock.unlock() }
     return _value
   }
 
   @discardableResult
   public borrowing func withLock<Result>(_ body: (inout sending Value) throws
     -> sending Result) rethrows -> sending Result {
-    lock()
-    defer { unlock() }
+    lock.lock()
+    defer { lock.unlock() }
     return try body(&_value)
   }
 
   @discardableResult
   public borrowing func withLock<Result>(_ body: (inout sending Value) -> sending Result)
     -> sending Result {
-    lock()
-    defer { unlock() }
+    lock.lock()
+    defer { lock.unlock() }
     return body(&_value)
-  }
-
-  private func lock() {
-    os_unfair_lock_lock(lockPointer)
-  }
-
-  private func unlock() {
-    os_unfair_lock_unlock(lockPointer)
   }
 }
