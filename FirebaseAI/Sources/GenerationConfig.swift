@@ -203,6 +203,26 @@ public struct GenerationConfig: Sendable {
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
   }
+
+  /// Internal initializer to create a new config by overriding specific values of another.
+  init(from base: GenerationConfig?,
+       responseMIMEType: String,
+       responseSchema: Schema) {
+    self.init(
+      temperature: base?.temperature,
+      topP: base?.topP,
+      topK: base?.topK,
+      candidateCount: base?.candidateCount,
+      maxOutputTokens: base?.maxOutputTokens,
+      presencePenalty: base?.presencePenalty,
+      frequencyPenalty: base?.frequencyPenalty,
+      stopSequences: base?.stopSequences,
+      responseMIMEType: responseMIMEType,
+      responseSchema: responseSchema,
+      responseModalities: base?.responseModalities,
+      thinkingConfig: base?.thinkingConfig
+    )
+  }
 }
 
 // MARK: - Codable Conformances
