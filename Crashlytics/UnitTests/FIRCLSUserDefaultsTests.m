@@ -54,6 +54,8 @@
 - (void)tearDown {
   [_userDefaults removeAllObjects];
   [[NSUserDefaults standardUserDefaults] removeObjectForKey:_testKey1];
+  [[NSUserDefaults standardUserDefaults] removeObjectForKey:_testKey2];
+  [[NSUserDefaults standardUserDefaults] removeObjectForKey:_testKey3];
   [super tearDown];
 }
 
