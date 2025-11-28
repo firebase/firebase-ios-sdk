@@ -23,9 +23,15 @@
   import XCTest
 
   final class GenerableMacroTests: XCTestCase {
-    let testMacros: [String: Macro.Type] = [
-      "stringify": StringifyMacro.self,
-    ]
+    #if swift(>=6.2)
+      nonisolated(unsafe) static let testMacros: [String: Macro.Type] = [
+        "stringify": StringifyMacro.self,
+      ]
+    #else
+      static let testMacros: [String: Macro.Type] = [
+        "stringify": StringifyMacro.self,
+      ]
+    #endif // swift(>=6.2)
 
     func testMacro() throws {
       assertMacroExpansion(
@@ -35,7 +41,7 @@
         expandedSource: """
         (a + b, "a + b")
         """,
-        macros: testMacros
+        macros: GenerableMacroTests.testMacros
       )
     }
 
@@ -47,7 +53,7 @@
         expandedSource: #"""
         ("Hello, \(name)", #""Hello, \(name)""#)
         """#,
-        macros: testMacros
+        macros: GenerableMacroTests.testMacros
       )
     }
   }

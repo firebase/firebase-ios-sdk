@@ -177,7 +177,7 @@ let package = Package(
     ),
     .package(url: "https://github.com/google/app-check.git",
              "11.0.1" ..< "12.0.0"),
-    .package(url: "https://github.com/swiftlang/swift-syntax.git", "600.0.1" ..< "601.0.0"),
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "600.0.0-latest"),
   ],
   targets: [
     .target(
@@ -203,8 +203,6 @@ let package = Package(
     .macro(
       name: "FirebaseAILogicMacros",
       dependencies: [
-        .product(name: "SwiftSyntax", package: "swift-syntax"),
-        .product(name: "SwiftSyntaxMacroExpansion", package: "swift-syntax"),
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
       ],
@@ -215,23 +213,13 @@ let package = Package(
       dependencies: [
         "FirebaseAILogic",
         "FirebaseStorage",
-        .target(
-          name: "FirebaseAILogicMacros",
-          condition: .when(platforms: [.macOS])
-        ),
-        .product(
-          name: "SwiftSyntaxMacrosTestSupport",
-          package: "swift-syntax",
-          condition: .when(platforms: [.macOS])
-        ),
+        "FirebaseAILogicMacros",
+        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
       ],
       path: "FirebaseAI/Tests/Unit",
       resources: [
         .copy("vertexai-sdk-test-data/mock-responses"),
         .process("Resources"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
       ]
     ),
     .target(
