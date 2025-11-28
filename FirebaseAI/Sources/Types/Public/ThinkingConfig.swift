@@ -49,6 +49,14 @@ public struct ThinkingConfig: Sendable {
   ///
   /// - Parameters:
   ///   - thinkingBudget: The maximum number of tokens to be used for the model's thinking process.
+  ///     The range of [supported thinking budget values
+  ///     ](https://firebase.google.com/docs/ai-logic/thinking#supported-thinking-budget-values)
+  ///     depends on the model.
+  ///       - To use the default thinking budget or thinking level for a model, set this value to
+  ///         `nil` or omit it.
+  ///       - To disable thinking, when supported by the model, set this value to `0`.
+  ///       - To use dynamic thinking, allowing the model to decide on the thinking budget based on
+  ///         the task, set this value to `-1`.
   ///   - includeThoughts: If true, summaries of the model's "thoughts" are included in responses.
   public init(thinkingBudget: Int? = nil, includeThoughts: Bool? = nil) {
     self.thinkingBudget = thinkingBudget
