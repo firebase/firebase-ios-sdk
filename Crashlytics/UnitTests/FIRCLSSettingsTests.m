@@ -358,7 +358,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
-#endif  // FLAKY_TEST
 
 // These tests are partially to make sure the SDK doesn't crash when it
 // has corrupted settings.
@@ -425,6 +424,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
+#endif  // FLAKY_TEST
 
 - (void)testNewReportEndpointSettings {
   NSString *settingsJSON =
