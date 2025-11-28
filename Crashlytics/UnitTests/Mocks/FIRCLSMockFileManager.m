@@ -37,7 +37,9 @@ NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification =
 }
 
 - (BOOL)removeItemAtPath:(NSString *)path {
-  [self.fileSystemDict removeObjectForKey:path];
+  @synchronized(self) {
+    [self.fileSystemDict removeObjectForKey:path];
+  }
 
   self.removeCount += 1;
 
@@ -49,54 +51,63 @@ NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification =
 }
 
 - (BOOL)fileExistsAtPath:(NSString *)path {
-  return self.fileSystemDict[path] != nil;
+  @synchronized(self) {
+    return self.fileSystemDict[path] != nil;
+  }
 }
 
 - (BOOL)createFileAtPath:(NSString *)path
                 contents:(NSData *)data
               attributes:(NSDictionary<NSFileAttributeKey, id> *)attr {
-  self.fileSystemDict[path] = data;
+  @synchronized(self) {
+    self.fileSystemDict[path] = data;
+  }
   return YES;
 }
 
 - (NSArray *)activePathContents {
-  NSMutableArray *pathsWithActive = [[NSMutableArray alloc] init];
-  for (NSString *path in [_fileSystemDict allKeys]) {
-    if ([path containsString:@"v5/reports/active"]) {
-      [pathsWithActive addObject:path];
+  @synchronized(self) {
+    NSMutableArray *pathsWithActive = [[NSMutableArray alloc] init];
+    for (NSString *path in [_fileSystemDict allKeys]) {
+      if ([path containsString:@"v5/reports/active"]) {
+        [pathsWithActive addObject:path];
+      }
     }
+    return pathsWithActive;
   }
-
-  return pathsWithActive;
 }
 
 - (NSData *)dataWithContentsOfFile:(NSString *)path {
-  return self.fileSystemDict[path];
+  @synchronized(self) {
+    return self.fileSystemDict[path];
+  }
 }
 
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block {
-  NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys
-      filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path,
-                                                                        NSDictionary *bindings) {
-        return [path hasPrefix:directory];
-      }]];
+  @synchronized(self) {
+    NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys
+        filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path,
+                                                                          NSDictionary *bindings) {
+          return [path hasPrefix:directory];
+        }]];
 
-  for (NSString *path in filteredPaths) {
-    NSString *extension;
-    NSString *fullPath;
+    for (NSString *path in filteredPaths) {
+      NSString *extension;
+      NSString *fullPath;
 
-    // Skip files that start with a dot.  This is important, because if you try to move a .DS_Store
-    // file, it will fail if the target directory also has a .DS_Store file in it.  Plus, its
-    // wasteful, because we don't care about dot files.
-    if ([path hasPrefix:@"."]) {
-      continue;
-    }
+      // Skip files that start with a dot.  This is important, because if you try to move a
+      // .DS_Store file, it will fail if the target directory also has a .DS_Store file in
+      //  it.  Plus, its wasteful, because we don't care about dot files.
+      if ([path hasPrefix:@"."]) {
+        continue;
+      }
 
-    extension = [path pathExtension];
-    fullPath = [directory stringByAppendingPathComponent:path];
-    if (block) {
-      block(fullPath, extension);
+      extension = [path pathExtension];
+      fullPath = [directory stringByAppendingPathComponent:path];
+      if (block) {
+        block(fullPath, extension);
+      }
     }
   }
 }
