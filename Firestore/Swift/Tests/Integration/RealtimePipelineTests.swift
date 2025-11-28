@@ -356,9 +356,11 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
 
     disableNetwork()
 
-    try await collRef.document("book1").updateData([
-      "rating": FieldValue.serverTimestamp(),
-    ])
+    Task {
+      try? await collRef.document("book1").updateData([
+        "rating": FieldValue.serverTimestamp(),
+      ])
+    }
 
     let stream = db.realtimePipeline().collection(collRef.path)
       .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
@@ -406,10 +408,11 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     disableNetwork()
 
     let now = Constant(Timestamp(date: Date()))
-
-    try await collRef.document("book1").updateData([
-      "rating": FieldValue.serverTimestamp(),
-    ])
+    Task {
+      try? await collRef.document("book1").updateData([
+        "rating": FieldValue.serverTimestamp(),
+      ])
+    }
 
     let stream = db.realtimePipeline().collection(collRef.path)
       .where(
@@ -445,9 +448,11 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
 
     disableNetwork()
 
-    try await collRef.document("book1").updateData([
-      "rating": FieldValue.serverTimestamp(),
-    ])
+    Task {
+      try? await collRef.document("book1").updateData([
+        "rating": FieldValue.serverTimestamp(),
+      ])
+    }
 
     let stream = db.realtimePipeline().collection(collRef.path)
       .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
@@ -488,9 +493,11 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
 
     disableNetwork()
 
-    try await collRef.document("book1").updateData([
-      "title": FieldValue.serverTimestamp(),
-    ])
+    Task {
+      try? await collRef.document("book1").updateData([
+        "title": FieldValue.serverTimestamp(),
+      ])
+    }
 
     let stream = db.realtimePipeline().collection(collRef.path)
       .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
@@ -516,9 +523,11 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
 
     disableNetwork()
 
-    try await collRef.document("book1").updateData([
-      "rating": FieldValue.serverTimestamp(),
-    ])
+    Task {
+      try? await collRef.document("book1").updateData([
+        "rating": FieldValue.serverTimestamp(),
+      ])
+    }
 
     let stream = db.realtimePipeline().collection(collRef.path)
       .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
@@ -559,9 +568,11 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
 
     disableNetwork()
 
-    try await collRef.document("book1").updateData([
-      "title": FieldValue.serverTimestamp(),
-    ])
+    Task {
+      try? await collRef.document("book1").updateData([
+        "title": FieldValue.serverTimestamp(),
+      ])
+    }
 
     let stream = db.realtimePipeline().collection(collRef.path)
       .where(Field("title").equal(Constant.nil))
@@ -586,9 +597,11 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
 
     disableNetwork()
 
-    try await collRef.document("book1").updateData([
-      "title": FieldValue.serverTimestamp(),
-    ])
+    Task {
+      try? await collRef.document("book1").updateData([
+        "title": FieldValue.serverTimestamp(),
+      ])
+    }
 
     let pipeline = db.realtimePipeline().collection(collRef.path)
       .where(Field("title").notEqual(Constant.nil))
