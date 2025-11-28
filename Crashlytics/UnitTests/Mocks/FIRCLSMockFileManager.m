@@ -97,7 +97,7 @@ NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification =
 
       // Skip files that start with a dot.  This is important, because if you try to move a
       // .DS_Store file, it will fail if the target directory also has a .DS_Store file in
-      //  it.  Plus, its wasteful, because we don't care about dot files.
+      //  it.  Plus, it's wasteful, because we don't care about dot files.
       if ([path hasPrefix:@"."]) {
         continue;
       }

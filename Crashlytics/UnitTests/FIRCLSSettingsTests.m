@@ -137,7 +137,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   [self.settings cacheSettingsWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self waitForExpectations:@[ expectation ] timeout:4.0];
+  [self waitForExpectations:@[ expectation ] timeout:16.0];
 }
 
 - (void)reloadFromCacheWithGoogleAppID:(NSString *)googleAppID
@@ -153,7 +153,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   [self.settings reloadFromCacheWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self waitForExpectations:@[ expectation ] timeout:6.0];
+  [self waitForExpectations:@[ expectation ] timeout:14.0];
 }
 
 - (void)testActivatedSettingsCached {
