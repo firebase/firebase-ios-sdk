@@ -16,6 +16,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CompilerPluginSupport
 import PackageDescription
 
 let firebaseVersion = "12.7.0"
@@ -176,6 +177,7 @@ let package = Package(
     ),
     .package(url: "https://github.com/google/app-check.git",
              "11.0.1" ..< "12.0.0"),
+    swiftSyntaxDependency(),
   ],
   targets: [
     .target(
@@ -189,26 +191,35 @@ let package = Package(
     .target(
       name: "FirebaseAILogic",
       dependencies: [
+        "FirebaseAILogicMacros",
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
       ],
-      path: "FirebaseAI/Sources"
+      path: "FirebaseAI/Sources",
+      exclude: ["Macros"]
+    ),
+    .macro(
+      name: "FirebaseAILogicMacros",
+      dependencies: [
+        .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+        .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+      ],
+      path: "FirebaseAI/Sources/Macros"
     ),
     .testTarget(
       name: "FirebaseAILogicUnit",
       dependencies: [
         "FirebaseAILogic",
         "FirebaseStorage",
+        "FirebaseAILogicMacros",
+        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
       ],
       path: "FirebaseAI/Tests/Unit",
       resources: [
         .copy("vertexai-sdk-test-data/mock-responses"),
         .process("Resources"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
       ]
     ),
     .target(
@@ -1446,6 +1457,17 @@ func grpcDependency() -> Package.Dependency {
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
+}
+
+func swiftSyntaxDependency() -> Package.Dependency {
+  let url = "https://github.com/swiftlang/swift-syntax.git"
+  #if swift(>=6.2)
+    return .package(url: url, from: "602.0.0-latest")
+  #elseif swift(>=6.1)
+    return .package(url: url, from: "601.0.0-latest")
+  #else
+    return .package(url: url, from: "600.0.0-latest")
+  #endif
 }
 
 func firestoreWrapperTarget() -> Target {
