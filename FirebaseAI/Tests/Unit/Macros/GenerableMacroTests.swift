@@ -23,15 +23,9 @@
   import XCTest
 
   final class GenerableMacroTests: XCTestCase {
-    #if swift(>=6.2)
-      nonisolated(unsafe) static let testMacros: [String: Macro.Type] = [
-        "stringify": StringifyMacro.self,
-      ]
-    #else
-      static let testMacros: [String: Macro.Type] = [
-        "stringify": StringifyMacro.self,
-      ]
-    #endif // swift(>=6.2)
+    static let testMacros: [String: Macro.Type] = [
+      "stringify": StringifyMacro.self,
+    ]
 
     func testMacro() throws {
       assertMacroExpansion(
