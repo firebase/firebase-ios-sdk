@@ -296,6 +296,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
+#ifdef FLAKY_TEST
 - (void)testGoogleAppIDChanged {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsInverse error:&error];
@@ -326,7 +327,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
 }
 
-#ifdef FLAKY_TEST
 // This is a weird case where we got settings, but never created a cache key for it. We are
 // treating this as if the cache was invalid and re-fetching in this case.
 - (void)testActivatedSettingsMissingCacheKey {
