@@ -493,53 +493,62 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   dispatch_async(_databaseOperationQueue, ^{
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *path = [self pathForDatabase];
+    BOOL fileExists = [fileManager fileExistsAtPath:path];
 
-    BOOL didOpenDatabase = YES;
-    if (![fileManager fileExistsAtPath:path]) {
-      // We've to separate between different versions here because of backward compatibility issues.
-      int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-#ifdef SQLITE_OPEN_FILEPROTECTION_NONE
-      flags |= SQLITE_OPEN_FILEPROTECTION_NONE;
-#endif
-      int result = sqlite3_open_v2([path UTF8String], &self -> _database, flags, NULL);
-      if (result != SQLITE_OK) {
-        NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
-        NSString *errorMessage = [NSString
-            stringWithFormat:@"Could not open existing RMQ database at path %@, error: %@", path,
-                             errorString];
-        FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
-                                @"%@", errorMessage);
-        NSAssert(NO, errorMessage);
-        return;
+    // Ensure the directory exists before trying to create the database if the file doesn't exist.
+    if (!fileExists) {
+      NSString *directory = [path stringByDeletingLastPathComponent];
+      if (![fileManager fileExistsAtPath:directory]) {
+        NSError *error;
+        if (![fileManager createDirectoryAtPath:directory
+                    withIntermediateDirectories:YES
+                                     attributes:nil
+                                          error:&error]) {
+          NSString *errorMessage = [NSString
+              stringWithFormat:@"Could not create RMQ database directory at path %@, error: %@",
+                               directory, error];
+          FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingDatabase,
+                                  @"%@", errorMessage);
+          NSAssert(NO, errorMessage);
+          return;
+        }
       }
+    }
+    int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+#ifdef SQLITE_OPEN_FILEPROTECTION_NONE
+    flags |= SQLITE_OPEN_FILEPROTECTION_NONE;
+#endif
+    int result = sqlite3_open_v2([path UTF8String], &self -> _database, flags, NULL);
+    if (result != SQLITE_OK) {
+      NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
+      NSString *errorMessage =
+          [NSString stringWithFormat:@"Could not open or create RMQ database at path %@, error: %@",
+                                     path, errorString];
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
+                              @"%@", errorMessage);
+
+      // If the file existed, it might be corrupt. Let's remove it and fail.
+      if (fileExists) {
+        // This is synchronous, but it's on the database queue, so it's safe.
+        [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+      }
+      NSAssert(NO, errorMessage);
+      return;
+    }
+
+    if (!fileExists) {
+      // New database, create tables.
       [self createTableWithName:kTableOutgoingRmqMessages command:kCreateTableOutgoingRmqMessages];
 
       [self createTableWithName:kTableLastRmqId command:kCreateTableLastRmqId];
       [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
     } else {
-      // Calling sqlite3_open should create the database, since the file doesn't exist.
-      int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-#ifdef SQLITE_OPEN_FILEPROTECTION_NONE
-      flags |= SQLITE_OPEN_FILEPROTECTION_NONE;
-#endif
-      int result = sqlite3_open_v2([path UTF8String], &self -> _database, flags, NULL);
-      if (result != SQLITE_OK) {
-        NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
-        NSString *errorMessage =
-            [NSString stringWithFormat:@"Could not create RMQ database at path %@, error: %@", path,
-                                       errorString];
-        FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingDatabase,
-                                @"%@", errorMessage);
-        NSAssert(NO, errorMessage);
-        didOpenDatabase = NO;
-      } else {
-        [self updateDBWithStringRmqID];
-      }
+      // Existing database, update schema if needed.
+      [self updateDBWithStringRmqID];
     }
 
-    if (didOpenDatabase) {
-      [self createTableWithName:kTableSyncMessages command:kCreateTableSyncMessages];
-    }
+    // This table should exist in both new and old databases.
+    [self createTableWithName:kTableSyncMessages command:kCreateTableSyncMessages];
   });
 }
 
