@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix crash while fetching Auth and App Check tokens. (#15281)
+
 # 12.4.0
 - [fixed] Implemented an internal workaround to fix
   [CVE-2025-0838](https://nvd.nist.gov/vuln/detail/CVE-2025-0838). (#15300)
