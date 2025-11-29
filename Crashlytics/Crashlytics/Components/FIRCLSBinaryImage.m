@@ -57,23 +57,19 @@ void FIRCLSBinaryImageInit(void) {
   memset(&_firclsContext.writable->binaryImage, 0, sizeof(_firclsContext.writable->binaryImage));
   _firclsContext.writable->binaryImage.file.fd = -1;
 
-  dispatch_async(FIRCLSGetBinaryImageQueue(), ^{
-    if (!FIRCLSUnlinkIfExists(_firclsContext.readonly->binaryimage.path)) {
-      FIRCLSSDKLog("Unable to reset the binary image log file %s\n", strerror(errno));
-    }
+  if (!FIRCLSUnlinkIfExists(_firclsContext.readonly->binaryimage.path)) {
+    FIRCLSSDKLog("Unable to reset the binary image log file %s\n", strerror(errno));
+  }
 
-    bool needsClosing;  // unneeded
-    if (!FIRCLSBinaryImageOpenIfNeeded(&needsClosing)) {
-      FIRCLSSDKLog("Error: Unable to open the binary image log file during init\n");
-    }
-  });
+  bool needsClosing;  // unneeded
+  if (!FIRCLSBinaryImageOpenIfNeeded(&needsClosing)) {
+    FIRCLSSDKLog("Error: Unable to open the binary image log file during init\n");
+  }
+
+  FIRCLSFileClose(&_firclsContext.writable->binaryImage.file);
 
   _dyld_register_func_for_add_image(FIRCLSBinaryImageAddedCallback);
   _dyld_register_func_for_remove_image(FIRCLSBinaryImageRemovedCallback);
-
-  dispatch_async(FIRCLSGetBinaryImageQueue(), ^{
-    FIRCLSFileClose(&_firclsContext.writable->binaryImage.file);
-  });
 }
 
 static bool FIRCLSBinaryImageOpenIfNeeded(bool* needsClosing) {

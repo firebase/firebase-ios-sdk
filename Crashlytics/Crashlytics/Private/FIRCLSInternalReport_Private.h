@@ -1,4 +1,4 @@
-// Copyright 2019 Google
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 
-#import <XCTest/XCTest.h>
+NS_ASSUME_NONNULL_BEGIN
 
-// Notification posted when an item is removed via `removeItemAtPath`.
-extern NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification;
+@interface FIRCLSInternalReport ()
 
-@interface FIRCLSMockFileManager : FIRCLSFileManager
-
-// Incremented when a remove happens with removeItemAtPath
-@property(nonatomic) NSInteger removeCount;
+@property(nonatomic, readonly) NSOperationQueue *operationQueue;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -16,6 +16,7 @@
 // experiment
 
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Private/FIRCLSInternalReport_Private.h"
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
@@ -52,6 +53,8 @@ NSString *const FIRCLSReportRolloutsFile = @"rollouts.clsrecord";
 @end
 
 @implementation FIRCLSInternalReport
+
+@synthesize operationQueue = _operationQueue;
 
 + (instancetype)reportWithPath:(NSString *)path {
   return [[self alloc] initWithPath:path];

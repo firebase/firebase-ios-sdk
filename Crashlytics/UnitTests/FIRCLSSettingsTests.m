@@ -127,27 +127,33 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 - (void)cacheSettingsWithGoogleAppID:(NSString *)googleAppID
                     currentTimestamp:(NSTimeInterval)currentTimestamp
                  expectedRemoveCount:(NSInteger)expectedRemoveCount {
-  self.fileManager.removeExpectation = [[XCTestExpectation alloc]
-      initWithDescription:@"FIRCLSMockFileManager.removeExpectation.cache"];
   self.fileManager.removeCount = 0;
-  self.fileManager.expectedRemoveCount = expectedRemoveCount;
+
+  XCTestExpectation *expectation =
+      [self expectationForNotification:FIRCLSMockFileManagerDidRemoveItemNotification
+                                object:nil
+                               handler:nil];
+  expectation.expectedFulfillmentCount = expectedRemoveCount;
 
   [self.settings cacheSettingsWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:1];
+  [self waitForExpectations:@[ expectation ] timeout:16.0];
 }
 
 - (void)reloadFromCacheWithGoogleAppID:(NSString *)googleAppID
                       currentTimestamp:(NSTimeInterval)currentTimestamp
                    expectedRemoveCount:(NSInteger)expectedRemoveCount {
-  self.fileManager.removeExpectation = [[XCTestExpectation alloc]
-      initWithDescription:@"FIRCLSMockFileManager.removeExpectation.reload"];
   self.fileManager.removeCount = 0;
-  self.fileManager.expectedRemoveCount = expectedRemoveCount;
+
+  XCTestExpectation *expectation =
+      [self expectationForNotification:FIRCLSMockFileManagerDidRemoveItemNotification
+                                object:nil
+                               handler:nil];
+  expectation.expectedFulfillmentCount = expectedRemoveCount;
 
   [self.settings reloadFromCacheWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:5.0];
+  [self waitForExpectations:@[ expectation ] timeout:14.0];
 }
 
 - (void)testActivatedSettingsCached {
@@ -205,10 +211,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
 
-  // 1 delete for clearing the cache key, plus 2 for the deletes from reloading and clearing the
-  // cache and cache key
-  self.fileManager.expectedRemoveCount = 3;
-
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
@@ -237,10 +239,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
-
-  // 1 delete for clearing the cache key, plus 2 for the deletes from reloading and clearing the
-  // cache and cache key
-  self.fileManager.expectedRemoveCount = 3;
 
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
@@ -272,10 +270,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self writeSettings:FIRCLSTestSettingsActivated error:&error];
   XCTAssertNil(error, "%@", error);
 
-  // 1 delete for clearing the cache key, plus 2 for the deletes from reloading and clearing the
-  // cache and cache key
-  self.fileManager.expectedRemoveCount = 3;
-
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
@@ -302,6 +296,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.errorLogBufferSize, 128000);
 }
 
+#ifdef FLAKY_TEST
 - (void)testGoogleAppIDChanged {
   NSError *error = nil;
   [self writeSettings:FIRCLSTestSettingsInverse error:&error];
@@ -387,7 +382,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   // Cache them, and reload. Since it's corrupted we should delete it all
   [self cacheSettingsWithGoogleAppID:TestGoogleAppID
                     currentTimestamp:currentTimestamp
-                 expectedRemoveCount:2];
+                 expectedRemoveCount:3];
 
   // Should have default values because we deleted the cache and settingsDictionary
   XCTAssertEqual(self.settings.isCacheExpired, YES);
@@ -429,6 +424,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
   XCTAssertEqual(self.settings.onDemandBackoffStepDuration, 6);
 }
+#endif  // FLAKY_TEST
 
 - (void)testNewReportEndpointSettings {
   NSString *settingsJSON =

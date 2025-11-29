@@ -284,6 +284,9 @@ NSString *const TestFIID = @"TestFIID";
                                    asUrgent:urgent];
 
   XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
+
+  // Wait a little bit for the file to be removed.
+  [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
   XCTAssertEqualObjects(self.fileManager.removedItemAtPath_path, [self packagePath]);
 }
 

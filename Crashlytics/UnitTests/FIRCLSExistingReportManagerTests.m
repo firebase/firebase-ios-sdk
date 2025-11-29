@@ -54,10 +54,11 @@
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
-  // Cleanup potential artifacts from other test files.
+  // Clean up the directory and then re-create it to ensure a fresh state
   if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
     assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
   }
+  [self.fileManager createReportDirectories];
 
   // Allow nil values only in tests
 #pragma clang diagnostic push
