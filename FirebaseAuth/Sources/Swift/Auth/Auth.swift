@@ -1952,7 +1952,8 @@ extension Auth: AuthInterop {
       }
       let uid = self._currentUser?.uid
       self._currentUser?
-        .internalGetToken(forceRefresh: true, backend: self.backend) { token, error in
+        .internalGetToken(forceRefresh: true, backend: self.backend) { [weak self] token, error in
+          guard let self else { return }
           if self._currentUser?.uid != uid {
             return
           }
