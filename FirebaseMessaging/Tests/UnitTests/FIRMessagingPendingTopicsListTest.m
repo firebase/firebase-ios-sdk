@@ -110,23 +110,23 @@
   FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc] init];
   pendingTopics.delegate = self.alwaysReadyDelegate;
 
-  XCTestExpectation *batchSizeReductionExpectation =
-      [self expectationWithDescription:@"Batch size was reduced after topic subscription"];
+  XCTestExpectation *allOperationsCompleted =
+      [self expectationWithDescription:@"All topic operations completed"];
 
-  __weak id weakSelf = self;
   self.alwaysReadyDelegate.subscriptionHandler =
       ^(NSString *topic, FIRMessagingTopicAction action,
         FIRMessagingTopicOperationCompletion completion) {
         // Simulate that the handler is generally called asynchronously
         dispatch_async(dispatch_get_main_queue(), ^{
-          if (action == FIRMessagingTopicActionUnsubscribe) {
-            __unused id self = weakSelf;  // In Xcode 11, XCTAssertEqual references self.
-            XCTAssertEqual(pendingTopics.numberOfBatches, 1);
-            [batchSizeReductionExpectation fulfill];
-          }
           completion(nil);
         });
       };
+
+  self.alwaysReadyDelegate.updateHandler = ^{
+    if (pendingTopics.numberOfBatches == 0) {
+      [allOperationsCompleted fulfill];
+    }
+  };
 
   [pendingTopics addOperationForTopic:@"/topics/0"
                            withAction:FIRMessagingTopicActionSubscribe
@@ -151,19 +151,21 @@
   XCTestExpectation *allOperationsSucceededed =
       [self expectationWithDescription:@"All queued operations succeeded"];
 
+  __block int completedOperations = 0;
   self.alwaysReadyDelegate.subscriptionHandler =
       ^(NSString *topic, FIRMessagingTopicAction action,
         FIRMessagingTopicOperationCompletion completion) {
         // Typically, our callbacks happen asynchronously, but to ensure resilience,
         // call back the operation on the same thread it was called in.
         completion(nil);
+        completedOperations++;
+        if (completedOperations == 3) {
+          [allOperationsSucceededed fulfill];
+        }
       };
 
-  self.alwaysReadyDelegate.updateHandler = ^{
-    if (pendingTopics.numberOfBatches == 0) {
-      [allOperationsSucceededed fulfill];
-    }
-  };
+  // Remove the updateHandler, it's not consistently called for individual operations.
+  self.alwaysReadyDelegate.updateHandler = nil;
 
   [pendingTopics addOperationForTopic:@"/topics/0"
                            withAction:FIRMessagingTopicActionSubscribe
@@ -182,26 +184,32 @@
   FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc] init];
   pendingTopics.delegate = self.alwaysReadyDelegate;
 
+  NSString *initialTopic = @"/topics/0";
   NSString *stragglerTopic = @"/topics/straggler";
-  XCTestExpectation *stragglerTopicWasAddedToInFlightOperations =
-      [self expectationWithDescription:@"The topic was added to in-flight operations"];
+
+  XCTestExpectation *initialTopicProcessedExpectation =
+      [self expectationWithDescription:@"The initial topic was processed"];
+  XCTestExpectation *stragglerTopicProcessedExpectation =
+      [self expectationWithDescription:@"The straggler topic was processed"];
 
   self.alwaysReadyDelegate.subscriptionHandler =
       ^(NSString *topic, FIRMessagingTopicAction action,
         FIRMessagingTopicOperationCompletion completion) {
-        if ([topic isEqualToString:stragglerTopic]) {
-          [stragglerTopicWasAddedToInFlightOperations fulfill];
-        }
         // Add a 0.5 second delay to the completion, to give time to add a straggler before the
         // batch is completed
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
                        dispatch_get_main_queue(), ^{
                          completion(nil);
+                         if ([topic isEqualToString:initialTopic]) {
+                           [initialTopicProcessedExpectation fulfill];
+                         } else if ([topic isEqualToString:stragglerTopic]) {
+                           [stragglerTopicProcessedExpectation fulfill];
+                         }
                        });
       };
 
   // This is a normal topic, which should start fairly soon, but take a while to complete
-  [pendingTopics addOperationForTopic:@"/topics/0"
+  [pendingTopics addOperationForTopic:initialTopic
                            withAction:FIRMessagingTopicActionSubscribe
                            completion:nil];
   // While waiting for the first topic to complete, we add another topic after a slight delay

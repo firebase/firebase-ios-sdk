@@ -109,13 +109,13 @@ static NSString *const kValidImageURL =
 
 - (void)testModifyNotificationWithEmptyPayloadData {
   if (@available(macOS 10.14, iOS 10.0, watchos 3.0, *)) {
-    XCTestExpectation *validPayloadExpectation =
-        [self expectationWithDescription:@"Test payload is valid."];
+    XCTestExpectation *handlerCalledExpectation =
+        [self expectationWithDescription:@"Content handler was called."];
     UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    content.userInfo =
-        @{kFCMPayloadOptionsName : @{kFCMPayloadOptionsImageURLName : @"a invalid URL"}};
+    // Simulate empty payload data relevant to image loading.
+    content.userInfo = @{kFCMPayloadOptionsName : @{}};
     FIRMessagingContentHandler handler = ^(UNNotificationContent *content) {
-      [validPayloadExpectation fulfill];
+      [handlerCalledExpectation fulfill];
     };
     [_mockExtensionHelper populateNotificationContent:content withContentHandler:handler];
     OCMReject([_mockExtensionHelper loadAttachmentForURL:[OCMArg any]
