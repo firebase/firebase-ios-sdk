@@ -707,13 +707,12 @@
   // Assert that the file protection attribute is correct
   XCTAssertNil(error, @"Failed to get attributes of directory: %@", error);
 
-#if TARGET_OS_IPHONE && !TARGET_OS_SIMULATOR
-  // On a physical iOS device, file protection should be set.
+#if !TARGET_OS_SIMULATOR
+  // On a physical device, file protection should be set.
   XCTAssertEqualObjects(attributes[NSFileProtectionKey],
                         NSFileProtectionCompleteUntilFirstUserAuthentication);
 #else
-  // In the simulator or on other platforms, file protection is not supported, so the key
-  // should be nil.
+  // In the simulator, file protection is not supported, so the key should be nil.
   XCTAssertNil(attributes[NSFileProtectionKey]);
 #endif
 
