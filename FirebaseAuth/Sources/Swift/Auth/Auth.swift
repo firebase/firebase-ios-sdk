@@ -1168,9 +1168,14 @@ extension Auth: AuthInterop {
                                     actionCodeSettings: ActionCodeSettings?,
                                     completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
+      let finalActionCodeSettings = actionCodeSettings ?? ActionCodeSettings()
+      if let customAuthDomain = self.customAuthDomain,
+         finalActionCodeSettings.linkDomain == nil {
+        finalActionCodeSettings.linkDomain = customAuthDomain
+      }
       let request = GetOOBConfirmationCodeRequest.passwordResetRequest(
         email: email,
-        actionCodeSettings: actionCodeSettings,
+        actionCodeSettings: finalActionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
       #if os(iOS)

@@ -1,5 +1,6 @@
 # Unreleased
 - [fixed] Add a mechanism to prevent concurrent token refreshes. (#15474)
+- [fixed] Fix password reset process for Signin With Apple. (#6091)
 
 # 12.2.0
 - [added] Added TOTP support for macOS.
