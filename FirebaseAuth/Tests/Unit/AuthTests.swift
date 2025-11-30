@@ -1612,6 +1612,34 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  /** @fn testSendPasswordResetEmailWithCustomAuthDomain
+      @brief Tests the flow of a successful @c sendPasswordReset call with custom auth domain.
+   */
+  func testSendPasswordResetEmailWithCustomAuthDomain() throws {
+    let expectation = self.expectation(description: #function)
+    let kCustomAuthDomain = "test.page.link"
+    auth.customAuthDomain = kCustomAuthDomain
+
+    // 1. Setup respond block to test and fake send request.
+    rpcIssuer.respondBlock = {
+      // 2. Validate the created Request instance.
+      let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
+      XCTAssertEqual(request.email, self.kEmail)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.linkDomain, kCustomAuthDomain)
+
+      // 3. Send the response from the fake backend.
+      return try self.rpcIssuer.respond(withJSON: [:])
+    }
+    auth?.sendPasswordReset(withEmail: kEmail) { error in
+      // 4. After the response triggers the callback, verify success.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
   /** @fn testSendPasswordResetEmailFailure
       @brief Tests the flow of a failed @c sendPasswordReset call.
    */
