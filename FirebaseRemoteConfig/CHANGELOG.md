@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix Data Race on gIsNewDatabase. (#14715)
+
 # 12.6.0
 - [fixed] Fixed a bug where Remote Config does not work after a restore
   of a previous backup of the device. (#14459)

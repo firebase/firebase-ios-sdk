@@ -120,12 +120,15 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
 @implementation RCNConfigDBManager
 
++ (void)load {
+  gIsNewDatabaseQueue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
+                                              DISPATCH_QUEUE_SERIAL);
+}
+
 + (instancetype)sharedInstance {
   static dispatch_once_t onceToken;
   static RCNConfigDBManager *sharedInstance;
   dispatch_once(&onceToken, ^{
-    gIsNewDatabaseQueue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
-                                                DISPATCH_QUEUE_SERIAL);
     sharedInstance = [[RCNConfigDBManager alloc] init];
   });
   return sharedInstance;
