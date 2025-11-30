@@ -25,8 +25,11 @@
 #import "FirebaseDatabase/Sources/Snapshot/FSnapshotUtilities.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
-@interface FLevelDBStorageEngineTests : XCTestCase
+@interface FLevelDBStorageEngine (Tests)
++ (void)ensureDir:(NSString *)path markAsDoNotBackup:(BOOL)markAsDoNotBackup;
+@end
 
+@interface FLevelDBStorageEngineTests : XCTestCase
 @end
 
 @implementation FLevelDBStorageEngineTests
@@ -685,4 +688,36 @@
                         ([NSSet setWithArray:@[ @"b", @"c" ]]));
 }
 
+- (void)testEnsureDirSetsCorrectFileProtection {
+  NSString *testDirName =
+      [NSString stringWithFormat:@"fdb_persistence_test_%lu", (unsigned long)arc4random()];
+  NSString *testPath = [NSTemporaryDirectory() stringByAppendingPathComponent:testDirName];
+
+  // Ensure the directory doesn't exist before the test
+  [[NSFileManager defaultManager] removeItemAtPath:testPath error:nil];
+
+  // Call the method to create the directory
+  [FLevelDBStorageEngine ensureDir:testPath markAsDoNotBackup:NO];
+
+  // Get the attributes of the created directory
+  NSError *error = nil;
+  NSDictionary<NSFileAttributeKey, id> *attributes =
+      [[NSFileManager defaultManager] attributesOfItemAtPath:testPath error:&error];
+
+  // Assert that the file protection attribute is correct
+  XCTAssertNil(error, @"Failed to get attributes of directory: %@", error);
+
+#if TARGET_OS_IPHONE && !TARGET_OS_SIMULATOR
+  // On a physical iOS device, file protection should be set.
+  XCTAssertEqualObjects(attributes[NSFileProtectionKey],
+                        NSFileProtectionCompleteUntilFirstUserAuthentication);
+#else
+  // In the simulator or on other platforms, file protection is not supported, so the key
+  // should be nil.
+  XCTAssertNil(attributes[NSFileProtectionKey]);
+#endif
+
+  // Clean up
+  [[NSFileManager defaultManager] removeItemAtPath:testPath error:nil];
+}
 @end

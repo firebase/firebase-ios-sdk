@@ -977,17 +977,24 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 }
 
 + (void)ensureDir:(NSString *)path markAsDoNotBackup:(BOOL)markAsDoNotBackup {
-    NSError *error;
+    NSError *error = nil;
+    NSDictionary *attributes = @{
+        NSFileProtectionKey :
+            NSFileProtectionCompleteUntilFirstUserAuthentication
+    };
     BOOL success =
         [[NSFileManager defaultManager] createDirectoryAtPath:path
                                   withIntermediateDirectories:YES
-                                                   attributes:nil
+                                                   attributes:attributes
                                                         error:&error];
     if (!success) {
         @throw [NSException
             exceptionWithName:@"FailedToCreatePersistenceDir"
                        reason:@"Failed to create persistence directory."
-                     userInfo:@{@"path" : path}];
+                     userInfo:@{
+                         @"path" : path,
+                         @"error" : error ? error : [NSNull null]
+                     }];
     }
 
     if (markAsDoNotBackup) {
@@ -1000,9 +1007,6 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                 @"I-RDB076035",
                 @"Failed to mark firebase database folder as do not backup: %@",
                 error);
-            [NSException raise:@"Error marking as do not backup"
-                        format:@"Failed to mark folder %@ as do not backup",
-                               firebaseDirURL];
         }
     }
 }
