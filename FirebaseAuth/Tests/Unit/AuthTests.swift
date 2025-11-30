@@ -1591,25 +1591,12 @@ class AuthTests: RPCBaseTests {
       @brief Tests the flow of a successful @c sendPasswordReset call.
    */
   func testSendPasswordResetEmailSuccess() throws {
-    let expectation = self.expectation(description: #function)
-
-    // 1. Setup respond block to test and fake send request.
-    rpcIssuer.respondBlock = {
-      // 2. Validate the created Request instance.
-      let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
-      XCTAssertEqual(request.email, self.kEmail)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-
-      // 3. Send the response from the fake backend.
-      return try self.rpcIssuer.respond(withJSON: [:])
-    }
-    auth?.sendPasswordReset(withEmail: kEmail) { error in
-      // 4. After the response triggers the callback, verify success.
-      XCTAssertTrue(Thread.isMainThread)
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 5)
+    try checkSendPasswordResetWithLinkDomain(
+      customAuthDomain: nil,
+      actionCodeSettings: nil,
+      expectedLinkDomain: nil,
+      description: #function
+    )
   }
 
   /** @fn testSendPasswordResetEmailWithActionCodeSettingsLinkDomainSet
@@ -1617,34 +1604,24 @@ class AuthTests: RPCBaseTests {
           linkDomain set.
    */
   func testSendPasswordResetEmailWithActionCodeSettingsLinkDomainSet() throws {
-    let expectation = self.expectation(description: #function)
     let kCustomAuthDomain = "test.page.link"
     let kActionCodeSettingsLinkDomain = "actioncode.page.link"
     auth.customAuthDomain = kCustomAuthDomain
 
     let actionCodeSettings = ActionCodeSettings()
     actionCodeSettings.linkDomain = kActionCodeSettingsLinkDomain
-    actionCodeSettings.url = URL(string: "https://\(kActionCodeSettingsLinkDomain)/_next/verify?mode=resetPassword&oobCode=oobCode")!
+    actionCodeSettings.url =
+      URL(
+        string: "https://\(kActionCodeSettingsLinkDomain)/_next/verify?mode=resetPassword&oobCode=oobCode"
+      )!
     actionCodeSettings.handleCodeInApp = true
 
-    // 1. Setup respond block to test and fake send request.
-    rpcIssuer.respondBlock = {
-      // 2. Validate the created Request instance.
-      let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
-      XCTAssertEqual(request.email, self.kEmail)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-      XCTAssertEqual(request.linkDomain, kActionCodeSettingsLinkDomain)
-
-      // 3. Send the response from the fake backend.
-      return try self.rpcIssuer.respond(withJSON: [:])
-    }
-    auth?.sendPasswordReset(withEmail: kEmail, actionCodeSettings: actionCodeSettings) { error in
-      // 4. After the response triggers the callback, verify success.
-      XCTAssertTrue(Thread.isMainThread)
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 5)
+    try checkSendPasswordResetWithLinkDomain(
+      customAuthDomain: kCustomAuthDomain,
+      actionCodeSettings: actionCodeSettings,
+      expectedLinkDomain: kActionCodeSettingsLinkDomain,
+      description: #function
+    )
   }
 
   /** @fn testSendPasswordResetEmailWithActionCodeSettingsLinkDomainNil
@@ -1652,42 +1629,44 @@ class AuthTests: RPCBaseTests {
           linkDomain explicitly nil.
    */
   func testSendPasswordResetEmailWithActionCodeSettingsLinkDomainNil() throws {
-    let expectation = self.expectation(description: #function)
     let kCustomAuthDomain = "test.page.link"
     auth.customAuthDomain = kCustomAuthDomain
 
     let actionCodeSettings = ActionCodeSettings()
     actionCodeSettings.linkDomain = nil // Explicitly nil
-    actionCodeSettings.url = URL(string: "https://some.other.domain/_next/verify?mode=resetPassword&oobCode=oobCode")!
+    actionCodeSettings.url =
+      URL(string: "https://some.other.domain/_next/verify?mode=resetPassword&oobCode=oobCode")!
     actionCodeSettings.handleCodeInApp = true
 
-    // 1. Setup respond block to test and fake send request.
-    rpcIssuer.respondBlock = {
-      // 2. Validate the created Request instance.
-      let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
-      XCTAssertEqual(request.email, self.kEmail)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-      XCTAssertEqual(request.linkDomain, kCustomAuthDomain)
-
-      // 3. Send the response from the fake backend.
-      return try self.rpcIssuer.respond(withJSON: [:])
-    }
-    auth?.sendPasswordReset(withEmail: kEmail, actionCodeSettings: actionCodeSettings) { error in
-      // 4. After the response triggers the callback, verify success.
-      XCTAssertTrue(Thread.isMainThread)
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    waitForExpectations(timeout: 5)
+    try checkSendPasswordResetWithLinkDomain(
+      customAuthDomain: kCustomAuthDomain,
+      actionCodeSettings: actionCodeSettings,
+      expectedLinkDomain: kCustomAuthDomain,
+      description: #function
+    )
   }
 
   /** @fn testSendPasswordResetEmailWithCustomAuthDomain
       @brief Tests the flow of a successful @c sendPasswordReset call with custom auth domain.
    */
   func testSendPasswordResetEmailWithCustomAuthDomain() throws {
-    let expectation = self.expectation(description: #function)
     let kCustomAuthDomain = "test.page.link"
-    auth.customAuthDomain = kCustomAuthDomain
+    try checkSendPasswordResetWithLinkDomain(
+      customAuthDomain: kCustomAuthDomain,
+      actionCodeSettings: nil,
+      expectedLinkDomain: kCustomAuthDomain,
+      description: #function
+    )
+  }
+
+  private func checkSendPasswordResetWithLinkDomain(customAuthDomain: String?,
+                                                    actionCodeSettings: ActionCodeSettings?,
+                                                    expectedLinkDomain: String?,
+                                                    description: String) throws {
+    let expectation = self.expectation(description: description)
+    if let customAuthDomain = customAuthDomain {
+      auth.customAuthDomain = customAuthDomain
+    }
 
     // 1. Setup respond block to test and fake send request.
     rpcIssuer.respondBlock = {
@@ -1695,12 +1674,12 @@ class AuthTests: RPCBaseTests {
       let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
       XCTAssertEqual(request.email, self.kEmail)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-      XCTAssertEqual(request.linkDomain, kCustomAuthDomain)
+      XCTAssertEqual(request.linkDomain, expectedLinkDomain)
 
       // 3. Send the response from the fake backend.
       return try self.rpcIssuer.respond(withJSON: [:])
     }
-    auth?.sendPasswordReset(withEmail: kEmail) { error in
+    auth?.sendPasswordReset(withEmail: kEmail, actionCodeSettings: actionCodeSettings) { error in
       // 4. After the response triggers the callback, verify success.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(error)
