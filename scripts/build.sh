@@ -93,11 +93,13 @@ database_emulator="${scripts_dir}/run_database_emulator.sh"
 system=$(uname -s)
 case "$system" in
   Darwin)
+    architecture=$(uname -m)
     xcode_version=$(xcodebuild -version | grep Xcode)
     xcode_version="${xcode_version/Xcode /}"
     xcode_major="${xcode_version/.*/}"
     ;;
   *)
+    architecture="x86_64"
     xcode_major="0"
     ;;
 esac
@@ -179,7 +181,7 @@ ipad_flags=(
 )
 
 macos_flags=(
-  -destination 'platform=OS X,arch=x86_64'
+  -destination "platform=OS X,arch=$architecture"
 )
 tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
@@ -191,8 +193,8 @@ visionos_flags=(
   -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
 )
 catalyst_flags=(
-  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES
-  -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
+  ARCHS=$architecture VALID_ARCHS=$architecture SUPPORTS_MACCATALYST=YES
+  -destination platform="macOS,variant=Mac Catalyst,arch=$architecture" TARGETED_DEVICE_FAMILY=2
   CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 )
 
