@@ -165,7 +165,7 @@ else
   ios_flags=(
     -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
   )
-    watchos_flags=(
+  watchos_flags=(
     -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
   )
 fi
