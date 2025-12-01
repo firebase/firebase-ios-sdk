@@ -200,6 +200,26 @@ firebase_ios_glob(
   src/bundle/*.h
   src/core/*.cc
   src/core/*.h
+  src/core/pipeline/*.cc
+  src/core/pipeline/*.h
+  src/core/pipeline/evaluation/arithmetic.cc
+  src/core/pipeline/evaluation/arithmetic.h
+  src/core/pipeline/evaluation/array.cc
+  src/core/pipeline/evaluation/array.h
+  src/core/pipeline/evaluation/comparison.cc
+  src/core/pipeline/evaluation/comparison.h
+  src/core/pipeline/evaluation/logical.cc
+  src/core/pipeline/evaluation/logical.h
+  src/core/pipeline/evaluation/map.cc
+  src/core/pipeline/evaluation/map.h
+  src/core/pipeline/evaluation/string.cc
+  src/core/pipeline/evaluation/string.h
+  src/core/pipeline/evaluation/timestamp.cc
+  src/core/pipeline/evaluation/timestamp.h
+  src/core/pipeline/evaluation/type.cc
+  src/core/pipeline/evaluation/type.h
+  src/core/pipeline/evaluation/util.cc
+  src/core/pipeline/evaluation/util.h
   src/credentials/*.cc
   src/credentials/*.h
   src/immutable/*.cc
@@ -243,6 +263,7 @@ target_compile_definitions(
 target_include_directories(
   firestore_core PUBLIC
   ${PROJECT_SOURCE_DIR}/Firestore/core/include
+  ${PROJECT_SOURCE_DIR}/Firestore/core/src/core
 )
 
 # Add the gRPC include directories as SYSTEM directories to silence warnings
