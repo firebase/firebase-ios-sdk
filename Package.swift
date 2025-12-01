@@ -1461,13 +1461,7 @@ func grpcDependency() -> Package.Dependency {
 
 func swiftSyntaxDependency() -> Package.Dependency {
   let url = "https://github.com/swiftlang/swift-syntax.git"
-  #if swift(>=6.2)
-    return .package(url: url, from: "602.0.0-latest")
-  #elseif swift(>=6.1)
-    return .package(url: url, from: "601.0.0-latest")
-  #else
-    return .package(url: url, from: "600.0.0-latest")
-  #endif
+  return .package(url: url, from: "600.0.0-latest")
 }
 
 func firestoreWrapperTarget() -> Target {
