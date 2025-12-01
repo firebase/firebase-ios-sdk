@@ -10,7 +10,7 @@ on:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-    cancel-in-progress: true
+    cancel-in-progress: ${{ !contains(github.event.head_commit.message, '[concurrent]')}}
 
 jobs:
   check:
