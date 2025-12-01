@@ -36,6 +36,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   ]
   s.exclude_files = [
     'FirebaseAI/Sources/Macros',
+    'FirebaseAI/Sources/Types/Public/Generable/MacroDeclarations.swift',
   ]
 
   s.swift_version = '6.0'
@@ -63,7 +64,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
       unit_tests_dir + '**/*.swift',
     ]
     unit_tests.exclude_files = [
-      unit_tests_dir + 'Macros/**/*.swift',
+      unit_tests_dir + 'Macros',
       unit_tests_dir + 'Snippets/**/*.swift',
     ]
     unit_tests.resources = [
