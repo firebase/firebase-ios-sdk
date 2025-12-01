@@ -177,7 +177,7 @@ let package = Package(
     ),
     .package(url: "https://github.com/google/app-check.git",
              "11.0.1" ..< "12.0.0"),
-    swiftSyntaxDependency(),
+    .package(url: "https://github.com/swiftlang/swift-syntax.git", "600.0.0" ..< "601.0.0"),
   ],
   targets: [
     .target(
@@ -1457,11 +1457,6 @@ func grpcDependency() -> Package.Dependency {
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
-}
-
-func swiftSyntaxDependency() -> Package.Dependency {
-  let url = "https://github.com/swiftlang/swift-syntax.git"
-  return .package(url: url, from: "600.0.0-latest")
 }
 
 func firestoreWrapperTarget() -> Target {
