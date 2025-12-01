@@ -15,7 +15,6 @@
  */
 
 #include "Firestore/core/src/core/pipeline/evaluation/string.h"
-#include "Firestore/core/src/core/pipeline/evaluation/util.h"
 
 #include <algorithm>
 #include <cctype>
@@ -24,6 +23,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/core/pipeline/evaluation/util.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/strings/match.h"
