@@ -19,7 +19,6 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
-#import "Crashlytics/Crashlytics/Private/FIRCLSInternalReport_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRCrashlyticsReport_Private.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlyticsReport.h"
 
@@ -245,7 +244,6 @@
     NSString *key = [NSString stringWithFormat:@"key_%i", i];
     [report setCustomValue:@"hello" forKey:key];
   }
-  [report.internalReport.operationQueue waitUntilAllOperationsAreFinished];
 
   NSArray *entriesI = FIRCLSFileReadSections(
       [[report.internalReport pathForContentFile:FIRCLSReportUserIncrementalKVFile]
@@ -267,7 +265,6 @@
 
   [report log:@"Normal log without formatting"];
   [report logWithFormat:@"%@, %@", @"First", @"Second"];
-  [report.internalReport.operationQueue waitUntilAllOperationsAreFinished];
 
   NSArray *entries = FIRCLSFileReadSections(
       [[report.internalReport pathForContentFile:FIRCLSReportLogAFile] fileSystemRepresentation],
@@ -286,7 +283,6 @@
 
   [report log:@"Normal log without formatting"];
   [report logWithFormat:@"%@, %@", @"First", @"Second"];
-  [report.internalReport.operationQueue waitUntilAllOperationsAreFinished];
 
   NSArray *entries = FIRCLSFileReadSections(
       [[report.internalReport pathForContentFile:FIRCLSReportLogAFile] fileSystemRepresentation],
@@ -306,7 +302,6 @@
   for (int i = 0; i < 2000; i++) {
     [report log:@"0123456789"];
   }
-  [report.internalReport.operationQueue waitUntilAllOperationsAreFinished];
 
   unsigned long long sizeA = [[[NSFileManager defaultManager]
       attributesOfItemAtPath:[report.internalReport pathForContentFile:FIRCLSReportLogAFile]
