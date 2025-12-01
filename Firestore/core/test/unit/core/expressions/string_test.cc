@@ -20,10 +20,8 @@
 #include <vector>
 
 #include "Firestore/core/src/api/expressions.h"
-#include "Firestore/core/src/core/expressions_eval.h"
-#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
-#include "Firestore/core/test/unit/testutil/testutil.h"  // For Value, Bytes etc.
+#include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

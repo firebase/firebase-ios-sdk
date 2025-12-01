@@ -21,13 +21,12 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/api/expressions.h"  // Include for api::Constant, api::Field
-#include "Firestore/core/src/core/expressions_eval.h"  // For EvaluateResult, CoreEq etc.
-#include "Firestore/core/src/model/database_id.h"   // For DatabaseId
-#include "Firestore/core/src/model/document_key.h"  // For DocumentKey
-#include "Firestore/core/src/model/value_util.h"  // For value constants like NaNValue, TypeOrder, NullValue, CanonicalId, Equals
-#include "Firestore/core/test/unit/testutil/expression_test_util.h"  // For EvaluateExpr, EqualExpr, ComparisonValueTestData, RefConstant etc.
-#include "Firestore/core/test/unit/testutil/testutil.h"  // For test helpers like Value, Array, Map, BlobValue, Doc
+#include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/test/unit/testutil/expression_test_util.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

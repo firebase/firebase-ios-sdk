@@ -17,7 +17,6 @@
 #include "Firestore/core/src/core/pipeline_util.h"
 
 #include <algorithm>
-#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -27,17 +26,11 @@
 #include "Firestore/core/src/api/realtime_pipeline.h"
 #include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/bound.h"
-#include "Firestore/core/src/core/expressions_eval.h"
-#include "Firestore/core/src/core/filter.h"
-#include "Firestore/core/src/core/order_by.h"
+#include "Firestore/core/src/core/pipeline/expression.h"
 #include "Firestore/core/src/core/pipeline_run.h"
 #include "Firestore/core/src/core/query.h"
-#include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
-#include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/value_util.h"
-#include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -46,7 +39,6 @@
 #include "absl/strings/str_format.h"
 #include "absl/strings/str_join.h"
 #include "absl/types/optional.h"
-#include "absl/types/variant.h"
 
 namespace firebase {
 namespace firestore {

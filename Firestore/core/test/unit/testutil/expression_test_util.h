@@ -17,20 +17,29 @@
 #ifndef FIRESTORE_CORE_TEST_UNIT_TESTUTIL_EXPRESSION_TEST_UTIL_H_
 #define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_EXPRESSION_TEST_UTIL_H_
 
-#include <algorithm>         // For std::sort
-#include <initializer_list>  // For std::initializer_list
-#include <limits>            // For std::numeric_limits
-#include <memory>            // For std::shared_ptr, std::make_shared
-#include <ostream>           // For std::ostream
-#include <string>            // For std::string
-#include <utility>           // For std::move, std::pair
+#include <algorithm>
+#include <initializer_list>
+#include <limits>
+#include <memory>
+#include <ostream>
+#include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/stages.h"
-#include "Firestore/core/src/core/expressions_eval.h"
+#include "Firestore/core/src/core/pipeline/aggregates.h"
+#include "Firestore/core/src/core/pipeline/evaluation/arithmetic.h"
+#include "Firestore/core/src/core/pipeline/evaluation/array.h"
+#include "Firestore/core/src/core/pipeline/evaluation/comparison.h"
+#include "Firestore/core/src/core/pipeline/evaluation/logical.h"
+#include "Firestore/core/src/core/pipeline/evaluation/map.h"
+#include "Firestore/core/src/core/pipeline/evaluation/string.h"
+#include "Firestore/core/src/core/pipeline/evaluation/timestamp.h"
+#include "Firestore/core/src/core/pipeline/evaluation/type.h"
+#include "Firestore/core/src/core/pipeline/expression.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutable_document.h"
@@ -40,10 +49,10 @@
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/string_format.h"  // For StringFormat
+#include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 
-#include "absl/strings/escaping.h"  // For absl::HexStringToBytes
+#include "absl/strings/escaping.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

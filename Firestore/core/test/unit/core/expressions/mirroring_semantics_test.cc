@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#include <functional>  // For std::function
-#include <limits>      // For std::numeric_limits
-#include <memory>      // For std::shared_ptr
+#include <functional>
+#include <limits>
+#include <memory>
 #include <string>
-#include <utility>  // For std::move
 #include <vector>
 
 #include "Firestore/core/src/api/expressions.h"
-#include "Firestore/core/src/core/expressions_eval.h"
-#include "Firestore/core/src/model/field_path.h"  // Correct include for FieldPath
-#include "Firestore/core/src/util/string_format.h"  // Include for StringFormat
+#include "Firestore/core/src/core/pipeline/expression.h"
+#include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"
