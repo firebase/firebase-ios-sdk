@@ -25,7 +25,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/api/pipeline.h"
-#include "Firestore/core/src/core/pipeline/expression.h"
+#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/resource_path.h"

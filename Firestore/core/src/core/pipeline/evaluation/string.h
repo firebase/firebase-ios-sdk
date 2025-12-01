@@ -19,7 +19,7 @@
 
 #include <memory>
 #include <string>
-#include "Firestore/core/src/core/pipeline/expression.h"
+#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
 
 namespace firebase {
 namespace firestore {

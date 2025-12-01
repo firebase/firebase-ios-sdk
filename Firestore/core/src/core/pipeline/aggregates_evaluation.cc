@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/aggregates.h"
+#include "Firestore/core/src/core/pipeline/aggregates_evaluation.h"
 
 #include <utility>
 

@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_MAP_H_
 
 #include <memory>
-#include "Firestore/core/src/core/pipeline/expression.h"
+#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
 
 namespace firebase {
 namespace firestore {

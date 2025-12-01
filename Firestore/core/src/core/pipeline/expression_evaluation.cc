@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/expression.h"
+#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
 
 #include <memory>
 #include <utility>  // For std::move
 
-#include "Firestore/core/src/core/pipeline/aggregates.h"
+#include "Firestore/core/src/core/pipeline/aggregates_evaluation.h"
 #include "Firestore/core/src/core/pipeline/evaluation/arithmetic.h"
 #include "Firestore/core/src/core/pipeline/evaluation/array.h"
 #include "Firestore/core/src/core/pipeline/evaluation/comparison.h"

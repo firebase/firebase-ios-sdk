@@ -19,7 +19,7 @@
 #include <memory>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/core/pipeline/expression.h"
+#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 
