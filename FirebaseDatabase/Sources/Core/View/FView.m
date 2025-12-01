@@ -70,6 +70,8 @@
 @property(nonatomic, strong, readwrite) FQuerySpec *query;
 @property(nonatomic, strong) FViewProcessor *processor;
 @property(nonatomic, strong) FViewCache *viewCache;
+
+// All accesses must be guarded by @synchronized(self.eventRegistrations)
 @property(nonatomic, strong) NSMutableArray *eventRegistrations;
 @property(nonatomic, strong) FEventGenerator *eventGenerator;
 
