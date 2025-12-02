@@ -14,9 +14,6 @@
 
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 
-NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification =
-    @"FIRCLSMockFileManagerDidRemoveItemNotification";
-
 @interface FIRCLSMockFileManager ()
 
 @property(nonatomic) NSMutableDictionary<NSString *, NSData *> *fileSystemDict;
@@ -47,11 +44,6 @@ NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification =
       [self.removeExpectation fulfill];
     }
   }
-
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:FIRCLSMockFileManagerDidRemoveItemNotification
-                    object:self];
-
   return YES;
 }
 
