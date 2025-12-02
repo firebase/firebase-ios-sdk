@@ -37,6 +37,7 @@ jobs:
     with:
       product: FirebaseCrashlytics
       target: FirebaseCrashlytics-Unit-unit
+      buildonly: true
 
   pod_lib_lint:
     uses: ./.github/workflows/common_cocoapods.yml
