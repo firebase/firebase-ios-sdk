@@ -52,40 +52,10 @@ on:
         required: false
         default: ""
 
-    outputs:
-      cache_key:
-        description: "The cache key for the Swift package resolution."
-        value: ${{ jobs.spm-package-resolved.outputs.cache_key }}
-
 jobs:
-  spm-package-resolved:
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-15
-    outputs:
-      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-      - name: Generate Swift Package.resolved
-        id: swift_package_resolve
-        run: swift package resolve
-      - name: Generate cache key
-        id: generate_cache_key
-        run: |
-          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
-          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/save@v4
-        id: cache
-        with:
-          path: .build
-          key: ${{ steps.generate_cache_key.outputs.cache_key }}
-
   spm:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
-    needs: [spm-package-resolved]
     strategy:
       matrix:
         os: [macos-15]
