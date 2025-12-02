@@ -1449,52 +1449,31 @@ func firestoreWrapperTarget() -> Target {
 
 func crashlyticsUnitTestChooser() -> Target {
   // Don't run flaky tests in nightly runs.
-  if Context.environment["CRASHLYTICS_NIGHTLY"] != nil {
-    return .testTarget(
-      name: "FirebaseCrashlyticsUnit",
-      dependencies: ["FirebaseCrashlytics", .product(name: "OCMock", package: "ocmock")],
-      path: "Crashlytics/UnitTests",
-      exclude: ["FIRCrashlyticsReportTests.m"], // Flaky
-      resources: [
-        .copy("FIRCLSMachO/machO_data"),
-        .copy("Data"),
-      ],
-      cSettings: [
-        .headerSearchPath("../.."),
-        .define("DISPLAY_VERSION", to: firebaseVersion),
-        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
-        .define(
-          "CLS_SDK_NAME",
-          to: "Crashlytics macOS SDK",
-          .when(platforms: [.macOS, .macCatalyst])
-        ),
-        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
-        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
-      ]
-    )
-  } else {
-    return .testTarget(
-      name: "FirebaseCrashlyticsUnit",
-      dependencies: ["FirebaseCrashlytics", .product(name: "OCMock", package: "ocmock")],
-      path: "Crashlytics/UnitTests",
-      resources: [
-        .copy("FIRCLSMachO/machO_data"),
-        .copy("Data"),
-      ],
-      cSettings: [
-        .headerSearchPath("../.."),
-        .define("DISPLAY_VERSION", to: firebaseVersion),
-        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
-        .define(
-          "CLS_SDK_NAME",
-          to: "Crashlytics macOS SDK",
-          .when(platforms: [.macOS, .macCatalyst])
-        ),
-        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
-        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
-      ]
-    )
-  }
+  let exclusions: [String] = Context.environment["CRASHLYTICS_NIGHTLY"] != nil ?
+    ["FIRCrashlyticsReportTests.m"] : []
+
+  return .testTarget(
+    name: "FirebaseCrashlyticsUnit",
+    dependencies: ["FirebaseCrashlytics", .product(name: "OCMock", package: "ocmock")],
+    path: "Crashlytics/UnitTests",
+    exclude: exclusions,
+    resources: [
+      .copy("FIRCLSMachO/machO_data"),
+      .copy("Data"),
+    ],
+    cSettings: [
+      .headerSearchPath("../.."),
+      .define("DISPLAY_VERSION", to: firebaseVersion),
+      .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
+      .define(
+        "CLS_SDK_NAME",
+        to: "Crashlytics macOS SDK",
+        .when(platforms: [.macOS, .macCatalyst])
+      ),
+      .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
+      .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
+    ]
+  )
 }
 
 func firestoreTargets() -> [Target] {
