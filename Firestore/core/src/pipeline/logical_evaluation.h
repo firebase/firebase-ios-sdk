@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_ARRAY_H_
-#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_ARRAY_H_
+#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_LOGICAL_H_
+#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_LOGICAL_H_
 
 #include <memory>
-#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-class CoreArrayReverse : public EvaluableExpr {
+class CoreAnd : public EvaluableExpr {
  public:
-  explicit CoreArrayReverse(const api::FunctionExpr& expr)
+  explicit CoreAnd(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -37,9 +37,9 @@ class CoreArrayReverse : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreArrayContains : public EvaluableExpr {
+class CoreOr : public EvaluableExpr {
  public:
-  explicit CoreArrayContains(const api::FunctionExpr& expr)
+  explicit CoreOr(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -50,9 +50,9 @@ class CoreArrayContains : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreArrayContainsAll : public EvaluableExpr {
+class CoreXor : public EvaluableExpr {
  public:
-  explicit CoreArrayContainsAll(const api::FunctionExpr& expr)
+  explicit CoreXor(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -63,9 +63,9 @@ class CoreArrayContainsAll : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreArrayContainsAny : public EvaluableExpr {
+class CoreCond : public EvaluableExpr {
  public:
-  explicit CoreArrayContainsAny(const api::FunctionExpr& expr)
+  explicit CoreCond(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -76,9 +76,35 @@ class CoreArrayContainsAny : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreArrayLength : public EvaluableExpr {
+class CoreEqAny : public EvaluableExpr {
  public:
-  explicit CoreArrayLength(const api::FunctionExpr& expr)
+  explicit CoreEqAny(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreNotEqAny : public EvaluableExpr {
+ public:
+  explicit CoreNotEqAny(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ private:
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+class CoreNot : public EvaluableExpr {
+ public:
+  explicit CoreNot(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -93,4 +119,4 @@ class CoreArrayLength : public EvaluableExpr {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_ARRAY_H_
+#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_LOGICAL_H_

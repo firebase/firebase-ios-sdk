@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/evaluation/logical.h"
+#include "Firestore/core/src/pipeline/logical_evaluation.h"
 
 #include <memory>
 #include <utility>

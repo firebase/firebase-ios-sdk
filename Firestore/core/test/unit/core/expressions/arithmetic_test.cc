@@ -17,7 +17,7 @@
 #include <limits>
 #include <memory>
 
-#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_TYPE_H_
-#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_TYPE_H_
+#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_ARRAY_H_
+#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_ARRAY_H_
 
 #include <memory>
-#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-class CoreIsNan : public EvaluableExpr {
+class CoreArrayReverse : public EvaluableExpr {
  public:
-  explicit CoreIsNan(const api::FunctionExpr& expr)
+  explicit CoreArrayReverse(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -37,9 +37,9 @@ class CoreIsNan : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreIsNotNan : public EvaluableExpr {
+class CoreArrayContains : public EvaluableExpr {
  public:
-  explicit CoreIsNotNan(const api::FunctionExpr& expr)
+  explicit CoreArrayContains(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -50,9 +50,9 @@ class CoreIsNotNan : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreIsNull : public EvaluableExpr {
+class CoreArrayContainsAll : public EvaluableExpr {
  public:
-  explicit CoreIsNull(const api::FunctionExpr& expr)
+  explicit CoreArrayContainsAll(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -63,9 +63,9 @@ class CoreIsNull : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreIsNotNull : public EvaluableExpr {
+class CoreArrayContainsAny : public EvaluableExpr {
  public:
-  explicit CoreIsNotNull(const api::FunctionExpr& expr)
+  explicit CoreArrayContainsAny(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -76,22 +76,9 @@ class CoreIsNotNull : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreIsError : public EvaluableExpr {
+class CoreArrayLength : public EvaluableExpr {
  public:
-  explicit CoreIsError(const api::FunctionExpr& expr)
-      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
-  }
-  EvaluateResult Evaluate(
-      const api::EvaluateContext& context,
-      const model::PipelineInputOutput& document) const override;
-
- private:
-  std::unique_ptr<api::FunctionExpr> expr_;
-};
-
-class CoreExists : public EvaluableExpr {
- public:
-  explicit CoreExists(const api::FunctionExpr& expr)
+  explicit CoreArrayLength(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -106,4 +93,4 @@ class CoreExists : public EvaluableExpr {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_TYPE_H_
+#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_ARRAY_H_

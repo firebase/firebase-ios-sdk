@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/evaluation/map.h"
+#include "Firestore/core/src/pipeline/map_evaluation.h"
 
 #include <memory>
 #include <string>

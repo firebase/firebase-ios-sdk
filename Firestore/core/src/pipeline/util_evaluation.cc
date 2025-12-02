@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/evaluation/util.h"
+#include "Firestore/core/src/pipeline/util_evaluation.h"
 
 #include <limits>
 #include <utility>

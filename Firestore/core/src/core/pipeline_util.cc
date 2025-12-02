@@ -26,7 +26,7 @@
 #include "Firestore/core/src/api/realtime_pipeline.h"
 #include "Firestore/core/src/api/stages.h"
 #include "Firestore/core/src/core/bound.h"
-#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 #include "Firestore/core/src/core/pipeline_run.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/model/document_set.h"

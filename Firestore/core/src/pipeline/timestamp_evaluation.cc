@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/evaluation/timestamp.h"
+#include "Firestore/core/src/pipeline/timestamp_evaluation.h"
 
 #include <memory>
 
-#include "Firestore/core/src/core/pipeline/evaluation/util.h"
+#include "Firestore/core/src/pipeline/util_evaluation.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/strings/string_view.h"

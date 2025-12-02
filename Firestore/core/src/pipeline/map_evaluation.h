@@ -14,32 +14,19 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_AGGREGATES_EVALUATION_H_
-#define FIRESTORE_CORE_SRC_CORE_PIPELINE_AGGREGATES_EVALUATION_H_
+#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_MAP_H_
+#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_MAP_H_
 
 #include <memory>
-#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-class CoreMaximum : public EvaluableExpr {
+class CoreMapGet : public EvaluableExpr {
  public:
-  explicit CoreMaximum(const api::FunctionExpr& expr)
-      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
-  }
-  EvaluateResult Evaluate(
-      const api::EvaluateContext& context,
-      const model::PipelineInputOutput& document) const override;
-
- private:
-  std::unique_ptr<api::FunctionExpr> expr_;
-};
-
-class CoreMinimum : public EvaluableExpr {
- public:
-  explicit CoreMinimum(const api::FunctionExpr& expr)
+  explicit CoreMapGet(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
   EvaluateResult Evaluate(
@@ -54,4 +41,4 @@ class CoreMinimum : public EvaluableExpr {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_AGGREGATES_EVALUATION_H_
+#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_MAP_H_

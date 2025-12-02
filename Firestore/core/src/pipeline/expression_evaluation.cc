@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/expression_evaluation.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 
 #include <memory>
 #include <utility>  // For std::move
 
-#include "Firestore/core/src/core/pipeline/aggregates_evaluation.h"
-#include "Firestore/core/src/core/pipeline/evaluation/arithmetic.h"
-#include "Firestore/core/src/core/pipeline/evaluation/array.h"
-#include "Firestore/core/src/core/pipeline/evaluation/comparison.h"
-#include "Firestore/core/src/core/pipeline/evaluation/logical.h"
-#include "Firestore/core/src/core/pipeline/evaluation/map.h"
-#include "Firestore/core/src/core/pipeline/evaluation/string.h"
-#include "Firestore/core/src/core/pipeline/evaluation/timestamp.h"
-#include "Firestore/core/src/core/pipeline/evaluation/type.h"
+#include "Firestore/core/src/pipeline/aggregates_evaluation.h"
+#include "Firestore/core/src/pipeline/arithmetic_evaluation.h"
+#include "Firestore/core/src/pipeline/array_evaluation.h"
+#include "Firestore/core/src/pipeline/comparison_evaluation.h"
+#include "Firestore/core/src/pipeline/logical_evaluation.h"
+#include "Firestore/core/src/pipeline/map_evaluation.h"
+#include "Firestore/core/src/pipeline/string_evaluation.h"
+#include "Firestore/core/src/pipeline/timestamp_evaluation.h"
+#include "Firestore/core/src/pipeline/type_evaluation.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/value_util.h"

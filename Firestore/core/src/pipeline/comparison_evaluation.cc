@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/evaluation/comparison.h"
+#include "Firestore/core/src/pipeline/comparison_evaluation.h"
 
 #include <memory>
 #include "Firestore/core/src/model/value_util.h"

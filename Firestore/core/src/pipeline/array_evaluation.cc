@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/pipeline/evaluation/array.h"
+#include "Firestore/core/src/pipeline/array_evaluation.h"
 
 #include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/core/pipeline/evaluation/logical.h"
-#include "Firestore/core/src/core/pipeline/evaluation/util.h"
+#include "Firestore/core/src/pipeline/logical_evaluation.h"
+#include "Firestore/core/src/pipeline/util_evaluation.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
