@@ -27,6 +27,9 @@ concurrency:
 
 jobs:
   spm:
+    env:
+      # Don't run flaky tests in nightlies
+      CRASHLYTICS_NIGHTLY: 1
     uses: ./.github/workflows/common.yml
     with:
       target: FirebaseCrashlyticsUnit
