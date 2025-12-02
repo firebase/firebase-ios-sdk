@@ -28,11 +28,10 @@ concurrency:
 jobs:
   spm:
     env:
-      # Don't run flaky tests in nightlies
-      CRASHLYTICS_NIGHTLY: 1
     uses: ./.github/workflows/common.yml
     with:
       target: FirebaseCrashlyticsUnit
+      env_var: ${{ github.event_name == 'schedule' && 'CRASHLYTICS_NIGHTLY' || '' }}
 
   catalyst:
     uses: ./.github/workflows/common_catalyst.yml
@@ -97,3 +96,4 @@ jobs:
       product: FirebaseCrashlytics
       platforms: '[ "ios", "tvos", "macos", "watchos --skip-tests" ]'
       flags: '[ "--use-static-frameworks", "--use-modular-headers --skip-tests" ]'
+

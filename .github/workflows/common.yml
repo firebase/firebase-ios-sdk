@@ -52,6 +52,12 @@ on:
         required: false
         default: ""
 
+      # An environment variable to be set for the test run.
+      env_var:
+        type: string
+        required: false
+        default: ""
+
     outputs:
       cache_key:
         description: "The cache key for the Swift package resolution."
@@ -99,6 +105,8 @@ jobs:
             xcode: Xcode_26.1
             platform: iOS
     runs-on: ${{ matrix.os }}
+    env:
+      ${{ inputs.env_var }}: 1
     steps:
     - uses: actions/checkout@v4
     - uses: actions/cache/restore@v4
