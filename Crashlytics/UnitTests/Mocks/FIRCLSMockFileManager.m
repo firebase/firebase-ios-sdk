@@ -40,6 +40,12 @@ NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification =
   @synchronized(self) {
     [self.fileSystemDict removeObjectForKey:path];
     self.removeCount += 1;
+
+    // If we set up the expectation, and we went over the expected count or removes, fulfill the
+    // expectation
+    if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
+      [self.removeExpectation fulfill];
+    }
   }
 
   [[NSNotificationCenter defaultCenter]
