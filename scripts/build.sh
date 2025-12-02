@@ -249,6 +249,7 @@ case "$platform" in
 esac
 
 xcb_flags+=(
+  -IDEPackageEnablePrebuilts=NO
   ONLY_ACTIVE_ARCH=YES
   CODE_SIGNING_REQUIRED=NO
   CODE_SIGNING_ALLOWED=YES
