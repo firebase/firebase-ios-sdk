@@ -105,14 +105,15 @@ jobs:
             xcode: Xcode_26.1
             platform: iOS
     runs-on: ${{ matrix.os }}
-    env:
-      ${{ inputs.env_var }}: 1
     steps:
     - uses: actions/checkout@v4
     - uses: actions/cache/restore@v4
       with:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
+    - name: Set nightly env var
+      if: inputs.env_var != ''
+      run: echo "${{ inputs.env_var }}=1" >> $GITHUB_ENV
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Run setup command, if needed.
