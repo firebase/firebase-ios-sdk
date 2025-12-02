@@ -1,4 +1,4 @@
-# Unreleased
+# 12.7.0
 - [fixed] Concurrency crash in FView. (#15514)
 
 # 11.9.0
