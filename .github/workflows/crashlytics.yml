@@ -42,7 +42,8 @@ jobs:
     uses: ./.github/workflows/common_cocoapods.yml
     with:
       product: FirebaseCrashlytics
-      buildonly_platforms: tvOS, macOS, watchOS
+      # Run CI tests only on SPM.
+      buildonly_platforms: iOS, tvOS, macOS, watchOS
 
   quickstart:
     uses: ./.github/workflows/common_quickstart.yml
