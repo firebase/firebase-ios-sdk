@@ -692,19 +692,15 @@
   NSString *testDirName =
       [NSString stringWithFormat:@"fdb_persistence_test_%lu", (unsigned long)arc4random()];
   NSString *testPath = [NSTemporaryDirectory() stringByAppendingPathComponent:testDirName];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
 
-  // Ensure the directory doesn't exist before the test
-  [[NSFileManager defaultManager] removeItemAtPath:testPath error:nil];
-
-  // Call the method to create the directory
+  // --- Test creation ---
+  [fileManager removeItemAtPath:testPath error:nil];
   [FLevelDBStorageEngine ensureDir:testPath markAsDoNotBackup:NO];
 
-  // Get the attributes of the created directory
   NSError *error = nil;
-  NSDictionary<NSFileAttributeKey, id> *attributes =
-      [[NSFileManager defaultManager] attributesOfItemAtPath:testPath error:&error];
-
-  // Assert that the file protection attribute is correct
+  NSDictionary<NSFileAttributeKey, id> *attributes = [fileManager attributesOfItemAtPath:testPath
+                                                                                   error:&error];
   XCTAssertNil(error, @"Failed to get attributes of directory: %@", error);
 
 #if !TARGET_OS_SIMULATOR
@@ -712,11 +708,29 @@
   XCTAssertEqualObjects(attributes[NSFileProtectionKey],
                         NSFileProtectionCompleteUntilFirstUserAuthentication);
 #else
-  // In the simulator, file protection is not supported, so the key should be nil.
   XCTAssertNil(attributes[NSFileProtectionKey]);
 #endif
 
+  // --- Test update on existing directory ---
+#if !TARGET_OS_SIMULATOR
+  // This part of the test is only relevant on devices where file protection is supported.
+  [fileManager removeItemAtPath:testPath error:nil];
+  NSDictionary *initialAttributes = @{NSFileProtectionKey : NSFileProtectionNone};
+  XCTAssertTrue([fileManager createDirectoryAtPath:testPath
+                       withIntermediateDirectories:YES
+                                        attributes:initialAttributes
+                                             error:&error],
+                @"Failed to create directory for update test: %@", error);
+
+  [FLevelDBStorageEngine ensureDir:testPath markAsDoNotBackup:NO];
+
+  attributes = [fileManager attributesOfItemAtPath:testPath error:&error];
+  XCTAssertNil(error, @"Failed to get attributes after update: %@", error);
+  XCTAssertEqualObjects(attributes[NSFileProtectionKey],
+                        NSFileProtectionCompleteUntilFirstUserAuthentication);
+#endif  // !TARGET_OS_SIMULATOR
+
   // Clean up
-  [[NSFileManager defaultManager] removeItemAtPath:testPath error:nil];
+  [fileManager removeItemAtPath:testPath error:nil];
 }
 @end
