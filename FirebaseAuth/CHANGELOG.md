@@ -1,6 +1,7 @@
 # Unreleased
 - [fixed] Add a mechanism to prevent concurrent token refreshes. (#15474)
 - [fixed] Fix password reset process for Signin With Apple. (#6091)
+- [fixed] Fix "weak never mutated" build warning introduced in Xcode 26.2.
 
 # 12.2.0
 - [added] Added TOTP support for macOS.
