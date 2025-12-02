@@ -179,7 +179,7 @@ ipad_flags=(
 )
 
 macos_flags=(
-  -destination 'platform=OS X,arch=x86_64'
+  -destination 'platform=macOS,name=My Mac'
 )
 tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
