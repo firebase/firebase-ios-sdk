@@ -977,25 +977,46 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 }
 
 + (void)ensureDir:(NSString *)path markAsDoNotBackup:(BOOL)markAsDoNotBackup {
-    NSError *error = nil;
-    NSDictionary *attributes = @{
-        NSFileProtectionKey :
-            NSFileProtectionCompleteUntilFirstUserAuthentication
-    };
-    BOOL success =
-        [[NSFileManager defaultManager] createDirectoryAtPath:path
-                                  withIntermediateDirectories:YES
-                                                   attributes:attributes
-                                                        error:&error];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error;
+
+    // Create the directory if it doesn't exist. This call is a no-op if it
+    // already exists.
+    BOOL success = [fileManager createDirectoryAtPath:path
+                          withIntermediateDirectories:YES
+                                           attributes:nil
+                                                error:&error];
     if (!success) {
         @throw [NSException
             exceptionWithName:@"FailedToCreatePersistenceDir"
                        reason:@"Failed to create persistence directory."
                      userInfo:@{
                          @"path" : path,
-                         @"error" : error ? error : [NSNull null]
+                         @"error" : error ?: [NSNull null]
                      }];
     }
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION || TARGET_OS_OSX ||      \
+    TARGET_OS_MACCATALYST
+    // Now, ensure the file protection attribute is set. This will apply it
+    // whether the directory was just created or already existed. This attribute
+    // is ignored on systems that do not support it.
+    NSDictionary *attributes = @{
+        NSFileProtectionKey :
+            NSFileProtectionCompleteUntilFirstUserAuthentication
+    };
+    success = [fileManager setAttributes:attributes
+                            ofItemAtPath:path
+                                   error:&error];
+    if (!success) {
+        // This is not a fatal error, as file protection may not be supported on
+        // all OS versions.
+        FFWarn(@"I-RDB076036",
+               @"Failed to set file protection attribute on persistence "
+               @"directory: %@",
+               error);
+    }
+#endif
 
     if (markAsDoNotBackup) {
         NSURL *firebaseDirURL = [NSURL fileURLWithPath:path];
