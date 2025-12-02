@@ -1,4 +1,4 @@
-# Unreleased
+# 12.7.0
 - [fixed] Fix `Fatal Exception: FirebaseDatabasePersistenceFailure`. (#4493)
 - [fixed] Concurrency crash in FView. (#15514)
 

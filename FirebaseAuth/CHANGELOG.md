@@ -1,4 +1,4 @@
-# Unreleased
+# 12.7.0
 - [fixed] Add a mechanism to prevent concurrent token refreshes. (#15474)
 - [fixed] Fix "weak never mutated" build warning introduced in Xcode 26.2.
 
