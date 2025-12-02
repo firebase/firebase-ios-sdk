@@ -30,6 +30,7 @@ jobs:
     uses: ./.github/workflows/common.yml
     with:
       target: FirebaseCrashlyticsUnit
+      env_var: ${{ github.event_name == 'schedule' && 'CRASHLYTICS_NIGHTLY' || '' }}
 
   catalyst:
     uses: ./.github/workflows/common_catalyst.yml

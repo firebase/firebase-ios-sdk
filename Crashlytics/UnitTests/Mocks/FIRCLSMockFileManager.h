@@ -16,13 +16,16 @@
 
 #import <XCTest/XCTest.h>
 
-@interface FIRCLSMockFileManager : FIRCLSFileManager
+// Notification posted when an item is removed via `removeItemAtPath`.
+extern NSNotificationName const FIRCLSMockFileManagerDidRemoveItemNotification;
 
-// Number of calls to removeItemAtPath are expected for the unit test
-@property(nonatomic) NSInteger expectedRemoveCount;
+@interface FIRCLSMockFileManager : FIRCLSFileManager
 
 // Incremented when a remove happens with removeItemAtPath
 @property(nonatomic) NSInteger removeCount;
+
+// Number of calls to removeItemAtPath are expected for the unit test
+@property(nonatomic) NSInteger expectedRemoveCount;
 
 // Will be fulfilled when the expected number of removes have happened
 // using removeItemAtPath
