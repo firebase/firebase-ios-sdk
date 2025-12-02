@@ -996,11 +996,9 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                      }];
     }
 
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION || TARGET_OS_OSX ||      \
-    TARGET_OS_MACCATALYST
     // Now, ensure the file protection attribute is set. This will apply it
-    // whether the directory was just created or already existed. This attribute
-    // is ignored on systems that do not support it.
+    // whether the directory was just created or already existed. Note, this
+    // attribute has no effect on simulators.
     NSDictionary *attributes = @{
         NSFileProtectionKey :
             NSFileProtectionCompleteUntilFirstUserAuthentication
@@ -1009,14 +1007,11 @@ static NSString *trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                             ofItemAtPath:path
                                    error:&error];
     if (!success) {
-        // This is not a fatal error, as file protection may not be supported on
-        // all OS versions.
         FFWarn(@"I-RDB076036",
                @"Failed to set file protection attribute on persistence "
                @"directory: %@",
                error);
     }
-#endif
 
     if (markAsDoNotBackup) {
         NSURL *firebaseDirURL = [NSURL fileURLWithPath:path];
