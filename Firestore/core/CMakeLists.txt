@@ -202,24 +202,6 @@ firebase_ios_glob(
   src/core/*.h
   src/pipeline/*.cc
   src/pipeline/*.h
-  src/pipeline/arithmetic_evaluation.cc
-  src/pipeline/arithmetic_evaluation.h
-  src/pipeline/array_evaluation.cc
-  src/pipeline/array_evaluation.h
-  src/pipeline/comparison_evaluation.cc
-  src/pipeline/comparison_evaluation.h
-  src/pipeline/logical_evaluation.cc
-  src/pipeline/logical_evaluation.h
-  src/pipeline/map_evaluation.cc
-  src/pipeline/map_evaluation.h
-  src/pipeline/string_evaluation.cc
-  src/pipeline/string_evaluation.h
-  src/pipeline/timestamp_evaluation.cc
-  src/pipeline/timestamp_evaluation.h
-  src/pipeline/type_evaluation.cc
-  src/pipeline/type_evaluation.h
-  src/pipeline/util_evaluation.cc
-  src/pipeline/util_evaluation.h
   src/credentials/*.cc
   src/credentials/*.h
   src/immutable/*.cc
