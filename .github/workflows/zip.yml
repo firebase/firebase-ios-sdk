@@ -357,8 +357,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "FirebaseAI"
-      # This is a workaround to use the FirebaseAIExampleZip scheme that does not have the SPM dependency.
-      SWIFT_SUFFIX: "Zip"
+      SWIFT_SUFFIX: " (iOS)"
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
@@ -385,7 +384,7 @@ jobs:
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
-      run: SAMPLE="$SDK" TARGET="${SDK}ExampleZip" scripts/setup_quickstart_framework.sh \
+      run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAILogic/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
     - name: Install Secret GoogleService-Info.plist
