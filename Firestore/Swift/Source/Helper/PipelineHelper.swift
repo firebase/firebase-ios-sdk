@@ -25,19 +25,19 @@ enum Helper {
   }
 
   static func sendableToExpr(_ value: Sendable?) -> Expression {
-    guard let value = value else {
+    guard let value else {
       return Constant.nil
     }
-
-    if let exprValue = value as? Expression {
+    switch value {
+    case let exprValue as Expression:
       return exprValue
-    } else if let dictionaryValue = value as? [String: Sendable?] {
+    case let dictionaryValue as [String: Sendable?]:
       return map(dictionaryValue)
-    } else if let arrayValue = value as? [Sendable?] {
+    case let arrayValue as [Sendable?]:
       return array(arrayValue)
-    } else if let timeUnitValue = value as? TimeUnit {
+    case let timeUnitValue as TimeUnit:
       return Constant(timeUnitValue.rawValue)
-    } else {
+    default:
       return Constant(value)
     }
   }
@@ -91,15 +91,15 @@ enum Helper {
 
   // This function is used to convert Swift type into Objective-C type.
   static func sendableToAnyObjectForRawStage(_ value: Sendable?) -> AnyObject {
-    guard let value = value, !(value is NSNull) else {
+    guard let value, !(value is NSNull) else {
       return Constant.nil.bridge
     }
-
-    if let exprValue = value as? Expression {
+    switch value {
+    case let exprValue as Expression:
       return exprValue.toBridge()
-    } else if let aggregateFunctionValue = value as? AggregateFunction {
+    case let aggregateFunctionValue as AggregateFunction:
       return aggregateFunctionValue.bridge
-    } else if let dictionaryValue = value as? [String: Sendable?] {
+    case let dictionaryValue as [String: Sendable?]:
       let mappedValue: [String: Sendable] = dictionaryValue.mapValues {
         if let aggFunc = $0 as? AggregateFunction {
           return aggFunc.bridge
@@ -107,7 +107,7 @@ enum Helper {
         return sendableToExpr($0).toBridge()
       }
       return mappedValue as NSDictionary
-    } else {
+    default:
       return Constant(value).bridge
     }
   }
