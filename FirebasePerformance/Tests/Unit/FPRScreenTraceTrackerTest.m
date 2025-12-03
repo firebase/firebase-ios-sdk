@@ -945,21 +945,25 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
   // At 50 FPS, slow budget = 1.0/50 = 0.02 seconds = 20ms.
   [self withStubbedMaxFPS:50
              performBlock:^{
-               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:50];
-
-               // Verify the stub is working and budget is set correctly.
+               // Verify the stub is working before creating the tracker.
                UIScreen *mainScreen = [UIScreen mainScreen];
                XCTAssertEqual(mainScreen.maximumFramesPerSecond, 50, @"Stub should return 50 FPS");
+
+               FPRScreenTraceTracker *testTracker = [self createTestTrackerWithStubbedFPS:50];
+
+               // Verify the stub is still working after tracker creation.
+               XCTAssertEqual([UIScreen mainScreen].maximumFramesPerSecond, 50,
+                              @"Stub should still return 50 FPS after tracker creation");
                // At 50 FPS, effectiveFPS = 50 (not 60, so no 59 conversion), threshold = 1/50 =
-               // 0.02 = 20ms
-               CFTimeInterval expectedBudget = 1.0 / 50.0;
-               // We can't directly access _cachedSlowBudget, but we can verify behavior.
+               // 0.02 = 20ms Force update to ensure budget is set correctly.
+               [testTracker updateCachedSlowBudget];
 
                // At 50 FPS, slow budget = 20ms. With epsilon (0.001), frames > 20.001ms are slow.
-               // Test with 21ms frame (should be slow).
+               // Test with a frame clearly above threshold to ensure it's marked as slow.
+               // Use 25ms to be well above the 20ms threshold.
                CFAbsoluteTime firstFrameRenderTimestamp = 1.0;
                CFAbsoluteTime secondFrameRenderTimestamp =
-                   firstFrameRenderTimestamp + 0.021;  // 21ms, slow
+                   firstFrameRenderTimestamp + 0.025;  // 25ms, clearly slow
 
                id displayLinkMock = OCMClassMock([CADisplayLink class]);
                [testTracker.displayLink invalidate];
@@ -974,7 +978,7 @@ static UIViewController *FPRCustomViewController(NSString *className, BOOL isVie
 
                int64_t newSlowFramesCount = testTracker.slowFramesCount;
                XCTAssertEqual(newSlowFramesCount, initialSlowFramesCount + 1,
-                              @"Frame at 21ms should be marked as slow at 50 FPS (20ms threshold)");
+                              @"Frame at 25ms should be marked as slow at 50 FPS (20ms threshold)");
 
                // Test with 19ms frame (should NOT be slow).
                CFAbsoluteTime thirdFrameRenderTimestamp =

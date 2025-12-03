@@ -33,6 +33,10 @@ NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
 CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 59.0;  // Anything less than 59 FPS is slow.
 CFTimeInterval const kFPRFrozenFrameThreshold = 700.0 / 1000.0;
 
+/** Default/fallback FPS value used when UIScreen.maximumFramesPerSecond is unavailable or invalid.
+ */
+static const NSInteger kFPRDefaultFPS = 60;
+
 /** Epsilon value to avoid floating point comparison issues (e.g., 59.94 vs 60). */
 static const CFTimeInterval kFPRSlowFrameEpsilon = 0.001;
 
@@ -128,9 +132,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
     // Initialize cached values with defaults. These will be updated by updateCachedSlowBudget,
     // but having defaults ensures reasonable behavior if initialization is delayed or fails.
-    // Use 59 FPS as default to match legacy behavior (60 FPS devices use 59 FPS threshold).
-    _cachedMaxFPS = 59;
-    _cachedSlowBudget = 1.0 / 59.0;
+    _cachedMaxFPS = kFPRDefaultFPS;
+    _cachedSlowBudget = 1.0 / kFPRDefaultFPS;
 
     // Initialize cached maxFPS and slowBudget on main thread.
     // UIScreen.maximumFramesPerSecond reflects device capability and can be up to 120 on ProMotion.
@@ -259,10 +262,9 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     NSInteger effectiveFPS = (maxFPS == 60) ? 59 : maxFPS;
     _cachedSlowBudget = 1.0 / effectiveFPS;
   } else {
-    // Fallback to 59 FPS (matching legacy behavior) if maximumFramesPerSecond is unavailable or
-    // invalid.
-    _cachedMaxFPS = 59;
-    _cachedSlowBudget = 1.0 / 59.0;
+    // Fallback to default FPS if maximumFramesPerSecond is unavailable or invalid.
+    _cachedMaxFPS = kFPRDefaultFPS;
+    _cachedSlowBudget = 1.0 / kFPRDefaultFPS;
   }
 }
 
