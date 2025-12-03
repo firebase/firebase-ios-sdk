@@ -41,7 +41,7 @@ google_firestore_v1_Value Field::to_proto() const {
   return result;
 }
 
-std::unique_ptr<core::EvaluableExpr> Field::ToEvaluable() const {
+std::unique_ptr<core::EvaluableExpression> Field::ToEvaluable() const {
   return std::make_unique<core::CoreField>(std::make_unique<Field>(*this));
 }
 
@@ -54,7 +54,7 @@ const google_firestore_v1_Value& Constant::value() const {
   return *value_;
 }
 
-std::unique_ptr<core::EvaluableExpr> Constant::ToEvaluable() const {
+std::unique_ptr<core::EvaluableExpression> Constant::ToEvaluable() const {
   return std::make_unique<core::CoreConstant>(
       std::make_unique<Constant>(*this));
 }
@@ -72,7 +72,7 @@ google_firestore_v1_Value FunctionExpr::to_proto() const {
   return result;
 }
 
-std::unique_ptr<core::EvaluableExpr> FunctionExpr::ToEvaluable() const {
+std::unique_ptr<core::EvaluableExpression> FunctionExpr::ToEvaluable() const {
   return core::FunctionToEvaluable(*this);
 }
 

@@ -25,7 +25,7 @@ namespace firestore {
 namespace core {
 
 /** Base class for converting Unix time (micros/millis/seconds) to Timestamp. */
-class UnixToTimestampBase : public EvaluableExpr {
+class UnixToTimestampBase : public EvaluableExpression {
  public:
   explicit UnixToTimestampBase(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -68,7 +68,7 @@ class CoreUnixSecondsToTimestamp : public UnixToTimestampBase {
 };
 
 /** Base class for converting Timestamp to Unix time (micros/millis/seconds). */
-class TimestampToUnixBase : public EvaluableExpr {
+class TimestampToUnixBase : public EvaluableExpression {
  public:
   explicit TimestampToUnixBase(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -112,7 +112,7 @@ class CoreTimestampToUnixSeconds : public TimestampToUnixBase {
 };
 
 /** Base class for timestamp arithmetic (add/sub). */
-class TimestampArithmeticBase : public EvaluableExpr {
+class TimestampArithmeticBase : public EvaluableExpression {
  public:
   explicit TimestampArithmeticBase(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {

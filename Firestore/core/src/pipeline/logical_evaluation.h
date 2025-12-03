@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-class CoreAnd : public EvaluableExpr {
+class CoreAnd : public EvaluableExpression {
  public:
   explicit CoreAnd(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -37,7 +37,7 @@ class CoreAnd : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreOr : public EvaluableExpr {
+class CoreOr : public EvaluableExpression {
  public:
   explicit CoreOr(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -50,7 +50,7 @@ class CoreOr : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreXor : public EvaluableExpr {
+class CoreXor : public EvaluableExpression {
  public:
   explicit CoreXor(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -63,7 +63,7 @@ class CoreXor : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreCond : public EvaluableExpr {
+class CoreCond : public EvaluableExpression {
  public:
   explicit CoreCond(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -76,7 +76,7 @@ class CoreCond : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreEqAny : public EvaluableExpr {
+class CoreEqAny : public EvaluableExpression {
  public:
   explicit CoreEqAny(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -89,7 +89,7 @@ class CoreEqAny : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreNotEqAny : public EvaluableExpr {
+class CoreNotEqAny : public EvaluableExpression {
  public:
   explicit CoreNotEqAny(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -102,7 +102,7 @@ class CoreNotEqAny : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreNot : public EvaluableExpr {
+class CoreNot : public EvaluableExpression {
  public:
   explicit CoreNot(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {

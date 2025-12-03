@@ -34,7 +34,7 @@ EvaluateResult CoreMapGet::Evaluate(
               "map_get() function requires exactly 2 params (map and key)");
 
   // Evaluate the map operand (param 0)
-  std::unique_ptr<EvaluableExpr> map_evaluable =
+  std::unique_ptr<EvaluableExpression> map_evaluable =
       expr_->params()[0]->ToEvaluable();
   EvaluateResult map_result = map_evaluable->Evaluate(context, document);
 
@@ -54,7 +54,7 @@ EvaluateResult CoreMapGet::Evaluate(
   }
 
   // Evaluate the key operand (param 1)
-  std::unique_ptr<EvaluableExpr> key_evaluable =
+  std::unique_ptr<EvaluableExpression> key_evaluable =
       expr_->params()[1]->ToEvaluable();
   EvaluateResult key_result = key_evaluable->Evaluate(context, document);
 

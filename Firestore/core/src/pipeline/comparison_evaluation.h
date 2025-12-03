@@ -25,7 +25,7 @@ namespace firestore {
 namespace core {
 
 /** Base class for binary comparison expressions (==, !=, <, <=, >, >=). */
-class ComparisonBase : public EvaluableExpr {
+class ComparisonBase : public EvaluableExpression {
  public:
   explicit ComparisonBase(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {

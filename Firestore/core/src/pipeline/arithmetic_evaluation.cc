@@ -42,7 +42,7 @@ nanopb::Message<google_firestore_v1_Value> DoubleValue(double val) {
 }  // anonymous namespace
 
 // --- Arithmetic Implementations ---
-EvaluateResult ArithmeticBase::Evaluate(
+EvaluateResult ArithmeticPrimitive::Evaluate(
     const api::EvaluateContext& context,
     const model::PipelineInputOutput& document) const {
   HARD_ASSERT(expr_->params().size() >= 2,
@@ -78,7 +78,7 @@ EvaluateResult ArithmeticBase::Evaluate(
   return current_result;
 }
 
-inline EvaluateResult ArithmeticBase::ApplyOperation(
+inline EvaluateResult ArithmeticPrimitive::ApplyOperation(
     const EvaluateResult& left, const EvaluateResult& right) const {
   // Mirroring TypeScript logic:
   // 1. Check for Error/Unset first

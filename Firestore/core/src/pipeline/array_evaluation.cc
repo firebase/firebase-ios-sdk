@@ -36,7 +36,7 @@ EvaluateResult CoreArrayReverse::Evaluate(
   HARD_ASSERT(expr_->params().size() == 1,
               "array_reverse() function requires exactly 1 param");
 
-  std::unique_ptr<EvaluableExpr> operand_evaluable =
+  std::unique_ptr<EvaluableExpression> operand_evaluable =
       expr_->params()[0]->ToEvaluable();
   EvaluateResult evaluated = operand_evaluable->Evaluate(context, document);
 
@@ -86,7 +86,7 @@ EvaluateResult CoreArrayContainsAll::Evaluate(
   bool found_null = false;
 
   // Evaluate the array to search (param 0)
-  std::unique_ptr<EvaluableExpr> array_to_search_evaluable =
+  std::unique_ptr<EvaluableExpression> array_to_search_evaluable =
       expr_->params()[0]->ToEvaluable();
   EvaluateResult array_to_search =
       array_to_search_evaluable->Evaluate(context, document);
@@ -105,7 +105,7 @@ EvaluateResult CoreArrayContainsAll::Evaluate(
   }
 
   // Evaluate the elements to find (param 1)
-  std::unique_ptr<EvaluableExpr> elements_to_find_evaluable =
+  std::unique_ptr<EvaluableExpression> elements_to_find_evaluable =
       expr_->params()[1]->ToEvaluable();
   EvaluateResult elements_to_find =
       elements_to_find_evaluable->Evaluate(context, document);
@@ -208,7 +208,7 @@ EvaluateResult CoreArrayContainsAny::Evaluate(
   bool found_null = false;
 
   // Evaluate the array to search (param 0)
-  std::unique_ptr<EvaluableExpr> array_to_search_evaluable =
+  std::unique_ptr<EvaluableExpression> array_to_search_evaluable =
       expr_->params()[0]->ToEvaluable();
   EvaluateResult array_to_search =
       array_to_search_evaluable->Evaluate(context, document);
@@ -227,7 +227,7 @@ EvaluateResult CoreArrayContainsAny::Evaluate(
   }
 
   // Evaluate the elements to find (param 1)
-  std::unique_ptr<EvaluableExpr> elements_to_find_evaluable =
+  std::unique_ptr<EvaluableExpression> elements_to_find_evaluable =
       expr_->params()[1]->ToEvaluable();
   EvaluateResult elements_to_find =
       elements_to_find_evaluable->Evaluate(context, document);
@@ -305,7 +305,7 @@ EvaluateResult CoreArrayLength::Evaluate(
   HARD_ASSERT(expr_->params().size() == 1,
               "array_length() function requires exactly 1 param");
 
-  std::unique_ptr<EvaluableExpr> operand_evaluable =
+  std::unique_ptr<EvaluableExpression> operand_evaluable =
       expr_->params()[0]->ToEvaluable();
   EvaluateResult operand_result =
       operand_evaluable->Evaluate(context, document);

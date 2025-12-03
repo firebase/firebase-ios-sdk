@@ -32,7 +32,7 @@ EvaluateResult ComparisonBase::Evaluate(
   HARD_ASSERT(expr_->params().size() == 2,
               "%s() function requires exactly 2 params", expr_->name());
 
-  std::unique_ptr<EvaluableExpr> left_evaluable =
+  std::unique_ptr<EvaluableExpression> left_evaluable =
       expr_->params()[0]->ToEvaluable();
   EvaluateResult left = left_evaluable->Evaluate(context, document);
 
@@ -45,7 +45,7 @@ EvaluateResult ComparisonBase::Evaluate(
       break;
   }
 
-  std::unique_ptr<EvaluableExpr> right_evaluable =
+  std::unique_ptr<EvaluableExpression> right_evaluable =
       expr_->params()[1]->ToEvaluable();
   EvaluateResult right = right_evaluable->Evaluate(context, document);
   switch (right.type()) {

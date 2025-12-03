@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-class CoreMapGet : public EvaluableExpr {
+class CoreMapGet : public EvaluableExpression {
  public:
   explicit CoreMapGet(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {

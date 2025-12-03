@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-class CoreIsNan : public EvaluableExpr {
+class CoreIsNan : public EvaluableExpression {
  public:
   explicit CoreIsNan(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -37,7 +37,7 @@ class CoreIsNan : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreIsNotNan : public EvaluableExpr {
+class CoreIsNotNan : public EvaluableExpression {
  public:
   explicit CoreIsNotNan(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -50,7 +50,7 @@ class CoreIsNotNan : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreIsNull : public EvaluableExpr {
+class CoreIsNull : public EvaluableExpression {
  public:
   explicit CoreIsNull(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -63,7 +63,7 @@ class CoreIsNull : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreIsNotNull : public EvaluableExpr {
+class CoreIsNotNull : public EvaluableExpression {
  public:
   explicit CoreIsNotNull(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -76,7 +76,7 @@ class CoreIsNotNull : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreIsError : public EvaluableExpr {
+class CoreIsError : public EvaluableExpression {
  public:
   explicit CoreIsError(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -89,7 +89,7 @@ class CoreIsError : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreExists : public EvaluableExpr {
+class CoreExists : public EvaluableExpression {
  public:
   explicit CoreExists(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {

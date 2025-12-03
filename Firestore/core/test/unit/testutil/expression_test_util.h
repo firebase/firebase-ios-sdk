@@ -64,7 +64,7 @@ using api::Constant;
 using api::EvaluateContext;
 using api::Expr;
 using api::FunctionExpr;
-using core::EvaluableExpr;
+using core::EvaluableExpression;
 using core::EvaluateResult;
 using model::DatabaseId;
 using model::DocumentKey;
@@ -559,7 +559,7 @@ inline EvaluateResult EvaluateExpr(const Expr& expr) {
   // Use a dummy input document (FoundDocument with empty data)
   model::PipelineInputOutput input = testutil::Doc("coll/doc", 1);
 
-  std::unique_ptr<EvaluableExpr> evaluable = expr.ToEvaluable();
+  std::unique_ptr<EvaluableExpression> evaluable = expr.ToEvaluable();
   HARD_ASSERT(evaluable != nullptr, "Failed to create evaluable expression");
   return evaluable->Evaluate(NewContext(), input);
 }
@@ -567,7 +567,7 @@ inline EvaluateResult EvaluateExpr(const Expr& expr) {
 // Helper function to evaluate an expression with a specific input.
 inline EvaluateResult EvaluateExpr(const Expr& expr,
                                    const model::PipelineInputOutput& input) {
-  std::unique_ptr<EvaluableExpr> evaluable = expr.ToEvaluable();
+  std::unique_ptr<EvaluableExpression> evaluable = expr.ToEvaluable();
   HARD_ASSERT(evaluable != nullptr, "Failed to create evaluable expression");
   return evaluable->Evaluate(NewContext(), input);
 }

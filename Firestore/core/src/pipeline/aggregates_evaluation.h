@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-class CoreMaximum : public EvaluableExpr {
+class CoreMaximum : public EvaluableExpression {
  public:
   explicit CoreMaximum(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -37,7 +37,7 @@ class CoreMaximum : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreMinimum : public EvaluableExpr {
+class CoreMinimum : public EvaluableExpression {
  public:
   explicit CoreMinimum(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {

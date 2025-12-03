@@ -29,7 +29,7 @@
 namespace firebase {
 namespace firestore {
 namespace core {
-class EvaluableExpr;
+class EvaluableExpression;
 }  // namespace core
 namespace api {
 
@@ -38,7 +38,7 @@ class Expr {
   Expr() = default;
   virtual ~Expr() = default;
   virtual google_firestore_v1_Value to_proto() const = 0;
-  virtual std::unique_ptr<core::EvaluableExpr> ToEvaluable() const = 0;
+  virtual std::unique_ptr<core::EvaluableExpression> ToEvaluable() const = 0;
 };
 
 class Selectable : public Expr {
@@ -66,7 +66,7 @@ class Field : public Selectable {
     return field_path_;
   }
 
-  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+  std::unique_ptr<core::EvaluableExpression> ToEvaluable() const override;
 
  private:
   model::FieldPath field_path_;
@@ -82,7 +82,7 @@ class Constant : public Expr {
 
   const google_firestore_v1_Value& value() const;
 
-  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+  std::unique_ptr<core::EvaluableExpression> ToEvaluable() const override;
 
  private:
   nanopb::SharedMessage<google_firestore_v1_Value> value_;
@@ -96,7 +96,7 @@ class FunctionExpr : public Expr {
 
   google_firestore_v1_Value to_proto() const override;
 
-  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+  std::unique_ptr<core::EvaluableExpression> ToEvaluable() const override;
 
   const std::string& name() const {
     return name_;

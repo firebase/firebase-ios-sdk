@@ -161,7 +161,7 @@ EvaluateResult CoreConstant::Evaluate(const api::EvaluateContext&,
   return EvaluateResult::NewValue(nanopb::MakeMessage(constant->to_proto()));
 }
 
-std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
+std::unique_ptr<EvaluableExpression> FunctionToEvaluable(
     const api::FunctionExpr& function) {
   if (function.name() == "equal") {
     return std::make_unique<CoreEqual>(function);

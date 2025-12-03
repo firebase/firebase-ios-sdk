@@ -255,7 +255,7 @@ EvaluateResult CoreNot::Evaluate(
   HARD_ASSERT(expr_->params().size() == 1,
               "not() function requires exactly 1 param");
 
-  std::unique_ptr<EvaluableExpr> operand_evaluable =
+  std::unique_ptr<EvaluableExpression> operand_evaluable =
       expr_->params()[0]->ToEvaluable();
   EvaluateResult evaluated = operand_evaluable->Evaluate(context, document);
 

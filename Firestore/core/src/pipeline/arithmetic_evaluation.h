@@ -25,12 +25,12 @@ namespace firestore {
 namespace core {
 
 // --- Base Class for Arithmetic Operations ---
-class ArithmeticBase : public EvaluableExpr {
+class ArithmeticPrimitive : public EvaluableExpression {
  public:
-  explicit ArithmeticBase(const api::FunctionExpr& expr)
+  explicit ArithmeticPrimitive(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
-  ~ArithmeticBase() override = default;
+  ~ArithmeticPrimitive() override = default;
 
   // Implementation is inline below
   EvaluateResult Evaluate(
@@ -59,9 +59,9 @@ class ArithmeticBase : public EvaluableExpr {
 };
 // --- End Base Class for Arithmetic Operations ---
 
-class EvaluateAdd : public ArithmeticBase {
+class EvaluateAdd : public ArithmeticPrimitive {
  public:
-  explicit EvaluateAdd(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateAdd(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
   }
 
  protected:
@@ -70,9 +70,9 @@ class EvaluateAdd : public ArithmeticBase {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class EvaluateSubtract : public ArithmeticBase {
+class EvaluateSubtract : public ArithmeticPrimitive {
  public:
-  explicit EvaluateSubtract(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateSubtract(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
   }
 
  protected:
@@ -81,9 +81,9 @@ class EvaluateSubtract : public ArithmeticBase {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class EvaluateMultiply : public ArithmeticBase {
+class EvaluateMultiply : public ArithmeticPrimitive {
  public:
-  explicit EvaluateMultiply(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateMultiply(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
   }
 
  protected:
@@ -92,9 +92,9 @@ class EvaluateMultiply : public ArithmeticBase {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class EvaluateDivide : public ArithmeticBase {
+class EvaluateDivide : public ArithmeticPrimitive {
  public:
-  explicit EvaluateDivide(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateDivide(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
   }
 
  protected:
@@ -103,9 +103,9 @@ class EvaluateDivide : public ArithmeticBase {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class EvaluateMod : public ArithmeticBase {
+class EvaluateMod : public ArithmeticPrimitive {
  public:
-  explicit EvaluateMod(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateMod(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
   }
 
  protected:
