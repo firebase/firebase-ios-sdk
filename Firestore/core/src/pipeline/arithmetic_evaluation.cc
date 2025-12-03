@@ -125,7 +125,7 @@ inline EvaluateResult ArithmeticBase::ApplyOperation(
   }
 }
 
-EvaluateResult CoreAdd::PerformIntegerOperation(int64_t l, int64_t r) const {
+EvaluateResult EvaluateAdd::PerformIntegerOperation(int64_t l, int64_t r) const {
   auto const result = SafeAdd(l, r);
   if (result.has_value()) {
     return EvaluateResult::NewValue(IntValue(result.value()));
@@ -134,11 +134,11 @@ EvaluateResult CoreAdd::PerformIntegerOperation(int64_t l, int64_t r) const {
   return EvaluateResult::NewError();
 }
 
-EvaluateResult CoreAdd::PerformDoubleOperation(double l, double r) const {
+EvaluateResult EvaluateAdd::PerformDoubleOperation(double l, double r) const {
   return EvaluateResult::NewValue(DoubleValue(l + r));
 }
 
-EvaluateResult CoreSubtract::PerformIntegerOperation(int64_t l,
+EvaluateResult EvaluateSubtract::PerformIntegerOperation(int64_t l,
                                                      int64_t r) const {
   auto const result = SafeSubtract(l, r);
   if (result.has_value()) {
@@ -148,11 +148,11 @@ EvaluateResult CoreSubtract::PerformIntegerOperation(int64_t l,
   return EvaluateResult::NewError();
 }
 
-EvaluateResult CoreSubtract::PerformDoubleOperation(double l, double r) const {
+EvaluateResult EvaluateSubtract::PerformDoubleOperation(double l, double r) const {
   return EvaluateResult::NewValue(DoubleValue(l - r));
 }
 
-EvaluateResult CoreMultiply::PerformIntegerOperation(int64_t l,
+EvaluateResult EvaluateMultiply::PerformIntegerOperation(int64_t l,
                                                      int64_t r) const {
   auto const result = SafeMultiply(l, r);
   if (result.has_value()) {
@@ -162,11 +162,11 @@ EvaluateResult CoreMultiply::PerformIntegerOperation(int64_t l,
   return EvaluateResult::NewError();
 }
 
-EvaluateResult CoreMultiply::PerformDoubleOperation(double l, double r) const {
+EvaluateResult EvaluateMultiply::PerformDoubleOperation(double l, double r) const {
   return EvaluateResult::NewValue(DoubleValue(l * r));
 }
 
-EvaluateResult CoreDivide::PerformIntegerOperation(int64_t l, int64_t r) const {
+EvaluateResult EvaluateDivide::PerformIntegerOperation(int64_t l, int64_t r) const {
   auto const result = SafeDivide(l, r);
   if (result.has_value()) {
     return EvaluateResult::NewValue(IntValue(result.value()));
@@ -175,14 +175,14 @@ EvaluateResult CoreDivide::PerformIntegerOperation(int64_t l, int64_t r) const {
   return EvaluateResult::NewError();
 }
 
-EvaluateResult CoreDivide::PerformDoubleOperation(double l, double r) const {
+EvaluateResult EvaluateDivide::PerformDoubleOperation(double l, double r) const {
   // C++ double division handles signed zero correctly according to IEEE
   // 754. +x / +0 -> +Inf -x / +0 -> -Inf +x / -0 -> -Inf -x / -0 -> +Inf
   //  0 /  0 -> NaN
   return EvaluateResult::NewValue(DoubleValue(l / r));
 }
 
-EvaluateResult CoreMod::PerformIntegerOperation(int64_t l, int64_t r) const {
+EvaluateResult EvaluateMod::PerformIntegerOperation(int64_t l, int64_t r) const {
   auto const result = SafeMod(l, r);
   if (result.has_value()) {
     return EvaluateResult::NewValue(IntValue(result.value()));
@@ -191,7 +191,7 @@ EvaluateResult CoreMod::PerformIntegerOperation(int64_t l, int64_t r) const {
   return EvaluateResult::NewError();
 }
 
-EvaluateResult CoreMod::PerformDoubleOperation(double l, double r) const {
+EvaluateResult EvaluateMod::PerformDoubleOperation(double l, double r) const {
   if (r == 0.0) {
     return EvaluateResult::NewValue(
         DoubleValue(std::numeric_limits<double>::quiet_NaN()));

@@ -59,9 +59,9 @@ class ArithmeticBase : public EvaluableExpr {
 };
 // --- End Base Class for Arithmetic Operations ---
 
-class CoreAdd : public ArithmeticBase {
+class EvaluateAdd : public ArithmeticBase {
  public:
-  explicit CoreAdd(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateAdd(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
  protected:
@@ -70,9 +70,9 @@ class CoreAdd : public ArithmeticBase {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class CoreSubtract : public ArithmeticBase {
+class EvaluateSubtract : public ArithmeticBase {
  public:
-  explicit CoreSubtract(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateSubtract(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
  protected:
@@ -81,9 +81,9 @@ class CoreSubtract : public ArithmeticBase {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class CoreMultiply : public ArithmeticBase {
+class EvaluateMultiply : public ArithmeticBase {
  public:
-  explicit CoreMultiply(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateMultiply(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
  protected:
@@ -92,9 +92,9 @@ class CoreMultiply : public ArithmeticBase {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class CoreDivide : public ArithmeticBase {
+class EvaluateDivide : public ArithmeticBase {
  public:
-  explicit CoreDivide(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateDivide(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
  protected:
@@ -103,9 +103,9 @@ class CoreDivide : public ArithmeticBase {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class CoreMod : public ArithmeticBase {
+class EvaluateMod : public ArithmeticBase {
  public:
-  explicit CoreMod(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
+  explicit EvaluateMod(const api::FunctionExpr& expr) : ArithmeticBase(expr) {
   }
 
  protected:

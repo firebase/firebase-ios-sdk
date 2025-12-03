@@ -166,15 +166,15 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
   if (function.name() == "equal") {
     return std::make_unique<CoreEqual>(function);
   } else if (function.name() == "add") {
-    return std::make_unique<CoreAdd>(function);
+    return std::make_unique<EvaluateAdd>(function);
   } else if (function.name() == "subtract") {
-    return std::make_unique<CoreSubtract>(function);
+    return std::make_unique<EvaluateSubtract>(function);
   } else if (function.name() == "multiply") {
-    return std::make_unique<CoreMultiply>(function);
+    return std::make_unique<EvaluateMultiply>(function);
   } else if (function.name() == "divide") {
-    return std::make_unique<CoreDivide>(function);
+    return std::make_unique<EvaluateDivide>(function);
   } else if (function.name() == "mod") {
-    return std::make_unique<CoreMod>(function);
+    return std::make_unique<EvaluateMod>(function);
   } else if (function.name() == "not_equal") {
     return std::make_unique<CoreNotEqual>(function);
   } else if (function.name() == "less_than") {
