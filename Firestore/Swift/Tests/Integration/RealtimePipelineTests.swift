@@ -590,7 +590,7 @@ class RealtimePipelineIntegrationTests: FSTIntegrationTestCase {
     //    enableNetwork()
   }
 
-  func testSamePipelineWithDifferetnOptions() async throws {
+  func testSamePipelineWithDifferentOptions() async throws {
     let db = self.db
     let collRef = collectionRef()
     writeAllDocuments(bookDocs, toCollection: collRef)
