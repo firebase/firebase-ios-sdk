@@ -357,6 +357,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "FirebaseAI"
+      SWIFT_SUFFIX: " (iOS)"
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
