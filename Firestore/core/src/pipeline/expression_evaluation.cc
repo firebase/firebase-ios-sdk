@@ -19,6 +19,10 @@
 #include <memory>
 #include <utility>  // For std::move
 
+#include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/server_timestamp_util.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/pipeline/aggregates_evaluation.h"
 #include "Firestore/core/src/pipeline/arithmetic_evaluation.h"
 #include "Firestore/core/src/pipeline/array_evaluation.h"
@@ -28,10 +32,6 @@
 #include "Firestore/core/src/pipeline/string_evaluation.h"
 #include "Firestore/core/src/pipeline/timestamp_evaluation.h"
 #include "Firestore/core/src/pipeline/type_evaluation.h"
-#include "Firestore/core/src/model/mutable_document.h"
-#include "Firestore/core/src/model/server_timestamp_util.h"
-#include "Firestore/core/src/model/value_util.h"
-#include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 

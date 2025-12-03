@@ -21,8 +21,8 @@
 #include <vector>
 
 #include "Firestore/core/src/api/expressions.h"
-#include "Firestore/core/src/pipeline/expression_evaluation.h"
 #include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"

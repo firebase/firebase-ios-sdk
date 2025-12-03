@@ -15,8 +15,8 @@
  */
 
 #include "Firestore/core/src/pipeline/type_evaluation.h"
-#include "Firestore/core/src/pipeline/logical_evaluation.h"
 #include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/pipeline/logical_evaluation.h"
 #include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
