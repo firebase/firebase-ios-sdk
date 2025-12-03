@@ -257,10 +257,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   }
   if (maxFPS > 0) {
     _cachedMaxFPS = maxFPS;
-    // Preserve legacy behavior: 60 FPS devices historically used 59 FPS threshold
-    // to avoid too many false positives for slow frames.
-    NSInteger effectiveFPS = (maxFPS == 60) ? 59 : maxFPS;
-    _cachedSlowBudget = 1.0 / effectiveFPS;
+    _cachedSlowBudget = 1.0 / maxFPS;
   } else {
     // Fallback to default FPS if maximumFramesPerSecond is unavailable or invalid.
     _cachedMaxFPS = kFPRDefaultFPS;
