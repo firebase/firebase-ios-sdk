@@ -63,18 +63,18 @@ api::RealtimePipeline StartPipeline(
 api::RealtimePipeline TestPipeline(int id) {
   auto pipeline = StartPipeline("coll");
   if (id == 1) {
-    pipeline = pipeline.AddingStage(
-        std::make_shared<api::Where>(testutil::NotExpr(testutil::GtExpr(
+    pipeline = pipeline.AddingStage(std::make_shared<api::Where>(
+        testutil::NotExpr(testutil::GreaterThanExpr(
             {std::make_shared<Field>("score"),
              testutil::SharedConstant(testutil::Value(90LL))}))));
   } else if (id == 2) {
     pipeline = pipeline.AddingStage(
-        std::make_shared<api::Where>(testutil::NotExpr(testutil::LtExpr(
+        std::make_shared<api::Where>(testutil::NotExpr(testutil::LessThanExpr(
             {std::make_shared<Field>("score"),
              testutil::SharedConstant(testutil::Value(90LL))}))));
   } else if (id == 3) {  // Same as id 1
-    pipeline = pipeline.AddingStage(
-        std::make_shared<api::Where>(testutil::NotExpr(testutil::GtExpr(
+    pipeline = pipeline.AddingStage(std::make_shared<api::Where>(
+        testutil::NotExpr(testutil::GreaterThanExpr(
             {std::make_shared<Field>("score"),
              testutil::SharedConstant(testutil::Value(90LL))}))));
   }

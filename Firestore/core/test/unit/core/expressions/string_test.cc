@@ -20,10 +20,8 @@
 #include <vector>
 
 #include "Firestore/core/src/api/expressions.h"
-#include "Firestore/core/src/core/expressions_eval.h"
-#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
-#include "Firestore/core/test/unit/testutil/testutil.h"  // For Value, Bytes etc.
+#include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -46,11 +44,11 @@ using testutil::RegexMatchExpr;
 using testutil::Returns;
 using testutil::ReturnsError;
 using testutil::ReturnsNull;  // If needed for string functions
-using testutil::ReverseExpr;
 using testutil::SharedConstant;
 using testutil::StartsWithExpr;
-using testutil::StrConcatExpr;
-using testutil::StrContainsExpr;
+using testutil::StringConcatExpr;
+using testutil::StringContainsExpr;
+using testutil::StringReverseExpr;
 using testutil::ToLowerExpr;
 using testutil::ToUpperExpr;
 using testutil::TrimExpr;
@@ -69,7 +67,7 @@ class StrContainsTest : public ::testing::Test {};
 class ToLowerTest : public ::testing::Test {};
 class ToUpperTest : public ::testing::Test {};
 class TrimTest : public ::testing::Test {};
-class ReverseTest : public ::testing::Test {};
+class StringReverseTest : public ::testing::Test {};
 
 // --- ByteLength Tests ---
 TEST_F(ByteLengthTest, EmptyString) {
@@ -346,21 +344,21 @@ TEST_F(CharLengthTest, LargeString) {
 // --- StrConcat Tests ---
 TEST_F(StrConcatTest, MultipleStringChildrenReturnsCombination) {
   EXPECT_THAT(
-      EvaluateExpr(*StrConcatExpr(
+      EvaluateExpr(*StringConcatExpr(
           {SharedConstant("foo"), SharedConstant(" "), SharedConstant("bar")})),
       Returns(Value("foo bar")));
 }
 
 TEST_F(StrConcatTest, MultipleNonStringChildrenReturnsError) {
   EXPECT_THAT(
-      EvaluateExpr(*StrConcatExpr({SharedConstant("foo"),
-                                   SharedConstant(static_cast<int64_t>(42LL)),
-                                   SharedConstant("bar")})),
+      EvaluateExpr(*StringConcatExpr(
+          {SharedConstant("foo"), SharedConstant(static_cast<int64_t>(42LL)),
+           SharedConstant("bar")})),
       ReturnsError());
 }
 
 TEST_F(StrConcatTest, MultipleCalls) {
-  auto func = StrConcatExpr(
+  auto func = StringConcatExpr(
       {SharedConstant("foo"), SharedConstant(" "), SharedConstant("bar")});
   EXPECT_THAT(EvaluateExpr(*func), Returns(Value("foo bar")));
   EXPECT_THAT(EvaluateExpr(*func),
@@ -377,7 +375,7 @@ TEST_F(StrConcatTest, LargeNumberOfInputs) {
     expected_result += "a";
   }
   // Need to construct FunctionExpr with vector directly
-  auto func = StrConcatExpr(std::move(args));
+  auto func = StringConcatExpr(std::move(args));
   EXPECT_THAT(EvaluateExpr(*func), Returns(Value(expected_result)));
 }
 
@@ -386,9 +384,9 @@ TEST_F(StrConcatTest, LargeStrings) {
   std::string b500(500, 'b');
   std::string c500(500, 'c');
   // Use .c_str() for std::string variables
-  auto func =
-      StrConcatExpr({SharedConstant(a500.c_str()), SharedConstant(b500.c_str()),
-                     SharedConstant(c500.c_str())});
+  auto func = StringConcatExpr({SharedConstant(a500.c_str()),
+                                SharedConstant(b500.c_str()),
+                                SharedConstant(c500.c_str())});
   EXPECT_THAT(EvaluateExpr(*func), Returns(Value(a500 + b500 + c500)));
 }
 
@@ -678,51 +676,51 @@ TEST_F(StartsWithTest, GetLargePrefixReturnsFalse) {
 // --- StrContains Tests ---
 TEST_F(StrContainsTest, ValueNonStringIsError) {
   EXPECT_THAT(
-      EvaluateExpr(*StrContainsExpr(SharedConstant(static_cast<int64_t>(42LL)),
-                                    SharedConstant("value"))),
+      EvaluateExpr(*StringContainsExpr(
+          SharedConstant(static_cast<int64_t>(42LL)), SharedConstant("value"))),
       ReturnsError());
 }
 
 TEST_F(StrContainsTest, SubStringNonStringIsError) {
-  EXPECT_THAT(EvaluateExpr(
-                  *StrContainsExpr(SharedConstant("search space"),
-                                   SharedConstant(static_cast<int64_t>(42LL)))),
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(
+                  SharedConstant("search space"),
+                  SharedConstant(static_cast<int64_t>(42LL)))),
               ReturnsError());
 }
 
 TEST_F(StrContainsTest, ExecuteTrue) {
-  EXPECT_THAT(EvaluateExpr(
-                  *StrContainsExpr(SharedConstant("abc"), SharedConstant("c"))),
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(SharedConstant("abc"),
+                                               SharedConstant("c"))),
               Returns(Value(true)));
-  EXPECT_THAT(EvaluateExpr(*StrContainsExpr(SharedConstant("abc"),
-                                            SharedConstant("bc"))),
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(SharedConstant("abc"),
+                                               SharedConstant("bc"))),
               Returns(Value(true)));
-  EXPECT_THAT(EvaluateExpr(*StrContainsExpr(SharedConstant("abc"),
-                                            SharedConstant("abc"))),
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(SharedConstant("abc"),
+                                               SharedConstant("abc"))),
+              Returns(Value(true)));
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(SharedConstant("abc"),
+                                               SharedConstant(""))),
               Returns(Value(true)));
   EXPECT_THAT(
-      EvaluateExpr(*StrContainsExpr(SharedConstant("abc"), SharedConstant(""))),
+      EvaluateExpr(*StringContainsExpr(SharedConstant(""), SharedConstant(""))),
       Returns(Value(true)));
-  EXPECT_THAT(
-      EvaluateExpr(*StrContainsExpr(SharedConstant(""), SharedConstant(""))),
-      Returns(Value(true)));
-  EXPECT_THAT(EvaluateExpr(
-                  *StrContainsExpr(SharedConstant("☃☃☃"), SharedConstant("☃"))),
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(SharedConstant("☃☃☃"),
+                                               SharedConstant("☃"))),
               Returns(Value(true)));
 }
 
 TEST_F(StrContainsTest, ExecuteFalse) {
-  EXPECT_THAT(EvaluateExpr(*StrContainsExpr(SharedConstant("abc"),
-                                            SharedConstant("abcd"))),
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(SharedConstant("abc"),
+                                               SharedConstant("abcd"))),
+              Returns(Value(false)));
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(SharedConstant("abc"),
+                                               SharedConstant("d"))),
               Returns(Value(false)));
   EXPECT_THAT(EvaluateExpr(
-                  *StrContainsExpr(SharedConstant("abc"), SharedConstant("d"))),
+                  *StringContainsExpr(SharedConstant(""), SharedConstant("a"))),
               Returns(Value(false)));
-  EXPECT_THAT(
-      EvaluateExpr(*StrContainsExpr(SharedConstant(""), SharedConstant("a"))),
-      Returns(Value(false)));
-  EXPECT_THAT(EvaluateExpr(*StrContainsExpr(SharedConstant(""),
-                                            SharedConstant("abcde"))),
+  EXPECT_THAT(EvaluateExpr(*StringContainsExpr(SharedConstant(""),
+                                               SharedConstant("abcde"))),
               Returns(Value(false)));
 }
 
@@ -800,30 +798,30 @@ TEST_F(TrimTest, Null) {
   EXPECT_THAT(EvaluateExpr(*TrimExpr(SharedConstant(nullptr))), ReturnsNull());
 }
 
-// --- Reverse Tests ---
-TEST_F(ReverseTest, Basic) {
-  EXPECT_THAT(EvaluateExpr(*ReverseExpr(SharedConstant("abc"))),
+// --- StringReverse Tests ---
+TEST_F(StringReverseTest, Basic) {
+  EXPECT_THAT(EvaluateExpr(*StringReverseExpr(SharedConstant("abc"))),
               Returns(Value("cba")));
 }
 
-TEST_F(ReverseTest, Empty) {
-  EXPECT_THAT(EvaluateExpr(*ReverseExpr(SharedConstant(""))),
+TEST_F(StringReverseTest, Empty) {
+  EXPECT_THAT(EvaluateExpr(*StringReverseExpr(SharedConstant(""))),
               Returns(Value("")));
 }
 
-TEST_F(ReverseTest, Unicode) {
-  EXPECT_THAT(EvaluateExpr(*ReverseExpr(SharedConstant("aé好🂡"))),
+TEST_F(StringReverseTest, Unicode) {
+  EXPECT_THAT(EvaluateExpr(*StringReverseExpr(SharedConstant("aé好🂡"))),
               Returns(Value("🂡好éa")));
 }
 
-TEST_F(ReverseTest, NonString) {
-  EXPECT_THAT(
-      EvaluateExpr(*ReverseExpr(SharedConstant(static_cast<int64_t>(123LL)))),
-      ReturnsError());
+TEST_F(StringReverseTest, NonString) {
+  EXPECT_THAT(EvaluateExpr(*StringReverseExpr(
+                  SharedConstant(static_cast<int64_t>(123LL)))),
+              ReturnsError());
 }
 
-TEST_F(ReverseTest, Null) {
-  EXPECT_THAT(EvaluateExpr(*ReverseExpr(SharedConstant(nullptr))),
+TEST_F(StringReverseTest, Null) {
+  EXPECT_THAT(EvaluateExpr(*StringReverseExpr(SharedConstant(nullptr))),
               ReturnsNull());
 }
 

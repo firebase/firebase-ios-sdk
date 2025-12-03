@@ -22,9 +22,8 @@
 #include <vector>
 
 #include "Firestore/core/src/api/expressions.h"
-#include "Firestore/core/src/core/expressions_eval.h"
 #include "Firestore/core/src/model/field_path.h"
-#include "Firestore/core/src/model/value_util.h"  // For TrueValue, FalseValue, NullValue
+#include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"
@@ -50,9 +49,9 @@ using testutil::IsNanExpr;
 using testutil::IsNotNanExpr;
 using testutil::IsNotNullExpr;
 using testutil::IsNullExpr;
-using testutil::LogicalMaxExpr;
-using testutil::LogicalMinExpr;
 using testutil::Map;
+using testutil::MaximumExpr;
+using testutil::MinimumExpr;
 using testutil::NotExpr;
 using testutil::OrExpr;
 using testutil::Returns;
@@ -507,143 +506,141 @@ TEST_F(IsNanFunctionTest, NonNumericReturnsError) {
               ReturnsError());
 }
 
-// --- LogicalMaximum Tests ---
-class LogicalMaximumFunctionTest : public LogicalExpressionsTest {};
+// --- Maximum Tests ---
+class MaximumFunctionTest : public LogicalExpressionsTest {};
 
-TEST_F(LogicalMaximumFunctionTest, NumericType) {
-  auto expr = testutil::LogicalMaxExpr(
+TEST_F(MaximumFunctionTest, NumericType) {
+  auto expr = testutil::MaximumExpr(
       {SharedConstant(Value(1LL)),
-       testutil::LogicalMaxExpr(
+       testutil::MaximumExpr(
            {SharedConstant(Value(2.0)), SharedConstant(Value(3LL))})});
   EXPECT_THAT(EvaluateExpr(*expr),
               Returns(Value(3LL)));  // Max(1, Max(2.0, 3)) -> 3
 }
 
-TEST_F(LogicalMaximumFunctionTest, StringType) {
-  auto expr = testutil::LogicalMaxExpr(
-      {testutil::LogicalMaxExpr(
+TEST_F(MaximumFunctionTest, StringType) {
+  auto expr = testutil::MaximumExpr(
+      {testutil::MaximumExpr(
            {SharedConstant(Value("a")), SharedConstant(Value("b"))}),
        SharedConstant(Value("c"))});
   EXPECT_THAT(EvaluateExpr(*expr),
               Returns(Value("c")));  // Max(Max("a", "b"), "c") -> "c"
 }
 
-TEST_F(LogicalMaximumFunctionTest, MixedType) {
+TEST_F(MaximumFunctionTest, MixedType) {
   // Type order: Null < Bool < Number < Timestamp < String < Blob < Ref <
   // GeoPoint < Array < Map
-  auto expr = testutil::LogicalMaxExpr(
+  auto expr = testutil::MaximumExpr(
       {SharedConstant(Value(1LL)),
-       testutil::LogicalMaxExpr(
+       testutil::MaximumExpr(
            {SharedConstant(Value("1")), SharedConstant(Value(0LL))})});
   EXPECT_THAT(
       EvaluateExpr(*expr),
       Returns(Value("1")));  // Max(1, Max("1", 0)) -> "1" (String > Number)
 }
 
-TEST_F(LogicalMaximumFunctionTest, OnlyNullAndErrorReturnsNull) {
-  auto expr = testutil::LogicalMaxExpr({NullExpr, ErrorExpr()});
+TEST_F(MaximumFunctionTest, OnlyNullAndErrorReturnsNull) {
+  auto expr = testutil::MaximumExpr({NullExpr, ErrorExpr()});
   EXPECT_THAT(EvaluateExpr(*expr, error_doc_), ReturnsNull());
 }
 
-TEST_F(LogicalMaximumFunctionTest, NanAndNumbers) {
+TEST_F(MaximumFunctionTest, NanAndNumbers) {
   // NaN is handled specially; it's skipped unless it's the only non-null/error
   // value.
-  auto expr = testutil::LogicalMaxExpr({NanExpr, SharedConstant(Value(0LL))});
+  auto expr = testutil::MaximumExpr({NanExpr, SharedConstant(Value(0LL))});
   EXPECT_THAT(EvaluateExpr(*expr), Returns(Value(0LL)));  // Max(NaN, 0) -> 0
-  auto expr2 = testutil::LogicalMaxExpr({SharedConstant(Value(0LL)), NanExpr});
+  auto expr2 = testutil::MaximumExpr({SharedConstant(Value(0LL)), NanExpr});
   EXPECT_THAT(EvaluateExpr(*expr2), Returns(Value(0LL)));  // Max(0, NaN) -> 0
-  auto expr3 = testutil::LogicalMaxExpr({NanExpr, NullExpr, ErrorExpr()});
+  auto expr3 = testutil::MaximumExpr({NanExpr, NullExpr, ErrorExpr()});
   EXPECT_THAT(EvaluateExpr(*expr3, error_doc_),
               Returns(Value(NAN)));  // Max(NaN, Null, Error) -> NaN
-  auto expr4 = testutil::LogicalMaxExpr({NanExpr, ErrorExpr()});
+  auto expr4 = testutil::MaximumExpr({NanExpr, ErrorExpr()});
   EXPECT_THAT(EvaluateExpr(*expr4, error_doc_),
               Returns(Value(NAN)));  // Max(NaN, Error) -> NaN
 }
 
-TEST_F(LogicalMaximumFunctionTest, ErrorInputSkip) {
-  auto expr =
-      testutil::LogicalMaxExpr({ErrorExpr(), SharedConstant(Value(1LL))});
+TEST_F(MaximumFunctionTest, ErrorInputSkip) {
+  auto expr = testutil::MaximumExpr({ErrorExpr(), SharedConstant(Value(1LL))});
   EXPECT_THAT(EvaluateExpr(*expr, error_doc_), Returns(Value(1LL)));
 }
 
-TEST_F(LogicalMaximumFunctionTest, NullInputSkip) {
-  auto expr = testutil::LogicalMaxExpr({NullExpr, SharedConstant(Value(1LL))});
+TEST_F(MaximumFunctionTest, NullInputSkip) {
+  auto expr = testutil::MaximumExpr({NullExpr, SharedConstant(Value(1LL))});
   EXPECT_THAT(EvaluateExpr(*expr), Returns(Value(1LL)));
 }
 
-TEST_F(LogicalMaximumFunctionTest, EquivalentNumerics) {
-  auto expr = testutil::LogicalMaxExpr(
+TEST_F(MaximumFunctionTest, EquivalentNumerics) {
+  auto expr = testutil::MaximumExpr(
       {SharedConstant(Value(1LL)), SharedConstant(Value(1.0))});
   // Max(1, 1.0) -> 1 (or 1.0, they are equivalent, result depends on internal
   // order) Let's check if it's equivalent to 1LL
   EXPECT_THAT(EvaluateExpr(*expr), Returns(Value(1LL)));
 }
 
-// --- LogicalMinimum Tests ---
-class LogicalMinimumFunctionTest : public LogicalExpressionsTest {};
+// --- Minimum Tests ---
+class MinimumFunctionTest : public LogicalExpressionsTest {};
 
-TEST_F(LogicalMinimumFunctionTest, NumericType) {
-  auto expr = testutil::LogicalMinExpr(
+TEST_F(MinimumFunctionTest, NumericType) {
+  auto expr = testutil::MinimumExpr(
       {SharedConstant(Value(1LL)),
-       testutil::LogicalMinExpr(
+       testutil::MinimumExpr(
            {SharedConstant(Value(2.0)), SharedConstant(Value(3LL))})});
   EXPECT_THAT(EvaluateExpr(*expr),
               Returns(Value(1LL)));  // Min(1, Min(2.0, 3)) -> 1
 }
 
-TEST_F(LogicalMinimumFunctionTest, StringType) {
-  auto expr = testutil::LogicalMinExpr(
-      {testutil::LogicalMinExpr(
+TEST_F(MinimumFunctionTest, StringType) {
+  auto expr = testutil::MinimumExpr(
+      {testutil::MinimumExpr(
            {SharedConstant(Value("a")), SharedConstant(Value("b"))}),
        SharedConstant(Value("c"))});
   EXPECT_THAT(EvaluateExpr(*expr),
               Returns(Value("a")));  // Min(Min("a", "b"), "c") -> "a"
 }
 
-TEST_F(LogicalMinimumFunctionTest, MixedType) {
+TEST_F(MinimumFunctionTest, MixedType) {
   // Type order: Null < Bool < Number < Timestamp < String < Blob < Ref <
   // GeoPoint < Array < Map
-  auto expr = testutil::LogicalMinExpr(
+  auto expr = testutil::MinimumExpr(
       {SharedConstant(Value(1LL)),
-       testutil::LogicalMinExpr(
+       testutil::MinimumExpr(
            {SharedConstant(Value("1")), SharedConstant(Value(0LL))})});
   EXPECT_THAT(
       EvaluateExpr(*expr),
       Returns(Value(0LL)));  // Min(1, Min("1", 0)) -> 0 (Number < String)
 }
 
-TEST_F(LogicalMinimumFunctionTest, OnlyNullAndErrorReturnsNull) {
-  auto expr = testutil::LogicalMinExpr({NullExpr, ErrorExpr()});
+TEST_F(MinimumFunctionTest, OnlyNullAndErrorReturnsNull) {
+  auto expr = testutil::MinimumExpr({NullExpr, ErrorExpr()});
   EXPECT_THAT(EvaluateExpr(*expr, error_doc_), ReturnsNull());
 }
 
-TEST_F(LogicalMinimumFunctionTest, NanAndNumbers) {
+TEST_F(MinimumFunctionTest, NanAndNumbers) {
   // NaN is handled specially; it's considered the minimum unless skipped.
-  auto expr = testutil::LogicalMinExpr({NanExpr, SharedConstant(Value(0LL))});
+  auto expr = testutil::MinimumExpr({NanExpr, SharedConstant(Value(0LL))});
   EXPECT_THAT(EvaluateExpr(*expr), Returns(Value(NAN)));  // Min(NaN, 0) -> NaN
-  auto expr2 = testutil::LogicalMinExpr({SharedConstant(Value(0LL)), NanExpr});
+  auto expr2 = testutil::MinimumExpr({SharedConstant(Value(0LL)), NanExpr});
   EXPECT_THAT(EvaluateExpr(*expr2), Returns(Value(NAN)));  // Min(0, NaN) -> NaN
-  auto expr3 = testutil::LogicalMinExpr({NanExpr, NullExpr, ErrorExpr()});
+  auto expr3 = testutil::MinimumExpr({NanExpr, NullExpr, ErrorExpr()});
   EXPECT_THAT(EvaluateExpr(*expr3, error_doc_),
               Returns(Value(NAN)));  // Min(NaN, Null, Error) -> NaN
-  auto expr4 = testutil::LogicalMinExpr({NanExpr, ErrorExpr()});
+  auto expr4 = testutil::MinimumExpr({NanExpr, ErrorExpr()});
   EXPECT_THAT(EvaluateExpr(*expr4, error_doc_),
               Returns(Value(NAN)));  // Min(NaN, Error) -> NaN
 }
 
-TEST_F(LogicalMinimumFunctionTest, ErrorInputSkip) {
-  auto expr =
-      testutil::LogicalMinExpr({ErrorExpr(), SharedConstant(Value(1LL))});
+TEST_F(MinimumFunctionTest, ErrorInputSkip) {
+  auto expr = testutil::MinimumExpr({ErrorExpr(), SharedConstant(Value(1LL))});
   EXPECT_THAT(EvaluateExpr(*expr, error_doc_), Returns(Value(1LL)));
 }
 
-TEST_F(LogicalMinimumFunctionTest, NullInputSkip) {
-  auto expr = testutil::LogicalMinExpr({NullExpr, SharedConstant(Value(1LL))});
+TEST_F(MinimumFunctionTest, NullInputSkip) {
+  auto expr = testutil::MinimumExpr({NullExpr, SharedConstant(Value(1LL))});
   EXPECT_THAT(EvaluateExpr(*expr), Returns(Value(1LL)));
 }
 
-TEST_F(LogicalMinimumFunctionTest, EquivalentNumerics) {
-  auto expr = testutil::LogicalMinExpr(
+TEST_F(MinimumFunctionTest, EquivalentNumerics) {
+  auto expr = testutil::MinimumExpr(
       {SharedConstant(Value(1LL)), SharedConstant(Value(1.0))});
   // Min(1, 1.0) -> 1 (or 1.0, they are equivalent)
   EXPECT_THAT(EvaluateExpr(*expr), Returns(Value(1LL)));
@@ -653,16 +650,16 @@ TEST_F(LogicalMinimumFunctionTest, EquivalentNumerics) {
 class NotFunctionTest : public LogicalExpressionsTest {};
 
 TEST_F(NotFunctionTest, TrueToFalse) {
-  // Using EqExpr from comparison_test helpers for simplicity
-  auto true_cond = testutil::EqExpr(
+  // Using EqualExpr from comparison_test helpers for simplicity
+  auto true_cond = testutil::EqualExpr(
       {SharedConstant(Value(1LL)), SharedConstant(Value(1LL))});
   EXPECT_THAT(EvaluateExpr(*testutil::NotExpr(true_cond)),
               Returns(Value(false)));
 }
 
 TEST_F(NotFunctionTest, FalseToTrue) {
-  // Using NeqExpr from comparison_test helpers for simplicity
-  auto false_cond = testutil::NeqExpr(
+  // Using NotEqualExpr from comparison_test helpers for simplicity
+  auto false_cond = testutil::NotEqualExpr(
       {SharedConstant(Value(1LL)), SharedConstant(Value(1LL))});
   EXPECT_THAT(EvaluateExpr(*testutil::NotExpr(false_cond)),
               Returns(Value(true)));

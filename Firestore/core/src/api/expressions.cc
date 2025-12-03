@@ -19,9 +19,9 @@
 #include <memory>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/core/expressions_eval.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 
 namespace firebase {
 namespace firestore {

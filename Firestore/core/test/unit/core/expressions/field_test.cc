@@ -16,12 +16,10 @@
 
 #include <memory>
 
-#include "Firestore/core/src/api/expressions.h"  // For api::Expr
-#include "Firestore/core/src/core/expressions_eval.h"
-#include "Firestore/core/src/model/value_util.h"  // For value constants
-#include "Firestore/core/test/unit/testutil/expression_test_util.h"  // For test helpers
-#include "Firestore/core/test/unit/testutil/testutil.h"  // For test helpers like Value, Map, Doc
-#include "gmock/gmock.h"  // For matchers like Returns
+#include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/test/unit/testutil/expression_test_util.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
