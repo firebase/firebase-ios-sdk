@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_LOGICAL_H_
-#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_LOGICAL_H_
+#ifndef FIRESTORE_CORE_SRC_PIPELINE_LOGICAL_EVALUATION_H_
+#define FIRESTORE_CORE_SRC_PIPELINE_LOGICAL_EVALUATION_H_
 
 #include <memory>
 #include "Firestore/core/src/pipeline/expression_evaluation.h"
@@ -119,4 +119,4 @@ class CoreNot : public EvaluableExpr {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_LOGICAL_H_
+#endif  // FIRESTORE_CORE_SRC_PIPELINE_LOGICAL_EVALUATION_H_

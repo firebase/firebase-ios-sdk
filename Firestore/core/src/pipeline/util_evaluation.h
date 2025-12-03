@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_UTIL_H_
-#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_UTIL_H_
+#ifndef FIRESTORE_CORE_SRC_PIPELINE_UTIL_EVALUATION_H_
+#define FIRESTORE_CORE_SRC_PIPELINE_UTIL_EVALUATION_H_
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -37,4 +37,4 @@ absl::optional<int64_t> SafeMod(int64_t lhs, int64_t rhs);
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_UTIL_H_
+#endif  // FIRESTORE_CORE_SRC_PIPELINE_UTIL_EVALUATION_H_

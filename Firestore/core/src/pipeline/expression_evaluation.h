@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EXPRESSION_EVALUATION_H_
-#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EXPRESSION_EVALUATION_H_
+#ifndef FIRESTORE_CORE_SRC_PIPELINE_EXPRESSION_EVALUATION_H_
+#define FIRESTORE_CORE_SRC_PIPELINE_EXPRESSION_EVALUATION_H_
 
 #include <memory>
 #include <string>
@@ -152,4 +152,4 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EXPRESSION_EVALUATION_H_
+#endif  // FIRESTORE_CORE_SRC_PIPELINE_EXPRESSION_EVALUATION_H_

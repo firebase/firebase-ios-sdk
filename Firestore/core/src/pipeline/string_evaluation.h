@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_STRING_H_
-#define FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_STRING_H_
+#ifndef FIRESTORE_CORE_SRC_PIPELINE_STRING_EVALUATION_H_
+#define FIRESTORE_CORE_SRC_PIPELINE_STRING_EVALUATION_H_
 
 #include <memory>
 #include <string>
@@ -208,4 +208,4 @@ class CoreLike : public StringSearchBase {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_PIPELINE_EVALUATION_STRING_H_
+#endif  // FIRESTORE_CORE_SRC_PIPELINE_STRING_EVALUATION_H_
