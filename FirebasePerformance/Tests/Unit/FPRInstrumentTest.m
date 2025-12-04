@@ -65,8 +65,6 @@
 
 #pragma mark - Unswizzle based tests
 
-#if !SWIFT_PACKAGE
-
 - (void)testDeregisterInstrumentors {
   FPRInstrument *instrument = [[FPRInstrument alloc] init];
   FPRClassInstrumentor *classInstrumentor =
@@ -85,7 +83,5 @@
   XCTAssertEqual(instrument.instrumentedClasses.count, 0);
   [classInstrumentor unswizzle];
 }
-
-#endif  // SWIFT_PACKAGE
 
 @end
