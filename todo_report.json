@@ -1,0 +1,222 @@
+[
+  {
+    "title": "Add error response logic",
+    "description": "The completion handler currently ignores the error object returned by the image manager; it should be checked and handled.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseAppDistributionInternal/Sources/InAppFeedback.swift#L82",
+    "filePath": "FirebaseAppDistributionInternal/Sources/InAppFeedback.swift",
+    "lineNumber": 82,
+    "confidence": 1,
+    "rationale": "The `err` variable is explicitly available in the closure scope but unused. Adding a standard nil check and error handling path is a straightforward task with low risk.",
+    "context": "        targetSize: CGSize(width: 358, height: 442),\n        contentMode: .aspectFill,\n        options: requestOptions\n      ) { image, err in\n        // TODO: Add logic to respond correctly if there's an error.\n        completion(image)\n      }\n    })",
+    "language": "swift"
+  },
+  {
+    "title": "Replace deprecated keyWindow usage",
+    "description": "The code uses `UIApplication.shared.keyWindow`, which is deprecated in iOS 13 and later.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseAppDistributionInternal/Sources/InAppFeedback.swift#L115",
+    "filePath": "FirebaseAppDistributionInternal/Sources/InAppFeedback.swift",
+    "lineNumber": 115,
+    "confidence": 1,
+    "rationale": "Replacing `keyWindow` with `connectedScenes` or standard window retrieval for newer iOS versions is a well-documented migration pattern.",
+    "context": "  @objc(captureProgrammaticScreenshot)\n  public static func captureProgrammaticScreenshot() -> UIImage? {\n    // TODO: Explore options besides keyWindow as keyWindow is deprecated.\n    let layer = UIApplication.shared.keyWindow?.layer\n\n    if let layer {\n      let renderer = UIGraphicsImageRenderer(size: layer.bounds.size)",
+    "language": "swift"
+  },
+  {
+    "title": "Prevent concurrent downloads",
+    "description": "The downloader should fail or handle the case where a download is requested while one is already in progress.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseMLModelDownloader/Sources/FileDownloader.swift#L75",
+    "filePath": "FirebaseMLModelDownloader/Sources/FileDownloader.swift",
+    "lineNumber": 75,
+    "confidence": 1,
+    "rationale": "The `downloadTask` property tracks the current task. Adding a guard check to ensure `downloadTask` is nil (or not running) before starting a new one is a simple state check.",
+    "context": "  func downloadFile(with url: URL,\n                    progressHandler: @escaping (Int64, Int64) -> Void,\n                    completion: @escaping (Result<FileDownloaderResponse, Error>) -> Void) {\n    // TODO: Fail if download already in progress.\n    self.completion = completion\n    self.progressHandler = progressHandler\n    let downloadTask = downloadSession.downloadTask(with: url)",
+    "language": "swift"
+  },
+  {
+    "title": "Fix memory leak in block capture",
+    "description": "A user reported memory leak exists where a block captures `self` (indirectly or directly) creating a retain cycle.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/Api/FIRDatabaseQuery.m#L694",
+    "filePath": "FirebaseDatabase/Sources/Api/FIRDatabaseQuery.m",
+    "lineNumber": 694,
+    "confidence": 1,
+    "rationale": "The comment identifies a specific memory leak issue involving block copying. The fix likely involves using `__weak` references to break the retain cycle, which is standard Objective-C practice.",
+    "context": "                 withCancelBlock:(fbt_void_nserror)cancelBlock {\n\n    // XXX: user reported memory leak in method\n\n    // \"When you copy a block, any references to other blocks from within that\n    // block are copied if necessary—an entire tree may be copied (from the",
+    "language": "objective-c"
+  },
+  {
+    "title": "Handle invalid WebSocket opcode",
+    "description": "The switch statement for WebSocket opcodes has a default case that logs an error but doesn't explicitly handle the invalid state beyond a protocol error close.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.m#L923",
+    "filePath": "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.m",
+    "lineNumber": 923,
+    "confidence": 1,
+    "rationale": "The code already calls `_closeWithProtocolError`, which might be sufficient, but the TODO implies more specific handling or verification is needed. Given it's a protocol state machine, ensuring strict compliance is straightforward.",
+    "context": "            [self handlePong];\n            break;\n        default:\n            [self _closeWithProtocolError:[NSString stringWithFormat:@\"Unknown opcode %u\", (int)opcode]];\n            // TODO: Handle invalid opcode\n            break;\n    }\n}",
+    "language": "objective-c"
+  },
+  {
+    "title": "Add additionalInfoText parameter",
+    "description": "The `feedbackViewController` method accepts `additionalFormText` but the TODO suggests adding an `additionalInfoText` parameter.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseAppDistributionInternal/Sources/InAppFeedback.swift#L30",
+    "filePath": "FirebaseAppDistributionInternal/Sources/InAppFeedback.swift",
+    "lineNumber": 30,
+    "confidence": 2,
+    "rationale": "While adding a parameter is easy, the distinction between `additionalFormText` and `additionalInfoText` needs clarification from the consuming view controller (`FeedbackViewController`) to ensure correct plumbing.",
+    "context": "                                              onDismiss: @escaping ()\n                                                -> Void)\n    -> UIViewController {\n    // TODO: Add the additionalInfoText parameter.\n    let frameworkBundle = Bundle(for: self)\n\n    let resourceBundleURL = frameworkBundle.url(",
+    "language": "swift"
+  },
+  {
+    "title": "Determine correct screenshot size",
+    "description": "The code uses a hardcoded target size (358x442) for requesting screenshots, which may not be appropriate for all devices.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseAppDistributionInternal/Sources/InAppFeedback.swift#L77",
+    "filePath": "FirebaseAppDistributionInternal/Sources/InAppFeedback.swift",
+    "lineNumber": 77,
+    "confidence": 2,
+    "rationale": "Determining the 'correct' size likely involves UI requirements or device screen dimensions. It requires checking design specs or the `PHImageManager` usage context.",
+    "context": "      manager.requestImage(\n        for: fetchResult.object(at: 0),\n        // TODO: Identify the correct size.\n        targetSize: CGSize(width: 358, height: 442),\n        contentMode: .aspectFill,\n        options: requestOptions",
+    "language": "swift"
+  },
+  {
+    "title": "Handle encoding keys with nil values",
+    "description": "The JSON encoder might drop keys with nil values, which could be problematic for some backend expectations.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseSharedSwift/Tests/Codable/FirebaseDataEncoderTests.swift#L75",
+    "filePath": "FirebaseSharedSwift/Tests/Codable/FirebaseDataEncoderTests.swift",
+    "lineNumber": 75,
+    "confidence": 2,
+    "rationale": "This is a known issue/behavior in Swift's `JSONEncoder`. Fixing it might require a custom encoding strategy or wrapper, which is solvable but involves non-trivial implementation details.",
+    "context": "    assertThat([\"opt\": 5]).failsDecoding(to: Model.self)\n\n    // TODO: - handle encoding keys with nil values\n    // See https://stackoverflow.com/questions/47266862/encode-nil-value-as-null-with-jsonencoder\n    // and https://bugs.swift.org/browse/SR-9232\n    //     XCTAssertTrue(encodedDict.keys.contains(\"x\"))\n  }",
+    "language": "swift"
+  },
+  {
+    "title": "Make interop components optional",
+    "description": "The component initialization uses `instance(for:...)` which might assume existence, but the TODO suggests they should be treated as optionals.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseFunctions/Sources/Functions.swift#L355",
+    "filePath": "FirebaseFunctions/Sources/Functions.swift",
+    "lineNumber": 355,
+    "confidence": 2,
+    "rationale": "Changing these to optionals requires verifying that the `Functions` class can operate gracefully when these dependencies (Auth, Messaging, AppCheck) are missing.",
+    "context": "  convenience init(app: FirebaseApp,\n                   region: String,\n                   customDomain: String?) {\n    // TODO: These are not optionals, but they should be.\n    let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)\n    let messaging = ComponentType<MessagingInterop>.instance(for: MessagingInterop.self,",
+    "language": "swift"
+  },
+  {
+    "title": "Handle ModelFileManager error",
+    "description": "The code throws an internal error if it fails to remove an existing file before moving a new one; it should handle this scenario more gracefully.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseMLModelDownloader/Sources/ModelFileManager.swift#L100",
+    "filePath": "FirebaseMLModelDownloader/Sources/ModelFileManager.swift",
+    "lineNumber": 100,
+    "confidence": 2,
+    "rationale": "Handling this error might involve attempting a force overwrite or using a temporary location. The best strategy depends on the desired file integrity guarantees.",
+    "context": "      do {\n        try fileManager.removeItem(at: destinationURL)\n      } catch {\n        // TODO: Handle this - new model file downloaded but not saved due to FileManager error.\n        throw DownloadError\n          .internalError(\n            description: ModelFileManager.ErrorDescription",
+    "language": "swift"
+  },
+  {
+    "title": "Fix observeSingleEventOfType for Value events",
+    "description": "A commented-out exception throw suggests that `observeSingleEventOfType` shouldn't be used with `Value` events in this specific code path.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/Api/FIRDatabaseQuery.m#L584",
+    "filePath": "FirebaseDatabase/Sources/Api/FIRDatabaseQuery.m",
+    "lineNumber": 584,
+    "confidence": 2,
+    "rationale": "The fix likely involves routing the call to a different method or properly supporting the event type. It requires tracing the call graph to ensure no regressions in existing behavior.",
+    "context": "    if (eventType == FIRDataEventTypeValue) {\n        // TODO: This gets hit by observeSingleEventOfType.  Need to fix.\n        /*\n        @throw [[NSException alloc] initWithName:@\"InvalidEventTypeForObserver\"\n                                          reason:@\"(observeEventType:andPreviousSiblingKeyWithBlock:withCancelBlock:)\n        Cannot use",
+    "language": "objective-c"
+  },
+  {
+    "title": "Cleanup on dealloc",
+    "description": "The `FRepo` class registers listeners in `deferredInit` but lacks a `dealloc` method to unregister them.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/Core/FRepo.m#L111",
+    "filePath": "FirebaseDatabase/Sources/Core/FRepo.m",
+    "lineNumber": 111,
+    "confidence": 2,
+    "rationale": "Implementing `dealloc` is standard, but we need to ensure that the listeners return a handle that can be stored and used for unregistration, and that `FRepo` lifecycle is understood.",
+    "context": "- (void)deferredInit {\n    // TODO: cleanup on dealloc\n    __weak FRepo *weakSelf = self;\n    [self.config.contextProvider listenForAuthTokenChanges:^(NSString *token) {\n      [weakSelf.connection refreshAuthToken:token];\n    }];",
+    "language": "objective-c"
+  },
+  {
+    "title": "Automate framework name retrieval",
+    "description": "The framework build name is currently hardcoded in a switch statement; it should be derived automatically, likely from the podspec.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/ReleaseTooling/Sources/ZipBuilder/FrameworkBuilder.swift#L269",
+    "filePath": "ReleaseTooling/Sources/ZipBuilder/FrameworkBuilder.swift",
+    "lineNumber": 269,
+    "confidence": 2,
+    "rationale": "This requires modifying the build tooling to parse the podspec or another source of truth. It's a tooling improvement that reduces maintenance burden.",
+    "context": "  }\n\n  // TODO: Automatically get the right name.\n  /// The module name is different from the pod name when the module_name\n  /// specifier is used in the podspec.\n  ///\n  /// - Parameter framework: The name of the pod to be built.",
+    "language": "swift"
+  },
+  {
+    "title": "Add Array support to serializer",
+    "description": "The serializer currently supports `NSArray` but the TODO suggests adding support for Swift's native `Array` type.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseFunctions/Tests/Unit/FunctionsSerializerTests.swift#L173",
+    "filePath": "FirebaseFunctions/Tests/Unit/FunctionsSerializerTests.swift",
+    "lineNumber": 173,
+    "confidence": 2,
+    "rationale": "Adding support for `Array` involves ensuring type bridging or specific encoding logic in the serializer. It's a feature enhancement for better Swift integration.",
+    "context": "  func testDecodeString() throws {\n    XCTAssertEqual(\"good-bye\", try serializer.decode(\"good-bye\") as? String)\n  }\n\n  // TODO: Should we add support for Array as well as NSArray?\n\n  func testEncodeSimpleArray() throws {\n    let input = [1 as Int32, 2 as Int32] as NSArray\n    XCTAssertEqual(input, try serializer.encode(input) as? NSArray)",
+    "language": "swift"
+  },
+  {
+    "title": "Save entire connection context",
+    "description": "The connection context contains more than just tokens; the TODO suggests saving the entire object for potential future use.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/Core/FPersistentConnection.m#L543",
+    "filePath": "FirebaseDatabase/Sources/Core/FPersistentConnection.m",
+    "lineNumber": 543,
+    "confidence": 2,
+    "rationale": "Easy to implement (assign the object), but requires verifying if other parts of the context are actually needed and if retaining them has side effects.",
+    "context": "    NSAssert(self->connectionState == ConnectionStateGettingToken,\n             @\"Trying to open network connection while in wrong state: %d\",\n             self->connectionState);\n    // TODO: Save entire context?\n    self.authToken = context.authToken;\n\n    self->connectionState = ConnectionStateConnecting;",
+    "language": "objective-c"
+  },
+  {
+    "title": "Revoke state on unsupported server actions",
+    "description": "When an unsupported action is received from the server, the code just logs it. The TODO suggests revoking listens, auth, etc., might be safer.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/Core/FPersistentConnection.m#L1094",
+    "filePath": "FirebaseDatabase/Sources/Core/FPersistentConnection.m",
+    "lineNumber": 1094,
+    "confidence": 2,
+    "rationale": "This involves deciding on a security/stability policy. Revoking state is safer but might cause disruptions. Implementing the revocation logic itself is straightforward.",
+    "context": "                FFWarn(@\"I-RDB034031\", @\"%@\", m);\n            }\n        }\n    } else {\n        // TODO: revoke listens, auth, security debug\n        FFLog(@\"I-RDB034032\", @\"Unsupported action from server: %@\", action);\n    }\n}",
+    "language": "objective-c"
+  },
+  {
+    "title": "Restore unscheduleFromRunLoop",
+    "description": "The code notes that `unscheduleFromRunLoop` call is missing compared to the original SocketRocket implementation.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.m#L1140",
+    "filePath": "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.m",
+    "lineNumber": 1140,
+    "confidence": 2,
+    "rationale": "Re-adding the unschedule call is likely correct to prevent run loop leaks, but requires verifying why it was removed (potential crash or race condition?) in this fork.",
+    "context": "            [_outputStream close];\n            [_inputStream close];\n\n            // TODO: Why are we missing the SocketRocket code to call unscheduleFromRunLoop???\n        }\n\n        if (!_failed) {",
+    "language": "objective-c"
+  },
+  {
+    "title": "Optimize data copying in scanner",
+    "description": "The `_innerPumpScanner` method copies data to check validity, which is inefficient.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.m#L1314",
+    "filePath": "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.m",
+    "lineNumber": 1314,
+    "confidence": 3,
+    "rationale": "Low confidence because optimizing this requires a deep dive into buffer management and potentially unsafe memory access or refactoring how `NSData` is handled, which is high risk.",
+    "context": "                size_t currentDataSize = _currentFrameData.length;\n                if (_currentFrameOpcode == SROpCodeTextFrame && currentDataSize > 0) {\n                    // TODO: Optimize the crap out of this.  Don't really have to copy all the data each time\n\n                    size_t scanSize = currentDataSize - _currentStringScanPosition;\n\n                    NSData *scan_data = [_currentFrameData subdataWithRange:NSMakeRange(_currentStringScanPosition, scanSize)];",
+    "language": "objective-c"
+  },
+  {
+    "title": "Optimize masking with SIMD",
+    "description": "The masking loop in `_sendFrameWithOpcode` could be optimized using SIMD instructions.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.m#L1441",
+    "filePath": "FirebaseDatabase/Sources/third_party/SocketRocket/FSRWebSocket.m",
+    "lineNumber": 1441,
+    "confidence": 3,
+    "rationale": "Optimizing with SIMD is complex and platform-dependent. It requires specialized knowledge and thorough testing to ensure correctness across all supported architectures.",
+    "context": "        assert(result == 0);\n        frame_buffer_size += sizeof(uint32_t);\n\n        // TODO: could probably optimize this with SIMD\n        for (int i = 0; i < payloadLength; i++) {\n            frame_buffer[frame_buffer_size] = unmasked_payload[i] ^ mask_key[i % sizeof(uint32_t)];\n            frame_buffer_size += 1;\n        }",
+    "language": "objective-c"
+  },
+  {
+    "title": "Regex performance hack",
+    "description": "The code uses a string search before a regex as a performance hack, implying the regex usage itself might be slow or suboptimal.",
+    "deepLink": "https://github.com/firebase/firebase-ios-sdk/blob/7e9230592dbaa515e99f7119bd7141769f7184fd/FirebaseDatabase/Sources/Utilities/FValidation.m#L99",
+    "filePath": "FirebaseDatabase/Sources/Utilities/FValidation.m",
+    "lineNumber": 99,
+    "confidence": 3,
+    "rationale": "This is an optimization tweak. Improving it might require replacing the regex entirely or profiling to see if the hack is still necessary/effective. It's low priority.",
+    "context": "    NSString *tempPath = pathString;\n    // HACK: Obj-C regex are kinda' slow.  Do a plain string search first before\n    // bothering with the regex.\n    if ([pathString rangeOfString:@\".info\"].location != NSNotFound) {\n        tempPath = [dotInfoRegex\n            stringByReplacingMatchesInString:pathString",
+    "language": "objective-c"
+  }
+]
