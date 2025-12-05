@@ -1,3 +1,9 @@
+# Unreleased
+- [added] Introduced a new `configUpdates` property to `RemoteConfig` that
+  provides an `AsyncSequence` for consuming real-time config updates.
+  This offers a modern, Swift Concurrency-native alternative to the existing
+  closure-based listener.
+
 # 12.6.0
 - [fixed] Fixed a bug where Remote Config does not work after a restore
   of a previous backup of the device. (#14459)
