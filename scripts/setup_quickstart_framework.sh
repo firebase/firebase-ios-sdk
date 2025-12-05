@@ -25,7 +25,7 @@ cd quickstart-ios/"${SAMPLE}"
 # the project for framework-based testing.
 if [[ "${SAMPLE}" == "FirebaseAI" ]]; then
   # For the FirebaseAI quickstart, we only want to remove the Firebase deps.
-  "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj" FirebaseAI
+  "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj" FirebaseAILogic
 else
   # For other quickstarts, remove all SPM dependencies.
   "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj"
