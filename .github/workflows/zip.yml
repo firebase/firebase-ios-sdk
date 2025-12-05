@@ -9,6 +9,8 @@
 #    zip from the current commit (HEAD).
 name: zip
 
+# TODO(ncooke3): Also do Xcode 26 testing
+
 permissions:
   actions: read
   contents: read
@@ -350,7 +352,7 @@ jobs:
   #   secrets:
   #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
-  # # TODO(ncooke3): Migrate to use shared workflow after fixing AI scheme names.
+  # TODO(ncooke3): Migrate to use shared workflow after fixing AI scheme names.
   quickstart_framework_firebaseai:
     needs: packaging_done
     if: ${{ !cancelled() }}
@@ -363,7 +365,7 @@ jobs:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
         build-env:
           - os: macos-15
-            xcode: Xcode_16.4
+            xcode: Xcode_26.1
     runs-on: ${{ matrix.build-env.os }}
     steps:
     - uses: actions/checkout@v4
