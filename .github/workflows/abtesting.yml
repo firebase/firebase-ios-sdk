@@ -9,8 +9,8 @@ on:
     paths:
     - 'FirebaseABTesting**'
     - 'Interop/Analytics/Public/*.h'
-    - '.github/workflows/abtesting.yml'
-    - '.github/workflows/common.yml'
+#    - '.github/workflows/.*'
+#    - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - '.github/workflows/common_quickstart.yml'
