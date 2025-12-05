@@ -1,3 +1,4 @@
+
 // Copyright 2019 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -172,21 +173,17 @@ FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
   // simulator to crash.
   if (!_firclsContext.readonly->debuggerAttached) {
 #if CLS_SIGNAL_SUPPORTED
-    dispatch_group_async(group, queue, ^{
-      _firclsContext.readonly->signal.path =
-          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
+    _firclsContext.readonly->signal.path =
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportSignalFile);
 
-      FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
-    });
+    FIRCLSSignalInitialize(&_firclsContext.readonly->signal);
 #endif
 
 #if CLS_MACH_EXCEPTION_SUPPORTED
-    dispatch_group_async(group, queue, ^{
-      _firclsContext.readonly->machException.path =
-          FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
+    _firclsContext.readonly->machException.path =
+        FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
 
-      FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
-    });
+    FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
 #endif
 
     dispatch_group_async(group, queue, ^{
