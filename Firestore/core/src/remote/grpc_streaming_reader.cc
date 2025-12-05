@@ -45,10 +45,10 @@ GrpcStreamingReader::GrpcStreamingReader(
       request_{request} {
 }
 
-void GrpcStreamingReader::Start(size_t expected_response_count,
+void GrpcStreamingReader::Start(util::StatusOr<size_t> expected_response_count,
                                 ResponsesCallback&& responses_callback,
                                 CloseCallback&& close_callback) {
-  expected_response_count_ = expected_response_count;
+  expected_response_count_ = std::move(expected_response_count);
   responses_callback_ = std::move(responses_callback);
   close_callback_ = std::move(close_callback);
   stream_->Start();
@@ -72,7 +72,8 @@ void GrpcStreamingReader::OnStreamRead(const grpc::ByteBuffer& message) {
   // Accumulate responses, responses_callback_ will be fired if
   // GrpcStreamingReader has received all the responses.
   responses_.push_back(message);
-  if (responses_.size() == expected_response_count_) {
+  if (expected_response_count_.ok() &&
+      responses_.size() == expected_response_count_.ValueOrDie()) {
     callback_fired_ = true;
     responses_callback_(responses_);
   }

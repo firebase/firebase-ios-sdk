@@ -426,6 +426,50 @@ DatastoreSerializer::DecodeExecutePipelineResponse(
   return snapshot;
 }
 
+util::StatusOr<api::PipelineSnapshot>
+DatastoreSerializer::MergeExecutePipelineResponses(
+    const std::vector<grpc::ByteBuffer>& responses,
+    std::shared_ptr<api::Firestore> db) const {
+  std::vector<api::PipelineResult> all_results;
+  model::SnapshotVersion execution_time = model::SnapshotVersion::None();
+
+  for (const auto& response : responses) {
+    ByteBufferReader reader{response};
+    auto message =
+        Message<google_firestore_v1_ExecutePipelineResponse>::TryParse(&reader);
+    if (!reader.ok()) {
+      return reader.status();
+    }
+
+    // DecodePipelineResponse decodes the whole message into a Snapshot.
+    // We can reuse it to get the partial results and execution time.
+    auto partial_snapshot =
+        serializer_.DecodePipelineResponse(reader.context(), message);
+    if (!reader.ok()) {
+      return reader.status();
+    }
+
+    // Accumulate results
+    // PipelineSnapshot::results() returns a const ref. We need to copy.
+    // But PipelineResult should be copyable/movable.
+    for (const auto& result : partial_snapshot.results()) {
+      all_results.push_back(result);
+    }
+
+    // Update execution time if present.
+    // DecodePipelineResponse returns SnapshotVersion::None() if not present?
+    // Let's assume the last non-None execution time is the correct one, or just
+    // update it.
+    if (partial_snapshot.execution_time() != model::SnapshotVersion::None()) {
+      execution_time = partial_snapshot.execution_time();
+    }
+  }
+
+  api::PipelineSnapshot merged_snapshot{std::move(all_results), execution_time};
+  merged_snapshot.SetFirestore(std::move(db));
+  return merged_snapshot;
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
