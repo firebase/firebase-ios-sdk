@@ -282,8 +282,13 @@ NSString *const TestFIID = @"TestFIID";
   [self.uploader uploadPackagedReportAtPath:[self packagePath]
                         dataCollectionToken:FIRCLSDataCollectionToken.validToken
                                    asUrgent:urgent];
-
   XCTAssertNotNil(self.mockDataTransport.sendDataEvent_event);
+
+  // Poll until the file is removed, with a timeout to prevent an infinite loop.
+  NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:1.0];
+  while (self.fileManager.removedItemAtPath_path == nil && [timeoutDate timeIntervalSinceNow] > 0) {
+    [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+  }
   XCTAssertEqualObjects(self.fileManager.removedItemAtPath_path, [self packagePath]);
 }
 
