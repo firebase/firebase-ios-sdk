@@ -95,6 +95,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+      run: |
+        sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+        defaults write com.apple.dt.Xcode IDEPackageEnablePrebuilts NO
     - name: Build Quickstart
       run: scripts/quickstart_build_spm.sh FirebaseAI
