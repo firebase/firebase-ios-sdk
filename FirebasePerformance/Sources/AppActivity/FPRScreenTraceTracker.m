@@ -25,11 +25,21 @@ NSString *const kFPRFrozenFrameCounterName = @"_fr_fzn";
 NSString *const kFPRSlowFrameCounterName = @"_fr_slo";
 NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
 
-// Note: This was previously 60 FPS, but that resulted in 90% +  of all frames collected to be
-// flagged as slow frames, and so the threshold for iOS is being changed to 59 FPS.
-// TODO(b/73498642): Make these configurable.
-CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 59.0;  // Anything less than 59 FPS is slow.
-CFTimeInterval const kFPRFrozenFrameThreshold = 700.0 / 1000.0;
+/** Frozen frame multiplier: A frozen frame is one that takes longer than approximately 42 times
+ *  the current frame duration. This maintains backward compatibility with the old 700ms threshold
+ *  at 60Hz (700ms ÷ 16.67ms ≈ 42 frames).
+ *
+ *  Note: A "frozen" frame represents missing 42 consecutive frame opportunities,
+ *  which looks and feels equally bad to users regardless of refresh rate.
+ *
+ *  Formula: frozenThreshold = kFPRFrozenFrameMultiplier * actualFrameDuration
+ *
+ *  Examples (all represent missing 42 frame opportunities):
+ *  - 60Hz: 42 × 16.67ms = 700ms (same as original threshold)
+ *  - 120Hz: 42 × 8.33ms = 350ms (missing 42 frames at higher refresh rate)
+ *  - 50Hz: 42 × 20ms = 840ms (missing 42 frames at lower refresh rate)
+ */
+static const CFTimeInterval kFPRFrozenFrameMultiplier = 42.0;
 
 /** Constant that indicates an invalid time. */
 CFAbsoluteTime const kFPRInvalidTime = -1.0;
@@ -80,6 +90,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
   /** Instance variable storing the frozen frames observed so far. */
   atomic_int_fast64_t _frozenFramesCount;
+
+  CFAbsoluteTime _previousTimestamp;
 }
 
 @dynamic totalFramesCount;
@@ -114,6 +126,7 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     atomic_store_explicit(&_slowFramesCount, 0, memory_order_relaxed);
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkStep)];
     [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    _previousTimestamp = kFPRInvalidTime;
 
     // We don't receive background and foreground events from analytics and so we have to listen to
     // them ourselves.
@@ -142,6 +155,10 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 }
 
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
+  // Resume the display link when the app becomes active
+  _displayLink.paused = NO;
+  _previousTimestamp = kFPRInvalidTime;
+
   // To get the most accurate numbers of total, frozen and slow frames, we need to capture them as
   // soon as we're notified of an event.
   int64_t currentTotalFrames = atomic_load_explicit(&_totalFramesCount, memory_order_relaxed);
@@ -160,6 +177,10 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 }
 
 - (void)appWillResignActiveNotification:(NSNotification *)notification {
+  // Pause the display link when the app goes to background to conserve battery
+  _displayLink.paused = YES;
+  _previousTimestamp = kFPRInvalidTime;
+
   // To get the most accurate numbers of total, frozen and slow frames, we need to capture them as
   // soon as we're notified of an event.
   int64_t currentTotalFrames = atomic_load_explicit(&_totalFramesCount, memory_order_relaxed);
@@ -186,11 +207,23 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 #pragma mark - Frozen, slow and good frames
 
 - (void)displayLinkStep {
-  static CFAbsoluteTime previousTimestamp = kFPRInvalidTime;
   CFAbsoluteTime currentTimestamp = self.displayLink.timestamp;
-  RecordFrameType(currentTimestamp, previousTimestamp, &_slowFramesCount, &_frozenFramesCount,
-                  &_totalFramesCount);
-  previousTimestamp = currentTimestamp;
+
+  CFTimeInterval actualFrameDuration =
+      self.displayLink.targetTimestamp - self.displayLink.timestamp;
+
+  // Defensive: skip classification when frame budget is zero/negative (e.g., lifecycle/VRR edges)
+  if (actualFrameDuration <= 0) {
+    _previousTimestamp = currentTimestamp;
+    return;
+  }
+
+  // Dynamic thresholds: slow if frameDuration > frameBudget; frozen if frameDuration > 42 *
+  // frameBudget. frameBudget is derived from CADisplayLink targetTimestamp - timestamp and adapts
+  // to VRR/50/60/120 Hz.
+  RecordFrameType(currentTimestamp, _previousTimestamp, actualFrameDuration, &_slowFramesCount,
+                  &_frozenFramesCount, &_totalFramesCount);
+  _previousTimestamp = currentTimestamp;
 }
 
 /** This function increments the relevant frame counters based on the current and previous
@@ -198,6 +231,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
  *
  *  @param currentTimestamp The current timestamp of the displayLink.
  *  @param previousTimestamp The previous timestamp of the displayLink.
+ *  @param actualFrameDuration The actual frame duration calculated from CADisplayLink's
+ * targetTimestamp and timestamp.
  *  @param slowFramesCounter The value of the slowFramesCount before this function was called.
  *  @param frozenFramesCounter The value of the frozenFramesCount before this function was called.
  *  @param totalFramesCounter The value of the totalFramesCount before this function was called.
@@ -205,19 +240,26 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 FOUNDATION_STATIC_INLINE
 void RecordFrameType(CFAbsoluteTime currentTimestamp,
                      CFAbsoluteTime previousTimestamp,
+                     CFTimeInterval actualFrameDuration,
                      atomic_int_fast64_t *slowFramesCounter,
                      atomic_int_fast64_t *frozenFramesCounter,
                      atomic_int_fast64_t *totalFramesCounter) {
   CFTimeInterval frameDuration = currentTimestamp - previousTimestamp;
-  if (previousTimestamp == kFPRInvalidTime) {
+  if (previousTimestamp == kFPRInvalidTime || actualFrameDuration <= 0 || frameDuration <= 0) {
     return;
   }
-  if (frameDuration > kFPRSlowFrameThreshold) {
+
+  // Dynamic thresholds: classify against the runtime-derived frame budget.
+  // Slow: frameDuration > actualFrameDuration; Frozen: frameDuration > (42 * actualFrameDuration).
+  if (frameDuration > actualFrameDuration) {
     atomic_fetch_add_explicit(slowFramesCounter, 1, memory_order_relaxed);
   }
-  if (frameDuration > kFPRFrozenFrameThreshold) {
+
+  CFTimeInterval frozenThreshold = kFPRFrozenFrameMultiplier * actualFrameDuration;
+  if (frameDuration > frozenThreshold) {
     atomic_fetch_add_explicit(frozenFramesCounter, 1, memory_order_relaxed);
   }
+
   atomic_fetch_add_explicit(totalFramesCounter, 1, memory_order_relaxed);
 }
 
