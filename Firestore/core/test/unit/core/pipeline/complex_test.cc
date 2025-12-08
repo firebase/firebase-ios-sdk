@@ -64,12 +64,12 @@ using testutil::AddExpr;
 using testutil::AndExpr;
 using testutil::ArrayContainsAnyExpr;
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
-using testutil::GtExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
-using testutil::NeqExpr;
+using testutil::EqualExpr;
+using testutil::GreaterThanExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 using testutil::NotEqAnyExpr;
+using testutil::NotEqualExpr;
 using testutil::OrExpr;
 using testutil::Value;
 
@@ -129,8 +129,8 @@ TEST_F(ComplexPipelineTest, WhereWithMaxNumberOfStages) {
   for (int i = 1; i <= num_of_fields; ++i) {
     std::string field_name = "field_" + std::to_string(i);
     pipeline = pipeline.AddingStage(std::make_shared<Where>(
-        GtExpr({std::make_shared<Field>(field_name),
-                SharedConstant(static_cast<int64_t>(0LL))})));
+        GreaterThanExpr({std::make_shared<Field>(field_name),
+                         SharedConstant(static_cast<int64_t>(0LL))})));
   }
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -391,7 +391,7 @@ TEST_F(ComplexPipelineTest, WhereWithNestedAddFunctionMaxDepth) {
 
   RealtimePipeline pipeline = StartPipeline("/" + COLLECTION_ID);
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GtExpr({add_func, SharedConstant(static_cast<int64_t>(0LL))})));
+      GreaterThanExpr({add_func, SharedConstant(static_cast<int64_t>(0LL))})));
 
   // Since field_1 starts at 0, adding 1 repeatedly will always result in > 0
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -410,8 +410,8 @@ TEST_F(ComplexPipelineTest, WhereWithLargeNumberOrs) {
   or_conditions.reserve(num_of_fields);
   for (int i = 1; i <= num_of_fields; ++i) {
     std::string field_name = "field_" + std::to_string(i);
-    // Use LteExpr to match the TS test logic
-    or_conditions.push_back(LteExpr(
+    // Use LessThanOrEqualExpr to match the TS test logic
+    or_conditions.push_back(LessThanOrEqualExpr(
         {std::make_shared<Field>(field_name), SharedConstant(max_value)}));
   }
 
@@ -439,12 +439,12 @@ TEST_F(ComplexPipelineTest, WhereWithLargeNumberOfConjunctions) {
   for (int i = 1; i <= num_of_fields; ++i) {
     std::string field_name = "field_" + std::to_string(i);
     and_conditions1.push_back(
-        GtExpr({std::make_shared<Field>(field_name),
-                SharedConstant(static_cast<int64_t>(0LL))}));
-    // Use LtExpr and a large number for the second condition
+        GreaterThanExpr({std::make_shared<Field>(field_name),
+                         SharedConstant(static_cast<int64_t>(0LL))}));
+    // Use LessThanExpr and a large number for the second condition
     and_conditions2.push_back(
-        LtExpr({std::make_shared<Field>(field_name),
-                SharedConstant(std::numeric_limits<int64_t>::max())}));
+        LessThanExpr({std::make_shared<Field>(field_name),
+                      SharedConstant(std::numeric_limits<int64_t>::max())}));
   }
 
   RealtimePipeline pipeline = StartPipeline("/" + COLLECTION_ID);

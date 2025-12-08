@@ -71,16 +71,16 @@ using testutil::ArrayContainsAnyExpr;
 using testutil::ArrayContainsExpr;
 using testutil::DivideExpr;
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
+using testutil::EqualExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
 using testutil::IsNanExpr;
 using testutil::IsNullExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 using testutil::LikeExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
-using testutil::NeqExpr;
 using testutil::NotEqAnyExpr;
+using testutil::NotEqualExpr;
 using testutil::NotExpr;
 using testutil::OrExpr;
 using testutil::XorExpr;
@@ -103,8 +103,8 @@ TEST_F(InequalityPipelineTest, GreaterThan) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(GreaterThanExpr(
+      {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc3));
 }
@@ -116,8 +116,9 @@ TEST_F(InequalityPipelineTest, GreaterThanOrEqual) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(GteExpr(
-      {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(GreaterThanOrEqualExpr(
+          {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc3));
@@ -130,8 +131,8 @@ TEST_F(InequalityPipelineTest, LessThan) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      LtExpr({std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(LessThanExpr(
+      {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc2));
 }
@@ -143,7 +144,7 @@ TEST_F(InequalityPipelineTest, LessThanOrEqual) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(LteExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(LessThanOrEqualExpr(
       {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -157,7 +158,7 @@ TEST_F(InequalityPipelineTest, NotEqual) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(NeqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
       {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -187,7 +188,7 @@ TEST_F(InequalityPipelineTest, NotEqualReturnsMixedTypes) {
                                          doc5, doc6, doc7, doc8};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(NeqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotEqualExpr(
       {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
 
   // Neq returns true for different types.
@@ -212,8 +213,8 @@ TEST_F(InequalityPipelineTest, ComparisonHasImplicitBound) {
                                          doc5, doc6, doc7, doc8};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(42LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(GreaterThanExpr(
+      {std::make_shared<Field>("score"), SharedConstant(Value(42LL))})));
 
   // Only numeric types greater than 42 are matched.
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc2));
@@ -248,11 +249,12 @@ TEST_F(InequalityPipelineTest, NotComparisonReturnsMixedType) {
                                          doc5, doc6, doc7, doc8};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(NotExpr(GtExpr(
-      {std::make_shared<Field>("score"), SharedConstant(Value(90LL))}))));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(NotExpr(GreaterThanExpr(
+          {std::make_shared<Field>("score"), SharedConstant(Value(90LL))}))));
 
   // NOT (score > 90). Comparison is only true for score=100.0. NOT flips it.
-  // Type mismatches result in false for GtExpr, NOT flips to true.
+  // Type mismatches result in false for GreaterThanExpr, NOT flips to true.
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc3, doc4, doc5, doc6, doc7, doc8));
 }
@@ -269,8 +271,8 @@ TEST_F(InequalityPipelineTest, InequalityWithEqualityOnDifferentField) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {EqExpr({std::make_shared<Field>("rank"), SharedConstant(Value(2LL))}),
-       GtExpr(
+      {EqualExpr({std::make_shared<Field>("rank"), SharedConstant(Value(2LL))}),
+       GreaterThanExpr(
            {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
@@ -284,10 +286,11 @@ TEST_F(InequalityPipelineTest, InequalityWithEqualityOnSameField) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {EqExpr({std::make_shared<Field>("score"), SharedConstant(Value(90LL))}),
-       GtExpr(
-           {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({EqualExpr({std::make_shared<Field>("score"),
+                          SharedConstant(Value(90LL))}),
+               GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(80LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
 }
@@ -299,8 +302,9 @@ TEST_F(InequalityPipelineTest, WithSortOnSameField) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(GteExpr(
-      {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(GreaterThanOrEqualExpr(
+          {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("score"), Ordering::Direction::ASCENDING)}));
@@ -316,8 +320,9 @@ TEST_F(InequalityPipelineTest, WithSortOnDifferentFields) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(GteExpr(
-      {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(GreaterThanOrEqualExpr(
+          {std::make_shared<Field>("score"), SharedConstant(Value(90LL))})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("rank"), Ordering::Direction::ASCENDING)}));
@@ -335,10 +340,11 @@ TEST_F(InequalityPipelineTest, WithOrOnSingleField) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(90LL))}),
-       LtExpr(
-           {std::make_shared<Field>("score"), SharedConstant(Value(60LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({GreaterThanExpr({std::make_shared<Field>("score"),
+                               SharedConstant(Value(90LL))}),
+              LessThanExpr({std::make_shared<Field>("score"),
+                            SharedConstant(Value(60LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc2, doc3));
@@ -355,10 +361,11 @@ TEST_F(InequalityPipelineTest, WithOrOnDifferentFields) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(80LL))}),
-       LtExpr(
-           {std::make_shared<Field>("rank"), SharedConstant(Value(2LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({GreaterThanExpr({std::make_shared<Field>("score"),
+                               SharedConstant(Value(80LL))}),
+              LessThanExpr({std::make_shared<Field>("rank"),
+                            SharedConstant(Value(2LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc3));
@@ -375,7 +382,8 @@ TEST_F(InequalityPipelineTest, WithEqAnyOnSingleField) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(80LL))}),
+      {GreaterThanExpr(
+           {std::make_shared<Field>("score"), SharedConstant(Value(80LL))}),
        EqAnyExpr(
            std::make_shared<Field>("score"),
            SharedConstant(Array(Value(50LL), Value(80LL), Value(97LL))))})));
@@ -396,7 +404,8 @@ TEST_F(InequalityPipelineTest, WithEqAnyOnDifferentFields) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
+      {LessThanExpr(
+           {std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
        EqAnyExpr(
            std::make_shared<Field>("score"),
            SharedConstant(Array(Value(50LL), Value(80LL), Value(97LL))))})));
@@ -415,7 +424,8 @@ TEST_F(InequalityPipelineTest, WithNotEqAnyOnSingleField) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(80LL))}),
+      {GreaterThanExpr(
+           {std::make_shared<Field>("score"), SharedConstant(Value(80LL))}),
        NotEqAnyExpr(std::make_shared<Field>("score"),
                     SharedConstant(Array(Value(90LL), Value(95LL))))})));
 
@@ -488,7 +498,8 @@ TEST_F(InequalityPipelineTest, WithNotEqAnyOnDifferentFields) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
+      {LessThanExpr(
+           {std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
        NotEqAnyExpr(std::make_shared<Field>("score"),
                     SharedConstant(Array(Value(90LL), Value(95LL))))})));
 
@@ -510,8 +521,8 @@ TEST_F(InequalityPipelineTest, SortByEquality) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {EqExpr({std::make_shared<Field>("rank"), SharedConstant(Value(2LL))}),
-       GtExpr(
+      {EqualExpr({std::make_shared<Field>("rank"), SharedConstant(Value(2LL))}),
+       GreaterThanExpr(
            {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
   pipeline = pipeline.AddingStage(std::make_shared<SortStage>(
       std::vector<Ordering>{Ordering(std::make_unique<Field>("rank"),
@@ -539,7 +550,7 @@ TEST_F(InequalityPipelineTest, WithEqAnySortByEquality) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {EqAnyExpr(std::make_shared<Field>("rank"),
                  SharedConstant(Array(Value(2LL), Value(3LL), Value(4LL)))),
-       GtExpr(
+       GreaterThanExpr(
            {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
   pipeline = pipeline.AddingStage(std::make_shared<SortStage>(
       std::vector<Ordering>{Ordering(std::make_unique<Field>("rank"),
@@ -567,10 +578,11 @@ TEST_F(InequalityPipelineTest, WithArray) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LteExpr({std::make_shared<Field>("scores"),
-                SharedConstant(Array(Value(90LL), Value(90LL), Value(90LL)))}),
-       GtExpr({std::make_shared<Field>("rounds"),
-               SharedConstant(Array(Value(1LL), Value(2LL)))})})));
+      {LessThanOrEqualExpr(
+           {std::make_shared<Field>("scores"),
+            SharedConstant(Array(Value(90LL), Value(90LL), Value(90LL)))}),
+       GreaterThanExpr({std::make_shared<Field>("rounds"),
+                        SharedConstant(Array(Value(1LL), Value(2LL)))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
 }
@@ -597,8 +609,9 @@ TEST_F(InequalityPipelineTest,
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr({
-      LteExpr({std::make_shared<Field>("scores"),
-               SharedConstant(Array(Value(90LL), Value(90LL), Value(90LL)))}),
+      LessThanOrEqualExpr(
+          {std::make_shared<Field>("scores"),
+           SharedConstant(Array(Value(90LL), Value(90LL), Value(90LL)))}),
       ArrayContainsExpr(
           {std::make_shared<Field>("rounds"),
            SharedConstant(Value(3LL))})  // TS used ArrayContains here
@@ -616,8 +629,8 @@ TEST_F(InequalityPipelineTest, WithSortAndLimit) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(80LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(GreaterThanExpr(
+      {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("rank"), Ordering::Direction::ASCENDING)}));
@@ -636,10 +649,11 @@ TEST_F(InequalityPipelineTest, MultipleInequalitiesOnSingleField) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(90LL))}),
-       LtExpr({std::make_shared<Field>("score"),
-               SharedConstant(Value(100LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(90LL))}),
+               LessThanExpr({std::make_shared<Field>("score"),
+                             SharedConstant(Value(100LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc3));
 }
@@ -656,10 +670,11 @@ TEST_F(InequalityPipelineTest,
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(90LL))}),
-       LtExpr(
-           {std::make_shared<Field>("rank"), SharedConstant(Value(2LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(90LL))}),
+               LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(2LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc3));
 }
@@ -677,10 +692,11 @@ TEST_F(InequalityPipelineTest,
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(80LL))}),
-       LtExpr(
-           {std::make_shared<Field>("rank"), SharedConstant(Value(3LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(80LL))}),
+               LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(3LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc3));
@@ -699,10 +715,11 @@ TEST_F(InequalityPipelineTest, MultipleInequalitiesOnDifferentFieldsAllMatch) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(40LL))}),
-       LtExpr(
-           {std::make_shared<Field>("rank"), SharedConstant(Value(4LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(40LL))}),
+               LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(4LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc2, doc3));
@@ -718,10 +735,11 @@ TEST_F(InequalityPipelineTest, MultipleInequalitiesOnDifferentFieldsNoMatch) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("score"), SharedConstant(Value(90LL))}),
-       GtExpr(
-           {std::make_shared<Field>("rank"), SharedConstant(Value(3LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({LessThanExpr({std::make_shared<Field>("score"),
+                             SharedConstant(Value(90LL))}),
+               GreaterThanExpr({std::make_shared<Field>("rank"),
+                                SharedConstant(Value(3LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre());
 }
@@ -739,12 +757,15 @@ TEST_F(InequalityPipelineTest, MultipleInequalitiesWithBoundedRanges) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {GtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(0LL))}),
-       LtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(4LL))}),
-       GtExpr({std::make_shared<Field>("score"), SharedConstant(Value(80LL))}),
-       LtExpr(
-           {std::make_shared<Field>("score"), SharedConstant(Value(95LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({GreaterThanExpr({std::make_shared<Field>("rank"),
+                                SharedConstant(Value(0LL))}),
+               LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(4LL))}),
+               GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(80LL))}),
+               LessThanExpr({std::make_shared<Field>("score"),
+                             SharedConstant(Value(95LL))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc1));
 }
@@ -758,10 +779,11 @@ TEST_F(InequalityPipelineTest, MultipleInequalitiesWithSingleSortAsc) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
-       GtExpr(
-           {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(3LL))}),
+               GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(80LL))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("rank"), Ordering::Direction::ASCENDING)}));
@@ -778,10 +800,11 @@ TEST_F(InequalityPipelineTest, MultipleInequalitiesWithSingleSortDesc) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
-       GtExpr(
-           {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(3LL))}),
+               GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(80LL))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("rank"), Ordering::Direction::DESCENDING)}));
@@ -798,10 +821,11 @@ TEST_F(InequalityPipelineTest, MultipleInequalitiesWithMultipleSortAsc) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
-       GtExpr(
-           {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(3LL))}),
+               GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(80LL))})})));
   pipeline = pipeline.AddingStage(std::make_shared<SortStage>(
       std::vector<Ordering>{Ordering(std::make_unique<Field>("rank"),
                                      Ordering::Direction::ASCENDING),
@@ -820,10 +844,11 @@ TEST_F(InequalityPipelineTest, MultipleInequalitiesWithMultipleSortDesc) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
-       GtExpr(
-           {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(3LL))}),
+               GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(80LL))})})));
   pipeline = pipeline.AddingStage(std::make_shared<SortStage>(
       std::vector<Ordering>{Ordering(std::make_unique<Field>("rank"),
                                      Ordering::Direction::DESCENDING),
@@ -843,10 +868,11 @@ TEST_F(InequalityPipelineTest,
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("rank"), SharedConstant(Value(3LL))}),
-       GtExpr(
-           {std::make_shared<Field>("score"), SharedConstant(Value(80LL))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({LessThanExpr({std::make_shared<Field>("rank"),
+                             SharedConstant(Value(3LL))}),
+               GreaterThanExpr({std::make_shared<Field>("score"),
+                                SharedConstant(Value(80LL))})})));
   pipeline = pipeline.AddingStage(std::make_shared<SortStage>(
       std::vector<Ordering>{Ordering(std::make_unique<Field>("score"),
                                      Ordering::Direction::DESCENDING),

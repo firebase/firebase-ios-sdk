@@ -70,16 +70,16 @@ using testutil::ArrayContainsAnyExpr;
 using testutil::ArrayContainsExpr;
 using testutil::DivideExpr;
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
+using testutil::EqualExpr;
 using testutil::ExistsExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
 using testutil::IsNanExpr;
 using testutil::IsNullExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 // using testutil::NeqAnyExpr; // Not used
-using testutil::NeqExpr;
+using testutil::NotEqualExpr;
 using testutil::NotExpr;
 using testutil::OrExpr;
 using testutil::RegexMatchExpr;  // For 'like'
@@ -105,8 +105,9 @@ class WherePipelineTest : public ::testing::Test {
 TEST_F(WherePipelineTest, EmptyDatabaseReturnsNoResults) {
   PipelineInputOutputVector documents = {};
   RealtimePipeline pipeline = StartDatabasePipeline();
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GteExpr({std::make_shared<Field>("age"), SharedConstant(Value(10LL))})));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(GreaterThanOrEqualExpr(
+          {std::make_shared<Field>("age"), SharedConstant(Value(10LL))})));
   EXPECT_THAT(RunPipeline(pipeline, documents), IsEmpty());
 }
 
@@ -120,10 +121,11 @@ TEST_F(WherePipelineTest, DuplicateConditions) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartDatabasePipeline();
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
-      {GteExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       GteExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(20.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      AndExpr({GreaterThanOrEqualExpr({std::make_shared<Field>("age"),
+                                       SharedConstant(Value(10.0))}),
+               GreaterThanOrEqualExpr({std::make_shared<Field>("age"),
+                                       SharedConstant(Value(20.0))})})));
 
   // Note: TS test expected [doc1, doc2, doc3]. Let's re-evaluate based on C++
   // types. age >= 10.0 AND age >= 20.0 => age >= 20.0 Matches: doc1 (75.5),
@@ -138,12 +140,12 @@ TEST_F(WherePipelineTest, LogicalEquivalentConditionEqual) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline1 = StartDatabasePipeline();
-  pipeline1 = pipeline1.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(25.0))})));
+  pipeline1 = pipeline1.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("age"), SharedConstant(Value(25.0))})));
 
   RealtimePipeline pipeline2 = StartDatabasePipeline();
-  pipeline2 = pipeline2.AddingStage(std::make_shared<Where>(
-      EqExpr({SharedConstant(Value(25.0)), std::make_shared<Field>("age")})));
+  pipeline2 = pipeline2.AddingStage(std::make_shared<Where>(EqualExpr(
+      {SharedConstant(Value(25.0)), std::make_shared<Field>("age")})));
 
   auto result1 = RunPipeline(pipeline1, documents);
   auto result2 = RunPipeline(pipeline2, documents);
@@ -159,16 +161,18 @@ TEST_F(WherePipelineTest, LogicalEquivalentConditionAnd) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline1 = StartDatabasePipeline();
-  pipeline1 = pipeline1.AddingStage(std::make_shared<Where>(AndExpr(
-      {GtExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       LtExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(70.0))})})));
+  pipeline1 = pipeline1.AddingStage(std::make_shared<Where>(
+      AndExpr({GreaterThanExpr({std::make_shared<Field>("age"),
+                                SharedConstant(Value(10.0))}),
+               LessThanExpr({std::make_shared<Field>("age"),
+                             SharedConstant(Value(70.0))})})));
 
   RealtimePipeline pipeline2 = StartDatabasePipeline();
-  pipeline2 = pipeline2.AddingStage(std::make_shared<Where>(AndExpr(
-      {LtExpr({std::make_shared<Field>("age"), SharedConstant(Value(70.0))}),
-       GtExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
+  pipeline2 = pipeline2.AddingStage(std::make_shared<Where>(
+      AndExpr({LessThanExpr({std::make_shared<Field>("age"),
+                             SharedConstant(Value(70.0))}),
+               GreaterThanExpr({std::make_shared<Field>("age"),
+                                SharedConstant(Value(10.0))})})));
 
   auto result1 = RunPipeline(pipeline1, documents);
   auto result2 = RunPipeline(pipeline2, documents);
@@ -185,16 +189,18 @@ TEST_F(WherePipelineTest, LogicalEquivalentConditionOr) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   RealtimePipeline pipeline1 = StartDatabasePipeline();
-  pipeline1 = pipeline1.AddingStage(std::make_shared<Where>(OrExpr(
-      {LtExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       GtExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(80.0))})})));
+  pipeline1 = pipeline1.AddingStage(std::make_shared<Where>(
+      OrExpr({LessThanExpr({std::make_shared<Field>("age"),
+                            SharedConstant(Value(10.0))}),
+              GreaterThanExpr({std::make_shared<Field>("age"),
+                               SharedConstant(Value(80.0))})})));
 
   RealtimePipeline pipeline2 = StartDatabasePipeline();
-  pipeline2 = pipeline2.AddingStage(std::make_shared<Where>(OrExpr(
-      {GtExpr({std::make_shared<Field>("age"), SharedConstant(Value(80.0))}),
-       LtExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
+  pipeline2 = pipeline2.AddingStage(std::make_shared<Where>(
+      OrExpr({GreaterThanExpr({std::make_shared<Field>("age"),
+                               SharedConstant(Value(80.0))}),
+              LessThanExpr({std::make_shared<Field>("age"),
+                            SharedConstant(Value(10.0))})})));
 
   auto result1 = RunPipeline(pipeline1, documents);
   auto result2 = RunPipeline(pipeline2, documents);
@@ -239,10 +245,12 @@ TEST_F(WherePipelineTest, RepeatedStages) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartDatabasePipeline();
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GteExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))})));
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GteExpr({std::make_shared<Field>("age"), SharedConstant(Value(20.0))})));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(GreaterThanOrEqualExpr(
+          {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})));
+  pipeline =
+      pipeline.AddingStage(std::make_shared<Where>(GreaterThanOrEqualExpr(
+          {std::make_shared<Field>("age"), SharedConstant(Value(20.0))})));
 
   // age >= 10.0 THEN age >= 20.0 => age >= 20.0
   // Matches: doc1 (75.5), doc2 (25.0), doc3 (100.0)
@@ -260,9 +268,9 @@ TEST_F(WherePipelineTest, CompositeEqualities) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(75LL))})));
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("age"), SharedConstant(Value(75LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
       {std::make_shared<Field>("height"), SharedConstant(Value(55LL))})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc3));
@@ -277,9 +285,9 @@ TEST_F(WherePipelineTest, CompositeInequalities) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GtExpr({std::make_shared<Field>("age"), SharedConstant(Value(50LL))})));
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(LtExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(GreaterThanExpr(
+      {std::make_shared<Field>("age"), SharedConstant(Value(50LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(LessThanExpr(
       {std::make_shared<Field>("height"), SharedConstant(Value(75LL))})));
 
   // age > 50 AND height < 75
@@ -337,9 +345,9 @@ TEST_F(WherePipelineTest, CompositeMixed) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(75LL))})));
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(GtExpr(
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("age"), SharedConstant(Value(75LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(GreaterThanExpr(
       {std::make_shared<Field>("height"), SharedConstant(Value(45LL))})));
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
       RegexMatchExpr(std::make_shared<Field>("last"),
@@ -610,9 +618,9 @@ TEST_F(WherePipelineTest, AndExpressionLogicallyEquivalentToSeparatedStages) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3};
 
   auto equalityArgument1 =
-      EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(1LL))});
+      EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(1LL))});
   auto equalityArgument2 =
-      EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(2LL))});
+      EqualExpr({std::make_shared<Field>("b"), SharedConstant(Value(2LL))});
 
   // Combined AND
   RealtimePipeline pipeline_and_1 = StartDatabasePipeline();

@@ -65,16 +65,16 @@ using testutil::ArrayContainsAllExpr;
 using testutil::ArrayContainsAnyExpr;
 using testutil::ArrayContainsExpr;
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
+using testutil::EqualExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
 using testutil::IsNanExpr;
 using testutil::IsNullExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 using testutil::LikeExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
-using testutil::NeqExpr;
 using testutil::NotEqAnyExpr;
+using testutil::NotEqualExpr;
 using testutil::NotExpr;
 using testutil::OrExpr;
 using testutil::XorExpr;
@@ -261,7 +261,7 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithAdditionalEqualityDifferentFields) {
            std::make_shared<Field>("name"),
            SharedConstant(Array(Value("alice"), Value("bob"), Value("charlie"),
                                 Value("diane"), Value("eric")))),
-       EqExpr(
+       EqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
@@ -283,8 +283,8 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithAdditionalEqualitySameField) {
       AndExpr({EqAnyExpr(std::make_shared<Field>("name"),
                          SharedConstant(Array(Value("alice"), Value("diane"),
                                               Value("eric")))),
-               EqExpr({std::make_shared<Field>("name"),
-                       SharedConstant(Value("eric"))})})));
+               EqualExpr({std::make_shared<Field>("name"),
+                          SharedConstant(Value("eric"))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc5));
 }
@@ -300,8 +300,8 @@ TEST_F(DisjunctivePipelineTest,
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
       AndExpr({EqAnyExpr(std::make_shared<Field>("name"),
                          SharedConstant(Array(Value("alice"), Value("bob")))),
-               EqExpr({std::make_shared<Field>("name"),
-                       SharedConstant(Value("other"))})})));
+               EqualExpr({std::make_shared<Field>("name"),
+                          SharedConstant(Value("other"))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               ElementsAre());  // Expect empty result
@@ -321,8 +321,9 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithInequalitiesExclusiveRange) {
       {EqAnyExpr(std::make_shared<Field>("name"),
                  SharedConstant(Array(Value("alice"), Value("bob"),
                                       Value("charlie"), Value("diane")))),
-       GtExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       LtExpr(
+       GreaterThanExpr(
+           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
+       LessThanExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -343,8 +344,9 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithInequalitiesInclusiveRange) {
       {EqAnyExpr(std::make_shared<Field>("name"),
                  SharedConstant(Array(Value("alice"), Value("bob"),
                                       Value("charlie"), Value("diane")))),
-       GteExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       LteExpr(
+       GreaterThanOrEqualExpr(
+           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
+       LessThanOrEqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -365,8 +367,9 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithInequalitiesAndSort) {
       {EqAnyExpr(std::make_shared<Field>("name"),
                  SharedConstant(Array(Value("alice"), Value("bob"),
                                       Value("charlie"), Value("diane")))),
-       GtExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       LtExpr(
+       GreaterThanExpr(
+           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
+       LessThanExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
@@ -389,7 +392,7 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithNotEqual) {
       {EqAnyExpr(std::make_shared<Field>("name"),
                  SharedConstant(Array(Value("alice"), Value("bob"),
                                       Value("charlie"), Value("diane")))),
-       NeqExpr(
+       NotEqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -456,7 +459,7 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithExtraEqualitySortOnEqAnyField) {
            std::make_shared<Field>("name"),
            SharedConstant(Array(Value("alice"), Value("bob"), Value("charlie"),
                                 Value("diane"), Value("eric")))),
-       EqExpr(
+       EqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
@@ -479,7 +482,7 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithExtraEqualitySortOnEquality) {
            std::make_shared<Field>("name"),
            SharedConstant(Array(Value("alice"), Value("bob"), Value("charlie"),
                                 Value("diane"), Value("eric")))),
-       EqExpr(
+       EqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
@@ -505,7 +508,7 @@ TEST_F(DisjunctivePipelineTest, EqAnyWithInequalityOnSameField) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {EqAnyExpr(std::make_shared<Field>("age"),
                  SharedConstant(Array(Value(10.0), Value(25.0), Value(100.0)))),
-       GtExpr(
+       GreaterThanExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(20.0))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -531,7 +534,7 @@ TEST_F(
       {EqAnyExpr(std::make_shared<Field>("name"),
                  SharedConstant(Array(Value("alice"), Value("bob"),
                                       Value("charlie"), Value("diane")))),
-       GtExpr(
+       GreaterThanExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(20.0))})})));
   // Sort field is 'age', which is the inequality field, not the EqAny field
   // 'name'. The TS test name seems misleading based on the sort field used.
@@ -700,8 +703,9 @@ TEST_F(DisjunctivePipelineTest, ArrayContainsAnyWithInequality) {
        // Note: Comparing an array field with an array constant using LT might
        // not behave as expected in Firestore backend queries. This test
        // replicates the TS behavior for pipeline evaluation.
-       LtExpr({std::make_shared<Field>("groups"),
-               SharedConstant(Array(Value(3LL), Value(4LL), Value(5LL)))})})));
+       LessThanExpr(
+           {std::make_shared<Field>("groups"),
+            SharedConstant(Array(Value(3LL), Value(4LL), Value(5LL)))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc1, doc2, doc4));
@@ -745,10 +749,11 @@ TEST_F(DisjunctivePipelineTest, BasicOr) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr({std::make_shared<Field>("name"), SharedConstant(Value("bob"))}),
-       EqExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                         SharedConstant(Value("bob"))}),
+              EqualExpr({std::make_shared<Field>("age"),
+                         SharedConstant(Value(10.0))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc2, doc4));
@@ -763,11 +768,12 @@ TEST_F(DisjunctivePipelineTest, MultipleOr) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr({std::make_shared<Field>("name"), SharedConstant(Value("bob"))}),
-       EqExpr(
+      {EqualExpr(
+           {std::make_shared<Field>("name"), SharedConstant(Value("bob"))}),
+       EqualExpr(
            {std::make_shared<Field>("name"), SharedConstant(Value("diane"))}),
-       EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(25.0))}),
-       EqExpr(
+       EqualExpr({std::make_shared<Field>("age"), SharedConstant(Value(25.0))}),
+       EqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
@@ -782,15 +788,16 @@ TEST_F(DisjunctivePipelineTest, OrMultipleStages) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr({std::make_shared<Field>("name"), SharedConstant(Value("bob"))}),
-       EqExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      OrExpr({EqExpr({std::make_shared<Field>("name"),
-                      SharedConstant(Value("diane"))}),
-              EqExpr({std::make_shared<Field>("age"),
-                      SharedConstant(Value(100.0))})})));
+      OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                         SharedConstant(Value("bob"))}),
+              EqualExpr({std::make_shared<Field>("age"),
+                         SharedConstant(Value(10.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                         SharedConstant(Value("diane"))}),
+              EqualExpr({std::make_shared<Field>("age"),
+                         SharedConstant(Value(100.0))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc4));
 }
@@ -804,14 +811,14 @@ TEST_F(DisjunctivePipelineTest, OrTwoConjunctions) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      OrExpr({AndExpr({EqExpr({std::make_shared<Field>("name"),
-                               SharedConstant(Value("bob"))}),
-                       EqExpr({std::make_shared<Field>("age"),
-                               SharedConstant(Value(25.0))})}),
-              AndExpr({EqExpr({std::make_shared<Field>("name"),
-                               SharedConstant(Value("diane"))}),
-                       EqExpr({std::make_shared<Field>("age"),
-                               SharedConstant(Value(10.0))})})})));
+      OrExpr({AndExpr({EqualExpr({std::make_shared<Field>("name"),
+                                  SharedConstant(Value("bob"))}),
+                       EqualExpr({std::make_shared<Field>("age"),
+                                  SharedConstant(Value(25.0))})}),
+              AndExpr({EqualExpr({std::make_shared<Field>("name"),
+                                  SharedConstant(Value("diane"))}),
+                       EqualExpr({std::make_shared<Field>("age"),
+                                  SharedConstant(Value(10.0))})})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc2, doc4));
@@ -826,12 +833,12 @@ TEST_F(DisjunctivePipelineTest, OrWithInAnd) {  // Renamed from TS: or_withInAnd
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      AndExpr({OrExpr({EqExpr({std::make_shared<Field>("name"),
-                               SharedConstant(Value("bob"))}),
-                       EqExpr({std::make_shared<Field>("age"),
-                               SharedConstant(Value(10.0))})}),
-               LtExpr({std::make_shared<Field>("age"),
-                       SharedConstant(Value(80.0))})})));
+      AndExpr({OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                                  SharedConstant(Value("bob"))}),
+                       EqualExpr({std::make_shared<Field>("age"),
+                                  SharedConstant(Value(10.0))})}),
+               LessThanExpr({std::make_shared<Field>("age"),
+                             SharedConstant(Value(80.0))})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc2, doc4));
@@ -846,14 +853,14 @@ TEST_F(DisjunctivePipelineTest, AndOfTwoOrs) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      AndExpr({OrExpr({EqExpr({std::make_shared<Field>("name"),
-                               SharedConstant(Value("bob"))}),
-                       EqExpr({std::make_shared<Field>("age"),
-                               SharedConstant(Value(10.0))})}),
-               OrExpr({EqExpr({std::make_shared<Field>("name"),
-                               SharedConstant(Value("diane"))}),
-                       EqExpr({std::make_shared<Field>("age"),
-                               SharedConstant(Value(100.0))})})})));
+      AndExpr({OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                                  SharedConstant(Value("bob"))}),
+                       EqualExpr({std::make_shared<Field>("age"),
+                                  SharedConstant(Value(10.0))})}),
+               OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                                  SharedConstant(Value("diane"))}),
+                       EqualExpr({std::make_shared<Field>("age"),
+                                  SharedConstant(Value(100.0))})})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc4));
 }
@@ -867,14 +874,14 @@ TEST_F(DisjunctivePipelineTest, OrOfTwoOrs) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      OrExpr({OrExpr({EqExpr({std::make_shared<Field>("name"),
-                              SharedConstant(Value("bob"))}),
-                      EqExpr({std::make_shared<Field>("age"),
-                              SharedConstant(Value(10.0))})}),
-              OrExpr({EqExpr({std::make_shared<Field>("name"),
-                              SharedConstant(Value("diane"))}),
-                      EqExpr({std::make_shared<Field>("age"),
-                              SharedConstant(Value(100.0))})})})));
+      OrExpr({OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                                 SharedConstant(Value("bob"))}),
+                      EqualExpr({std::make_shared<Field>("age"),
+                                 SharedConstant(Value(10.0))})}),
+              OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                                 SharedConstant(Value("diane"))}),
+                      EqualExpr({std::make_shared<Field>("age"),
+                                 SharedConstant(Value(100.0))})})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents),
               UnorderedElementsAre(doc2, doc3, doc4));
@@ -888,13 +895,14 @@ TEST_F(DisjunctivePipelineTest, OrWithEmptyRangeInOneDisjunction) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr({std::make_shared<Field>("name"), SharedConstant(Value("bob"))}),
-       AndExpr({// This conjunction will always be false
-                EqExpr({std::make_shared<Field>("age"),
-                        SharedConstant(Value(10.0))}),
-                GtExpr({std::make_shared<Field>("age"),
-                        SharedConstant(Value(20.0))})})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                         SharedConstant(Value("bob"))}),
+              AndExpr({// This conjunction will always be false
+                       EqualExpr({std::make_shared<Field>("age"),
+                                  SharedConstant(Value(10.0))}),
+                       GreaterThanExpr({std::make_shared<Field>("age"),
+                                        SharedConstant(Value(20.0))})})})));
 
   EXPECT_THAT(RunPipeline(pipeline, documents), ElementsAre(doc2));
 }
@@ -907,11 +915,11 @@ TEST_F(DisjunctivePipelineTest, OrWithSort) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(OrExpr({EqExpr({std::make_shared<Field>("name"),
-                                              SharedConstant(Value("diane"))}),
-                                      GtExpr({std::make_shared<Field>("age"),
-                                              SharedConstant(Value(20.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                         SharedConstant(Value("diane"))}),
+              GreaterThanExpr({std::make_shared<Field>("age"),
+                               SharedConstant(Value(20.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("age"), Ordering::Direction::ASCENDING)}));
@@ -929,10 +937,11 @@ TEST_F(DisjunctivePipelineTest, OrWithInequalityAndSortSameField) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {LtExpr({std::make_shared<Field>("age"), SharedConstant(Value(20.0))}),
-       GtExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(50.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({LessThanExpr({std::make_shared<Field>("age"),
+                            SharedConstant(Value(20.0))}),
+              GreaterThanExpr({std::make_shared<Field>("age"),
+                               SharedConstant(Value(50.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("age"), Ordering::Direction::ASCENDING)}));
@@ -949,10 +958,11 @@ TEST_F(DisjunctivePipelineTest, OrWithInequalityAndSortDifferentFields) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {LtExpr({std::make_shared<Field>("age"), SharedConstant(Value(20.0))}),
-       GtExpr(
-           {std::make_shared<Field>("age"), SharedConstant(Value(50.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({LessThanExpr({std::make_shared<Field>("age"),
+                            SharedConstant(Value(20.0))}),
+              GreaterThanExpr({std::make_shared<Field>("age"),
+                               SharedConstant(Value(50.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("name"), Ordering::Direction::ASCENDING)}));
@@ -975,10 +985,11 @@ TEST_F(DisjunctivePipelineTest, OrWithInequalityAndSortMultipleFields) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {LtExpr({std::make_shared<Field>("age"), SharedConstant(Value(80.0))}),
-       GtExpr({std::make_shared<Field>("height"),
-               SharedConstant(Value(160.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({LessThanExpr({std::make_shared<Field>("age"),
+                            SharedConstant(Value(80.0))}),
+              GreaterThanExpr({std::make_shared<Field>("height"),
+                               SharedConstant(Value(160.0))})})));
   pipeline =
       pipeline.AddingStage(std::make_shared<SortStage>(std::vector<Ordering>{
           Ordering(std::make_unique<Field>("age"),
@@ -1004,11 +1015,11 @@ TEST_F(DisjunctivePipelineTest, OrWithSortOnPartialMissingField) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(OrExpr({EqExpr({std::make_shared<Field>("name"),
-                                              SharedConstant(Value("diane"))}),
-                                      GtExpr({std::make_shared<Field>("age"),
-                                              SharedConstant(Value(20.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                         SharedConstant(Value("diane"))}),
+              GreaterThanExpr({std::make_shared<Field>("age"),
+                               SharedConstant(Value(20.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("age"), Ordering::Direction::ASCENDING)}));
@@ -1027,11 +1038,11 @@ TEST_F(DisjunctivePipelineTest, OrWithLimit) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4};
 
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(
-      std::make_shared<Where>(OrExpr({EqExpr({std::make_shared<Field>("name"),
-                                              SharedConstant(Value("diane"))}),
-                                      GtExpr({std::make_shared<Field>("age"),
-                                              SharedConstant(Value(20.0))})})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(
+      OrExpr({EqualExpr({std::make_shared<Field>("name"),
+                         SharedConstant(Value("diane"))}),
+              GreaterThanExpr({std::make_shared<Field>("age"),
+                               SharedConstant(Value(20.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("age"), Ordering::Direction::ASCENDING)}));
@@ -1059,7 +1070,7 @@ TEST_F(DisjunctivePipelineTest, OrIsNullAndEqOnSameField) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr({std::make_shared<Field>("a"), SharedConstant(Value(1LL))}),
+      {EqualExpr({std::make_shared<Field>("a"), SharedConstant(Value(1LL))}),
        IsNullExpr(std::make_shared<Field>("a"))})));
 
   // Expect docs where a==1 (doc1, doc2, doc3) or a is null (doc4)
@@ -1079,7 +1090,7 @@ TEST_F(DisjunctivePipelineTest, OrIsNullAndEqOnDifferentField) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(1LL))}),
+      {EqualExpr({std::make_shared<Field>("b"), SharedConstant(Value(1LL))}),
        IsNullExpr(std::make_shared<Field>("a"))})));
 
   // Expect docs where b==1 (doc3) or a is null (doc4)
@@ -1100,7 +1111,8 @@ TEST_F(DisjunctivePipelineTest, OrIsNotNullAndEqOnSameField) {
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr({
       // Note: TS test uses gt(1), C++ uses gt(1) here too.
-      GtExpr({std::make_shared<Field>("a"), SharedConstant(Value(1LL))}),
+      GreaterThanExpr(
+          {std::make_shared<Field>("a"), SharedConstant(Value(1LL))}),
       NotExpr(IsNullExpr(std::make_shared<Field>("a")))  // isNotNull
   })));
 
@@ -1122,7 +1134,7 @@ TEST_F(DisjunctivePipelineTest, OrIsNotNullAndEqOnDifferentField) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr({
-      EqExpr({std::make_shared<Field>("b"), SharedConstant(Value(1LL))}),
+      EqualExpr({std::make_shared<Field>("b"), SharedConstant(Value(1LL))}),
       NotExpr(IsNullExpr(std::make_shared<Field>("a")))  // isNotNull
   })));
 
@@ -1282,7 +1294,7 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithAdditionalEqualityDifferentFields) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {NotEqAnyExpr(std::make_shared<Field>("name"),
                     SharedConstant(Array(Value("alice"), Value("bob")))),
-       EqExpr(
+       EqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
 
   // Expect docs where name is not alice/bob (doc3, doc4, doc5) AND age is 10
@@ -1303,8 +1315,8 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithAdditionalEqualitySameField) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {NotEqAnyExpr(std::make_shared<Field>("name"),
                     SharedConstant(Array(Value("alice"), Value("diane")))),
-       EqExpr({std::make_shared<Field>("name"),
-               SharedConstant(Value("eric"))})})));
+       EqualExpr({std::make_shared<Field>("name"),
+                  SharedConstant(Value("eric"))})})));
 
   // Expect docs where name is not alice/diane (doc2, doc3, doc5) AND name is
   // eric (doc5)
@@ -1323,8 +1335,9 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithInequalitiesExclusiveRange) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {NotEqAnyExpr(std::make_shared<Field>("name"),
                     SharedConstant(Array(Value("alice"), Value("charlie")))),
-       GtExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       LtExpr(
+       GreaterThanExpr(
+           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
+       LessThanExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
 
   // Expect docs where name is not alice/charlie (doc2, doc4, doc5) AND age > 10
@@ -1345,8 +1358,9 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithInequalitiesInclusiveRange) {
       {NotEqAnyExpr(
            std::make_shared<Field>("name"),
            SharedConstant(Array(Value("alice"), Value("bob"), Value("eric")))),
-       GteExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       LteExpr(
+       GreaterThanOrEqualExpr(
+           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
+       LessThanOrEqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
 
   // Expect docs where name is not alice/bob/eric (doc3, doc4) AND age >= 10 AND
@@ -1367,8 +1381,9 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithInequalitiesAndSort) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {NotEqAnyExpr(std::make_shared<Field>("name"),
                     SharedConstant(Array(Value("alice"), Value("diane")))),
-       GtExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       LteExpr(
+       GreaterThanExpr(
+           {std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
+       LessThanOrEqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
@@ -1391,7 +1406,7 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithNotEqual) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {NotEqAnyExpr(std::make_shared<Field>("name"),
                     SharedConstant(Array(Value("alice"), Value("bob")))),
-       NeqExpr(
+       NotEqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(100.0))})})));
 
   // Expect docs where name is not alice/bob (doc3, doc4, doc5) AND age is not
@@ -1451,7 +1466,7 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithExtraEqualitySortOnNotEqAnyField) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {NotEqAnyExpr(std::make_shared<Field>("name"),
                     SharedConstant(Array(Value("alice"), Value("bob")))),
-       EqExpr(
+       EqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
@@ -1474,7 +1489,7 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithExtraEqualitySortOnEquality) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {NotEqAnyExpr(std::make_shared<Field>("name"),
                     SharedConstant(Array(Value("alice"), Value("bob")))),
-       EqExpr(
+       EqualExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(10.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
@@ -1497,8 +1512,8 @@ TEST_F(DisjunctivePipelineTest, NotEqAnyWithInequalityOnSameField) {
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
       AndExpr({NotEqAnyExpr(std::make_shared<Field>("age"),
                             SharedConstant(Array(Value(10.0), Value(100.0)))),
-               GtExpr({std::make_shared<Field>("age"),
-                       SharedConstant(Value(20.0))})})));
+               GreaterThanExpr({std::make_shared<Field>("age"),
+                                SharedConstant(Value(20.0))})})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("age"), Ordering::Direction::ASCENDING)}));
@@ -1523,7 +1538,7 @@ TEST_F(
   pipeline = pipeline.AddingStage(std::make_shared<Where>(AndExpr(
       {NotEqAnyExpr(std::make_shared<Field>("name"),
                     SharedConstant(Array(Value("alice"), Value("diane")))),
-       GtExpr(
+       GreaterThanExpr(
            {std::make_shared<Field>("age"), SharedConstant(Value(20.0))})})));
   // Sort field is 'age', the inequality field. TS name was misleading.
   pipeline = pipeline.AddingStage(
@@ -1550,26 +1565,28 @@ TEST_F(DisjunctivePipelineTest, NoLimitOnNumOfDisjunctions) {
 
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(OrExpr(
-      {EqExpr(
+      {EqualExpr(
            {std::make_shared<Field>("name"), SharedConstant(Value("alice"))}),
-       EqExpr({std::make_shared<Field>("name"), SharedConstant(Value("bob"))}),
-       EqExpr(
+       EqualExpr(
+           {std::make_shared<Field>("name"), SharedConstant(Value("bob"))}),
+       EqualExpr(
            {std::make_shared<Field>("name"), SharedConstant(Value("charlie"))}),
-       EqExpr(
+       EqualExpr(
            {std::make_shared<Field>("name"), SharedConstant(Value("diane"))}),
-       EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
-       EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(25.0))}),
-       EqExpr({std::make_shared<Field>("age"),
-               SharedConstant(Value(40.0))}),  // No doc matches this
-       EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(100.0))}),
-       EqExpr(
+       EqualExpr({std::make_shared<Field>("age"), SharedConstant(Value(10.0))}),
+       EqualExpr({std::make_shared<Field>("age"), SharedConstant(Value(25.0))}),
+       EqualExpr({std::make_shared<Field>("age"),
+                  SharedConstant(Value(40.0))}),  // No doc matches this
+       EqualExpr(
+           {std::make_shared<Field>("age"), SharedConstant(Value(100.0))}),
+       EqualExpr(
            {std::make_shared<Field>("height"), SharedConstant(Value(150.0))}),
-       EqExpr({std::make_shared<Field>("height"),
-               SharedConstant(Value(160.0))}),  // No doc matches this
-       EqExpr(
+       EqualExpr({std::make_shared<Field>("height"),
+                  SharedConstant(Value(160.0))}),  // No doc matches this
+       EqualExpr(
            {std::make_shared<Field>("height"), SharedConstant(Value(170.0))}),
-       EqExpr({std::make_shared<Field>("height"),
-               SharedConstant(Value(180.0))})})));
+       EqualExpr({std::make_shared<Field>("height"),
+                  SharedConstant(Value(180.0))})})));
 
   // Since each doc matches at least one condition, all should be returned.
   EXPECT_THAT(RunPipeline(pipeline, documents),

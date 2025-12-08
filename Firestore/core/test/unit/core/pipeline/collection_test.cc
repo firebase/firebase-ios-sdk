@@ -54,9 +54,9 @@ using testutil::Array;
 using testutil::ArrayContainsExpr;
 using testutil::Doc;
 using testutil::EqAnyExpr;
-using testutil::GtExpr;
+using testutil::GreaterThanExpr;
 using testutil::Map;
-using testutil::NeqExpr;
+using testutil::NotEqualExpr;
 using testutil::SharedConstant;
 using testutil::Value;
 
@@ -223,8 +223,9 @@ TEST_F(CollectionTest, WhereOnValues) {
 
 TEST_F(CollectionTest, WhereInequalityOnValues) {
   RealtimePipeline pipeline = StartPipeline("/users");  // Use RealtimePipeline
-  auto where_expr = GtExpr({std::make_shared<Field>("score"),
-                            SharedConstant(static_cast<int64_t>(80LL))});
+  auto where_expr =
+      GreaterThanExpr({std::make_shared<Field>("score"),
+                       SharedConstant(static_cast<int64_t>(80LL))});
   pipeline = pipeline.AddingStage(std::make_shared<Where>(where_expr));
 
   auto doc1 = Doc("users/bob", 1000, Map("score", 90LL));
@@ -238,8 +239,8 @@ TEST_F(CollectionTest, WhereInequalityOnValues) {
 
 TEST_F(CollectionTest, WhereNotEqualOnValues) {
   RealtimePipeline pipeline = StartPipeline("/users");  // Use RealtimePipeline
-  auto where_expr = NeqExpr({std::make_shared<Field>("score"),
-                             SharedConstant(static_cast<int64_t>(50LL))});
+  auto where_expr = NotEqualExpr({std::make_shared<Field>("score"),
+                                  SharedConstant(static_cast<int64_t>(50LL))});
   pipeline = pipeline.AddingStage(std::make_shared<Where>(where_expr));
 
   auto doc1 = Doc("users/bob", 1000, Map("score", 90LL));

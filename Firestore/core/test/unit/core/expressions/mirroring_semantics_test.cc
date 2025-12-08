@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#include <functional>  // For std::function
-#include <limits>      // For std::numeric_limits
-#include <memory>      // For std::shared_ptr
+#include <functional>
+#include <limits>
+#include <memory>
 #include <string>
-#include <utility>  // For std::move
 #include <vector>
 
 #include "Firestore/core/src/api/expressions.h"
-#include "Firestore/core/src/core/expressions_eval.h"
-#include "Firestore/core/src/model/field_path.h"  // Correct include for FieldPath
-#include "Firestore/core/src/util/string_format.h"  // Include for StringFormat
+#include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
+#include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"
@@ -49,29 +48,29 @@ using testutil::CharLengthExpr;
 using testutil::DivideExpr;
 using testutil::EndsWithExpr;
 using testutil::EqAnyExpr;
-using testutil::EqExpr;
+using testutil::EqualExpr;
 using testutil::EvaluateExpr;
-using testutil::GteExpr;
-using testutil::GtExpr;
+using testutil::GreaterThanExpr;
+using testutil::GreaterThanOrEqualExpr;
 using testutil::IsNanExpr;
 using testutil::IsNotNanExpr;
+using testutil::LessThanExpr;
+using testutil::LessThanOrEqualExpr;
 using testutil::LikeExpr;
-using testutil::LteExpr;
-using testutil::LtExpr;
 using testutil::ModExpr;
 using testutil::MultiplyExpr;
-using testutil::NeqExpr;
 using testutil::NotEqAnyExpr;
+using testutil::NotEqualExpr;
 using testutil::RegexContainsExpr;
 using testutil::RegexMatchExpr;
 using testutil::Returns;
 using testutil::ReturnsError;
 using testutil::ReturnsNull;
-using testutil::ReverseExpr;
 using testutil::SharedConstant;
 using testutil::StartsWithExpr;
-using testutil::StrConcatExpr;
-using testutil::StrContainsExpr;
+using testutil::StringConcatExpr;
+using testutil::StringContainsExpr;
+using testutil::StringReverseExpr;
 using testutil::SubtractExpr;
 using testutil::TimestampToUnixMicrosExpr;
 using testutil::TimestampToUnixMillisExpr;
@@ -112,7 +111,7 @@ TEST_F(MirroringSemanticsTest, UnaryFunctionInputMirroring) {
       [](auto v) { return IsNanExpr(v); },
       [](auto v) { return IsNotNanExpr(v); },
       [](auto v) { return ArrayLengthExpr(v); },
-      [](auto v) { return ReverseExpr(v); },
+      [](auto v) { return StringReverseExpr(v); },
       [](auto v) { return CharLengthExpr(v); },
       [](auto v) { return ByteLengthExpr(v); },
       [](auto v) { return ToLowerExpr(v); },
@@ -162,7 +161,7 @@ TEST_F(MirroringSemanticsTest, BinaryFunctionInputMirroring) {
   using BinaryBuilder = std::function<std::shared_ptr<Expr>(
       std::shared_ptr<Expr>, std::shared_ptr<Expr>)>;
 
-  // Note: Variadic functions like add, multiply, str_concat are tested
+  // Note: Variadic functions like add, multiply, string_concat are tested
   // with their base binary case here.
   const std::vector<BinaryBuilder> binary_function_builders = {
       // Arithmetic (Variadic, base is binary)
@@ -172,12 +171,12 @@ TEST_F(MirroringSemanticsTest, BinaryFunctionInputMirroring) {
       [](auto v1, auto v2) { return DivideExpr({v1, v2}); },
       [](auto v1, auto v2) { return ModExpr({v1, v2}); },
       // Comparison
-      [](auto v1, auto v2) { return EqExpr({v1, v2}); },
-      [](auto v1, auto v2) { return NeqExpr({v1, v2}); },
-      [](auto v1, auto v2) { return LtExpr({v1, v2}); },
-      [](auto v1, auto v2) { return LteExpr({v1, v2}); },
-      [](auto v1, auto v2) { return GtExpr({v1, v2}); },
-      [](auto v1, auto v2) { return GteExpr({v1, v2}); },
+      [](auto v1, auto v2) { return EqualExpr({v1, v2}); },
+      [](auto v1, auto v2) { return NotEqualExpr({v1, v2}); },
+      [](auto v1, auto v2) { return LessThanExpr({v1, v2}); },
+      [](auto v1, auto v2) { return LessThanOrEqualExpr({v1, v2}); },
+      [](auto v1, auto v2) { return GreaterThanExpr({v1, v2}); },
+      [](auto v1, auto v2) { return GreaterThanOrEqualExpr({v1, v2}); },
       // Array
       [](auto v1, auto v2) { return ArrayContainsExpr({v1, v2}); },
       [](auto v1, auto v2) { return ArrayContainsAllExpr({v1, v2}); },
@@ -188,10 +187,10 @@ TEST_F(MirroringSemanticsTest, BinaryFunctionInputMirroring) {
       [](auto v1, auto v2) { return LikeExpr(v1, v2); },
       [](auto v1, auto v2) { return RegexContainsExpr(v1, v2); },
       [](auto v1, auto v2) { return RegexMatchExpr(v1, v2); },
-      [](auto v1, auto v2) { return StrContainsExpr(v1, v2); },
+      [](auto v1, auto v2) { return StringContainsExpr(v1, v2); },
       [](auto v1, auto v2) { return StartsWithExpr(v1, v2); },
       [](auto v1, auto v2) { return EndsWithExpr(v1, v2); },
-      [](auto v1, auto v2) { return StrConcatExpr({v1, v2}); }
+      [](auto v1, auto v2) { return StringConcatExpr({v1, v2}); }
       // TODO(b/351084804): mapGet is not implemented yet
   };
 

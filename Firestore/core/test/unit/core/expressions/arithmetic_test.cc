@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-#include <initializer_list>
 #include <limits>
 #include <memory>
-#include <string>
-#include <utility>
-#include <vector>
 
-#include "Firestore/core/src/core/expressions_eval.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gmock/gmock.h"

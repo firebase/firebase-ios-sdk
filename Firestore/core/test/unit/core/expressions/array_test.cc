@@ -19,14 +19,11 @@
 #include <memory>
 #include <vector>
 
-#include "Firestore/core/src/api/expressions.h"  // For api::Expr, api::Constant, api::Field
-#include "Firestore/core/src/core/expressions_eval.h"
-// #include "Firestore/core/src/model/field_value.h" // Removed incorrect
-// include
-#include "Firestore/core/src/model/value_util.h"  // For value constants like NullValue, NaNValue
-#include "Firestore/core/test/unit/testutil/expression_test_util.h"  // For test helpers
-#include "Firestore/core/test/unit/testutil/testutil.h"  // For test helpers like Value, Array, Map
-#include "gmock/gmock.h"  // For matchers like Returns
+#include "Firestore/core/src/api/expressions.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/test/unit/testutil/expression_test_util.h"
+#include "Firestore/core/test/unit/testutil/testutil.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {

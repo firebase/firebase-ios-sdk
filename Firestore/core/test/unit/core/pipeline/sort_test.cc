@@ -66,9 +66,9 @@ using testutil::Value;
 // Expression helpers
 using testutil::AddExpr;
 using testutil::AndExpr;
-using testutil::EqExpr;
+using testutil::EqualExpr;
 using testutil::ExistsExpr;
-using testutil::GtExpr;
+using testutil::GreaterThanExpr;
 using testutil::NotExpr;
 using testutil::RegexMatchExpr;
 
@@ -147,8 +147,8 @@ TEST_F(SortPipelineTest, SingleResultAscendingImplicitExists) {
   auto doc1 = Doc("users/a", 1000, Map("name", "alice", "age", 10LL));
   PipelineInputOutputVector documents = {doc1};
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(10LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("age"), SharedConstant(Value(10LL))})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("age"), Ordering::Direction::ASCENDING)}));
@@ -181,8 +181,8 @@ TEST_F(SortPipelineTest, SingleResultDescendingImplicitExists) {
   auto doc1 = Doc("users/a", 1000, Map("name", "alice", "age", 10LL));
   PipelineInputOutputVector documents = {doc1};
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("age"), SharedConstant(Value(10LL))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(EqualExpr(
+      {std::make_shared<Field>("age"), SharedConstant(Value(10LL))})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("age"), Ordering::Direction::DESCENDING)}));
@@ -230,8 +230,8 @@ TEST_F(SortPipelineTest, MultipleResultsAmbiguousOrderImplicitExists) {
   auto doc5 = Doc("users/e", 1000, Map("name", "eric", "age", 10.0));
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
   RealtimePipeline pipeline = StartPipeline("/users");
-  pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      GtExpr({std::make_shared<Field>("age"), SharedConstant(Value(0.0))})));
+  pipeline = pipeline.AddingStage(std::make_shared<Where>(GreaterThanExpr(
+      {std::make_shared<Field>("age"), SharedConstant(Value(0.0))})));
   pipeline = pipeline.AddingStage(
       std::make_shared<SortStage>(std::vector<Ordering>{Ordering(
           std::make_unique<Field>("age"), Ordering::Direction::DESCENDING)}));
@@ -308,8 +308,8 @@ TEST_F(SortPipelineTest, MultipleResultsFullOrderImplicitExists) {
   PipelineInputOutputVector documents = {doc1, doc2, doc3, doc4, doc5};
   RealtimePipeline pipeline = StartPipeline("/users");
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
-      EqExpr({std::make_shared<Field>("age"),
-              std::make_shared<Field>("age")})));  // Implicit exists age
+      EqualExpr({std::make_shared<Field>("age"),
+                 std::make_shared<Field>("age")})));  // Implicit exists age
   pipeline = pipeline.AddingStage(std::make_shared<Where>(
       RegexMatchExpr(std::make_shared<Field>("name"),
                      SharedConstant(Value(".*")))));  // Implicit exists name

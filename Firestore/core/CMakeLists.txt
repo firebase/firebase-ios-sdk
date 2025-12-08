@@ -200,6 +200,8 @@ firebase_ios_glob(
   src/bundle/*.h
   src/core/*.cc
   src/core/*.h
+  src/pipeline/*.cc
+  src/pipeline/*.h
   src/credentials/*.cc
   src/credentials/*.h
   src/immutable/*.cc
@@ -243,6 +245,7 @@ target_compile_definitions(
 target_include_directories(
   firestore_core PUBLIC
   ${PROJECT_SOURCE_DIR}/Firestore/core/include
+  ${PROJECT_SOURCE_DIR}/Firestore/core/src
 )
 
 # Add the gRPC include directories as SYSTEM directories to silence warnings

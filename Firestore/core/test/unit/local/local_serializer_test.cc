@@ -734,8 +734,8 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithPipeline) {
   // Construct the pipeline
   auto ppl = StartPipeline("rooms");
   ppl = ppl.AddingStage(std::make_shared<api::Where>(
-      testutil::EqExpr({std::make_shared<api::Field>("name"),
-                        testutil::SharedConstant("testroom")})));
+      testutil::EqualExpr({std::make_shared<api::Field>("name"),
+                           testutil::SharedConstant("testroom")})));
   api::Ordering ordering(std::make_unique<api::Field>("age"),
                          api::Ordering::DESCENDING);
   ppl = ppl.AddingStage(
@@ -772,14 +772,14 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithPipeline) {
     stage1_arg1->set_reference_value("/rooms");
   }
 
-  // Stage 2: Where(EqExpr(Field("name"), Value("testroom")))
+  // Stage 2: Where(EqualExpr(Field("name"), Value("testroom")))
   {
     google::firestore::v1::Pipeline_Stage* stage2_proto =
         pipeline_proto_obj->add_stages();  // Changed type
     stage2_proto->set_name("where");
-    v1::Value* stage2_arg1_expr = stage2_proto->add_args();  // The EqExpr
+    v1::Value* stage2_arg1_expr = stage2_proto->add_args();  // The EqualExpr
     v1::Function* eq_func = stage2_arg1_expr->mutable_function_value();
-    eq_func->set_name("eq");
+    eq_func->set_name("equal");
 
     v1::Value* eq_arg1_field = eq_func->add_args();  // Field("name")
     eq_arg1_field->set_field_reference_value("name");
