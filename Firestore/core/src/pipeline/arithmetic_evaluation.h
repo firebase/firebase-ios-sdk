@@ -24,13 +24,32 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-// --- Base Class for Arithmetic Operations ---
-class ArithmeticPrimitive : public EvaluableExpression {
+// --- Base Class for Unary Arithmetic Operations ---
+class UnaryArithmetic : public EvaluableExpression {
  public:
-  explicit ArithmeticPrimitive(const api::FunctionExpr& expr)
+  explicit UnaryArithmetic(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
   }
-  ~ArithmeticPrimitive() override = default;
+  ~UnaryArithmetic() override = default;
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ protected:
+  // Performs the specific double operation.
+  virtual EvaluateResult PerformOperation(double val) const = 0;
+
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+// --- Base Class for Arithmetic Operations ---
+class BinaryArithmetic : public EvaluableExpression {
+ public:
+  explicit BinaryArithmetic(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  ~BinaryArithmetic() override = default;
 
   // Implementation is inline below
   EvaluateResult Evaluate(
@@ -59,9 +78,9 @@ class ArithmeticPrimitive : public EvaluableExpression {
 };
 // --- End Base Class for Arithmetic Operations ---
 
-class EvaluateAdd : public ArithmeticPrimitive {
+class EvaluateAdd : public BinaryArithmetic {
  public:
-  explicit EvaluateAdd(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
+  explicit EvaluateAdd(const api::FunctionExpr& expr) : BinaryArithmetic(expr) {
   }
 
  protected:
@@ -70,9 +89,10 @@ class EvaluateAdd : public ArithmeticPrimitive {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class EvaluateSubtract : public ArithmeticPrimitive {
+class EvaluateSubtract : public BinaryArithmetic {
  public:
-  explicit EvaluateSubtract(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
+  explicit EvaluateSubtract(const api::FunctionExpr& expr)
+      : BinaryArithmetic(expr) {
   }
 
  protected:
@@ -81,9 +101,10 @@ class EvaluateSubtract : public ArithmeticPrimitive {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class EvaluateMultiply : public ArithmeticPrimitive {
+class EvaluateMultiply : public BinaryArithmetic {
  public:
-  explicit EvaluateMultiply(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
+  explicit EvaluateMultiply(const api::FunctionExpr& expr)
+      : BinaryArithmetic(expr) {
   }
 
  protected:
@@ -92,9 +113,10 @@ class EvaluateMultiply : public ArithmeticPrimitive {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class EvaluateDivide : public ArithmeticPrimitive {
+class EvaluateDivide : public BinaryArithmetic {
  public:
-  explicit EvaluateDivide(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
+  explicit EvaluateDivide(const api::FunctionExpr& expr)
+      : BinaryArithmetic(expr) {
   }
 
  protected:
@@ -103,15 +125,124 @@ class EvaluateDivide : public ArithmeticPrimitive {
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
 };
 
-class EvaluateMod : public ArithmeticPrimitive {
+class EvaluateMod : public BinaryArithmetic {
  public:
-  explicit EvaluateMod(const api::FunctionExpr& expr) : ArithmeticPrimitive(expr) {
+  explicit EvaluateMod(const api::FunctionExpr& expr) : BinaryArithmetic(expr) {
   }
 
  protected:
   EvaluateResult PerformIntegerOperation(int64_t lhs,
                                          int64_t rhs) const override;
   EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
+};
+
+class EvaluatePow : public BinaryArithmetic {
+ public:
+  explicit EvaluatePow(const api::FunctionExpr& expr) : BinaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                         int64_t rhs) const override;
+  EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
+};
+
+class EvaluateRoundToPrecision : public BinaryArithmetic {
+ public:
+  explicit EvaluateRoundToPrecision(const api::FunctionExpr& expr)
+      : BinaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                         int64_t rhs) const override;
+  EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
+};
+
+class EvaluateLog : public BinaryArithmetic {
+ public:
+  explicit EvaluateLog(const api::FunctionExpr& expr) : BinaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                         int64_t rhs) const override;
+  EvaluateResult PerformDoubleOperation(double lhs, double rhs) const override;
+};
+
+class EvaluateCeil : public UnaryArithmetic {
+ public:
+  explicit EvaluateCeil(const api::FunctionExpr& expr) : UnaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformOperation(double val) const override;
+};
+
+class EvaluateFloor : public UnaryArithmetic {
+ public:
+  explicit EvaluateFloor(const api::FunctionExpr& expr)
+      : UnaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformOperation(double val) const override;
+};
+
+class EvaluateRound : public UnaryArithmetic {
+ public:
+  explicit EvaluateRound(const api::FunctionExpr& expr)
+      : UnaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformOperation(double val) const override;
+};
+
+class EvaluateAbs : public UnaryArithmetic {
+ public:
+  explicit EvaluateAbs(const api::FunctionExpr& expr) : UnaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformOperation(double val) const override;
+};
+
+class EvaluateExp : public UnaryArithmetic {
+ public:
+  explicit EvaluateExp(const api::FunctionExpr& expr) : UnaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformOperation(double val) const override;
+};
+
+class EvaluateLn : public UnaryArithmetic {
+ public:
+  explicit EvaluateLn(const api::FunctionExpr& expr) : UnaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformOperation(double val) const override;
+};
+
+class EvaluateLog10 : public UnaryArithmetic {
+ public:
+  explicit EvaluateLog10(const api::FunctionExpr& expr)
+      : UnaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformOperation(double val) const override;
+};
+
+class EvaluateSqrt : public UnaryArithmetic {
+ public:
+  explicit EvaluateSqrt(const api::FunctionExpr& expr) : UnaryArithmetic(expr) {
+  }
+
+ protected:
+  EvaluateResult PerformOperation(double val) const override;
 };
 
 }  // namespace core
