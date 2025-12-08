@@ -158,7 +158,6 @@ function(FirebaseSetupPythonInterpreter)
         -m
         pip
         install
-        --extra-index-url https://pypi.org/simple
         ${ARG_REQUIREMENTS}
     )
   endif()
