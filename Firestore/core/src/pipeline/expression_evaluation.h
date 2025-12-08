@@ -32,7 +32,7 @@ namespace firestore {
 namespace core {
 
 // Forward declaration
-class EvaluableExpr;
+class EvaluableExpression;
 
 /** Represents the result of evaluating an expression. */
 class EvaluateResult {
@@ -99,9 +99,9 @@ class EvaluateResult {
 };
 
 /** An interface representing an expression that can be evaluated. */
-class EvaluableExpr {
+class EvaluableExpression {
  public:
-  virtual ~EvaluableExpr() = default;
+  virtual ~EvaluableExpression() = default;
 
   /**
    * Evaluates the expression against the given document within the provided
@@ -115,7 +115,7 @@ class EvaluableExpr {
       const model::PipelineInputOutput& document) const = 0;
 };
 
-class CoreField : public EvaluableExpr {
+class CoreField : public EvaluableExpression {
  public:
   explicit CoreField(std::unique_ptr<api::Expr> expr) : expr_(std::move(expr)) {
   }
@@ -128,7 +128,7 @@ class CoreField : public EvaluableExpr {
   std::unique_ptr<api::Expr> expr_;
 };
 
-class CoreConstant : public EvaluableExpr {
+class CoreConstant : public EvaluableExpression {
  public:
   explicit CoreConstant(std::unique_ptr<api::Expr> expr)
       : expr_(std::move(expr)) {
@@ -145,7 +145,7 @@ class CoreConstant : public EvaluableExpr {
 /**
  * Converts a high-level expression representation into an evaluable one.
  */
-std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
+std::unique_ptr<EvaluableExpression> FunctionToEvaluable(
     const api::FunctionExpr& function);
 
 }  // namespace core

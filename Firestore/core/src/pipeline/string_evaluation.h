@@ -27,7 +27,7 @@ namespace core {
 
 /** Base class for binary string search functions (starts_with, ends_with,
  * str_contains). */
-class StringSearchBase : public EvaluableExpr {
+class StringSearchBase : public EvaluableExpression {
  public:
   explicit StringSearchBase(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -48,7 +48,7 @@ class StringSearchBase : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreByteLength : public EvaluableExpr {
+class CoreByteLength : public EvaluableExpression {
  public:
   explicit CoreByteLength(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -61,7 +61,7 @@ class CoreByteLength : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreCharLength : public EvaluableExpr {
+class CoreCharLength : public EvaluableExpression {
  public:
   explicit CoreCharLength(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -74,7 +74,7 @@ class CoreCharLength : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreStringConcat : public EvaluableExpr {
+class CoreStringConcat : public EvaluableExpression {
  public:
   explicit CoreStringConcat(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -120,7 +120,7 @@ class CoreStringContains : public StringSearchBase {
                                const std::string& search) const override;
 };
 
-class CoreToLower : public EvaluableExpr {
+class CoreToLower : public EvaluableExpression {
  public:
   explicit CoreToLower(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -133,7 +133,7 @@ class CoreToLower : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreToUpper : public EvaluableExpr {
+class CoreToUpper : public EvaluableExpression {
  public:
   explicit CoreToUpper(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -146,7 +146,7 @@ class CoreToUpper : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreTrim : public EvaluableExpr {
+class CoreTrim : public EvaluableExpression {
  public:
   explicit CoreTrim(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -159,7 +159,7 @@ class CoreTrim : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreStringReverse : public EvaluableExpr {
+class CoreStringReverse : public EvaluableExpression {
  public:
   explicit CoreStringReverse(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {

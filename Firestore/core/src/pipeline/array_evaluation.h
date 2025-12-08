@@ -24,7 +24,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-class CoreArrayReverse : public EvaluableExpr {
+class CoreArrayReverse : public EvaluableExpression {
  public:
   explicit CoreArrayReverse(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -37,7 +37,7 @@ class CoreArrayReverse : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreArrayContains : public EvaluableExpr {
+class CoreArrayContains : public EvaluableExpression {
  public:
   explicit CoreArrayContains(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -50,7 +50,7 @@ class CoreArrayContains : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreArrayContainsAll : public EvaluableExpr {
+class CoreArrayContainsAll : public EvaluableExpression {
  public:
   explicit CoreArrayContainsAll(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -63,7 +63,7 @@ class CoreArrayContainsAll : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreArrayContainsAny : public EvaluableExpr {
+class CoreArrayContainsAny : public EvaluableExpression {
  public:
   explicit CoreArrayContainsAny(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {
@@ -76,7 +76,7 @@ class CoreArrayContainsAny : public EvaluableExpr {
   std::unique_ptr<api::FunctionExpr> expr_;
 };
 
-class CoreArrayLength : public EvaluableExpr {
+class CoreArrayLength : public EvaluableExpression {
  public:
   explicit CoreArrayLength(const api::FunctionExpr& expr)
       : expr_(std::make_unique<api::FunctionExpr>(expr)) {

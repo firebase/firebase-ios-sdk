@@ -17,8 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_PIPELINE_UTIL_EVALUATION_H_
 #define FIRESTORE_CORE_SRC_PIPELINE_UTIL_EVALUATION_H_
 
+#include <memory>
+
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/nanopb/message.h"
+#include "Firestore/core/src/pipeline/expression_evaluation.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -26,12 +29,67 @@ namespace firestore {
 namespace core {
 
 nanopb::Message<google_firestore_v1_Value> IntValue(int64_t val);
+nanopb::Message<google_firestore_v1_Value> DoubleValue(double val);
 
 absl::optional<int64_t> SafeAdd(int64_t lhs, int64_t rhs);
 absl::optional<int64_t> SafeSubtract(int64_t lhs, int64_t rhs);
 absl::optional<int64_t> SafeMultiply(int64_t lhs, int64_t rhs);
 absl::optional<int64_t> SafeDivide(int64_t lhs, int64_t rhs);
 absl::optional<int64_t> SafeMod(int64_t lhs, int64_t rhs);
+
+// --- Base Class for Unary Arithmetic Operations ---
+class UnaryArithmetic : public EvaluableExpression {
+ public:
+  explicit UnaryArithmetic(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  ~UnaryArithmetic() override = default;
+
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ protected:
+  // Performs the specific double operation.
+  virtual EvaluateResult PerformOperation(double val) const = 0;
+
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+
+// --- Base Class for Arithmetic Operations ---
+class BinaryArithmetic : public EvaluableExpression {
+ public:
+  explicit BinaryArithmetic(const api::FunctionExpr& expr)
+      : expr_(std::make_unique<api::FunctionExpr>(expr)) {
+  }
+  ~BinaryArithmetic() override = default;
+
+  // Implementation is inline below
+  EvaluateResult Evaluate(
+      const api::EvaluateContext& context,
+      const model::PipelineInputOutput& document) const override;
+
+ protected:
+  // Performs the specific integer operation (e.g., add, subtract).
+  // Returns Error result on overflow or invalid operation (like div/mod by
+  // zero).
+  virtual EvaluateResult PerformIntegerOperation(int64_t lhs,
+                                                 int64_t rhs) const = 0;
+
+  // Performs the specific double operation.
+  // Returns Error result on invalid operation (like div/mod by zero).
+  virtual EvaluateResult PerformDoubleOperation(double lhs,
+                                                double rhs) const = 0;
+
+  // Applies the arithmetic operation between two evaluated results.
+  // Mirrors the logic from TypeScript's applyArithmetics.
+  // Implementation is inline below
+  EvaluateResult ApplyOperation(const EvaluateResult& left,
+                                const EvaluateResult& right) const;
+
+  std::unique_ptr<api::FunctionExpr> expr_;
+};
+// --- End Base Class for Arithmetic Operations ---
 
 }  // namespace core
 }  // namespace firestore
