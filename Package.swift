@@ -476,9 +476,6 @@ let package = Package(
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
       ],
       path: "FirebaseAuth/Sources",
-      exclude: [
-        "ObjC", "Public",
-      ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
@@ -506,9 +503,6 @@ let package = Package(
     .target(
       name: "FirebaseAuthInterop",
       path: "FirebaseAuth/Interop",
-      exclude: [
-        "CMakeLists.txt",
-      ],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
