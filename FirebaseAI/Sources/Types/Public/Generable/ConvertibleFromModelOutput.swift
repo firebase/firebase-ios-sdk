@@ -46,17 +46,21 @@ public protocol ConvertibleFromModelOutput: SendableMetatype {
   init(_ content: ModelOutput) throws
 }
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-extension FoundationModels.GeneratedContent: ConvertibleFromModelOutput {}
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension FoundationModels.GeneratedContent: ConvertibleFromModelOutput {}
+#endif // canImport(FoundationModels)
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public extension FoundationModels.ConvertibleFromGeneratedContent
-  where Self: ConvertibleFromModelOutput {
-  init(_ content: ModelOutput) throws {
-    try self.init(content.generatedContent)
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public extension FoundationModels.ConvertibleFromGeneratedContent
+    where Self: ConvertibleFromModelOutput {
+    init(_ content: ModelOutput) throws {
+      try self.init(content.generatedContent)
+    }
   }
-}
+#endif // canImport(FoundationModels)

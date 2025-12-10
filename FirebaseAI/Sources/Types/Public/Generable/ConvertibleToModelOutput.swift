@@ -46,48 +46,54 @@ public protocol ConvertibleToModelOutput {
   var modelOutput: ModelOutput { get }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-extension FoundationModels.GeneratedContent: ConvertibleToModelOutput {
-  public var modelOutput: ModelOutput {
-    switch kind {
-    case .null:
-      return ModelOutput(kind: .null)
-    case let .bool(value):
-      return ModelOutput(kind: .bool(value))
-    case let .number(value):
-      return ModelOutput(kind: .number(value))
-    case let .string(value):
-      return ModelOutput(kind: .string(value))
-    case let .array(values):
-      return ModelOutput(kind: .array(values.map { $0.modelOutput }))
-    case let .structure(properties: properties, orderedKeys: orderedKeys):
-      return ModelOutput(kind: .structure(
-        properties: properties.mapValues { $0.modelOutput }, orderedKeys: orderedKeys
-      ))
-    @unknown default:
-      fatalError("Unsupported GeneratedContent kind: \(kind)")
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension FoundationModels.GeneratedContent: ConvertibleToModelOutput {
+    public var modelOutput: ModelOutput {
+      switch kind {
+      case .null:
+        return ModelOutput(kind: .null)
+      case let .bool(value):
+        return ModelOutput(kind: .bool(value))
+      case let .number(value):
+        return ModelOutput(kind: .number(value))
+      case let .string(value):
+        return ModelOutput(kind: .string(value))
+      case let .array(values):
+        return ModelOutput(kind: .array(values.map { $0.modelOutput }))
+      case let .structure(properties: properties, orderedKeys: orderedKeys):
+        return ModelOutput(kind: .structure(
+          properties: properties.mapValues { $0.modelOutput }, orderedKeys: orderedKeys
+        ))
+      @unknown default:
+        fatalError("Unsupported GeneratedContent kind: \(kind)")
+      }
     }
   }
-}
+#endif // canImport(FoundationModels)
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public extension FoundationModels.ConvertibleToGeneratedContent
-  where Self: ConvertibleToModelOutput {
-  var generatedContent: GeneratedContent {
-    modelOutput.generatedContent
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public extension FoundationModels.ConvertibleToGeneratedContent
+    where Self: ConvertibleToModelOutput {
+    var generatedContent: GeneratedContent {
+      modelOutput.generatedContent
+    }
   }
-}
+#endif // canImport(FoundationModels)
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public extension ConvertibleToModelOutput
-  where Self: FoundationModels.ConvertibleToGeneratedContent {
-  var modelOutput: ModelOutput {
-    generatedContent.modelOutput
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public extension ConvertibleToModelOutput
+    where Self: FoundationModels.ConvertibleToGeneratedContent {
+    var modelOutput: ModelOutput {
+      generatedContent.modelOutput
+    }
   }
-}
+#endif // canImport(FoundationModels)

@@ -154,55 +154,57 @@ final class GenerableTests: XCTestCase {
     XCTAssertEqual(person.address.zipCode, "12345")
   }
 
-  func testConvertGenerableTypeToModelOutput() throws {
-    let address = Address(street: "456 Oak Ave", city: "Someplace", zipCode: "54321")
-    let person = Person(
-      firstName: "Jane",
-      middleName: "Marie",
-      lastName: "Smith",
-      age: 32,
-      address: address
-    )
+  #if canImport(FoundationModels)
+    func testConvertGenerableTypeToModelOutput() throws {
+      let address = Address(street: "456 Oak Ave", city: "Someplace", zipCode: "54321")
+      let person = Person(
+        firstName: "Jane",
+        middleName: "Marie",
+        lastName: "Smith",
+        age: 32,
+        address: address
+      )
 
-    let modelOutput = person.modelOutput
+      let modelOutput = person.modelOutput
 
-    guard case let .structure(properties, orderedKeys) = modelOutput.kind else {
-      XCTFail("Model output is not a structure.")
-      return
+      guard case let .structure(properties, orderedKeys) = modelOutput.kind else {
+        XCTFail("Model output is not a structure.")
+        return
+      }
+      let firstNameProperty = try XCTUnwrap(properties["firstName"])
+      guard case let .string(firstName) = firstNameProperty.kind else {
+        XCTFail("The 'firstName' property is not a string: \(firstNameProperty.kind)")
+        return
+      }
+      XCTAssertEqual(firstName, person.firstName)
+      XCTAssertEqual(try modelOutput.value(forProperty: "firstName"), person.firstName)
+      let middleNameProperty = try XCTUnwrap(properties["middleName"])
+      guard case let .string(middleName) = middleNameProperty.kind else {
+        XCTFail("The 'middleName' property is not a string: \(middleNameProperty.kind)")
+        return
+      }
+      XCTAssertEqual(middleName, person.middleName)
+      XCTAssertEqual(try modelOutput.value(forProperty: "middleName"), person.middleName)
+      let lastNameProperty = try XCTUnwrap(properties["lastName"])
+      guard case let .string(lastName) = lastNameProperty.kind else {
+        XCTFail("The 'lastName' property is not a string: \(lastNameProperty.kind)")
+        return
+      }
+      XCTAssertEqual(lastName, person.lastName)
+      XCTAssertEqual(try modelOutput.value(forProperty: "lastName"), person.lastName)
+      let ageProperty = try XCTUnwrap(properties["age"])
+      guard case let .number(age) = ageProperty.kind else {
+        XCTFail("The 'age' property is not a number: \(ageProperty.kind)")
+        return
+      }
+      XCTAssertEqual(Int(age), person.age)
+      XCTAssertEqual(try modelOutput.value(forProperty: "age"), person.age)
+      let addressProperty: Address = try modelOutput.value(forProperty: "address")
+      XCTAssertEqual(addressProperty, person.address)
+      XCTAssertEqual(try modelOutput.value(), person)
+      XCTAssertEqual(orderedKeys, ["firstName", "middleName", "lastName", "age", "address"])
     }
-    let firstNameProperty = try XCTUnwrap(properties["firstName"])
-    guard case let .string(firstName) = firstNameProperty.kind else {
-      XCTFail("The 'firstName' property is not a string: \(firstNameProperty.kind)")
-      return
-    }
-    XCTAssertEqual(firstName, person.firstName)
-    XCTAssertEqual(try modelOutput.value(forProperty: "firstName"), person.firstName)
-    let middleNameProperty = try XCTUnwrap(properties["middleName"])
-    guard case let .string(middleName) = middleNameProperty.kind else {
-      XCTFail("The 'middleName' property is not a string: \(middleNameProperty.kind)")
-      return
-    }
-    XCTAssertEqual(middleName, person.middleName)
-    XCTAssertEqual(try modelOutput.value(forProperty: "middleName"), person.middleName)
-    let lastNameProperty = try XCTUnwrap(properties["lastName"])
-    guard case let .string(lastName) = lastNameProperty.kind else {
-      XCTFail("The 'lastName' property is not a string: \(lastNameProperty.kind)")
-      return
-    }
-    XCTAssertEqual(lastName, person.lastName)
-    XCTAssertEqual(try modelOutput.value(forProperty: "lastName"), person.lastName)
-    let ageProperty = try XCTUnwrap(properties["age"])
-    guard case let .number(age) = ageProperty.kind else {
-      XCTFail("The 'age' property is not a number: \(ageProperty.kind)")
-      return
-    }
-    XCTAssertEqual(Int(age), person.age)
-    XCTAssertEqual(try modelOutput.value(forProperty: "age"), person.age)
-    let addressProperty: Address = try modelOutput.value(forProperty: "address")
-    XCTAssertEqual(addressProperty, person.address)
-    XCTAssertEqual(try modelOutput.value(), person)
-    XCTAssertEqual(orderedKeys, ["firstName", "middleName", "lastName", "age", "address"])
-  }
+  #endif // canImport(FoundationModels)
 
   func testConvertGenerableWithNilOptionalPropertyToModelOutput() throws {
     let address = Address(street: "789 Pine Ln", city: "Nowhere", zipCode: "00000")
@@ -304,7 +306,7 @@ struct Person: Equatable {
   }
 #else
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  extension Person: FirebaseAILogic.Generable {
+  extension Person: FirebaseAILogic.FirebaseGenerable {
     init(_ content: FirebaseAILogic.ModelOutput) throws {
       firstName = try content.value(forProperty: "firstName")
       middleName = try content.value(forProperty: "middleName")
@@ -358,7 +360,7 @@ struct Address: Equatable {
   }
 #else
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  extension Address: FirebaseAILogic.Generable {
+  extension Address: FirebaseAILogic.FirebaseGenerable {
     init(_ content: FirebaseAILogic.ModelOutput) throws {
       street = try content.value(forProperty: "street")
       city = try content.value(forProperty: "city")

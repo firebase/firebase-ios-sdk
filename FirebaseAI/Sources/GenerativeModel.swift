@@ -366,49 +366,51 @@ public final class GenerativeModel: Sendable {
     return try await generativeAIService.loadRequest(request: countTokensRequest)
   }
 
-  /// Produces a generable object as a response to a prompt.
-  ///
-  /// - Parameters:
-  ///   - prompt: A prompt for the model to respond to.
-  ///   - type: A type to produce as the response.
-  /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  public final func generateObject<Content>(_ type: Content.Type = Content.self,
-                                            parts: any PartsRepresentable...) async throws
-    -> Response<Content>
-    where Content: FoundationModels.Generable {
-    let jsonSchema = try type.generationSchema.asGeminiJSONSchema()
+  #if canImport(FoundationModels)
+    /// Produces a generable object as a response to a prompt.
+    ///
+    /// - Parameters:
+    ///   - prompt: A prompt for the model to respond to.
+    ///   - type: A type to produce as the response.
+    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public final func generateObject<Content>(_ type: Content.Type = Content.self,
+                                              parts: any PartsRepresentable...) async throws
+      -> Response<Content>
+      where Content: FoundationModels.Generable {
+      let jsonSchema = try type.generationSchema.asGeminiJSONSchema()
 
-    let generationConfig = {
-      var generationConfig = self.generationConfig ?? GenerationConfig()
-      if generationConfig.candidateCount != nil {
-        generationConfig.candidateCount = nil
-      }
-      generationConfig.responseMIMEType = "application/json"
-      if generationConfig.responseSchema != nil {
-        generationConfig.responseSchema = nil
-      }
-      generationConfig.responseJSONSchema = jsonSchema
-      if generationConfig.responseModalities != nil {
-        generationConfig.responseModalities = nil
-      }
+      let generationConfig = {
+        var generationConfig = self.generationConfig ?? GenerationConfig()
+        if generationConfig.candidateCount != nil {
+          generationConfig.candidateCount = nil
+        }
+        generationConfig.responseMIMEType = "application/json"
+        if generationConfig.responseSchema != nil {
+          generationConfig.responseSchema = nil
+        }
+        generationConfig.responseJSONSchema = jsonSchema
+        if generationConfig.responseModalities != nil {
+          generationConfig.responseModalities = nil
+        }
 
-      return generationConfig
-    }()
+        return generationConfig
+      }()
 
-    let response = try await generateContent(
-      [ModelContent(parts: parts)],
-      generationConfig: generationConfig
-    )
+      let response = try await generateContent(
+        [ModelContent(parts: parts)],
+        generationConfig: generationConfig
+      )
 
-    let generatedContent = try GeneratedContent(json: response.text ?? "")
-    let content = try Content(generatedContent)
-    let rawContent = try ModelOutput(generatedContent)
+      let generatedContent = try GeneratedContent(json: response.text ?? "")
+      let content = try Content(generatedContent)
+      let rawContent = try ModelOutput(generatedContent)
 
-    return Response(content: content, rawContent: rawContent)
-  }
+      return Response(content: content, rawContent: rawContent)
+    }
+  #endif // canImport(FoundationModels)
 
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.
   ///
@@ -421,9 +423,7 @@ public final class GenerativeModel: Sendable {
   }
 
   /// A structure that stores the output of a response call.
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct Response<Content> {
     /// The response content.
     public let content: Content
