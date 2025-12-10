@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAILogic
+import FirebaseAI
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
@@ -23,7 +23,7 @@ import Testing
   import UIKit
 #endif // canImport(UIKit)
 
-@testable import struct FirebaseAILogic.BackendError
+@testable import struct FirebaseAI.BackendError
 
 /// Test the schema fields.
 @Suite(.serialized)
@@ -44,17 +44,7 @@ struct SchemaTests {
         description: "A list of city names",
         minItems: 3,
         maxItems: 5
-      ),
-      jsonSchema: [
-        "type": .string("array"),
-        "description": .string("A list of city names"),
-        "items": .object([
-          "type": .string("string"),
-          "description": .string("The name of the city"),
-        ]),
-        "minItems": .number(3),
-        "maxItems": .number(5),
-      ]
+      )
     )
   )
   func generateContentItemsSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
@@ -78,13 +68,7 @@ struct SchemaTests {
       description: "A number",
       minimum: 110,
       maximum: 120
-    ),
-    jsonSchema: [
-      "type": .string("integer"),
-      "description": .string("A number"),
-      "minimum": .number(110),
-      "maximum": .number(120),
-    ]
+    )
   ))
   func generateContentSchemaNumberRange(_ config: InstanceConfig,
                                         _ schema: SchemaType) async throws {
@@ -125,47 +109,7 @@ struct SchemaTests {
       ],
       propertyOrdering: ["salePrice", "rating", "price", "productName"],
       title: "ProductInfo"
-    ),
-    jsonSchema: [
-      "type": .string("object"),
-      "title": .string("ProductInfo"),
-      "properties": .object([
-        "productName": .object([
-          "type": .string("string"),
-          "description": .string("The name of the product"),
-        ]),
-        "price": .object([
-          "type": .string("number"),
-          "description": .string("A price"),
-          "minimum": .number(10.00),
-          "maximum": .number(120.00),
-        ]),
-        "salePrice": .object([
-          "type": .string("number"),
-          "description": .string("A sale price"),
-          "minimum": .number(5.00),
-          "maximum": .number(90.00),
-        ]),
-        "rating": .object([
-          "type": .string("integer"),
-          "description": .string("A rating"),
-          "minimum": .number(1),
-          "maximum": .number(5),
-        ]),
-      ]),
-      "required": .array([
-        .string("productName"),
-        .string("price"),
-        .string("salePrice"),
-        .string("rating"),
-      ]),
-      "propertyOrdering": .array([
-        .string("salePrice"),
-        .string("rating"),
-        .string("price"),
-        .string("productName"),
-      ]),
-    ]
+    )
   ))
   func generateContentSchemaNumberRangeMultiType(_ config: InstanceConfig,
                                                  _ schema: SchemaType) async throws {
@@ -311,8 +255,7 @@ struct SchemaTests {
 
   @Test(arguments: testConfigs(
     instanceConfigs: InstanceConfig.allConfigs,
-    openAPISchema: generateContentAnyOfOpenAPISchema,
-    jsonSchema: generateContentAnyOfJSONSchema
+    openAPISchema: generateContentAnyOfOpenAPISchema
   ))
   func generateContentAnyOfSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -356,14 +299,11 @@ struct SchemaTests {
 
   enum SchemaType: CustomTestStringConvertible {
     case openAPI(Schema)
-    case json(JSONObject)
 
     var testDescription: String {
       switch self {
       case .openAPI:
         return "OpenAPI Schema"
-      case .json:
-        return "JSON Schema"
       }
     }
   }
@@ -374,15 +314,14 @@ struct SchemaTests {
     case let .openAPI(openAPISchema):
       return GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1, responseMIMEType: mimeType,
                               responseSchema: openAPISchema)
-    case let .json(jsonSchema):
-      return GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1, responseMIMEType: mimeType,
-                              responseJSONSchema: jsonSchema)
     }
   }
 
-  private static func testConfigs(instanceConfigs: [InstanceConfig], openAPISchema: Schema,
-                                  jsonSchema: JSONObject) -> [(InstanceConfig, SchemaType)] {
-    return instanceConfigs.flatMap { [($0, .openAPI(openAPISchema)), ($0, .json(jsonSchema))] }
+  private static func testConfigs(instanceConfigs: [InstanceConfig], openAPISchema: Schema) -> [(
+    InstanceConfig,
+    SchemaType
+  )] {
+    return instanceConfigs.flatMap { [($0, .openAPI(openAPISchema))] }
   }
 }
 

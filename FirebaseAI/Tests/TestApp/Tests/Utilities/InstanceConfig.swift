@@ -12,51 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAILogic
+import FirebaseAI
 import FirebaseAITestApp
 import FirebaseCore
 import Testing
 
-@testable import struct FirebaseAILogic.APIConfig
+@testable import struct FirebaseAI.APIConfig
 
 struct InstanceConfig: Equatable, Encodable {
   static let vertexAI_v1beta = InstanceConfig(
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .vertexAI(endpoint: .firebaseProxyProd),
       version: .v1beta
-    )
+    ),
+    location: "us-central1"
   )
   static let vertexAI_v1beta_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .vertexAI(endpoint: .firebaseProxyProd),
       version: .v1beta
-    )
+    ),
+    location: "us-central1"
   )
   static let vertexAI_v1beta_global = InstanceConfig(
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
+      service: .vertexAI(endpoint: .firebaseProxyProd),
       version: .v1beta
-    )
+    ),
+    location: "global"
   )
   static let vertexAI_v1beta_global_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
+      service: .vertexAI(endpoint: .firebaseProxyProd),
       version: .v1beta
-    )
+    ),
+    location: "global"
   )
   static let vertexAI_v1beta_staging = InstanceConfig(
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyStaging, location: "us-central1"),
+      service: .vertexAI(endpoint: .firebaseProxyStaging),
       version: .v1beta
-    )
-  )
-  static let vertexAI_v1beta_staging_global_bypassProxy = InstanceConfig(
-    apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .vertexAIStagingBypassProxy, location: "global"),
-      version: .v1beta1
-    )
+    ),
+    location: "us-central1"
   )
   static let googleAI_v1beta = InstanceConfig(
     apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
@@ -102,17 +101,19 @@ struct InstanceConfig: Equatable, Encodable {
   static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .vertexAI(endpoint: .firebaseProxyProd),
       version: .v1beta
-    )
+    ),
+    location: "us-central1"
   )
   static let vertexAI_v1beta_appCheckNotConfigured_limitedUseTokens = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .vertexAI(endpoint: .firebaseProxyProd),
       version: .v1beta
-    )
+    ),
+    location: "us-central1"
   )
   static let googleAI_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
@@ -134,11 +135,14 @@ struct InstanceConfig: Equatable, Encodable {
   let appName: String?
   let useLimitedUseAppCheckTokens: Bool
   let apiConfig: APIConfig
+  let location: String?
 
-  init(appName: String? = nil, useLimitedUseAppCheckTokens: Bool = false, apiConfig: APIConfig) {
+  init(appName: String? = nil, useLimitedUseAppCheckTokens: Bool = false, apiConfig: APIConfig,
+       location: String? = nil) {
     self.appName = appName
     self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
     self.apiConfig = apiConfig
+    self.location = location
   }
 
   var app: FirebaseApp? {
@@ -169,11 +173,9 @@ extension InstanceConfig: CustomTestStringConvertible {
       " - Staging"
     case .googleAIBypassProxy:
       " - Bypass Proxy"
-    case .vertexAIStagingBypassProxy:
-      " - Staging - Bypass Proxy"
     }
     let locationSuffix: String
-    if case let .vertexAI(_, location: location) = apiConfig.service {
+    if let location {
       locationSuffix = " - (\(location))"
     } else {
       locationSuffix = ""
@@ -193,14 +195,14 @@ extension FirebaseAI {
     case .vertexAI:
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
+        location: instanceConfig.location,
         apiConfig: instanceConfig.apiConfig,
-        useLimitedUseAppCheckTokens: instanceConfig.useLimitedUseAppCheckTokens
       )
     case .googleAI:
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
+        location: nil,
         apiConfig: instanceConfig.apiConfig,
-        useLimitedUseAppCheckTokens: instanceConfig.useLimitedUseAppCheckTokens
       )
     }
   }

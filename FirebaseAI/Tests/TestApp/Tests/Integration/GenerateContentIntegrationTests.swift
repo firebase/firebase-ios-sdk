@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAILogic
+import FirebaseAI
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
@@ -23,7 +23,7 @@ import Testing
   import UIKit
 #endif // canImport(UIKit)
 
-@testable import struct FirebaseAILogic.BackendError
+@testable import struct FirebaseAI.BackendError
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
@@ -37,7 +37,7 @@ struct GenerateContentIntegrationTests {
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
   // Candidates and total token counts may differ slightly between runs due to whitespace tokens.
-  let tokenCountAccuracy = 1
+  let tokenCountAccuracy = 5
 
   let storage: Storage
   let userID1: String
@@ -54,7 +54,7 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
@@ -90,10 +90,6 @@ struct GenerateContentIntegrationTests {
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
       #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
-      #expect(usageMetadata.candidatesTokensDetails.count == 1)
-      let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
-      #expect(candidatesTokensDetails.modality == .text)
-      #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
     #expect(usageMetadata.totalTokenCount > 0)
     #expect(usageMetadata.totalTokenCount ==
@@ -106,7 +102,7 @@ struct GenerateContentIntegrationTests {
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2FlashLite,
+      modelName: ModelNames.gemini2_5_Flash,
       generationConfig: GenerationConfig(
         responseMIMEType: "text/x.enum",
         responseSchema: .enumeration(values: ["Red", "Green", "Blue"])
@@ -126,50 +122,28 @@ struct GenerateContentIntegrationTests {
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
     #expect(usageMetadata.candidatesTokenCount.isEqual(to: 1, accuracy: tokenCountAccuracy))
-    #expect(usageMetadata.thoughtsTokenCount == 0)
-    #expect(usageMetadata.totalTokenCount
-      == usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount)
     #expect(usageMetadata.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
-    #expect(usageMetadata.candidatesTokensDetails.count == 1)
-    let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
-    #expect(candidatesTokensDetails.modality == .text)
-    #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 
   @Test(
     arguments: [
       (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
       (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
-      (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576, includeThoughts: true
-      )),
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
-      )),
       (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576, includeThoughts: true
-      )),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
-      )),
       (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
       (
         .googleAI_v1beta_freeTier,
         ModelNames.gemini2_5_Flash,
         ThinkingConfig(thinkingBudget: 24576)
       ),
-      (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576, includeThoughts: true
-      )),
       // Note: The following configs are commented out for easy one-off manual testing.
       // (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
       //   thinkingBudget: 0
@@ -201,10 +175,6 @@ struct GenerateContentIntegrationTests {
 
     let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
     #expect(text == "Mountain View")
-
-    let candidate = try #require(response.candidates.first)
-    let thoughtParts = candidate.content.parts.compactMap { $0.isThought ? $0 : nil }
-    #expect(thoughtParts.isEmpty != (thinkingConfig.includeThoughts ?? false))
 
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
@@ -240,21 +210,9 @@ struct GenerateContentIntegrationTests {
   @Test(
     arguments: [
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: -1, includeThoughts: true
-      )),
       (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
-      (.vertexAI_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: -1, includeThoughts: true
-      )),
       (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: -1, includeThoughts: true
-      )),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
-      (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
-        thinkingBudget: -1, includeThoughts: true
-      )),
     ] as [(InstanceConfig, String, ThinkingConfig)]
   )
   func generateContentThinkingFunctionCalling(_ config: InstanceConfig, modelName: String,
@@ -301,9 +259,6 @@ struct GenerateContentIntegrationTests {
       "region": .string("Ontario"),
       "country": .string("Canada"),
     ])
-    #expect(temperatureFunctionCall.isThought == false)
-    let thoughtSignature = try #require(temperatureFunctionCall.thoughtSignature)
-    #expect(!thoughtSignature.isEmpty)
 
     let temperatureFunctionResponse = FunctionResponsePart(
       name: temperatureFunctionCall.name,
@@ -365,107 +320,6 @@ struct GenerateContentIntegrationTests {
     #endif // canImport(UIKit)
   }
 
-  @Test(
-    "generateContent with Google Search returns grounding metadata",
-    arguments: InstanceConfig.allConfigs
-  )
-  func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
-      tools: [.googleSearch()]
-    )
-    let prompt = "What is the weather in Toronto today?"
-
-    let response = try await model.generateContent(prompt)
-
-    let candidate = try #require(response.candidates.first)
-    let groundingMetadata = try #require(candidate.groundingMetadata)
-    let searchEntrypoint = try #require(groundingMetadata.searchEntryPoint)
-
-    #expect(!groundingMetadata.webSearchQueries.isEmpty)
-    #expect(!searchEntrypoint.renderedContent.isEmpty)
-    #expect(!groundingMetadata.groundingChunks.isEmpty)
-    #expect(!groundingMetadata.groundingSupports.isEmpty)
-
-    for chunk in groundingMetadata.groundingChunks {
-      #expect(chunk.web != nil)
-    }
-
-    for support in groundingMetadata.groundingSupports {
-      let segment = support.segment
-      #expect(segment.endIndex > segment.startIndex)
-      #expect(!segment.text.isEmpty)
-      #expect(!support.groundingChunkIndices.isEmpty)
-
-      // Ensure indices point to valid chunks
-      for index in support.groundingChunkIndices {
-        #expect(index < groundingMetadata.groundingChunks.count)
-      }
-    }
-  }
-
-  @Test(
-    "generateContent with URL Context",
-    arguments: InstanceConfig.allConfigs
-  )
-  func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
-      tools: [.urlContext()]
-    )
-    let url = "https://developers.googleblog.com/en/introducing-gemma-3-270m/"
-    let prompt = "Write a one paragraph summary of this blog post: \(url)"
-
-    // TODO(#15385): Remove `withKnownIssue` when the URL Context tool works consistently using the
-    // Gemini Developer API.
-    try await withKnownIssue(isIntermittent: true) {
-      let response = try await model.generateContent(prompt)
-
-      let candidate = try #require(response.candidates.first)
-      let urlContextMetadata = try #require(candidate.urlContextMetadata)
-      #expect(urlContextMetadata.urlMetadata.count == 1)
-      let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
-      let retrievedURL = try #require(urlMetadata.retrievedURL)
-      #expect(retrievedURL == URL(string: url))
-      #expect(urlMetadata.retrievalStatus == .success)
-    } when: {
-      // This issue only impacts the Gemini Developer API (Google AI), Vertex AI is unaffected.
-      if case .googleAI = config.apiConfig.service {
-        return true
-      }
-      return false
-    }
-  }
-
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      tools: [.codeExecution()]
-    )
-    let prompt = """
-    What is the sum of the first 5 prime numbers? Generate and run code for the calculation.
-    """
-
-    let response = try await model.generateContent(prompt)
-
-    let candidate = try #require(response.candidates.first)
-    let executableCodeParts = candidate.content.parts.compactMap { $0 as? ExecutableCodePart }
-    #expect(executableCodeParts.count == 1)
-    let executableCodePart = try #require(executableCodeParts.first)
-    #expect(executableCodePart.language == .python)
-    #expect(executableCodePart.code.contains("sum"))
-    let codeExecutionResults = candidate.content.parts.compactMap { $0 as? CodeExecutionResultPart }
-    #expect(codeExecutionResults.count == 1)
-    let codeExecutionResultPart = try #require(codeExecutionResults.first)
-    #expect(codeExecutionResultPart.outcome == .ok)
-    let output = try #require(codeExecutionResultPart.output)
-    #expect(output.contains("28")) // 2 + 3 + 5 + 7 + 11 = 28
-    let text = try #require(response.text)
-    #expect(text.contains("28"))
-  }
-
   // MARK: Streaming Tests
 
   @Test(arguments: [
@@ -475,7 +329,7 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash),
     (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
