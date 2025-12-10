@@ -293,7 +293,7 @@ struct Person: Equatable {
 
 #if compiler(>=6.2)
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  extension Person: nonisolated FirebaseAILogic.Generable {
+  extension Person: nonisolated FirebaseAILogic.FirebaseGenerable {
     nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
       firstName = try content.value(forProperty: "firstName")
       middleName = try content.value(forProperty: "middleName")
@@ -349,7 +349,7 @@ struct Address: Equatable {
 
 #if compiler(>=6.2)
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  extension Address: nonisolated FirebaseAILogic.Generable {
+  extension Address: nonisolated FirebaseAILogic.FirebaseGenerable {
     nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
       street = try content.value(forProperty: "street")
       city = try content.value(forProperty: "city")

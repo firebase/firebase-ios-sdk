@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
+
 /// A type that can be converted to model output.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol ConvertibleToModelOutput {
@@ -40,4 +44,50 @@ public protocol ConvertibleToModelOutput {
   /// critical that this implementation be symmetrical with
   /// ``ConvertibleFromModelOutput/init(_:)``.
   var modelOutput: ModelOutput { get }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension FoundationModels.GeneratedContent: ConvertibleToModelOutput {
+  public var modelOutput: ModelOutput {
+    switch kind {
+    case .null:
+      return ModelOutput(kind: .null)
+    case let .bool(value):
+      return ModelOutput(kind: .bool(value))
+    case let .number(value):
+      return ModelOutput(kind: .number(value))
+    case let .string(value):
+      return ModelOutput(kind: .string(value))
+    case let .array(values):
+      return ModelOutput(kind: .array(values.map { $0.modelOutput }))
+    case let .structure(properties: properties, orderedKeys: orderedKeys):
+      return ModelOutput(kind: .structure(
+        properties: properties.mapValues { $0.modelOutput }, orderedKeys: orderedKeys
+      ))
+    @unknown default:
+      fatalError("Unsupported GeneratedContent kind: \(kind)")
+    }
+  }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+public extension FoundationModels.ConvertibleToGeneratedContent
+  where Self: ConvertibleToModelOutput {
+  var generatedContent: GeneratedContent {
+    modelOutput.generatedContent
+  }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+public extension ConvertibleToModelOutput
+  where Self: FoundationModels.ConvertibleToGeneratedContent {
+  var modelOutput: ModelOutput {
+    generatedContent.modelOutput
+  }
 }

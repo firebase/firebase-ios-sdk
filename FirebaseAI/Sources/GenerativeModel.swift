@@ -144,6 +144,12 @@ public final class GenerativeModel: Sendable {
   /// - Throws: A ``GenerateContentError`` if the request failed.
   public func generateContent(_ content: [ModelContent]) async throws
     -> GenerateContentResponse {
+    return try await generateContent(content, generationConfig: generationConfig)
+  }
+
+  public func generateContent(_ content: [ModelContent],
+                              generationConfig: GenerationConfig?) async throws
+    -> GenerateContentResponse {
     try content.throwIfError()
     let response: GenerateContentResponse
     let generateContentRequest = GenerateContentRequest(
@@ -357,6 +363,50 @@ public final class GenerativeModel: Sendable {
     return try await generativeAIService.loadRequest(request: countTokensRequest)
   }
 
+  /// Produces a generable object as a response to a prompt.
+  ///
+  /// - Parameters:
+  ///   - prompt: A prompt for the model to respond to.
+  ///   - type: A type to produce as the response.
+  /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public final func generateObject<Content>(_ type: Content.Type = Content.self,
+                                            parts: any PartsRepresentable...) async throws
+    -> Response<Content>
+    where Content: FoundationModels.Generable {
+    let jsonSchema = try type.generationSchema.asGeminiJSONSchema()
+
+    let generationConfig = {
+      var generationConfig = self.generationConfig ?? GenerationConfig()
+      if generationConfig.candidateCount != nil {
+        generationConfig.candidateCount = nil
+      }
+      generationConfig.responseMIMEType = "application/json"
+      if generationConfig.responseSchema != nil {
+        generationConfig.responseSchema = nil
+      }
+      generationConfig.responseJSONSchema = jsonSchema
+      if generationConfig.responseModalities != nil {
+        generationConfig.responseModalities = nil
+      }
+
+      return generationConfig
+    }()
+
+    let response = try await generateContent(
+      [ModelContent(parts: parts)],
+      generationConfig: generationConfig
+    )
+
+    let generatedContent = try GeneratedContent(json: response.text ?? "")
+    let content = try Content(generatedContent)
+    let rawContent = try ModelOutput(generatedContent)
+
+    return Response(content: content, rawContent: rawContent)
+  }
+
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.
   ///
   /// If `error` is already a `GenerateContentError` the error is returned unchanged.
@@ -365,5 +415,19 @@ public final class GenerativeModel: Sendable {
       return error
     }
     return GenerateContentError.internalError(underlying: error)
+  }
+
+  /// A structure that stores the output of a response call.
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public struct Response<Content> {
+    /// The response content.
+    public let content: Content
+
+    /// The raw response content.
+    ///
+    /// When `Content` is `ModelOutput`, this is the same as `content`.
+    public let rawContent: ModelOutput
   }
 }

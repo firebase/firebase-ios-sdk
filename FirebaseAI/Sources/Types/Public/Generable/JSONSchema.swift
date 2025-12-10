@@ -25,7 +25,7 @@ public struct JSONSchema: Sendable {
     case integer
     case double
     case boolean
-    case array(item: Generable.Type)
+    case array(item: FirebaseGenerable.Type)
     case object(name: String, description: String?, properties: [Property])
   }
 
@@ -45,7 +45,7 @@ public struct JSONSchema: Sendable {
     let name: String
     let description: String?
     let isOptional: Bool
-    let type: Generable.Type
+    let type: FirebaseGenerable.Type
     // TODO: Store `GenerationGuide` values.
 
     /// Create a property that contains a generable type.
@@ -57,7 +57,7 @@ public struct JSONSchema: Sendable {
     ///   - type: The type this property represents.
     ///   - guides: A list of guides to apply to this property.
     public init<Value>(name: String, description: String? = nil, type: Value.Type,
-                       guides: [GenerationGuide<Value>] = []) where Value: Generable {
+                       guides: [GenerationGuide<Value>] = []) where Value: FirebaseGenerable {
       precondition(guides.isEmpty, "GenerationGuide support is not yet implemented.")
       self.name = name
       self.description = description
@@ -74,7 +74,7 @@ public struct JSONSchema: Sendable {
     ///   - type: The type this property represents.
     ///   - guides: A list of guides to apply to this property.
     public init<Value>(name: String, description: String? = nil, type: Value?.Type,
-                       guides: [GenerationGuide<Value>] = []) where Value: Generable {
+                       guides: [GenerationGuide<Value>] = []) where Value: FirebaseGenerable {
       precondition(guides.isEmpty, "GenerationGuide support is not yet implemented.")
       self.name = name
       self.description = description
@@ -89,7 +89,7 @@ public struct JSONSchema: Sendable {
   ///   - type: The type this schema represents.
   ///   - description: A natural language description of this schema.
   ///   - properties: An array of properties.
-  public init(type: any Generable.Type, description: String? = nil,
+  public init(type: any FirebaseGenerable.Type, description: String? = nil,
               properties: [JSONSchema.Property]) {
     let name = String(describing: type)
     kind = .object(name: name, description: description, properties: properties)
@@ -102,7 +102,8 @@ public struct JSONSchema: Sendable {
   ///   - type: The type this schema represents.
   ///   - description: A natural language description of this schema.
   ///   - anyOf: The allowed choices.
-  public init(type: any Generable.Type, description: String? = nil, anyOf choices: [String]) {
+  public init(type: any FirebaseGenerable.Type, description: String? = nil,
+              anyOf choices: [String]) {
     fatalError("`GenerationSchema.init(type:description:anyOf:)` is not implemented.")
   }
 
@@ -112,8 +113,8 @@ public struct JSONSchema: Sendable {
   ///   - type: The type this schema represents.
   ///   - description: A natural language description of this schema.
   ///   - anyOf: The types this schema should be a union of.
-  public init(type: any Generable.Type, description: String? = nil,
-              anyOf types: [any Generable.Type]) {
+  public init(type: any FirebaseGenerable.Type, description: String? = nil,
+              anyOf types: [any FirebaseGenerable.Type]) {
     fatalError("`GenerationSchema.init(type:description:anyOf:)` is not implemented.")
   }
 

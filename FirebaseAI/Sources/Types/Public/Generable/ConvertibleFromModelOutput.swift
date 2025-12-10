@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A type that can be initialized from model output.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -41,4 +44,19 @@ public protocol ConvertibleFromModelOutput: SendableMetatype {
   ///
   /// - SeeAlso: `@Generable` macro ``Generable(description:)``
   init(_ content: ModelOutput) throws
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension FoundationModels.GeneratedContent: ConvertibleFromModelOutput {}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+public extension FoundationModels.ConvertibleFromGeneratedContent
+  where Self: ConvertibleFromModelOutput {
+  init(_ content: ModelOutput) throws {
+    try self.init(content.generatedContent)
+  }
 }

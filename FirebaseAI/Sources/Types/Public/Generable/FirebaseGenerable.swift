@@ -40,13 +40,13 @@ import Foundation
 /// - SeeAlso: `@Generable` macro ``Generable(description:)`` and  `@Guide` macro
 /// ``Guide(description:)``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public protocol Generable: ConvertibleFromModelOutput, ConvertibleToModelOutput {
+public protocol FirebaseGenerable: ConvertibleFromModelOutput, ConvertibleToModelOutput {
   /// An instance of the JSON schema.
   static var jsonSchema: JSONSchema { get }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Optional where Wrapped: Generable {}
+extension Optional where Wrapped: FirebaseGenerable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOutput {
@@ -58,7 +58,7 @@ extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOu
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Bool: Generable {
+extension Bool: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .boolean, source: "Bool")
   }
@@ -76,7 +76,7 @@ extension Bool: Generable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension String: Generable {
+extension String: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .string, source: "String")
   }
@@ -94,7 +94,7 @@ extension String: Generable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Int: Generable {
+extension Int: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .integer, source: "Int")
   }
@@ -112,7 +112,7 @@ extension Int: Generable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Float: Generable {
+extension Float: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .double, source: "Number")
   }
@@ -130,7 +130,7 @@ extension Float: Generable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Double: Generable {
+extension Double: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .double, source: "Number")
   }
@@ -148,7 +148,7 @@ extension Double: Generable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Decimal: Generable {
+extension Decimal: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .double, source: "Number")
   }
@@ -167,7 +167,7 @@ extension Decimal: Generable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Array: Generable where Element: Generable {
+extension Array: FirebaseGenerable where Element: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .array(item: Element.self), source: String(describing: self))
   }

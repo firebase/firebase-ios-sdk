@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
+
 /// A type that represents structured model output.
 ///
 /// Model output may contain a single value, an array, or key-value pairs with unique keys.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelOutput: Sendable, Generable, CustomDebugStringConvertible {
+public struct ModelOutput: Sendable, FirebaseGenerable, CustomDebugStringConvertible {
   /// The kind representation of this model output.
   ///
   /// This property provides access to the content in a strongly-typed enum representation,
@@ -249,6 +253,56 @@ public extension ModelOutput {
         }
         return "{\(descriptions.joined(separator: ", "))}"
       }
+    }
+  }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension ModelOutput: FoundationModels.ConvertibleFromGeneratedContent {
+  public init(_ content: GeneratedContent) throws {
+    switch content.kind {
+    case .null:
+      self.init(kind: .null)
+    case let .bool(value):
+      self.init(kind: .bool(value))
+    case let .number(value):
+      self.init(kind: .number(value))
+    case let .string(value):
+      self.init(kind: .string(value))
+    case let .array(values):
+      self.init(kind: .array(values.map { $0.modelOutput }))
+    case let .structure(properties: properties, orderedKeys: orderedKeys):
+      self.init(kind: .structure(
+        properties: properties.mapValues { $0.modelOutput }, orderedKeys: orderedKeys
+      ))
+    @unknown default:
+      fatalError("Unsupported GeneratedContent kind: \(content.kind)")
+    }
+  }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension ModelOutput: FoundationModels.ConvertibleToGeneratedContent {
+  public var generatedContent: GeneratedContent {
+    switch modelOutput.kind {
+    case .null:
+      return GeneratedContent(kind: .null)
+    case let .bool(value):
+      return GeneratedContent(kind: .bool(value))
+    case let .number(value):
+      return GeneratedContent(kind: .number(value))
+    case let .string(value):
+      return GeneratedContent(kind: .string(value))
+    case let .array(values):
+      return GeneratedContent(kind: .array(values.map { $0.generatedContent }))
+    case let .structure(properties: properties, orderedKeys: orderedKeys):
+      return GeneratedContent(kind: .structure(
+        properties: properties.mapValues { $0.generatedContent }, orderedKeys: orderedKeys
+      ))
     }
   }
 }
