@@ -163,42 +163,35 @@ else
     iphone_simulator_name="iPhone 16e"
   fi
   ios_flags=(
-    -sdk 'iphonesimulator'
     -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
   )
-    watchos_flags=(
-    -sdk 'watchsimulator'
+  watchos_flags=(
     -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
   )
 fi
 
 ios_device_flags=(
-  -sdk 'iphoneos'
   -destination 'generic/platform=iOS'
 )
 
 ipad_flags=(
-  -sdk 'iphonesimulator'
   -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)'
 )
 
 macos_flags=(
-  -sdk 'macosx'
   -destination 'platform=OS X,arch=x86_64'
 )
 tvos_flags=(
-  -sdk "appletvsimulator"
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 visionos_flags=(
   # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
   # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
   # explicitly specifying OS=2.5 in destination as a workaround.
-  -sdk 'xrsimulator'
   -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
 )
 catalyst_flags=(
-  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
+  ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES
   -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
   CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 )

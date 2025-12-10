@@ -30,9 +30,5 @@ source scripts/check_secrets.sh
 
 if check_secrets; then
   cd quickstart-ios
-  if [ "$platform" = "swift" ]; then
-    have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="Swift" "${REPO}"/scripts/zip_quickstart_test.sh
-  else
-    have_secrets=true SAMPLE="$sample" "${REPO}"/scripts/zip_quickstart_test.sh
-  fi
+  have_secrets=true SAMPLE="$sample" "${REPO}"/scripts/zip_quickstart_test.sh
 fi
