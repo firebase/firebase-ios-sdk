@@ -41,6 +41,10 @@ let package = Package(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
+    .library(
+      name: "FirebaseAuthInterop",
+      targets: ["FirebaseAuthInterop"]
+    ),
     // Adding this library to your project is enough for it to take effect. The module
     // does not need to be imported into any source files.
     .library(
