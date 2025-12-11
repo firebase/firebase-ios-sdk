@@ -90,7 +90,6 @@ jobs:
 
   quickstart-ftl-cron-only:
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
-
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-15
@@ -102,6 +101,8 @@ jobs:
         python-version: '3.11'
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+    - name: Install xcpretty
+      run: gem install xcpretty
     - name: Setup quickstart
       run: scripts/setup_quickstart_spm.sh performance
     - name: Install Secret GoogleService-Info.plist
@@ -109,8 +110,6 @@ jobs:
           quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
     - name: Build swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Performance swift)
-    # - name: Build objc quickstart
-    #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Performance)
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
       with:
