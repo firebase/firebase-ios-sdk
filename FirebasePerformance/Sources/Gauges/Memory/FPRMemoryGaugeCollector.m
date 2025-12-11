@@ -19,7 +19,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
-#include <malloc/malloc.h>
+#include <mach/mach.h>
 
 @interface FPRMemoryGaugeCollector ()
 
@@ -37,10 +37,20 @@
 FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   NSDate *collectionTime = [NSDate date];
 
-  struct mstats ms = mstats();
+  // Reading task_info is safer to call from any thread, including during high throughput networking activity.
+  task_vm_info_data_t vmInfo;
+  mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
+  u_long usedBytes = 0;
+  u_long freeBytes = 0;
+
+  kern_return_t kr = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
+  if (kr == KERN_SUCCESS) {
+    // phys_footprint is the memory footprint used by Jetsam accounting.
+    usedBytes = (u_long)vmInfo.phys_footprint;
+  }
   FPRMemoryGaugeData *gaugeData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
-                                                                            heapUsed:ms.bytes_used
-                                                                       heapAvailable:ms.bytes_free];
+                                                                            heapUsed:usedBytes
+                                                                       heapAvailable:freeBytes];
   return gaugeData;
 }
 
