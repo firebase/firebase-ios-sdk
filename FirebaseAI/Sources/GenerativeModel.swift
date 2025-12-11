@@ -118,6 +118,24 @@ public final class GenerativeModel: Sendable {
     AILog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
   }
 
+  /// Internal initializer to create a new model by copying an existing one with specific overrides.
+  convenience init(copying other: GenerativeModel,
+                   generationConfig: GenerationConfig? = nil) {
+    self.init(
+      modelName: other.modelName,
+      modelResourceName: other.modelResourceName,
+      firebaseInfo: other.generativeAIService.firebaseInfo,
+      apiConfig: other.apiConfig,
+      generationConfig: generationConfig ?? other.generationConfig,
+      safetySettings: other.safetySettings,
+      tools: other.tools,
+      toolConfig: other.toolConfig,
+      systemInstruction: other.systemInstruction,
+      requestOptions: other.requestOptions,
+      urlSession: other.generativeAIService.urlSession
+    )
+  }
+
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
   /// representable as one or more ``Part``s.
   ///
