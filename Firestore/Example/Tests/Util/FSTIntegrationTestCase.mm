@@ -184,6 +184,15 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
  * See Firestore/README.md for detailed setup instructions or comments below for which specific
  * values trigger which configurations.
  */
++ (FSTBackendEdition)backendEdition {
+  NSString *backendEditionStr = [[NSProcessInfo processInfo] environment][@"BACKEND_EDITION"];
+  if (backendEditionStr && [backendEditionStr isEqualToString:@"enterprise"]) {
+    return FSTBackendEditionEnterprise;
+  } else {
+    return FSTBackendEditionStandard;
+  }
+}
+
 + (void)setUpDefaults {
   if (defaultSettings) return;
 
@@ -194,7 +203,11 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   if (databaseId) {
     defaultDatabaseId = databaseId;
   } else {
-    defaultDatabaseId = @"enterprise";
+    if ([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise) {
+      defaultDatabaseId = enterpriseDatabaseId;
+    } else {
+      defaultDatabaseId = @"(default)";
+    }
   }
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live

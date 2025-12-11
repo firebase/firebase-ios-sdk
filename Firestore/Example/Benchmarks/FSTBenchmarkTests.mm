@@ -32,6 +32,12 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTBenchmarkTests
 
 - (void)testRunBenchmarks {
+  NSString* targetBackend = [[NSProcessInfo processInfo] environment][@"TARGET_BACKEND"];
+  if (targetBackend && ![targetBackend isEqualToString:@"emulator"]) {
+    XCTSkip(@"Skipping benchmarks because TARGET_BACKEND is not 'emulator' or is "
+            @"not set.");
+  }
+
   char* argv[] = {
       const_cast<char*>("FSTBenchmarkTests"),
       const_cast<char*>("--benchmark_filter=BM_.*"),
