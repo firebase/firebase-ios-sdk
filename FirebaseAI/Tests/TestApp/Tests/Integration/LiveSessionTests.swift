@@ -31,6 +31,7 @@ struct LiveSessionTests {
       [
         (config, ModelNames.gemini2FlashLive),
         (config, ModelNames.gemini2_5_FlashLivePreview),
+        (config, ModelNames.gemini2_5_FlashNativeAudioPreview),
       ]
     }
   }
