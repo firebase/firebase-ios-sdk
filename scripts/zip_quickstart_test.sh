@@ -45,7 +45,6 @@ SCHEME_NAME="${SCHEME}"
 if [[ -z "$SCHEME_NAME" ]]; then
   SCHEME_NAME="${SAMPLE}Example"
   echo "Defaulting scheme name to $SCHEME_NAME"
-  exit 1
 fi
 
 # Check if the scheme exists before attempting to build.
