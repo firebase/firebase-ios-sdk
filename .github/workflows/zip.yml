@@ -18,7 +18,7 @@ permissions:
 env:
   # When specified, build jobs will be skipped and the specified
   # run's artifacts will be used for testing.
-  PINNED_RUN_ID: '20155970729'
+  PINNED_RUN_ID: ''
 
 on:
   pull_request:
