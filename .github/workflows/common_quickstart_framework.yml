@@ -71,6 +71,8 @@ jobs:
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ inputs.xcode }}.app/Contents/Developer
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
