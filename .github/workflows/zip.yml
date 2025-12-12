@@ -10,6 +10,7 @@
 name: zip
 
 # TODO(ncooke3): Also do Xcode 26 testing
+# TODO(ncooke3): Refactor zip paths.
 
 permissions:
   actions: read
@@ -333,6 +334,7 @@ jobs:
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
     uses: ./.github/workflows/common_quickstart_framework.yml
+    name: ${{ matrix.config.product }} / ${{ matrix.artifact == 'Firebase-actions-dir' && 'static' || 'dynamic' }}
     with:
       product: ${{ matrix.config.product }}
       zip_run_id: ${{ needs.packaging_done.outputs.run_id }}
