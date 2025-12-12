@@ -30,5 +30,5 @@ source scripts/check_secrets.sh
 
 if check_secrets; then
   cd quickstart-ios
-  have_secrets=true SAMPLE="$sample" SCHEME="${scheme}" ${REPO}"/scripts/zip_quickstart_test.sh"
+  have_secrets=true SAMPLE="$sample" SCHEME="${scheme}" ${REPO}"/scripts/zip/zip_quickstart_test.sh"
 fi

@@ -43,7 +43,7 @@ touch foo.swift
 mkdir -p Firebase/
 # Create non Firebase Frameworks and move to Firebase/ dir.
 if [[ ! -z "$NON_FIREBASE_SDKS" ]]; then
-  REPO="${REPO}" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
+  REPO="${REPO}" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/zip/build_non_firebase_sdks.sh
 fi
 if [ ! -f "Firebase/Firebase.h" ]; then
   cp "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/

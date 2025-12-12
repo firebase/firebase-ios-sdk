@@ -27,10 +27,7 @@ on:
     - 'ReleaseTooling/Sources/**'
     - '.github/workflows/zip.yml'
     - '.github/workflows/common_quickstart_framework.yml'
-    - 'scripts/build_non_firebase_sdks.sh'
-    - 'scripts/build_zip.sh'
-    - 'scripts/setup_quickstart_framework.sh'
-    - 'scripts/zip_quickstart_test.sh'
+    - 'scripts/zip/**'
     - 'Gemfile*'
     # Don't run based on any markdown only changes.
     - '!ReleaseTooling/*.md'
@@ -96,7 +93,7 @@ jobs:
     - name: ZipBuildingTest
       run: |
          mkdir -p release_zip_dir
-         sh -x scripts/build_zip.sh release_zip_dir \
+         sh -x scripts/zip/build_zip.sh release_zip_dir \
            "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}" \
            build-release \
            static
@@ -144,7 +141,7 @@ jobs:
     - name: ZipBuildingTest
       run: |
          mkdir -p zip_output_dir
-         sh -x scripts/build_zip.sh \
+         sh -x scripts/zip/build_zip.sh \
            zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}" \
            build-head \
            ${{ matrix.linking_type }}
@@ -222,7 +219,7 @@ jobs:
             plist_src: "scripts/gha-encrypted/qs-abtesting.plist.gpg"
             plist_dst: "quickstart-ios/abtesting/GoogleService-Info.plist"
             command: |
-              SAMPLE="ABTesting" TARGET="ABTestingExample" scripts/setup_quickstart_framework.sh \
+              SAMPLE="ABTesting" TARGET="ABTestingExample" scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCoreInternal.xcframework \
@@ -236,7 +233,7 @@ jobs:
             command: |
               SAMPLE="Authentication" TARGET="AuthenticationExample" \
                 NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
-                scripts/setup_quickstart_framework.sh \
+                scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                 "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
@@ -246,7 +243,7 @@ jobs:
             plist_src: "scripts/gha-encrypted/qs-config.plist.gpg"
             plist_dst: "quickstart-ios/config/GoogleService-Info.plist"
             command: |
-              SAMPLE="Config" TARGET="ConfigExample" scripts/setup_quickstart_framework.sh \
+              SAMPLE="Config" TARGET="ConfigExample" scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
@@ -257,7 +254,7 @@ jobs:
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
               rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
-              SAMPLE="Crashlytics" TARGET="CrashlyticsExample" scripts/setup_quickstart_framework.sh \
+              SAMPLE="Crashlytics" TARGET="CrashlyticsExample" scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
               cd quickstart-ios/crashlytics
@@ -274,7 +271,7 @@ jobs:
             xcode: "Xcode_16.2" # Override default
             command: |
               SAMPLE="Database" TARGET="DatabaseExample" NON_FIREBASE_SDKS="FirebaseDatabaseUI" \
-                scripts/setup_quickstart_framework.sh \
+                scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
@@ -287,7 +284,7 @@ jobs:
             plist_dst: "quickstart-ios/firebaseai/GoogleService-Info.plist"
             scheme: "FirebaseAIExample (iOS)" # Special property
             command: |
-              SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
+              SAMPLE="$SDK" TARGET="${SDK}Example" scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAILogic/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
@@ -297,7 +294,7 @@ jobs:
             command: |
               SAMPLE="Firestore" TARGET="FirestoreExample" \
                 NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" \
-                scripts/setup_quickstart_framework.sh \
+                scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
@@ -307,7 +304,7 @@ jobs:
             plist_src: "scripts/gha-encrypted/qs-inappmessaging.plist.gpg"
             plist_dst: "quickstart-ios/inappmessaging/GoogleService-Info.plist"
             command: |
-              SAMPLE="InAppMessaging" TARGET="InAppMessagingExample" scripts/setup_quickstart_framework.sh \
+              SAMPLE="InAppMessaging" TARGET="InAppMessagingExample" scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
@@ -315,7 +312,7 @@ jobs:
             plist_src: "scripts/gha-encrypted/qs-messaging.plist.gpg"
             plist_dst: "quickstart-ios/messaging/GoogleService-Info.plist"
             command: |
-              SAMPLE="Messaging" TARGET="MessagingExample" scripts/setup_quickstart_framework.sh \
+              SAMPLE="Messaging" TARGET="MessagingExample" scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
               cd quickstart-ios/messaging
@@ -328,7 +325,7 @@ jobs:
             plist_src: "scripts/gha-encrypted/qs-storage.plist.gpg"
             plist_dst: "quickstart-ios/storage/GoogleService-Info.plist"
             command: |
-              SAMPLE="Storage" TARGET="StorageExample" scripts/setup_quickstart_framework.sh \
+              SAMPLE="Storage" TARGET="StorageExample" scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
