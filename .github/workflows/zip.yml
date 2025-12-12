@@ -10,7 +10,6 @@
 name: zip
 
 # TODO(ncooke3): Also do Xcode 26 testing
-# TODO(ncooke3): Refactor zip paths.
 
 permissions:
   actions: read
