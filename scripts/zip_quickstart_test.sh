@@ -38,9 +38,15 @@ else
   device_name="iPhone 16"
 fi
 
-# Define project and scheme names
+# Define project and, if needed, scheme.
 PROJECT_NAME="${SAMPLE}Example.xcodeproj"
-SCHEME_NAME="${SAMPLE}Example${SWIFT_SUFFIX}"
+SCHEME_NAME="${SCHEME}"
+
+if [[ -z "$SCHEME_NAME" ]]; then
+  SCHEME_NAME="${SAMPLE}Example${SWIFT_SUFFIX}"
+  echo "Defaulting scheme name to $SCHEME_NAME"
+  exit 1
+fi
 
 # Check if the scheme exists before attempting to build.
 # The `awk` command prints all lines from "Schemes:" to the end of the output.

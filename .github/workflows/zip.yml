@@ -16,9 +16,12 @@ permissions:
   contents: read
 
 env:
-  # When a run_id is specified, build jobs will be skipped and the specified
+  # When specified, build jobs will be skipped and the specified
   # run's artifacts will be used for testing.
-  PINNED_RUN_ID: ''
+  PINNED_RUN_ID: '20155970729'
+  # When specified, only the given job name will be run. This is useful for
+  # faster, isolated testing of a given quickstart.
+  PINNED_QUICKSTART_JOB: 'quickstart_framework_firebaseai'
 
 on:
   pull_request:
@@ -177,9 +180,23 @@ jobs:
             echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
 
+  env:
+    runs-on: ubuntu-latest
+    outputs:
+      pinned_quickstart_job: ${{ steps.export.outputs.pinned_quickstart_job }}
+    steps:
+    - name: Fail workflow if PINNED_QUICKSTART_JOB is set on a schedule
+      if: github.event_name == 'schedule' && env.PINNED_QUICKSTART_JOB != ''
+      run: |
+        echo "ERROR: PINNED_QUICKSTART_JOB is set for a scheduled run. Unset it to allow the workflow to proceed."
+        exit 1
+    - name: Export PINNED_QUICKSTART_JOB
+      id: export
+      run: echo "pinned_quickstart_job=${{ env.PINNED_QUICKSTART_JOB }}" >> $GITHUB_OUTPUT
+
   check_framework_firestore_symbols:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
@@ -209,8 +226,8 @@ jobs:
             "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/FirebaseFirestoreInternal.xcframework
 
   quickstart_framework_abtesting:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
@@ -238,8 +255,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart_framework_auth:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         os: [macos-15]
@@ -266,8 +283,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart_framework_config:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
@@ -291,8 +308,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart_framework_crashlytics:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
@@ -325,8 +342,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart_framework_database:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         os: [macos-14]
@@ -354,12 +371,12 @@ jobs:
 
   # TODO(ncooke3): Migrate to use shared workflow after fixing AI scheme names.
   quickstart_framework_firebaseai:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       SDK: "FirebaseAI"
-      SWIFT_SUFFIX: " (iOS)"
+      SCHEME: "FirebaseAIExample (iOS)"
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
@@ -393,7 +410,7 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg \
         quickstart-ios/firebaseai/GoogleService-Info.plist "$plist_secret"
     - name: Test Quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}")
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_framework.sh "${SDK}" "${SCHEME}")
     - name: Remove data before upload
       if: failure()
       run: scripts/remove_data.sh firebaseai
@@ -406,8 +423,8 @@ jobs:
           !quickstart-ios/**/GoogleService-Info.plist
 
   quickstart_framework_firestore:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
@@ -433,8 +450,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart_framework_inappmessaging:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
@@ -458,8 +475,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart_framework_messaging:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
@@ -488,8 +505,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart_framework_storage:
-    needs: packaging_done
-    if: ${{ !cancelled() }}
+    needs: [packaging_done, env]
+    if: ${{ !cancelled() && (!needs.env.outputs.pinned_quickstart_job || needs.env.outputs.pinned_quickstart_job == github.job) }}
     strategy:
       matrix:
         artifact: [Firebase-actions-dir, Firebase-actions-dir-dynamic]
