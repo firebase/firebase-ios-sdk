@@ -514,9 +514,8 @@ jobs:
   spm-binary:
     uses: ./.github/workflows/common.yml
     with:
-      target: FirebaseFirestore
+      target: FirebaseFirestoreTests
       platforms: iOS
-      buildonly_platforms: iOS
 
   check-firestore-internal-public-headers:
     needs: check
