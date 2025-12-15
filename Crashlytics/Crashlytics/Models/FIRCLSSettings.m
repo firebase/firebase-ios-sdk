@@ -202,7 +202,6 @@ NSString *const AppVersion = @"app_version";
       [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsCacheKeyPath];
     }
 #ifndef FIREBASE_IS_NIGHTLY_TESTING
-#error "Mango: Check two."
   });
 #endif
 
