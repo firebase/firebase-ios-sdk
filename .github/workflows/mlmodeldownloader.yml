@@ -8,7 +8,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseMLModelDownloader**'
-    - '.github/workflows/mlmodeldownloader.yml'
+    # - '.github/workflows/mlmodeldownloader.yml'
     # - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'

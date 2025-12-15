@@ -8,7 +8,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseInstallations**'
-    - '.github/workflows/installations.yml'
+    # - '.github/workflows/installations.yml'
     # - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
