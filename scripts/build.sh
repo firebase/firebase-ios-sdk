@@ -255,6 +255,13 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
+# If running in Gemini CLI, pass -quiet to xcodebuild.
+# This reduces chance of exceeding the request token count.
+if [[ -n "${GEMINI_CLI:-}" ]]; then
+  echo "Running in Gemini CLI, adding -quiet to xcodebuild invocation."
+  xcb_flags+=(-quiet)
+fi
+
 source scripts/buildcache.sh
 xcb_flags=("${xcb_flags[@]}" "${buildcache_xcb_flags[@]}")
 
