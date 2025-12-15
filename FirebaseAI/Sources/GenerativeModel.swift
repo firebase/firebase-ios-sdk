@@ -404,7 +404,10 @@ public final class GenerativeModel: Sendable {
         generationConfig: generationConfig
       )
 
-      let generatedContent = try GeneratedContent(json: response.text ?? "")
+      // Remove extraneous '```json' prefix from JSON payload.
+      let json = response.text?.replacingOccurrences(of: "```json", with: "") ?? ""
+
+      let generatedContent = try GeneratedContent(json: json)
       let content = try Content(generatedContent)
       let rawContent = try ModelOutput(generatedContent)
 
