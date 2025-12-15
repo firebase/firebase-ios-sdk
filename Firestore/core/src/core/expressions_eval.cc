@@ -945,7 +945,9 @@ EvaluateResult CoreToLower::Evaluate(
 
   switch (evaluated.type()) {
     case EvaluateResult::ResultType::kString: {
-      std::locale locale{"en_US.UTF-8"};
+      // TODO: Use https://unicode-org.github.io/icu/userguide/locale/ to be
+      // consistent with backend.
+      std::locale locale;  // Use default locale.
       std::string str = nanopb::MakeString(evaluated.value()->string_value);
       std::transform(str.begin(), str.end(), str.begin(),
                      [&locale](char c) { return std::tolower(c, locale); });
@@ -967,7 +969,9 @@ EvaluateResult CoreToUpper::Evaluate(
 
   switch (evaluated.type()) {
     case EvaluateResult::ResultType::kString: {
-      std::locale locale{"en_US.UTF-8"};
+      // TODO: Use https://unicode-org.github.io/icu/userguide/locale/ to be
+      // consistent with backend.
+      std::locale locale;  // Use default locale.
       std::string str = nanopb::MakeString(evaluated.value()->string_value);
       std::transform(str.begin(), str.end(), str.begin(),
                      [&locale](char c) { return std::toupper(c, locale); });
