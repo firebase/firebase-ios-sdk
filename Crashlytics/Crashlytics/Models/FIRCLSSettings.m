@@ -201,7 +201,7 @@ NSString *const AppVersion = @"app_version";
     if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsCacheKeyPath]) {
       [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsCacheKeyPath];
     }
-#ifndef FIREBASE_CRASHYLTICS_TESTING
+#ifndef FIREBASE_IS_NIGHTLY_TESTING
 #error "Mango: Check two."
   });
 #endif
