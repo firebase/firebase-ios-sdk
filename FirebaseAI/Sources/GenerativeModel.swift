@@ -415,6 +415,27 @@ public final class GenerativeModel: Sendable {
     }
   #endif // canImport(FoundationModels)
 
+  #if canImport(FoundationModels)
+    // TODO: Remove this method when Gemini vs. AFM is a configuration (hybrid mode)
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public final func generateObjectAFM<Content>(_ type: Content.Type = Content.self,
+                                                 prompt: String) async throws -> Response<Content>
+      where Content: FoundationModels.Generable {
+      let instructions: String? = systemInstruction?.parts.first.flatMap {
+        guard let textPart = $0 as? TextPart else {
+          return nil
+        }
+        return textPart.text
+      }
+      let session = LanguageModelSession(model: .default, instructions: instructions)
+      let response = try await session.respond(to: prompt, generating: type)
+
+      return try Response(content: response.content, rawContent: ModelOutput(response.rawContent))
+    }
+  #endif // canImport(FoundationModels)
+
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.
   ///
   /// If `error` is already a `GenerateContentError` the error is returned unchanged.
