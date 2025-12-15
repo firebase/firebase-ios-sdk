@@ -190,7 +190,7 @@ NSString *const AppVersion = @"app_version";
 
 - (void)deleteCachedSettings {
   __weak FIRCLSSettings *weakSelf = self;
-#if FIREBASE_CRASHYLTICS_TESTING
+#ifndef FIREBASE_CRASHYLTICS_TESTING
 #error "Mango: Check one."
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
 #endif
@@ -201,7 +201,7 @@ NSString *const AppVersion = @"app_version";
     if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsCacheKeyPath]) {
       [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsCacheKeyPath];
     }
-#if FIREBASE_CRASHYLTICS_TESTING
+#ifndef FIREBASE_CRASHYLTICS_TESTING
 #error "Mango: Check two."
   });
 #endif
