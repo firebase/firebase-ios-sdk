@@ -201,7 +201,7 @@ EvaluateResult EvaluateResult::NewValue(
 
 std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     const api::FunctionExpr& function) {
-  if (function.name() == "eq") {
+  if (function.name() == "equal") {
     return std::make_unique<CoreEq>(function);
   } else if (function.name() == "add") {
     return std::make_unique<CoreAdd>(function);
@@ -213,17 +213,17 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreDivide>(function);
   } else if (function.name() == "mod") {
     return std::make_unique<CoreMod>(function);
-  } else if (function.name() == "neq") {
+  } else if (function.name() == "not_equal") {
     return std::make_unique<CoreNeq>(function);
-  } else if (function.name() == "lt") {
+  } else if (function.name() == "less_than") {
     return std::make_unique<CoreLt>(function);
-  } else if (function.name() == "lte") {
+  } else if (function.name() == "less_than_or_equal") {
     return std::make_unique<CoreLte>(function);
-  } else if (function.name() == "gt") {
+  } else if (function.name() == "greater_than") {
     return std::make_unique<CoreGt>(function);
-  } else if (function.name() == "gte") {
+  } else if (function.name() == "greater_than_or_equal") {
     return std::make_unique<CoreGte>(function);
-  } else if (function.name() == "array_reverse") {  // Removed array_concat
+  } else if (function.name() == "array_reverse") {
     return std::make_unique<CoreArrayReverse>(function);
   } else if (function.name() == "array_contains") {
     return std::make_unique<CoreArrayContains>(function);
@@ -245,9 +245,9 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreXor>(function);
   } else if (function.name() == "cond") {
     return std::make_unique<CoreCond>(function);
-  } else if (function.name() == "eq_any") {
+  } else if (function.name() == "equal_any") {
     return std::make_unique<CoreEqAny>(function);
-  } else if (function.name() == "not_eq_any") {
+  } else if (function.name() == "not_equal_any") {
     return std::make_unique<CoreNotEqAny>(function);
   } else if (function.name() == "is_nan") {
     return std::make_unique<CoreIsNan>(function);
@@ -259,9 +259,9 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreIsNotNull>(function);
   } else if (function.name() == "is_error") {
     return std::make_unique<CoreIsError>(function);
-  } else if (function.name() == "logical_maximum") {
+  } else if (function.name() == "maximum") {
     return std::make_unique<CoreLogicalMaximum>(function);
-  } else if (function.name() == "logical_minimum") {
+  } else if (function.name() == "minimum") {
     return std::make_unique<CoreLogicalMinimum>(function);
   } else if (function.name() == "map_get") {
     return std::make_unique<CoreMapGet>(function);
@@ -269,13 +269,13 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreByteLength>(function);
   } else if (function.name() == "char_length") {
     return std::make_unique<CoreCharLength>(function);
-  } else if (function.name() == "str_concat") {
+  } else if (function.name() == "string_concat") {
     return std::make_unique<CoreStrConcat>(function);
   } else if (function.name() == "ends_with") {
     return std::make_unique<CoreEndsWith>(function);
   } else if (function.name() == "starts_with") {
     return std::make_unique<CoreStartsWith>(function);
-  } else if (function.name() == "str_contains") {
+  } else if (function.name() == "string_contains") {
     return std::make_unique<CoreStrContains>(function);
   } else if (function.name() == "to_lower") {
     return std::make_unique<CoreToLower>(function);
@@ -283,8 +283,7 @@ std::unique_ptr<EvaluableExpr> FunctionToEvaluable(
     return std::make_unique<CoreToUpper>(function);
   } else if (function.name() == "trim") {
     return std::make_unique<CoreTrim>(function);
-  } else if (function.name() == "reverse") {
-    // Note: This handles string reverse. Array reverse is separate.
+  } else if (function.name() == "string_reverse") {
     return std::make_unique<CoreReverse>(function);
   } else if (function.name() == "regex_contains") {
     return std::make_unique<CoreRegexContains>(function);
@@ -1294,7 +1293,7 @@ EvaluateResult CoreArrayContains::Evaluate(
   std::vector<std::shared_ptr<api::Expr>> reversed_params(
       expr_->params().rbegin(), expr_->params().rend());
   auto const eq_any =
-      CoreEqAny(api::FunctionExpr("eq_any", std::move(reversed_params)));
+      CoreEqAny(api::FunctionExpr("equal_any", std::move(reversed_params)));
   return eq_any.Evaluate(context, document);
 }
 
@@ -1763,7 +1762,8 @@ EvaluateResult CoreNotEqAny::Evaluate(
       "array value)");
 
   CoreNot equivalent(api::FunctionExpr(
-      "not", {std::make_shared<api::FunctionExpr>("eq_any", expr_->params())}));
+      "not",
+      {std::make_shared<api::FunctionExpr>("equal_any", expr_->params())}));
   return equivalent.Evaluate(context, document);
 }
 

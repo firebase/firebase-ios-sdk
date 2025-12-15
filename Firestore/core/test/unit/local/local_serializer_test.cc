@@ -779,7 +779,7 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithPipeline) {
     stage2_proto->set_name("where");
     v1::Value* stage2_arg1_expr = stage2_proto->add_args();  // The EqExpr
     v1::Function* eq_func = stage2_arg1_expr->mutable_function_value();
-    eq_func->set_name("eq");
+    eq_func->set_name("equal");
 
     v1::Value* eq_arg1_field = eq_func->add_args();  // Field("name")
     eq_arg1_field->set_field_reference_value("name");

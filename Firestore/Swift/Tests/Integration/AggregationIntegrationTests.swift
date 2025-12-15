@@ -333,12 +333,17 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
 
     // Count  - 0 because aggregation is performed on documents matching the query AND documents
     // that have all aggregated fields
-    XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 0)
-
-    // Sum
-    XCTAssertEqual(snapshot.get(AggregateField.sum("notInMyDocs")) as? NSNumber, 0)
-
-    // Average
-    XCTAssertEqual(snapshot.get(AggregateField.average("notInMyDocs")) as? NSNull, NSNull())
+    switch FSTIntegrationTestCase.backendEdition() {
+    case .standard:
+      XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 0)
+      XCTAssertEqual(snapshot.get(AggregateField.sum("notInMyDocs")) as? NSNumber, 0)
+      XCTAssertEqual(snapshot.get(AggregateField.average("notInMyDocs")) as? NSNull, NSNull())
+    case .enterprise:
+      XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 2)
+      XCTAssertEqual(snapshot.get(AggregateField.sum("notInMyDocs")) as? NSNull, NSNull())
+      XCTAssertEqual(snapshot.get(AggregateField.average("notInMyDocs")) as? NSNull, NSNull())
+    @unknown default:
+      XCTFail("Unknown backend edition")
+    }
   }
 }

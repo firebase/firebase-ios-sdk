@@ -18,9 +18,14 @@ import XCTest
 import FirebaseFirestore
 
 final class PipelineApiTests: FSTIntegrationTestCase {
-  override func setUp() {
-    FSTIntegrationTestCase.switchToEnterpriseMode()
-    super.setUp()
+  override func setUpWithError() throws {
+    try super.setUpWithError()
+
+    if FSTIntegrationTestCase.backendEdition() == .standard {
+      throw XCTSkip(
+        "Skipping all tests in PipelineIntegrationTests because backend edition is Standard."
+      )
+    }
   }
 
   func testCreatePipeline() async throws {

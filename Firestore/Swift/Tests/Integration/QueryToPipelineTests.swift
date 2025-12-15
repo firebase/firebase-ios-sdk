@@ -19,6 +19,16 @@ import XCTest
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class QueryToPipelineTests: FSTIntegrationTestCase {
+  override func setUpWithError() throws {
+    try super.setUpWithError()
+
+    if FSTIntegrationTestCase.backendEdition() == .standard {
+      throw XCTSkip(
+        "Skipping all tests in PipelineIntegrationTests because backend edition is Standard."
+      )
+    }
+  }
+
   let testUnsupportedFeatures = false
 
   private func verifyResults(_ snapshot: Pipeline.Snapshot,

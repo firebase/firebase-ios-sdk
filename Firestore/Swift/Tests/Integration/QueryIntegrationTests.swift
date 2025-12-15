@@ -176,6 +176,9 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testOrQueriesWithArrayMembership() async throws {
+    try XCTSkipIf(FSTIntegrationTestCase.backendEdition() == .enterprise,
+                  "Skipping this test in enterprise mode.")
+
     let collRef = collectionRef(
       withDocuments: ["doc1": ["a": 1, "b": [0]],
                       "doc2": ["b": 1],

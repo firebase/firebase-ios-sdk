@@ -127,9 +127,14 @@ private let bookDocs: [String: [String: Sendable]] = [
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineIntegrationTests: FSTIntegrationTestCase {
-  override func setUp() {
-    FSTIntegrationTestCase.switchToEnterpriseMode()
-    super.setUp()
+  override func setUpWithError() throws {
+    try super.setUpWithError()
+
+    if FSTIntegrationTestCase.backendEdition() == .standard {
+      throw XCTSkip(
+        "Skipping all tests in PipelineIntegrationTests because backend edition is Standard."
+      )
+    }
   }
 
   func testEmptyResults() async throws {
