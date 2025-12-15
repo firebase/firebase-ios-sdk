@@ -255,6 +255,11 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
+if [[ -n "${XCODEBUILD_FLAGS:-}" ]]; then
+  echo "Appending XCODEBUILD_FLAGS: ${XCODEBUILD_FLAGS}"
+  xcb_flags+=("${XCODEBUILD_FLAGS}")
+fi
+
 source scripts/buildcache.sh
 xcb_flags=("${xcb_flags[@]}" "${buildcache_xcb_flags[@]}")
 
