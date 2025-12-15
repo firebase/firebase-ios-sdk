@@ -13,7 +13,7 @@ on:
     - 'Example/Database/**'
     - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/database.yml'
-    - '.github/workflows/common.yml'
+    # - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - '.github/workflows/common_quickstart.yml'

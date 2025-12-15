@@ -9,7 +9,7 @@ on:
     paths:
     - 'FirebaseCore**'
     - '.github/workflows/core.yml'
-    - '.github/workflows/common.yml'
+    # - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - '.github/workflows/common_cocoapods_cron.yml'

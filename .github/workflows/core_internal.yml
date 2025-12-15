@@ -10,7 +10,7 @@ on:
     - 'FirebaseCoreInternal.podspec'
     - 'FirebaseCore/Internal/**'
     - '.github/workflows/core_internal.yml'
-    - '.github/workflows/common.yml'
+    # - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - '.github/workflows/common_cocoapods_cron.yml'
