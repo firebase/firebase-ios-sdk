@@ -30,7 +30,7 @@ jobs:
     uses: ./.github/workflows/common.yml
     with:
       target: FirebaseCrashlyticsUnit
-      xcodebuild_flags: "GCC_PREPROCESSOR_DEFINITIONS='$(inherited) FIREBASE_CRASHYLTICS_TESTING=1'"
+      xcodebuild_flags: "GCC_PREPROCESSOR_DEFINITIONS='$GCC_PREPROCESSOR_DEFINITIONS FIREBASE_CRASHYLTICS_TESTING=1'"
 
   catalyst:
     uses: ./.github/workflows/common_catalyst.yml
