@@ -52,11 +52,11 @@ on:
         required: false
         default: ""
 
-      # Additional flags to pass to xcodebuild.
-      xcodebuild_flags:
-        type: string
+      # Whether the job is scheduled. Defaults to false.
+      is_nightly:
+        type: boolean
         required: false
-        default: ""
+        default: false
 
     outputs:
       cache_key:
