@@ -123,3 +123,9 @@ jobs:
             ${{ inputs.target }} \
             ${{ matrix.platform }} \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: xcodebuild-logs-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
+        path: xcodebuild-*.log
+        if-no-files-found: error
