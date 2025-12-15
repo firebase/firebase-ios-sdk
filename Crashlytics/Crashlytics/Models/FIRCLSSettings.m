@@ -190,7 +190,7 @@ NSString *const AppVersion = @"app_version";
 
 - (void)deleteCachedSettings {
   __weak FIRCLSSettings *weakSelf = self;
-#ifndef FIREBASE_CRASHYLTICS_TESTING
+#ifndef FIREBASE_IS_NIGHTLY_TESTING
 #error "Mango: Check one."
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
 #endif
