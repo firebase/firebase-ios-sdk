@@ -638,7 +638,7 @@ let package = Package(
         .headerSearchPath("../.."),
         .define(
           "FIREBASE_IS_NIGHTLY_TESTING",
-          to: Context.environment["FIREBASE_IS_NIGHTLY_TESTING", default: false]
+          to: Context.environment["FIREBASE_IS_NIGHTLY_TESTING", default: ""]
         ),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
