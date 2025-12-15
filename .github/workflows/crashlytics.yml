@@ -30,8 +30,8 @@ jobs:
     uses: ./.github/workflows/common.yml
     with:
       target: FirebaseCrashlyticsUnit
-#      is_nightly: github.event_name == 'schedule'
-      is_nightly: github.event_name == 'pull_request'
+      # is_nightly: ${{ github.event_name == 'schedule' }}
+      is_nightly: ${{ github.event_name == 'pull_request' }}
 
   catalyst:
     uses: ./.github/workflows/common_catalyst.yml
