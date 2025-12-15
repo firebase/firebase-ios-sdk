@@ -258,6 +258,7 @@ xcb_flags+=(
 if [[ -n "${XCODEBUILD_FLAGS:-}" ]]; then
   echo "Appending XCODEBUILD_FLAGS: ${XCODEBUILD_FLAGS}"
   xcb_flags+=("${XCODEBUILD_FLAGS}")
+fi
 
 # If running in Gemini CLI, pass -quiet to xcodebuild.
 # This reduces chance of exceeding the request token count.
