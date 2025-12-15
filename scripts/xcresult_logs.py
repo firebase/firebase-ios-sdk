@@ -89,7 +89,6 @@ def main():
     log_decoded = log_encoded.decode('ascii', errors='strict')
     sys.stdout.write(log_decoded)
 
-  # Print the xcresult path so it can be captured by the calling script/workflow.
   print(xcresult_path)
 
 
