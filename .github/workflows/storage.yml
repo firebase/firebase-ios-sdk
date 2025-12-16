@@ -108,7 +108,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Setup quickstart
-      run: QUICKSTART_BRANCH=main scripts/setup_quickstart_spm.sh storage
+      run: QUICKSTART_BRANCH=nc/bft-fix scripts/setup_quickstart_spm.sh storage
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
           quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
