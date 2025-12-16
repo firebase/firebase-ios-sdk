@@ -79,7 +79,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Performance
-      setup_command: scripts/setup_quickstart_spm.sh performance
+      setup_command: scripts/setup_quickstart.sh performance
       plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
       plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
     secrets:
@@ -105,7 +105,7 @@ jobs:
     - name: Install xcpretty
       run: gem install xcpretty
     - name: Setup quickstart
-      run: scripts/setup_quickstart_spm.sh performance
+      run: scripts/setup_quickstart.sh performance
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
           quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"

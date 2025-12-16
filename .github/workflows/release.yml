@@ -99,7 +99,7 @@ jobs:
     - name: Prereqs
       run: gem install xcpretty
     - name: Setup testing repo and quickstart
-      run: scripts/setup_quickstart_spm.sh ${{ matrix.product }} nightly_release_testing
+      run: scripts/setup_quickstart.sh ${{ matrix.product }} nightly_release_testing
     - name: Install Secret GoogleService-Info.plist
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-${{ matrix.product }}.plist.gpg \

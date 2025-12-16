@@ -53,7 +53,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Installations
-      setup_command: scripts/setup_quickstart_spm.sh installations
+      setup_command: scripts/setup_quickstart.sh installations
       plist_src_path: scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg
       plist_dst_path: quickstart-ios/installations/GoogleService-Info.plist
     secrets:
@@ -76,7 +76,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
-      run: scripts/setup_quickstart_spm.sh installations
+      run: scripts/setup_quickstart.sh installations
     - name: Copy mock plist
       run: cp quickstart-ios/mock-GoogleService-Info.plist quickstart-ios/installations/GoogleService-Info.plist
     - name: Build quickstart
