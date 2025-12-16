@@ -85,7 +85,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Messaging
-      setup_command: scripts/setup_quickstart_spm.sh messaging
+      setup_command: scripts/setup_quickstart.sh messaging
       plist_src_path: scripts/gha-encrypted/qs-messaging.plist.gpg
       plist_dst_path: quickstart-ios/messaging/GoogleService-Info.plist
       run_tests: false
@@ -105,7 +105,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
-      run: scripts/setup_quickstart_spm.sh messaging
+      run: scripts/setup_quickstart.sh messaging
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-messaging.plist.gpg \
           quickstart-ios/messaging/GoogleService-Info.plist "$plist_secret"

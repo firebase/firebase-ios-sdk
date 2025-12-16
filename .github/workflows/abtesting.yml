@@ -45,7 +45,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: ABTesting
-      setup_command: scripts/setup_quickstart_spm.sh abtesting
+      setup_command: scripts/setup_quickstart.sh abtesting
       plist_src_path: scripts/gha-encrypted/qs-abtesting.plist.gpg
       plist_dst_path: quickstart-ios/abtesting/GoogleService-Info.plist
     secrets:
@@ -69,7 +69,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Setup quickstart
-      run: scripts/setup_quickstart_spm.sh abtesting
+      run: scripts/setup_quickstart.sh abtesting
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-abtesting.plist.gpg \
           quickstart-ios/abtesting/GoogleService-Info.plist "$plist_secret"

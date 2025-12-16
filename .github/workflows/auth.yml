@@ -97,7 +97,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: Authentication
-      setup_command: scripts/setup_quickstart_spm.sh authentication
+      setup_command: scripts/setup_quickstart.sh authentication
       plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
       plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
       run_tests: false
