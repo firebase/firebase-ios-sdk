@@ -99,6 +99,12 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Setup quickstart
       run: QUICKSTART_BRANCH=nc/strg-tests scripts/setup_quickstart_spm.sh storage
     - name: Install Secret GoogleService-Info.plist
