@@ -839,7 +839,16 @@ final class GenerativeModelVertexAITests: XCTestCase {
     _ = try await model.generateContent(testPrompt)
   }
 
-  func testGenerateContent_mapsGroundingMetadata() async throws {
+  func testGenerateContent_withGoogleMapsTool_mapsGroundingMetadata() async throws {
+    let model = GenerativeModel(
+      modelName: testModelName,
+      modelResourceName: testModelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
+      apiConfig: apiConfig,
+      tools: [.googleMaps()],
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
+    )
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-google-maps-grounding",
       withExtension: "json",
@@ -857,25 +866,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTAssertEqual(firstChunk.title, "Mountain View")
     XCTAssertEqual(firstChunk.uri, "https://maps.google.com/?cid=123")
     XCTAssertEqual(firstChunk.placeId, "places/123456789")
-  }
-
-  func testGenerateContent_withGoogleMapsTool() async throws {
-    let model = GenerativeModel(
-      modelName: testModelName,
-      modelResourceName: testModelResourceName,
-      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
-      apiConfig: apiConfig,
-      tools: [.googleMaps()],
-      requestOptions: RequestOptions(),
-      urlSession: urlSession
-    )
-    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
-      forResource: "unary-success-basic-reply-short",
-      withExtension: "json",
-      subdirectory: vertexSubdirectory
-    )
-
-    _ = try await model.generateContent(testPrompt)
   }
 
   func testGenerateContent_failure_invalidAPIKey() async throws {
