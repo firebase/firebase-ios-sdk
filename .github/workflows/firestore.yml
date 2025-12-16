@@ -81,10 +81,10 @@ jobs:
               - 'scripts/xcresult_logs.py'
 
               # This workflow
-              # - '.github/workflows/firestore.yml'
+              - '.github/workflows/firestore.yml'
 
               # Workflows this one depends on.
-              # - '.github/workflows/common.yml'
+              - '.github/workflows/common.yml'
               - '.github/workflows/common_cocoapods.yml'
 
               # Rebuild on Ruby infrastructure changes.

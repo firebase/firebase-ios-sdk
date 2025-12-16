@@ -9,8 +9,8 @@ on:
     paths:
     - 'FirebaseFunctions**'
     - 'FirebaseSharedSwift**'
-    # - '.github/workflows/functions.yml'
-    # - '.github/workflows/common.yml'
+    - '.github/workflows/functions.yml'
+    - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_cocoapods_cron.yml'
     - 'FirebaseAuth/Interop/*.h'

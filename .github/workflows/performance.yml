@@ -14,9 +14,9 @@ on:
     # Podspec
     - 'FirebasePerformance.podspec'
     # YML configuration file
-    # - '.github/workflows/performance.yml'
+    - '.github/workflows/performance.yml'
     # Re-usable workflows depended on by this file.
-    # - '.github/workflows/common.yml'
+    - '.github/workflows/common.yml'
     - '.github/workflows/common_cocoapods.yml'
     - '.github/workflows/common_catalyst.yml'
     - '.github/workflows/common_quickstart.yml'
