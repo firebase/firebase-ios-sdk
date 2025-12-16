@@ -6,10 +6,15 @@ permissions:
 on:
   workflow_call:
     inputs:
-      # The product to test be tested (e.g. `ABTesting`).
+      # The product to be tested (e.g. `ABTesting`).
       product:
         required: true
         type: string
+      # Optional. The scheme to be tested (e.g. `ABTesting (tvOS)`).
+      scheme:
+        required: false
+        type: string
+        default: ''
       # The Run ID of a successful zip packaging workflow.
       zip_run_id:
         required: true
@@ -53,6 +58,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.plist_secret }}
       SDK: ${{ inputs.product }}
+      SCHEME: ${{ inputs.scheme }}
     runs-on: ${{ inputs.os }}
     steps:
     - uses: actions/checkout@v4
@@ -82,7 +88,7 @@ jobs:
         timeout_minutes: 15
         max_attempts: 2
         retry_wait_seconds: 120
-        command: ([ -z $plist_secret ] || scripts/test_quickstart_framework.sh "${SDK}")
+        command: ([ -z $plist_secret ] || scripts/test_quickstart_framework.sh "${SDK}" "${SCHEME}")
     # Failure sequence to upload artifact.
     - uses: actions/upload-artifact@v4
       if: failure()

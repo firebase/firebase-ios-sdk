@@ -175,9 +175,13 @@ bool FIRCLSFileCloseWithOffset(FIRCLSFile* file, off_t* finalSize) {
     *finalSize = file->writtenLength;
   }
 
-  if (close(file->fd) != 0) {
-    FIRCLSSDKLog("Error: Unable to close file %s\n", strerror(errno));
-    return false;
+  // If the FIRCLSFile struct was zero-initialized (e.g. via memset) and never opened,
+  // fd will be 0. Closing fd 0 triggers a system-level EXC_GUARD crash.
+  if (file->fd > STDERR_FILENO) {
+    if (close(file->fd) != 0) {
+      FIRCLSSDKLog("Error: Unable to close file %s\n", strerror(errno));
+      return false;
+    }
   }
 
   memset(file, 0, sizeof(FIRCLSFile));

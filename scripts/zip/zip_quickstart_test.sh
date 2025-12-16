@@ -26,10 +26,6 @@ EXIT_STATUS=0
 
 cd "${SAMPLE}"
 
-if [[ ! -z "$LEGACY" ]]; then
-  cd "Legacy${SAMPLE}Quickstart"
-fi
-
 xcode_version=$(xcodebuild -version | grep Xcode)
 xcode_version="${xcode_version/Xcode /}"
 xcode_major="${xcode_version/.*/}"
@@ -42,9 +38,14 @@ else
   device_name="iPhone 16"
 fi
 
-# Define project and scheme names
+# Define project and, if needed, scheme.
 PROJECT_NAME="${SAMPLE}Example.xcodeproj"
-SCHEME_NAME="${SAMPLE}Example${SWIFT_SUFFIX}"
+SCHEME_NAME="${SCHEME}"
+
+if [[ -z "$SCHEME_NAME" ]]; then
+  SCHEME_NAME="${SAMPLE}Example"
+  echo "Defaulting scheme name to $SCHEME_NAME"
+fi
 
 # Check if the scheme exists before attempting to build.
 # The `awk` command prints all lines from "Schemes:" to the end of the output.
@@ -58,7 +59,7 @@ fi
 (
 xcodebuild \
 -project ${PROJECT_NAME} \
--scheme  ${SCHEME_NAME} \
+-scheme  "${SCHEME_NAME}" \
 -destination "platform=iOS Simulator,name=$device_name" "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(inherited) $(PROJECT_DIR)/Firebase' \
 build \
 ) || EXIT_STATUS=$?
