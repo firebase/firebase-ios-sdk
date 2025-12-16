@@ -865,7 +865,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     let firstChunk = try XCTUnwrap(groundingMetadata.groundingChunks.first?.maps)
     XCTAssertEqual(firstChunk.title, "Mountain View")
     XCTAssertEqual(firstChunk.uri, "https://maps.google.com/?cid=123")
-    XCTAssertEqual(firstChunk.placeId, "places/123456789")
+    XCTAssertEqual(firstChunk.placeID, "places/123456789")
   }
 
   func testGenerateContent_failure_invalidAPIKey() async throws {

@@ -400,7 +400,13 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
     /// The title of the retrieved map data.
     public let title: String?
     /// The place ID of the retrieved map data.
-    public let placeId: String?
+    public let placeID: String?
+
+    enum CodingKeys: String, CodingKey {
+      case uri
+      case title
+      case placeID = "placeId"
+    }
   }
 
   /// Provides information about how a specific segment of the model's response is supported by the
