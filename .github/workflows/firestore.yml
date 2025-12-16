@@ -367,6 +367,9 @@ jobs:
       matrix:
         target: [iOS, macOS, tvOS]
 
+    env:
+      BACKEND_EDITION: "enterprise"
+
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
@@ -382,15 +385,6 @@ jobs:
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
     - name: Build and test standard
-      env:
-        BACKEND_EDITION: "standard"
-      run: |
-        export EXPERIMENTAL_MODE=true
-        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
-
-    - name: Build and test enterprise
-      env:
-        BACKEND_EDITION: "enterprise"
       run: |
         export EXPERIMENTAL_MODE=true
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
