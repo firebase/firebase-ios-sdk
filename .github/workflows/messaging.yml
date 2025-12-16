@@ -199,7 +199,7 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Install watchOS simulators in case they are missing.
-      run: xcodebuild -downloadPlatform watchOS
+      run: sudo xcodebuild -downloadPlatform watchOS
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSampleStandaloneWatchApp watchOS)
     - name: Upload xcodebuild logs
