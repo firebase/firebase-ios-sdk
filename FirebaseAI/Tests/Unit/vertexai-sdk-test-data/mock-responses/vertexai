@@ -1,0 +1,4 @@
+Placeholder file for Package.swift - required to prevent a warning.
+
+Run `scripts/update_vertexai_responses.sh` to fetch mock Vertex AI responses
+from https://github.com/FirebaseExtended/vertexai-sdk-test-data.
