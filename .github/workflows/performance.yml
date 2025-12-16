@@ -86,8 +86,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart-ftl-cron-only:
-    # if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
-    if: github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-15
@@ -106,7 +105,7 @@ jobs:
     - name: Install xcpretty
       run: gem install xcpretty
     - name: Setup quickstart
-      run: QUICKSTART_BRANCH=nc/bft-fix scripts/setup_quickstart_spm.sh performance
+      run: scripts/setup_quickstart_spm.sh performance
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-performance.plist.gpg \
           quickstart-ios/performance/GoogleService-Info.plist "$plist_secret"
