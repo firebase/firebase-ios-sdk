@@ -15,8 +15,6 @@
 name: firestore_nightly
 
 on:
-  pull_request:
-    branches: [ "cheryllin/pplapi", "cheryllin/ppl" ]
   workflow_dispatch:
 
 concurrency:
