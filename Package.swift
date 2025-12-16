@@ -599,16 +599,13 @@ let package = Package(
           to: "Crashlytics macOS SDK",
           .when(platforms: [.macOS, .macCatalyst])
         ),
-        .define(
-          "FIREBASE_IS_NIGHTLY_TESTING",
-          to: Context.environment["FIREBASE_IS_NIGHTLY_TESTING", default: ""]
-        ),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
         .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
-      ],
+      ] + Context.environment["FIREBASE_IS_NIGHTLY_TESTING"] != nil ?
+      [.define("FIREBASE_IS_NIGHTLY_TESTING", to: "1")] : [],
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
