@@ -192,8 +192,6 @@ NSString *const AppVersion = @"app_version";
   __weak FIRCLSSettings *weakSelf = self;
 #ifndef FIREBASE_IS_NIGHTLY_TESTING
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-#else
-#error "Mango"
 #endif
     __strong FIRCLSSettings *strongSelf = weakSelf;
     if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsFilePath]) {
