@@ -599,6 +599,10 @@ let package = Package(
           to: "Crashlytics macOS SDK",
           .when(platforms: [.macOS, .macCatalyst])
         ),
+        .define(
+          "FIREBASE_IS_NIGHTLY_TESTING",
+          to: Context.environment["FIREBASE_IS_NIGHTLY_TESTING", default: ""]
+        ),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
         .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
         .define("PB_FIELD_32BIT", to: "1"),
