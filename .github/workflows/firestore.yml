@@ -59,7 +59,7 @@ jobs:
               - 'FirebaseFirestore.podspec'
 
               # Package.swift
-              # - 'Package.swift'
+              - 'Package.swift'
 
               # CMake
               - '**CMakeLists.txt'
