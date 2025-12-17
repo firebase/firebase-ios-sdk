@@ -108,7 +108,14 @@ source scripts/check_secrets.sh
 # Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
-  echo xcodebuild "$@"
+  # Print the command in a copy-pasteable format
+  echo xcodebuild $(printf "%q " "$@")
+
+  if [[ -n "${DRY_RUN:-}" ]]; then
+    echo "DRY_RUN is set. Exiting before build."
+    return 0
+  fi
+
   local xcodebuild_args=("$@")
   local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
   local log_filename="xcodebuild-${buildaction}.log"
