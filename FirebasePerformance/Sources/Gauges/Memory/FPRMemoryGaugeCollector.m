@@ -47,6 +47,8 @@ FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   if (kr == KERN_SUCCESS) {
     // phys_footprint is the memory footprint used by Jetsam accounting.
     usedBytes = (u_long)vmInfo.phys_footprint;
+  } else {
+    FPRLogDebug(kFPRMemoryCollection, @"task_info() failed with error: %d", kr);
   }
   FPRMemoryGaugeData *gaugeData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
                                                                             heapUsed:usedBytes
