@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// ////////////////////////////////// //
-// Auxiliary type (`Field`) Approach  //
-// ////////////////////////////////// //
+// //////////////////////////////////// //
+// Approach 1: Auxiliary type (`Field`) //
+// //////////////////////////////////// //
 enum Approach_1 {
   struct Field<T: Codable> {
     let value: T?
@@ -88,6 +88,7 @@ enum Approach_2 {
     // Note:
     // - 💥 Implicitly defaults to nil! So accessing without setting age
     //   post-init will crash.
+    // - But, it's nice how the property type isn't boxed.
     @Guide(description: "The age, between 30 and 40.") var age: Int
 
     // Note:
