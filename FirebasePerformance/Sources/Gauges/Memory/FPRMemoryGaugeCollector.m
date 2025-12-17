@@ -41,7 +41,7 @@ FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   // which could crash under heavy allocation contention. it's safe to call from any thread.
   task_vm_info_data_t vmInfo;
   mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
-  u_long usedBytes = 0;
+  uint64_t usedBytes = 0;
 
   kern_return_t kr = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
   if (kr == KERN_SUCCESS) {
