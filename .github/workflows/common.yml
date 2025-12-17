@@ -139,3 +139,9 @@ jobs:
         name: xcodebuild-logs-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
         path: xcodebuild-*.log
         if-no-files-found: error
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: xcresults-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
+        path: xcresults/*
+        if-no-files-found: error
