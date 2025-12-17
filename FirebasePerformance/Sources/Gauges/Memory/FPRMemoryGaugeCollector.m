@@ -37,7 +37,8 @@
 FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   NSDate *collectionTime = [NSDate date];
 
-  // Reading task_info is safer to call from any thread, including during high throughput networking activity.
+  // Reading task_info is safer to call from any thread, including during high throughput networking
+  // activity.
   task_vm_info_data_t vmInfo;
   mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
   u_long usedBytes = 0;
