@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testRunBenchmarks {
   NSString* targetBackend = [[NSProcessInfo processInfo] environment][@"TARGET_BACKEND"];
-  if (targetBackend && ![targetBackend isEqualToString:@"emulator"]) {
+  if (!targetBackend || ![targetBackend isEqualToString:@"emulator"]) {
     XCTSkip(@"Skipping benchmarks because TARGET_BACKEND is not 'emulator' or is "
             @"not set.");
   }

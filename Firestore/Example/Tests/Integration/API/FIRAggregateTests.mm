@@ -680,6 +680,9 @@
 }
 
 - (void)testPerformsSumThatOverflowsMaxLong {
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -747,6 +750,9 @@
 }
 
 - (void)testPerformsSumThatIsNegative {
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -872,6 +878,9 @@
 }
 
 - (void)testPerformsSumOverResultSetOfZeroDocuments {
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",

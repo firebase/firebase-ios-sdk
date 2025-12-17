@@ -384,7 +384,7 @@ jobs:
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
-    - name: Build and test standard
+    - name: Build and test enterprise
       run: |
         export EXPERIMENTAL_MODE=true
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild

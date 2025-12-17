@@ -570,6 +570,9 @@
 }
 
 - (void)testQueriesCanUseArrayContainsFilters {
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
@@ -612,6 +615,9 @@
 }
 
 - (void)testQueriesCanUseInFilters {
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
   NSDictionary *testDocs = @{
     @"a" : @{@"zip" : @98101},
     @"b" : @{@"zip" : @91102},
