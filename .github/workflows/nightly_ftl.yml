@@ -1,5 +1,8 @@
 name: nightly_ftl
 
+permissions:
+  contents: read
+
 on:
   schedule:
     - cron: '0 6 * * *'
