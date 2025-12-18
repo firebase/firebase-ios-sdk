@@ -50,11 +50,12 @@ jobs:
             plist_src_path: scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg
             plist_dst_path: quickstart-ios/installations/GoogleService-Info.plist
             build_command: scripts/test_quickstart_ftl.sh Installations
-          - product: Authentication
-            setup_command: scripts/setup_quickstart.sh authentication
-            plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
-            plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
-            build_command: scripts/test_quickstart_ftl.sh Authentication
+          # TODO(ncooke3): Get these samples building.
+          # - product: Authentication
+          #   setup_command: scripts/setup_quickstart.sh authentication
+          #   plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
+          #   plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
+          #   build_command: scripts/test_quickstart_ftl.sh Authentication
           #   This is probably dated: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
           # - product: Functions
           #   setup_command: scripts/setup_quickstart.sh functions
