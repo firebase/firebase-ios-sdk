@@ -695,16 +695,14 @@
       @"rating" : [NSNumber numberWithLong:LLONG_MAX]
     },
   }];
-  FIRAggregateQuery* query =
-      [testCollection aggregate:@[ [FIRAggregateField aggregateFieldForSumOfField:@"rating"] ]];
+  FIRAggregateField* sumOfRating = [FIRAggregateField aggregateFieldForSumOfField:@"rating"];
+  FIRAggregateQuery* query = [testCollection aggregate:@[ sumOfRating ]];
 
   switch ([FSTIntegrationTestCase backendEdition]) {
     case FSTBackendEditionStandard: {
       FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:query];
       // Sum
-      XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
-                                                           aggregateFieldForSumOfField:@"rating"]]
-                         doubleValue],
+      XCTAssertEqual([[snapshot valueForAggregateField:sumOfRating] doubleValue],
                      [[NSNumber numberWithLong:LLONG_MAX] doubleValue] +
                          [[NSNumber numberWithLong:LLONG_MAX] doubleValue]);
       break;
@@ -772,17 +770,14 @@
       @"rating" : [NSNumber numberWithLong:-10000]
     }
   }];
-  FIRAggregateQuery* query =
-      [testCollection aggregate:@[ [FIRAggregateField aggregateFieldForSumOfField:@"rating"] ]];
+  FIRAggregateField* sumOfRating = [FIRAggregateField aggregateFieldForSumOfField:@"rating"];
+  FIRAggregateQuery* query = [testCollection aggregate:@[ sumOfRating ]];
 
   switch ([FSTIntegrationTestCase backendEdition]) {
     case FSTBackendEditionStandard: {
       FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:query];
       // Sum
-      XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
-                                                           aggregateFieldForSumOfField:@"rating"]]
-                         longLongValue],
-                     -10101LL);
+      XCTAssertEqual([[snapshot valueForAggregateField:sumOfRating] longLongValue], -10101LL);
       break;
     }
     case FSTBackendEditionEnterprise: {
@@ -904,21 +899,18 @@
     }
   }];
 
-  FIRAggregateQuery* query = [[testCollection queryWhereField:@"pages" isGreaterThan:@200]
-      aggregate:@[ [FIRAggregateField aggregateFieldForSumOfField:@"pages"] ]];
+  FIRAggregateField* sumOfPages = [FIRAggregateField aggregateFieldForSumOfField:@"pages"];
+  FIRAggregateQuery* query = [[testCollection queryWhereField:@"pages"
+                                                isGreaterThan:@200] aggregate:@[ sumOfPages ]];
   FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:query];
 
   switch ([FSTIntegrationTestCase backendEdition]) {
     case FSTBackendEditionStandard: {
-      XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
-                                                          aggregateFieldForSumOfField:@"pages"]],
-                     [NSNumber numberWithLong:0L]);
+      XCTAssertEqual([snapshot valueForAggregateField:sumOfPages], [NSNumber numberWithLong:0L]);
       break;
     }
     case FSTBackendEditionEnterprise: {
-      XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
-                                                          aggregateFieldForSumOfField:@"pages"]],
-                     [NSNull null]);
+      XCTAssertEqual([snapshot valueForAggregateField:sumOfPages], [NSNull null]);
       break;
     }
   }
