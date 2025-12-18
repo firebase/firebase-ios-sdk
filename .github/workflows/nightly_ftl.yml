@@ -1,0 +1,93 @@
+name: nightly_ftl
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    # Every day at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  ftl_test:
+    if: github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-15
+    name: ${{ matrix.product }}
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - product: Messaging
+            setup_command: scripts/setup_quickstart.sh messaging
+            plist_src_path: scripts/gha-encrypted/qs-messaging.plist.gpg
+            plist_dst_path: quickstart-ios/messaging/GoogleService-Info.plist
+            build_command: scripts/test_quickstart_ftl.sh Messaging
+          - product: Storage
+            setup_command: scripts/setup_quickstart.sh storage
+            plist_src_path: scripts/gha-encrypted/qs-storage.plist.gpg
+            plist_dst_path: quickstart-ios/storage/GoogleService-Info.plist
+            build_command: scripts/test_quickstart_ftl.sh Storage swift
+          - product: Crashlytics
+            setup_command: scripts/setup_quickstart.sh crashlytics
+            plist_src_path: scripts/gha-encrypted/qs-crashlytics.plist.gpg
+            plist_dst_path: quickstart-ios/crashlytics/GoogleService-Info.plist
+            build_command: scripts/test_quickstart_ftl.sh Crashlytics swift
+          - product: ABTesting
+            setup_command: scripts/setup_quickstart.sh abtesting
+            plist_src_path: scripts/gha-encrypted/qs-abtesting.plist.gpg
+            plist_dst_path: quickstart-ios/abtesting/GoogleService-Info.plist
+            build_command: scripts/test_quickstart_ftl.sh ABTesting
+          - product: Performance
+            setup_command: scripts/setup_quickstart.sh performance
+            plist_src_path: scripts/gha-encrypted/qs-performance.plist.gpg
+            plist_dst_path: quickstart-ios/performance/GoogleService-Info.plist
+            build_command: scripts/test_quickstart_ftl.sh Performance swift
+          - product: Installations
+            setup_command: scripts/setup_quickstart.sh installations
+            plist_src_path: scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg
+            plist_dst_path: quickstart-ios/installations/GoogleService-Info.plist
+            build_command: scripts/test_quickstart_ftl.sh Installations
+          # TODO(ncooke3): Get these samples building.
+          # - product: Authentication
+          #   setup_command: scripts/setup_quickstart.sh authentication
+          #   plist_src_path: scripts/gha-encrypted/qs-authentication.plist.gpg
+          #   plist_dst_path: quickstart-ios/authentication/GoogleService-Info.plist
+          #   build_command: scripts/test_quickstart_ftl.sh Authentication
+          #   This is probably dated: sed -i '' 's/REVERSED_CLIENT_ID/com.googleusercontent.apps.1025801074639-6p6ebi8amuklcjrto20gvpe295smm8u6/' quickstart-ios/functions/LegacyFunctionsQuickstart/FunctionsExample/Info.plist
+          # - product: Functions
+          #   setup_command: scripts/setup_quickstart.sh functions
+          #   plist_src_path: scripts/gha-encrypted/qs-functions.plist.gpg
+          #   plist_dst_path: quickstart-ios/functions/GoogleService-Info.plist
+          #   build_command: scripts/test_quickstart_ftl.sh Functions
+    steps:
+    - uses: actions/checkout@v4
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Install xcpretty
+      run: gem install xcpretty
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+    - name: Setup quickstart
+      run: ${{ matrix.setup_command }}
+    - name: Install Secret GoogleService-Info.plist
+      run: |
+        scripts/decrypt_gha_secret.sh \
+          ${{ matrix.plist_src_path }} \
+          ${{ matrix.plist_dst_path }} \
+          "$plist_secret"
+    - name: Build swift quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh ${{ matrix.build_command }})
+    - id: ftl_test
+      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
+      with:
+        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+        testapp_dir: quickstart-ios/build-for-testing
+        test_type: "xctest"
