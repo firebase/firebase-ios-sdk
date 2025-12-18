@@ -13,6 +13,7 @@ jobs:
   ftl_test:
     if: github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-15
+    name: ${{ matrix.product }}
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
