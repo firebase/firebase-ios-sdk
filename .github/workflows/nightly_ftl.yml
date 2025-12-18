@@ -5,6 +5,7 @@ permissions:
 
 on:
   schedule:
+    # Every day at 6 AM UTC
     - cron: '0 6 * * *'
   workflow_dispatch:
   pull_request:
