@@ -144,7 +144,6 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: |
-        export EXPERIMENTAL_MODE=true
         ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseFirestore --platform=${{ matrix.target }}
     - uses: actions/upload-artifact@v4
       with:
