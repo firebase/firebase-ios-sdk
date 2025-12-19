@@ -60,6 +60,10 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 @property(nonatomic, strong) NSDictionary<NSString *, id> *settingsDictionary;
 
+- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                      deletionQueue:(dispatch_queue_t)deletionQueue;
+
 @end
 
 @interface FIRCLSSettingsTests : XCTestCase
@@ -75,7 +79,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 - (void)setUp {
   [super setUp];
-  [self drainBackgroundQueue];
   _fileManager = [[FIRCLSMockFileManager alloc] init];
 
   _appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
@@ -83,7 +86,11 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   _appIDModel.displayVersion = FIRCLSDefaultMockAppDisplayVersion;
   _appIDModel.buildVersion = FIRCLSDefaultMockAppBuildVersion;
 
-  _settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager appIDModel:_appIDModel];
+  // Inject a higher priority queue for deletion operations to reduce flakes.
+  _settings = [[FIRCLSSettings alloc]
+      initWithFileManager:_fileManager
+               appIDModel:_appIDModel
+            deletionQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)];
 }
 
 - (void)testDefaultSettings {
@@ -134,8 +141,6 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   [self.settings cacheSettingsWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self drainBackgroundQueue];
-
   [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:5.0];
 }
 
@@ -149,15 +154,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   [self.settings reloadFromCacheWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  [self drainBackgroundQueue];
-
   [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:5.0];
-}
-
-- (void)drainBackgroundQueue {
-  dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                    // This queue is used by `- [FIRCLSSettings deleteCachedSettings]`.
-                });
 }
 
 - (void)testActivatedSettingsCached {
