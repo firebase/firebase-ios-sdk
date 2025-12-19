@@ -61,8 +61,6 @@ profile
 DerivedData
 *.hmap
 *.ipa
-# Xcode index build files
-.index-build/
 
 # Swift Package Manager
 Package.resolved
