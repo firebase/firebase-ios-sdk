@@ -54,6 +54,11 @@ class FirebaseSessionsTestsBase: XCTestCase {
   var pausedClock = Date(timeIntervalSince1970: 1_635_739_200)
 
   override func setUp() {
+    DispatchQueue.global(qos: .background).sync {
+      // Drain queue to prevent interference from previous tests.
+      // This is used by the `Sessions` initializer.
+    }
+
     // Reset the subscribers between tests
     mockCrashlyticsSubscriber = MockSubscriber(name: SessionsSubscriberName.Crashlytics)
     mockPerformanceSubscriber = MockSubscriber(name: SessionsSubscriberName.Performance)
