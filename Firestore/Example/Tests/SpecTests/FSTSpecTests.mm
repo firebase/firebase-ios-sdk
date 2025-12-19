@@ -1125,8 +1125,6 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 - (void)testSpecTests {
   if ([self isTestBaseClass]) return;
 
-  // LogSetLevel(firebase::firestore::util::kLogLevelDebug);
-
   // Enumerate the .json files containing the spec tests.
   NSMutableArray<NSString *> *specFiles = [NSMutableArray array];
   NSMutableArray<NSDictionary *> *parsedSpecs = [NSMutableArray array];
@@ -1216,10 +1214,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
         ++testPassCount;
       } else {
         ++testSkipCount;
-        // NSLog(@"  [SKIPPED] Spec test: %@", name);
+        NSLog(@"  [SKIPPED] Spec test: %@", name);
         NSString *comment = testDescription[@"comment"];
         if (comment) {
-          // NSLog(@"    %@", comment);
+          NSLog(@"    %@", comment);
         }
       }
     }];
