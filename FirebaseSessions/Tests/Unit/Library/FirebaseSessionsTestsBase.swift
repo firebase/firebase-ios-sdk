@@ -80,6 +80,10 @@ class FirebaseSessionsTestsBase: XCTestCase {
                                    -> Void) {
     // This class is static, so we need to clear global state
     SessionsDependencies.removeAll()
+    
+    DispatchQueue.global(qos: .background).sync {
+      // Drain queue.
+    }
 
     for subscriberSDK in subscriberSDKs {
       SessionsDependencies.addDependency(name: subscriberSDK.sessionsSubscriberName)
