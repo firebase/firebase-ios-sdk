@@ -60,7 +60,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-15
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
@@ -113,7 +113,7 @@ jobs:
           - target: MessagingSampleStandaloneWatchApp
             platform: watchOS
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -136,7 +136,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/build.sh ${{ matrix.target }} ${{ matrix.platform }})
     - name: Upload xcodebuild logs
       if: failure()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: xcodebuild-logs-${{ matrix.target }}
         path: xcodebuild-*.log

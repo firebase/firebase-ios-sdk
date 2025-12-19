@@ -33,7 +33,7 @@ jobs:
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
       - name: Generate Swift Package.resolved
@@ -45,7 +45,7 @@ jobs:
         run: |
           cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
           echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/save@v4
+      - uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache
         with:
           path: .build
@@ -66,8 +66,8 @@ jobs:
             test: spm
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
@@ -85,7 +85,7 @@ jobs:
         max_attempts: 3
         retry_wait_seconds: 120
         command: scripts/build.sh Firebase-Package iOS ${{ matrix.test }}
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
       with:
         name: spm-build-run-${{ matrix.os }}-${{ matrix.xcode }}-logs
@@ -106,8 +106,8 @@ jobs:
             xcode: Xcode_16.4
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
@@ -119,7 +119,7 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Device and Test Build
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS-device spmbuildonly
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
       with:
         name: spm-ios-device-${{ matrix.os }}-${{ matrix.xcode }}-logs
@@ -143,8 +143,8 @@ jobs:
             xcode: Xcode_16.2
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
@@ -160,7 +160,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh version-test ${{ matrix.target }} spm
     - name: Analytics Build Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh analytics-import-test ${{ matrix.target }} spm
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
       with:
         name: spm-platforms-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}-logs

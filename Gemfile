@@ -2,7 +2,6 @@
 # commit Gemfile and Gemfile.lock.
 source 'https://rubygems.org'
 
-# Delete me - testing take 2
 # To test CocoaPods pre-releases, update to a relevant commit or tag like below
 # cocoapods-core and xcodeproj may or may not also need tags. For additional
 # testing, enable the cron jobs with a global search and replace from your
