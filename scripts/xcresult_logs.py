@@ -50,9 +50,30 @@ def main():
   # otherwise, deduce
   xcresult_path = flags.get('-resultBundlePath')
   if xcresult_path is None:
-    project = project_from_workspace_path(flags['-workspace'])
+    workspace = flags.get('-workspace')
+    if workspace:
+        project = project_from_workspace_path(workspace)
+    else:
+        # For SwiftPM, the project name is the name of the directory.
+        project = os.path.basename(os.getcwd())
     scheme = flags['-scheme']
     xcresult_path = find_xcresult_path(project, scheme)
+
+  # Create a symbolic link to the xcresult bundle in a deterministic directory
+  # so it can be easily uploaded as an artifact by CI systems.
+  try:
+    output_dir = 'xcresults'
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    symlink_name = os.path.join(output_dir, os.path.basename(xcresult_path))
+    if os.path.islink(symlink_name):
+        os.remove(symlink_name)
+
+    os.symlink(xcresult_path, symlink_name)
+    _logger.info('Created symlink to xcresult at %s', symlink_name)
+  except Exception as e:
+    _logger.warning('Failed to create symlink to xcresult: %s', e)
 
   log_id = find_log_id(xcresult_path)
   log = export_log(xcresult_path, log_id)
@@ -67,6 +88,8 @@ def main():
     log_encoded = log.encode('ascii', errors='backslashreplace')
     log_decoded = log_encoded.decode('ascii', errors='strict')
     sys.stdout.write(log_decoded)
+
+  print(xcresult_path)
 
 
 # Most flags on the xcodebuild command-line are uninteresting, so only pull

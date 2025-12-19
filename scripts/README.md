@@ -59,13 +59,9 @@ Script used by CI jobs to wrap xcodebuild invocations with options.
 
 CI script to build binary versions of non-Firebase SDKs for QuickStart testing.
 
-### [build_zip.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/build_zip.sh)
+### [build_zip.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/zip/build_zip.sh)
 
 CI script for building the zip distribution.
-
-### [buildcache.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/buildcache.sh)
-
-Clang options for the buildcache GitHub action.
 
 ### [change_headers.swift](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/change_headers.swift)
 
@@ -151,7 +147,7 @@ Install tooling for the check workflow.
 
 Set up a QuickStart for integration testing.
 
-### [setup_quickstart_framework.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/setup_quickstart_framework.sh)
+### [setup_quickstart_framework.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/zip/setup_quickstart_framework.sh)
 
 Set up a QuickStart for zip distribution testing.
 
@@ -191,7 +187,7 @@ Downloads mock response files for the Firebase AI Logic unit tests.
 
 Tooling used by `build.sh` to get the log output for an `xcodebuild` invocation.
 
-### [zip_quickstart_test.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/zip_quickstart_test.sh)
+### [zip_quickstart_test.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/zip/zip_quickstart_test.sh)
 
 Run the tests associated with a QuickStart with a zip distribution.
 
