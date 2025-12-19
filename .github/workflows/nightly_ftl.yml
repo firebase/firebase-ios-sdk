@@ -89,7 +89,7 @@ jobs:
     - name: Build swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh ${{ matrix.build_command }})
     - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@41c787c37157e4c5932b951e531c041efa5bb7a4 # v1.4.0
+      uses: FirebaseExtended/github-actions/firebase-test-lab@57091ac526b308ae005c6d6d59aab83d5ab2aa71 # v1.5.0
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing
