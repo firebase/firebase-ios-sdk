@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A type that describes the properties of an object and any guides on their values.
 ///
@@ -25,7 +28,7 @@ public struct JSONSchema: Sendable {
     case integer
     case double
     case boolean
-    case array(item: FirebaseGenerable.Type)
+    case array(item: any FirebaseGenerable.Type)
     case object(name: String, description: String?, properties: [Property])
   }
 
@@ -45,7 +48,7 @@ public struct JSONSchema: Sendable {
     let name: String
     let description: String?
     let isOptional: Bool
-    let type: FirebaseGenerable.Type
+    let type: any FirebaseGenerable.Type
     // TODO: Store `GenerationGuide` values.
 
     /// Create a property that contains a generable type.
@@ -193,5 +196,53 @@ public struct JSONSchema: Sendable {
         title: name
       )
     }
+  }
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension JSONSchema {
+  func asDynamicGenerationSchema() -> FoundationModels.DynamicGenerationSchema {
+    switch self.kind {
+    case .string:
+      return DynamicGenerationSchema(type: String.self)
+    case .integer:
+      return DynamicGenerationSchema(type: Int.self)
+    case .double:
+      return DynamicGenerationSchema(type: Double.self)
+    case .boolean:
+      return DynamicGenerationSchema(type: Bool.self)
+    case .array(item: let item):
+      return DynamicGenerationSchema(arrayOf: item.jsonSchema.asDynamicGenerationSchema())
+    case .object(name: let name, description: let description, properties: let properties):
+      return DynamicGenerationSchema(
+        name: name,
+        description: description,
+        properties: properties.map { $0.asDynamicGenerationSchemaProperty() }
+      )
+    }
+  }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+public extension JSONSchema {
+  func asGenerationSchema() throws -> FoundationModels.GenerationSchema {
+    return try GenerationSchema(root: asDynamicGenerationSchema(), dependencies: [])
+  }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+extension JSONSchema.Property {
+  func asDynamicGenerationSchemaProperty() -> FoundationModels.DynamicGenerationSchema.Property {
+    return FoundationModels.DynamicGenerationSchema.Property(
+        name: self.name,
+        description: self.description,
+        schema: self.type.jsonSchema.asDynamicGenerationSchema(),
+        isOptional: self.isOptional
+      )
   }
 }
