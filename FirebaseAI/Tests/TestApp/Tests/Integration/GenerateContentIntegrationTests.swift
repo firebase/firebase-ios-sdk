@@ -322,18 +322,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashPreviewImageGeneration),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImagePreview),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImagePreview),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     // Note: The following configs are commented out for easy one-off manual testing.
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashPreviewImageGeneration)
-    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashPreviewImageGeneration),
-    // (
-    //  InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
-    //  ModelNames.gemini2FlashPreviewImageGeneration
-    // ),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
   ])
   func generateImage(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
@@ -354,17 +347,8 @@ struct GenerateContentIntegrationTests {
     )
     let prompt = "Generate an image of a cute cartoon kitten playing with a ball of yarn."
 
-    var response: GenerateContentResponse?
-    try await withKnownIssue(
-      "Backend may fail with a 503 - Service Unavailable error when overloaded",
-      isIntermittent: true
-    ) {
-      response = try await model.generateContent(prompt)
-    } matching: { issue in
-      (issue.error as? BackendError).map { $0.httpResponseCode == 503 } ?? false
-    }
+    let response = try await model.generateContent(prompt)
 
-    guard let response else { return }
     let candidate = try #require(response.candidates.first)
     let inlineDataPart = try #require(candidate.content.parts
       .first { $0 is InlineDataPart } as? InlineDataPart)
@@ -372,16 +356,12 @@ struct GenerateContentIntegrationTests {
     #expect(inlineDataPartsViaAccessor.count == 1)
     let inlineDataPartViaAccessor = try #require(inlineDataPartsViaAccessor.first)
     #expect(inlineDataPart == inlineDataPartViaAccessor)
-    #expect(inlineDataPart.mimeType == "image/png")
+    #expect(inlineDataPart.mimeType.starts(with: "image/"))
     #expect(inlineDataPart.data.count > 0)
     #if canImport(UIKit)
       let uiImage = try #require(UIImage(data: inlineDataPart.data))
-      // Gemini 2.0 Flash Experimental returns images sized to fit within a 1024x1024 pixel box but
-      // dimensions may vary depending on the aspect ratio.
-      #expect(uiImage.size.width <= 1024)
-      #expect(uiImage.size.width >= 500)
-      #expect(uiImage.size.height <= 1024)
-      #expect(uiImage.size.height >= 500)
+      #expect(uiImage.size.width > 0)
+      #expect(uiImage.size.height > 0)
     #endif // canImport(UIKit)
   }
 
@@ -552,18 +532,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashPreviewImageGeneration),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImagePreview),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashPreviewImageGeneration),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImagePreview),
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     // Note: The following configs are commented out for easy one-off manual testing.
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashPreviewImageGeneration)
-    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashPreviewImageGeneration),
-    // (
-    //  InstanceConfig.googleAI_v1beta_freeTier_bypassProxy,
-    //  ModelNames.gemini2FlashPreviewImageGeneration
-    // ),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
   ])
   func generateImageStreaming(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
@@ -572,11 +545,6 @@ struct GenerateContentIntegrationTests {
       topK: 1,
       responseModalities: [.text, .image]
     )
-    let safetySettings = safetySettings.filter {
-      // HARM_CATEGORY_CIVIC_INTEGRITY is deprecated in Vertex AI but only rejected when using the
-      // 'gemini-2.0-flash-preview-image-generation' model.
-      $0.harmCategory != .civicIntegrity
-    }
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: generationConfig,
@@ -605,16 +573,12 @@ struct GenerateContentIntegrationTests {
 
     #expect(inlineDataParts.count == 1)
     let inlineDataPart = try #require(inlineDataParts.first)
-    #expect(inlineDataPart.mimeType == "image/png")
+    #expect(inlineDataPart.mimeType.starts(with: "image/"))
     #expect(inlineDataPart.data.count > 0)
     #if canImport(UIKit)
       let uiImage = try #require(UIImage(data: inlineDataPart.data))
-      // Gemini 2.0 Flash Experimental returns images sized to fit within a 1024x1024 pixel box but
-      // dimensions may vary depending on the aspect ratio.
-      #expect(uiImage.size.width <= 1024)
-      #expect(uiImage.size.width >= 500)
-      #expect(uiImage.size.height <= 1024)
-      #expect(uiImage.size.height >= 500)
+      #expect(uiImage.size.width > 0)
+      #expect(uiImage.size.height > 0)
     #endif // canImport(UIKit)
   }
 

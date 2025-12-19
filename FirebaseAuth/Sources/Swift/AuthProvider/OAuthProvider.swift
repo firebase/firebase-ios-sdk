@@ -365,7 +365,7 @@ import Foundation
       }
     }
     return (nil, AuthErrorUtils.webSignInUserInteractionFailure(
-      reason: "SignIn failed with unparseable firebaseError"
+      reason: "SignIn failed with unparsable firebaseError"
     ))
   }
 

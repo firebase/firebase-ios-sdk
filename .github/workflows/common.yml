@@ -52,6 +52,12 @@ on:
         required: false
         default: ""
 
+      # Whether the job is scheduled. Defaults to false.
+      is_nightly:
+        type: boolean
+        required: false
+        default: false
+
     outputs:
       cache_key:
         description: "The cache key for the Swift package resolution."
@@ -86,6 +92,8 @@ jobs:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     needs: [spm-package-resolved]
+    env:
+        FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
     strategy:
       matrix:
         os: [macos-15]
@@ -96,7 +104,7 @@ jobs:
             xcode: Xcode_16.2
             platform: iOS
           - os: macos-26
-            xcode: Xcode_26.0
+            xcode: Xcode_26.1
             platform: iOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -114,6 +122,8 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       if: contains(join(inputs.platforms), matrix.platform) || matrix.os == 'macos-14'
+      env:
+        FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
       with:
         timeout_minutes: 15
         max_attempts: 3
@@ -123,3 +133,15 @@ jobs:
             ${{ inputs.target }} \
             ${{ matrix.platform }} \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: xcodebuild-logs-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
+        path: xcodebuild-*.log
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v4
+      if: ${{ failure() }}
+      with:
+        name: xcresults-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
+        path: xcresults/*
+        if-no-files-found: error

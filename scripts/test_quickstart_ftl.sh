@@ -29,10 +29,11 @@ source scripts/check_secrets.sh
 
 if check_secrets; then
   cd quickstart-ios
+  DIR=$(echo "$sample" | tr '[:upper:]' '[:lower:]')
   if [ "$language" = "swift" ]; then
-    have_secrets=true SAMPLE="$sample" SWIFT_SUFFIX="Swift" ./scripts/build-for-testing.sh
+    have_secrets=true SAMPLE="$sample" SPM=true SWIFT_SUFFIX="Swift" DIR="$DIR" ./scripts/build-for-testing.sh
   else
-    have_secrets=true SAMPLE="$sample" ./scripts/build-for-testing.sh
+    have_secrets=true SAMPLE="$sample" SPM=true DIR="$DIR" ./scripts/build-for-testing.sh
   fi
 
 fi
