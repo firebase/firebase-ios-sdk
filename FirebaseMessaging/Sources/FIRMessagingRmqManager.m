@@ -522,7 +522,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 #ifdef SQLITE_OPEN_FILEPROTECTION_NONE
       flags |= SQLITE_OPEN_FILEPROTECTION_NONE;
 #endif
-      int result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
+      int result = sqlite3_open_v2([path UTF8String], &self -> _database, flags, NULL);
       if (result != SQLITE_OK) {
         NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
         NSString *errorMessage =
