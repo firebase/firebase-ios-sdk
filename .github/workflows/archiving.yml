@@ -63,7 +63,7 @@ jobs:
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         # Firestore gets a 60 min. timeout, everything else gets 20 min.
-        timeout_minutes: ${{ matrix.pod == "FirebaseFirestore" && 60 || 20 }}
+        timeout_minutes: ${{ matrix.pod == 'FirebaseFirestore' && 60 || 20 }}
         max_attempts: 3
         retry_wait_seconds: 300
         command: scripts/test_archiving.sh ${{ matrix.pod }} ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive
