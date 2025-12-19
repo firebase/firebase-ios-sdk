@@ -149,9 +149,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   [self.settings reloadFromCacheWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
-  if (expectedRemoveCount) {
-    [self drainBackgroundQueue];
-  }
+  [self drainBackgroundQueue];
 
   [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:5.0];
 }
