@@ -129,11 +129,6 @@ class FirebaseSessionsTestsBase: XCTestCase {
     // place register Subscriber SDKs
     postSessionsInit()
 
-    DispatchQueue.global(qos: .background).sync {
-      // Drain queue to prevent interference from previous tests.
-      // This is used by the `Sessions` initializer.
-    }
-
     // Wait for the Sessions SDK to log the session before finishing
     // the test.
     wait(for: [loggedEventExpectation], timeout: 3)
