@@ -15,6 +15,19 @@
 import FirebaseAppCheck
 import FirebaseCore
 import SwiftUI
+import FirebaseAILogic
+import FoundationModels
+
+@Generable
+struct Person: FirebaseGenerable {
+  static var jsonSchema: FirebaseAILogic.JSONSchema {
+    JSONSchema(type: Self.self, description: nil, properties: [
+      .init(name: "name", description: nil, type: String.self, guides: [])
+    ])
+  }
+
+  let name: String
+}
 
 @main
 struct TestApp: App {
@@ -33,6 +46,8 @@ struct TestApp: App {
 
     // Configure a Firebase App without a billing account (i.e., the "Spark" plan).
     FirebaseApp.configure(appName: FirebaseAppNames.spark, plistName: "GoogleService-Info-Spark")
+
+    print(try! Person.jsonSchema.asGenerationSchema())
   }
 
   var body: some Scene {
