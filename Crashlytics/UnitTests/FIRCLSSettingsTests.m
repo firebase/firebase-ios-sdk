@@ -75,12 +75,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 - (void)setUp {
   [super setUp];
-
-  dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                    // Drain queue to prevent interference from previous tests.
-                    // This queue is used by `- [FIRCLSSettings deleteCachedSettings]`.
-                });
-
+  [self drainBackgroundQueue];
   _fileManager = [[FIRCLSMockFileManager alloc] init];
 
   _appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
@@ -139,6 +134,10 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   [self.settings cacheSettingsWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
+  if (expectedRemoveCount) {
+    [self drainBackgroundQueue];
+  }
+
   [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:1];
 }
 
@@ -152,7 +151,17 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
   [self.settings reloadFromCacheWithGoogleAppID:googleAppID currentTimestamp:currentTimestamp];
 
+  if (expectedRemoveCount) {
+    [self drainBackgroundQueue];
+  }
+
   [self waitForExpectations:@[ self.fileManager.removeExpectation ] timeout:5.0];
+}
+
+- (void)drainBackgroundQueue {
+  dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+                    // This queue is used by `- [FIRCLSSettings deleteCachedSettings]`.
+                });
 }
 
 - (void)testActivatedSettingsCached {
