@@ -148,7 +148,7 @@ jobs:
         python-version: '3.11'
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v2
+      uses: jwlawson/actions-setup-cmake@802fa1a
       with:
         cmake-version: '3.31.1'
 
@@ -242,7 +242,7 @@ jobs:
       continue-on-error: true
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v2
+      uses: jwlawson/actions-setup-cmake@802fa1a
       with:
         cmake-version: '3.31.1'
 
@@ -289,7 +289,7 @@ jobs:
         python-version: '3.11'
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v2
+      uses: jwlawson/actions-setup-cmake@802fa1a
       with:
         cmake-version: '3.31.1'
 
@@ -341,7 +341,7 @@ jobs:
         python-version: '3.11'
 
     - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v2
+      uses: jwlawson/actions-setup-cmake@802fa1a
       with:
         cmake-version: '3.31.1'
 
