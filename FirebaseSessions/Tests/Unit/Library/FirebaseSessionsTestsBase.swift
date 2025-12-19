@@ -81,11 +81,6 @@ class FirebaseSessionsTestsBase: XCTestCase {
     // This class is static, so we need to clear global state
     SessionsDependencies.removeAll()
 
-    DispatchQueue.global(qos: .background).sync {
-      // Drain queue to prevent interference from previous tests.
-      // This is used by the `Sessions` initializer.
-    }
-
     for subscriberSDK in subscriberSDKs {
       SessionsDependencies.addDependency(name: subscriberSDK.sessionsSubscriberName)
     }
@@ -128,6 +123,11 @@ class FirebaseSessionsTestsBase: XCTestCase {
     // Execute test cases after Sessions is initialized. This is a good
     // place register Subscriber SDKs
     postSessionsInit()
+
+    DispatchQueue.global(qos: .background).sync {
+      // Drain queue to prevent interference from previous tests.
+      // This is used by the `Sessions` initializer.
+    }
 
     // Wait for the Sessions SDK to log the session before finishing
     // the test.
