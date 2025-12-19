@@ -13,6 +13,10 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+import FoundationModels
+#endif // canImport(FoundationModels)
+
 
 /// A type that the model uses when responding to prompts.
 ///
@@ -41,12 +45,17 @@ import Foundation
 /// ``Guide(description:)``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol FirebaseGenerable: ConvertibleFromModelOutput, ConvertibleToModelOutput {
+  /// A representation of partially generated content
+  associatedtype PartiallyGenerated: ConvertibleFromModelOutput = Self
+
   /// An instance of the JSON schema.
   static var jsonSchema: JSONSchema { get }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Optional where Wrapped: FirebaseGenerable {}
+extension Optional where Wrapped: FirebaseGenerable {
+  public typealias PartiallyGenerated = Wrapped.PartiallyGenerated
+}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOutput {
@@ -168,6 +177,9 @@ extension Decimal: FirebaseGenerable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Array: FirebaseGenerable where Element: FirebaseGenerable {
+  /// A representation of partially generated content
+  public typealias PartiallyGenerated = [Element.PartiallyGenerated]
+
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .array(item: Element.self), source: String(describing: self))
   }
