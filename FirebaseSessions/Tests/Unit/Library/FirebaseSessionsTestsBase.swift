@@ -82,7 +82,8 @@ class FirebaseSessionsTestsBase: XCTestCase {
     SessionsDependencies.removeAll()
 
     DispatchQueue.global(qos: .background).sync {
-      // Drain queue.
+      // Drain queue to prevent interference from previous tests.
+      // This is used by the `Sessions` initializer.
     }
 
     for subscriberSDK in subscriberSDKs {
