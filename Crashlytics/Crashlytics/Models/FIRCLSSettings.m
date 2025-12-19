@@ -68,6 +68,8 @@ NSString *const AppVersion = @"app_version";
   _settingsDictionary = nil;
   _isCacheKeyExpired = NO;
 
+_deletionQueue = deletionQueue;
+
   return self;
 }
 
