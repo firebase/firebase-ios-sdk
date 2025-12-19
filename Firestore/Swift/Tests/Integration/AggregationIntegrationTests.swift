@@ -67,6 +67,8 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testCannotPerformMoreThanMaxAggregations() async throws {
+    try XCTSkipIf(FSTIntegrationTestCase.backendEdition() == .enterprise,
+                  "Skipping this test in enterprise mode.")
     let collection = collectionRef()
     try await collection.addDocument(data: ["author": "authorA",
                                             "title": "titleA",
@@ -79,7 +81,7 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
 
     // Max is 5, we're attempting 6. I also like to live dangerously.
     do {
-      let snapshot = try await collection.aggregate([
+      _ = try await collection.aggregate([
         AggregateField.count(),
         AggregateField.sum("pages"),
         AggregateField.sum("weight"),
@@ -293,25 +295,44 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testPerformsAggregateOverResultSetOfZeroDocuments() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Skipping test because the emulator's behavior deviates from the expected outcome."
+    )
+
     let collection = collectionRef()
     try await collection.addDocument(data: ["pages": 100])
     try await collection.addDocument(data: ["pages": 50])
 
-    let snapshot = try await collection.whereField("pages", isGreaterThan: 200)
-      .aggregate([AggregateField.count(), AggregateField.sum("pages"),
-                  AggregateField.average("pages")]).getAggregation(source: .server)
+    let query = collection.whereField("pages", isGreaterThan: 200)
+    let aggregateQuery = query.aggregate([AggregateField.count(),
+                                          AggregateField.sum("pages"),
+                                          AggregateField.average("pages")])
+    let snapshot = try await aggregateQuery.getAggregation(source: .server)
 
     // Count
     XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 0)
 
-    // Sum
-    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNumber, 0)
-
     // Average
     XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? NSNull, NSNull())
+
+    // Sum
+    switch FSTIntegrationTestCase.backendEdition() {
+    case .standard:
+      XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNumber, 0)
+    case .enterprise:
+      XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNull, NSNull())
+    @unknown default:
+      XCTFail("Unknown backend edition")
+    }
   }
 
   func testPerformsAggregateOverResultSetOfZeroFields() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Skipping test because the emulator's behavior deviates from the expected outcome."
+    )
+
     let collection = collectionRef()
     try await collection.addDocument(data: ["pages": 100])
     try await collection.addDocument(data: ["pages": 50])
@@ -322,12 +343,17 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
 
     // Count  - 0 because aggregation is performed on documents matching the query AND documents
     // that have all aggregated fields
-    XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 0)
-
-    // Sum
-    XCTAssertEqual(snapshot.get(AggregateField.sum("notInMyDocs")) as? NSNumber, 0)
-
-    // Average
-    XCTAssertEqual(snapshot.get(AggregateField.average("notInMyDocs")) as? NSNull, NSNull())
+    switch FSTIntegrationTestCase.backendEdition() {
+    case .standard:
+      XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 0)
+      XCTAssertEqual(snapshot.get(AggregateField.sum("notInMyDocs")) as? NSNumber, 0)
+      XCTAssertEqual(snapshot.get(AggregateField.average("notInMyDocs")) as? NSNull, NSNull())
+    case .enterprise:
+      XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 2)
+      XCTAssertEqual(snapshot.get(AggregateField.sum("notInMyDocs")) as? NSNull, NSNull())
+      XCTAssertEqual(snapshot.get(AggregateField.average("notInMyDocs")) as? NSNull, NSNull())
+    @unknown default:
+      XCTFail("Unknown backend edition")
+    }
   }
 }

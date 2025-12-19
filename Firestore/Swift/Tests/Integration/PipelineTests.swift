@@ -127,9 +127,14 @@ private let bookDocs: [String: [String: Sendable]] = [
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineIntegrationTests: FSTIntegrationTestCase {
-  override func setUp() {
-    FSTIntegrationTestCase.switchToEnterpriseMode()
-    super.setUp()
+  override func setUpWithError() throws {
+    try super.setUpWithError()
+
+    if FSTIntegrationTestCase.backendEdition() == .standard {
+      throw XCTSkip(
+        "Skipping all tests in PipelineIntegrationTests because backend edition is Standard."
+      )
+    }
   }
 
   func testEmptyResults() async throws {
@@ -2063,6 +2068,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLike() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Emulator does not support this function."
+    )
+
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2081,6 +2091,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexContains() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Emulator does not support this function."
+    )
+
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2094,6 +2109,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexMatches() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Emulator does not support this function."
+    )
+
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2374,6 +2394,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testExpOverflow() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Skipping test because the emulator's behavior deviates from the expected outcome."
+    )
+
     let collRef = collectionRef(withDocuments: [
       "doc1": ["value": 1000],
     ])
@@ -2479,6 +2504,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testChecks() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Skipping test because the emulator's behavior deviates from the expected outcome."
+    )
+
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -3219,6 +3249,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTimestampTruncWorks() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Emulator does not support this function."
+    )
+
     let db = firestore()
     let randomCol = collectionRef()
     try await randomCol.document("dummyDoc").setData(["field": "value"])
@@ -3681,6 +3716,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTypeWorks() async throws {
+    try XCTSkipIf(
+      FSTIntegrationTestCase.isRunningAgainstEmulator(),
+      "Skipping test because the emulator's behavior deviates from the expected outcome."
+    )
+
     let collRef = collectionRef(withDocuments: [
       "doc1": [
         "a": 1,
