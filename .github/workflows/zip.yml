@@ -93,7 +93,7 @@ jobs:
            "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}" \
            build-release \
            static
-    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: Firebase-release-zip-zip
         # Zip the entire output directory since the builder adds subdirectories we don't know the
@@ -138,7 +138,7 @@ jobs:
            zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}" \
            build-head \
            ${{ matrix.linking_type }}
-    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: always()
       with:
         name: ${{ matrix.linking_type == 'static' && 'Firebase-actions-dir' || 'Firebase-actions-dir-dynamic' }}

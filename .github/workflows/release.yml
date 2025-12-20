@@ -50,7 +50,7 @@ jobs:
   #   - name: Remove data before upload
   #     if: ${{ failure() }}
   #     run: scripts/remove_data.sh functions
-  #   - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
+  #   - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
   #     if: ${{ failure() }}
   #     with:
   #       name: quickstart_artifacts_functions
@@ -114,7 +114,7 @@ jobs:
     - name: Remove data before upload
       if: failure()
       run: scripts/remove_data.sh ${{ matrix.product }}
-    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: failure()
       with:
         name: quickstart_artifacts_${{ matrix.product }}
