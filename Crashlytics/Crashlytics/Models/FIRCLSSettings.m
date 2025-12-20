@@ -40,12 +40,23 @@ NSString *const AppVersion = @"app_version";
 
 @property(nonatomic) BOOL isCacheKeyExpired;
 
+@property(nonatomic) dispatch_queue_t deletionQueue;
+
 @end
 
 @implementation FIRCLSSettings
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
                          appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel {
+  return
+      [self initWithFileManager:fileManager
+                     appIDModel:appIDModel
+                  deletionQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
+}
+
+- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                      deletionQueue:(dispatch_queue_t)deletionQueue {
   self = [super init];
   if (!self) {
     return nil;
@@ -56,6 +67,8 @@ NSString *const AppVersion = @"app_version";
 
   _settingsDictionary = nil;
   _isCacheKeyExpired = NO;
+
+  _deletionQueue = deletionQueue;
 
   return self;
 }
@@ -190,9 +203,7 @@ NSString *const AppVersion = @"app_version";
 
 - (void)deleteCachedSettings {
   __weak FIRCLSSettings *weakSelf = self;
-#ifndef FIREBASE_IS_NIGHTLY_TESTING
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-#endif
+  dispatch_async(_deletionQueue, ^{
     __strong FIRCLSSettings *strongSelf = weakSelf;
     if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsFilePath]) {
       [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsFilePath];
@@ -200,9 +211,7 @@ NSString *const AppVersion = @"app_version";
     if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsCacheKeyPath]) {
       [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsCacheKeyPath];
     }
-#ifndef FIREBASE_IS_NIGHTLY_TESTING
   });
-#endif
 
   @synchronized(self) {
     self.isCacheKeyExpired = YES;
