@@ -108,7 +108,14 @@ source scripts/check_secrets.sh
 # Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
-  echo xcodebuild "$@"
+  # Print the command in a copy-pasteable format
+  echo xcodebuild $(printf "%q " "$@")
+
+  if [[ -n "${DRY_RUN:-}" ]]; then
+    echo "DRY_RUN is set. Exiting before build."
+    return 0
+  fi
+
   local xcodebuild_args=("$@")
   local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
   local log_filename="xcodebuild-${buildaction}.log"
@@ -255,8 +262,12 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
-source scripts/buildcache.sh
-xcb_flags=("${xcb_flags[@]}" "${buildcache_xcb_flags[@]}")
+# If running in Gemini CLI, pass -quiet to xcodebuild.
+# This reduces chance of exceeding the request token count.
+if [[ -n "${GEMINI_CLI:-}" ]]; then
+  echo "Running in Gemini CLI, adding -quiet to xcodebuild invocation."
+  xcb_flags+=(-quiet)
+fi
 
 # TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
 # Right now, it makes the log overflow on Travis because many of our

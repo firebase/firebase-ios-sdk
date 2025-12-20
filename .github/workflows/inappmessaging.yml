@@ -50,10 +50,7 @@ jobs:
         platform: [iOS]
         xcode: [Xcode_16.4]
     steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.platform }}
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -76,7 +73,7 @@ jobs:
     uses: ./.github/workflows/common_quickstart.yml
     with:
       product: InAppMessaging
-      setup_command: scripts/setup_quickstart_spm.sh inappmessaging
+      setup_command: scripts/setup_quickstart.sh inappmessaging
       plist_src_path: scripts/gha-encrypted/qs-inappmessaging.plist.gpg
       plist_dst_path: quickstart-ios/inappmessaging/GoogleService-Info.plist
       run_tests: false
