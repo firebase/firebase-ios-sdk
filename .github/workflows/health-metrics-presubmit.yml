@@ -72,7 +72,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseABTesting --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -92,7 +92,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseAuth --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -114,7 +114,7 @@ jobs:
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseDatabase --platform=${{ matrix.target }}
       # TODO: Make sure that https://github.com/actions/upload-artifact/issues/478 is resolved
       # before going to actions/upload-artifact@v4.
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -137,7 +137,7 @@ jobs:
       run: |
         export EXPERIMENTAL_MODE=true
         ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseFirestore --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -157,7 +157,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseFunctions --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -177,7 +177,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseInAppMessaging --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -197,7 +197,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseMessaging --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -220,7 +220,7 @@ jobs:
       run: gem install xcpretty
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebasePerformance --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -240,7 +240,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseRemoteConfig --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult
@@ -260,7 +260,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseStorage --platform=${{ matrix.target }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       with:
         name: codecoverage
         path: /Users/runner/*.xcresult

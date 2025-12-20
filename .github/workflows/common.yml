@@ -133,13 +133,13 @@ jobs:
             ${{ inputs.target }} \
             ${{ matrix.platform }} \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       if: ${{ failure() }}
       with:
         name: xcodebuild-logs-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
         path: xcodebuild-*.log
         if-no-files-found: error
-    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+    - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
       if: ${{ failure() }}
       with:
         name: xcresults-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
