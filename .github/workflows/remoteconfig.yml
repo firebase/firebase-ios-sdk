@@ -97,33 +97,6 @@ jobs:
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
-  # TODO(@sunmou99): currently have issue with this job, will re-enable it once the issue resolved.
-  # quickstart-ftl-cron-only:
-  #   # Don't run on private repo.
-  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-  #   env:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #   runs-on: macos-14
-  #   steps:
-  #   - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-  #   - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-  #   - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-  #     with:
-  #      python-version: '3.11'
-  #   - name: Setup quickstart
-  #     run: scripts/setup_quickstart.sh config
-  #   - name: Install Secret GoogleService-Info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-config.plist.gpg \
-  #         quickstart-ios/config/GoogleService-Info.plist "$plist_secret"
-  #   - name: Build Swift Quickstart
-  #     run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Config)
-  #   - id: ftl_test
-  #     uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
-  #     with:
-  #       credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
-  #       testapp_dir: quickstart-ios/build-for-testing
-  #       test_type: "xctest"
-
   sample-build-test:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'

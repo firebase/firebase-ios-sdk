@@ -66,6 +66,11 @@ jobs:
           #   plist_src_path: scripts/gha-encrypted/qs-functions.plist.gpg
           #   plist_dst_path: quickstart-ios/functions/GoogleService-Info.plist
           #   build_command: scripts/test_quickstart_ftl.sh Functions
+          # - product: RemoteConfig
+          #   setup_command: scripts/setup_quickstart.sh remoteConfig
+          #   plist_src_path: scripts/gha-encrypted/qs-functions.plist.gpg
+          #   plist_dst_path: quickstart-ios/functions/GoogleService-Info.plist
+          #   build_command: scripts/test_quickstart_ftl.sh RemoteConfig
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
