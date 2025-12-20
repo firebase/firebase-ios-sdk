@@ -55,8 +55,8 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
       secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
         key: ${{ needs.spm.outputs.cache_key }}
@@ -64,7 +64,7 @@ jobs:
       run: scripts/repo.sh tests run --secrets ./scripts/secrets/AI.json --platforms ${{ matrix.target }} --xcode ${{ matrix.xcode }} AI
     - name: Upload xcodebuild logs
       if: failure()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: xcodebuild-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
         path: xcodebuild-*.log
@@ -93,7 +93,7 @@ jobs:
     env:
       BRANCH_NAME: ${{ github.head_ref || github.ref_name || 'main' }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Build Quickstart

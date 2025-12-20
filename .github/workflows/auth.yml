@@ -63,8 +63,8 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-15
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/cache/restore@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
         key: ${{ needs.spm.outputs.cache_key }}

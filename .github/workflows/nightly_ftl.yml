@@ -66,14 +66,19 @@ jobs:
           #   plist_src_path: scripts/gha-encrypted/qs-functions.plist.gpg
           #   plist_dst_path: quickstart-ios/functions/GoogleService-Info.plist
           #   build_command: scripts/test_quickstart_ftl.sh Functions
+          # - product: RemoteConfig
+          #   setup_command: scripts/setup_quickstart.sh remoteConfig
+          #   plist_src_path: scripts/gha-encrypted/qs-functions.plist.gpg
+          #   plist_dst_path: quickstart-ios/functions/GoogleService-Info.plist
+          #   build_command: scripts/test_quickstart_ftl.sh RemoteConfig
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Install xcpretty
       run: gem install xcpretty
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
       with:
         python-version: '3.11'
     - name: Xcode
@@ -89,7 +94,7 @@ jobs:
     - name: Build swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh ${{ matrix.build_command }})
     - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
+      uses: FirebaseExtended/github-actions/firebase-test-lab@57091ac526b308ae005c6d6d59aab83d5ab2aa71 # v1.5.0
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing

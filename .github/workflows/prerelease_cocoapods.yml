@@ -34,7 +34,7 @@ jobs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0 # Required for pulling down repo tags.
     - name: Xcode
@@ -78,7 +78,7 @@ jobs:
       if: ${{ always() }}
       run: |
         rm -rf prerelease-testing-token.txt
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: firebase-ios-sdk
         path: |
@@ -96,10 +96,10 @@ jobs:
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: FirebaseCore
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - uses: actions/download-artifact@v4.1.7
+    - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
@@ -138,10 +138,10 @@ jobs:
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: ${{ matrix.podspec }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - uses: actions/download-artifact@v4.1.7
+    - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
@@ -179,7 +179,7 @@ jobs:
       local_repo: specstesting
       podspec_repo_branch: main
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0 # Required for pulling down repo tags.
     - name: Xcode
