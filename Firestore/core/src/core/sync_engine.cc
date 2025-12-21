@@ -408,9 +408,9 @@ void SyncEngine::HandleRejectedWrite(
 
   DocumentMap changes = local_store_->RejectBatch(batch_id);
 
-  if (!changes.empty() && ErrorIsInteresting(error)) {
+  if (!changes.empty()) {
     const DocumentKey& min_key = changes.min()->first;
-    LOG_WARN("Write at %s failed: %s", min_key.ToString(),
+    LOG_WARN("Write batch %s at %s failed: %s", batch_id, min_key.ToString(),
              error.error_message());
   }
 
@@ -469,6 +469,10 @@ void SyncEngine::NotifyUser(BatchId batch_id, Status status) {
   // NOTE: Mutations restored from persistence won't have callbacks, so
   // it's okay for this (or the callback below) to not exist.
   if (it == mutation_callbacks_.end()) {
+    if (!status.ok()) {
+      LOG_WARN("Could not find mutation callback queue for user %s",
+               current_user_.uid());
+    }
     return;
   }
 
@@ -477,6 +481,9 @@ void SyncEngine::NotifyUser(BatchId batch_id, Status status) {
   if (callback_it != callbacks.end()) {
     callback_it->second(std::move(status));
     callbacks.erase(callback_it);
+  } else if (!status.ok()) {
+    LOG_WARN("Could not find mutation callback for user %s and batch %s",
+             current_user_.uid(), batch_id);
   }
 }
 
