@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAILogic
 import FirebaseAppCheck
 import FirebaseCore
 import SwiftUI
-import FirebaseAILogic
-import FoundationModels
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 @Generable
 struct Person: FirebaseGenerable {
