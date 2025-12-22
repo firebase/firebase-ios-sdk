@@ -14,9 +14,8 @@
 
 import Foundation
 #if canImport(FoundationModels)
-import FoundationModels
+  import FoundationModels
 #endif // canImport(FoundationModels)
-
 
 /// A type that the model uses when responding to prompts.
 ///
@@ -46,16 +45,16 @@ import FoundationModels
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol FirebaseGenerable: ConvertibleFromModelOutput, ConvertibleToModelOutput {
   /// A representation of partially generated content
-  associatedtype PartiallyGenerated: ConvertibleFromModelOutput = Self
+  // associatedtype PartiallyGenerated: ConvertibleFromModelOutput = Self
 
   /// An instance of the JSON schema.
   static var jsonSchema: JSONSchema { get }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Optional where Wrapped: FirebaseGenerable {
-  public typealias PartiallyGenerated = Wrapped.PartiallyGenerated
-}
+// @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+// public extension Optional where Wrapped: FirebaseGenerable {
+//  typealias PartiallyGenerated = Wrapped.PartiallyGenerated
+// }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOutput {
@@ -178,7 +177,7 @@ extension Decimal: FirebaseGenerable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Array: FirebaseGenerable where Element: FirebaseGenerable {
   /// A representation of partially generated content
-  public typealias PartiallyGenerated = [Element.PartiallyGenerated]
+  // public typealias PartiallyGenerated = [Element.PartiallyGenerated]
 
   public static var jsonSchema: JSONSchema {
     JSONSchema(kind: .array(item: Element.self), source: String(describing: self))
@@ -213,5 +212,24 @@ private extension ConvertibleFromModelOutput {
       Content: \(content)
       """)
     )
+  }
+}
+
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+public extension FirebaseGenerable where Self: FoundationModels.Generable {
+  static var jsonSchema: JSONSchema {
+    let jsonData: Data
+    do {
+      jsonData = try JSONEncoder().encode(generationSchema)
+    } catch {
+      fatalError("Failed to encode \(GenerationSchema.self) as JSON: \(error)")
+    }
+    do {
+      return try JSONDecoder().decode(JSONSchema.self, from: jsonData)
+    } catch {
+      fatalError("Failed to decode \(JSONSchema.self) from JSON: \(error)")
+    }
   }
 }
