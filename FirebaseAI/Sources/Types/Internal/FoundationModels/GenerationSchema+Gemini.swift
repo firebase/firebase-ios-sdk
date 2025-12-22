@@ -21,29 +21,19 @@
   @available(watchOS, unavailable)
   extension GenerationSchema {
     func asGeminiJSONSchema() throws -> JSONObject {
-      let jsonData = try JSONEncoder().encode(self)
-      var jsonSchema = try JSONDecoder().decode(JSONObject.self, from: jsonData)
-      updatePropertyOrdering(&jsonSchema)
-
-      return jsonSchema
+      let generationSchemaJSONData = try JSONEncoder().encode(self)
+      guard let generationSchemaJSON = String(data: generationSchemaJSONData, encoding: .utf8)
+      else {
+        fatalError("Failed to convert \(GenerationSchema.self) JSON data to a string.")
+      }
+      let geminiJSONSchemaJSON = generationSchemaJSON.replacingOccurrences(
+        of: "\"x-order\"",
+        with: "\"propertyOrdering\""
+      )
+      guard let geminiJSONSchemaJSONData = geminiJSONSchemaJSON.data(using: .utf8) else {
+        fatalError("Failed to convert Gemini JSON Schema to data.")
+      }
+      return try JSONDecoder().decode(JSONObject.self, from: geminiJSONSchemaJSONData)
     }
-  }
-
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  fileprivate func updatePropertyOrdering(_ schema: inout JSONObject) {
-    guard let propertyOrdering = schema.removeValue(forKey: "x-order") else {
-      return
-    }
-    guard case let .array(values) = propertyOrdering else {
-      return
-    }
-    guard values.allSatisfy({
-      guard case .string = $0 else { return false }
-      return true
-    }) else {
-      return
-    }
-
-    schema["propertyOrdering"] = propertyOrdering
   }
 #endif // canImport(FoundationModels)
