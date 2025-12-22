@@ -14,7 +14,7 @@
 
 import Foundation
 #if canImport(FoundationModels)
-import FoundationModels
+  import FoundationModels
 #endif // canImport(FoundationModels)
 
 /// A type that describes the properties of an object and any guides on their values.
@@ -32,12 +32,14 @@ public struct JSONSchema: Sendable {
     case object(name: String, description: String?, properties: [Property])
   }
 
-  let kind: Kind
-  let source: String
+  let kind: Kind?
+  let source: String?
+  let schema: JSONSchema.Internal?
 
   init(kind: Kind, source: String) {
     self.kind = kind
     self.source = source
+    schema = nil
   }
 
   /// A property that belongs to a JSON schema.
@@ -97,6 +99,7 @@ public struct JSONSchema: Sendable {
     let name = String(describing: type)
     kind = .object(name: name, description: description, properties: properties)
     source = name
+    schema = nil
   }
 
   /// Creates a schema for a string enumeration.
@@ -165,84 +168,126 @@ public struct JSONSchema: Sendable {
     /// A suggestion that indicates how to handle the error.
     public var recoverySuggestion: String? { nil }
   }
+}
 
-  /// Returns an OpenAPI ``Schema`` equivalent of this JSON schema for testing.
-  public func asOpenAPISchema() -> Schema {
-    // TODO: Make this method internal or remove it when JSON Schema serialization is implemented.
-    switch kind {
-    case .string:
-      return .string()
-    case .integer:
-      return .integer()
-    case .double:
-      return .double()
-    case .boolean:
-      return .boolean()
-    case let .array(item: item):
-      return .array(items: item.jsonSchema.asOpenAPISchema())
-    case let .object(name: name, description: description, properties: properties):
-      var objectProperties = [String: Schema]()
-      for property in properties {
-        objectProperties[property.name] = property.type.jsonSchema.asOpenAPISchema()
-      }
-      return .object(
-        properties: objectProperties,
-        optionalProperties: properties.compactMap { property in
-          guard property.isOptional else { return nil }
-          return property.name
-        },
-        propertyOrdering: properties.map { $0.name },
-        description: description,
-        title: name
-      )
-    }
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema: Codable {
+  public init(from decoder: Decoder) throws {
+    schema = try JSONSchema.Internal(from: decoder)
+    // TODO: Populate `kind` using the decoded `JSONSchema.Internal`.
+    kind = nil
+    source = nil
   }
+
+  public func encode(to encoder: any Encoder) throws {
+    // TODO: Encode from `kind` and remove `schema` property.
+    guard let schema else {
+      fatalError("Cannot encode JSONSchema without an internal representation.")
+    }
+    try schema.encode(to: encoder)
+  }
+}
 
 @available(iOS 26.0, macOS 26.0, *)
 @available(tvOS, unavailable)
 @available(watchOS, unavailable)
 extension JSONSchema {
-  func asDynamicGenerationSchema() -> FoundationModels.DynamicGenerationSchema {
-    switch self.kind {
-    case .string:
-      return DynamicGenerationSchema(type: String.self)
-    case .integer:
-      return DynamicGenerationSchema(type: Int.self)
-    case .double:
-      return DynamicGenerationSchema(type: Double.self)
-    case .boolean:
-      return DynamicGenerationSchema(type: Bool.self)
-    case .array(item: let item):
-      return DynamicGenerationSchema(arrayOf: item.jsonSchema.asDynamicGenerationSchema())
-    case .object(name: let name, description: let description, properties: let properties):
-      return DynamicGenerationSchema(
-        name: name,
-        description: description,
-        properties: properties.map { $0.asDynamicGenerationSchemaProperty() }
-      )
+  func asGenerationSchema() throws -> FoundationModels.GenerationSchema {
+    let jsonRepresentation = try JSONEncoder().encode(schema)
+    return try JSONDecoder().decode(GenerationSchema.self, from: jsonRepresentation)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema {
+  final class Internal: Sendable {
+    let type: JSONSchema.Internal.SchemaType?
+    let title: String?
+    let description: String?
+    let properties: [String: JSONSchema.Internal]?
+    let required: [String]?
+    let additionalProperties: Bool?
+    let defs: [String: JSONSchema.Internal]?
+    let ref: String?
+    let anyOf: [JSONSchema.Internal]?
+    let items: JSONSchema.Internal?
+    let minItems: Int?
+    let maxItems: Int?
+    let enumValues: [JSONValue]?
+    let pattern: String?
+    let minimum: Double?
+    let maximum: Double?
+    let order: [String]?
+
+    init(type: JSONSchema.Internal.SchemaType? = nil,
+         title: String? = nil,
+         description: String? = nil,
+         properties: [String: JSONSchema.Internal]? = nil,
+         required: [String]? = nil,
+         additionalProperties: Bool? = nil,
+         defs: [String: JSONSchema.Internal]? = nil,
+         ref: String? = nil,
+         anyOf: [JSONSchema.Internal]? = nil,
+         items: JSONSchema.Internal? = nil,
+         minItems: Int? = nil,
+         maxItems: Int? = nil,
+         enumValues: [JSONValue]? = nil,
+         pattern: String? = nil,
+         minimum: Double? = nil,
+         maximum: Double? = nil,
+         order: [String]? = nil) {
+      self.type = type
+      self.title = title
+      self.description = description
+      self.properties = properties
+      self.required = required
+      self.additionalProperties = additionalProperties
+      self.defs = defs
+      self.ref = ref
+      self.anyOf = anyOf
+      self.items = items
+      self.minItems = minItems
+      self.maxItems = maxItems
+      self.enumValues = enumValues
+      self.pattern = pattern
+      self.minimum = minimum
+      self.maximum = maximum
+      self.order = order
     }
   }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public extension JSONSchema {
-  func asGenerationSchema() throws -> FoundationModels.GenerationSchema {
-    return try GenerationSchema(root: asDynamicGenerationSchema(), dependencies: [])
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema.Internal {
+  enum SchemaType: String, Codable, Sendable, Equatable {
+    case object
+    case array
+    case string
+    case integer
+    case number
+    case boolean
   }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-extension JSONSchema.Property {
-  func asDynamicGenerationSchemaProperty() -> FoundationModels.DynamicGenerationSchema.Property {
-    return FoundationModels.DynamicGenerationSchema.Property(
-        name: self.name,
-        description: self.description,
-        schema: self.type.jsonSchema.asDynamicGenerationSchema(),
-        isOptional: self.isOptional
-      )
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema.Internal: Codable {
+  enum CodingKeys: String, CodingKey {
+    case type
+    case title
+    case description
+    case properties
+    case required
+    case additionalProperties
+    case defs = "$defs"
+    case ref = "$ref"
+    case anyOf
+    case items
+    case minItems
+    case maxItems
+    case enumValues = "enum"
+    case pattern
+    case minimum
+    case maximum
+    case order = "propertyOrdering"
   }
 }
