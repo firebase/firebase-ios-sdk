@@ -20,6 +20,11 @@ import PackageDescription
 
 let firebaseVersion = "12.8.0"
 
+// For private preview, Firestore must be built from source.
+let shouldUseSourceFirestore = true
+// Remove the above and uncomment the line below before merging Firestore to main.
+// let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
+
 let package = Package(
   name: "Firebase",
   platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
@@ -1428,7 +1433,7 @@ func abseilDependency() -> Package.Dependency {
 
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
       "0.20240722.0" ..< "0.20240723.0"
@@ -1448,7 +1453,7 @@ func grpcDependency() -> Package.Dependency {
 
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
@@ -1458,11 +1463,17 @@ func grpcDependency() -> Package.Dependency {
 }
 
 func firestoreWrapperTarget() -> Target {
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     return .target(
       name: "FirebaseFirestoreTarget",
       dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS, .visionOS]))],
+                             condition: .when(platforms: [
+                               .iOS,
+                               .tvOS,
+                               .macOS,
+                               .visionOS,
+                               .macCatalyst,
+                             ]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
@@ -1477,7 +1488,7 @@ func firestoreWrapperTarget() -> Target {
 }
 
 func firestoreTargets() -> [Target] {
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     return [
       .target(
         name: "FirebaseFirestoreInternalWrapper",
@@ -1533,6 +1544,7 @@ func firestoreTargets() -> [Target] {
           .headerSearchPath("../"),
           .headerSearchPath("Source/Public/FirebaseFirestore"),
           .headerSearchPath("Protos/nanopb"),
+          .headerSearchPath("third_party/re2"),
           .define("PB_FIELD_32BIT", to: "1"),
           .define("PB_NO_PACKED_STRUCTS", to: "1"),
           .define("PB_ENABLE_MALLOC", to: "1"),

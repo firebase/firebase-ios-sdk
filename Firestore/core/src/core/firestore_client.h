@@ -23,9 +23,11 @@
 
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/api/load_bundle_task.h"
+#include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/bundle/bundle_serializer.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/database_info.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/async_queue.h"
@@ -116,7 +118,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   /** Starts listening to a query. */
   std::shared_ptr<QueryListener> ListenToQuery(
-      Query query,
+      QueryOrPipeline query,
       ListenOptions options,
       ViewSnapshotSharedListener&& listener);
 
@@ -158,6 +160,9 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   void RunAggregateQuery(const Query& query,
                          const std::vector<model::AggregateField>& aggregates,
                          api::AggregateQueryCallback&& result_callback);
+
+  void RunPipeline(const api::Pipeline& pipeline,
+                   util::StatusOrCallback<api::PipelineSnapshot> callback);
 
   /**
    * Adds a listener to be called when a snapshots-in-sync event fires.

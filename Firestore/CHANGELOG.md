@@ -1,3 +1,8 @@
+# Unreleased
+- [feature] `Pipeline` support is now available for the `Enterprise edition` as a public review feature. (#15625)
+- [fixed] Fixed an issue where the returned object in transaction blocks could not
+  pass across actor boundaries in Swift 6 (#15467).
+
 # 12.4.0
 - [fixed] Implemented an internal workaround to fix
   [CVE-2025-0838](https://nvd.nist.gov/vuln/detail/CVE-2025-0838). (#15300)

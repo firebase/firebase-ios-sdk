@@ -30,8 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
-    NS_DESIGNATED_INITIALIZER;
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel;
 
 /**
  * Recreates the settings dictionary by re-reading the settings file from persistent storage. This

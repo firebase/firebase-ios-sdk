@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_QUERY_ENGINE_H_
 #define FIRESTORE_CORE_SRC_LOCAL_QUERY_ENGINE_H_
 
+#include "Firestore/core/src/core/pipeline_util.h"  // Added for QueryOrPipeline
 #include "Firestore/core/src/model/model_fwd.h"
 
 namespace firebase {
@@ -75,7 +76,7 @@ class QueryEngine {
   virtual void Initialize(LocalDocumentsView* local_documents);
 
   const model::DocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
       const model::DocumentKeySet& remote_keys) const;
 
@@ -90,26 +91,26 @@ class QueryEngine {
    * persisted index values. Returns nullopt if an index is not available.
    */
   absl::optional<model::DocumentMap> PerformQueryUsingIndex(
-      const core::Query& query) const;
+      const core::QueryOrPipeline& query_or_pipeline) const;
 
   /**
    * Performs a query based on the target's persisted query mapping. Returns
    * nullopt if the mapping is not available or cannot be used.
    */
   absl::optional<model::DocumentMap> PerformQueryUsingRemoteKeys(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::DocumentKeySet& remote_keys,
       const model::SnapshotVersion& last_limbo_free_snapshot_version) const;
 
   /** Applies the query filter and sorting to the provided documents. */
-  model::DocumentSet ApplyQuery(const core::Query& query,
+  model::DocumentSet ApplyQuery(const core::QueryOrPipeline& query_or_pipeline,
                                 const model::DocumentMap& documents) const;
 
   /**
    * Determines if a limit query needs to be refilled from cache, making it
    * ineligible for index-free execution.
    *
-   * @param query The query for refill calculation.
+   * @param query_or_pipeline The query for refill calculation.
    * @param sorted_previous_results The documents that matched the query when it
    *     was last synchronized, sorted by the query's comparator.
    * @param remote_keys The document keys that matched the query at the last
@@ -118,13 +119,14 @@ class QueryEngine {
    *     query was last synchronized.
    */
   bool NeedsRefill(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::DocumentSet& sorted_previous_results,
       const model::DocumentKeySet& remote_keys,
       const model::SnapshotVersion& limbo_free_snapshot_version) const;
 
   const model::DocumentMap ExecuteFullCollectionScan(
-      const core::Query& query, absl::optional<QueryContext>& context) const;
+      const core::QueryOrPipeline& query_or_pipeline,
+      absl::optional<QueryContext>& context) const;
 
   /**
    * Combines the results from an indexed execution with the remaining documents
@@ -132,10 +134,10 @@ class QueryEngine {
    */
   const model::DocumentMap AppendRemainingResults(
       const model::DocumentSet& indexedResults,
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::IndexOffset& offset) const;
 
-  void CreateCacheIndexes(const core::Query& query,
+  void CreateCacheIndexes(const core::QueryOrPipeline& query_or_pipeline,
                           const QueryContext& context,
                           size_t result_size) const;
 
