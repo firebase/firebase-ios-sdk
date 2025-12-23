@@ -215,21 +215,23 @@ private extension ConvertibleFromModelOutput {
   }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public extension FirebaseGenerable where Self: FoundationModels.Generable {
-  static var jsonSchema: JSONSchema {
-    let jsonData: Data
-    do {
-      jsonData = try JSONEncoder().encode(generationSchema)
-    } catch {
-      fatalError("Failed to encode \(GenerationSchema.self) as JSON: \(error)")
-    }
-    do {
-      return try JSONDecoder().decode(JSONSchema.self, from: jsonData)
-    } catch {
-      fatalError("Failed to decode \(JSONSchema.self) from JSON: \(error)")
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public extension FirebaseGenerable where Self: FoundationModels.Generable {
+    static var jsonSchema: JSONSchema {
+      let jsonData: Data
+      do {
+        jsonData = try JSONEncoder().encode(generationSchema)
+      } catch {
+        fatalError("Failed to encode \(GenerationSchema.self) as JSON: \(error)")
+      }
+      do {
+        return try JSONDecoder().decode(JSONSchema.self, from: jsonData)
+      } catch {
+        fatalError("Failed to decode \(JSONSchema.self) from JSON: \(error)")
+      }
     }
   }
-}
+#endif // canImport(FoundationModels)

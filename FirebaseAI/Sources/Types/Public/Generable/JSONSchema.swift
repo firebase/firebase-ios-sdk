@@ -188,15 +188,17 @@ extension JSONSchema: Codable {
   }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-extension JSONSchema {
-  func asGenerationSchema() throws -> FoundationModels.GenerationSchema {
-    let jsonRepresentation = try JSONEncoder().encode(schema)
-    return try JSONDecoder().decode(GenerationSchema.self, from: jsonRepresentation)
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension JSONSchema {
+    func asGenerationSchema() throws -> FoundationModels.GenerationSchema {
+      let jsonRepresentation = try JSONEncoder().encode(schema)
+      return try JSONDecoder().decode(GenerationSchema.self, from: jsonRepresentation)
+    }
   }
-}
+#endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONSchema {
