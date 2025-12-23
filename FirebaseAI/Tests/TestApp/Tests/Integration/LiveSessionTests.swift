@@ -119,7 +119,11 @@ struct LiveSessionTests {
     #expect(modelResponse == "goodbye")
   }
 
-  @Test(.disabled("Temporarily disabled"), arguments: arguments)
+  @Test(
+    .disabled("Temporarily disabled"),
+    .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
+    arguments: arguments
+  )
   func sendVideoRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -160,7 +164,11 @@ struct LiveSessionTests {
     #expect(["kitten", "cat", "kitty"].contains(modelResponse))
   }
 
-  @Test(.disabled("Temporarily disabled"), arguments: arguments)
+  @Test(
+    .disabled("Temporarily disabled"),
+    .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
+    arguments: arguments
+  )
   func realtime_functionCalling(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -208,15 +216,19 @@ struct LiveSessionTests {
     #expect(modelResponse == "smith")
   }
 
-  @Test(.disabled("Temporarily disabled"), arguments: arguments.filter {
-    // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
-    switch $0.0.apiConfig.service {
-    case .googleAI:
-      true
-    case .vertexAI:
-      false
+  @Test(
+    .disabled("Temporarily disabled"),
+    .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
+    arguments: arguments.filter {
+      // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
+      switch $0.0.apiConfig.service {
+      case .googleAI:
+        true
+      case .vertexAI:
+        false
+      }
     }
-  })
+  )
   func realtime_functionCalling_cancellation(_ config: InstanceConfig,
                                              modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -283,7 +295,11 @@ struct LiveSessionTests {
     }
   }
 
-  @Test(.disabled("Temporarily disabled"), arguments: arguments)
+  @Test(
+    .disabled("Temporarily disabled"),
+    .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
+    arguments: arguments
+  )
   func incremental_works(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
