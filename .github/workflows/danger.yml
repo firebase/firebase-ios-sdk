@@ -20,11 +20,11 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
     - name: Generate GitHub App Token
-        id: generate-token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf #v2.2.1
-        with:
-          app-id: ${{ secrets.DANGER_APP_ID }}
-          private-key: ${{ secrets.DANGER_APP_PRIVATE_KEY }}
+      id: generate-token
+      uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf #v2.2.1
+      with:
+        app-id: ${{ secrets.DANGER_APP_ID }}
+        private-key: ${{ secrets.DANGER_APP_PRIVATE_KEY }}
 
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
