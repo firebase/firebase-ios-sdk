@@ -40,9 +40,19 @@ end
 def addLabels(label_array)
   issue_number = github.pr_json["number"]
   repo_name = "firebase/firebase-ios-sdk"
-  github.api.add_labels_to_an_issue(repo_name, issue_number, label_array)
-rescue Octokit::Forbidden
-    warn "Unable to add labels (Insufficient permissions). This is expected
+  
+  begin
+    # Ensure label_array is actually an array, as the API requires it
+    labels = Array(label_array)
+    github.api.add_labels_to_an_issue(repo_name, issue_number, labels)
+  rescue Octokit::Forbidden => e
+    # This captures the "Must have admin rights" / 403 error
+    warn "Unable to add labels: #{labels.join(', ')}. " \
+         "This usually happens on PRs from external forks where the GITHUB_TOKEN is read-only for security. " \
+         "Error details: #{e.message}"
+  rescue StandardError => e
+    warn "An unexpected error occurred while adding labels: #{e.message}"
+  end
 end
 
 # Returns a list of all labels for a given PR. PRs that touch
