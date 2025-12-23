@@ -1,6 +1,9 @@
 name: danger
 
-on: [pull_request_target, workflow_dispatch]
+on:
+  pull_request_target: # Change from pull_request to pull_request_target
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -15,6 +18,8 @@ jobs:
       contents: read # Required to read the Dangerfile
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
