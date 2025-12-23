@@ -40,11 +40,9 @@ end
 def addLabels(label_array)
   issue_number = github.pr_json["number"]
   repo_name = "firebase/firebase-ios-sdk"
-  begin
-    github.api.add_labels_to_an_issue(repo_name, issue_number, label_array)
-  rescue Octokit::Forbidden
+  github.api.add_labels_to_an_issue(repo_name, issue_number, label_array)
+rescue Octokit::Forbidden
     warn "Unable to add labels (Insufficient permissions). This is expected
-  end
 end
 
 # Returns a list of all labels for a given PR. PRs that touch
