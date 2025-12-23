@@ -20,6 +20,7 @@
 #include <functional>
 #include <unordered_map>
 
+#include "Firestore/core/src/core/pipeline_util.h"  // Added for TargetOrPipeline
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/types.h"
 
@@ -81,13 +82,16 @@ class TargetCache {
   virtual void RemoveTarget(const TargetData& target_data) = 0;
 
   /**
-   * Looks up a TargetData entry in the cache.
+   * Looks up a TargetData entry in the cache using either a Target or a
+   * RealtimePipeline.
    *
-   * @param target The target corresponding to the entry to look up.
+   * @param target_or_pipeline The target or pipeline corresponding to the
+   *     entry to look up.
    * @return The cached TargetData entry, or nullopt if the cache has no entry
-   * for the target.
+   *     for the target or pipeline.
    */
-  virtual absl::optional<TargetData> GetTarget(const core::Target& target) = 0;
+  virtual absl::optional<TargetData> GetTarget(
+      const core::TargetOrPipeline& target_or_pipeline) = 0;
 
   /** Enumerates all sequence numbers in the TargetCache. */
   virtual void EnumerateSequenceNumbers(

@@ -18,7 +18,12 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.7.0"
+let firebaseVersion = "12.8.0"
+
+// For private preview, Firestore must be built from source.
+let shouldUseSourceFirestore = true
+// Remove the above and uncomment the line below before merging Firestore to main.
+// let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
 let package = Package(
   name: "Firebase",
@@ -555,61 +560,7 @@ let package = Package(
       ],
       path: "FirebaseCombineSwift/Sources/Storage"
     ),
-    .target(
-      name: "FirebaseCrashlytics",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseInstallations",
-        "FirebaseSessions",
-        "FirebaseRemoteConfigInterop",
-        "FirebaseCrashlyticsSwift",
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "FBLPromises", package: "Promises"),
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "Crashlytics",
-      exclude: [
-        "run",
-        "CHANGELOG.md",
-        "LICENSE",
-        "README.md",
-        "ProtoSupport/",
-        "UnitTests/",
-        "generate_project.sh",
-        "upload-symbols",
-        "CrashlyticsInputFiles.xcfilelist",
-        "third_party/libunwind/LICENSE",
-        "Crashlytics/Rollouts/",
-      ],
-      sources: [
-        "Crashlytics/",
-        "Protogen/",
-        "Shared/",
-        "third_party/libunwind/dwarf.h",
-      ],
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
-      publicHeadersPath: "Crashlytics/Public",
-      cSettings: [
-        .headerSearchPath(".."),
-        .define("DISPLAY_VERSION", to: firebaseVersion),
-        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
-        .define(
-          "CLS_SDK_NAME",
-          to: "Crashlytics macOS SDK",
-          .when(platforms: [.macOS, .macCatalyst])
-        ),
-        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
-        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-      ],
-      linkerSettings: [
-        .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
-      ]
-    ),
+    firebaseCrashlyticsTarget(),
     .target(
       name: "FirebaseCrashlyticsSwift",
       dependencies: ["FirebaseRemoteConfigInterop"],
@@ -1402,6 +1353,69 @@ let package = Package(
 
 // MARK: - Helper Functions
 
+func firebaseCrashlyticsTarget() -> Target {
+  var cSettings: [CSetting] = [
+    .headerSearchPath(".."),
+    .define("DISPLAY_VERSION", to: firebaseVersion),
+    .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
+    .define(
+      "CLS_SDK_NAME", to: "Crashlytics macOS SDK",
+      .when(platforms: [.macOS, .macCatalyst])
+    ),
+    .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
+    .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
+    .define("PB_FIELD_32BIT", to: "1"),
+    .define("PB_NO_PACKED_STRUCTS", to: "1"),
+    .define("PB_ENABLE_MALLOC", to: "1"),
+  ]
+
+  if Context.environment["FIREBASE_IS_NIGHTLY_TESTING"] != nil {
+    cSettings += [.define("FIREBASE_IS_NIGHTLY_TESTING", to: "1")]
+  }
+
+  return .target(
+    name: "FirebaseCrashlytics",
+    dependencies: [
+      "FirebaseCore",
+      "FirebaseInstallations",
+      "FirebaseSessions",
+      "FirebaseRemoteConfigInterop",
+      "FirebaseCrashlyticsSwift",
+      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+      .product(name: "GULEnvironment", package: "GoogleUtilities"),
+      .product(name: "FBLPromises", package: "Promises"),
+      .product(name: "nanopb", package: "nanopb"),
+    ],
+    path: "Crashlytics",
+    exclude: [
+      "run",
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "ProtoSupport/",
+      "UnitTests/",
+      "generate_project.sh",
+      "upload-symbols",
+      "CrashlyticsInputFiles.xcfilelist",
+      "third_party/libunwind/LICENSE",
+      "Crashlytics/Rollouts/",
+    ],
+    sources: [
+      "Crashlytics/",
+      "Protogen/",
+      "Shared/",
+      "third_party/libunwind/dwarf.h",
+    ],
+    resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+    publicHeadersPath: "Crashlytics/Public",
+    cSettings: cSettings,
+    linkerSettings: [
+      .linkedFramework("Security"),
+      .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+    ]
+  )
+}
+
 func googleAppMeasurementDependency() -> Package.Dependency {
   let appMeasurementURL = "https://github.com/google/GoogleAppMeasurement.git"
 
@@ -1419,7 +1433,7 @@ func abseilDependency() -> Package.Dependency {
 
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
       "0.20240722.0" ..< "0.20240723.0"
@@ -1439,7 +1453,7 @@ func grpcDependency() -> Package.Dependency {
 
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
   } else {
     packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
@@ -1449,11 +1463,17 @@ func grpcDependency() -> Package.Dependency {
 }
 
 func firestoreWrapperTarget() -> Target {
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     return .target(
       name: "FirebaseFirestoreTarget",
       dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS, .visionOS]))],
+                             condition: .when(platforms: [
+                               .iOS,
+                               .tvOS,
+                               .macOS,
+                               .visionOS,
+                               .macCatalyst,
+                             ]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
@@ -1468,7 +1488,7 @@ func firestoreWrapperTarget() -> Target {
 }
 
 func firestoreTargets() -> [Target] {
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     return [
       .target(
         name: "FirebaseFirestoreInternalWrapper",
@@ -1524,6 +1544,7 @@ func firestoreTargets() -> [Target] {
           .headerSearchPath("../"),
           .headerSearchPath("Source/Public/FirebaseFirestore"),
           .headerSearchPath("Protos/nanopb"),
+          .headerSearchPath("third_party/re2"),
           .define("PB_FIELD_32BIT", to: "1"),
           .define("PB_NO_PACKED_STRUCTS", to: "1"),
           .define("PB_ENABLE_MALLOC", to: "1"),

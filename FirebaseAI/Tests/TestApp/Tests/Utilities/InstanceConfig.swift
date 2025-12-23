@@ -83,8 +83,8 @@ struct InstanceConfig: Equatable, Encodable {
     vertexAI_v1beta_global_appCheckLimitedUse,
     googleAI_v1beta,
     googleAI_v1beta_appCheckLimitedUse,
-    googleAI_v1beta_freeTier,
     // Note: The following configs are commented out for easy one-off manual testing.
+    // googleAI_v1beta_freeTier,
     // vertexAI_v1beta_staging,
     // vertexAI_v1beta_staging_global_bypassProxy,
     // googleAI_v1beta_staging,

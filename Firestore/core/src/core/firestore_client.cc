@@ -421,7 +421,9 @@ bool FirestoreClient::is_terminated() const {
 }
 
 std::shared_ptr<QueryListener> FirestoreClient::ListenToQuery(
-    Query query, ListenOptions options, ViewSnapshotSharedListener&& listener) {
+    QueryOrPipeline query,
+    ListenOptions options,
+    ViewSnapshotSharedListener&& listener) {
   VerifyNotTerminated();
 
   auto query_listener = QueryListener::Create(
@@ -488,9 +490,9 @@ void FirestoreClient::GetDocumentsFromLocalCache(
   auto shared_callback = absl::ShareUniquePtr(std::move(callback));
   worker_queue_->Enqueue([this, query, shared_callback] {
     QueryResult query_result = local_store_->ExecuteQuery(
-        query.query(), /* use_previous_results= */ true);
+        QueryOrPipeline(query.query()), /* use_previous_results= */ true);
 
-    View view(query.query(), query_result.remote_keys());
+    View view(QueryOrPipeline(query.query()), query_result.remote_keys());
     ViewDocumentChanges view_doc_changes =
         view.ComputeDocumentChanges(query_result.documents());
     ViewChange view_change = view.ApplyChanges(view_doc_changes);
@@ -573,6 +575,25 @@ void FirestoreClient::RunAggregateQuery(
     sync_engine_->RunAggregateQuery(query, aggregates,
                                     std::move(async_callback));
   });
+}
+
+void FirestoreClient::RunPipeline(
+    const api::Pipeline& pipeline,
+    util::StatusOrCallback<api::PipelineSnapshot> callback) {
+  VerifyNotTerminated();
+
+  // Dispatch the result back onto the user dispatch queue.
+  auto async_callback =
+      [this, callback](const StatusOr<api::PipelineSnapshot>& status) {
+        if (callback) {
+          user_executor_->Execute([=] { callback(std::move(status)); });
+        }
+      };
+
+  worker_queue_->Enqueue(
+      [this, pipeline, async_callback = std::move(async_callback)] {
+        remote_store_->RunPipeline(pipeline, async_callback);
+      });
 }
 
 void FirestoreClient::AddSnapshotsInSyncListener(

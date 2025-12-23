@@ -25,11 +25,10 @@ struct LiveSessionTests {
     switch config.apiConfig.service {
     case .vertexAI:
       [
-        (config, ModelNames.gemini2FlashLivePreview),
+        (config, ModelNames.gemini2_5_FlashLive),
       ]
     case .googleAI:
       [
-        (config, ModelNames.gemini2FlashLive),
         (config, ModelNames.gemini2_5_FlashLivePreview),
       ]
     }
@@ -92,51 +91,6 @@ struct LiveSessionTests {
   }
 
   @Test(arguments: arguments)
-  func sendTextRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
-    let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelName,
-      generationConfig: textConfig,
-      systemInstruction: SystemInstructions.yesOrNo
-    )
-
-    let session = try await model.connect()
-    await session.sendTextRealtime("Does five plus five equal ten?")
-
-    let text = try await session.collectNextTextResponse()
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "yes")
-  }
-
-  @Test(arguments: arguments)
-  func sendTextRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
-                                                      modelName: String) async throws {
-    let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelName,
-      generationConfig: audioConfig,
-      systemInstruction: SystemInstructions.yesOrNo
-    )
-
-    let session = try await model.connect()
-    await session.sendTextRealtime("Does five plus five equal ten?")
-
-    let text = try await session.collectNextAudioOutputTranscript()
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "yes")
-  }
-
-  @Test(arguments: arguments)
   func sendAudioRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
                                                        modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -165,36 +119,11 @@ struct LiveSessionTests {
     #expect(modelResponse == "goodbye")
   }
 
-  @Test(arguments: arguments)
-  func sendAudioRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
-    let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelName,
-      generationConfig: textConfig,
-      systemInstruction: SystemInstructions.helloGoodbye
-    )
-
-    let session = try await model.connect()
-
-    let audioFile = try #require(
-      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
-    )
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
-
-    let text = try await session.collectNextTextResponse()
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "goodbye")
-  }
-
-  @Test(arguments: arguments.filter { $0.1 != ModelNames.gemini2FlashLive })
-  // gemini-2.0-flash-live-001 is buggy and likes to respond to the audio or system instruction
-  // (eg; it will say 'okay' or 'hello', instead of following the instructions)
+  @Test(
+    .disabled("Temporarily disabled"),
+    .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
+    arguments: arguments
+  )
   func sendVideoRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -235,7 +164,11 @@ struct LiveSessionTests {
     #expect(["kitten", "cat", "kitty"].contains(modelResponse))
   }
 
-  @Test(arguments: arguments)
+  @Test(
+    .disabled("Temporarily disabled"),
+    .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
+    arguments: arguments
+  )
   func realtime_functionCalling(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -283,15 +216,19 @@ struct LiveSessionTests {
     #expect(modelResponse == "smith")
   }
 
-  @Test(arguments: arguments.filter {
-    // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
-    switch $0.0.apiConfig.service {
-    case .googleAI:
-      true
-    case .vertexAI:
-      false
+  @Test(
+    .disabled("Temporarily disabled"),
+    .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
+    arguments: arguments.filter {
+      // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
+      switch $0.0.apiConfig.service {
+      case .googleAI:
+        true
+      case .vertexAI:
+        false
+      }
     }
-  })
+  )
   func realtime_functionCalling_cancellation(_ config: InstanceConfig,
                                              modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -324,9 +261,7 @@ struct LiveSessionTests {
     await session.close()
   }
 
-  @Test(
-    arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens }
-  )
+  @Test(arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens })
   // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   func realtime_interruption(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -360,7 +295,11 @@ struct LiveSessionTests {
     }
   }
 
-  @Test(arguments: arguments)
+  @Test(
+    .disabled("Temporarily disabled"),
+    .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
+    arguments: arguments
+  )
   func incremental_works(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,

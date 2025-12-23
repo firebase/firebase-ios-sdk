@@ -197,6 +197,12 @@ message WriteResult {
 //
 // Multiple [DocumentChange][google.firestore.v1.DocumentChange] messages may be returned for the same logical
 // change, if multiple targets are affected.
+//
+// For PipelineQueryTargets, `document` will be in the new pipeline format,
+// (-- TODO(b/330735468): Insert link to spec. --)
+// For a Listen stream with both QueryTargets and PipelineQueryTargets present,
+// if a document matches both types of queries, then a separate DocumentChange
+// messages will be sent out one for each set.
 message DocumentChange {
   // The new state of the [Document][google.firestore.v1.Document].
   //

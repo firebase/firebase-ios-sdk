@@ -20,7 +20,7 @@ jobs:
       podspecs: ${{ steps.check_files.outputs.podspecs }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0
     - name: check files
@@ -55,7 +55,7 @@ jobs:
       PODSPEC: ${{ matrix.podspec }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0
     - name: Init podspecs and source
@@ -65,7 +65,7 @@ jobs:
         swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --skip-tests --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs"
     - name: Upload Failed Testing Logs
       if: failure()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: specTestingLogs
         path: specTestingLogs/*.txt

@@ -54,10 +54,7 @@ jobs:
       matrix:
         diagnostic: [tsan, asan, ubsan]
     steps:
-    - uses: actions/checkout@v4
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.diagnostics }}
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - name: Initialize xcodebuild
@@ -66,7 +63,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckUnit iOS spm ${{ matrix.diagnostic }}
     - name: Upload raw logs if failed
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: failure-xcodebuild-raw-logs
         path: xcodebuild.log

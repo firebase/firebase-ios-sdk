@@ -71,7 +71,8 @@
                   "readTime": {
                     "timestamp": {
                       "nanoseconds": 0,
-                      "seconds": 0
+                      "seconds": 0,
+                      "type": "firestore/timestamp/1.0"
                     }
                   }
                 },
@@ -115,7 +116,8 @@
                   "readTime": {
                     "timestamp": {
                       "nanoseconds": 0,
-                      "seconds": 0
+                      "seconds": 0,
+                      "type": "firestore/timestamp/1.0"
                     }
                   }
                 },
@@ -192,7 +194,8 @@
                   "readTime": {
                     "timestamp": {
                       "nanoseconds": 0,
-                      "seconds": 0
+                      "seconds": 0,
+                      "type": "firestore/timestamp/1.0"
                     }
                   }
                 },
@@ -236,7 +239,8 @@
                   "readTime": {
                     "timestamp": {
                       "nanoseconds": 0,
-                      "seconds": 0
+                      "seconds": 0,
+                      "type": "firestore/timestamp/1.0"
                     }
                   }
                 },

@@ -25,7 +25,7 @@ cd quickstart-ios/"${SAMPLE}"
 # the project for framework-based testing.
 if [[ "${SAMPLE}" == "FirebaseAI" ]]; then
   # For the FirebaseAI quickstart, we only want to remove the Firebase deps.
-  "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj" FirebaseAI
+  "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj" FirebaseAILogic
 else
   # For other quickstarts, remove all SPM dependencies.
   "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj"
@@ -43,7 +43,7 @@ touch foo.swift
 mkdir -p Firebase/
 # Create non Firebase Frameworks and move to Firebase/ dir.
 if [[ ! -z "$NON_FIREBASE_SDKS" ]]; then
-  REPO="${REPO}" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/build_non_firebase_sdks.sh
+  REPO="${REPO}" NON_FIREBASE_SDKS="${NON_FIREBASE_SDKS}" "${REPO}"/scripts/zip/build_non_firebase_sdks.sh
 fi
 if [ ! -f "Firebase/Firebase.h" ]; then
   cp "${HOME}"/ios_frameworks/Firebase/Firebase.h Firebase/
