@@ -12,8 +12,8 @@ def didModify(files_array)
   return false
 end
 
-# Determine if there are changes in files matching any of the
-# path patterns provided.
+# Determine if there are changes in files matching any of the path
+# patterns provided.
 def hasChangesIn(paths)
   path_array = Array(paths)
   path_array.each do |dir|
