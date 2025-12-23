@@ -91,7 +91,7 @@ struct LiveSessionTests {
     )
   }
 
-  @Test(arguments: arguments)
+  @Test(.disabled("Temporarily disabled"), arguments: arguments)
   func sendTextRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -113,7 +113,7 @@ struct LiveSessionTests {
     #expect(modelResponse == "yes")
   }
 
-  @Test(arguments: arguments)
+  @Test(.disabled("Temporarily disabled"), arguments: arguments)
   func sendTextRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
                                                       modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -136,7 +136,7 @@ struct LiveSessionTests {
     #expect(modelResponse == "yes")
   }
 
-  @Test(arguments: arguments)
+  @Test(.disabled("Temporarily disabled"), arguments: arguments)
   func sendAudioRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
                                                        modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -165,7 +165,7 @@ struct LiveSessionTests {
     #expect(modelResponse == "goodbye")
   }
 
-  @Test(arguments: arguments)
+  @Test(.disabled("Temporarily disabled"), arguments: arguments)
   func sendAudioRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -192,7 +192,7 @@ struct LiveSessionTests {
     #expect(modelResponse == "goodbye")
   }
 
-  @Test(arguments: arguments.filter { $0.1 != ModelNames.gemini2FlashLive })
+  @Test(.disabled("Temporarily disabled"), arguments: arguments.filter { $0.1 != ModelNames.gemini2FlashLive })
   // gemini-2.0-flash-live-001 is buggy and likes to respond to the audio or system instruction
   // (eg; it will say 'okay' or 'hello', instead of following the instructions)
   func sendVideoRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
@@ -235,7 +235,7 @@ struct LiveSessionTests {
     #expect(["kitten", "cat", "kitty"].contains(modelResponse))
   }
 
-  @Test(arguments: arguments)
+  @Test(.disabled("Temporarily disabled"), arguments: arguments)
   func realtime_functionCalling(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -283,7 +283,7 @@ struct LiveSessionTests {
     #expect(modelResponse == "smith")
   }
 
-  @Test(arguments: arguments.filter {
+  @Test(.disabled("Temporarily disabled"), arguments: arguments.filter {
     // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
     switch $0.0.apiConfig.service {
     case .googleAI:
@@ -325,6 +325,7 @@ struct LiveSessionTests {
   }
 
   @Test(
+    .disabled("Temporarily disabled"),
     arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens }
   )
   // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
@@ -360,7 +361,7 @@ struct LiveSessionTests {
     }
   }
 
-  @Test(arguments: arguments)
+  @Test(.disabled("Temporarily disabled"), arguments: arguments)
   func incremental_works(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,

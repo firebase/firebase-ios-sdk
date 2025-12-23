@@ -36,13 +36,6 @@
 			);
 			target = 866138682CC943DE00F4B78E /* IntegrationTests-SPM */;
 		};
-		DECF58E22EFA338E000A3EC4 /* Exceptions for "Tests" folder in "IntegrationTests-SPM" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Integration/LiveSessionTests.swift,
-			);
-			target = 866138682CC943DE00F4B78E /* IntegrationTests-SPM */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -53,9 +46,6 @@
 		};
 		863E93F42EC69AB100BE4F4E /* Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				DECF58E22EFA338E000A3EC4 /* Exceptions for "Tests" folder in "IntegrationTests-SPM" target */,
-			);
 			path = Tests;
 			sourceTree = "<group>";
 		};
