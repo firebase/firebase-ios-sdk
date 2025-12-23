@@ -1,6 +1,6 @@
 name: danger
 
-on: [pull_request, workflow_dispatch]
+on: [pull_request_target, workflow_dispatch]
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
