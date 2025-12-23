@@ -104,12 +104,9 @@ struct GenerateContentIntegrationTests {
       #expect(candidatesTokensDetails.modality == .text)
       #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
-    if modelName.hasPrefix("gemini-3") {
-      #expect(usageMetadata.totalTokenCount == 80)
-    } else {
-      #expect(usageMetadata.totalTokenCount ==
-        (usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount))
-    }
+    #expect(usageMetadata.totalTokenCount == (usageMetadata.promptTokenCount +
+        usageMetadata.candidatesTokenCount +
+        usageMetadata.thoughtsTokenCount))
   }
 
   @Test(
@@ -171,6 +168,11 @@ struct GenerateContentIntegrationTests {
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 32768)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
+        thinkingBudget: 32768, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: 128)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: 32768)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
       // Note: The following configs are commented out for easy one-off manual testing.
@@ -265,6 +267,10 @@ struct GenerateContentIntegrationTests {
       )),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
+        thinkingBudget: -1, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
     ] as [(InstanceConfig, String, ThinkingConfig)]
@@ -482,8 +488,8 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3FlashPreview),
+    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini3FlashPreview),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
