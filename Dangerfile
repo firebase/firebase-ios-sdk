@@ -40,7 +40,7 @@ end
 def addLabels(label_array)
   issue_number = github.pr_json["number"]
   repo_name = "firebase/firebase-ios-sdk"
-  github.api.add_labels_to_an_issue(repo_name, issue_number, label_array)
+  github.add_labels(label_array)
 end
 
 # Returns a list of all labels for a given PR. PRs that touch
