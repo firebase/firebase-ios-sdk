@@ -20,5 +20,5 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Danger
       env:
-        DANGER_GITHUB_API_TOKEN: ${{ secrets.DangerGitHubAPIToken }}
+        DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run:  '[ ! -z $DANGER_GITHUB_API_TOKEN ] && bundle exec danger || echo "Skipping Danger for External Contributor"'
