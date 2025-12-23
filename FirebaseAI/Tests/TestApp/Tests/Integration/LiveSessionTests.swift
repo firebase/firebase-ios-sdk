@@ -192,7 +192,10 @@ struct LiveSessionTests {
     #expect(modelResponse == "goodbye")
   }
 
-  @Test(.disabled("Temporarily disabled"), arguments: arguments.filter { $0.1 != ModelNames.gemini2FlashLive })
+  @Test(
+    .disabled("Temporarily disabled"),
+    arguments: arguments.filter { $0.1 != ModelNames.gemini2FlashLive }
+  )
   // gemini-2.0-flash-live-001 is buggy and likes to respond to the audio or system instruction
   // (eg; it will say 'okay' or 'hello', instead of following the instructions)
   func sendVideoRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
