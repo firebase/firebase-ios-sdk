@@ -102,6 +102,8 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   void RunTransaction(core::TransactionUpdateCallback update_callback,
                       core::TransactionResultCallback result_callback,
                       int max_attempts);
+  void RunPipeline(const api::Pipeline& pipeline,
+                   util::StatusOrCallback<PipelineSnapshot> callback);
 
   void Terminate(util::StatusCallback callback);
   void ClearPersistence(util::StatusCallback callback);

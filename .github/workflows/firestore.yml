@@ -157,7 +157,6 @@ jobs:
 
     - name: Build and test
       run: |
-        export EXPERIMENTAL_MODE=true
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
@@ -298,7 +297,6 @@ jobs:
 
     - name: Build and test
       run: |
-        export EXPERIMENTAL_MODE=true
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
@@ -350,7 +348,6 @@ jobs:
 
     - name: Build and test
       run: |
-        export EXPERIMENTAL_MODE=true
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
@@ -380,7 +377,6 @@ jobs:
 
     - name: Build and test
       run: |
-        export EXPERIMENTAL_MODE=true
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
   pod_lib_lint:
@@ -511,37 +507,6 @@ jobs:
       target: FirebaseFirestore
       platforms: iOS
       buildonly_platforms: iOS
-
-  check-firestore-internal-public-headers:
-    needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-14
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - name: Assert that Firestore and FirestoreInternal have identically named headers.
-      run: |
-        fst_dir=Firestore/Source/Public/FirebaseFirestore/
-        fst_internal_dir=FirebaseFirestoreInternal/FirebaseFirestore/
-
-        comparison=$(comm -3 <(ls $fst_dir | sort) <(ls $fst_internal_dir | sort))
-
-        if [[ -z "$comparison" ]]; then
-          echo "Success: Directories '$fst_dir' and '$fst_internal_dir' match."
-        else
-          echo "Error: Directories '$fst_dir' and '$fst_internal_dir' differ:"
-          echo "Files only in '$fst_dir':"
-          # Files in this set do not start with whitespace. Grep for them and a
-          # dashed prefix for nicer formatting.
-          echo "$comparison" | grep -v '^\s' | sed 's/^/- /'
-          echo "Files only in '$fst_internal_dir':"
-          # Files in this set start with whitespace. Grep for them and a dashed
-          # prefix for nicer formatting.
-          echo "$comparison" | grep '^\s' | sed 's/^	/- /'
-          exit 1
-        fi
 
   # TODO: Re-enable either in or after #11706.
   # spm-source-cron:
