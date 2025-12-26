@@ -239,10 +239,8 @@ struct GenerateContentIntegrationTests {
       let minThoughtTokens = model.modelName == "gemini-2.5-flash" ? 27 : 64
 
       switch thinkingLevel {
-      case .minimal: #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
-      case .low: #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
-      case .medium: #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
-      case .high: #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
+      case .minimal, .low, .medium, .high:
+        #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
       default:
         Issue.record("Unhandled ThinkingLevel: \(thinkingLevel)")
       }
