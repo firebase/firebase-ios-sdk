@@ -66,9 +66,9 @@ struct ImplicitCacheTests {
     if usage2.cachedContentTokenCount > 0 {
       print("Implicit cache hit! cachedContentTokenCount: \(usage2.cachedContentTokenCount)")
       #expect(usage2.cacheTokensDetails.count > 0)
-      let detail = usage2.cacheTokensDetails.first
-      #expect(detail?.modality == .text)
-      #expect(detail?.tokenCount == usage2.cachedContentTokenCount)
+      #expect(usage2.cacheTokensDetails.first?.modality == .text)
+      let totalDetailTokens = usage2.cacheTokensDetails.map(\.tokenCount).reduce(0, +)
+      #expect(totalDetailTokens == usage2.cachedContentTokenCount)
     } else {
       print(
         "Implicit cache miss. This test might be flaky if the backend doesn't cache immediately."

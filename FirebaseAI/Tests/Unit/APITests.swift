@@ -208,7 +208,7 @@ final class APITests: XCTestCase {
         "totalTokenCount": 170,
         "promptTokensDetails": [],
         "cacheTokensDetails": [
-           { "modality": "TEXT", "tokenCount": 50 }
+          { "modality": "TEXT", "tokenCount": 50 }
         ],
         "candidatesTokensDetails": []
       }

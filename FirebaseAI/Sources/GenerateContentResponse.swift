@@ -48,7 +48,7 @@ public struct GenerateContentResponse: Sendable {
     /// The breakdown, by modality, of how many tokens are consumed by the prompt.
     public let promptTokensDetails: [ModalityTokenCount]
 
-    /// The breakdown, by modality, of how many tokens are consumed by the cachedContent
+    /// The breakdown, by modality, of how many tokens are consumed by the cached content
     public let cacheTokensDetails: [ModalityTokenCount]
 
     /// The breakdown, by modality, of how many tokens are consumed by the candidates
