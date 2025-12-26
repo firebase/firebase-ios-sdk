@@ -184,4 +184,53 @@ final class APITests: XCTestCase {
     let _: String? = response.text
     let _: [FunctionCallPart] = response.functionCalls
   }
+
+  func testGenerateContentResponseWithCacheMetadata() throws {
+    let json = """
+    {
+      "candidates": [
+        {
+          "content": {
+            "parts": [
+              { "text": "Hello world!" }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0,
+          "safetyRatings": []
+        }
+      ],
+      "usageMetadata": {
+        "promptTokenCount": 100,
+        "cachedContentTokenCount": 50,
+        "candidatesTokenCount": 20,
+        "totalTokenCount": 170,
+        "promptTokensDetails": [],
+        "cacheTokensDetails": [
+           { "modality": "TEXT", "tokenCount": 50 }
+        ],
+        "candidatesTokensDetails": []
+      }
+    }
+    """.data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    let response = try decoder.decode(GenerateContentResponse.self, from: json)
+
+    guard let usageMetadata = response.usageMetadata else {
+      XCTFail("Missing usageMetadata")
+      return
+    }
+
+    XCTAssertEqual(usageMetadata.promptTokenCount, 100)
+    XCTAssertEqual(usageMetadata.cachedContentTokenCount, 50)
+    XCTAssertEqual(usageMetadata.candidatesTokenCount, 20)
+    XCTAssertEqual(usageMetadata.totalTokenCount, 170)
+
+    XCTAssertEqual(usageMetadata.cacheTokensDetails.count, 1)
+    let cacheDetail = usageMetadata.cacheTokensDetails.first
+    XCTAssertEqual(cacheDetail?.modality, .text)
+    XCTAssertEqual(cacheDetail?.tokenCount, 50)
+  }
 }

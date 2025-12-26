@@ -487,7 +487,7 @@ extension GenerateContentResponse: Decodable {
 extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
-    case cacheContentTokenCount
+    case cachedContentTokenCount
     case candidatesTokenCount
     case toolUsePromptTokenCount
     case thoughtsTokenCount
@@ -503,7 +503,7 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
     promptTokenCount = try container.decodeIfPresent(Int.self, forKey: .promptTokenCount) ?? 0
     cachedContentTokenCount = try container.decodeIfPresent(
       Int.self,
-      forKey: .cacheContentTokenCount
+      forKey: .cachedContentTokenCount
     ) ?? 0
     candidatesTokenCount =
       try container.decodeIfPresent(Int.self, forKey: .candidatesTokenCount) ?? 0
