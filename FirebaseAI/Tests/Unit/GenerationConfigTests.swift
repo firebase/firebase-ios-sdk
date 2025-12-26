@@ -234,4 +234,36 @@ final class GenerationConfigTests: XCTestCase {
     }
     """)
   }
+
+  func testEncodeGenerationConfig_thinkingConfig() throws {
+    let testCases: [(ThinkingConfig, String)] = [
+      (ThinkingConfig(thinkingBudget: 0), "\"thinkingBudget\" : 0"),
+      (ThinkingConfig(thinkingBudget: 1024), "\"thinkingBudget\" : 1024"),
+      (ThinkingConfig(thinkingBudget: 1024, includeThoughts: true), """
+      "includeThoughts" : true,
+          "thinkingBudget" : 1024
+      """),
+      (ThinkingConfig(thinkingLevel: .minimal), "\"thinkingLevel\" : \"MINIMAL\""),
+      (ThinkingConfig(thinkingLevel: .low), "\"thinkingLevel\" : \"LOW\""),
+      (ThinkingConfig(thinkingLevel: .medium), "\"thinkingLevel\" : \"MEDIUM\""),
+      (ThinkingConfig(thinkingLevel: .high), "\"thinkingLevel\" : \"HIGH\""),
+      (ThinkingConfig(thinkingLevel: .medium, includeThoughts: true), """
+      "includeThoughts" : true,
+          "thinkingLevel" : \"MEDIUM\"
+      """),
+    ]
+
+    for (thinkingConfig, expectedJSONSnippet) in testCases {
+      let generationConfig = GenerationConfig(thinkingConfig: thinkingConfig)
+      let jsonData = try encoder.encode(generationConfig)
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+      XCTAssertEqual(json, """
+      {
+        "thinkingConfig" : {
+          \(expectedJSONSnippet)
+        }
+      }
+      """)
+    }
+  }
 }
