@@ -170,6 +170,10 @@ struct GenerateContentIntegrationTests {
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .minimal)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .low)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .medium)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .high)),
       (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: 128)),
       (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: 32768)),
       (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(
@@ -229,6 +233,19 @@ struct GenerateContentIntegrationTests {
     if let thinkingBudget = thinkingConfig.thinkingBudget, thinkingBudget > 0 {
       #expect(usageMetadata.thoughtsTokenCount > 0)
       #expect(usageMetadata.thoughtsTokenCount <= thinkingBudget)
+    } else if let thinkingLevel = thinkingConfig.thinkingLevel {
+      // For Gemini 3, All four levels may be 64 or 68.
+      // For either provider, gemini2_5_Flash will be 27 or 28.
+      let minThoughtTokens = model.modelName == "gemini-2.5-flash" ? 27 : 64
+
+      switch thinkingLevel {
+        case .minimal: #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
+        case .low: #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
+        case .medium: #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
+        case .high: #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
+      default:
+        Issue.record("Unhandled ThinkingLevel: \(thinkingLevel)")
+      }
     } else {
       #expect(usageMetadata.thoughtsTokenCount == 0)
     }
