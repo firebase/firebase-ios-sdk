@@ -1,3 +1,8 @@
+# Unreleased
+- [feature] Added support for implicit caching (context caching) metadata in `GenerateContentResponse`.
+  You can now access `cachedContentTokenCount` and `cacheTokensDetails` in `UsageMetadata` to see
+  savings from cached content. See the [caching documentation](https://ai.google.dev/gemini-api/docs/caching) for more details.
+
 # 12.7.0
 - [fixed] Fixed support for API keys with iOS+ app
   [Bundle ID restrictions](https://docs.cloud.google.com/docs/authentication/api-keys#adding-application-restrictions)
