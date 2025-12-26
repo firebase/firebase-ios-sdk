@@ -95,26 +95,18 @@ public extension ThinkingConfig {
       case high = "HIGH"
     }
 
-    /// A minimal thinking level.
-    ///
     /// Use this level when you want the model to think, but you want to minimize latency. This
     /// level is faster than ``low``.
     public static let minimal = ThinkingLevel(kind: .minimal)
 
-    /// A low thinking level.
-    ///
     /// This level is suitable for simpler queries or when speed is the priority. This level is
     /// faster than ``medium``.
     public static let low = ThinkingLevel(kind: .low)
 
-    /// A medium thinking level.
-    ///
     /// This is the default level. It balances speed and capability, making it suitable for most
     /// common tasks.
     public static let medium = ThinkingLevel(kind: .medium)
 
-    /// A high thinking level.
-    ///
     /// Use this level for complex queries where quality is more important than speed. It allows the
     /// model to engage in deeper reasoning but increases latency.
     public static let high = ThinkingLevel(kind: .high)
