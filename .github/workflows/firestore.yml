@@ -504,9 +504,8 @@ jobs:
   spm-binary:
     uses: ./.github/workflows/common.yml
     with:
-      target: FirebaseFirestore
+      target: FirebaseFirestoreTests
       platforms: iOS
-      buildonly_platforms: iOS
 
   # TODO: Re-enable either in or after #11706.
   # spm-source-cron:
