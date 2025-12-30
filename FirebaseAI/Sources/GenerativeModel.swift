@@ -539,7 +539,8 @@ private extension ModelOutput {
     case let .array(values):
       self.init(kind: .array(values.map { ModelOutput(jsonValue: $0) }))
     case let .object(jsonObject):
-      // Sort keys to maintain a deterministic order, as `JSONObject` is a `Dictionary` and thus unordered.
+      // Sort keys to maintain a deterministic order, as `JSONObject` is a `Dictionary` and thus
+      // unordered.
       let orderedKeys = jsonObject.keys.sorted()
       let properties = jsonObject.mapValues { ModelOutput(jsonValue: $0) }
       self.init(kind: .structure(properties: properties, orderedKeys: orderedKeys))
