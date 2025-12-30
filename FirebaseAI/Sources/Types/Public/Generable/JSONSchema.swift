@@ -174,7 +174,7 @@ public struct JSONSchema: Sendable {
     return try JSONDecoder().decode(JSONObject.self, from: jsonRepresentation)
   }
 
-  private func makeInternal() throws -> Internal {
+  func makeInternal() throws -> Internal {
     if let schema {
       return schema
     }
@@ -182,6 +182,63 @@ public struct JSONSchema: Sendable {
       fatalError("JSONSchema must have either `schema` or `kind`.")
     }
     return try kind.makeInternal()
+  }
+
+  func asSchema() -> Schema {
+    do {
+      return try makeInternal().asSchema()
+    } catch {
+      fatalError("Failed to convert JSONSchema to Schema: \(error)")
+    }
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema.Internal {
+  func asSchema() -> Schema {
+    let dataType: DataType?
+    switch type {
+    case .string: dataType = .string
+    case .integer: dataType = .integer
+    case .number: dataType = .number
+    case .boolean: dataType = .boolean
+    case .array: dataType = .array
+    case .object: dataType = .object
+    case nil: dataType = nil
+    }
+
+    var mappedProperties: [String: Schema]?
+    if let properties {
+      mappedProperties = properties.mapValues { $0.asSchema() }
+    }
+
+    var mappedItems: Schema?
+    if let items {
+      mappedItems = items.asSchema()
+    }
+
+    var mappedAnyOf: [Schema]?
+    if let anyOf {
+      mappedAnyOf = anyOf.map { $0.asSchema() }
+    }
+
+    return Schema(
+      type: dataType,
+      format: nil, // TODO: Map format if needed (e.g. enum, float)
+      description: description,
+      title: title,
+      nullable: nil, // nullable logic might be complex if encoded in type array
+      enumValues: nil, // TODO: Map enum values
+      items: mappedItems,
+      minItems: minItems,
+      maxItems: maxItems,
+      minimum: minimum,
+      maximum: maximum,
+      anyOf: mappedAnyOf,
+      properties: mappedProperties,
+      requiredProperties: required,
+      propertyOrdering: order
+    )
   }
 }
 

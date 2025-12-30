@@ -53,6 +53,9 @@ public final class GenerativeModel: Sendable {
   /// Tool configuration for any `Tool` specified in the request.
   let toolConfig: ToolConfig?
 
+  /// A map of function names to their executable logic.
+  let functionHandlers: [String: @Sendable ([String: JSONValue]) async throws -> JSONObject]
+
   /// Instructions that direct the model to behave a certain way.
   let systemInstruction: ModelContent?
 
@@ -75,6 +78,7 @@ public final class GenerativeModel: Sendable {
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
   ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
+  ///   - functionHandlers: A map of function names to their executable logic.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
@@ -87,6 +91,7 @@ public final class GenerativeModel: Sendable {
        safetySettings: [SafetySetting]? = nil,
        tools: [Tool]?,
        toolConfig: ToolConfig? = nil,
+       functionHandlers: [String: @Sendable ([String: JSONValue]) async throws -> JSONObject] = [:],
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
        urlSession: URLSession = GenAIURLSession.default) {
@@ -101,6 +106,7 @@ public final class GenerativeModel: Sendable {
     self.safetySettings = safetySettings
     self.tools = tools
     self.toolConfig = toolConfig
+    self.functionHandlers = functionHandlers
     self.systemInstruction = systemInstruction.map {
       // The `role` defaults to "user" but is ignored in system instructions. However, it is
       // erroneously counted towards the prompt and total token count in `countTokens` when using
@@ -119,6 +125,55 @@ public final class GenerativeModel: Sendable {
       """)
     }
     AILog.debug(code: .generativeModelInitialized, "Model \(modelResourceName) initialized.")
+  }
+
+  /// Initializes a new remote model with support for automatic function calling.
+  ///
+  /// - Parameters:
+  ///   - modelName: The name of the model.
+  ///   - modelResourceName: The model resource name corresponding with `modelName` in the backend.
+  ///   - firebaseInfo: Firebase data used by the SDK, including project ID and API key.
+  ///   - apiConfig: Configuration for the backend API used by this model.
+  ///   - generationConfig: The content generation parameters your model should use.
+  ///   - safetySettings: A value describing what types of harmful content your model should allow.
+  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
+  ///   - automaticFunctionTools: A list of ``AutomaticFunction``s that the model may use.
+  ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
+  ///   - systemInstruction: Instructions that direct the model to behave a certain way.
+  ///   - requestOptions: Configuration parameters for sending requests to the backend.
+  ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
+  convenience init(modelName: String,
+                   modelResourceName: String,
+                   firebaseInfo: FirebaseInfo,
+                   apiConfig: APIConfig,
+                   generationConfig: GenerationConfig? = nil,
+                   safetySettings: [SafetySetting]? = nil,
+                   tools: [Tool]? = nil,
+                   automaticFunctionTools: [AutomaticFunction],
+                   toolConfig: ToolConfig? = nil,
+                   systemInstruction: ModelContent? = nil,
+                   requestOptions: RequestOptions,
+                   urlSession: URLSession = GenAIURLSession.default) {
+    let automaticTools = Tool(functionDeclarations: automaticFunctionTools.map { $0.declaration })
+    let combinedTools = (tools ?? []) + [automaticTools]
+    let handlers = Dictionary(uniqueKeysWithValues: automaticFunctionTools.map {
+      ($0.declaration.name, $0.execute)
+    })
+
+    self.init(
+      modelName: modelName,
+      modelResourceName: modelResourceName,
+      firebaseInfo: firebaseInfo,
+      apiConfig: apiConfig,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: combinedTools,
+      toolConfig: toolConfig,
+      functionHandlers: handlers,
+      systemInstruction: systemInstruction,
+      requestOptions: requestOptions,
+      urlSession: urlSession
+    )
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
@@ -641,7 +696,7 @@ public final class GenerativeModel: Sendable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-private extension ModelOutput {
+extension ModelOutput {
   init(jsonValue: JSONValue) {
     switch jsonValue {
     case .null:

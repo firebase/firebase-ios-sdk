@@ -57,25 +57,91 @@ public final class Chat: Sendable {
     // Ensure that the new content has the role set.
     let newContent = content.map(populateContentRole(_:))
 
-    // Send the history alongside the new message as context.
-    let request = history + newContent
-    let result = try await model.generateContent(request)
-    guard let reply = result.candidates.first?.content else {
-      let error = NSError(domain: "com.google.generative-ai",
-                          code: -1,
-                          userInfo: [
-                            NSLocalizedDescriptionKey: "No candidates with content available.",
-                          ])
-      throw GenerateContentError.internalError(underlying: error)
+    // Append user content to history
+    _history.append(contentsOf: newContent)
+
+    var response: GenerateContentResponse
+    var functionCallCount = 0
+    let maxFunctionCalls = 10
+
+    while true {
+      // Send the history as context.
+      response = try await model.generateContent(history)
+
+      guard let candidate = response.candidates.first else {
+        let error = NSError(domain: "com.google.generative-ai",
+                            code: -1,
+                            userInfo: [
+                              NSLocalizedDescriptionKey: "No candidates with content available.",
+                            ])
+        throw GenerateContentError.internalError(underlying: error)
+      }
+
+      // Append model response
+      let modelContent = ModelContent(role: "model", parts: candidate.content.parts)
+      _history.append(modelContent)
+
+      // Check for function calls
+      let functionCalls = candidate.content.parts.compactMap { part -> FunctionCall? in
+        if let callPart = part as? FunctionCallPart {
+          return callPart.functionCall
+        }
+        return nil
+      }
+
+      if functionCalls.isEmpty {
+        break
+      }
+
+      // Check if we have handlers
+      let handlers = model.functionHandlers
+      if handlers.isEmpty {
+        break
+      }
+
+      var functionResponses: [FunctionResponsePart] = []
+      var handledAny = false
+
+      // Execute handlers
+      try await withThrowingTaskGroup(of: FunctionResponsePart?.self) { group in
+        for call in functionCalls {
+          if let handler = handlers[call.name] {
+            group.addTask {
+              let result = try await handler(call.args)
+              return FunctionResponsePart(name: call.name, response: result)
+            }
+            handledAny = true
+          }
+        }
+
+        for try await part in group {
+          if let part {
+            functionResponses.append(part)
+          }
+        }
+      }
+
+      if !handledAny {
+        break
+      }
+
+      // Append function responses
+      let functionResponseContent = ModelContent(role: "function", parts: functionResponses)
+      _history.append(functionResponseContent)
+
+      functionCallCount += 1
+      if functionCallCount >= maxFunctionCalls {
+        throw GenerateContentError.internalError(underlying: NSError(
+          domain: "FirebaseAI",
+          code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
+          ]
+        ))
+      }
     }
 
-    // Make sure we inject the role into the content received.
-    let toAdd = ModelContent(role: "model", parts: reply.parts)
-
-    // Append the request and successful result to history, then return the value.
-    _history.append(contentsOf: newContent)
-    _history.append(toAdd)
-    return result
+    return response
   }
 
   /// Sends a message using the existing history of this chat as context. If successful, the message
@@ -98,36 +164,103 @@ public final class Chat: Sendable {
     // Ensure that the new content has the role set.
     let newContent: [ModelContent] = content.map(populateContentRole(_:))
 
-    // Send the history alongside the new message as context.
-    let request = history + newContent
-    let stream = try model.generateContentStream(request)
     return AsyncThrowingStream { continuation in
       Task {
-        var aggregatedContent: [ModelContent] = []
+        var functionCallCount = 0
+        let maxFunctionCalls = 10
+        var userContentCommitted = false
 
         do {
-          for try await chunk in stream {
-            // Capture any content that's streaming. This should be populated if there's no error.
-            if let chunkContent = chunk.candidates.first?.content {
-              aggregatedContent.append(chunkContent)
+          while true {
+            // If we haven't committed the user content yet, send it as part of the request
+            // but don't add it to the official history until we get a successful response start.
+            let requestContent = userContentCommitted ? history : history + newContent
+            let stream = try model.generateContentStream(requestContent)
+            var aggregatedContent: [ModelContent] = []
+
+            for try await chunk in stream {
+              // Capture any content that's streaming. This should be populated if there's no error.
+              if let chunkContent = chunk.candidates.first?.content {
+                aggregatedContent.append(chunkContent)
+              }
+
+              // Pass along the chunk.
+              continuation.yield(chunk)
             }
 
-            // Pass along the chunk.
-            continuation.yield(chunk)
+            // Stream finished successfully.
+            // Commit user content if not yet done.
+            if !userContentCommitted {
+              _history.append(contentsOf: newContent)
+              userContentCommitted = true
+            }
+
+            // Aggregate the content to add it to the history.
+            let aggregated = _history.aggregatedChunks(aggregatedContent)
+            _history.append(aggregated)
+
+            // Check for function calls
+            let functionCalls = aggregated.parts.compactMap { part -> FunctionCall? in
+              if let callPart = part as? FunctionCallPart {
+                return callPart.functionCall
+              }
+              return nil
+            }
+
+            if functionCalls.isEmpty {
+              break
+            }
+
+            let handlers = model.functionHandlers
+            if handlers.isEmpty {
+              break
+            }
+
+            var functionResponses: [FunctionResponsePart] = []
+            var handledAny = false
+
+            try await withThrowingTaskGroup(of: FunctionResponsePart?.self) { group in
+              for call in functionCalls {
+                if let handler = handlers[call.name] {
+                  group.addTask {
+                    let result = try await handler(call.args)
+                    return FunctionResponsePart(name: call.name, response: result)
+                  }
+                  handledAny = true
+                }
+              }
+
+              for try await part in group {
+                if let part {
+                  functionResponses.append(part)
+                }
+              }
+            }
+
+            if !handledAny {
+              break
+            }
+
+            let functionResponseContent = ModelContent(role: "function", parts: functionResponses)
+            _history.append(functionResponseContent)
+
+            functionCallCount += 1
+            if functionCallCount >= maxFunctionCalls {
+              throw GenerateContentError.internalError(underlying: NSError(
+                domain: "FirebaseAI",
+                code: -1,
+                userInfo: [
+                  NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
+                ]
+              ))
+            }
           }
+          continuation.finish()
         } catch {
           // Rethrow the error that the underlying stream threw. Don't add anything to history.
           continuation.finish(throwing: error)
           return
         }
-
-        // Save the request.
-        _history.append(contentsOf: newContent)
-
-        // Aggregate the content to add it to the history before we finish.
-        let aggregated = self._history.aggregatedChunks(aggregatedContent)
-        self._history.append(aggregated)
-        continuation.finish()
       }
     }
   }
