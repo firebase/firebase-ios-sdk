@@ -108,4 +108,24 @@ final class PartialJSONParserTests: XCTestCase {
     }
     XCTAssertTrue(obj.isEmpty)
   }
+
+  func testParseEscapedQuote() {
+    let json = #"{"key": "hello \"world\""}"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .object(obj) = parser.parse() else {
+      XCTFail("Expected object")
+      return
+    }
+    XCTAssertEqual(obj["key"], .string("hello \"world\""))
+  }
+
+  func testParseEscapeSequences() {
+    let json = #"{"key": "line\nbreak\ttab\\slash"}"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .object(obj) = parser.parse() else {
+      XCTFail("Expected object")
+      return
+    }
+    XCTAssertEqual(obj["key"], .string("line\nbreak\ttab\\slash"))
+  }
 }

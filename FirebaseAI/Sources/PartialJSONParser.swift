@@ -196,7 +196,7 @@ final class PartialJSONParser {
       } else {
         if char == "\"" {
           return .string(string)
-        } else if char == "\"" {
+        } else if char == "\\" {
           escaped = true
         } else {
           string.append(char)
