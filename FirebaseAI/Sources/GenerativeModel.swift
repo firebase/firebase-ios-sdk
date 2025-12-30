@@ -224,6 +224,7 @@ public final class GenerativeModel: Sendable {
     return try generateContentStream(content, generationConfig: generationConfig)
   }
 
+  @available(macOS 12.0, *)
   public func generateContentStream(_ content: [ModelContent],
                                     generationConfig: GenerationConfig?) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {

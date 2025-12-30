@@ -200,4 +200,23 @@ final class PartialJSONParserTests: XCTestCase {
     XCTAssertEqual(arr[0], .number(1))
     XCTAssertEqual(nested["nested"], .string("v"))
   }
+
+  func testParseNumberBacktracking() {
+    // "1.2.3" should parse as 1.2, leaving ".3" (which might be ignored or handled next)
+    // The parser consumes as much as possible, then backtracks.
+    // "1.2.3" -> consumes all, fails Double("1.2.3").
+    // Backtracks to "1.2." -> fail.
+    // Backtracks to "1.2" -> success.
+    // Remaining input ".3" will likely fail to parse as anything valid next, but the number 1.2
+    // should be
+    // extracted.
+    let json = #"[1.2.3]"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .array(arr) = parser.parse() else {
+      XCTFail("Expected array")
+      return
+    }
+    XCTAssertEqual(arr.count, 1)
+    XCTAssertEqual(arr[0], .number(1.2))
+  }
 }

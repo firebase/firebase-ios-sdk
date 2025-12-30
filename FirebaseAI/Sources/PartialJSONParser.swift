@@ -211,23 +211,31 @@ final class PartialJSONParser {
 
   private func parseNumber() -> JSONValue? {
     let start = index
-    // Consume until non-numeric
-    // allowed: 0-9, -, +, ., e, E
+    var tempIndex = index
 
-    while index < length {
-      let char = input[index]
+    // Consume all possible numeric characters
+    while tempIndex < length {
+      let char = input[tempIndex]
       if "0123456789-+.eE".contains(char) {
-        index += 1
+        tempIndex += 1
       } else {
         break
       }
     }
 
-    let numberString = String(input[start ..< index])
-    if let double = Double(numberString) {
-      return .number(double)
+    // Backtrack from the end of the numeric-like segment to find the longest valid Double.
+    var potentialEndIndex = tempIndex
+    while potentialEndIndex > start {
+      let numberString = String(input[start ..< potentialEndIndex])
+      if let double = Double(numberString) {
+        // Found a valid number. Commit index and return.
+        index = potentialEndIndex
+        return .number(double)
+      }
+      potentialEndIndex -= 1
     }
-    // If partial number (e.g. "-"), return nil
+
+    // No valid number prefix found. Don't advance index.
     return nil
   }
 
