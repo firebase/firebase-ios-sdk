@@ -116,6 +116,29 @@ struct GenerateObjectIntegrationTests {
         return
       }
     }
+
+    @Test(arguments: [
+      (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash),
+      (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
+      (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
+    ])
+    @available(iOS 26.0, macOS 26.0, *)
+    func generateObject_guidedRecipe(_ config: InstanceConfig, modelName: String) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: modelName,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Generate a recipe for a cake."
+
+      // GuidedRecipe is defined below
+      let response = try await model.generateObject(GuidedRecipe.self, parts: prompt)
+
+      let recipe = response.content
+      #expect(!recipe.name.isEmpty)
+      #expect(!recipe.ingredients.isEmpty)
+      #expect(recipe.ingredients.count <= 5)
+    }
   #endif
 }
 
@@ -126,6 +149,15 @@ struct GenerateObjectIntegrationTests {
   @Generable
   struct MacroRecipe: Equatable {
     let name: String
+    let ingredients: [String]
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @Generable
+  struct GuidedRecipe: Equatable {
+    @Guide(description: "A funny name for the recipe.")
+    let name: String
+    @Guide(description: "List of ingredients.", .count(5))
     let ingredients: [String]
   }
 #endif
