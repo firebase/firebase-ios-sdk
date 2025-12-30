@@ -486,11 +486,10 @@ public final class GenerativeModel: Sendable {
     return config
   }
 
-  private func _generateObject<Content>(
-    parts: [any PartsRepresentable],
-    jsonSchemaProvider: () throws -> JSONObject,
-    contentProvider: (ModelOutput) throws -> Content
-  ) async throws -> Response<Content> {
+  private func _generateObject<Content>(parts: [any PartsRepresentable],
+                                        jsonSchemaProvider: () throws -> JSONObject,
+                                        contentProvider: (ModelOutput) throws
+                                          -> Content) async throws -> Response<Content> {
     let jsonSchema = try jsonSchemaProvider()
     let config = generationConfig(from: generationConfig, with: jsonSchema)
 

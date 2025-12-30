@@ -108,6 +108,13 @@ struct GenerateObjectIntegrationTests {
       #expect(!recipe.name.isEmpty)
       #expect(!recipe.ingredients.isEmpty)
       #expect(recipe.name.lowercased().contains("brownie"))
+
+      // verify rawContent structure
+      let rawContent = response.rawContent
+      guard case .structure = rawContent.kind else {
+        Issue.record("Raw content should be a structure")
+        return
+      }
     }
   #endif
 }
