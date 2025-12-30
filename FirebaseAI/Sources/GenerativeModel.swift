@@ -149,23 +149,28 @@ public final class GenerativeModel: Sendable {
                    generationConfig: GenerationConfig? = nil,
                    safetySettings: [SafetySetting]? = nil,
                    tools: [Tool]? = nil,
-                   automaticFunctionTools: [AutomaticFunction],
+                   automaticFunctionTools: [AutomaticFunction]? = nil,
                    toolConfig: ToolConfig? = nil,
                    systemInstruction: ModelContent? = nil,
                    requestOptions: RequestOptions,
                    urlSession: URLSession = GenAIURLSession.default) {
-    let automaticTools = Tool(functionDeclarations: automaticFunctionTools.map { $0.declaration })
-    let combinedTools = (tools ?? []) + [automaticTools]
-    let handlers = Dictionary(
-      automaticFunctionTools.map { ($0.declaration.name, $0.execute) },
-      uniquingKeysWith: { first, _ in
-        AILog.warning(
-          code: .generativeModelInitialized,
-          "Duplicate automatic function name found; using the first one."
-        )
-        return first
-      }
-    )
+    var combinedTools = tools ?? []
+    var handlers: [String: @Sendable ([String: JSONValue]) async throws -> JSONObject] = [:]
+
+    if let automaticFunctionTools, !automaticFunctionTools.isEmpty {
+      let automaticTools = Tool(functionDeclarations: automaticFunctionTools.map { $0.declaration })
+      combinedTools.append(automaticTools)
+      handlers = Dictionary(
+        automaticFunctionTools.map { ($0.declaration.name, $0.execute) },
+        uniquingKeysWith: { first, _ in
+          AILog.warning(
+            code: .generativeModelInitialized,
+            "Duplicate automatic function name found; using the first one."
+          )
+          return first
+        }
+      )
+    }
 
     self.init(
       modelName: modelName,
@@ -174,7 +179,7 @@ public final class GenerativeModel: Sendable {
       apiConfig: apiConfig,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
-      tools: combinedTools,
+      tools: combinedTools.isEmpty ? nil : combinedTools,
       toolConfig: toolConfig,
       functionHandlers: handlers,
       systemInstruction: systemInstruction,

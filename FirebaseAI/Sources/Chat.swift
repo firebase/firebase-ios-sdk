@@ -21,6 +21,18 @@ public final class Chat: Sendable {
   private let model: GenerativeModel
   private let _history: History
 
+  private static let maxFunctionCalls = 10
+
+  private static var maxTurnsError: Error {
+    GenerateContentError.internalError(underlying: NSError(
+      domain: "FirebaseAI",
+      code: -1,
+      userInfo: [
+        NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
+      ]
+    ))
+  }
+
   init(model: GenerativeModel, history: [ModelContent]) {
     self.model = model
     _history = History(history: history)
@@ -57,16 +69,16 @@ public final class Chat: Sendable {
     // Ensure that the new content has the role set.
     let newContent = content.map(populateContentRole(_:))
 
-    // Append user content to history
-    _history.append(contentsOf: newContent)
-
     var response: GenerateContentResponse
     var functionCallCount = 0
-    let maxFunctionCalls = 10
+    var userContentCommitted = false
 
     while true {
       // Send the history as context.
-      response = try await model.generateContent(history)
+      // If we haven't committed the user content yet, send it as part of the request
+      // but don't add it to the official history until we get a successful response.
+      let requestContent = userContentCommitted ? history : history + newContent
+      response = try await model.generateContent(requestContent)
 
       guard let candidate = response.candidates.first else {
         let error = NSError(domain: "com.google.generative-ai",
@@ -77,6 +89,12 @@ public final class Chat: Sendable {
         throw GenerateContentError.internalError(underlying: error)
       }
 
+      // Commit user content if not yet done.
+      if !userContentCommitted {
+        _history.append(contentsOf: newContent)
+        userContentCommitted = true
+      }
+
       // Append model response
       let modelContent = ModelContent(role: "model", parts: candidate.content.parts)
       _history.append(modelContent)
@@ -84,14 +102,8 @@ public final class Chat: Sendable {
       if let responseContent = try await executeFunctionCalls(from: modelContent) {
         _history.append(responseContent)
         functionCallCount += 1
-        if functionCallCount >= maxFunctionCalls {
-          throw GenerateContentError.internalError(underlying: NSError(
-            domain: "FirebaseAI",
-            code: -1,
-            userInfo: [
-              NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
-            ]
-          ))
+        if functionCallCount >= Chat.maxFunctionCalls {
+          throw Chat.maxTurnsError
         }
       } else {
         break
@@ -124,7 +136,6 @@ public final class Chat: Sendable {
     return AsyncThrowingStream { continuation in
       Task {
         var functionCallCount = 0
-        let maxFunctionCalls = 10
         var userContentCommitted = false
 
         do {
@@ -159,14 +170,8 @@ public final class Chat: Sendable {
             if let responseContent = try await self.executeFunctionCalls(from: aggregated) {
               _history.append(responseContent)
               functionCallCount += 1
-              if functionCallCount >= maxFunctionCalls {
-                throw GenerateContentError.internalError(underlying: NSError(
-                  domain: "FirebaseAI",
-                  code: -1,
-                  userInfo: [
-                    NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
-                  ]
-                ))
+              if functionCallCount >= Chat.maxFunctionCalls {
+                throw Chat.maxTurnsError
               }
             } else {
               break

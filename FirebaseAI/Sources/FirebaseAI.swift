@@ -94,23 +94,6 @@ public final class FirebaseAI: Sendable {
       """)
     }
 
-    if let automaticFunctionTools {
-      return GenerativeModel(
-        modelName: modelName,
-        modelResourceName: modelResourceName(modelName: modelName),
-        firebaseInfo: firebaseInfo,
-        apiConfig: apiConfig,
-        generationConfig: generationConfig,
-        safetySettings: safetySettings,
-        tools: tools,
-        automaticFunctionTools: automaticFunctionTools,
-        toolConfig: toolConfig,
-        systemInstruction: systemInstruction,
-        requestOptions: requestOptions,
-        urlSession: GenAIURLSession.default
-      )
-    }
-
     return GenerativeModel(
       modelName: modelName,
       modelResourceName: modelResourceName(modelName: modelName),
@@ -119,6 +102,7 @@ public final class FirebaseAI: Sendable {
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: tools,
+      automaticFunctionTools: automaticFunctionTools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
       requestOptions: requestOptions,

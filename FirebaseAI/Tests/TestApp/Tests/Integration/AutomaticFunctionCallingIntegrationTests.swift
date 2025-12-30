@@ -37,43 +37,8 @@ struct AutomaticFunctionCallingIntegrationTests {
   @Test(arguments: modelConfigurations)
   func automaticFunctionCalling_calculator(_ config: InstanceConfig,
                                            modelName: String) async throws {
-    let addFunction = AutomaticFunction(
-      name: "add",
-      description: "Adds two numbers",
-      parameters: [
-        "a": .double(),
-        "b": .double(),
-      ],
-      optionalParameters: []
-    ) { args in
-      guard case let .number(a) = args["a"], case let .number(b) = args["b"] else {
-        throw NSError(
-          domain: "Calculator",
-          code: 1,
-          userInfo: [NSLocalizedDescriptionKey: "Invalid arguments"]
-        )
-      }
-      return ["result": .number(a + b)]
-    }
-
-    let subtractFunction = AutomaticFunction(
-      name: "subtract",
-      description: "Subtracts two numbers",
-      parameters: [
-        "a": .double(),
-        "b": .double(),
-      ],
-      optionalParameters: []
-    ) { args in
-      guard case let .number(a) = args["a"], case let .number(b) = args["b"] else {
-        throw NSError(
-          domain: "Calculator",
-          code: 1,
-          userInfo: [NSLocalizedDescriptionKey: "Invalid arguments"]
-        )
-      }
-      return ["result": .number(a - b)]
-    }
+    let addFunction = makeAddFunction()
+    let subtractFunction = makeSubtractFunction()
 
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
@@ -97,24 +62,7 @@ struct AutomaticFunctionCallingIntegrationTests {
   @Test(arguments: modelConfigurations)
   func automaticFunctionCalling_stream_calculator(_ config: InstanceConfig,
                                                   modelName: String) async throws {
-    let addFunction = AutomaticFunction(
-      name: "add",
-      description: "Adds two numbers",
-      parameters: [
-        "a": .double(),
-        "b": .double(),
-      ],
-      optionalParameters: []
-    ) { args in
-      guard case let .number(a) = args["a"], case let .number(b) = args["b"] else {
-        throw NSError(
-          domain: "Calculator",
-          code: 1,
-          userInfo: [NSLocalizedDescriptionKey: "Invalid arguments"]
-        )
-      }
-      return ["result": .number(a + b)]
-    }
+    let addFunction = makeAddFunction()
 
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
@@ -136,6 +84,48 @@ struct AutomaticFunctionCallingIntegrationTests {
       finalResponseText.contains("30"),
       "Response text didn't contain 30. Got: \(finalResponseText)"
     )
+  }
+
+  private func makeAddFunction() -> AutomaticFunction {
+    AutomaticFunction(
+      name: "add",
+      description: "Adds two numbers",
+      parameters: [
+        "a": .double(),
+        "b": .double(),
+      ],
+      optionalParameters: []
+    ) { args in
+      guard case let .number(a) = args["a"], case let .number(b) = args["b"] else {
+        throw NSError(
+          domain: "Calculator",
+          code: 1,
+          userInfo: [NSLocalizedDescriptionKey: "Invalid arguments"]
+        )
+      }
+      return ["result": .number(a + b)]
+    }
+  }
+
+  private func makeSubtractFunction() -> AutomaticFunction {
+    AutomaticFunction(
+      name: "subtract",
+      description: "Subtracts two numbers",
+      parameters: [
+        "a": .double(),
+        "b": .double(),
+      ],
+      optionalParameters: []
+    ) { args in
+      guard case let .number(a) = args["a"], case let .number(b) = args["b"] else {
+        throw NSError(
+          domain: "Calculator",
+          code: 1,
+          userInfo: [NSLocalizedDescriptionKey: "Invalid arguments"]
+        )
+      }
+      return ["result": .number(a - b)]
+    }
   }
 
   #if canImport(FoundationModels)
