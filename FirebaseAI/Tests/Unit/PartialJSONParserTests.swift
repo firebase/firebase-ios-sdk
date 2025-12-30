@@ -128,4 +128,76 @@ final class PartialJSONParserTests: XCTestCase {
     }
     XCTAssertEqual(obj["key"], .string("line\nbreak\ttab\\slash"))
   }
+
+  func testParsePrimitives() {
+    let json = #"{"b": true, "f": false, "n": null}"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .object(obj) = parser.parse() else {
+      XCTFail("Expected object")
+      return
+    }
+    XCTAssertEqual(obj["b"], .bool(true))
+    XCTAssertEqual(obj["f"], .bool(false))
+    XCTAssertEqual(obj["n"], .null)
+  }
+
+  func testParsePartialNumbers() {
+    // Parser returns nil for partial numbers, so key is ignored
+    let json = #"{"a": 12, "b": -"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .object(obj) = parser.parse() else {
+      XCTFail("Expected object")
+      return
+    }
+    XCTAssertEqual(obj["a"], .number(12))
+    XCTAssertNil(obj["b"])
+  }
+
+  func testParsePartialUnicode() {
+    // Incomplete unicode \u12 should result in partial string "\u" plus the following chars
+    // The parser consumes \u, sees it's incomplete, appends \\u, then continues parsing 1 and 2 as
+    // literals.
+    let json = #"{"key": "\u12"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .object(obj) = parser.parse() else {
+      XCTFail("Expected object")
+      return
+    }
+    XCTAssertEqual(obj["key"], .string("\\u12"))
+  }
+
+  func testParseTrailingCommas() {
+    let json = #"{"a": 1, }"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .object(obj) = parser.parse() else {
+      XCTFail("Expected object")
+      return
+    }
+    XCTAssertEqual(obj["a"], .number(1))
+  }
+
+  func testParseEmptyStructures() {
+    let json = #"{"a": [], "b": {}}"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .object(obj) = parser.parse() else {
+      XCTFail("Expected object")
+      return
+    }
+    XCTAssertEqual(obj["a"], .array([]))
+    XCTAssertEqual(obj["b"], .object([:]))
+  }
+
+  func testParseComplexNestedPartial() {
+    let json = #"{"arr": [1, {"nested": "v"#
+    let parser = PartialJSONParser(input: json)
+    guard case let .object(obj) = parser.parse(),
+          case let .array(arr) = obj["arr"],
+          arr.count == 2,
+          case let .object(nested) = arr[1] else {
+      XCTFail("Expected nested structure")
+      return
+    }
+    XCTAssertEqual(arr[0], .number(1))
+    XCTAssertEqual(nested["nested"], .string("v"))
+  }
 }

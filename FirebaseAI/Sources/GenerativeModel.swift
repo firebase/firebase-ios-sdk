@@ -561,8 +561,12 @@ public final class GenerativeModel: Sendable {
           // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
           let json = GenerativeModel.cleanedJSON(from: fullText)
           let rawContent = try GenerativeModel.parseModelOutput(from: json)
-          _ = try contentProvider(rawContent)
+          let contentValue = try contentProvider(rawContent)
 
+          // Yield the final, strictly parsed result.
+          // This ensures the consumer receives the complete object validated against the schema,
+          // even if the partial parser yielded a similar result in the loop.
+          continuation.yield(Response(content: contentValue, rawContent: rawContent))
           continuation.finish()
         } catch {
           continuation.finish(throwing: error)
