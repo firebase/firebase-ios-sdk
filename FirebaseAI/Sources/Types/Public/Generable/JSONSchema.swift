@@ -168,6 +168,59 @@ public struct JSONSchema: Sendable {
     /// A suggestion that indicates how to handle the error.
     public var recoverySuggestion: String? { nil }
   }
+
+  func asGeminiJSONSchema() throws -> JSONObject {
+    let jsonRepresentation = try JSONEncoder().encode(self)
+    return try JSONDecoder().decode(JSONObject.self, from: jsonRepresentation)
+  }
+
+  private func makeInternal() -> Internal {
+    if let schema {
+      return schema
+    }
+    guard let kind else {
+      fatalError("JSONSchema must have either `schema` or `kind`.")
+    }
+    return kind.makeInternal()
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema.Kind {
+  func makeInternal() -> JSONSchema.Internal {
+    switch self {
+    case .string:
+      return JSONSchema.Internal(type: .string)
+    case .integer:
+      return JSONSchema.Internal(type: .integer)
+    case .double:
+      return JSONSchema.Internal(type: .number)
+    case .boolean:
+      return JSONSchema.Internal(type: .boolean)
+    case let .array(item):
+      // Recursive call for array items
+      return JSONSchema.Internal(type: .array, items: item.jsonSchema.makeInternal())
+    case let .object(name, description, properties):
+      var internalProperties = [String: JSONSchema.Internal]()
+      var required = [String]()
+      var order = [String]()
+      for property in properties {
+        internalProperties[property.name] = property.type.jsonSchema.makeInternal()
+        if !property.isOptional {
+          required.append(property.name)
+        }
+        order.append(property.name)
+      }
+      return JSONSchema.Internal(
+        type: .object,
+        title: name,
+        description: description,
+        properties: internalProperties,
+        required: required.isEmpty ? nil : required,
+        order: order
+      )
+    }
+  }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -180,11 +233,8 @@ extension JSONSchema: Codable {
   }
 
   public func encode(to encoder: any Encoder) throws {
-    // TODO: Encode from `kind` and remove `schema` property.
-    guard let schema else {
-      fatalError("Cannot encode JSONSchema without an internal representation.")
-    }
-    try schema.encode(to: encoder)
+    let schemaToEncode = makeInternal()
+    try schemaToEncode.encode(to: encoder)
   }
 }
 
