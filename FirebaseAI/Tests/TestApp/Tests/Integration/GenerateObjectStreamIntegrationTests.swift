@@ -18,6 +18,34 @@ import FirebaseAuth
 import FirebaseCore
 import Testing
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct PartialRecipe: FirebaseGenerable, Equatable {
+  let name: String?
+  let ingredients: [String]?
+
+  static var jsonSchema: JSONSchema {
+    JSONSchema(
+      type: Self.self,
+      properties: [
+        JSONSchema.Property(name: "name", type: String.self),
+        JSONSchema.Property(name: "ingredients", type: [String].self),
+      ]
+    )
+  }
+
+  init(_ content: ModelOutput) throws {
+    name = try content.value(forProperty: "name")
+    ingredients = try content.value(forProperty: "ingredients")
+  }
+
+  var modelOutput: ModelOutput {
+    var properties: [(String, any ConvertibleToModelOutput)] = []
+    if let name { properties.append(("name", name)) }
+    if let ingredients { properties.append(("ingredients", ingredients)) }
+    return ModelOutput(properties: properties, uniquingKeysWith: { _, second in second })
+  }
+}
+
 @Suite(.serialized)
 struct GenerateObjectStreamIntegrationTests {
   // Set temperature to 0 for deterministic output.
@@ -63,6 +91,37 @@ struct GenerateObjectStreamIntegrationTests {
       Issue.record("Raw content should be a structure")
       return
     }
+  }
+
+  @Test(arguments: modelConfigurations)
+  func generateObjectStream_partialRecipe(_ config: InstanceConfig,
+                                          modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a recipe for chocolate chip cookies."
+
+    let stream = model.generateObjectStream(PartialRecipe.self, parts: prompt)
+    var yieldCount = 0
+    var finalResponse: GenerativeModel.Response<PartialRecipe>?
+
+    for try await response in stream {
+      yieldCount += 1
+      finalResponse = response
+      // Verify we have at least partial data or empty data
+      _ = response.content
+      // It is possible to get empty name/ingredients initially
+    }
+
+    #expect(yieldCount > 1, "Should yield multiple times for partial streaming")
+
+    let response = try #require(finalResponse)
+    let recipe = response.content
+    #expect(recipe.name?.isEmpty == false)
+    #expect(recipe.ingredients?.isEmpty == false)
+    #expect(recipe.name?.lowercased().contains("cookie") == true)
   }
 
   #if canImport(FoundationModels)

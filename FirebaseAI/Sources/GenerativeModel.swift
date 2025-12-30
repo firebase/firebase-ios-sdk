@@ -543,7 +543,19 @@ public final class GenerativeModel: Sendable {
             if let text = chunk.text {
               fullText += text
             }
-            // Note: Partial object yielding is not yet supported.
+
+            // Attempt to parse and yield partial results.
+            let cleanText = GenerativeModel.cleanedJSON(from: fullText)
+            let parser = PartialJSONParser(input: cleanText)
+            if let jsonValue = parser.parse() {
+              do {
+                let rawContent = ModelOutput(jsonValue: jsonValue)
+                let contentValue = try contentProvider(rawContent)
+                continuation.yield(Response(content: contentValue, rawContent: rawContent))
+              } catch {
+                // Ignore conversion errors for partial content.
+              }
+            }
           }
 
           // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
