@@ -373,7 +373,7 @@ public final class GenerativeModel: Sendable {
     ///   - type: A type to produce as the response.
     ///   - parts: The input(s) given to the model as a prompt (see ``PartsRepresentable`` for
     ///   conforming types).
-    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
+    /// - Returns: A ``Response`` containing the generated `Content` object.
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -383,22 +383,7 @@ public final class GenerativeModel: Sendable {
       where Content: FoundationModels.Generable {
       let jsonSchema = try type.generationSchema.asGeminiJSONSchema()
 
-      let generationConfig = {
-        var generationConfig = self.generationConfig ?? GenerationConfig()
-        if generationConfig.candidateCount != nil {
-          generationConfig.candidateCount = nil
-        }
-        generationConfig.responseMIMEType = "application/json"
-        if generationConfig.responseSchema != nil {
-          generationConfig.responseSchema = nil
-        }
-        generationConfig.responseJSONSchema = jsonSchema
-        if generationConfig.responseModalities != nil {
-          generationConfig.responseModalities = nil
-        }
-
-        return generationConfig
-      }()
+      let generationConfig = generationConfig(from: generationConfig, with: jsonSchema)
 
       let response = try await generateContent(
         [ModelContent(parts: parts)],
@@ -422,7 +407,7 @@ public final class GenerativeModel: Sendable {
   ///   - type: A type to produce as the response.
   ///   - parts: The input(s) given to the model as a prompt (see ``PartsRepresentable`` for
   ///   conforming types).
-  /// - Returns: ``Response`` containing the fields and values defined in the schema.
+  /// - Returns: A ``Response`` containing the generated `Content` object.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public final func generateObject<Content>(_ type: Content.Type = Content.self,
                                             parts: any PartsRepresentable...) async throws
@@ -430,22 +415,7 @@ public final class GenerativeModel: Sendable {
     where Content: FirebaseGenerable {
     let jsonSchema = try type.jsonSchema.asGeminiJSONSchema()
 
-    let generationConfig = {
-      var generationConfig = self.generationConfig ?? GenerationConfig()
-      if generationConfig.candidateCount != nil {
-        generationConfig.candidateCount = nil
-      }
-      generationConfig.responseMIMEType = "application/json"
-      if generationConfig.responseSchema != nil {
-        generationConfig.responseSchema = nil
-      }
-      generationConfig.responseJSONSchema = jsonSchema
-      if generationConfig.responseModalities != nil {
-        generationConfig.responseModalities = nil
-      }
-
-      return generationConfig
-    }()
+    let generationConfig = generationConfig(from: generationConfig, with: jsonSchema)
 
     let response = try await generateContent(
       [ModelContent(parts: parts)],
@@ -522,6 +492,18 @@ public final class GenerativeModel: Sendable {
     }
 
     return ModelOutput(jsonValue: jsonValue)
+  }
+
+  /// Creates a `GenerationConfig` suitable for structured object generation.
+  private func generationConfig(from base: GenerationConfig?,
+                                with jsonSchema: JSONObject) -> GenerationConfig {
+    var config = base ?? GenerationConfig()
+    config.candidateCount = nil
+    config.responseMIMEType = "application/json"
+    config.responseSchema = nil
+    config.responseJSONSchema = jsonSchema
+    config.responseModalities = nil
+    return config
   }
 
   /// A structure that stores the output of a response call.
