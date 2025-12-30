@@ -63,19 +63,13 @@ public struct AutomaticFunction: Sendable {
     /// Creates an `AutomaticFunction` from a `FoundationModels.Tool`.
     ///
     /// - Parameter tool: The `FoundationModels.Tool` instance to wrap.
-    init<T: FoundationModels.Tool>(_ tool: T) {
+    init<T: FoundationModels.Tool>(_ tool: T) throws {
       // Convert FoundationModels.GenerationSchema to FirebaseAI.Schema (via JSONSchema)
       // Tool.parameters is a GenerationSchema instance.
       // We encode it to JSON and decode it as our JSONSchema type.
-      let jsonSchema: JSONSchema
-      do {
-        let data = try JSONEncoder().encode(tool.parameters)
-        jsonSchema = try JSONDecoder().decode(JSONSchema.self, from: data)
-      } catch {
-        fatalError("Failed to convert tool schema: \(error)")
-      }
-
-      let firebaseSchema = jsonSchema.asSchema()
+      let data = try JSONEncoder().encode(tool.parameters)
+      let jsonSchema = try JSONDecoder().decode(JSONSchema.self, from: data)
+      let firebaseSchema = try jsonSchema.asSchema()
 
       // Extract parameter properties
       let properties = firebaseSchema.properties ?? [:]

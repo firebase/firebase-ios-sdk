@@ -184,12 +184,8 @@ public struct JSONSchema: Sendable {
     return try kind.makeInternal()
   }
 
-  func asSchema() -> Schema {
-    do {
-      return try makeInternal().asSchema()
-    } catch {
-      fatalError("Failed to convert JSONSchema to Schema: \(error)")
-    }
+  func asSchema() throws -> Schema {
+    return try makeInternal().asSchema()
   }
 }
 

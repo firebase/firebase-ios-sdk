@@ -81,63 +81,20 @@ public final class Chat: Sendable {
       let modelContent = ModelContent(role: "model", parts: candidate.content.parts)
       _history.append(modelContent)
 
-      // Check for function calls
-      let functionCalls = candidate.content.parts.compactMap { part -> FunctionCall? in
-        if let callPart = part as? FunctionCallPart {
-          return callPart.functionCall
+      if let responseContent = try await executeFunctionCalls(from: modelContent) {
+        _history.append(responseContent)
+        functionCallCount += 1
+        if functionCallCount >= maxFunctionCalls {
+          throw GenerateContentError.internalError(underlying: NSError(
+            domain: "FirebaseAI",
+            code: -1,
+            userInfo: [
+              NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
+            ]
+          ))
         }
-        return nil
-      }
-
-      if functionCalls.isEmpty {
+      } else {
         break
-      }
-
-      // Check if we have handlers
-      let handlers = model.functionHandlers
-      if handlers.isEmpty {
-        break
-      }
-
-      var functionResponses: [FunctionResponsePart] = []
-      var handledAny = false
-
-      // Execute handlers
-      try await withThrowingTaskGroup(of: FunctionResponsePart?.self) { group in
-        for call in functionCalls {
-          if let handler = handlers[call.name] {
-            group.addTask {
-              let result = try await handler(call.args)
-              return FunctionResponsePart(name: call.name, response: result)
-            }
-            handledAny = true
-          }
-        }
-
-        for try await part in group {
-          if let part {
-            functionResponses.append(part)
-          }
-        }
-      }
-
-      if !handledAny {
-        break
-      }
-
-      // Append function responses
-      let functionResponseContent = ModelContent(role: "function", parts: functionResponses)
-      _history.append(functionResponseContent)
-
-      functionCallCount += 1
-      if functionCallCount >= maxFunctionCalls {
-        throw GenerateContentError.internalError(underlying: NSError(
-          domain: "FirebaseAI",
-          code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
-          ]
-        ))
       }
     }
 
@@ -199,60 +156,20 @@ public final class Chat: Sendable {
             let aggregated = _history.aggregatedChunks(aggregatedContent)
             _history.append(aggregated)
 
-            // Check for function calls
-            let functionCalls = aggregated.parts.compactMap { part -> FunctionCall? in
-              if let callPart = part as? FunctionCallPart {
-                return callPart.functionCall
+            if let responseContent = try await self.executeFunctionCalls(from: aggregated) {
+              _history.append(responseContent)
+              functionCallCount += 1
+              if functionCallCount >= maxFunctionCalls {
+                throw GenerateContentError.internalError(underlying: NSError(
+                  domain: "FirebaseAI",
+                  code: -1,
+                  userInfo: [
+                    NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
+                  ]
+                ))
               }
-              return nil
-            }
-
-            if functionCalls.isEmpty {
+            } else {
               break
-            }
-
-            let handlers = model.functionHandlers
-            if handlers.isEmpty {
-              break
-            }
-
-            var functionResponses: [FunctionResponsePart] = []
-            var handledAny = false
-
-            try await withThrowingTaskGroup(of: FunctionResponsePart?.self) { group in
-              for call in functionCalls {
-                if let handler = handlers[call.name] {
-                  group.addTask {
-                    let result = try await handler(call.args)
-                    return FunctionResponsePart(name: call.name, response: result)
-                  }
-                  handledAny = true
-                }
-              }
-
-              for try await part in group {
-                if let part {
-                  functionResponses.append(part)
-                }
-              }
-            }
-
-            if !handledAny {
-              break
-            }
-
-            let functionResponseContent = ModelContent(role: "function", parts: functionResponses)
-            _history.append(functionResponseContent)
-
-            functionCallCount += 1
-            if functionCallCount >= maxFunctionCalls {
-              throw GenerateContentError.internalError(underlying: NSError(
-                domain: "FirebaseAI",
-                code: -1,
-                userInfo: [
-                  NSLocalizedDescriptionKey: "Max automatic function calling turns reached.",
-                ]
-              ))
             }
           }
           continuation.finish()
@@ -272,5 +189,50 @@ public final class Chat: Sendable {
     } else {
       return ModelContent(role: "user", parts: content.parts)
     }
+  }
+
+  private func executeFunctionCalls(from content: ModelContent) async throws -> ModelContent? {
+    let functionCalls = content.parts.compactMap { part -> FunctionCall? in
+      if let callPart = part as? FunctionCallPart {
+        return callPart.functionCall
+      }
+      return nil
+    }
+
+    if functionCalls.isEmpty {
+      return nil
+    }
+
+    let handlers = model.functionHandlers
+    if handlers.isEmpty {
+      return nil
+    }
+
+    var functionResponses: [FunctionResponsePart] = []
+    var handledAny = false
+
+    try await withThrowingTaskGroup(of: FunctionResponsePart?.self) { group in
+      for call in functionCalls {
+        if let handler = handlers[call.name] {
+          group.addTask {
+            let result = try await handler(call.args)
+            return FunctionResponsePart(name: call.name, response: result)
+          }
+          handledAny = true
+        }
+      }
+
+      for try await part in group {
+        if let part {
+          functionResponses.append(part)
+        }
+      }
+    }
+
+    if !handledAny {
+      return nil
+    }
+
+    return ModelContent(role: "function", parts: functionResponses)
   }
 }

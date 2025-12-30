@@ -143,8 +143,8 @@ struct AutomaticFunctionCallingIntegrationTests {
     @available(iOS 26.0, macOS 26.0, *)
     func automaticFunctionCalling_foundationTool(_ config: InstanceConfig,
                                                  modelName: String) async throws {
-      let addTool = AutomaticFunction(AddTool())
-      let subtractTool = AutomaticFunction(SubtractTool())
+      let addTool = try AutomaticFunction(AddTool())
+      let subtractTool = try AutomaticFunction(SubtractTool())
 
       let model = FirebaseAI.componentInstance(config).generativeModel(
         modelName: modelName,
@@ -158,6 +158,36 @@ struct AutomaticFunctionCallingIntegrationTests {
 
       let text = response.text ?? ""
       #expect(text.contains("12"), "Response text didn't contain 12. Full response: \(response)")
+    }
+
+    @Test(arguments: modelConfigurations)
+    @available(iOS 26.0, macOS 26.0, *)
+    func automaticFunctionCalling_stream_foundationTool(_ config: InstanceConfig,
+                                                        modelName: String) async throws {
+      let addTool = try AutomaticFunction(AddTool())
+      let subtractTool = try AutomaticFunction(SubtractTool())
+
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: modelName,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings,
+        automaticFunctionTools: [addTool, subtractTool]
+      )
+
+      let chat = model.startChat()
+      let stream = try chat.sendMessageStream("What is (10 + 5) - 3? Answer with the result.")
+
+      var finalResponseText = ""
+      for try await chunk in stream {
+        if let text = chunk.text {
+          finalResponseText += text
+        }
+      }
+
+      #expect(
+        finalResponseText.contains("12"),
+        "Response text didn't contain 12. Got: \(finalResponseText)"
+      )
     }
   #endif
 }
