@@ -221,6 +221,13 @@ public final class GenerativeModel: Sendable {
   @available(macOS 12.0, *)
   public func generateContentStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    return try generateContentStream(content, generationConfig: generationConfig)
+  }
+
+  @available(macOS 12.0, *)
+  public func generateContentStream(_ content: [ModelContent],
+                                    generationConfig: GenerationConfig?) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
     try content.throwIfError()
     let generateContentRequest = GenerateContentRequest(
       model: modelResourceName,
@@ -509,6 +516,115 @@ public final class GenerativeModel: Sendable {
     let contentValue = try contentProvider(rawContent)
 
     return Response(content: contentValue, rawContent: rawContent)
+  }
+
+  private func _generateObjectStream<Content>(parts: [any PartsRepresentable],
+                                              jsonSchemaProvider: @escaping @Sendable () throws
+                                                -> JSONObject,
+                                              contentProvider: @escaping @Sendable (ModelOutput)
+                                                throws -> Content)
+    -> AsyncThrowingStream<Response<Content>, Error> {
+    let content = parts.flatMap { $0.partsValue }
+    let modelContent = ModelContent(parts: content)
+
+    return AsyncThrowingStream { continuation in
+      Task {
+        do {
+          let jsonSchema = try jsonSchemaProvider()
+          let config = generationConfig(from: generationConfig, with: jsonSchema)
+
+          let responseStream = try generateContentStream(
+            [modelContent],
+            generationConfig: config
+          )
+
+          var fullText = ""
+          // Accumulate the response text.
+          for try await chunk in responseStream {
+            if let text = chunk.text {
+              fullText += text
+            }
+
+            // Attempt to parse and yield partial results.
+            let cleanText = GenerativeModel.cleanedJSON(from: fullText)
+            let parser = PartialJSONParser(input: cleanText)
+            if let jsonValue = parser.parse() {
+              do {
+                let rawContent = ModelOutput(jsonValue: jsonValue)
+                let contentValue = try contentProvider(rawContent)
+                continuation.yield(Response(content: contentValue, rawContent: rawContent))
+              } catch {
+                // Ignore conversion errors for partial content. This is expected if the JSON is
+                // incomplete. The final, complete object will be decoded and validated at the end
+                // of the stream.
+                AILog.debug(
+                  code: .loadRequestParseResponseFailedJSONError,
+                  "Ignoring conversion error for partial content: \(error)"
+                )
+              }
+            }
+          }
+
+          // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
+          let json = GenerativeModel.cleanedJSON(from: fullText)
+          let rawContent = try GenerativeModel.parseModelOutput(from: json)
+          let contentValue = try contentProvider(rawContent)
+
+          // Yield the final, strictly parsed result.
+          // This ensures the consumer receives the complete object validated against the schema,
+          // even if the partial parser yielded a similar result in the loop.
+          continuation.yield(Response(content: contentValue, rawContent: rawContent))
+          continuation.finish()
+        } catch {
+          continuation.finish(throwing: error)
+        }
+      }
+    }
+  }
+
+  #if canImport(FoundationModels)
+    /// Generates a stream of `Content` objects from the model.
+    ///
+    /// - Parameters:
+    ///   - type: A type to produce as the response.
+    ///   - parts: The input(s) given to the model as a prompt (see ``PartsRepresentable`` for
+    ///   conforming types).
+    /// - Returns: A stream containing the generated `Content` object.
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public final func generateObjectStream<Content>(_ type: Content.Type = Content.self,
+                                                    parts: any PartsRepresentable...)
+      -> AsyncThrowingStream<Response<Content>, Error>
+      where Content: FoundationModels.Generable {
+      return _generateObjectStream(
+        parts: parts,
+        jsonSchemaProvider: { try type.generationSchema.asGeminiJSONSchema() },
+        contentProvider: { rawContent in
+          let generatedContent = rawContent.generatedContent
+          return try Content(generatedContent)
+        }
+      )
+    }
+  #endif // canImport(FoundationModels)
+
+  /// Generates a stream of `Content` objects from the model.
+  ///
+  /// - Parameters:
+  ///   - type: A type to produce as the response.
+  ///   - parts: The input(s) given to the model as a prompt (see ``PartsRepresentable`` for
+  ///   conforming types).
+  /// - Returns: A stream containing the generated `Content` object.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public final func generateObjectStream<Content>(_ type: Content.Type = Content.self,
+                                                  parts: any PartsRepresentable...)
+    -> AsyncThrowingStream<Response<Content>, Error>
+    where Content: FirebaseGenerable {
+    return _generateObjectStream(
+      parts: parts,
+      jsonSchemaProvider: { try type.jsonSchema.asGeminiJSONSchema() },
+      contentProvider: { try Content($0) }
+    )
   }
 
   /// A structure that stores the output of a response call.
