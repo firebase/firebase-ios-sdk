@@ -370,8 +370,9 @@ public final class GenerativeModel: Sendable {
     /// Produces a generable object as a response to a prompt.
     ///
     /// - Parameters:
-    ///   - prompt: A prompt for the model to respond to.
     ///   - type: A type to produce as the response.
+    ///   - parts: The input(s) given to the model as a prompt (see ``PartsRepresentable`` for
+    ///   conforming types).
     /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
@@ -418,8 +419,9 @@ public final class GenerativeModel: Sendable {
   /// Produces a generable object as a response to a prompt.
   ///
   /// - Parameters:
-  ///   - prompt: A prompt for the model to respond to.
   ///   - type: A type to produce as the response.
+  ///   - parts: The input(s) given to the model as a prompt (see ``PartsRepresentable`` for
+  ///   conforming types).
   /// - Returns: ``Response`` containing the fields and values defined in the schema.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public final func generateObject<Content>(_ type: Content.Type = Content.self,
