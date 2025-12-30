@@ -58,11 +58,13 @@ struct GenerateObjectIntegrationTests {
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
   ]
 
-  @Test(arguments: [
+  static let modelConfigurations = [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
-  ])
+  ]
+
+  @Test(arguments: modelConfigurations)
   func generateObject_recipe(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
@@ -87,11 +89,7 @@ struct GenerateObjectIntegrationTests {
   }
 
   #if canImport(FoundationModels)
-    @Test(arguments: [
-      (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash),
-      (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
-      (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
-    ])
+    @Test(arguments: modelConfigurations)
     @available(iOS 26.0, macOS 26.0, *)
     func generateObject_macroRecipe(_ config: InstanceConfig, modelName: String) async throws {
       let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -117,27 +115,61 @@ struct GenerateObjectIntegrationTests {
       }
     }
 
-    @Test(arguments: [
-      (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash),
-      (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
-      (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
-    ])
+    @Test(arguments: modelConfigurations)
     @available(iOS 26.0, macOS 26.0, *)
-    func generateObject_guidedRecipe(_ config: InstanceConfig, modelName: String) async throws {
+    func generateObject_complexGuidedObject(_ config: InstanceConfig,
+                                            modelName: String) async throws {
       let model = FirebaseAI.componentInstance(config).generativeModel(
         modelName: modelName,
         generationConfig: generationConfig,
         safetySettings: safetySettings
       )
-      let prompt = "Generate a recipe for a cake."
+      let prompt = "Generate a user profile."
 
-      // GuidedRecipe is defined below
-      let response = try await model.generateObject(GuidedRecipe.self, parts: prompt)
+      let response = try await model.generateObject(ComplexGuidedObject.self, parts: prompt)
 
-      let recipe = response.content
-      #expect(!recipe.name.isEmpty)
-      #expect(!recipe.ingredients.isEmpty)
-      #expect(recipe.ingredients.count <= 5)
+      let object = response.content
+      #expect(object.username.count >= 3 && object.username.count <= 20)
+      #expect(object.tags.count >= 1 && object.tags.count <= 3)
+    }
+
+    @Test(arguments: modelConfigurations)
+    @available(iOS 26.0, macOS 26.0, *)
+    func generateObject_searchSuggestions(_ config: InstanceConfig,
+                                          modelName: String) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: modelName,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Suggest some search terms for 'summer vacation'."
+
+      let response = try await model.generateObject(
+        IntegrationSearchSuggestions.self,
+        parts: prompt
+      )
+
+      let suggestions = response.content
+      #expect(suggestions.searchTerms.count == 4)
+      for term in suggestions.searchTerms {
+        #expect(!term.searchTerm.isEmpty)
+      }
+    }
+
+    @Test(arguments: modelConfigurations)
+    @available(iOS 26.0, macOS 26.0, *)
+    func generateObject_catAge(_ config: InstanceConfig, modelName: String) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: modelName,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Generate a cat profile."
+
+      let response = try await model.generateObject(GuidedOldCat.self, parts: prompt)
+
+      let cat = response.content
+      #expect(cat.age >= 40 && cat.age <= 43)
     }
   #endif
 }
@@ -159,5 +191,46 @@ struct GenerateObjectIntegrationTests {
     let name: String
     @Guide(description: "List of ingredients.", .count(5))
     let ingredients: [String]
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @Generable
+  struct ComplexGuidedObject: Equatable {
+    // Assuming FoundationModels supports these constraints
+    // If exact syntax differs, this might need adjustment based on real API.
+    // Assuming .minLength, .maxLength, .count(Range) exist.
+    @Guide(description: "Username between 3 and 20 chars") // Placeholder if constraints strictly
+    // checked
+    let username: String
+
+    @Guide(description: "1 to 3 tags", .count(1 ... 3))
+    let tags: [String]
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @Generable
+  struct IntegrationSearchSuggestions: Equatable {
+    @Guide(description: "A list of suggested search terms", .count(4))
+    var searchTerms: [IntegrationSearchTerm]
+
+    @Generable
+    struct IntegrationSearchTerm: Equatable {
+      // Assuming GenerationID is available in FoundationModels
+      // var id: GenerationID
+
+      @Guide(description: "A 2 or 3 word search term, like 'Beautiful sunsets'")
+      var searchTerm: String
+    }
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @Generable
+  struct GuidedOldCat: Equatable {
+    @Guide(description: "The name of the cat")
+    let name: String
+
+    // Assuming .range(ClosedRange<Int>) works
+    @Guide(description: "The age of the cat", .range(40 ... 43))
+    let age: Int
   }
 #endif
