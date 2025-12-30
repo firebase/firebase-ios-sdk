@@ -201,16 +201,11 @@ extension JSONSchema.Kind {
       // Recursive call for array items
       return JSONSchema.Internal(type: .array, items: item.jsonSchema.makeInternal())
     case let .object(name, description, properties):
-      var internalProperties = [String: JSONSchema.Internal]()
-      var required = [String]()
-      var order = [String]()
-      for property in properties {
-        internalProperties[property.name] = property.type.jsonSchema.makeInternal()
-        if !property.isOptional {
-          required.append(property.name)
-        }
-        order.append(property.name)
-      }
+      let internalProperties = Dictionary(uniqueKeysWithValues: properties.map {
+        ($0.name, $0.type.jsonSchema.makeInternal())
+      })
+      let required = properties.compactMap { $0.isOptional ? nil : $0.name }
+      let order = properties.map { $0.name }
       return JSONSchema.Internal(
         type: .object,
         title: name,
