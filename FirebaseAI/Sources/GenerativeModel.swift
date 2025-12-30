@@ -370,9 +370,10 @@ public final class GenerativeModel: Sendable {
     /// Produces a generable object as a response to a prompt.
     ///
     /// - Parameters:
-    ///   - prompt: A prompt for the model to respond to.
     ///   - type: A type to produce as the response.
-    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
+    ///   - parts: The input(s) given to the model as a prompt (see ``PartsRepresentable`` for
+    ///   conforming types).
+    /// - Returns: A ``Response`` containing the generated `Content` object.
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -380,40 +381,35 @@ public final class GenerativeModel: Sendable {
                                               parts: any PartsRepresentable...) async throws
       -> Response<Content>
       where Content: FoundationModels.Generable {
-      let jsonSchema = try type.generationSchema.asGeminiJSONSchema()
-
-      let generationConfig = {
-        var generationConfig = self.generationConfig ?? GenerationConfig()
-        if generationConfig.candidateCount != nil {
-          generationConfig.candidateCount = nil
+      return try await _generateObject(
+        parts: parts,
+        jsonSchemaProvider: { try type.generationSchema.asGeminiJSONSchema() },
+        contentProvider: { rawContent in
+          let generatedContent = rawContent.generatedContent
+          return try Content(generatedContent)
         }
-        generationConfig.responseMIMEType = "application/json"
-        if generationConfig.responseSchema != nil {
-          generationConfig.responseSchema = nil
-        }
-        generationConfig.responseJSONSchema = jsonSchema
-        if generationConfig.responseModalities != nil {
-          generationConfig.responseModalities = nil
-        }
-
-        return generationConfig
-      }()
-
-      let response = try await generateContent(
-        [ModelContent(parts: parts)],
-        generationConfig: generationConfig
       )
-
-      // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
-      let json = response.text?.replacingOccurrences(of: "```json", with: "") ?? ""
-
-      let generatedContent = try GeneratedContent(json: json)
-      let content = try Content(generatedContent)
-      let rawContent = try ModelOutput(generatedContent)
-
-      return Response(content: content, rawContent: rawContent)
     }
   #endif // canImport(FoundationModels)
+
+  /// Produces a generable object as a response to a prompt.
+  ///
+  /// - Parameters:
+  ///   - type: A type to produce as the response.
+  ///   - parts: The input(s) given to the model as a prompt (see ``PartsRepresentable`` for
+  ///   conforming types).
+  /// - Returns: A ``Response`` containing the generated `Content` object.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public final func generateObject<Content>(_ type: Content.Type = Content.self,
+                                            parts: any PartsRepresentable...) async throws
+    -> Response<Content>
+    where Content: FirebaseGenerable {
+    return try await _generateObject(
+      parts: parts,
+      jsonSchemaProvider: { try type.jsonSchema.asGeminiJSONSchema() },
+      contentProvider: { try Content($0) }
+    )
+  }
 
   #if canImport(FoundationModels)
     // TODO: Remove this method when Gemini vs. AFM is a configuration (hybrid mode)
@@ -446,6 +442,75 @@ public final class GenerativeModel: Sendable {
     return GenerateContentError.internalError(underlying: error)
   }
 
+  /// Returns a JSON string cleaned of markdown code block delimiters.
+  private static func cleanedJSON(from text: String?) -> String {
+    var json = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    if json.hasPrefix("```json") {
+      json.removeFirst("```json".count)
+    } else if json.hasPrefix("```") {
+      json.removeFirst("```".count)
+    }
+    if json.hasSuffix("```") {
+      json.removeLast("```".count)
+    }
+    return json.trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
+  /// Parses a cleaned JSON string into a `ModelOutput`.
+  private static func parseModelOutput(from json: String) throws -> ModelOutput {
+    guard let data = json.data(using: .utf8) else {
+      throw GenerationError.decodingFailure(GenerationError.Context(
+        debugDescription: "Failed to convert JSON string to data."
+      ))
+    }
+
+    let jsonValue: JSONValue
+    do {
+      jsonValue = try JSONDecoder().decode(JSONValue.self, from: data)
+    } catch {
+      throw GenerationError.decodingFailure(GenerationError.Context(
+        debugDescription: "Failed to decode JSON: \(error)"
+      ))
+    }
+
+    return ModelOutput(jsonValue: jsonValue)
+  }
+
+  /// Creates a `GenerationConfig` suitable for structured object generation.
+  private func generationConfig(from base: GenerationConfig?,
+                                with jsonSchema: JSONObject) -> GenerationConfig {
+    var config = base ?? GenerationConfig()
+    config.candidateCount = nil
+    config.responseMIMEType = "application/json"
+    config.responseSchema = nil
+    config.responseJSONSchema = jsonSchema
+    config.responseModalities = nil
+    return config
+  }
+
+  private func _generateObject<Content>(parts: [any PartsRepresentable],
+                                        jsonSchemaProvider: () throws -> JSONObject,
+                                        contentProvider: (ModelOutput) throws
+                                          -> Content) async throws -> Response<Content> {
+    let jsonSchema = try jsonSchemaProvider()
+    let config = generationConfig(from: generationConfig, with: jsonSchema)
+
+    let content = parts.flatMap { $0.partsValue }
+    let modelContent = ModelContent(parts: content)
+
+    let response = try await generateContent(
+      [modelContent],
+      generationConfig: config
+    )
+
+    // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
+    let json = GenerativeModel.cleanedJSON(from: response.text)
+    let rawContent = try GenerativeModel.parseModelOutput(from: json)
+    let contentValue = try contentProvider(rawContent)
+
+    return Response(content: contentValue, rawContent: rawContent)
+  }
+
   /// A structure that stores the output of a response call.
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct Response<Content> {
@@ -456,5 +521,29 @@ public final class GenerativeModel: Sendable {
     ///
     /// When `Content` is `ModelOutput`, this is the same as `content`.
     public let rawContent: ModelOutput
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+private extension ModelOutput {
+  init(jsonValue: JSONValue) {
+    switch jsonValue {
+    case .null:
+      self.init(kind: .null)
+    case let .bool(value):
+      self.init(kind: .bool(value))
+    case let .number(value):
+      self.init(kind: .number(value))
+    case let .string(value):
+      self.init(kind: .string(value))
+    case let .array(values):
+      self.init(kind: .array(values.map { ModelOutput(jsonValue: $0) }))
+    case let .object(jsonObject):
+      // Sort keys to maintain a deterministic order, as `JSONObject` is a `Dictionary` and thus
+      // unordered.
+      let orderedKeys = jsonObject.keys.sorted()
+      let properties = jsonObject.mapValues { ModelOutput(jsonValue: $0) }
+      self.init(kind: .structure(properties: properties, orderedKeys: orderedKeys))
+    }
   }
 }
