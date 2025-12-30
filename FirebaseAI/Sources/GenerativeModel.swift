@@ -405,11 +405,11 @@ public final class GenerativeModel: Sendable {
       )
 
       // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
-      let json = response.text?.replacingOccurrences(of: "```json", with: "") ?? ""
+      let json = GenerativeModel.cleanedJSON(from: response.text)
 
-      let generatedContent = try GeneratedContent(json: json)
+      let rawContent = try GenerativeModel.parseModelOutput(from: json)
+      let generatedContent = rawContent.generatedContent
       let content = try Content(generatedContent)
-      let rawContent = try ModelOutput(generatedContent)
 
       return Response(content: content, rawContent: rawContent)
     }
@@ -451,25 +451,9 @@ public final class GenerativeModel: Sendable {
     )
 
     // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
-    let json = response.text?.replacingOccurrences(of: "```json", with: "")
-      .replacingOccurrences(of: "```", with: "") ?? ""
+    let json = GenerativeModel.cleanedJSON(from: response.text)
 
-    guard let data = json.data(using: .utf8) else {
-      throw GenerationError.decodingFailure(GenerationError.Context(
-        debugDescription: "Failed to convert JSON string to data."
-      ))
-    }
-
-    let jsonValue: JSONValue
-    do {
-      jsonValue = try JSONDecoder().decode(JSONValue.self, from: data)
-    } catch {
-      throw GenerationError.decodingFailure(GenerationError.Context(
-        debugDescription: "Failed to decode JSON: \(error)"
-      ))
-    }
-
-    let rawContent = ModelOutput(jsonValue: jsonValue)
+    let rawContent = try GenerativeModel.parseModelOutput(from: json)
     let content = try Content(rawContent)
 
     return Response(content: content, rawContent: rawContent)
@@ -504,6 +488,38 @@ public final class GenerativeModel: Sendable {
       return error
     }
     return GenerateContentError.internalError(underlying: error)
+  }
+
+  /// Returns a JSON string cleaned of markdown code block delimiters.
+  private static func cleanedJSON(from text: String?) -> String {
+    var json = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    if json.hasPrefix("```json") {
+      json = String(json.dropFirst("```json".count))
+    }
+    if json.hasSuffix("```") {
+      json = String(json.dropLast("```".count))
+    }
+    return json.trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
+  /// Parses a cleaned JSON string into a `ModelOutput`.
+  private static func parseModelOutput(from json: String) throws -> ModelOutput {
+    guard let data = json.data(using: .utf8) else {
+      throw GenerationError.decodingFailure(GenerationError.Context(
+        debugDescription: "Failed to convert JSON string to data."
+      ))
+    }
+
+    let jsonValue: JSONValue
+    do {
+      jsonValue = try JSONDecoder().decode(JSONValue.self, from: data)
+    } catch {
+      throw GenerationError.decodingFailure(GenerationError.Context(
+        debugDescription: "Failed to decode JSON: \(error)"
+      ))
+    }
+
+    return ModelOutput(jsonValue: jsonValue)
   }
 
   /// A structure that stores the output of a response call.
