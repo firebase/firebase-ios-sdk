@@ -381,23 +381,14 @@ public final class GenerativeModel: Sendable {
                                               parts: any PartsRepresentable...) async throws
       -> Response<Content>
       where Content: FoundationModels.Generable {
-      let jsonSchema = try type.generationSchema.asGeminiJSONSchema()
-
-      let generationConfig = generationConfig(from: generationConfig, with: jsonSchema)
-
-      let response = try await generateContent(
-        [ModelContent(parts: parts)],
-        generationConfig: generationConfig
+      return try await _generateObject(
+        parts: parts,
+        jsonSchemaProvider: { try type.generationSchema.asGeminiJSONSchema() },
+        contentProvider: { rawContent in
+          let generatedContent = rawContent.generatedContent
+          return try Content(generatedContent)
+        }
       )
-
-      // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
-      let json = GenerativeModel.cleanedJSON(from: response.text)
-
-      let rawContent = try GenerativeModel.parseModelOutput(from: json)
-      let generatedContent = rawContent.generatedContent
-      let content = try Content(generatedContent)
-
-      return Response(content: content, rawContent: rawContent)
     }
   #endif // canImport(FoundationModels)
 
@@ -413,22 +404,11 @@ public final class GenerativeModel: Sendable {
                                             parts: any PartsRepresentable...) async throws
     -> Response<Content>
     where Content: FirebaseGenerable {
-    let jsonSchema = try type.jsonSchema.asGeminiJSONSchema()
-
-    let generationConfig = generationConfig(from: generationConfig, with: jsonSchema)
-
-    let response = try await generateContent(
-      [ModelContent(parts: parts)],
-      generationConfig: generationConfig
+    return try await _generateObject(
+      parts: parts,
+      jsonSchemaProvider: { try type.jsonSchema.asGeminiJSONSchema() },
+      contentProvider: { try Content($0) }
     )
-
-    // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
-    let json = GenerativeModel.cleanedJSON(from: response.text)
-
-    let rawContent = try GenerativeModel.parseModelOutput(from: json)
-    let content = try Content(rawContent)
-
-    return Response(content: content, rawContent: rawContent)
   }
 
   #if canImport(FoundationModels)
@@ -504,6 +484,30 @@ public final class GenerativeModel: Sendable {
     config.responseJSONSchema = jsonSchema
     config.responseModalities = nil
     return config
+  }
+
+  private func _generateObject<Content>(
+    parts: [any PartsRepresentable],
+    jsonSchemaProvider: () throws -> JSONObject,
+    contentProvider: (ModelOutput) throws -> Content
+  ) async throws -> Response<Content> {
+    let jsonSchema = try jsonSchemaProvider()
+    let config = generationConfig(from: generationConfig, with: jsonSchema)
+
+    let content = parts.flatMap { $0.partsValue }
+    let modelContent = ModelContent(parts: content)
+
+    let response = try await generateContent(
+      [modelContent],
+      generationConfig: config
+    )
+
+    // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
+    let json = GenerativeModel.cleanedJSON(from: response.text)
+    let rawContent = try GenerativeModel.parseModelOutput(from: json)
+    let contentValue = try contentProvider(rawContent)
+
+    return Response(content: contentValue, rawContent: rawContent)
   }
 
   /// A structure that stores the output of a response call.
