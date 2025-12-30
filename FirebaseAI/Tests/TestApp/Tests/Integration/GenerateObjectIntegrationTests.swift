@@ -85,4 +85,40 @@ struct GenerateObjectIntegrationTests {
       return
     }
   }
+
+#if canImport(FoundationModels)
+  @Test(arguments: [
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
+  ])
+  @available(iOS 26.0, macOS 26.0, *)
+  func generateObject_macroRecipe(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a recipe for brownies."
+
+    // MacroRecipe is defined below
+    let response = try await model.generateObject(MacroRecipe.self, parts: prompt)
+
+    let recipe = response.content
+    #expect(!recipe.name.isEmpty)
+    #expect(!recipe.ingredients.isEmpty)
+    #expect(recipe.name.lowercased().contains("brownie"))
+  }
+#endif
 }
+
+#if canImport(FoundationModels)
+import FoundationModels
+
+@available(iOS 26.0, macOS 26.0, *)
+@Generable
+struct MacroRecipe: Equatable {
+  let name: String
+  let ingredients: [String]
+}
+#endif
