@@ -554,7 +554,13 @@ public final class GenerativeModel: Sendable {
                 let contentValue = try contentProvider(rawContent)
                 continuation.yield(Response(content: contentValue, rawContent: rawContent))
               } catch {
-                // Ignore conversion errors for partial content.
+                // Ignore conversion errors for partial content. This is expected if the JSON is
+                // incomplete. The final, complete object will be decoded and validated at the end
+                // of the stream.
+                AILog.debug(
+                  code: .loadRequestParseResponseFailedJSONError,
+                  "Ignoring conversion error for partial content: \(error)"
+                )
               }
             }
           }
