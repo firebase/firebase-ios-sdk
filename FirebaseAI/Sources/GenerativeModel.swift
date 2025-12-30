@@ -446,12 +446,12 @@ public final class GenerativeModel: Sendable {
   private static func cleanedJSON(from text: String?) -> String {
     var json = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     if json.hasPrefix("```json") {
-      json = String(json.dropFirst("```json".count))
+      json.removeFirst("```json".count)
     } else if json.hasPrefix("```") {
-      json = String(json.dropFirst("```".count))
+      json.removeFirst("```".count)
     }
     if json.hasSuffix("```") {
-      json = String(json.dropLast("```".count))
+      json.removeLast("```".count)
     }
     return json.trimmingCharacters(in: .whitespacesAndNewlines)
   }
@@ -539,8 +539,7 @@ private extension ModelOutput {
     case let .array(values):
       self.init(kind: .array(values.map { ModelOutput(jsonValue: $0) }))
     case let .object(jsonObject):
-      // Sort keys to maintain a deterministic order, or respect original if possible (JSONObject is
-      // Dictionary, so unordered)
+      // Sort keys to maintain a deterministic order, as `JSONObject` is a `Dictionary` and thus unordered.
       let orderedKeys = jsonObject.keys.sorted()
       let properties = jsonObject.mapValues { ModelOutput(jsonValue: $0) }
       self.init(kind: .structure(properties: properties, orderedKeys: orderedKeys))
