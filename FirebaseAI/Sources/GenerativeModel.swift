@@ -447,6 +447,8 @@ public final class GenerativeModel: Sendable {
     var json = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
     if json.hasPrefix("```json") {
       json = String(json.dropFirst("```json".count))
+    } else if json.hasPrefix("```") {
+      json = String(json.dropFirst("```".count))
     }
     if json.hasSuffix("```") {
       json = String(json.dropLast("```".count))
