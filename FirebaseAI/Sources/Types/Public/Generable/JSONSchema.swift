@@ -220,7 +220,7 @@ extension JSONSchema.Internal {
 
     return Schema(
       type: dataType,
-      format: nil, // TODO: Map format if needed (e.g. enum, float)
+      format: format,
       description: description,
       title: title,
       nullable: nil, // nullable logic might be complex if encoded in type array
@@ -315,6 +315,7 @@ extension JSONSchema: Codable {
 extension JSONSchema {
   final class Internal: Sendable {
     let type: JSONSchema.Internal.SchemaType?
+    let format: String?
     let title: String?
     let description: String?
     let properties: [String: JSONSchema.Internal]?
@@ -333,6 +334,7 @@ extension JSONSchema {
     let order: [String]?
 
     init(type: JSONSchema.Internal.SchemaType? = nil,
+         format: String? = nil,
          title: String? = nil,
          description: String? = nil,
          properties: [String: JSONSchema.Internal]? = nil,
@@ -350,6 +352,7 @@ extension JSONSchema {
          maximum: Double? = nil,
          order: [String]? = nil) {
       self.type = type
+      self.format = format
       self.title = title
       self.description = description
       self.properties = properties
@@ -386,6 +389,7 @@ extension JSONSchema.Internal {
 extension JSONSchema.Internal: Codable {
   enum CodingKeys: String, CodingKey {
     case type
+    case format
     case title
     case description
     case properties

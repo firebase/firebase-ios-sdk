@@ -124,4 +124,19 @@ final class JSONSchemaTests: XCTestCase {
     XCTAssertEqual(schema.anyOf?[0].type, "STRING")
     XCTAssertEqual(schema.anyOf?[1].type, "INTEGER")
   }
+
+  func testAsSchema_format() throws {
+    let json = """
+    {
+      "type": "integer",
+      "format": "int64"
+    }
+    """.data(using: .utf8)!
+    
+    let decodedSchema = try JSONDecoder().decode(JSONSchema.self, from: json)
+    let schema = try decodedSchema.asSchema()
+    
+    XCTAssertEqual(schema.type, "INTEGER")
+    XCTAssertEqual(schema.format, "int64")
+  }
 }
