@@ -132,11 +132,26 @@ final class JSONSchemaTests: XCTestCase {
       "format": "int64"
     }
     """.data(using: .utf8)!
-    
+
     let decodedSchema = try JSONDecoder().decode(JSONSchema.self, from: json)
     let schema = try decodedSchema.asSchema()
-    
+
     XCTAssertEqual(schema.type, "INTEGER")
     XCTAssertEqual(schema.format, "int64")
+  }
+
+  func testAsSchema_nullable() throws {
+    let json = """
+    {
+      "type": "string",
+      "nullable": true
+    }
+    """.data(using: .utf8)!
+
+    let decodedSchema = try JSONDecoder().decode(JSONSchema.self, from: json)
+    let schema = try decodedSchema.asSchema()
+
+    XCTAssertEqual(schema.type, "STRING")
+    XCTAssertEqual(schema.nullable, true)
   }
 }

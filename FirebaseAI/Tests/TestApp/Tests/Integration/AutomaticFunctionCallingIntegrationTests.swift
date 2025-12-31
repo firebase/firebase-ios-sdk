@@ -179,6 +179,31 @@ struct AutomaticFunctionCallingIntegrationTests {
         "Response text didn't contain 12. Got: \(finalResponseText)"
       )
     }
+
+    @Test(arguments: modelConfigurations)
+    @available(iOS 26.0, macOS 26.0, *)
+    func automaticFunctionCalling_complexParams(_ config: InstanceConfig,
+                                                modelName: String) async throws {
+      let fanTool = try AutomaticFunction(FanTool())
+
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: modelName,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings,
+        automaticFunctionTools: [fanTool]
+      )
+
+      let chat = model.startChat()
+      let response = try await chat
+        .sendMessage("Set the fan to cool mode at speed 3 for 10 minutes.")
+
+      let text = response.text ?? ""
+      #expect(
+        text.localizedCaseInsensitiveContains("fan") && text
+          .localizedCaseInsensitiveContains("cool"),
+        "Response text didn't contain confirmation. Full response: \(response)"
+      )
+    }
   #endif
 }
 
@@ -222,6 +247,39 @@ struct AutomaticFunctionCallingIntegrationTests {
 
     func call(arguments: Arguments) async throws -> Output {
       return arguments.a - arguments.b
+    }
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  struct FanTool: FoundationModels.Tool {
+    let name = "setFan"
+    let description = "Sets the fan mode and speed."
+
+    @Generable
+    enum Mode: String, CaseIterable, Codable {
+      case auto, cool, heat
+    }
+
+    @Generable
+    struct Arguments {
+      @Guide(description: "Fan mode")
+      let mode: Mode
+
+      @Guide(description: "Fan speed (1-5)")
+      let speed: Int
+
+      @Guide(description: "Duration in minutes (optional)")
+      let duration: Int?
+    }
+
+    typealias Output = String
+
+    func call(arguments: Arguments) async throws -> Output {
+      var response = "Fan set to \(arguments.mode.rawValue) at speed \(arguments.speed)"
+      if let duration = arguments.duration {
+        response += " for \(duration) minutes"
+      }
+      return response
     }
   }
 #endif
