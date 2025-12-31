@@ -207,12 +207,8 @@ public final class Chat: Sendable {
       return nil
     }
 
-    let callsToHandle = functionCalls.compactMap {
-      call -> (FunctionCall, @Sendable ([String: JSONValue]) async throws -> JSONObject)? in
-      if let handler = handlers[call.name] {
-        return (call, handler)
-      }
-      return nil
+    let callsToHandle = functionCalls.compactMap { call in
+      handlers[call.name].map { (call, $0) }
     }
 
     guard !callsToHandle.isEmpty else {

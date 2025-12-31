@@ -83,12 +83,7 @@ public struct AutomaticFunction: Sendable {
       ) { args in
         // Convert [String: JSONValue] -> JSONObject (ModelOutput) -> GeneratedContent ->
         // T.Arguments
-        let orderedKeys = args.keys.sorted()
-        let properties = args.mapValues { ModelOutput(jsonValue: $0) }
-        let modelOutput = ModelOutput(kind: .structure(
-          properties: properties,
-          orderedKeys: orderedKeys
-        ))
+        let modelOutput = ModelOutput(jsonValue: .object(args))
 
         let generatedContent = modelOutput.generatedContent
         let toolArgs = try T.Arguments(generatedContent)
