@@ -14,8 +14,7 @@
 
 import FirebaseAILogic
 import FirebaseAITestApp
-import FirebaseAuth
-import FirebaseCore
+import Foundation
 import Testing
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -176,5 +175,50 @@ struct GenerateObjectStreamIntegrationTests {
       #expect(!recipe.ingredients.isEmpty)
       #expect(recipe.ingredients.count <= 5)
     }
+
+    @Test(arguments: modelConfigurations)
+    @available(iOS 26.0, macOS 26.0, *)
+    func generateObjectStream_complexParams(_ config: InstanceConfig,
+                                            modelName: String) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: modelName,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt =
+        "Generate a product with status 'pending', count 5, score 0.9, and description 'test'."
+
+      let stream = model.generateObjectStream(StreamComplexParamsObject.self, parts: prompt)
+      var finalResponse: GenerativeModel.Response<StreamComplexParamsObject>?
+
+      for try await response in stream {
+        finalResponse = response
+      }
+
+      let response = try #require(finalResponse)
+      let object = response.content
+      #expect(object.status == .pending)
+      #expect(object.count == 5)
+      #expect(object.score == 0.9)
+      #expect(object.optionalDescription == "test")
+    }
   #endif
 }
+
+#if canImport(FoundationModels)
+  import FoundationModels
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @Generable
+  struct StreamComplexParamsObject: Equatable {
+    @Generable
+    enum Status: String, CaseIterable, Codable {
+      case active, inactive, pending
+    }
+
+    let status: Status
+    let count: Int
+    let score: Float
+    let optionalDescription: String?
+  }
+#endif

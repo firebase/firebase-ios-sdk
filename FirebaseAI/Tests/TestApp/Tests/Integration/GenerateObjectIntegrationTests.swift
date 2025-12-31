@@ -171,11 +171,45 @@ struct GenerateObjectIntegrationTests {
       let cat = response.content
       #expect(cat.age >= 40 && cat.age <= 43)
     }
+
+    @Test(arguments: modelConfigurations)
+    @available(iOS 26.0, macOS 26.0, *)
+    func generateObject_complexParams(_ config: InstanceConfig, modelName: String) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: modelName,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt =
+        "Generate a product with status 'active', count 10, score 4.5, and no description."
+
+      let response = try await model.generateObject(ComplexParamsObject.self, parts: prompt)
+
+      let object = response.content
+      #expect(object.status == .active)
+      #expect(object.count == 10)
+      #expect(object.score == 4.5)
+      #expect(object.optionalDescription == nil)
+    }
   #endif
 }
 
 #if canImport(FoundationModels)
   import FoundationModels
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @Generable
+  struct ComplexParamsObject: Equatable {
+    @Generable
+    enum Status: String, CaseIterable, Codable {
+      case active, inactive, pending
+    }
+
+    let status: Status
+    let count: Int
+    let score: Float
+    let optionalDescription: String?
+  }
 
   @available(iOS 26.0, macOS 26.0, *)
   @Generable

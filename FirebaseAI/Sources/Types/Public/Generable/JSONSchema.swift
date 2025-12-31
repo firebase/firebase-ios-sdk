@@ -174,7 +174,7 @@ public struct JSONSchema: Sendable {
     return try JSONDecoder().decode(JSONObject.self, from: jsonRepresentation)
   }
 
-  private func makeInternal() throws -> Internal {
+  func makeInternal() throws -> Internal {
     if let schema {
       return schema
     }
@@ -182,6 +182,62 @@ public struct JSONSchema: Sendable {
       fatalError("JSONSchema must have either `schema` or `kind`.")
     }
     return try kind.makeInternal()
+  }
+
+  func asSchema() throws -> Schema {
+    return try makeInternal().asSchema()
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema.Internal {
+  func asSchema() -> Schema {
+    let dataType: DataType?
+    switch type {
+    case .string: dataType = .string
+    case .integer: dataType = .integer
+    case .number: dataType = .number
+    case .boolean: dataType = .boolean
+    case .array: dataType = .array
+    case .object: dataType = .object
+    case nil: dataType = nil
+    }
+
+    var mappedProperties: [String: Schema]?
+    if let properties {
+      mappedProperties = properties.mapValues { $0.asSchema() }
+    }
+
+    var mappedItems: Schema?
+    if let items {
+      mappedItems = items.asSchema()
+    }
+
+    var mappedAnyOf: [Schema]?
+    if let anyOf {
+      mappedAnyOf = anyOf.map { $0.asSchema() }
+    }
+
+    return Schema(
+      type: dataType,
+      format: format,
+      description: description,
+      title: title,
+      nullable: nullable,
+      enumValues: enumValues?.compactMap {
+        if case let .string(value) = $0 { return value }
+        return nil
+      },
+      items: mappedItems,
+      minItems: minItems,
+      maxItems: maxItems,
+      minimum: minimum,
+      maximum: maximum,
+      anyOf: mappedAnyOf,
+      properties: mappedProperties,
+      requiredProperties: required,
+      propertyOrdering: order
+    )
   }
 }
 
@@ -259,8 +315,10 @@ extension JSONSchema: Codable {
 extension JSONSchema {
   final class Internal: Sendable {
     let type: JSONSchema.Internal.SchemaType?
+    let format: String?
     let title: String?
     let description: String?
+    let nullable: Bool?
     let properties: [String: JSONSchema.Internal]?
     let required: [String]?
     let additionalProperties: Bool?
@@ -277,8 +335,10 @@ extension JSONSchema {
     let order: [String]?
 
     init(type: JSONSchema.Internal.SchemaType? = nil,
+         format: String? = nil,
          title: String? = nil,
          description: String? = nil,
+         nullable: Bool? = nil,
          properties: [String: JSONSchema.Internal]? = nil,
          required: [String]? = nil,
          additionalProperties: Bool? = nil,
@@ -294,8 +354,10 @@ extension JSONSchema {
          maximum: Double? = nil,
          order: [String]? = nil) {
       self.type = type
+      self.format = format
       self.title = title
       self.description = description
+      self.nullable = nullable
       self.properties = properties
       self.required = required
       self.additionalProperties = additionalProperties
@@ -310,6 +372,77 @@ extension JSONSchema {
       self.minimum = minimum
       self.maximum = maximum
       self.order = order
+    }
+
+    enum CodingKeys: String, CodingKey {
+      case type
+      case format
+      case title
+      case description
+      case nullable
+      case properties
+      case required
+      case additionalProperties
+      case defs = "$defs"
+      case ref = "$ref"
+      case anyOf
+      case items
+      case minItems
+      case maxItems
+      case enumValues = "enum"
+      case pattern
+      case minimum
+      case maximum
+      case order = "propertyOrdering"
+    }
+
+    init(from decoder: Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      type = try container.decodeIfPresent(SchemaType.self, forKey: .type)
+      format = try container.decodeIfPresent(String.self, forKey: .format)
+      title = try container.decodeIfPresent(String.self, forKey: .title)
+      description = try container.decodeIfPresent(String.self, forKey: .description)
+      nullable = try container.decodeIfPresent(Bool.self, forKey: .nullable)
+      properties = try container.decodeIfPresent(
+        [String: JSONSchema.Internal].self,
+        forKey: .properties
+      )
+      required = try container.decodeIfPresent([String].self, forKey: .required)
+      additionalProperties = try container.decodeIfPresent(Bool.self, forKey: .additionalProperties)
+      defs = try container.decodeIfPresent([String: JSONSchema.Internal].self, forKey: .defs)
+      ref = try container.decodeIfPresent(String.self, forKey: .ref)
+      anyOf = try container.decodeIfPresent([JSONSchema.Internal].self, forKey: .anyOf)
+      items = try container.decodeIfPresent(JSONSchema.Internal.self, forKey: .items)
+      minItems = try container.decodeIfPresent(Int.self, forKey: .minItems)
+      maxItems = try container.decodeIfPresent(Int.self, forKey: .maxItems)
+      enumValues = try container.decodeIfPresent([JSONValue].self, forKey: .enumValues)
+      pattern = try container.decodeIfPresent(String.self, forKey: .pattern)
+      minimum = try container.decodeIfPresent(Double.self, forKey: .minimum)
+      maximum = try container.decodeIfPresent(Double.self, forKey: .maximum)
+      order = try container.decodeIfPresent([String].self, forKey: .order)
+    }
+
+    func encode(to encoder: Encoder) throws {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+      try container.encodeIfPresent(type, forKey: .type)
+      try container.encodeIfPresent(format, forKey: .format)
+      try container.encodeIfPresent(title, forKey: .title)
+      try container.encodeIfPresent(description, forKey: .description)
+      try container.encodeIfPresent(nullable, forKey: .nullable)
+      try container.encodeIfPresent(properties, forKey: .properties)
+      try container.encodeIfPresent(required, forKey: .required)
+      try container.encodeIfPresent(additionalProperties, forKey: .additionalProperties)
+      try container.encodeIfPresent(defs, forKey: .defs)
+      try container.encodeIfPresent(ref, forKey: .ref)
+      try container.encodeIfPresent(anyOf, forKey: .anyOf)
+      try container.encodeIfPresent(items, forKey: .items)
+      try container.encodeIfPresent(minItems, forKey: .minItems)
+      try container.encodeIfPresent(maxItems, forKey: .maxItems)
+      try container.encodeIfPresent(enumValues, forKey: .enumValues)
+      try container.encodeIfPresent(pattern, forKey: .pattern)
+      try container.encodeIfPresent(minimum, forKey: .minimum)
+      try container.encodeIfPresent(maximum, forKey: .maximum)
+      try container.encodeIfPresent(order, forKey: .order)
     }
   }
 }
@@ -327,24 +460,4 @@ extension JSONSchema.Internal {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension JSONSchema.Internal: Codable {
-  enum CodingKeys: String, CodingKey {
-    case type
-    case title
-    case description
-    case properties
-    case required
-    case additionalProperties
-    case defs = "$defs"
-    case ref = "$ref"
-    case anyOf
-    case items
-    case minItems
-    case maxItems
-    case enumValues = "enum"
-    case pattern
-    case minimum
-    case maximum
-    case order = "propertyOrdering"
-  }
-}
+extension JSONSchema.Internal: Codable {}

@@ -70,6 +70,9 @@ public final class FirebaseAI: Sendable {
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
   ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
+  ///   - automaticFunctionTools: A list of ``AutomaticFunction``s that the model may use to
+  ///     generate the next response. The model will automatically call these functions when the
+  ///     corresponding function call is generated.
   ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
@@ -78,6 +81,7 @@ public final class FirebaseAI: Sendable {
                               generationConfig: GenerationConfig? = nil,
                               safetySettings: [SafetySetting]? = nil,
                               tools: [Tool]? = nil,
+                              automaticFunctionTools: [AutomaticFunction]? = nil,
                               toolConfig: ToolConfig? = nil,
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
@@ -98,9 +102,11 @@ public final class FirebaseAI: Sendable {
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: tools,
+      automaticFunctionTools: automaticFunctionTools,
       toolConfig: toolConfig,
       systemInstruction: systemInstruction,
-      requestOptions: requestOptions
+      requestOptions: requestOptions,
+      urlSession: GenAIURLSession.default
     )
   }
 
