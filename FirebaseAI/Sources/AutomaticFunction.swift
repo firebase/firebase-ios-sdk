@@ -103,12 +103,11 @@ public struct AutomaticFunction: Sendable {
         if let encodableResult = result as? Encodable {
           let encoder = JSONEncoder()
           let data = try encoder.encode(encodableResult)
-          if let jsonValue = try? JSONDecoder().decode(JSONValue.self, from: data) {
-            if case let .object(jsonObject) = jsonValue {
-              return jsonObject
-            } else {
-              return ["result": jsonValue]
-            }
+          let jsonValue = try JSONDecoder().decode(JSONValue.self, from: data)
+          if case let .object(jsonObject) = jsonValue {
+            return jsonObject
+          } else {
+            return ["result": jsonValue]
           }
         }
 

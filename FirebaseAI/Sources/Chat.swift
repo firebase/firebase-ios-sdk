@@ -198,12 +198,12 @@ public final class Chat: Sendable {
   private func executeFunctionCalls(from content: ModelContent) async throws -> ModelContent? {
     let functionCalls = content.parts.compactMap { ($0 as? FunctionCallPart)?.functionCall }
 
-    if functionCalls.isEmpty {
+    guard !functionCalls.isEmpty else {
       return nil
     }
 
     let handlers = model.functionHandlers
-    if handlers.isEmpty {
+    guard !handlers.isEmpty else {
       return nil
     }
 
@@ -215,7 +215,7 @@ public final class Chat: Sendable {
       return nil
     }
 
-    if callsToHandle.isEmpty {
+    guard !callsToHandle.isEmpty else {
       return nil
     }
 
