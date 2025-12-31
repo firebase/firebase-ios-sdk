@@ -103,13 +103,12 @@ public struct AutomaticFunction: Sendable {
         if let encodableResult = result as? Encodable {
           let encoder = JSONEncoder()
           let data = try encoder.encode(encodableResult)
-          // If the result encodes to a dictionary, return it.
-          if let jsonObject = try? JSONDecoder().decode(JSONObject.self, from: data) {
-            return jsonObject
-          }
-          // If it encodes to a primitive (e.g. String, Int), wrap it in "result".
           if let jsonValue = try? JSONDecoder().decode(JSONValue.self, from: data) {
-            return ["result": jsonValue]
+            if case let .object(jsonObject) = jsonValue {
+              return jsonObject
+            } else {
+              return ["result": jsonValue]
+            }
           }
         }
 

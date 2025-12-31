@@ -207,27 +207,35 @@ public final class Chat: Sendable {
       return nil
     }
 
-    var functionResponses: [FunctionResponsePart] = []
-    var handledAny = false
+    let callsToHandle = functionCalls.compactMap {
+      call -> (FunctionCall, @Sendable ([String: JSONValue]) async throws -> JSONObject)? in
+      if let handler = handlers[call.name] {
+        return (call, handler)
+      }
+      return nil
+    }
 
-    try await withThrowingTaskGroup(of: FunctionResponsePart.self) { group in
-      for call in functionCalls {
-        if let handler = handlers[call.name] {
-          group.addTask {
-            let result = try await handler(call.args)
-            return FunctionResponsePart(name: call.name, response: result)
-          }
-          handledAny = true
+    if callsToHandle.isEmpty {
+      return nil
+    }
+
+    let functionResponses = try await withThrowingTaskGroup(
+      of: FunctionResponsePart.self,
+      returning: [FunctionResponsePart].self
+    ) { group in
+      for (call, handler) in callsToHandle {
+        group.addTask {
+          let result = try await handler(call.args)
+          return FunctionResponsePart(name: call.name, response: result)
         }
       }
 
+      var responses: [FunctionResponsePart] = []
+      responses.reserveCapacity(callsToHandle.count)
       for try await part in group {
-        functionResponses.append(part)
+        responses.append(part)
       }
-    }
-
-    if !handledAny {
-      return nil
+      return responses
     }
 
     return ModelContent(role: "function", parts: functionResponses)
