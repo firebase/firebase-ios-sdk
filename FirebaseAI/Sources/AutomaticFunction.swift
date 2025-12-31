@@ -74,12 +74,13 @@ public struct AutomaticFunction: Sendable {
       // Extract parameter properties
       let properties = firebaseSchema.properties ?? [:]
       let required = firebaseSchema.requiredProperties ?? []
+      let requiredSet = Set(required)
 
       self.init(
         name: tool.name,
         description: tool.description,
         parameters: properties,
-        optionalParameters: properties.keys.filter { !required.contains($0) }
+        optionalParameters: properties.keys.filter { !requiredSet.contains($0) }
       ) { args in
         // Convert [String: JSONValue] -> JSONObject (ModelOutput) -> GeneratedContent ->
         // T.Arguments
