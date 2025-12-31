@@ -21,6 +21,7 @@ public final class Chat: Sendable {
   private let model: GenerativeModel
   private let _history: History
 
+  /// A safeguard to prevent infinite loops in function calling.
   private static let maxFunctionCalls = 10
 
   private static var maxTurnsError: Error {
@@ -95,20 +96,16 @@ public final class Chat: Sendable {
         userContentCommitted = true
       }
 
-      // Append model response
       let modelContent = ModelContent(role: "model", parts: candidate.content.parts)
-      _history.append(modelContent)
-
-      if let responseContent = try await executeFunctionCalls(from: modelContent) {
-        _history.append(responseContent)
-        functionCallCount += 1
-        if functionCallCount >= Chat.maxFunctionCalls {
-          throw Chat.maxTurnsError
-        }
-      } else {
+      let shouldContinue = try await handleFunctionCallingTurn(
+        modelContent,
+        functionCallCount: &functionCallCount
+      )
+      if !shouldContinue {
         break
       }
     }
+
     return response
   }
 
@@ -164,15 +161,11 @@ public final class Chat: Sendable {
 
             // Aggregate the content to add it to the history.
             let aggregated = _history.aggregatedChunks(aggregatedContent)
-            _history.append(aggregated)
-
-            if let responseContent = try await self.executeFunctionCalls(from: aggregated) {
-              _history.append(responseContent)
-              functionCallCount += 1
-              if functionCallCount >= Chat.maxFunctionCalls {
-                throw Chat.maxTurnsError
-              }
-            } else {
+            let shouldContinue = try await self.handleFunctionCallingTurn(
+              aggregated,
+              functionCallCount: &functionCallCount
+            )
+            if !shouldContinue {
               break
             }
           }
@@ -193,6 +186,22 @@ public final class Chat: Sendable {
     } else {
       return ModelContent(role: "user", parts: content.parts)
     }
+  }
+
+  private func handleFunctionCallingTurn(_ modelContent: ModelContent,
+                                         functionCallCount: inout Int) async throws -> Bool {
+    _history.append(modelContent)
+
+    if let responseContent = try await executeFunctionCalls(from: modelContent) {
+      _history.append(responseContent)
+      functionCallCount += 1
+      if functionCallCount >= Chat.maxFunctionCalls {
+        throw Chat.maxTurnsError
+      }
+      return true
+    }
+
+    return false
   }
 
   private func executeFunctionCalls(from content: ModelContent) async throws -> ModelContent? {
