@@ -224,7 +224,10 @@ extension JSONSchema.Internal {
       description: description,
       title: title,
       nullable: nil, // nullable logic might be complex if encoded in type array
-      enumValues: nil, // TODO: Map enum values
+      enumValues: enumValues?.compactMap {
+        if case let .string(value) = $0 { return value }
+        return nil
+      },
       items: mappedItems,
       minItems: minItems,
       maxItems: maxItems,

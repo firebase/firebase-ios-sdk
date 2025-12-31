@@ -149,7 +149,7 @@ public final class GenerativeModel: Sendable {
                    generationConfig: GenerationConfig? = nil,
                    safetySettings: [SafetySetting]? = nil,
                    tools: [Tool]? = nil,
-                   automaticFunctionTools: [AutomaticFunction]? = nil,
+                   automaticFunctionTools: [AutomaticFunction]?,
                    toolConfig: ToolConfig? = nil,
                    systemInstruction: ModelContent? = nil,
                    requestOptions: RequestOptions,
