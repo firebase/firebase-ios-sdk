@@ -109,7 +109,6 @@ public final class Chat: Sendable {
         break
       }
     }
-
     return response
   }
 
@@ -197,12 +196,7 @@ public final class Chat: Sendable {
   }
 
   private func executeFunctionCalls(from content: ModelContent) async throws -> ModelContent? {
-    let functionCalls = content.parts.compactMap { part -> FunctionCall? in
-      if let callPart = part as? FunctionCallPart {
-        return callPart.functionCall
-      }
-      return nil
-    }
+    let functionCalls = content.parts.compactMap { ($0 as? FunctionCallPart)?.functionCall }
 
     if functionCalls.isEmpty {
       return nil
@@ -216,7 +210,7 @@ public final class Chat: Sendable {
     var functionResponses: [FunctionResponsePart] = []
     var handledAny = false
 
-    try await withThrowingTaskGroup(of: FunctionResponsePart?.self) { group in
+    try await withThrowingTaskGroup(of: FunctionResponsePart.self) { group in
       for call in functionCalls {
         if let handler = handlers[call.name] {
           group.addTask {
@@ -228,9 +222,7 @@ public final class Chat: Sendable {
       }
 
       for try await part in group {
-        if let part {
-          functionResponses.append(part)
-        }
+        functionResponses.append(part)
       }
     }
 
