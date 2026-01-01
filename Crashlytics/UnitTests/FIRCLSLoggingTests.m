@@ -369,7 +369,7 @@
                                        code:-1
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
 
-  FIRCLSUserLoggingRecordError(error, @{@"additional" : @"key"}, nil);
+  FIRCLSUserLoggingRecordError(error, @{@"additional" : @"key"}, nil, 0);
 
   NSArray* errors = [self errorAContents];
 
@@ -409,7 +409,7 @@
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
 
   for (size_t i = 0; i < _firclsContext.readonly->logging.errorStorage.maxEntries; ++i) {
-    FIRCLSUserLoggingRecordError(error, nil, nil);
+    FIRCLSUserLoggingRecordError(error, nil, nil, 0);
   }
 
   NSArray* errors = [self errorAContents];
@@ -418,7 +418,7 @@
 
   // at this point, if we log one more, we should expect a roll over to the next file
 
-  FIRCLSUserLoggingRecordError(error, nil, nil);
+  FIRCLSUserLoggingRecordError(error, nil, nil, 0);
 
   XCTAssertEqual([[self errorAContents] count], 8, @"");
   XCTAssertEqual([[self errorBContents] count], 1, @"");
@@ -426,7 +426,7 @@
 
   // and our next entry should continue into the B file
 
-  FIRCLSUserLoggingRecordError(error, nil, nil);
+  FIRCLSUserLoggingRecordError(error, nil, nil, 0);
 
   XCTAssertEqual([[self errorAContents] count], 8, @"");
   XCTAssertEqual([[self errorBContents] count], 2, @"");
@@ -436,7 +436,7 @@
 - (void)testLoggedErrorWithNullsInAdditionalInfo {
   NSError* error = [NSError errorWithDomain:@"Domain" code:-1 userInfo:nil];
 
-  FIRCLSUserLoggingRecordError(error, @{@"null-key" : [NSNull null]}, nil);
+  FIRCLSUserLoggingRecordError(error, @{@"null-key" : [NSNull null]}, nil, 0);
 
   NSArray* errors = [self errorAContents];
 
@@ -457,6 +457,27 @@
 
   XCTAssertEqual([additionalEntries count], 1, @"");
   XCTAssertEqualObjects(additionalEntries[0], entryOne, @"");
+}
+
+- (void)testSkippingFramesInStackTrace {
+  NSError* error = [NSError errorWithDomain:@"Domain" code:-1 userInfo:nil];
+  FIRCLSUserLoggingRecordError(error, @{}, nil, 0);
+
+  NSUInteger numberOfStacksToSkip = 2;
+  FIRCLSUserLoggingRecordError(error, @{}, nil, numberOfStacksToSkip);
+
+  NSArray* errors = [self errorAContents];
+
+  NSArray* firstTrace = [errors[0] valueForKeyPath:@"error.stacktrace"];
+  NSArray* secondTrace = [errors[1] valueForKeyPath:@"error.stacktrace"];
+
+  XCTAssertEqual([secondTrace count], [firstTrace count] - 2,
+                 @"second error should have have 2 frames less");
+  XCTAssertEqual(secondTrace[0], firstTrace[2], @"should have same stack traces starting with 2");
+  XCTAssertEqual(secondTrace[1], firstTrace[3], @"should have same stack traces starting with 2");
+  XCTAssertEqualObjects(secondTrace,
+                        [firstTrace subarrayWithRange:NSMakeRange(2, [secondTrace count])],
+                        @"should have same stack traces with first 2 removed");
 }
 
 @end
