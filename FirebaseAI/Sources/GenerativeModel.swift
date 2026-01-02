@@ -223,20 +223,37 @@ public final class GenerativeModel: Sendable {
     try content.throwIfError()
 
     if case .onDevice = apiConfig {
-      // TODO: Delegate to Apple Foundation Models
-      // For now, return a stub for testing if the model name matches the test
-      if modelName == "system-model" {
-        return GenerateContentResponse(candidates: [Candidate(
-          content: ModelContent(role: "model", parts: [TextPart("Paris")]),
-          safetyRatings: [],
-          finishReason: .stop,
-          citationMetadata: nil
-        )], promptFeedback: nil, usageMetadata: nil)
-      }
-      throw AILog.makeInternalError(
-        message: "Foundation Models not available",
-        code: .unsupportedConfig
-      )
+      #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, *) {
+          let prompt = content.compactMap { modelContent in
+            modelContent.parts.compactMap { ($0 as? TextPart)?.text }.joined()
+          }.joined(separator: "\n")
+
+          let instructions = systemInstruction?.parts.compactMap { ($0 as? TextPart)?.text }
+            .joined()
+
+          // TODO: Map `tools` to FoundationModels tools when supported.
+          let session = LanguageModelSession(model: .default, instructions: instructions)
+          let response = try await session.respond(to: prompt)
+
+          return GenerateContentResponse(candidates: [Candidate(
+            content: ModelContent(role: "model", parts: [TextPart(response.content)]),
+            safetyRatings: [],
+            finishReason: .stop,
+            citationMetadata: nil
+          )], promptFeedback: nil, usageMetadata: nil)
+        } else {
+          throw AILog.makeInternalError(
+            message: "Foundation Models require iOS 26.0+",
+            code: .unsupportedConfig
+          )
+        }
+      #else
+        throw AILog.makeInternalError(
+          message: "Foundation Models not available",
+          code: .unsupportedConfig
+        )
+      #endif
     }
 
     let response: GenerateContentResponse

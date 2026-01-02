@@ -15,6 +15,12 @@
 import AVFoundation
 import SwiftUI
 
+#if canImport(AppKit)
+  import AppKit
+#elseif canImport(UIKit)
+  import UIKit
+#endif
+
 extension NSDataAsset {
   /// The preferred file extension for this asset, if any.
   ///
@@ -53,12 +59,21 @@ extension NSDataAsset {
       let time = CMTime(seconds: seconds, preferredTimescale: 1)
       let cg = try generator.copyCGImage(at: time, actualTime: nil)
 
-      let image = UIImage(cgImage: cg)
-      guard let png = image.pngData() else {
-        fatalError("Failed to encode image to png")
-      }
-
-      return png
+      #if os(macOS)
+        let image = NSImage(cgImage: cg, size: .zero)
+        guard let tiff = image.tiffRepresentation,
+              let bitmap = NSBitmapImageRep(data: tiff),
+              let png = bitmap.representation(using: .png, properties: [:]) else {
+          fatalError("Failed to encode image to png")
+        }
+        return png
+      #else
+        let image = UIImage(cgImage: cg)
+        guard let png = image.pngData() else {
+          fatalError("Failed to encode image to png")
+        }
+        return png
+      #endif
     }
   }
 }
