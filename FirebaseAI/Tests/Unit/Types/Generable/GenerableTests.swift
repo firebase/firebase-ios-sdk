@@ -229,26 +229,27 @@ final class GenerableTests: XCTestCase {
   func testPersonJSONSchema() throws {
     let schema = Person.jsonSchema
 
-    guard case let .object(_, _, properties) = schema.kind else {
+    guard case let .definition(kind, _) = schema.representation,
+          case let .object(_, _, properties) = kind else {
       XCTFail("Schema kind is not an object.")
       return
     }
 
     XCTAssertEqual(properties.count, 5)
     let firstName = try XCTUnwrap(properties.first { $0.name == "firstName" })
-    XCTAssert(firstName.type == String.self)
+    XCTAssertTrue(firstName.type == String.self)
     XCTAssertFalse(firstName.isOptional)
     let middleName = try XCTUnwrap(properties.first { $0.name == "middleName" })
-    XCTAssert(middleName.type == String.self)
+    XCTAssertTrue(middleName.type == String.self)
     XCTAssertTrue(middleName.isOptional)
     let lastName = try XCTUnwrap(properties.first { $0.name == "lastName" })
-    XCTAssert(lastName.type == String.self)
+    XCTAssertTrue(lastName.type == String.self)
     XCTAssertFalse(lastName.isOptional)
     let age = try XCTUnwrap(properties.first { $0.name == "age" })
-    XCTAssert(age.type == Int.self)
+    XCTAssertTrue(age.type == Int.self)
     XCTAssertFalse(age.isOptional)
     let address = try XCTUnwrap(properties.first { $0.name == "address" })
-    XCTAssert(address.type == Address.self)
+    XCTAssertTrue(address.type == Address.self)
     XCTAssertFalse(address.isOptional)
   }
 }

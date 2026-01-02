@@ -32,14 +32,15 @@ public struct JSONSchema: Sendable {
     case object(name: String, description: String?, properties: [Property])
   }
 
-  let kind: Kind?
-  let source: String?
-  let schema: JSONSchema.Internal?
+  enum Representation: Sendable {
+    case definition(Kind, source: String)
+    case compiled(JSONSchema.Internal)
+  }
+
+  let representation: Representation
 
   init(kind: Kind, source: String) {
-    self.kind = kind
-    self.source = source
-    schema = nil
+    representation = .definition(kind, source: source)
   }
 
   /// A property that belongs to a JSON schema.
@@ -97,9 +98,10 @@ public struct JSONSchema: Sendable {
   public init(type: any FirebaseGenerable.Type, description: String? = nil,
               properties: [JSONSchema.Property]) {
     let name = String(describing: type)
-    kind = .object(name: name, description: description, properties: properties)
-    source = name
-    schema = nil
+    representation = .definition(
+      .object(name: name, description: description, properties: properties),
+      source: name
+    )
   }
 
   /// Creates a schema for a string enumeration.
@@ -175,13 +177,12 @@ public struct JSONSchema: Sendable {
   }
 
   func makeInternal() throws -> Internal {
-    if let schema {
+    switch representation {
+    case let .compiled(schema):
       return schema
+    case let .definition(kind, _):
+      return try kind.makeInternal()
     }
-    guard let kind else {
-      fatalError("JSONSchema must have either `schema` or `kind`.")
-    }
-    return try kind.makeInternal()
   }
 
   func asSchema() throws -> Schema {
@@ -287,10 +288,8 @@ extension JSONSchema.Kind {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONSchema: Codable {
   public init(from decoder: Decoder) throws {
-    schema = try JSONSchema.Internal(from: decoder)
-    // TODO: Populate `kind` using the decoded `JSONSchema.Internal`.
-    kind = nil
-    source = nil
+    let schema = try JSONSchema.Internal(from: decoder)
+    representation = .compiled(schema)
   }
 
   public func encode(to encoder: any Encoder) throws {
@@ -305,6 +304,7 @@ extension JSONSchema: Codable {
   @available(watchOS, unavailable)
   extension JSONSchema {
     func asGenerationSchema() throws -> FoundationModels.GenerationSchema {
+      let schema = try makeInternal()
       let jsonRepresentation = try JSONEncoder().encode(schema)
       return try JSONDecoder().decode(GenerationSchema.self, from: jsonRepresentation)
     }
