@@ -95,7 +95,7 @@ public extension ThinkingConfig {
       case high = "HIGH"
     }
 
-    /// Use this level when you want the model to think, but you want to minimize latency. This
+    /// Use this level when you want to minimize latency, allowing for minimal thought. This
     /// level is faster than ``low``.
     public static let minimal = ThinkingLevel(kind: .minimal)
 

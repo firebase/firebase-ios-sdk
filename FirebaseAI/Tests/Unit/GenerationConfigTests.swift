@@ -251,6 +251,10 @@ final class GenerationConfigTests: XCTestCase {
       "includeThoughts" : true,
           "thinkingLevel" : \"MEDIUM\"
       """),
+      (ThinkingConfig(thinkingLevel: .medium, includeThoughts: false), """
+      "includeThoughts" : false,
+          "thinkingLevel" : \"MEDIUM\"
+      """),
     ]
 
     for (thinkingConfig, expectedJSONSnippet) in testCases {
