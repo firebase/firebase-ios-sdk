@@ -37,12 +37,12 @@
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
-#include "Firestore/third_party/re2/re2.h"
 #include "absl/strings/ascii.h"  // For AsciiStrToLower/ToUpper (if needed later)
 #include "absl/strings/match.h"    // For StartsWith, EndsWith, StrContains
 #include "absl/strings/str_cat.h"  // For StrAppend
 #include "absl/strings/strip.h"    // For StripAsciiWhitespace
 #include "absl/types/optional.h"
+#include "re2/re2.h"
 
 namespace firebase {
 namespace firestore {
