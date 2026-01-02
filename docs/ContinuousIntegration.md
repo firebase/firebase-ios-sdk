@@ -85,12 +85,6 @@ The prerelease_cocoapods workflow is to test podspecs on the `main` branch, and 
 to make sure podspecs are releasable, which means podspecs in the head can pass all tests and build
 up a candidate.
 
-#### SpecTesting workflow
-[spectesting.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/spectesting.yml)
-
-Runs product-specific `pod spec lint` presubmit testing leveraging the https://github.com/firebase/SpecsTesting
-repo.
-
 ### `pod spec lint` testing
 [scripts/create_spec_repo](https://github.com/firebase/firebase-ios-sdk/tree/main/scripts/create_spec_repo)
 
