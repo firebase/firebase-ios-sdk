@@ -18,10 +18,10 @@ import XCTest
 
 final class BackendTests: XCTestCase {
   func testVertexAI_defaultLocation() {
-    let expectedAPIConfig = APIConfig(
+    let expectedAPIConfig = APIConfig.cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
-    )
+    ))
 
     let backend = Backend.vertexAI()
 
@@ -30,10 +30,10 @@ final class BackendTests: XCTestCase {
 
   func testVertexAI_customLocation() {
     let customLocation = "europe-west1"
-    let expectedAPIConfig = APIConfig(
+    let expectedAPIConfig = APIConfig.cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: customLocation),
       version: .v1beta
-    )
+    ))
 
     let backend = Backend.vertexAI(location: customLocation)
 
@@ -41,10 +41,10 @@ final class BackendTests: XCTestCase {
   }
 
   func testGoogleAI() {
-    let expectedAPIConfig = APIConfig(
+    let expectedAPIConfig = APIConfig.cloud(CloudConfig(
       service: .googleAI(endpoint: .firebaseProxyProd),
       version: .v1beta
-    )
+    ))
 
     let backend = Backend.googleAI()
 
