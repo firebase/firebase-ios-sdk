@@ -52,8 +52,10 @@ public final class FirebaseAI: Sendable {
     )
     // Verify that the `FirebaseAI` instance is always configured with the production endpoint since
     // this is the public API surface for creating an instance.
-    assert(instance.apiConfig.service.endpoint == .firebaseProxyProd)
-    assert(instance.apiConfig.version == .v1beta)
+    if case let .cloud(config) = instance.apiConfig {
+      assert(config.service.endpoint == .firebaseProxyProd)
+      assert(config.version == .v1beta)
+    }
     return instance
   }
 
@@ -86,8 +88,9 @@ public final class FirebaseAI: Sendable {
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
     -> GenerativeModel {
-    if !modelName.starts(with: GenerativeModel.geminiModelNamePrefix)
-      && !modelName.starts(with: GenerativeModel.gemmaModelNamePrefix) {
+    if case .cloud = apiConfig,
+       !modelName.starts(with: GenerativeModel.geminiModelNamePrefix)
+       && !modelName.starts(with: GenerativeModel.gemmaModelNamePrefix) {
       AILog.warning(code: .unsupportedGeminiModel, """
       Unsupported Gemini model "\(modelName)"; see \
       https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
@@ -281,11 +284,16 @@ public final class FirebaseAI: Sendable {
       """)
     }
 
-    switch apiConfig.service {
-    case let .vertexAI(endpoint: _, location: location):
-      return vertexAIModelResourceName(modelName: modelName, location: location)
-    case .googleAI:
-      return developerModelResourceName(modelName: modelName)
+    switch apiConfig {
+    case let .cloud(config):
+      switch config.service {
+      case let .vertexAI(endpoint: _, location: location):
+        return vertexAIModelResourceName(modelName: modelName, location: location)
+      case .googleAI:
+        return developerModelResourceName(modelName: modelName)
+      }
+    case .onDevice:
+      return modelName
     }
   }
 
@@ -304,7 +312,11 @@ public final class FirebaseAI: Sendable {
   }
 
   private func developerModelResourceName(modelName: String) -> String {
-    switch apiConfig.service.endpoint {
+    guard case let .cloud(config) = apiConfig else {
+      fatalError("Developer API is only supported for cloud configurations.")
+    }
+
+    switch config.service.endpoint {
     case .firebaseProxyProd:
       return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
     #if DEBUG

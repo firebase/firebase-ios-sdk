@@ -19,7 +19,7 @@ import FirebaseCore
 import FirebaseStorage
 import Testing
 
-@testable import struct FirebaseAILogic.APIConfig
+@testable import enum FirebaseAILogic.APIConfig
 
 @Suite(.serialized)
 struct CountTokensIntegrationTests {
@@ -100,13 +100,15 @@ struct CountTokensIntegrationTests {
 
     let response = try await model.countTokens(prompt)
 
-    switch config.apiConfig.service {
-    case .vertexAI:
+    switch config.serviceName {
+    case "Vertex AI":
       #expect(response.totalTokens == 65)
-    case .googleAI:
+    case "Google AI":
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting
       // in a lower total count than Vertex AI.
       #expect(response.totalTokens == 34)
+    default:
+      break
     }
     #expect(response.promptTokensDetails.count == 1)
     let promptTokensDetails = try #require(response.promptTokensDetails.first)

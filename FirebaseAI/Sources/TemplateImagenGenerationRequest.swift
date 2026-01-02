@@ -41,9 +41,16 @@ struct TemplateImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sen
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TemplateImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   func getURL() throws -> URL {
+    guard case let .cloud(config) = apiConfig else {
+      throw AILog.makeInternalError(
+        message: "Templates not supported on-device",
+        code: .unsupportedConfig
+      )
+    }
+
     var urlString =
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
-    if case let .vertexAI(_, location) = apiConfig.service {
+      "\(config.service.endpoint.rawValue)/\(config.version.rawValue)/projects/\(projectID)"
+    if case let .vertexAI(_, location) = config.service {
       urlString += "/locations/\(location)"
     }
     urlString += "/templates/\(template):\(ImageAPIMethod.generateImages.rawValue)"

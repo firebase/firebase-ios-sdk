@@ -30,8 +30,14 @@ extension CountTokensRequest: GenerativeAIRequest {
   var apiConfig: APIConfig { generateContentRequest.apiConfig }
 
   func getURL() throws -> URL {
-    let version = apiConfig.version.rawValue
-    let endpoint = apiConfig.service.endpoint.rawValue
+    guard case let .cloud(config) = apiConfig else {
+      throw AILog.makeInternalError(
+        message: "URL generation not supported for on-device models",
+        code: .unsupportedConfig
+      )
+    }
+    let version = config.version.rawValue
+    let endpoint = config.service.endpoint.rawValue
     let urlString = "\(endpoint)/\(version)/\(modelResourceName):countTokens"
     guard let url = URL(string: urlString) else {
       throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
@@ -66,7 +72,14 @@ extension CountTokensRequest: Encodable {
   }
 
   func encode(to encoder: any Encoder) throws {
-    switch apiConfig.service {
+    guard case let .cloud(config) = apiConfig else {
+      throw AILog.makeInternalError(
+        message: "Encoding not supported for on-device models",
+        code: .unsupportedConfig
+      )
+    }
+
+    switch config.service {
     case .vertexAI:
       try encodeForVertexAI(to: encoder)
     case .googleAI:

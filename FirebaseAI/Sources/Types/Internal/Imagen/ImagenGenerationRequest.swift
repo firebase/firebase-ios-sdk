@@ -40,8 +40,14 @@ extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodabl
   typealias Response = ImagenGenerationResponse<ImageType>
 
   func getURL() throws -> URL {
+    guard case let .cloud(config) = apiConfig else {
+      throw AILog.makeInternalError(
+        message: "Imagen not supported on-device",
+        code: .unsupportedConfig
+      )
+    }
     let urlString =
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict"
+      "\(config.service.endpoint.rawValue)/\(config.version.rawValue)/\(model):predict"
     guard let url = URL(string: urlString) else {
       throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
     }

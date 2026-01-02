@@ -74,7 +74,13 @@ extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
   func getURL() throws -> URL {
-    let modelURL = "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"
+    guard case let .cloud(config) = apiConfig else {
+      throw AILog.makeInternalError(
+        message: "URL generation not supported for on-device models",
+        code: .unsupportedConfig
+      )
+    }
+    let modelURL = "\(config.service.endpoint.rawValue)/\(config.version.rawValue)/\(model)"
     let urlString: String
     switch apiMethod {
     case .generateContent:

@@ -17,22 +17,21 @@ import FirebaseAITestApp
 import SwiftUI
 import Testing
 
-@testable import struct FirebaseAILogic.APIConfig
+@testable import enum FirebaseAILogic.APIConfig
 
 @Suite(.serialized)
 struct LiveSessionTests {
-  private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
-    switch config.apiConfig.service {
-    case .vertexAI:
-      [
-        (config, ModelNames.gemini2_5_FlashLive),
-      ]
-    case .googleAI:
-      [
-        (config, ModelNames.gemini2_5_FlashLivePreview),
-      ]
+  private static let arguments: [(InstanceConfig, String)] = InstanceConfig.liveConfigs
+    .flatMap { config in
+      switch config.serviceName {
+      case "Vertex AI":
+        return [(config, ModelNames.gemini2_5_FlashLive)]
+      case "Google AI":
+        return [(config, ModelNames.gemini2_5_FlashLivePreview)]
+      default:
+        return []
+      }
     }
-  }
 
   private let oneSecondInNanoseconds = UInt64(1e+9)
   private let tools: [Tool] = [
@@ -221,10 +220,12 @@ struct LiveSessionTests {
     .bug("https://github.com/firebase/firebase-ios-sdk/issues/15640"),
     arguments: arguments.filter {
       // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
-      switch $0.0.apiConfig.service {
-      case .googleAI:
+      switch $0.0.serviceName {
+      case "Google AI":
         true
-      case .vertexAI:
+      case "Vertex AI":
+        false
+      default:
         false
       }
     }

@@ -346,12 +346,25 @@ actor LiveSessionService {
   ///
   /// Will apply the required app check and auth headers, as the backend expects them.
   private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
-    let host = apiConfig.service.endpoint.rawValue.withoutPrefix("https://")
-    let urlString = switch apiConfig.service {
+    guard case let .cloud(config) = apiConfig else {
+      throw NSError(
+        domain: "\(Constants.baseErrorDomain).\(Self.self)",
+        code: AILog.MessageCode.unsupportedConfig.rawValue,
+        userInfo: [
+          NSLocalizedDescriptionKey: "The Live API is not supported for on-device foundation models.",
+        ]
+      )
+    }
+
+    let host = config.service.endpoint.rawValue.withoutPrefix("https://")
+    let urlString: String
+    switch config.service {
     case let .vertexAI(_, location: location):
-      "wss://\(host)/ws/google.firebase.vertexai.\(apiConfig.version.rawValue).LlmBidiService/BidiGenerateContent/locations/\(location)"
+      urlString =
+        "wss://\(host)/ws/google.firebase.vertexai.\(config.version.rawValue).LlmBidiService/BidiGenerateContent/locations/\(location)"
     case .googleAI:
-      "wss://\(host)/ws/google.firebase.vertexai.\(apiConfig.version.rawValue).GenerativeService/BidiGenerateContent"
+      urlString =
+        "wss://\(host)/ws/google.firebase.vertexai.\(config.version.rawValue).GenerativeService/BidiGenerateContent"
     }
     guard let url = URL(string: urlString) else {
       throw NSError(

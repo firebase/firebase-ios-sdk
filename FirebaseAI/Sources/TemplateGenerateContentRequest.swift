@@ -44,9 +44,16 @@ extension TemplateGenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
   func getURL() throws -> URL {
+    guard case let .cloud(config) = apiConfig else {
+      throw AILog.makeInternalError(
+        message: "Templates not supported on-device",
+        code: .unsupportedConfig
+      )
+    }
+
     var urlString =
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/projects/\(projectID)"
-    if case let .vertexAI(_, location) = apiConfig.service {
+      "\(config.service.endpoint.rawValue)/\(config.version.rawValue)/projects/\(projectID)"
+    if case let .vertexAI(_, location) = config.service {
       urlString += "/locations/\(location)"
     }
 

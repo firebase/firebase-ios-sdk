@@ -12,8 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Configuration for the generative AI backend API used by this SDK.
-struct APIConfig: Sendable, Hashable, Encodable {
+/// Configuration for the generative AI backend.
+enum APIConfig: Sendable, Hashable, Encodable {
+  /// Configuration for cloud-based inference (Vertex AI, Google AI).
+  case cloud(CloudConfig)
+
+  /// Configuration for on-device inference (Apple Foundation Models).
+  case onDevice
+}
+
+/// Configuration for cloud-based backend APIs.
+struct CloudConfig: Sendable, Hashable, Encodable {
   /// The service to use for generative AI.
   ///
   /// This controls which backend API is used by the SDK.
@@ -22,7 +31,7 @@ struct APIConfig: Sendable, Hashable, Encodable {
   /// The version of the selected API to use, e.g., "v1".
   let version: Version
 
-  /// Initializes an API configuration.
+  /// Initializes a cloud configuration.
   ///
   /// - Parameters:
   ///   - service: The API service to use for generative AI.
@@ -33,7 +42,7 @@ struct APIConfig: Sendable, Hashable, Encodable {
   }
 }
 
-extension APIConfig {
+extension CloudConfig {
   /// API services providing generative AI functionality.
   ///
   /// See [Vertex AI and Google AI
@@ -66,7 +75,7 @@ extension APIConfig {
   }
 }
 
-extension APIConfig.Service {
+extension CloudConfig.Service {
   /// Network addresses for generative AI API services.
   // TODO: maybe remove the https:// prefix and just add it as needed? websockets use these too.
   enum Endpoint: String, Encodable {
@@ -98,8 +107,8 @@ extension APIConfig.Service {
   }
 }
 
-extension APIConfig {
-  /// Versions of the configured API service (`APIConfig.Service`).
+extension CloudConfig {
+  /// Versions of the configured API service (`CloudConfig.Service`).
   enum Version: String, Encodable {
     /// The beta channel for version 1 of the API.
     case v1beta
