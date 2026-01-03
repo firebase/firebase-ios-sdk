@@ -16,6 +16,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CompilerPluginSupport
 import PackageDescription
 
 let firebaseVersion = "12.8.0"
@@ -137,6 +138,10 @@ let package = Package(
   ],
   dependencies: [
     .package(
+      url: "https://github.com/apple/swift-syntax.git",
+      from: "600.0.1"
+    ),
+    .package(
       url: "https://github.com/google/promises.git",
       "2.4.0" ..< "3.0.0"
     ),
@@ -191,6 +196,22 @@ let package = Package(
 
     // MARK: - Firebase AI
 
+    .macro(
+      name: "FirebaseAILogicMacro",
+      dependencies: [
+        .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+        .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+      ],
+      path: "FirebaseAILogicMacros/Sources/FirebaseAILogicMacro"
+    ),
+    .testTarget(
+      name: "FirebaseAILogicMacroTests",
+      dependencies: [
+        "FirebaseAILogicMacro",
+        .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
+      ],
+      path: "FirebaseAILogicMacros/Tests/FirebaseAILogicMacroTests"
+    ),
     .target(
       name: "FirebaseAILogic",
       dependencies: [
@@ -198,6 +219,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
+        "FirebaseAILogicMacro",
       ],
       path: "FirebaseAI/Sources"
     ),
