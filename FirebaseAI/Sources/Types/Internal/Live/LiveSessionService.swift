@@ -347,11 +347,13 @@ actor LiveSessionService {
   /// Will apply the required app check and auth headers, as the backend expects them.
   private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
     guard case let .cloud(config) = apiConfig else {
+      let message = "The Live API is not supported for on-device foundation models."
+      AILog.error(code: .unsupportedConfig, message)
       throw NSError(
         domain: "\(Constants.baseErrorDomain).\(Self.self)",
         code: AILog.MessageCode.unsupportedConfig.rawValue,
         userInfo: [
-          NSLocalizedDescriptionKey: "The Live API is not supported for on-device foundation models.",
+          NSLocalizedDescriptionKey: message,
         ]
       )
     }

@@ -225,9 +225,19 @@ public final class GenerativeModel: Sendable {
     if case .onDevice = apiConfig {
       #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, *) {
-          let prompt = content.compactMap { modelContent in
+          var prompt = content.map { modelContent in
             modelContent.parts.compactMap { ($0 as? TextPart)?.text }.joined()
           }.joined(separator: "\n")
+
+          // Inject JSON Schema if present (On-Device "JSON Mode" polyfill)
+          if let schema = generationConfig?.responseJSONSchema,
+             let schemaData = try? JSONSerialization.data(
+               withJSONObject: schema,
+               options: [.prettyPrinted, .sortedKeys]
+             ),
+             let schemaString = String(data: schemaData, encoding: .utf8) {
+            prompt += "\n\nReturn a valid JSON object matching this schema:\n\(schemaString)"
+          }
 
           let instructions = systemInstruction?.parts.compactMap { ($0 as? TextPart)?.text }
             .joined()
@@ -331,6 +341,21 @@ public final class GenerativeModel: Sendable {
                                     generationConfig: GenerationConfig?) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     try content.throwIfError()
+
+    if case .onDevice = apiConfig {
+      return AsyncThrowingStream { continuation in
+        Task {
+          do {
+            let response = try await generateContent(content, generationConfig: generationConfig)
+            continuation.yield(response)
+            continuation.finish()
+          } catch {
+            continuation.finish(throwing: error)
+          }
+        }
+      }
+    }
+
     let generateContentRequest = GenerateContentRequest(
       model: modelResourceName,
       contents: content,
@@ -438,7 +463,10 @@ public final class GenerativeModel: Sendable {
         requestContent = content.map { ModelContent(role: nil, parts: $0.parts) }
       }
     case .onDevice:
-      requestContent = content
+      throw AILog.makeInternalError(
+        message: "countTokens() is not yet supported for on-device models.",
+        code: .unsupportedConfig
+      )
     }
 
     // When using the Developer API via the Firebase backend, the model name of the
