@@ -35,6 +35,7 @@ enum AILog {
     case generativeModelInitialized = 1000
     case unsupportedGeminiModel = 1001
     case invalidSchemaFormat = 1002
+    case unsupportedConfig = 1003
 
     // Imagen Model Configuration
     case unsupportedImagenModel = 1200

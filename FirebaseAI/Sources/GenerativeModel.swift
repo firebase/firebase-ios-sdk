@@ -221,6 +221,51 @@ public final class GenerativeModel: Sendable {
                               generationConfig: GenerationConfig?) async throws
     -> GenerateContentResponse {
     try content.throwIfError()
+
+    if case .onDevice = apiConfig {
+      #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, *) {
+          var prompt = content.map { modelContent in
+            modelContent.parts.compactMap { ($0 as? TextPart)?.text }.joined()
+          }.joined(separator: "\n")
+
+          // Inject JSON Schema if present (On-Device "JSON Mode" polyfill)
+          if let schema = generationConfig?.responseJSONSchema,
+             let schemaData = try? JSONSerialization.data(
+               withJSONObject: schema,
+               options: [.prettyPrinted, .sortedKeys]
+             ),
+             let schemaString = String(data: schemaData, encoding: .utf8) {
+            prompt += "\n\nReturn a valid JSON object matching this schema:\n\(schemaString)"
+          }
+
+          let instructions = systemInstruction?.parts.compactMap { ($0 as? TextPart)?.text }
+            .joined()
+
+          // TODO: Map `tools` to FoundationModels tools when supported.
+          let session = LanguageModelSession(model: .default, instructions: instructions)
+          let response = try await session.respond(to: prompt)
+
+          return GenerateContentResponse(candidates: [Candidate(
+            content: ModelContent(role: "model", parts: [TextPart(response.content)]),
+            safetyRatings: [],
+            finishReason: .stop,
+            citationMetadata: nil
+          )], promptFeedback: nil, usageMetadata: nil)
+        } else {
+          throw AILog.makeInternalError(
+            message: "Foundation Models require iOS 26.0+",
+            code: .unsupportedConfig
+          )
+        }
+      #else
+        throw AILog.makeInternalError(
+          message: "Foundation Models not available",
+          code: .unsupportedConfig
+        )
+      #endif
+    }
+
     let response: GenerateContentResponse
     let generateContentRequest = GenerateContentRequest(
       model: modelResourceName,
@@ -296,6 +341,21 @@ public final class GenerativeModel: Sendable {
                                     generationConfig: GenerationConfig?) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     try content.throwIfError()
+
+    if case .onDevice = apiConfig {
+      return AsyncThrowingStream { continuation in
+        Task {
+          do {
+            let response = try await generateContent(content, generationConfig: generationConfig)
+            continuation.yield(response)
+            continuation.finish()
+          } catch {
+            continuation.finish(throwing: error)
+          }
+        }
+      }
+    }
+
     let generateContentRequest = GenerateContentRequest(
       model: modelResourceName,
       contents: content,
@@ -389,36 +449,51 @@ public final class GenerativeModel: Sendable {
   /// - Returns: The results of running the model's tokenizer on the input; contains
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
-    let requestContent = switch apiConfig.service {
-    case .vertexAI:
-      content
-    case .googleAI:
-      // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
-      // erroneously counted towards the prompt and total token count when using the Developer API
-      // backend; set to `nil` to avoid token count discrepancies between `countTokens` and
-      // `generateContent` and the two backend APIs.
-      content.map { ModelContent(role: nil, parts: $0.parts) }
+    let requestContent: [ModelContent]
+    switch apiConfig {
+    case let .cloud(config):
+      switch config.service {
+      case .vertexAI:
+        requestContent = content
+      case .googleAI:
+        // The `role` defaults to "user" but is ignored in `countTokens`. However, it is erroneously
+        // erroneously counted towards the prompt and total token count when using the Developer API
+        // backend; set to `nil` to avoid token count discrepancies between `countTokens` and
+        // `generateContent` and the two backend APIs.
+        requestContent = content.map { ModelContent(role: nil, parts: $0.parts) }
+      }
+    case .onDevice:
+      throw AILog.makeInternalError(
+        message: "countTokens() is not yet supported for on-device models.",
+        code: .unsupportedConfig
+      )
     }
 
     // When using the Developer API via the Firebase backend, the model name of the
     // `GenerateContentRequest` nested in the `CountTokensRequest` must be of the form
     // "models/model-name". This field is unaltered by the Firebase backend before forwarding the
     // request to the Generative Language backend, which expects the form "models/model-name".
-    let generateContentRequestModelResourceName = switch apiConfig.service {
-    case .vertexAI:
-      modelResourceName
-    case .googleAI(endpoint: .firebaseProxyProd):
-      "models/\(modelName)"
-    #if DEBUG
-      case .googleAI(endpoint: .firebaseProxyStaging):
-        "models/\(modelName)"
-      case .googleAI(endpoint: .googleAIBypassProxy):
-        modelResourceName
-      case .googleAI(endpoint: .vertexAIStagingBypassProxy):
-        fatalError(
-          "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
-        )
-    #endif // DEBUG
+    let generateContentRequestModelResourceName: String
+    switch apiConfig {
+    case let .cloud(config):
+      switch config.service {
+      case .vertexAI:
+        generateContentRequestModelResourceName = modelResourceName
+      case .googleAI(endpoint: .firebaseProxyProd):
+        generateContentRequestModelResourceName = "models/\(modelName)"
+      #if DEBUG
+        case .googleAI(endpoint: .firebaseProxyStaging):
+          generateContentRequestModelResourceName = "models/\(modelName)"
+        case .googleAI(endpoint: .googleAIBypassProxy):
+          generateContentRequestModelResourceName = modelResourceName
+        case .googleAI(endpoint: .vertexAIStagingBypassProxy):
+          fatalError(
+            "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
+          )
+      #endif // DEBUG
+      }
+    case .onDevice:
+      generateContentRequestModelResourceName = modelResourceName
     }
 
     let generateContentRequest = GenerateContentRequest(

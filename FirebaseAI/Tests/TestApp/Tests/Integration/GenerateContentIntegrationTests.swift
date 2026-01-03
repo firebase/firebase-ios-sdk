@@ -235,7 +235,7 @@ struct GenerateContentIntegrationTests {
     #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
     // The `candidatesTokensDetails` field is erroneously omitted when using the Google AI (Gemini
     // Developer API) backend.
-    if case .googleAI = config.apiConfig.service {
+    if config.serviceName == "Google AI" {
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
       #expect(usageMetadata.candidatesTokensDetails.count == 1)
@@ -448,7 +448,7 @@ struct GenerateContentIntegrationTests {
       #expect(urlMetadata.retrievalStatus == .success)
     } when: {
       // This issue only impacts the Gemini Developer API (Google AI), Vertex AI is unaffected.
-      if case .googleAI = config.apiConfig.service {
+      if config.serviceName == "Google AI" {
         return true
       }
       return false

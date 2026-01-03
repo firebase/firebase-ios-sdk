@@ -59,10 +59,16 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(request.options, requestOptions)
     XCTAssertEqual(request.instances, [instance])
     XCTAssertEqual(request.parameters, parameters)
+
+    guard case let .cloud(config) = apiConfig else {
+      XCTFail("Expected cloud config")
+      return
+    }
+
     XCTAssertEqual(
       try request.getURL(),
       URL(string:
-        "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
+        "\(config.service.endpoint.rawValue)/\(config.version.rawValue)/\(modelName):predict")
     )
   }
 
@@ -79,10 +85,16 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(request.options, requestOptions)
     XCTAssertEqual(request.instances, [instance])
     XCTAssertEqual(request.parameters, parameters)
+
+    guard case let .cloud(config) = apiConfig else {
+      XCTFail("Expected cloud config")
+      return
+    }
+
     XCTAssertEqual(
       try request.getURL(),
       URL(string:
-        "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
+        "\(config.service.endpoint.rawValue)/\(config.version.rawValue)/\(modelName):predict")
     )
   }
 

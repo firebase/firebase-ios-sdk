@@ -17,64 +17,84 @@ import FirebaseAITestApp
 import FirebaseCore
 import Testing
 
-@testable import struct FirebaseAILogic.APIConfig
+@testable import enum FirebaseAILogic.APIConfig
+@testable import struct FirebaseAILogic.CloudConfig
 
 struct InstanceConfig: Equatable, Encodable {
   static let vertexAI_v1beta = InstanceConfig(
-    apiConfig: APIConfig(
+    apiConfig: .cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
-    )
+    ))
   )
   static let vertexAI_v1beta_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
-    apiConfig: APIConfig(
+    apiConfig: .cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
-    )
+    ))
   )
   static let vertexAI_v1beta_global = InstanceConfig(
-    apiConfig: APIConfig(
+    apiConfig: .cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
-    )
+    ))
   )
   static let vertexAI_v1beta_global_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
-    apiConfig: APIConfig(
+    apiConfig: .cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
-    )
+    ))
   )
   static let vertexAI_v1beta_staging = InstanceConfig(
-    apiConfig: APIConfig(
+    apiConfig: .cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyStaging, location: "us-central1"),
       version: .v1beta
-    )
+    ))
   )
   static let vertexAI_v1beta_staging_global_bypassProxy = InstanceConfig(
-    apiConfig: APIConfig(
+    apiConfig: .cloud(CloudConfig(
       service: .vertexAI(endpoint: .vertexAIStagingBypassProxy, location: "global"),
       version: .v1beta1
-    )
+    ))
   )
   static let googleAI_v1beta = InstanceConfig(
-    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: .cloud(CloudConfig(
+      service: .googleAI(endpoint: .firebaseProxyProd),
+      version: .v1beta
+    ))
   )
   static let googleAI_v1beta_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
-    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: .cloud(CloudConfig(
+      service: .googleAI(endpoint: .firebaseProxyProd),
+      version: .v1beta
+    ))
   )
   static let googleAI_v1beta_staging = InstanceConfig(
-    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyStaging), version: .v1beta)
+    apiConfig: .cloud(CloudConfig(
+      service: .googleAI(endpoint: .firebaseProxyStaging),
+      version: .v1beta
+    ))
   )
   static let googleAI_v1beta_freeTier = InstanceConfig(
     appName: FirebaseAppNames.spark,
-    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: .cloud(CloudConfig(
+      service: .googleAI(endpoint: .firebaseProxyProd),
+      version: .v1beta
+    ))
   )
   static let googleAI_v1beta_freeTier_bypassProxy = InstanceConfig(
     appName: FirebaseAppNames.spark,
-    apiConfig: APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
+    apiConfig: .cloud(CloudConfig(
+      service: .googleAI(endpoint: .googleAIBypassProxy),
+      version: .v1beta
+    ))
+  )
+
+  static let foundationModels = InstanceConfig(
+    apiConfig: .onDevice
   )
 
   static let allConfigs = [
@@ -101,27 +121,33 @@ struct InstanceConfig: Equatable, Encodable {
 
   static let vertexAI_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
-    apiConfig: APIConfig(
+    apiConfig: .cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
-    )
+    ))
   )
   static let vertexAI_v1beta_appCheckNotConfigured_limitedUseTokens = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     useLimitedUseAppCheckTokens: true,
-    apiConfig: APIConfig(
+    apiConfig: .cloud(CloudConfig(
       service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
-    )
+    ))
   )
   static let googleAI_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
-    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: .cloud(CloudConfig(
+      service: .googleAI(endpoint: .firebaseProxyProd),
+      version: .v1beta
+    ))
   )
   static let googleAI_v1beta_appCheckNotConfigured_limitedUseTokens = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     useLimitedUseAppCheckTokens: true,
-    apiConfig: APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    apiConfig: .cloud(CloudConfig(
+      service: .googleAI(endpoint: .firebaseProxyProd),
+      version: .v1beta
+    ))
   )
 
   static let appCheckNotConfiguredConfigs = [
@@ -146,38 +172,60 @@ struct InstanceConfig: Equatable, Encodable {
   }
 
   var serviceName: String {
-    switch apiConfig.service {
-    case .vertexAI:
-      return "Vertex AI"
-    case .googleAI:
-      return "Google AI"
+    switch apiConfig {
+    case let .cloud(config):
+      switch config.service {
+      case .vertexAI:
+        return "Vertex AI"
+      case .googleAI:
+        return "Google AI"
+      }
+    case .onDevice:
+      return "Foundation Models"
     }
   }
 
   var versionName: String {
-    return apiConfig.version.rawValue
+    switch apiConfig {
+    case let .cloud(config):
+      return config.version.rawValue
+    case .onDevice:
+      return "unversioned"
+    }
   }
 }
 
 extension InstanceConfig: CustomTestStringConvertible {
   var testDescription: String {
     let freeTierDesignator = (appName == FirebaseAppNames.spark) ? " - Free Tier" : ""
-    let endpointSuffix = switch apiConfig.service.endpoint {
-    case .firebaseProxyProd:
-      ""
-    case .firebaseProxyStaging:
-      " - Staging"
-    case .googleAIBypassProxy:
-      " - Bypass Proxy"
-    case .vertexAIStagingBypassProxy:
-      " - Staging - Bypass Proxy"
-    }
+
+    let endpointSuffix: String
     let locationSuffix: String
-    if case let .vertexAI(_, location: location) = apiConfig.service {
-      locationSuffix = " - (\(location))"
-    } else {
+
+    switch apiConfig {
+    case let .cloud(config):
+      endpointSuffix = switch config.service.endpoint {
+      case .firebaseProxyProd:
+        ""
+      case .firebaseProxyStaging:
+        " - Staging"
+      case .googleAIBypassProxy:
+        " - Bypass Proxy"
+      case .vertexAIStagingBypassProxy:
+        " - Staging - Bypass Proxy"
+      }
+
+      if case let .vertexAI(_, location: location) = config.service {
+        locationSuffix = " - (\(location))"
+      } else {
+        locationSuffix = ""
+      }
+
+    case .onDevice:
+      endpointSuffix = " - Local"
       locationSuffix = ""
     }
+
     let appCheckLimitedUseDesignator = useLimitedUseAppCheckTokens ? " - FAC Limited-Use" : ""
 
     return """
@@ -189,14 +237,29 @@ extension InstanceConfig: CustomTestStringConvertible {
 
 extension FirebaseAI {
   static func componentInstance(_ instanceConfig: InstanceConfig) -> FirebaseAI {
-    switch instanceConfig.apiConfig.service {
-    case .vertexAI:
-      return FirebaseAI.createInstance(
-        app: instanceConfig.app,
-        apiConfig: instanceConfig.apiConfig,
-        useLimitedUseAppCheckTokens: instanceConfig.useLimitedUseAppCheckTokens
-      )
-    case .googleAI:
+    switch instanceConfig.apiConfig {
+    case let .cloud(config):
+      switch config.service {
+      case .vertexAI:
+        // Assumption: FirebaseAI.createInstance still takes 'APIConfig' which is now the enum.
+        // But wait, createInstance likely assumed the old struct.
+        // If I changed APIConfig to enum, createInstance signature might be fine if it takes
+        // APIConfig.
+        // But internally it probably accesses .service.
+        // I need to update FirebaseAI.swift as well.
+        return FirebaseAI.createInstance(
+          app: instanceConfig.app,
+          apiConfig: instanceConfig.apiConfig,
+          useLimitedUseAppCheckTokens: instanceConfig.useLimitedUseAppCheckTokens
+        )
+      case .googleAI:
+        return FirebaseAI.createInstance(
+          app: instanceConfig.app,
+          apiConfig: instanceConfig.apiConfig,
+          useLimitedUseAppCheckTokens: instanceConfig.useLimitedUseAppCheckTokens
+        )
+      }
+    case .onDevice:
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
         apiConfig: instanceConfig.apiConfig,

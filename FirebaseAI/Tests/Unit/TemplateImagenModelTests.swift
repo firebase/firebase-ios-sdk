@@ -30,7 +30,10 @@ final class TemplateImagenModelTests: XCTestCase {
       firebaseInfo: firebaseInfo,
       urlSession: urlSession
     )
-    let apiConfig = APIConfig(service: .googleAI(endpoint: .firebaseProxyProd), version: .v1beta)
+    let apiConfig = APIConfig.cloud(CloudConfig(
+      service: .googleAI(endpoint: .firebaseProxyProd),
+      version: .v1beta
+    ))
     model = TemplateImagenModel(generativeAIService: generativeAIService, apiConfig: apiConfig)
   }
 
