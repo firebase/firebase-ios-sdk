@@ -46,6 +46,10 @@ let package = Package(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
+    .library(
+      name: "FirebaseAuthInterop",
+      targets: ["FirebaseAuthInterop"]
+    ),
     // Adding this library to your project is enough for it to take effect. The module
     // does not need to be imported into any source files.
     .library(
@@ -481,9 +485,6 @@ let package = Package(
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
       ],
       path: "FirebaseAuth/Sources",
-      exclude: [
-        "ObjC", "Public",
-      ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
@@ -511,9 +512,6 @@ let package = Package(
     .target(
       name: "FirebaseAuthInterop",
       path: "FirebaseAuth/Interop",
-      exclude: [
-        "CMakeLists.txt",
-      ],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
