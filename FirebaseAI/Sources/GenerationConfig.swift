@@ -28,7 +28,7 @@ public struct GenerationConfig: Sendable {
   let topK: Int?
 
   /// The number of response variations to return.
-  let candidateCount: Int?
+  var candidateCount: Int?
 
   /// Maximum number of tokens that can be generated in the response.
   let maxOutputTokens: Int?
@@ -43,18 +43,18 @@ public struct GenerationConfig: Sendable {
   let stopSequences: [String]?
 
   /// Output response MIME type of the generated candidate text.
-  let responseMIMEType: String?
+  var responseMIMEType: String?
 
   /// Output schema of the generated candidate text.
-  let responseSchema: Schema?
+  var responseSchema: Schema?
 
   /// Output schema of the generated response in [JSON Schema](https://json-schema.org/) format.
   ///
   /// If set, `responseSchema` must be omitted and `responseMIMEType` is required.
-  let responseJSONSchema: JSONObject?
+  var responseJSONSchema: JSONObject?
 
   /// Supported modalities of the response.
-  let responseModalities: [ResponseModality]?
+  var responseModalities: [ResponseModality]?
 
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
   let thinkingConfig: ThinkingConfig?

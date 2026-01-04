@@ -15,6 +15,9 @@
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
@@ -143,6 +146,12 @@ public final class GenerativeModel: Sendable {
   /// - Returns: The generated content response from the model.
   /// - Throws: A ``GenerateContentError`` if the request failed.
   public func generateContent(_ content: [ModelContent]) async throws
+    -> GenerateContentResponse {
+    return try await generateContent(content, generationConfig: generationConfig)
+  }
+
+  public func generateContent(_ content: [ModelContent],
+                              generationConfig: GenerationConfig?) async throws
     -> GenerateContentResponse {
     try content.throwIfError()
     let response: GenerateContentResponse
@@ -357,6 +366,76 @@ public final class GenerativeModel: Sendable {
     return try await generativeAIService.loadRequest(request: countTokensRequest)
   }
 
+  #if canImport(FoundationModels)
+    /// Produces a generable object as a response to a prompt.
+    ///
+    /// - Parameters:
+    ///   - prompt: A prompt for the model to respond to.
+    ///   - type: A type to produce as the response.
+    /// - Returns: ``GeneratedContent`` containing the fields and values defined in the schema.
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public final func generateObject<Content>(_ type: Content.Type = Content.self,
+                                              parts: any PartsRepresentable...) async throws
+      -> Response<Content>
+      where Content: FoundationModels.Generable {
+      let jsonSchema = try type.generationSchema.asGeminiJSONSchema()
+
+      let generationConfig = {
+        var generationConfig = self.generationConfig ?? GenerationConfig()
+        if generationConfig.candidateCount != nil {
+          generationConfig.candidateCount = nil
+        }
+        generationConfig.responseMIMEType = "application/json"
+        if generationConfig.responseSchema != nil {
+          generationConfig.responseSchema = nil
+        }
+        generationConfig.responseJSONSchema = jsonSchema
+        if generationConfig.responseModalities != nil {
+          generationConfig.responseModalities = nil
+        }
+
+        return generationConfig
+      }()
+
+      let response = try await generateContent(
+        [ModelContent(parts: parts)],
+        generationConfig: generationConfig
+      )
+
+      // TODO: Remove when extraneous '```json' prefix from JSON payload no longer returned.
+      let json = response.text?.replacingOccurrences(of: "```json", with: "") ?? ""
+
+      let generatedContent = try GeneratedContent(json: json)
+      let content = try Content(generatedContent)
+      let rawContent = try ModelOutput(generatedContent)
+
+      return Response(content: content, rawContent: rawContent)
+    }
+  #endif // canImport(FoundationModels)
+
+  #if canImport(FoundationModels)
+    // TODO: Remove this method when Gemini vs. AFM is a configuration (hybrid mode)
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    public final func generateObjectAFM<Content>(_ type: Content.Type = Content.self,
+                                                 prompt: String) async throws -> Response<Content>
+      where Content: FoundationModels.Generable {
+      let instructions: String? = systemInstruction?.parts.first.flatMap {
+        guard let textPart = $0 as? TextPart else {
+          return nil
+        }
+        return textPart.text
+      }
+      let session = LanguageModelSession(model: .default, instructions: instructions)
+      let response = try await session.respond(to: prompt, generating: type)
+
+      return try Response(content: response.content, rawContent: ModelOutput(response.rawContent))
+    }
+  #endif // canImport(FoundationModels)
+
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.
   ///
   /// If `error` is already a `GenerateContentError` the error is returned unchanged.
@@ -365,5 +444,17 @@ public final class GenerativeModel: Sendable {
       return error
     }
     return GenerateContentError.internalError(underlying: error)
+  }
+
+  /// A structure that stores the output of a response call.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public struct Response<Content> {
+    /// The response content.
+    public let content: Content
+
+    /// The raw response content.
+    ///
+    /// When `Content` is `ModelOutput`, this is the same as `content`.
+    public let rawContent: ModelOutput
   }
 }
