@@ -47,7 +47,7 @@ jobs:
   specs_testing:
     needs: specs_checking
     if: ${{ needs.specs_checking.outputs.podspecs != '[]' }}
-    runs-on: macos-14
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.specs_checking.outputs.matrix)}}
@@ -58,6 +58,8 @@ jobs:
       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
         fetch-depth: 0
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Init podspecs and source
       run: |
         mkdir specTestingLogs
