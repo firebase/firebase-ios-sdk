@@ -23,7 +23,7 @@ public struct GenerateContentResponse: Sendable {
     /// The number of tokens in the request prompt.
     public let promptTokenCount: Int
 
-    /// Number of tokens in the cached part of the prompt (the cached content)
+    /// Number of tokens in the cached part of the prompt (including implicit caching).
     public let cachedContentTokenCount: Int
 
     /// The total number of tokens across the generated response candidates.
