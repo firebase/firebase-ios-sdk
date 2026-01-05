@@ -27,7 +27,8 @@ struct ImplicitCacheTests {
   )
 
   @Test(arguments: [
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash), // Vertex does not cache.
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Pro),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
   ])
