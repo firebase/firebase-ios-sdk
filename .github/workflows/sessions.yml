@@ -28,14 +28,14 @@ jobs:
     with:
       target: FirebaseSessionsUnit
 
-  # catalyst:
-  #   uses: ./.github/workflows/common_catalyst.yml
-  #   with:
-  #     product: FirebaseSessions
-  #     target: FirebaseSessions-Unit-unit
+  catalyst:
+    uses: ./.github/workflows/common_catalyst.yml
+    with:
+      product: FirebaseSessions
+      target: FirebaseSessions-Unit-unit
 
-  # pod_lib_lint:
-  #   uses: ./.github/workflows/common_cocoapods.yml
-  #   with:
-  #     product: FirebaseSessions
-  #     supports_swift6: true
+  pod_lib_lint:
+    uses: ./.github/workflows/common_cocoapods.yml
+    with:
+      product: FirebaseSessions
+      supports_swift6: true
