@@ -144,12 +144,9 @@ public struct Tool: Sendable {
 
   /// Creates a tool that allows the model to use Google Maps.
   ///
-  /// - Parameters:
-  ///   - googleMaps: An empty ``GoogleMaps`` object.
-  ///
   /// - Returns: A `Tool` configured for Google Maps.
-  public static func googleMaps(_ googleMaps: GoogleMaps = GoogleMaps()) -> Tool {
-    return self.init(googleMaps: googleMaps)
+  public static func googleMaps() -> Tool {
+    return self.init(googleMaps: GoogleMaps())
   }
 
   /// Creates a tool that allows you to provide additional context to the models in the form of
