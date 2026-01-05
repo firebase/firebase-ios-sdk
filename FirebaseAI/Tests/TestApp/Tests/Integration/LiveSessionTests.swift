@@ -117,7 +117,8 @@ struct LiveSessionTests {
   }
 
   @Test(arguments: arguments)
-  func sendVideoRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig, modelName: String) async throws {
+  func sendVideoRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
+                                                       modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
       generationConfig: generationConfig,
