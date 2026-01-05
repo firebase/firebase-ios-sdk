@@ -89,20 +89,27 @@ public extension ThinkingConfig {
   /// model's "thinking" process.
   struct ThinkingLevel: EncodableProtoEnum, Equatable {
     enum Kind: String {
+      case minimal = "MINIMAL"
       case low = "LOW"
+      case medium = "MEDIUM"
       case high = "HIGH"
     }
 
-    /// A low thinking level optimized for speed and efficiency.
-    ///
-    /// This level is suitable for tasks that are less complex and do not require deep reasoning. It
-    /// provides a faster response time and lower computational cost.
+    /// Use this level when you want to minimize latency, allowing for minimal thought. This
+    /// level is faster than ``low``.
+    public static let minimal = ThinkingLevel(kind: .minimal)
+
+    /// This level is suitable for simpler queries or when speed is the priority. This level is
+    /// faster than ``medium``.
     public static let low = ThinkingLevel(kind: .low)
 
-    /// A high thinking level designed for complex tasks that require deep reasoning and planning.
-    ///
-    /// This level may result in higher quality, more coherent, and accurate responses, but with
-    /// increased latency and computational cost.
+    /// Offers a balanced approach suitable for tasks of moderate complexity that benefit from
+    /// reasoning but don't require deep, multi-step planning. It provides more reasoning
+    /// capability than ``low`` while maintaining lower latency than ``high``.
+    public static let medium = ThinkingLevel(kind: .medium)
+
+    /// Use this level for complex queries where quality is more important than speed. It allows the
+    /// model to engage in deeper reasoning but increases latency.
     public static let high = ThinkingLevel(kind: .high)
 
     var rawValue: String
