@@ -30,6 +30,9 @@ NSString *const kFIRBundleID = @"BUNDLE_ID";
 // The key to locate the project identifier in the plist file.
 NSString *const kFIRProjectID = @"PROJECT_ID";
 
+// The key to locate the excluded library names in the options dictionary.
+NSString *const kFIRExcludedLibraryNames = @"EXCLUDED_LIBRARY_NAMES";
+
 NSString *const kFIRIsMeasurementEnabled = @"IS_MEASUREMENT_ENABLED";
 NSString *const kFIRIsAnalyticsCollectionEnabled = @"FIREBASE_ANALYTICS_COLLECTION_ENABLED";
 NSString *const kFIRIsAnalyticsCollectionDeactivated = @"FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED";
@@ -318,6 +321,15 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 - (void)setAppGroupID:(NSString *)appGroupID {
   [self checkEditingLocked];
   _appGroupID = [appGroupID copy];
+}
+
+- (NSArray<NSString *> *)excludedLibraryNames {
+  return self.optionsDictionary[kFIRExcludedLibraryNames];
+}
+
+- (void)setExcludedLibraryNames:(NSArray<NSString *> *)excludedLibraryNames {
+  [self checkEditingLocked];
+  _optionsDictionary[kFIRExcludedLibraryNames] = [excludedLibraryNames copy];
 }
 
 #pragma mark - Equality

@@ -315,6 +315,13 @@ static FIRApp *sDefaultApp;
   if (self) {
     _name = [name copy];
     _options = [options copy];
+
+    if ([self isAppForARCore:name options:_options]) {
+      NSMutableSet<NSString *> *excluded = [NSMutableSet setWithArray:_options.excludedLibraryNames ?: @[]];
+      [excluded addObject:@"FIRAppCheckComponent"];
+      _options.excludedLibraryNames = [excluded allObjects];
+    }
+
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
     _container = [[FIRComponentContainer alloc] initWithApp:self];
@@ -434,6 +441,24 @@ static FIRApp *sDefaultApp;
 }
 
 #pragma mark - private
+
+- (BOOL)isAppForARCore:(NSString *)appName options:(FIROptions *)options {
+  // First, check if the app name matches that of the one used by ARCore.
+  if ([appName isEqualToString:@"ARCoreFIRApp"]) {
+    // Second, check if the app's gcmSenderID matches that of ARCore. This
+    // prevents false positives in the unlikely event a 3P Firebase app is
+    // named `ARCoreFIRApp`.
+    const char *p1 = "406756";
+    const char *p2 = "893798";
+    const char gcmSenderIDKey[27] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2], p1[3],
+                                     p2[3],  p1[4],  p2[4],  p1[5],  p2[5],  p1[6], p2[6],
+                                     p1[7],  p2[7],  p1[8],  p2[8],  p1[9],  p2[9], p1[10],
+                                     p2[10], p1[11], p2[11], p1[12], p2[12], '\0'};
+    NSString *gcmSenderID = [NSString stringWithUTF8String:gcmSenderIDKey];
+    return [options.GCMSenderID isEqualToString:gcmSenderID];
+  }
+  return NO;
+}
 
 + (void)sendNotificationsToSDKs:(FIRApp *)app {
   // TODO: Remove this notification once all SDKs are registered with `FIRCoreConfigurable`.

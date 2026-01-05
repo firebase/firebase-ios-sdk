@@ -245,4 +245,29 @@
   return container;
 }
 
+- (void)testExcludedComponents {
+  // Create options with excluded component.
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  options.excludedLibraryNames = @[ @"FIRTestClass" ];
+
+  _hostApp = [[FIRApp alloc] initInstanceWithName:@"fake_app_excluded" options:options];
+
+  NSMutableSet<Class> *allRegistrants = [NSMutableSet<Class> set];
+  [FIRComponentContainer registerAsComponentRegistrant:[FIRTestClass class] inSet:allRegistrants];
+  [FIRComponentContainer registerAsComponentRegistrant:[FIRTestClassCached class] inSet:allRegistrants];
+
+  // Initialize container with the app (which has the options).
+  FIRComponentContainer *container = [[FIRComponentContainer alloc] initWithApp:_hostApp registrants:allRegistrants];
+  _hostApp.container = container;
+
+  // FIRTestClass should be excluded, so FIRTestProtocol should not be registered.
+  id<FIRTestProtocol> instance = FIR_COMPONENT(FIRTestProtocol, container);
+  XCTAssertNil(instance, @"Instance should be nil because the component was excluded.");
+
+  // FIRTestClassCached should still be there.
+  id<FIRTestProtocolCached> cachedInstance = FIR_COMPONENT(FIRTestProtocolCached, container);
+  XCTAssertNotNil(cachedInstance, @"Cached instance should not be nil.");
+}
+
 @end

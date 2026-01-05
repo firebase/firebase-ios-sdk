@@ -70,4 +70,9 @@
  */
 @property(nonatomic, getter=isEditingLocked) BOOL editingLocked;
 
+/**
+ * A list of class names to exclude from component registration.
+ */
+@property(nonatomic, copy, nullable) NSArray<NSString *> *excludedLibraryNames;
+
 @end
