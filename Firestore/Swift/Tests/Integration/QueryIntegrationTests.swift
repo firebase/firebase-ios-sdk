@@ -206,6 +206,9 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMultipleInOps() async throws {
+    try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
+                  "Skip this test if running against production.")
+
     let collRef = collectionRef(
       withDocuments: ["doc1": ["a": 1, "b": 0],
                       "doc2": ["b": 1],
