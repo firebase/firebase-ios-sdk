@@ -66,7 +66,7 @@ public struct GoogleSearch: Sendable {
 /// A tool that allows the generative model to use Google Maps data.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GoogleMaps: Sendable {
-  public init() {}
+  init() {}
 }
 
 /// A helper tool that the model may use when generating responses.
