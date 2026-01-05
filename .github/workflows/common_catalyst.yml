@@ -37,7 +37,7 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        timeout_minutes: 15
+        timeout_minutes: 20
         max_attempts: 3
         retry_wait_seconds: 120
         command: |
@@ -45,3 +45,15 @@ jobs:
             ${{ inputs.product }} \
             ${{ inputs.buildonly == true && 'build' || 'test' }} \
             ${{ inputs.target }}
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: ${{ failure() }}
+      with:
+        name: xcodebuild-logs-${{ inputs.target }}-maccatalyst
+        path: xcodebuild-*.log
+        if-no-files-found: error
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: ${{ failure() }}
+      with:
+        name: xcresults-${{ inputs.target }}-maccatalyst
+        path: xcresults/*
+        if-no-files-found: error
