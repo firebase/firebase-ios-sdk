@@ -103,8 +103,9 @@ public extension ThinkingConfig {
     /// faster than ``medium``.
     public static let low = ThinkingLevel(kind: .low)
 
-    /// This is the default level. It balances speed and capability, making it suitable for most
-    /// common tasks.
+    /// Offers a balanced approach suitable for tasks of moderate complexity that benefit from
+    /// reasoning but don't require deep, multi-step planning. It provides more reasoning
+    /// capability than ``low`` while maintaining lower latency than ``high``.
     public static let medium = ThinkingLevel(kind: .medium)
 
     /// Use this level for complex queries where quality is more important than speed. It allows the

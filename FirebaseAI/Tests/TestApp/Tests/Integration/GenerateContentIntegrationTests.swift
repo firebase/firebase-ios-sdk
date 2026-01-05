@@ -234,7 +234,8 @@ struct GenerateContentIntegrationTests {
       #expect(usageMetadata.thoughtsTokenCount > 0)
       #expect(usageMetadata.thoughtsTokenCount <= thinkingBudget)
     } else if let thinkingLevel = thinkingConfig.thinkingLevel {
-      // For Gemini 3, All four levels may be 64 or 68.
+      // For gemini3FlashPreview, repeated runs show that for any of the four
+      // levels, 64 or 68 may be returned.
       let minThoughtTokens = 64
       switch thinkingLevel {
       case .minimal, .low, .medium, .high:
