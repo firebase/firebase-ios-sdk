@@ -23,7 +23,8 @@ public struct GenerateContentResponse: Sendable {
     /// The number of tokens in the request prompt.
     public let promptTokenCount: Int
 
-    /// Number of tokens in the cached part of the prompt (including implicit caching).
+    /// The number of tokens in the prompt that were served from the cache.
+    /// If implicit caching is not active or no content was cached, this will be 0.
     public let cachedContentTokenCount: Int
 
     /// The total number of tokens across the generated response candidates.
@@ -48,10 +49,11 @@ public struct GenerateContentResponse: Sendable {
     /// The breakdown, by modality, of how many tokens are consumed by the prompt.
     public let promptTokensDetails: [ModalityTokenCount]
 
-    /// The breakdown, by modality, of how many tokens are consumed by the cached content
+    /// The breakdown, by modality, of how many tokens are consumed by the cached content.
     public let cacheTokensDetails: [ModalityTokenCount]
 
-    /// The breakdown, by modality, of how many tokens are consumed by the candidates
+    /// Detailed breakdown of the cached tokens by modality (e.g., text, image).
+    /// This list provides granular insight into which parts of the content were cached.
     public let candidatesTokensDetails: [ModalityTokenCount]
 
     /// The breakdown, by modality, of how many tokens were consumed by the tools used to process
