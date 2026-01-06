@@ -1,4 +1,4 @@
-# Unreleased
+# 12.8.0
 - [fixed] Use UIScreen.maximumFramesPerSecond for dynamic slow frame threshold. (#10220)
 
 # 12.5.0
