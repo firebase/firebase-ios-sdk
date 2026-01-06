@@ -34,7 +34,7 @@ public struct JSONSchema: Sendable {
 
   let kind: Kind?
   let source: String?
-  let schema: JSONSchema.Internal?
+  fileprivate let schema: JSONSchema.Internal?
 
   init(kind: Kind, source: String) {
     self.kind = kind
@@ -51,7 +51,7 @@ public struct JSONSchema: Sendable {
     let description: String?
     let isOptional: Bool
     let type: any FirebaseGenerable.Type
-    // TODO: Store `GenerationGuide` values.
+    let guides: AnyGenerationGuides
 
     /// Create a property that contains a generable type.
     ///
@@ -68,6 +68,7 @@ public struct JSONSchema: Sendable {
       self.description = description
       isOptional = false
       self.type = Value.self
+      self.guides = AnyGenerationGuides.combine(guides: guides)
     }
 
     /// Create an optional property that contains a generable type.
@@ -85,6 +86,7 @@ public struct JSONSchema: Sendable {
       self.description = description
       isOptional = true
       self.type = Value.self
+      self.guides = AnyGenerationGuides.combine(guides: guides)
     }
   }
 
@@ -201,7 +203,7 @@ extension JSONSchema: Codable {
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension JSONSchema {
+private extension JSONSchema {
   final class Internal: Sendable {
     let type: JSONSchema.Internal.SchemaType?
     let title: String?
