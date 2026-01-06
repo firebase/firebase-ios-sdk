@@ -1,6 +1,8 @@
-# 12.7.0
+# 12.8.0
 - [feature] Added support for configuring thinking levels with Gemini 3 series
   models and onwards. (#15557)
+
+# 12.7.0
 - [fixed] Fixed support for API keys with iOS+ app
   [Bundle ID restrictions](https://docs.cloud.google.com/docs/authentication/api-keys#adding-application-restrictions)
   by setting the `x-ios-bundle-identifier` header. (#15475)
