@@ -20,10 +20,7 @@ import PackageDescription
 
 let firebaseVersion = "12.8.0"
 
-// For private preview, Firestore must be built from source.
-let shouldUseSourceFirestore = true
-// Remove the above and uncomment the line below before merging Firestore to main.
-// let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
+let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
 let package = Package(
   name: "Firebase",
