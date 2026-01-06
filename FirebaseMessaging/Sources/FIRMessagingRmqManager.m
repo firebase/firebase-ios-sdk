@@ -531,10 +531,11 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                                @"Could not open RMQ database at path: %@. "
                                 "Will delete and try to recreate it.",
                                path);
-NSError *removeError;
-if (![[NSFileManager defaultManager] removeItemAtPath:path error:&removeError]) {
-    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase, @"Failed to delete corrupt database at %@: %@", path, removeError);
-}
+        NSError *removeError;
+        if (![[NSFileManager defaultManager] removeItemAtPath:path error:&removeError]) {
+          FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
+                                 @"Failed to delete corrupt database at %@: %@", path, removeError);
+        }
         // After deleting, try to open it again.
         result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
         // If it still fails after the recovery attempt, then assert and crash.
