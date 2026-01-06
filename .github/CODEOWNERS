@@ -1,1 +1,2 @@
-Package.swift @firebase-ios-sdk-admin
+Package.swift @firebase/firebase-ios-sdk-admin
+
