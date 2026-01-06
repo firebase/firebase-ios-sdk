@@ -489,6 +489,12 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   });
 }
 
+- (void)createTable {
+  [self createTableWithName:kTableOutgoingRmqMessages command:kCreateTableOutgoingRmqMessages];
+  [self createTableWithName:kTableLastRmqId command:kCreateTableLastRmqId];
+  [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
+}
+
 - (void)openDatabase {
   dispatch_async(_databaseOperationQueue, ^{
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -512,10 +518,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
         NSAssert(NO, errorMessage);
         return;
       }
-      [self createTableWithName:kTableOutgoingRmqMessages command:kCreateTableOutgoingRmqMessages];
-
-      [self createTableWithName:kTableLastRmqId command:kCreateTableLastRmqId];
-      [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
+      [self createTable];
     } else {
       // The file exists, try to open it. If it fails, it might be corrupt.
       int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
@@ -551,10 +554,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
         } else {
           // Successfully recreated after corruption, so treat as a new database for table creation.
           didOpenDatabase = YES;  // Indicate successful opening after recreation.
-          [self createTableWithName:kTableOutgoingRmqMessages
-                            command:kCreateTableOutgoingRmqMessages];
-          [self createTableWithName:kTableLastRmqId command:kCreateTableLastRmqId];
-          [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
+          [self createTable];
         }
       } else {
         [self updateDBWithStringRmqID];
