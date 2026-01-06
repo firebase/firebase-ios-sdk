@@ -68,7 +68,7 @@ extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOu
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Bool: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
-    JSONSchema(kind: .boolean, source: "Bool")
+    JSONSchema(kind: .boolean(description: nil), source: "Bool")
   }
 
   public init(_ content: ModelOutput) throws {
@@ -86,7 +86,10 @@ extension Bool: FirebaseGenerable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension String: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
-    JSONSchema(kind: .string, source: "String")
+    JSONSchema(
+      kind: .string(name: nil, description: nil, guides: StringGuides()),
+      source: "String"
+    )
   }
 
   public init(_ content: ModelOutput) throws {
@@ -104,7 +107,7 @@ extension String: FirebaseGenerable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Int: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
-    JSONSchema(kind: .integer, source: "Int")
+    JSONSchema(kind: .integer(description: nil, guides: IntegerGuides()), source: "Int")
   }
 
   public init(_ content: ModelOutput) throws {
@@ -122,7 +125,7 @@ extension Int: FirebaseGenerable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Float: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
-    JSONSchema(kind: .double, source: "Number")
+    JSONSchema(kind: .double(description: nil, guides: DoubleGuides()), source: "Number")
   }
 
   public init(_ content: ModelOutput) throws {
@@ -140,7 +143,7 @@ extension Float: FirebaseGenerable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Double: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
-    JSONSchema(kind: .double, source: "Number")
+    JSONSchema(kind: .double(description: nil, guides: DoubleGuides()), source: "Number")
   }
 
   public init(_ content: ModelOutput) throws {
@@ -158,7 +161,7 @@ extension Double: FirebaseGenerable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Decimal: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
-    JSONSchema(kind: .double, source: "Number")
+    JSONSchema(kind: .double(description: nil, guides: DoubleGuides()), source: "Number")
   }
 
   public init(_ content: ModelOutput) throws {
@@ -180,7 +183,10 @@ extension Array: FirebaseGenerable where Element: FirebaseGenerable {
   // public typealias PartiallyGenerated = [Element.PartiallyGenerated]
 
   public static var jsonSchema: JSONSchema {
-    JSONSchema(kind: .array(item: Element.self), source: String(describing: self))
+    JSONSchema(
+      kind: .array(description: nil, item: Element.self, guides: ArrayGuides()),
+      source: String(describing: self)
+    )
   }
 }
 

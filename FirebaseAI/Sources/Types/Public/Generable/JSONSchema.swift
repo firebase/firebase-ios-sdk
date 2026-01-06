@@ -24,12 +24,13 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct JSONSchema: Sendable {
   enum Kind: Sendable {
-    case string
-    case integer
-    case double
-    case boolean
-    case array(item: any FirebaseGenerable.Type)
+    case string(name: String?, description: String?, guides: StringGuides)
+    case integer(description: String?, guides: IntegerGuides)
+    case double(description: String?, guides: DoubleGuides)
+    case boolean(description: String?)
+    case array(description: String?, item: any FirebaseGenerable.Type, guides: ArrayGuides)
     case object(name: String, description: String?, properties: [Property])
+    case anyOf(name: String, description: String?, types: [any FirebaseGenerable.Type])
   }
 
   let kind: Kind?
@@ -63,7 +64,6 @@ public struct JSONSchema: Sendable {
     ///   - guides: A list of guides to apply to this property.
     public init<Value>(name: String, description: String? = nil, type: Value.Type,
                        guides: [GenerationGuide<Value>] = []) where Value: FirebaseGenerable {
-      precondition(guides.isEmpty, "GenerationGuide support is not yet implemented.")
       self.name = name
       self.description = description
       isOptional = false
@@ -81,7 +81,6 @@ public struct JSONSchema: Sendable {
     ///   - guides: A list of guides to apply to this property.
     public init<Value>(name: String, description: String? = nil, type: Value?.Type,
                        guides: [GenerationGuide<Value>] = []) where Value: FirebaseGenerable {
-      precondition(guides.isEmpty, "GenerationGuide support is not yet implemented.")
       self.name = name
       self.description = description
       isOptional = true
@@ -112,7 +111,10 @@ public struct JSONSchema: Sendable {
   ///   - anyOf: The allowed choices.
   public init(type: any FirebaseGenerable.Type, description: String? = nil,
               anyOf choices: [String]) {
-    fatalError("`GenerationSchema.init(type:description:anyOf:)` is not implemented.")
+    let name = String(describing: type)
+    kind = .string(name: name, description: description, guides: StringGuides(anyOf: choices))
+    source = name
+    schema = nil
   }
 
   /// Creates a schema as the union of several other types.
@@ -123,7 +125,10 @@ public struct JSONSchema: Sendable {
   ///   - anyOf: The types this schema should be a union of.
   public init(type: any FirebaseGenerable.Type, description: String? = nil,
               anyOf types: [any FirebaseGenerable.Type]) {
-    fatalError("`GenerationSchema.init(type:description:anyOf:)` is not implemented.")
+    let name = String(describing: type)
+    kind = .anyOf(name: name, description: description, types: types)
+    source = name
+    schema = nil
   }
 
   /// A error that occurs when there is a problem creating a JSON schema.
