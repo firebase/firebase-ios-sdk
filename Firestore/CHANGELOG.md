@@ -1,4 +1,4 @@
-# Unreleased
+# 12.8.0
 - [fixed] Fix crash while fetching Auth and App Check tokens. (#15281)
 - [feature] `Pipeline` support is now available for the `Enterprise edition` as a public review feature. (#15625)
 - [fixed] Fixed an issue where the returned object in transaction blocks could not
