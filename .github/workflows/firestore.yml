@@ -377,7 +377,7 @@ jobs:
 
     - name: Build and test
       run: |
-        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+        BACKEND_EDITION="enterprise" scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
   pod_lib_lint:
     needs: check
