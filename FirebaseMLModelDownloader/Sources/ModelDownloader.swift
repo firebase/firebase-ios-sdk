@@ -373,7 +373,7 @@ extension ModelDownloader {
       projectID: projectID,
       apiKey: apiKey,
       appName: appName, installations: installations,
-      localModelInfo: localModelInfo,
+      localModelInfo: localModelInfo
     )
     let downloader = ModelFileDownloader(conditions: conditions)
     downloadInfoAndModel(
