@@ -305,6 +305,7 @@ public class ModelDownloader {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.ErrorDescription.modelDeletionFailed(error),
                             messageCode: .modelDeletionFailed)
+      asyncOnMainQueue(completion(.failure(error)))
     } catch {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.ErrorDescription.modelDeletionFailed(error),
