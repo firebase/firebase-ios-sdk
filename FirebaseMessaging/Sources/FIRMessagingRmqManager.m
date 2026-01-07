@@ -538,7 +538,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
           NSError *removeError;
           if (![[NSFileManager defaultManager] removeItemAtPath:path error:&removeError]) {
             FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
-                                   @"Failed to delete corrupt database at %@: %@", path,
+                                   @"Failed to delete database for recovery at %@: %@", path,
                                    removeError);
           }
           // After deleting, try to open it again.
@@ -554,7 +554,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
             NSAssert(NO, errorMessage);
             didOpenDatabase = NO;  // Still failed, so indicate database did not open.
           } else {
-            // Successfully recreated after corruption, so treat as a new database for table
+            // Successfully recreated after an open failure, so treat as a new database for table
             // creation.
             didOpenDatabase = YES;  // Indicate successful opening after recreation.
             [self createTable];
