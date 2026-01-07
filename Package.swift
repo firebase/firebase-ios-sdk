@@ -20,10 +20,7 @@ import PackageDescription
 
 let firebaseVersion = "12.8.0"
 
-// For private preview, Firestore must be built from source.
-let shouldUseSourceFirestore = true
-// Remove the above and uncomment the line below before merging Firestore to main.
-// let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
+let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
 let package = Package(
   name: "Firebase",
@@ -139,10 +136,6 @@ let package = Package(
     .package(
       url: "https://github.com/google/promises.git",
       "2.4.0" ..< "3.0.0"
-    ),
-    .package(
-      url: "https://github.com/apple/swift-protobuf.git",
-      "1.19.0" ..< "2.0.0"
     ),
     googleAppMeasurementDependency(),
     .package(
@@ -820,17 +813,9 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseInstallations",
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-        .product(name: "SwiftProtobuf", package: "swift-protobuf"),
       ],
       path: "FirebaseMLModelDownloader/Sources",
-      exclude: [
-        "proto/firebase_ml_log_sdk.proto",
-      ],
-      cSettings: [
-        .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -1606,8 +1591,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.4.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "58b916624c01a56c5de694cfc9c5cc7aabcafb13b54e7bde8c83bacc51a3460d"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.8.0/pre_rc0/FirebaseFirestoreInternal.zip",
+        checksum: "4f8bb4fe4f6c7cb82712d59d0ea305787e0d6104391273903a39b5045a4b53cc"
       )
     }
   }()

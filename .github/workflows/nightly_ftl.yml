@@ -13,6 +13,9 @@ on:
     - '.github/workflows/nightly_ftl.yml'
     - 'Gemfile*'
 
+env:
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+
 jobs:
   ftl_test:
     if: github.repository == 'Firebase/firebase-ios-sdk'
