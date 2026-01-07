@@ -11,6 +11,7 @@
 		86E8505D2DBAFBC3002E8D94 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */; };
 		86E8505F2DBAFBC3002E8D94 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */; };
 		86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 86E850602DBAFBC3002E8D94 /* FirebaseStorage */; };
+		86EE4EC22F0EFA0A0049C269 /* JSONSchemaBuilder in Frameworks */ = {isa = PBXBuildFile; productRef = 86EE4EC12F0EFA0A0049C269 /* JSONSchemaBuilder */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +67,7 @@
 			files = (
 				86E8505D2DBAFBC3002E8D94 /* FirebaseAppCheck in Frameworks */,
 				86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */,
+				86EE4EC22F0EFA0A0049C269 /* JSONSchemaBuilder in Frameworks */,
 				86E8505F2DBAFBC3002E8D94 /* FirebaseAuth in Frameworks */,
 				86E8505B2DBAFBC3002E8D94 /* FirebaseAI in Frameworks */,
 			);
@@ -87,6 +89,7 @@
 				863E93E02EC69A9500BE4F4E /* Sources */,
 				863E93F42EC69AB100BE4F4E /* Tests */,
 				863E94072EC69AF000BE4F4E /* Resources */,
+				86EE4EBC2F0EF9500049C269 /* Frameworks */,
 				866138592CC943DD00F4B78E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -98,6 +101,13 @@
 				866138692CC943DE00F4B78E /* IntegrationTests-SPM.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		86EE4EBC2F0EF9500049C269 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -125,6 +135,7 @@
 				86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */,
 				86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */,
 				86E850602DBAFBC3002E8D94 /* FirebaseStorage */,
+				86EE4EC12F0EFA0A0049C269 /* JSONSchemaBuilder */,
 			);
 			productName = FirebaseAITestApp;
 			productReference = 866138582CC943DD00F4B78E /* FirebaseAITestApp-SPM.app */;
@@ -182,6 +193,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				86E850592DBAFBC3002E8D94 /* XCLocalSwiftPackageReference "../../.." */,
+				86EE4EB92F0EF8450049C269 /* XCRemoteSwiftPackageReference "swift-json-schema" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 866138592CC943DD00F4B78E /* Products */;
@@ -375,10 +387,10 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseAITestApp;
 				PRODUCT_MODULE_NAME = FirebaseAITestApp;
@@ -413,10 +425,10 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseAITestApp;
 				PRODUCT_MODULE_NAME = FirebaseAITestApp;
@@ -437,8 +449,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseAITestAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -459,8 +471,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseAITestAppTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -512,6 +524,17 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		86EE4EB92F0EF8450049C269 /* XCRemoteSwiftPackageReference "swift-json-schema" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ajevans99/swift-json-schema.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.11.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		86E8505A2DBAFBC3002E8D94 /* FirebaseAI */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -528,6 +551,11 @@
 		86E850602DBAFBC3002E8D94 /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseStorage;
+		};
+		86EE4EC12F0EFA0A0049C269 /* JSONSchemaBuilder */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 86EE4EB92F0EF8450049C269 /* XCRemoteSwiftPackageReference "swift-json-schema" */;
+			productName = JSONSchemaBuilder;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -18,6 +18,64 @@ import Foundation
 /// requests to the backend model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerationConfig: Sendable {
+  public struct ResponseFormat: Sendable {
+    let responseMIMEType: String?
+    let jsonSchema: JSONObject?
+    let openAPISchema: Schema?
+
+    init(responseMIMEType: String? = nil, jsonSchema: JSONObject? = nil,
+         openAPISchema: Schema? = nil) {
+      self.responseMIMEType = responseMIMEType
+      self.jsonSchema = jsonSchema
+      self.openAPISchema = openAPISchema
+    }
+
+    /// Return model responses as JSON following the specified JSON Schema.
+    ///
+    /// > Important: ``JSONObject`` is a placeholder type that would be replaced in a real
+    /// >                   implementation. The existing ``Schema`` type could potentially be
+    /// >                   modified to encode in JSON Schema format instead.
+    public static func json(schema: JSONObject) -> GenerationConfig.ResponseFormat {
+      self.init(responseMIMEType: "application/json", jsonSchema: schema)
+    }
+
+    /// Return model responses as JSON following the specified JSON Schema.
+    public static func json(schema: String) throws -> GenerationConfig.ResponseFormat {
+      let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: schema.data(using: .utf8)!)
+      return self.init(responseMIMEType: "application/json", jsonSchema: jsonSchema)
+    }
+
+    /// Return model responses as JSON following the specified OpenAPI Schema.
+    public static func json(schema: Schema) -> GenerationConfig.ResponseFormat {
+      self.init(responseMIMEType: "application/json", openAPISchema: schema)
+    }
+
+    /// Return model responses as JSON following the specified JSON Schema.
+    ///
+    /// The `schema` type must represent a JSON Schema, e.g., `GenerationSchema` from the Apple
+    /// Foundation Models framework.
+    public static func json(schema: any Encodable) throws -> GenerationConfig.ResponseFormat {
+      let schemaData = try JSONEncoder().encode(schema)
+      let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: schemaData)
+      return self.init(responseMIMEType: "application/json", jsonSchema: jsonSchema)
+    }
+
+    /// Return model responses as JSON representing the specified `FirebaseGenerable` type.
+    // public static func json(generating: FirebaseGenerable.Type)
+    //   -> GenerationConfig.ResponseFormat {
+    //   // TODO: Implement Me
+    // }
+
+    /// Return model responses as single plain-text enum values from the specified list.
+    public static func textEnum(description: String? = nil,
+                                anyOf: [String]) -> GenerationConfig.ResponseFormat {
+      return self.init(
+        responseMIMEType: "text/x.enum",
+        openAPISchema: Schema.enumeration(values: anyOf, description: description)
+      )
+    }
+  }
+
   /// Controls the degree of randomness in token selection.
   let temperature: Float?
 
@@ -181,6 +239,28 @@ public struct GenerationConfig: Sendable {
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
     responseJSONSchema = nil
+    self.responseModalities = responseModalities
+    self.thinkingConfig = thinkingConfig
+  }
+
+  public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
+              candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
+              presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
+              stopSequences: [String]? = nil, responseFormat: ResponseFormat,
+              responseModalities: [ResponseModality]? = nil,
+              thinkingConfig: ThinkingConfig? = nil) {
+    self.temperature = temperature
+    self.topP = topP
+    self.topK = topK
+    self.candidateCount = candidateCount
+    self.maxOutputTokens = maxOutputTokens
+    self.presencePenalty = presencePenalty
+    self.frequencyPenalty = frequencyPenalty
+    self.stopSequences = stopSequences
+    responseMIMEType = responseFormat.responseMIMEType
+    responseSchema = responseFormat.openAPISchema
+    responseJSONSchema = responseFormat.jsonSchema
+    // TODO: Consider how `responseModalities` could fit into `ResponseFormat` instead.
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
   }
