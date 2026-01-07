@@ -42,7 +42,6 @@ Pod::Spec.new do |s|
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
 
   s.pod_target_xcconfig = {
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRMLModelDownloader_VERSION=' + s.version.to_s,
     'OTHER_CFLAGS' => '-fno-autolink',
   }
 

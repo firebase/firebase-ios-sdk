@@ -816,9 +816,6 @@ let package = Package(
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseMLModelDownloader/Sources",
-      cSettings: [
-        .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
