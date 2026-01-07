@@ -47,6 +47,10 @@ final class AnyGenerationGuides: Sendable {
 struct StringGuides: Sendable {
   let anyOf: [String]?
 
+  init(anyOf: [String]? = nil) {
+    self.anyOf = anyOf
+  }
+
   static func combine(_ guides: [StringGuides]) -> StringGuides? {
     guard !guides.isEmpty else { return nil }
     var combinedAnyOf: Set<String>?
@@ -69,6 +73,11 @@ struct StringGuides: Sendable {
 struct IntegerGuides: Sendable {
   let minimum: Int?
   let maximum: Int?
+
+  init(minimum: Int? = nil, maximum: Int? = nil) {
+    self.minimum = minimum
+    self.maximum = maximum
+  }
 
   static func combine(_ guides: [IntegerGuides]) -> IntegerGuides? {
     guard !guides.isEmpty else { return nil }
@@ -93,6 +102,11 @@ struct DoubleGuides: Sendable {
   let minimum: Double?
   let maximum: Double?
 
+  init(minimum: Double? = nil, maximum: Double? = nil) {
+    self.minimum = minimum
+    self.maximum = maximum
+  }
+
   static func combine(_ guides: [DoubleGuides]) -> DoubleGuides? {
     guard !guides.isEmpty else { return nil }
     var minimum: Double?
@@ -116,6 +130,12 @@ struct ArrayGuides: Sendable {
   let minimumCount: Int?
   let maximumCount: Int?
   let element: AnyGenerationGuides?
+
+  init(minimumCount: Int? = nil, maximumCount: Int? = nil, element: AnyGenerationGuides? = nil) {
+    self.minimumCount = minimumCount
+    self.maximumCount = maximumCount
+    self.element = element
+  }
 
   static func combine(_ guides: [ArrayGuides]) -> ArrayGuides? {
     guard !guides.isEmpty else { return nil }
