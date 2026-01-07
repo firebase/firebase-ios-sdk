@@ -137,10 +137,6 @@ let package = Package(
       url: "https://github.com/google/promises.git",
       "2.4.0" ..< "3.0.0"
     ),
-    .package(
-      url: "https://github.com/apple/swift-protobuf.git",
-      "1.19.0" ..< "2.0.0"
-    ),
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
@@ -817,17 +813,9 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseInstallations",
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-        .product(name: "SwiftProtobuf", package: "swift-protobuf"),
       ],
       path: "FirebaseMLModelDownloader/Sources",
-      exclude: [
-        "proto/firebase_ml_log_sdk.proto",
-      ],
-      cSettings: [
-        .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
