@@ -530,31 +530,46 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
       // If opening the database failed, it might be corrupt. Try to recover by deleting and
       // recreating it.
       if (result != SQLITE_OK) {
-        FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
-                               @"Could not open RMQ database at path: %@. "
-                                "Will delete and try to recreate it.",
-                               path);
-        NSError *removeError;
-        if (![[NSFileManager defaultManager] removeItemAtPath:path error:&removeError]) {
-          FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
-                                 @"Failed to delete corrupt database at %@: %@", path, removeError);
-        }
-        // After deleting, try to open it again.
-        result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
-        // If it still fails after the recovery attempt, then assert and crash.
-        if (result != SQLITE_OK) {
+        if (result == SQLITE_CANTOPEN) {
+          FIRMessagingLoggerWarn(
+              kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
+              @"Could not open RMQ database at path: %@. Will delete and try to recreate it.",
+              path);
+          NSError *removeError;
+          if (![[NSFileManager defaultManager] removeItemAtPath:path error:&removeError]) {
+            FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
+                                   @"Failed to delete database for recovery at %@: %@", path,
+                                   removeError);
+          }
+          // After deleting, try to open it again.
+          result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
+          // If it still fails after the recovery attempt, then assert and crash.
+          if (result != SQLITE_OK) {
+            NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
+            NSString *errorMessage = [NSString
+                stringWithFormat:@"Could not open or create RMQ database at path %@, error: %@",
+                                 path, errorString];
+            FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
+                                    @"%@", errorMessage);
+            NSAssert(NO, errorMessage);
+            didOpenDatabase = NO;  // Still failed, so indicate database did not open.
+          } else {
+            // Successfully recreated after an open failure, so treat as a new database for table
+            // creation.
+            didOpenDatabase = YES;  // Indicate successful opening after recreation.
+            [self createTable];
+          }
+        } else {
           NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
-          NSString *errorMessage = [NSString
-              stringWithFormat:@"Could not open or create RMQ database at path %@, error: %@", path,
-                               errorString];
+          NSString *errorMessage =
+              [NSString stringWithFormat:
+                            @"Could not open RMQ database at path %@, error: %@. Won't delete the "
+                            @"database as it is not a corrupt database error.",
+                            path, errorString];
           FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
                                   @"%@", errorMessage);
           NSAssert(NO, errorMessage);
           didOpenDatabase = NO;  // Still failed, so indicate database did not open.
-        } else {
-          // Successfully recreated after corruption, so treat as a new database for table creation.
-          didOpenDatabase = YES;  // Indicate successful opening after recreation.
-          [self createTable];
         }
       } else {
         [self updateDBWithStringRmqID];
