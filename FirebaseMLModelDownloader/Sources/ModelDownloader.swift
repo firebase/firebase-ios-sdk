@@ -476,7 +476,7 @@ extension ModelDownloader {
                 defaults: self.userDefaults,
                 downloader: downloader,
                 progressHandler: taskProgressHandler,
-                completion: taskCompletion,
+                completion: taskCompletion
               )
               // Keep track of current download task to allow for merging duplicate requests.
               self.currentDownloadTask[modelName] = downloadTask
