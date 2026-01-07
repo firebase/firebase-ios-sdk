@@ -175,6 +175,64 @@ public struct JSONSchema: Sendable {
     /// A suggestion that indicates how to handle the error.
     public var recoverySuggestion: String? { nil }
   }
+
+  func asGeminiJSONSchema() throws -> JSONObject {
+    let jsonRepresentation = try JSONEncoder().encode(self)
+    return try JSONDecoder().decode(JSONObject.self, from: jsonRepresentation)
+  }
+
+  private func makeInternal() throws -> Internal {
+    if let schema {
+      return schema
+    }
+    guard let kind else {
+      fatalError("JSONSchema must have either `schema` or `kind`.")
+    }
+    return try kind.makeInternal()
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema.Kind {
+  func makeInternal() throws -> JSONSchema.Internal {
+    switch self {
+    case .string:
+      return JSONSchema.Internal(type: .string)
+    case .integer:
+      return JSONSchema.Internal(type: .integer)
+    case .double:
+      return JSONSchema.Internal(type: .number)
+    case .boolean:
+      return JSONSchema.Internal(type: .boolean)
+    case let .array(item):
+      // Recursive call for array items
+      return try JSONSchema.Internal(type: .array, items: item.jsonSchema.makeInternal())
+    case let .object(name, description, properties):
+      var internalProperties: [String: JSONSchema.Internal] = [:]
+      for property in properties {
+        guard internalProperties[property.name] == nil else {
+          throw JSONSchema.SchemaError.duplicateProperty(
+            schema: name,
+            property: property.name,
+            context: .init(
+              debugDescription: "Duplicate property name '\(property.name)' in schema for '\(name)'."
+            )
+          )
+        }
+        internalProperties[property.name] = try property.type.jsonSchema.makeInternal()
+      }
+      let required = properties.compactMap { $0.isOptional ? nil : $0.name }
+      let order = properties.map { $0.name }
+      return JSONSchema.Internal(
+        type: .object,
+        title: name,
+        description: description,
+        properties: internalProperties,
+        required: required.isEmpty ? nil : required,
+        order: order
+      )
+    }
+  }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -187,11 +245,8 @@ extension JSONSchema: Codable {
   }
 
   public func encode(to encoder: any Encoder) throws {
-    // TODO: Encode from `kind` and remove `schema` property.
-    guard let schema else {
-      fatalError("Cannot encode JSONSchema without an internal representation.")
-    }
-    try schema.encode(to: encoder)
+    let schemaToEncode = try makeInternal()
+    try schemaToEncode.encode(to: encoder)
   }
 }
 
