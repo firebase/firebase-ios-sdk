@@ -816,9 +816,6 @@ let package = Package(
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseMLModelDownloader/Sources",
-      exclude: [
-        "proto/firebase_ml_log_sdk.proto",
-      ],
       cSettings: [
         .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
       ],
