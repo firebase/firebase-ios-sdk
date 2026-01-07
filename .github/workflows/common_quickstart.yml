@@ -68,6 +68,7 @@ jobs:
     env:
       plist_secret: ${{ secrets.plist_secret }}
       QUICKSTART_BRANCH: ${{ inputs.quickstart_branch }}
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-15
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
