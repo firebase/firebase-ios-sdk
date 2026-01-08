@@ -31,6 +31,7 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
+  FirestoreEnterprise
   CombineSwift
   InAppMessaging
   Messaging
@@ -364,6 +365,18 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         test
     ;;
+
+  FirestoreEnterprise-*-xcodebuild)
+      "${firestore_emulator}" start
+      trap '"${firestore_emulator}" stop' ERR EXIT
+
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
+          -enableCodeCoverage YES \
+          "${xcb_flags[@]}" \
+          test
+      ;;
 
   Firestore-macOS-cmake | Firestore-Linux-cmake)
     "${firestore_emulator}" start
