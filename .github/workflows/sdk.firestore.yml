@@ -84,7 +84,7 @@ jobs:
               - '.github/workflows/sdk.firestore.yml'
 
               # Workflows this one depends on.
-              - '.github/workflows/_common.yml'
+              - '.github/workflows/_spm.yml'
               - '.github/workflows/_cocoapods.yml'
 
               # Rebuild on Ruby infrastructure changes.
@@ -502,7 +502,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestore
       platforms: iOS

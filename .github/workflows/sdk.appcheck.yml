@@ -9,7 +9,7 @@ on:
     paths:
     - 'FirebaseAppCheck**'
     - '.github/workflows/sdk.appcheck.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_cocoapods.cron.yml'
@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         target: [FirebaseAppCheckUnit, FirebaseAppCheckUnitSwift]
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
 

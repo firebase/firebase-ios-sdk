@@ -5,7 +5,7 @@ on:
     paths:
     - 'FirebaseAI**'
     - '.github/workflows/sdk.ai.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - 'scripts/build.sh'
     - 'scripts/quickstart_build_spm.sh'
@@ -31,7 +31,7 @@ jobs:
     strategy:
       matrix:
         target: [FirebaseAILogicUnit, FirebaseAIUnit]
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
       setup_command: scripts/update_vertexai_responses.sh

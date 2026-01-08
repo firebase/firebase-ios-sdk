@@ -10,7 +10,7 @@ on:
     - 'FirebaseRemoteConfig**'
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/sdk.remoteconfig.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -28,12 +28,12 @@ concurrency:
 
 jobs:
   spm_1:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: RemoteConfigUnit
 
   spm_2:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: RemoteConfigFakeConsole
       buildonly_platforms: watchOS

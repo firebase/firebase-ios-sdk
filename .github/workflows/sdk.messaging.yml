@@ -16,7 +16,7 @@ on:
     # This file
     - '.github/workflows/sdk.messaging.yml'
     # Re-usable workflows being used by this file.
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: MessagingUnit
       buildonly_platforms: tvOS, macOS, watchOS, catalyst, visionOS

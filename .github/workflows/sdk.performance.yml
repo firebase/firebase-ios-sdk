@@ -16,7 +16,7 @@ on:
     # YML configuration file
     - '.github/workflows/sdk.performance.yml'
     # Re-usable workflows depended on by this file.
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -34,7 +34,7 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: PerformanceUnit
       platforms: iOS, tvOS

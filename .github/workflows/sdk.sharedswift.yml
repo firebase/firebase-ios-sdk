@@ -9,7 +9,7 @@ on:
     paths:
     - 'FirebaseSharedSwift**'
     - '.github/workflows/sdk.sharedswift.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - 'Gemfile*'
 
@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseSharedSwiftTests
 

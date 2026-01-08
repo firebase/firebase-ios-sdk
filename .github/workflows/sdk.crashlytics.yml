@@ -10,7 +10,7 @@ on:
     - 'Crashlytics**'
     - 'FirebaseCrashlytics.podspec'
     - '.github/workflows/sdk.crashlytics.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -27,7 +27,7 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseCrashlyticsUnit
       is_nightly: ${{ github.event_name == 'schedule' }}

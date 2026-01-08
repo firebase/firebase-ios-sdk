@@ -13,7 +13,7 @@ on:
     - 'Example/Database/**'
     - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/sdk.database.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         target: [DatabaseUnit, DatabaseUnitSwift]
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
 

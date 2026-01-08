@@ -1,4 +1,4 @@
-name: _common
+name: _spm
 
 permissions:
   contents: read

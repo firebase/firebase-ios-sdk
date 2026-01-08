@@ -9,7 +9,7 @@ on:
     paths:
     - 'FirebaseInstallations**'
     - '.github/workflows/sdk.installations.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseInstallations
       buildonly_platforms: all

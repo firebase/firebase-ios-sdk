@@ -10,7 +10,7 @@ on:
     - 'FirebaseFunctions**'
     - 'FirebaseSharedSwift**'
     - '.github/workflows/sdk.functions.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_cocoapods.cron.yml'
     - 'FirebaseAuth/Interop/*.h'
@@ -37,7 +37,7 @@ jobs:
       setup_command: FirebaseFunctions/Backend/start.sh synchronous
 
   spm-integration:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     strategy:
       matrix:
         target: [FirebaseFunctionsIntegration, FirebaseFunctionsObjCIntegration, FunctionsCombineUnit]
@@ -47,7 +47,7 @@ jobs:
       setup_command: FirebaseFunctions/Backend/start.sh synchronous
 
   spm-unit:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFunctionsUnit
 

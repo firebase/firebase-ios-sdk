@@ -10,7 +10,7 @@ on:
     - 'FirebaseCoreExtension.podspec'
     - 'FirebaseCore/Extension/**'
     - '.github/workflows/sdk.core.extension.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'

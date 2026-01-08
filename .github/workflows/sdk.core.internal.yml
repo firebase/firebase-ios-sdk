@@ -10,7 +10,7 @@ on:
     - 'FirebaseCoreInternal.podspec'
     - 'FirebaseCore/Internal/**'
     - '.github/workflows/sdk.core.internal.yml'
-    - '.github/workflows/_common.yml'
+    - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_cocoapods.cron.yml'
@@ -21,7 +21,7 @@ on:
 
 jobs:
   spm:
-    uses: ./.github/workflows/_common.yml
+    uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseCoreInternalTests
 
