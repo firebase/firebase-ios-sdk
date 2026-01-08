@@ -12,9 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAILogic
 import FirebaseAppCheck
 import FirebaseCore
 import SwiftUI
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
+
+#if canImport(FoundationModels)
+  @Generable
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  struct Person: FirebaseGenerable {
+    let firstName: String
+    let middleName: String?
+    let lastName: String
+    let age: Int
+  }
+#endif // canImport(FoundationModels)
 
 @main
 struct TestApp: App {
@@ -33,6 +50,20 @@ struct TestApp: App {
 
     // Configure a Firebase App without a billing account (i.e., the "Spark" plan).
     FirebaseApp.configure(appName: FirebaseAppNames.spark, plistName: "GoogleService-Info-Spark")
+
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, *) {
+        let schemaJSONData: Data
+        do {
+          schemaJSONData = try JSONEncoder().encode(Person.jsonSchema)
+          if let schemaJSON = String(data: schemaJSONData, encoding: .utf8) {
+            print("Person Schema: \(schemaJSON)")
+          }
+        } catch {
+          print(error)
+        }
+      }
+    #endif // canImport(FoundationModels)
   }
 
   var body: some Scene {
