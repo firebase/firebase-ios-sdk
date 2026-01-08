@@ -1,4 +1,4 @@
-name: common
+name: _common
 
 permissions:
   contents: read

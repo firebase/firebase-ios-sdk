@@ -1,4 +1,4 @@
-name: appdistribution
+name: sdk.appdistribution
 
 permissions:
   contents: read

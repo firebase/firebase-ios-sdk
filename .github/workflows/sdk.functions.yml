@@ -1,4 +1,4 @@
-name: functions
+name: sdk.functions
 
 permissions:
   contents: read

@@ -1,4 +1,4 @@
-name: watchos-sample
+name: infra.samples.watchos
 
 on:
   workflow_dispatch:

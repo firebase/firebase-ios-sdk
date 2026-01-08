@@ -1,4 +1,4 @@
-name: core
+name: sdk.core
 
 permissions:
   contents: read

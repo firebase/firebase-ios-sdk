@@ -1,4 +1,4 @@
-name: firebase_app_check
+name: sdk.appcheck
 
 permissions:
   contents: read

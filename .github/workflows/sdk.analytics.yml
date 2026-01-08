@@ -1,4 +1,4 @@
-name: analytics
+name: sdk.analytics
 
 on:
   workflow_dispatch:

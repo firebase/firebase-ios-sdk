@@ -1,4 +1,4 @@
-name: firebaseai
+name: sdk.ai
 
 on:
   pull_request:

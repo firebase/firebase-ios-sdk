@@ -1,4 +1,4 @@
-name: database
+name: sdk.database
 
 permissions:
   contents: read

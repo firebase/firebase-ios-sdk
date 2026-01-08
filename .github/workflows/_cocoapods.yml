@@ -1,4 +1,4 @@
-name: common_cocoapods
+name: _cocoapods
 
 permissions:
   contents: read

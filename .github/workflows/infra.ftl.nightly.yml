@@ -1,4 +1,4 @@
-name: nightly_ftl
+name: infra.ftl.nightly
 
 permissions:
   contents: read

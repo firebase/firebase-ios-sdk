@@ -1,4 +1,4 @@
-name: health-metrics-presubmit
+name: infra.health_metrics
 
 on:
   workflow_dispatch:

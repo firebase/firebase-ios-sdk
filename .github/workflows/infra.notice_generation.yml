@@ -1,4 +1,4 @@
-name: generate_notices
+name: infra.notice_generation
 
 permissions:
   pull-requests: write

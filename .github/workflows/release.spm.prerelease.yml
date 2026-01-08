@@ -1,4 +1,4 @@
-name: prerelease
+name: release.spm.prerelease
 
 permissions:
   contents: read

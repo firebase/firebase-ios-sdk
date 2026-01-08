@@ -1,4 +1,4 @@
-name: sessions
+name: sdk.sessions
 
 permissions:
   contents: read

@@ -2,7 +2,7 @@
 # workflow on the Firebase C++ SDK, which will check for the iOS version update
 # and create a PR updating its iOS dependencies if the version number has
 # changed.
-name: update-cpp-sdk-on-release
+name: release.cpp.update
 on:
   workflow_dispatch:
   release:

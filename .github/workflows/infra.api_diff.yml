@@ -1,4 +1,4 @@
-name: API Diff Report
+name: infra.api_diff
 
 on: [pull_request, workflow_dispatch]
 

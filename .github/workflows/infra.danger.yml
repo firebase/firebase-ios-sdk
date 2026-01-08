@@ -1,4 +1,4 @@
-name: danger
+name: infra.danger
 
 on:
   pull_request:

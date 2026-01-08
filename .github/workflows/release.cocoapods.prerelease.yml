@@ -1,4 +1,4 @@
-name: prerelease_cocoapods
+name: release.cocoapods.prerelease
 
 permissions:
   contents: write

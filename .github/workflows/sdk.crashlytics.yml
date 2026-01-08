@@ -1,4 +1,4 @@
-name: crashlytics
+name: sdk.crashlytics
 
 permissions:
   contents: read

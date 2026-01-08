@@ -1,4 +1,4 @@
-name: inappmessaging
+name: sdk.inappmessaging
 
 permissions:
   contents: read

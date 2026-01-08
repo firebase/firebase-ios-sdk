@@ -1,4 +1,4 @@
-name: archiving
+name: infra.archiving
 
 permissions:
   contents: read

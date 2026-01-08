@@ -1,4 +1,4 @@
-name: remoteconfig
+name: sdk.remoteconfig
 
 permissions:
   contents: read

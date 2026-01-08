@@ -1,4 +1,4 @@
-name: auth
+name: sdk.auth
 
 permissions:
   contents: read

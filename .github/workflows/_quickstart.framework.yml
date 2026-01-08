@@ -1,4 +1,4 @@
-name: common_quickstart_framework
+name: _quickstart.framework
 
 permissions:
   contents: read

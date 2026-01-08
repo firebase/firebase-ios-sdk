@@ -7,7 +7,7 @@
 #    and provide a "Run ID of a previous successful zip workflow" in the input.
 # 3. By default (for scheduled and other PR runs): The workflow will build the
 #    zip from the current commit (HEAD).
-name: zip
+name: release.zip
 
 # TODO(ncooke3): Also do Xcode 26 testing
 

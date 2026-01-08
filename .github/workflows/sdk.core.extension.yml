@@ -1,4 +1,4 @@
-name: core_extension
+name: sdk.core.extension
 
 permissions:
   contents: read

@@ -1,4 +1,4 @@
-name: generate_issues
+name: infra.generate_issues
 
 on:
   workflow_dispatch:

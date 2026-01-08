@@ -1,4 +1,4 @@
-name: mlmodeldownloader
+name: sdk.mlmodeldownloader
 
 permissions:
   contents: read

@@ -1,4 +1,4 @@
-name: shared-swift
+name: sdk.sharedswift
 
 permissions:
   contents: read

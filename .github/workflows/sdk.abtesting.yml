@@ -1,4 +1,4 @@
-name: abtesting
+name: sdk.abtesting
 
 permissions:
   contents: read

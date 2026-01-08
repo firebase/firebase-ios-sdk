@@ -1,4 +1,4 @@
-name: installations
+name: sdk.installations
 
 permissions:
   contents: read

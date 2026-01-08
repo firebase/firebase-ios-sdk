@@ -1,4 +1,4 @@
-name: messaging
+name: sdk.messaging
 
 permissions:
   contents: read

@@ -1,4 +1,4 @@
-name: client_app
+name: infra.samples.client_app
 
 on:
   workflow_dispatch:

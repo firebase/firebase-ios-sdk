@@ -1,4 +1,4 @@
-name: spm
+name: infra.spm_global
 
 on:
   workflow_dispatch:

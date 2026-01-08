@@ -1,4 +1,4 @@
-name: check
+name: infra.check
 
 on:
   workflow_dispatch:

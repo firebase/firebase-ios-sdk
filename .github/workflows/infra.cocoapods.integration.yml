@@ -1,4 +1,4 @@
-name: cocoapods-integration
+name: infra.cocoapods.integration
 
 on:
   workflow_dispatch:

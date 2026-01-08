@@ -1,4 +1,4 @@
-name: common_cocoapods_cron
+name: _cocoapods.cron
 
 permissions:
   contents: read

@@ -1,4 +1,4 @@
-name: symbolcollision
+name: infra.samples.symbolcollision
 
 # Tests the Pods listed in SymbolCollisionTest/Podfile for symbol collisions.
 

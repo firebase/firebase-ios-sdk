@@ -1,4 +1,4 @@
-name: firebasepod
+name: sdk.firebasepod
 
 # Verify that the Firebase.podspec will successfully `pod install`.
 

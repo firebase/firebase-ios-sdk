@@ -1,4 +1,4 @@
-name: spectesting
+name: infra.spec_testing
 
 on:
   workflow_dispatch:
