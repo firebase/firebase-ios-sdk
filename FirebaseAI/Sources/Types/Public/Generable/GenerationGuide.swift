@@ -175,6 +175,78 @@ public extension GenerationGuide where Value == Float {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension GenerationGuide where Value == Double {
+  /// Enforces a minimum value.
+  ///
+  /// Use a `minimum` generation guide --- whose bounds are inclusive --- to ensure the model
+  /// produces a value greater than or equal to some minimum value. For example, you can specify
+  /// that all characters in your game start at level 1.0:
+  ///
+  /// ```swift
+  /// @Generable
+  /// struct struct GameCharacter {
+  ///     @Guide(description: "A creative name appropriate for a fantasy RPG character")
+  ///     var name: String
+  ///
+  ///     @Guide(description: "A level for the character", .minimum(1.0))
+  ///     var level: Double
+  /// }
+  /// ```
+  static func minimum(_ value: Value) -> GenerationGuide<Value> {
+    GenerationGuide(
+      wrapped: AnyGenerationGuides(double: DoubleGuides(minimum: value, maximum: nil))
+    )
+  }
+
+  /// Enforces a maximum value.
+  ///
+  /// Use a `maximum` generation guide --- whose bounds are inclusive --- to ensure the model
+  /// produces a value less than or equal to some maximum value. For example, you can specify that
+  /// the highest level a character in your game can achieve is 5000.0:
+  ///
+  /// ```swift
+  /// @Generable
+  /// struct struct GameCharacter {
+  ///     @Guide(description: "A creative name appropriate for a fantasy RPG character")
+  ///     var name: String
+  ///
+  ///     @Guide(description: "A level for the character", .maximum(5000.0))
+  ///     var level: Double
+  /// }
+  /// ```
+  static func maximum(_ value: Value) -> GenerationGuide<Value> {
+    GenerationGuide(
+      wrapped: AnyGenerationGuides(double: DoubleGuides(minimum: nil, maximum: value))
+    )
+  }
+
+  /// Enforces values fall within a range.
+  ///
+  /// Bounds are inclusive.
+  ///
+  /// A `range` generation guide may be used when you want to ensure the model produces a value that
+  /// falls in some range, such as the cost for an item in a game.
+  ///
+  /// ```swift
+  /// @Generable
+  /// struct struct ShopItem {
+  ///     @Guide(description: "A creative name for an item sold in a fantasy RPG"
+  ///     var name: String
+  ///
+  ///     @Guide(description: "A cost for the item", .range(1...1000))
+  ///     var cost: Double
+  /// }
+  /// ```
+  static func range(_ range: ClosedRange<Value>) -> GenerationGuide<Value> {
+    GenerationGuide(
+      wrapped: AnyGenerationGuides(
+        double: DoubleGuides(minimum: range.lowerBound, maximum: range.upperBound)
+      )
+    )
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension GenerationGuide {
   /// Enforces a minimum number of elements in the array.
   ///

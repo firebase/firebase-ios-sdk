@@ -33,14 +33,12 @@ public struct JSONSchema: Sendable {
     case anyOf(name: String, description: String?, types: [any FirebaseGenerable.Type])
   }
 
-  let kind: Kind?
-  let source: String?
-  fileprivate let schema: JSONSchema.Internal?
+  let kind: Kind
+  let source: String
 
   init(kind: Kind, source: String) {
     self.kind = kind
     self.source = source
-    schema = nil
   }
 
   /// A property that belongs to a JSON schema.
@@ -100,7 +98,6 @@ public struct JSONSchema: Sendable {
     let name = String(describing: type)
     kind = .object(name: name, description: description, properties: properties)
     source = name
-    schema = nil
   }
 
   /// Creates a schema for a string enumeration.
@@ -114,7 +111,6 @@ public struct JSONSchema: Sendable {
     let name = String(describing: type)
     kind = .string(name: name, description: description, guides: StringGuides(anyOf: choices))
     source = name
-    schema = nil
   }
 
   /// Creates a schema as the union of several other types.
@@ -128,7 +124,6 @@ public struct JSONSchema: Sendable {
     let name = String(describing: type)
     kind = .anyOf(name: name, description: description, types: types)
     source = name
-    schema = nil
   }
 
   /// A error that occurs when there is a problem creating a JSON schema.
@@ -178,55 +173,212 @@ public struct JSONSchema: Sendable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension JSONSchema: Codable {
-  public init(from decoder: Decoder) throws {
-    schema = try JSONSchema.Internal(from: decoder)
-    // TODO: Populate `kind` using the decoded `JSONSchema.Internal`.
-    kind = nil
-    source = nil
+extension JSONSchema: Encodable {
+  public func encode(to encoder: any Encoder) throws {
+    let definitions = collectDefinitions()
+
+    let internalSchema = toInternal(
+      definitions: definitions,
+      isRoot: true
+    )
+    try internalSchema.encode(to: encoder)
   }
 
-  public func encode(to encoder: any Encoder) throws {
-    // TODO: Encode from `kind` and remove `schema` property.
-    guard let schema else {
-      fatalError("Cannot encode JSONSchema without an internal representation.")
+  func toInternal(definitions: [String: JSONSchema], isRoot: Bool,
+                  defining: String? = nil) -> JSONSchema.Internal {
+    // 1. Check if this schema should be a reference
+    if let refSchema = makeRefSchema(definitions: definitions, isRoot: isRoot, defining: defining) {
+      return refSchema
     }
-    try schema.encode(to: encoder)
+
+    // 2. Prepare definitions if this is the root
+    let defs = makeDefinitions(definitions: definitions, isRoot: isRoot)
+
+    // 3. Convert based on kind
+    return kind.toInternal(definitions: definitions, defs: defs)
+  }
+
+  private func makeRefSchema(definitions: [String: JSONSchema], isRoot: Bool,
+                             defining: String?) -> JSONSchema.Internal? {
+    if !isRoot, let name = name, definitions[name] != nil, name != defining {
+      return JSONSchema.Internal(ref: "#/$defs/\(name)")
+    }
+    return nil
+  }
+
+  private func makeDefinitions(definitions: [String: JSONSchema],
+                               isRoot: Bool) -> [String: JSONSchema.Internal]? {
+    guard isRoot, !definitions.isEmpty else { return nil }
+    var defs: [String: JSONSchema.Internal] = [:]
+    for (name, def) in definitions {
+      defs[name] = def.toInternal(definitions: definitions, isRoot: false, defining: name)
+    }
+    return defs
+  }
+
+  private func collectDefinitions() -> [String: JSONSchema] {
+    var definitions: [String: JSONSchema] = [:]
+
+    func visit(_ schema: JSONSchema, isRoot: Bool) {
+      if !isRoot, let name = schema.name {
+        // If we encounter a named schema that isn't the root, we collect it as a definition.
+        if definitions[name] == nil {
+          definitions[name] = schema
+        }
+      }
+
+      // Traverse children
+      switch schema.kind {
+      case let .object(_, _, properties):
+        for property in properties {
+          visit(property.schema, isRoot: false)
+        }
+      case let .anyOf(_, _, types):
+        for type in types {
+          visit(type.jsonSchema, isRoot: false)
+        }
+      case let .array(_, item, _):
+        visit(item.jsonSchema, isRoot: false)
+      case .string, .integer, .double, .boolean:
+        break
+      }
+    }
+
+    visit(self, isRoot: true)
+    return definitions
   }
 }
 
-#if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  extension JSONSchema {
-    func asGenerationSchema() throws -> FoundationModels.GenerationSchema {
-      let jsonRepresentation = try JSONEncoder().encode(schema)
-      return try JSONDecoder().decode(GenerationSchema.self, from: jsonRepresentation)
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema.Kind {
+  func toInternal(definitions: [String: JSONSchema],
+                  defs: [String: JSONSchema.Internal]?) -> JSONSchema.Internal {
+    switch self {
+    case let .object(name, description, properties):
+      var props: [String: JSONSchema.Internal] = [:]
+      var required: [String] = []
+      var propertyOrder: [String] = []
+
+      for property in properties {
+        let propSchema = property.schema.toInternal(definitions: definitions, isRoot: false)
+        props[property.name] = propSchema
+        if !property.isOptional {
+          required.append(property.name)
+        }
+        propertyOrder.append(property.name)
+      }
+
+      return JSONSchema.Internal(
+        type: .object,
+        title: name,
+        description: description,
+        properties: props,
+        required: required.isEmpty ? nil : required,
+        additionalProperties: false,
+        defs: defs,
+        order: propertyOrder
+      )
+
+    case let .anyOf(name, description, types):
+      let anyOfSchemas = types.map { $0.jsonSchema.toInternal(
+        definitions: definitions,
+        isRoot: false
+      ) }
+      return JSONSchema.Internal(
+        title: name,
+        description: description,
+        defs: defs,
+        anyOf: anyOfSchemas
+      )
+
+    case let .array(description, item, guides):
+      let itemSchema = item.jsonSchema.toInternal(definitions: definitions, isRoot: false)
+
+      return JSONSchema.Internal(
+        type: .array,
+        description: description,
+        defs: defs,
+        items: itemSchema,
+        minItems: guides.minimumCount,
+        maxItems: guides.maximumCount
+      )
+
+    case let .string(name, description, guides):
+      return JSONSchema.Internal(
+        type: .string,
+        title: name,
+        description: description,
+        defs: defs,
+        enumValues: guides.anyOf?.map { .string($0) }
+      )
+
+    case let .integer(description, guides):
+      return JSONSchema.Internal(
+        type: .integer,
+        description: description,
+        defs: defs,
+        minimum: guides.minimum.map(Double.init),
+        maximum: guides.maximum.map(Double.init)
+      )
+
+    case let .double(description, guides):
+      return JSONSchema.Internal(
+        type: .number,
+        description: description,
+        defs: defs,
+        minimum: guides.minimum,
+        maximum: guides.maximum
+      )
+
+    case let .boolean(description):
+      return JSONSchema.Internal(
+        type: .boolean,
+        description: description,
+        defs: defs
+      )
     }
   }
-#endif // canImport(FoundationModels)
+}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 private extension JSONSchema {
-  final class Internal: Sendable {
-    let type: JSONSchema.Internal.SchemaType?
-    let title: String?
-    let description: String?
-    let properties: [String: JSONSchema.Internal]?
-    let required: [String]?
-    let additionalProperties: Bool?
-    let defs: [String: JSONSchema.Internal]?
-    let ref: String?
-    let anyOf: [JSONSchema.Internal]?
-    let items: JSONSchema.Internal?
-    let minItems: Int?
-    let maxItems: Int?
-    let enumValues: [JSONValue]?
-    let pattern: String?
-    let minimum: Double?
-    let maximum: Double?
-    let order: [String]?
+  var name: String? {
+    switch kind {
+    case let .object(name, _, _): return name
+    case let .anyOf(name, _, _): return name
+    case let .string(name, _, _): return name
+    default: return nil
+    }
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+private extension JSONSchema.Property {
+  var schema: JSONSchema {
+    return type.jsonSchema
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema {
+  final class Internal {
+    var type: JSONSchema.Internal.SchemaType?
+    var title: String?
+    var description: String?
+    var properties: [String: JSONSchema.Internal]?
+    var required: [String]?
+    var additionalProperties: Bool?
+    var defs: [String: JSONSchema.Internal]?
+    var ref: String?
+    var anyOf: [JSONSchema.Internal]?
+    var items: JSONSchema.Internal?
+    var minItems: Int?
+    var maxItems: Int?
+    var enumValues: [JSONValue]?
+    var pattern: String?
+    var minimum: Double?
+    var maximum: Double?
+    var order: [String]?
 
     init(type: JSONSchema.Internal.SchemaType? = nil,
          title: String? = nil,

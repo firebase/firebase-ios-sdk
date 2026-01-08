@@ -23,6 +23,7 @@ final class AnyGenerationGuides: Sendable {
        integer: IntegerGuides? = nil,
        double: DoubleGuides? = nil,
        array: ArrayGuides? = nil) {
+    assert([string as Any?, integer, double, array].compactMap { $0 }.count <= 1)
     self.string = string
     self.integer = integer
     self.double = double
@@ -34,12 +35,20 @@ final class AnyGenerationGuides: Sendable {
   }
 
   static func combine(guides: [AnyGenerationGuides]) -> AnyGenerationGuides {
-    return AnyGenerationGuides(
+    let generationGuides = AnyGenerationGuides(
       string: StringGuides.combine(guides.compactMap { $0.string }),
       integer: IntegerGuides.combine(guides.compactMap { $0.integer }),
       double: DoubleGuides.combine(guides.compactMap { $0.double }),
       array: ArrayGuides.combine(guides.compactMap { $0.array })
     )
+    assert([
+      generationGuides.string as Any?,
+      generationGuides.integer,
+      generationGuides.double,
+      generationGuides.array,
+    ].compactMap { $0 }.count <= 1)
+
+    return generationGuides
   }
 }
 
