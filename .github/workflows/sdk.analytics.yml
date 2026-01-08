@@ -6,7 +6,7 @@ on:
     paths:
     - 'FirebaseAnalytics**'
     - 'GoogleAppMeasurement**'
-    - '.github/workflows/analytics.yml'
+    - '.github/workflows/sdk.analytics.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times

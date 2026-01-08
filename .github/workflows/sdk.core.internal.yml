@@ -9,11 +9,11 @@ on:
     paths:
     - 'FirebaseCoreInternal.podspec'
     - 'FirebaseCore/Internal/**'
-    - '.github/workflows/core_internal.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.core.internal.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
@@ -21,7 +21,7 @@ on:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: FirebaseCoreInternalTests
 
@@ -29,20 +29,20 @@ jobs:
     strategy:
       matrix:
         target: [FirebaseCoreInternal-Unit-Unit, FirebaseCoreInternal-Unit-Integration]
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseCoreInternal
       target: ${{ matrix.target }}
 
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseCoreInternal
       supports_swift6: true
 
   core-internal-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseCoreInternal
       platforms: '[ "ios", "tvos", "macos" ]'

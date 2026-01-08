@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-    - '.github/workflows/symbolcollision.yml'
+    - '.github/workflows/infra.samples.symbolcollision.yml'
     - 'SymbolCollisionTest/**'
     - 'Gemfile*'
   schedule:

@@ -7,7 +7,7 @@ permissions:
 on:
   pull_request:
     paths:
-    - '.github/workflows/notice_generation.yml'
+    - '.github/workflows/infra.notice_generation.yml'
     - '.github/actions/notices_generation**'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times

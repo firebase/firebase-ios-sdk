@@ -5,7 +5,7 @@ on:
   pull_request:
     paths:
     - 'IntegrationTesting/CocoapodsIntegrationTest/**'
-    - '.github/workflows/cocoapods-integration.yml'
+    - '.github/workflows/infra.cocoapods.integration.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - ".github/workflows/client_app.yml"
+      - ".github/workflows/infra.samples.client_app.yml"
       - "Package.swift"
       - ".swiftpm/*"
       - "*.podspec"

@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
     - 'scripts/release_testing_setup.sh'
-    - '.github/workflows/release_cocoapods.yml'
+    - '.github/workflows/release.cocoapods.yml'
     - 'Gemfile*'
   workflow_dispatch:
   schedule:

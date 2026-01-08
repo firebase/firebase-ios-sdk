@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-    - '.github/workflows/nightly_ftl.yml'
+    - '.github/workflows/infra.ftl.nightly.yml'
     - 'Gemfile*'
 
 env:

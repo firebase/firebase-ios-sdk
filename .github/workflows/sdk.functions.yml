@@ -9,10 +9,10 @@ on:
     paths:
     - 'FirebaseFunctions**'
     - 'FirebaseSharedSwift**'
-    - '.github/workflows/functions.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.functions.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     - 'FirebaseAuth/Interop/*.h'
     - 'FirebaseMessaging/Interop/*.h'
     - 'FirebaseTestingSupport/Functions/**'
@@ -30,14 +30,14 @@ concurrency:
 
 jobs:
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseFunctions
       supports_swift6: true
       setup_command: FirebaseFunctions/Backend/start.sh synchronous
 
   spm-integration:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     strategy:
       matrix:
         target: [FirebaseFunctionsIntegration, FirebaseFunctionsObjCIntegration, FunctionsCombineUnit]
@@ -47,7 +47,7 @@ jobs:
       setup_command: FirebaseFunctions/Backend/start.sh synchronous
 
   spm-unit:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: FirebaseFunctionsUnit
 
@@ -55,7 +55,7 @@ jobs:
 
   functions-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseFunctions
       platforms: '[ "ios", "tvos", "macos" ]'

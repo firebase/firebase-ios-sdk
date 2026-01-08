@@ -12,12 +12,12 @@ on:
     - 'FirebaseSharedSwift**'
     - 'Example/Database/**'
     - 'FirebaseAuth/Interop/*.h'
-    - '.github/workflows/database.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
-    - '.github/workflows/common_quickstart.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.database.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
     - 'scripts/run_database_emulator.sh'
   schedule:
@@ -33,18 +33,18 @@ jobs:
     strategy:
       matrix:
         target: [DatabaseUnit, DatabaseUnitSwift]
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: ${{  matrix.target }}
 
   catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseDatabase
       target: FirebaseDatabase-Unit-unit
 
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseDatabase
       test_specs: unit
@@ -75,7 +75,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/build.sh Database iOS integration
 
   quickstart:
-    uses: ./.github/workflows/common_quickstart.yml
+    uses: ./.github/workflows/_quickstart.yml
     with:
       product: Database
       setup_command: scripts/setup_quickstart.sh database
@@ -87,7 +87,7 @@ jobs:
 
   database-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseDatabase
       platforms: '[ "ios", "tvos", "macos" ]'

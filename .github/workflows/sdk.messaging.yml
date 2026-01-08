@@ -14,13 +14,13 @@ on:
     # Podspec
     - 'FirebaseMessaging.podspec'
     # This file
-    - '.github/workflows/messaging.yml'
+    - '.github/workflows/sdk.messaging.yml'
     # Re-usable workflows being used by this file.
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
-    - '.github/workflows/common_quickstart.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     # Rebuild on Ruby infrastructure changes
     - 'Gemfile*'
   schedule:
@@ -33,13 +33,13 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: MessagingUnit
       buildonly_platforms: tvOS, macOS, watchOS, catalyst, visionOS
 
   catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseMessaging
       target: FirebaseMessaging-Unit-unit
@@ -48,7 +48,7 @@ jobs:
     strategy:
       matrix:
         product: [FirebaseMessagingInterop, FirebaseMessaging]
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{  matrix.product }}
 
@@ -86,7 +86,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging all)
 
   quickstart:
-    uses: ./.github/workflows/common_quickstart.yml
+    uses: ./.github/workflows/_quickstart.yml
     with:
       product: Messaging
       setup_command: scripts/setup_quickstart.sh messaging
@@ -98,7 +98,7 @@ jobs:
 
 
   messaging-cron-only:
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseMessaging
       platforms: '[ "ios", "tvos", "macos --skip-tests", "watchos --skip-tests" ]'

@@ -14,7 +14,7 @@ on:
     # Firebase Podspec
     - 'Firebase.podspec'
     # This file
-    - '.github/workflows/watchos-sample.yml'
+    - '.github/workflows/infra.samples.watchos.yml'
     # Rebuild on Ruby infrastructure changes
     - 'Gemfile*'
   schedule:

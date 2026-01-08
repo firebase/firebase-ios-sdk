@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-    - '.github/workflows/archiving.yml'
+    - '.github/workflows/infra.archiving.yml'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
     # This is set to 3 hours after zip workflow finishes so zip testing can run after.

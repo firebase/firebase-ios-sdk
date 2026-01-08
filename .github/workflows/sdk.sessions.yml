@@ -9,10 +9,10 @@ on:
     paths:
     - 'FirebaseSessions**'
     - 'FirebaseSessions.podspec'
-    - '.github/workflows/sessions.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
+    - '.github/workflows/sdk.sessions.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 6pm (PDT) / 9pm (EDT) - cron uses UTC times
@@ -24,18 +24,18 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: FirebaseSessionsUnit
 
   catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseSessions
       target: FirebaseSessions-Unit-unit
 
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseSessions
       supports_swift6: true

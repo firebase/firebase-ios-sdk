@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-    - '.github/workflows/generate_issues.yml'
+    - '.github/workflows/infra.generate_issues.yml'
     - '.github/actions/testing_report_generation**'
   schedule:
     # Run every day at 5am (PDT) / 8am (EDT) - cron uses UTC times

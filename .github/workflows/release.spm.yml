@@ -6,7 +6,7 @@ permissions:
 on:
   pull_request:
     paths:
-    - '.github/workflows/release.yml'
+    - '.github/workflows/release.spm.yml'
     - 'Gemfile*'
   workflow_dispatch:
   schedule:

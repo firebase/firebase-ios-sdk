@@ -9,10 +9,10 @@ on:
     paths:
     - 'FirebaseCoreExtension.podspec'
     - 'FirebaseCore/Extension/**'
-    - '.github/workflows/core_extension.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.core.extension.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
@@ -21,13 +21,13 @@ on:
 jobs:
   # Since `FirebaseCoreExtension` only contains headers, linting is sufficient for testing.
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseCoreExtension
 
   core-extension-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseCoreExtension
       platforms: '[ "ios", "tvos", "macos" ]'

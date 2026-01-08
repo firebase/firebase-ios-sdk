@@ -9,11 +9,11 @@ on:
     paths:
     - 'FirebaseInAppMessaging**'
     - 'Interop/Analytics/Public/*.h'
-    - '.github/workflows/inappmessaging.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_quickstart.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.inappmessaging.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
@@ -25,14 +25,14 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: FirebaseInAppMessaging-Beta
       platforms: iOS
       buildonly_platforms: iOS
 
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseInAppMessaging
       platforms: iOS, tvOS
@@ -63,14 +63,14 @@ jobs:
 
   fiam-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseInAppMessaging
       platforms: '[ "ios", "tvos" ]'
       flags: '[ "--use-static-frameworks" ]'
 
   quickstart:
-    uses: ./.github/workflows/common_quickstart.yml
+    uses: ./.github/workflows/_quickstart.yml
     with:
       product: InAppMessaging
       setup_command: scripts/setup_quickstart.sh inappmessaging

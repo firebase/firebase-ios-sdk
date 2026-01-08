@@ -28,7 +28,7 @@ on:
     - 'FirebaseCombineSwift.podspec'
 
     # This workflow
-    - '.github/workflows/combine.yml'
+    - '.github/workflows/sdk.combine.yml'
 
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile'

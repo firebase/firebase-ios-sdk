@@ -14,13 +14,13 @@ on:
     # Podspec
     - 'FirebasePerformance.podspec'
     # YML configuration file
-    - '.github/workflows/performance.yml'
+    - '.github/workflows/sdk.performance.yml'
     # Re-usable workflows depended on by this file.
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
-    - '.github/workflows/common_quickstart.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     # Rebuild on Ruby infrastructure changes
     - 'Gemfile*'
   schedule:
@@ -34,13 +34,13 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: PerformanceUnit
       platforms: iOS, tvOS
 
   catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebasePerformance
       target:
@@ -68,7 +68,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh scripts/build.sh Performance ${{ matrix.target }} ${{ matrix.test }}
 
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebasePerformance
       platforms: iOS, tvOS
@@ -76,7 +76,7 @@ jobs:
       buildonly_platforms: iOS, tvOS
 
   quickstart:
-    uses: ./.github/workflows/common_quickstart.yml
+    uses: ./.github/workflows/_quickstart.yml
     with:
       product: Performance
       setup_command: scripts/setup_quickstart.sh performance
@@ -88,7 +88,7 @@ jobs:
 
   performance-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebasePerformance
       platforms: '[ "ios", "tvos" ]'

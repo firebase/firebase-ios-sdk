@@ -9,12 +9,12 @@ on:
     paths:
     - 'FirebaseStorage**'
     - 'FirebaseAuth/Interop/*.h'
-    - '.github/workflows/storage.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
-    - '.github/workflows/common_quickstart.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.storage.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile*'
   schedule:
@@ -27,12 +27,12 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: FirebaseStorageUnit
 
   catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseStorage
       target: FirebaseStorage-Unit-unit
@@ -77,7 +77,7 @@ jobs:
 
   quickstart:
     # TODO: See #12399 and restore Objective-C testing for Xcode 15 if GHA is fixed.
-    uses: ./.github/workflows/common_quickstart.yml
+    uses: ./.github/workflows/_quickstart.yml
     with:
       product: Storage
       setup_command: scripts/setup_quickstart.sh storage
@@ -89,14 +89,14 @@ jobs:
 
 
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseStorage
       test_specs: unit
 
   storage-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseStorage
       platforms: '[ "ios", "tvos", "macos", "watchos" ]'

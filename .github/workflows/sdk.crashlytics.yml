@@ -9,12 +9,12 @@ on:
     paths:
     - 'Crashlytics**'
     - 'FirebaseCrashlytics.podspec'
-    - '.github/workflows/crashlytics.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
-    - '.github/workflows/common_quickstart.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.crashlytics.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile*'
   schedule:
@@ -27,25 +27,25 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: FirebaseCrashlyticsUnit
       is_nightly: ${{ github.event_name == 'schedule' }}
 
   catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseCrashlytics
       target: FirebaseCrashlytics-Unit-unit
 
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseCrashlytics
       buildonly_platforms: tvOS, macOS, watchOS
 
   quickstart:
-    uses: ./.github/workflows/common_quickstart.yml
+    uses: ./.github/workflows/_quickstart.yml
     with:
       product: Crashlytics
       setup_command: scripts/setup_quickstart.sh crashlytics
@@ -57,7 +57,7 @@ jobs:
 
   crashlytics-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseCrashlytics
       platforms: '[ "ios", "tvos", "macos", "watchos --skip-tests" ]'

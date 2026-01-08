@@ -8,9 +8,9 @@ on:
   pull_request:
     paths:
     - 'FirebaseSharedSwift**'
-    - '.github/workflows/shared-swift.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/sdk.sharedswift.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
     - 'Gemfile*'
 
   schedule:
@@ -23,12 +23,12 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: FirebaseSharedSwiftTests
 
   pod_lib_lint:
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseSharedSwift
       supports_swift6: true

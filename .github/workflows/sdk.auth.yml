@@ -9,12 +9,12 @@ on:
     paths:
     - 'FirebaseAuth**'
     - 'FirebaseAuth/Interop/*.h'
-    - '.github/workflows/auth.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
-    - '.github/workflows/common_quickstart.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.auth.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     - 'scripts/gha-encrypted/AuthSample/SwiftApplication.plist.gpg'
     - 'Gemfile*'
   schedule:
@@ -30,13 +30,13 @@ concurrency:
 
 jobs:
   spm:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: AuthUnit
       buildonly_platforms: macOS
 
   catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseAuth
       target: FirebaseAuth-Unit-unit
@@ -46,7 +46,7 @@ jobs:
     strategy:
       matrix:
         product: [FirebaseAuthInterop, FirebaseAuth]
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{  matrix.product }}
       buildonly_platforms: macOS
@@ -94,7 +94,7 @@ jobs:
         command: ([ -z $plist_secret ] || scripts/build.sh Auth iOS ${{ matrix.scheme }})
 
   quickstart:
-    uses: ./.github/workflows/common_quickstart.yml
+    uses: ./.github/workflows/_quickstart.yml
     with:
       product: Authentication
       setup_command: scripts/setup_quickstart.sh authentication
@@ -106,7 +106,7 @@ jobs:
 
   auth-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseAuth
       ignore_deprecation_warnings: true

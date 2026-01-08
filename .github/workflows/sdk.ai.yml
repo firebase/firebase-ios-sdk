@@ -4,9 +4,9 @@ on:
   pull_request:
     paths:
     - 'FirebaseAI**'
-    - '.github/workflows/firebaseai.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
+    - '.github/workflows/sdk.ai.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
     - 'scripts/build.sh'
     - 'scripts/quickstart_build_spm.sh'
     - 'scripts/update_firebase_spm_dependency.sh'
@@ -31,7 +31,7 @@ jobs:
     strategy:
       matrix:
         target: [FirebaseAILogicUnit, FirebaseAIUnit]
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: ${{  matrix.target }}
       setup_command: scripts/update_vertexai_responses.sh
@@ -74,7 +74,7 @@ jobs:
     strategy:
       matrix:
         product: [FirebaseAILogic, FirebaseAI]
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{  matrix.product }}
       supports_swift6: true

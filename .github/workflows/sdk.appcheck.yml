@@ -8,11 +8,11 @@ on:
   pull_request:
     paths:
     - 'FirebaseAppCheck**'
-    - '.github/workflows/firebase_app_check.yml'
-    - '.github/workflows/common.yml'
-    - '.github/workflows/common_cocoapods.yml'
-    - '.github/workflows/common_catalyst.yml'
-    - '.github/workflows/common_cocoapods_cron.yml'
+    - '.github/workflows/sdk.appcheck.yml'
+    - '.github/workflows/_common.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
@@ -27,12 +27,12 @@ jobs:
     strategy:
       matrix:
         target: [FirebaseAppCheckUnit, FirebaseAppCheckUnitSwift]
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: ${{  matrix.target }}
 
   catalyst:
-    uses: ./.github/workflows/common_catalyst.yml
+    uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseAppCheck
       target: FirebaseAppCheck-Unit-unit
@@ -41,7 +41,7 @@ jobs:
     strategy:
       matrix:
         product: [FirebaseAppCheckInterop, FirebaseAppCheck]
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{  matrix.product }}
       buildonly_platforms: macOS
@@ -70,7 +70,7 @@ jobs:
 
   app_check-cron-only:
     needs: pod_lib_lint
-    uses: ./.github/workflows/common_cocoapods_cron.yml
+    uses: ./.github/workflows/_cocoapods.cron.yml
     with:
       product: FirebaseAppCheck
       platforms: '[ "ios" ]'

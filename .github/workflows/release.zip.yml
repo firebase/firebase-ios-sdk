@@ -3,7 +3,7 @@
 # 1. To iterate on a PR: Set the `PINNED_RUN_ID` environment variable in this
 #    file to a successful zip packaging run. This is useful for avoiding
 #    having to manually re-run the packaging jobs for each commit.
-# 2. For manual runs: Trigger the workflow via the [GitHub UI](https://github.com/firebase/firebase-ios-sdk/actions/workflows/zip.yml)
+# 2. For manual runs: Trigger the workflow via the [GitHub UI](https://github.com/firebase/firebase-ios-sdk/actions/workflows/release.zip.yml)
 #    and provide a "Run ID of a previous successful zip workflow" in the input.
 # 3. By default (for scheduled and other PR runs): The workflow will build the
 #    zip from the current commit (HEAD).
@@ -24,8 +24,8 @@ on:
   pull_request:
     paths:
     - 'ReleaseTooling/Sources/**'
-    - '.github/workflows/zip.yml'
-    - '.github/workflows/common_quickstart_framework.yml'
+    - '.github/workflows/release.zip.yml'
+    - '.github/workflows/_quickstart.framework.yml'
     - 'scripts/zip/**'
     - 'Gemfile*'
     # Don't run based on any markdown only changes.
@@ -323,7 +323,7 @@ jobs:
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
-    uses: ./.github/workflows/common_quickstart_framework.yml
+    uses: ./.github/workflows/_quickstart.framework.yml
     name: ${{ matrix.config.product }} / ${{ matrix.artifact == 'Firebase-actions-dir' && 'static' || 'dynamic' }}
     with:
       product: ${{ matrix.config.product }}

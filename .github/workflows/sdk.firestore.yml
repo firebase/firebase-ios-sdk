@@ -81,11 +81,11 @@ jobs:
               - 'scripts/xcresult_logs.py'
 
               # This workflow
-              - '.github/workflows/firestore.yml'
+              - '.github/workflows/sdk.firestore.yml'
 
               # Workflows this one depends on.
-              - '.github/workflows/common.yml'
-              - '.github/workflows/common_cocoapods.yml'
+              - '.github/workflows/_common.yml'
+              - '.github/workflows/_cocoapods.yml'
 
               # Rebuild on Ruby infrastructure changes.
               - 'Gemfile*'
@@ -384,7 +384,7 @@ jobs:
     strategy:
       matrix:
         product: ['FirebaseFirestoreInternal', 'FirebaseFirestore']
-    uses: ./.github/workflows/common_cocoapods.yml
+    uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{ matrix.product }}
       platforms: iOS
@@ -502,7 +502,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
-    uses: ./.github/workflows/common.yml
+    uses: ./.github/workflows/_common.yml
     with:
       target: FirebaseFirestore
       platforms: iOS
@@ -555,7 +555,7 @@ jobs:
   # TODO: Disable until FirebaseUI is updated to accept Firebase 9 and
   # quickstart is updated to accept Firebase UI 12
   # quickstart:
-  #   uses: ./.github/workflows/common_quickstart.yml
+  #   uses: ./.github/workflows/_quickstart.yml
   #   with:
   #     product: Firestore
   #     setup_command: scripts/setup_quickstart.sh firestore
