@@ -79,7 +79,8 @@ final class GenerativeAIServiceTests: XCTestCase {
         XCTFail("Expected UnrecognizedRPCError, got: \(error)")
         return
       }
-      XCTAssertEqual(unrecognizedError.responseBody, responseBody)
+      // MockURLProtocol appends a newline to the response.
+      XCTAssertEqual(unrecognizedError.responseBody, responseBody + "\n")
     } catch {
       XCTFail("Should throw GenerateContentError.internalError; error thrown: \(error)")
     }
