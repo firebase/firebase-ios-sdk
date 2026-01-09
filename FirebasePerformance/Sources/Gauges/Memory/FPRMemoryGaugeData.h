@@ -24,10 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** @brief Time at which memory data was measured. */
 @property(nonatomic, readonly) NSDate *collectionTime;
 
-/** @brief Heap memory that is used. */
+/** @brief Physical memory footprint of the application, measured via task_info phys_footprint.
+ *  Note: This represents the total memory used by the process (as reported by Jetsam accounting),
+ *  not just heap allocations. It includes heap, stack, memory-mapped files, and other resources. */
 @property(nonatomic, readonly) u_long heapUsed;
 
-/** @brief Heap memory that is available. */
+/** @brief Heap memory that is available. Always 0 as this metric is not available via task_info. */
 @property(nonatomic, readonly) u_long heapAvailable;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -36,8 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates an instance of memory gauge data with the provided information.
  *
  * @param collectionTime Time at which the gauge data was collected.
- * @param heapUsed Heap memory that is used.
- * @param heapAvailable Heap memory that is available.
+ * @param heapUsed Physical memory footprint of the application (measured via task_info phys_footprint).
+ * @param heapAvailable Heap memory that is available. Always 0 as this metric is not available.
  * @return Instance of memory gauge data.
  */
 - (instancetype)initWithCollectionTime:(NSDate *)collectionTime
