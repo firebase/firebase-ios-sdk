@@ -154,6 +154,18 @@ public final class HeartbeatController: Sendable {
     }
   }
 
+  /// Asynchronously flushes heartbeats from storage into a heartbeats payload.
+  ///
+  /// - Note: This API is thread-safe.
+  /// - Returns: The flushed heartbeats in the form of `HeartbeatsPayload`.
+  public func flush() async -> HeartbeatsPayload {
+    return await withCheckedContinuation { continuation in
+      self.flushAsync { payload in
+        continuation.resume(returning: payload)
+      }
+    }
+  }
+
   /// Synchronously flushes the heartbeat for today.
   ///
   /// If no heartbeat was logged today, the returned payload is empty.

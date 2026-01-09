@@ -427,6 +427,55 @@ class HeartbeatControllerTests: XCTestCase {
     // Then
     assertHeartbeatControllerFlushesEmptyPayload(heartbeatController)
   }
+
+  func testObjCHeartbeatController_FlushAsync() throws {
+    // Given
+    let controller = _ObjC_HeartbeatController(id: #function)
+    let expectation = expectation(description: #function)
+
+    // When
+    controller.log("dummy_agent")
+    controller.flushAsync { payload in
+      // Then
+      XCTAssertNotNil(payload)
+      expectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 1.0)
+  }
+
+  func testFlushAsync_ReturnsPayload() async throws {
+    // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let controller = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { date }
+    )
+
+    // When
+    controller.log("dummy_agent")
+    let heartbeatPayload = await controller.flush()
+
+    // Then
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      heartbeatPayload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-01"]
+          }
+        ]
+      }
+      """
+    )
+
+    // Verify empty after flush
+    let emptyPayload = await controller.flush()
+    XCTAssertTrue(emptyPayload.isEmpty)
+  }
 }
 
 // MARK: - Fakes
