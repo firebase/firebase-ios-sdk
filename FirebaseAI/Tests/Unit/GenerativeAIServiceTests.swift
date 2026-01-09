@@ -59,30 +59,26 @@ final class GenerativeAIServiceTests: XCTestCase {
     }
 
     MockURLProtocol.requestHandler = { request in
-      let response = HTTPURLResponse(
-        url: request.url!,
-        statusCode: expectedStatusCode,
-        httpVersion: nil,
-        headerFields: nil
-      )!
+        let response = HTTPURLResponse(
+            url: request.url!,
+            statusCode: expectedStatusCode,
+            httpVersion: nil,
+            headerFields: nil
+        )!
 
-      try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-      let stream = URL(fileURLWithPath: tempURL.path).lines
-      return (response, stream)
+        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
+        let stream = URL(fileURLWithPath: tempURL.path).lines
+        return (response, stream)
     }
 
     do {
       _ = try await model.generateContent("test")
-      XCTFail("Should throw GenerateContentError.internalError; no error thrown.")
-    } catch let GenerateContentError.internalError(underlying: error) {
-      guard let unrecognizedError = error as? UnrecognizedRPCError else {
-        XCTFail("Expected UnrecognizedRPCError, got: \(error)")
-        return
-      }
+      XCTFail("An error should have been thrown, but no error was thrown.")
+    } catch let GenerateContentError.internalError(underlying: unrecognizedError as UnrecognizedRPCError) {
       // MockURLProtocol appends a newline to the response.
       XCTAssertEqual(unrecognizedError.responseBody, responseBody + "\n")
     } catch {
-      XCTFail("Should throw GenerateContentError.internalError; error thrown: \(error)")
+      XCTFail("Caught unexpected error: \(error)")
     }
   }
 }
