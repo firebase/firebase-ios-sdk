@@ -59,16 +59,16 @@ final class GenerativeAIServiceTests: XCTestCase {
     }
 
     MockURLProtocol.requestHandler = { request in
-        let response = HTTPURLResponse(
-            url: request.url!,
-            statusCode: expectedStatusCode,
-            httpVersion: nil,
-            headerFields: nil
-        )!
+      let response = HTTPURLResponse(
+        url: request.url!,
+        statusCode: expectedStatusCode,
+        httpVersion: nil,
+        headerFields: nil
+      )!
 
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+      try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
+      let stream = URL(fileURLWithPath: tempURL.path).lines
+      return (response, stream)
     }
 
     do {
