@@ -62,5 +62,5 @@ args=(
 
 xcodebuild -version
 gem install xcpretty
-local log_filename="xcodebuild-${build_mode}.log"
+log_filename="xcodebuild-${build_mode}.log"
 xcodebuild "${args[@]}" | tee "$log_filename" | xcpretty
