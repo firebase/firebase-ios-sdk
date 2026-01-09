@@ -20,67 +20,68 @@ import XCTest
 @testable import FirebaseAILogic
 
 #if !os(watchOS)
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-final class GenerativeAIServiceTests: XCTestCase {
-  let testModelName = "test-model"
-  let testModelResourceName =
-    "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  final class GenerativeAIServiceTests: XCTestCase {
+    let testModelName = "test-model"
+    let testModelResourceName =
+      "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
+    let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
-  var urlSession: URLSession!
-  var model: GenerativeModel!
+    var urlSession: URLSession!
+    var model: GenerativeModel!
 
-  override func setUp() async throws {
-    let configuration = URLSessionConfiguration.default
-    configuration.protocolClasses = [MockURLProtocol.self]
-    urlSession = try XCTUnwrap(URLSession(configuration: configuration))
-    model = GenerativeModel(
-      modelName: testModelName,
-      modelResourceName: testModelResourceName,
-      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
-      apiConfig: apiConfig,
-      tools: nil,
-      requestOptions: RequestOptions(),
-      urlSession: urlSession
-    )
-  }
-
-  override func tearDown() {
-    MockURLProtocol.requestHandler = nil
-  }
-
-  func testGenerateContent_failure_unrecognizedErrorPayload() async throws {
-    let expectedStatusCode = 500
-    let responseBody = "Internal Server Error"
-
-    // We need to construct the handler to return specific data
-    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-    addTeardownBlock {
-      try? FileManager.default.removeItem(at: tempURL)
+    override func setUp() async throws {
+      let configuration = URLSessionConfiguration.default
+      configuration.protocolClasses = [MockURLProtocol.self]
+      urlSession = try XCTUnwrap(URLSession(configuration: configuration))
+      model = GenerativeModel(
+        modelName: testModelName,
+        modelResourceName: testModelResourceName,
+        firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
+        apiConfig: apiConfig,
+        tools: nil,
+        requestOptions: RequestOptions(),
+        urlSession: urlSession
+      )
     }
 
-    MockURLProtocol.requestHandler = { request in
+    override func tearDown() {
+      MockURLProtocol.requestHandler = nil
+    }
+
+    func testGenerateContent_failure_unrecognizedErrorPayload() async throws {
+      let expectedStatusCode = 500
+      let responseBody = "Internal Server Error"
+
+      // We need to construct the handler to return specific data
+      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+      addTeardownBlock {
+        try? FileManager.default.removeItem(at: tempURL)
+      }
+
+      MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
-            url: request.url!,
-            statusCode: expectedStatusCode,
-            httpVersion: nil,
-            headerFields: nil
+          url: request.url!,
+          statusCode: expectedStatusCode,
+          httpVersion: nil,
+          headerFields: nil
         )!
 
         try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
         let stream = URL(fileURLWithPath: tempURL.path).lines
         return (response, stream)
-    }
+      }
 
-    do {
-      _ = try await model.generateContent("test")
-      XCTFail("An error should have been thrown, but no error was thrown.")
-    } catch let GenerateContentError.internalError(underlying: unrecognizedError as UnrecognizedRPCError) {
-      // MockURLProtocol appends a newline to the response.
-      XCTAssertEqual(unrecognizedError.responseBody, responseBody + "\n")
-    } catch {
-      XCTFail("Caught unexpected error: \(error)")
+      do {
+        _ = try await model.generateContent("test")
+        XCTFail("An error should have been thrown, but no error was thrown.")
+      } catch let GenerateContentError
+        .internalError(underlying: unrecognizedError as UnrecognizedRPCError) {
+        // MockURLProtocol appends a newline to the response.
+        XCTAssertEqual(unrecognizedError.responseBody, responseBody + "\n")
+      } catch {
+        XCTFail("Caught unexpected error: \(error)")
+      }
     }
   }
-}
 #endif // !os(watchOS)
