@@ -104,6 +104,8 @@ struct GenerateContentIntegrationTests {
       #expect(candidatesTokensDetails.modality == .text)
       #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
+    #expect(usageMetadata.cachedContentTokenCount == 0)
+    #expect(usageMetadata.cacheTokensDetails.isEmpty)
     #expect(usageMetadata.totalTokenCount == (usageMetadata.promptTokenCount +
         usageMetadata.candidatesTokenCount +
         usageMetadata.thoughtsTokenCount))
@@ -257,6 +259,8 @@ struct GenerateContentIntegrationTests {
       #expect(candidatesTokensDetails.modality == .text)
       #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
+    #expect(usageMetadata.cachedContentTokenCount == 0)
+    #expect(usageMetadata.cacheTokensDetails.isEmpty)
     #expect(usageMetadata.totalTokenCount > 0)
     #expect(usageMetadata.totalTokenCount == (
       usageMetadata.promptTokenCount
