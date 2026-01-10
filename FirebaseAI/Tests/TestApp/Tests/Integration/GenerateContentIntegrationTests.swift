@@ -172,6 +172,10 @@ struct GenerateContentIntegrationTests {
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .minimal)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .low)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .medium)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .high)),
       (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: 128)),
       (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: 32768)),
       (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(
@@ -231,6 +235,16 @@ struct GenerateContentIntegrationTests {
     if let thinkingBudget = thinkingConfig.thinkingBudget, thinkingBudget > 0 {
       #expect(usageMetadata.thoughtsTokenCount > 0)
       #expect(usageMetadata.thoughtsTokenCount <= thinkingBudget)
+    } else if let thinkingLevel = thinkingConfig.thinkingLevel {
+      // For gemini3FlashPreview, repeated runs show that for any of the four
+      // levels, 64 or 68 may be returned.
+      let minThoughtTokens = 64
+      switch thinkingLevel {
+      case .minimal, .low, .medium, .high:
+        #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
+      default:
+        Issue.record("Unhandled ThinkingLevel: \(thinkingLevel)")
+      }
     } else {
       #expect(usageMetadata.thoughtsTokenCount == 0)
     }

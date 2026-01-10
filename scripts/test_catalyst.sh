@@ -57,8 +57,10 @@ args=(
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
   # GHA is still running 10.15.
   "MACOSX_DEPLOYMENT_TARGET=10.15"
+  "-resultBundlePath" "xcresults/$scheme.xcresult"
 )
 
 xcodebuild -version
 gem install xcpretty
-xcodebuild "${args[@]}" | xcpretty
+log_filename="xcodebuild-${build_mode}.log"
+xcodebuild "${args[@]}" | tee "$log_filename" | xcpretty
