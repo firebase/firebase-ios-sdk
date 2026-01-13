@@ -122,13 +122,15 @@ jobs:
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     strategy:
       matrix:
-        os: [macos-15]
-        xcode: [Xcode_16.4]
         platform: [iOS, tvOS, macOS, watchOS]
         include:
           - os: macos-14
             xcode: Xcode_16.2
             platform: iOS
+          - os: macos-15
+            xcode: Xcode_16.4
+          - os: macos-latest
+            xcode: Xcode_26.2
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
