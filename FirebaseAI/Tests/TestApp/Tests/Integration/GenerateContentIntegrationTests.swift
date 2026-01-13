@@ -447,26 +447,14 @@ struct GenerateContentIntegrationTests {
     )
     let url = "https://developers.googleblog.com/en/introducing-gemma-3-270m/"
     let prompt = "Write a one paragraph summary of this blog post: \(url)"
-
-    // TODO(#15385): Remove `withKnownIssue` when the URL Context tool works consistently using the
-    // Gemini Developer API.
-    try await withKnownIssue(isIntermittent: true) {
-      let response = try await model.generateContent(prompt)
-
-      let candidate = try #require(response.candidates.first)
-      let urlContextMetadata = try #require(candidate.urlContextMetadata)
-      #expect(urlContextMetadata.urlMetadata.count == 1)
-      let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
-      let retrievedURL = try #require(urlMetadata.retrievedURL)
-      #expect(retrievedURL == URL(string: url))
-      #expect(urlMetadata.retrievalStatus == .success)
-    } when: {
-      // This issue only impacts the Gemini Developer API (Google AI), Vertex AI is unaffected.
-      if case .googleAI = config.apiConfig.service {
-        return true
-      }
-      return false
-    }
+    let response = try await model.generateContent(prompt)
+    let candidate = try #require(response.candidates.first)
+    let urlContextMetadata = try #require(candidate.urlContextMetadata)
+    #expect(urlContextMetadata.urlMetadata.count == 1)
+    let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
+    let retrievedURL = try #require(urlMetadata.retrievedURL)
+    #expect(retrievedURL == URL(string: url))
+    #expect(urlMetadata.retrievalStatus == .success)
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
