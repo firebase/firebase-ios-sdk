@@ -452,9 +452,9 @@ struct GenerateContentIntegrationTests {
     let urlContextMetadata = try #require(candidate.urlContextMetadata)
     #expect(urlContextMetadata.urlMetadata.count == 1)
     let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
+    #expect(urlMetadata.retrievalStatus == .success)
     let retrievedURL = try #require(urlMetadata.retrievedURL)
     #expect(retrievedURL == URL(string: url))
-    #expect(urlMetadata.retrievalStatus == .success)
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
