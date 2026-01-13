@@ -146,11 +146,14 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;
+    // getting data collection state from info.plist, user defaults etc. disk I/O on main
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
 
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
+    // read settings cache, disk I/O on main
     FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
-                                                                appIDModel:appModel];
+                                                                appIDModel:appModel
+                                                                   appInfo:appInfo];
 
     FIRCLSOnDemandModel *onDemandModel =
         [[FIRCLSOnDemandModel alloc] initWithFIRCLSSettings:settings fileManager:_fileManager];
@@ -200,6 +203,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     }
 
     _contextInitPromise =
+        // setup with context init (binary image, register exception handler)
         [[[_reportManager startWithProfiling] then:^id _Nullable(NSNumber *_Nullable value) {
           if (![value boolValue]) {
             FIRCLSErrorLog(@"Crash reporting could not be initialized");

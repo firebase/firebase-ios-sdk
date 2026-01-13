@@ -65,6 +65,7 @@ FIRCLSContextInitData* FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   initData.previouslyCrashedFileRootPath = [fileManager rootPath];
   initData.errorsEnabled = [settings errorReportingEnabled];
   initData.customExceptionsEnabled = [settings customExceptionsEnabled];
+  initData.machProtectedEnabled = [settings machProtectedEnabled];
   initData.maxCustomExceptions = [settings maxCustomExceptions];
   initData.maxErrorLogSize = [settings errorLogBufferSize];
   initData.maxLogSize = [settings logBufferSize];
@@ -184,6 +185,12 @@ FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
     dispatch_group_async(group, queue, ^{
       _firclsContext.readonly->machException.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
+
+      // from settings checkout behavior
+      _firclsContext.readonly->machException.behavior = EXCEPTION_DEFAULT;
+      if (initData.machProtectedEnabled) {
+        _firclsContext.readonly->machException.behavior = EXCEPTION_IDENTITY_PROTECTED;
+      }
 
       FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
     });

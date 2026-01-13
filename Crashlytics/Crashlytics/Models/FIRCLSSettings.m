@@ -30,6 +30,8 @@ NSString *const CreatedAtKey = @"created_at";
 NSString *const GoogleAppIDKey = @"google_app_id";
 NSString *const BuildInstanceID = @"build_instance_id";
 NSString *const AppVersion = @"app_version";
+NSString *const FirebaseCrashlyticsMachProtectedEnabledKey =
+    @"FirebaseCrashlyticsMachProtectedEnabled";
 
 @interface FIRCLSSettings ()
 
@@ -47,19 +49,31 @@ NSString *const AppVersion = @"app_version";
 @implementation FIRCLSSettings
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel {
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                            appInfo:(NSDictionary *)appInfo {
   return
       [self initWithFileManager:fileManager
                      appIDModel:appIDModel
+                        appInfo:(NSDictionary *)appInfo
                   deletionQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
 }
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
                          appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                            appInfo:(NSDictionary *)appInfo
                       deletionQueue:(dispatch_queue_t)deletionQueue {
   self = [super init];
   if (!self) {
     return nil;
+  }
+
+  // config the mach exception message receiving behavior
+  self.machProtectedEnabled = false;
+  id crashlyticsMachProtectedEnabled =
+      [appInfo objectForKey:FirebaseCrashlyticsMachProtectedEnabledKey];
+  if ([crashlyticsMachProtectedEnabled isKindOfClass:[NSString class]] ||
+      [crashlyticsMachProtectedEnabled isKindOfClass:[NSNumber class]]) {
+    self.machProtectedEnabled = [crashlyticsMachProtectedEnabled boolValue];
   }
 
   _fileManager = fileManager;

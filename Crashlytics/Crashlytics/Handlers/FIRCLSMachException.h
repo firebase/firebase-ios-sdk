@@ -27,19 +27,40 @@
 
 #pragma mark Structures
 #pragma pack(push, 4)
+
+typedef struct {
+  mach_msg_port_descriptor_t thread;
+  mach_msg_port_descriptor_t task;
+} MachDefaultPayload;
+
+typedef struct {
+  mach_msg_port_descriptor_t task_id_token;
+  mach_msg_port_descriptor_t thread_id;
+} MachProtectdPayload;
+
+union MachMessagePayload {
+  MachDefaultPayload default_payload;
+  MachProtectdPayload protected_payload;
+};
+
+// When set Mach port with default behavior:
+//    payload_1 including thread port
+//    payload_2 including task port
+// When set Mach port with identity protected behavior:
+//    payload_1 including task_id_token
+//    payload_2 including thread_id
 typedef struct {
   mach_msg_header_t head;
   /* start of the kernel processed data */
   mach_msg_body_t msgh_body;
-  mach_msg_port_descriptor_t task_id;
-  mach_msg_port_descriptor_t thread_id;
+  union MachMessagePayload payload;
   /* end of the kernel processed data */
   NDR_record_t NDR;
   exception_type_t exception;
   mach_msg_type_number_t codeCnt;
   mach_exception_data_type_t code[EXCEPTION_CODE_MAX];
   mach_msg_trailer_t trailer;
-} MachExceptionProtectedMessage;
+} MachExceptionMessage;
 
 typedef struct {
   uint64_t pad1;
@@ -68,6 +89,7 @@ typedef struct {
 
   exception_mask_t mask;
   FIRCLSMachExceptionOriginalPorts originalPorts;
+  exception_behavior_t behavior;
 } FIRCLSMachExceptionReadContext;
 
 #pragma mark - API
