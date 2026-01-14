@@ -21,21 +21,28 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct JSONSchema: Sendable {
   enum Kind: Sendable {
-    case string(name: String?, description: String?, guides: StringGuides)
-    case integer(description: String?, guides: IntegerGuides)
-    case double(description: String?, guides: DoubleGuides)
-    case boolean(description: String?)
-    case array(description: String?, item: any FirebaseGenerable.Type, guides: ArrayGuides)
-    case object(name: String, description: String?, properties: [Property])
-    case anyOf(name: String, description: String?, types: [any FirebaseGenerable.Type])
+    case string(guides: StringGuides)
+    case integer(guides: IntegerGuides)
+    case double(guides: DoubleGuides)
+    case boolean
+    case array(item: any FirebaseGenerable.Type, guides: ArrayGuides)
+    case object(properties: [Property])
+    case anyOf(types: [any FirebaseGenerable.Type])
   }
 
+  let type: any FirebaseGenerable.Type
   let kind: Kind
-  let source: String
+  let typeIdentifier: ObjectIdentifier
+  let title: String?
+  let description: String?
 
-  init(kind: Kind, source: String) {
+  init(type: any FirebaseGenerable.Type, kind: Kind, title: String? = nil,
+       description: String? = nil) {
     self.kind = kind
-    self.source = source
+    self.type = type
+    typeIdentifier = ObjectIdentifier(type)
+    self.title = title
+    self.description = description
   }
 
   public struct Property: Sendable {
@@ -68,23 +75,31 @@ public struct JSONSchema: Sendable {
 
   public init(type: any FirebaseGenerable.Type, description: String? = nil,
               properties: [JSONSchema.Property]) {
-    let name = String(describing: type)
-    kind = .object(name: name, description: description, properties: properties)
-    source = name
+    self.init(
+      type: type,
+      kind: .object(properties: properties),
+      title: String(describing: type),
+      description: description
+    )
   }
 
   public init(type: any FirebaseGenerable.Type, description: String? = nil,
               anyOf choices: [String]) {
-    let name = String(describing: type)
-    kind = .string(name: name, description: description, guides: StringGuides(anyOf: choices))
-    source = name
+    self.init(
+      type: type,
+      kind: .string(guides: StringGuides(anyOf: choices)),
+      description: description
+    )
   }
 
   public init(type: any FirebaseGenerable.Type, description: String? = nil,
               anyOf types: [any FirebaseGenerable.Type]) {
-    let name = String(describing: type)
-    kind = .anyOf(name: name, description: description, types: types)
-    source = name
+    self.init(
+      type: type,
+      kind: .anyOf(types: types),
+      title: String(describing: type),
+      description: description
+    )
   }
 
   public enum SchemaError: Error, LocalizedError {
