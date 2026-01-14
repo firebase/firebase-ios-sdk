@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] The URL context tool APIs are now GA.
 - [feature] Added support for implicit caching (context caching) metadata in `GenerateContentResponse`.
   You can now access `cachedContentTokenCount` and `cacheTokensDetails` in `UsageMetadata` to see
   savings from cached content. See the [caching documentation](https://ai.google.dev/gemini-api/docs/caching) for more details.
