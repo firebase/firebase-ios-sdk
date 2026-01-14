@@ -703,30 +703,14 @@ std::vector<std::shared_ptr<api::EvaluableStage>> ToPipelineStages(
   }
 
   // 3. OrderBy Existence Checks
-  const auto& query_order_bys = query.normalized_order_bys();
+  const auto& query_order_bys = query.explicit_order_bys();
   if (!query_order_bys.empty()) {
     std::vector<std::shared_ptr<api::Expr>> exists_exprs;
     exists_exprs.reserve(query_order_bys.size());
-    const auto inequality_fields = query.InequalityFilterFields();
     for (const auto& core_order_by : query_order_bys) {
-      if (inequality_fields.find(core_order_by.field()) !=
-          inequality_fields.end()) {
-        continue;
-      }
-      if (core_order_by.field().IsKeyFieldPath()) {
-        continue;
-      }
       exists_exprs.push_back(std::make_shared<api::FunctionExpr>(
           "exists", std::vector<std::shared_ptr<api::Expr>>{
                         std::make_shared<api::Field>(core_order_by.field())}));
-    }
-    if (!exists_exprs.empty()) {
-      if (exists_exprs.size() == 1) {
-        stages.push_back(std::make_shared<api::Where>(exists_exprs[0]));
-      } else {
-        stages.push_back(std::make_shared<api::Where>(
-            std::make_shared<api::FunctionExpr>("and", exists_exprs)));
-      }
     }
   }
 

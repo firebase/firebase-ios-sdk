@@ -565,11 +565,6 @@ class QueryToPipelineTests: FSTIntegrationTestCase {
   }
 
   func testSupportsNeqNan() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: [
       "1": ["foo": 1, "bar": Double.nan],
       "2": ["foo": 2, "bar": 1],
@@ -584,11 +579,6 @@ class QueryToPipelineTests: FSTIntegrationTestCase {
   }
 
   func testSupportsEqNull() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: [
       "1": ["foo": 1, "bar": NSNull()],
       "2": ["foo": 2, "bar": 1],
@@ -603,11 +593,6 @@ class QueryToPipelineTests: FSTIntegrationTestCase {
   }
 
   func testSupportsNeqNull() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: [
       "1": ["foo": 1, "bar": NSNull()],
       "2": ["foo": 2, "bar": 1],
@@ -716,11 +701,6 @@ class QueryToPipelineTests: FSTIntegrationTestCase {
   }
 
   func testSupportsNotInWith1() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: [
       "1": ["foo": 1, "bar": 2],
       "2": ["foo": 2],
