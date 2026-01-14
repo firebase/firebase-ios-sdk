@@ -1,5 +1,5 @@
-# Unrelased
-- [fixed] Conformed to Mach IPC security restrictions. Note: This change would potentially change mach exception types we receive from kernel which might affect issue clustering result. (#15393)
+# Unreleased
+- [fixed] Conformed to Mach IPC security restrictions. (#15393)
 
 # 12.4.0
 - [fixed] Make set development platform APIs to chain on Crashlytics context init promise.

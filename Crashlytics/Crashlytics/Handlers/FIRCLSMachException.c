@@ -215,10 +215,18 @@ static kern_return_t FIRCLSMachExceptionDispatchMessage(FIRCLSMachExceptionReadC
   // inherited.
   mach_port_t actual_port;
   kern_return_t kr;
-  task_id_token_t token = message->task_id.name;
+  task_id_token_t token = message->task_id_token_t.name;
   kr = task_identity_token_get_task_port(token, TASK_FLAVOR_CONTROL, &actual_port);
 
-  if (kr || actual_port != mach_task_self()) {
+  if (kr != KERN_SUCCESS) {
+    FIRCLSSDKLog("Could not find task from task id token. returning failure\n");
+    return KERN_FAILURE;
+  }
+
+  const bool is_mismatch = (actual_port != mach_task_self());
+  mach_port_deallocate(mach_task_self(), actual_port);
+
+  if (is_mismatch) {
     FIRCLSSDKLog("Mach exception task mis-match, returning failure\n");
     return KERN_FAILURE;
   }
@@ -525,11 +533,13 @@ static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
 
   FIRCLSFileWriteSectionEnd(&file);
 
-  thread_t crashedThread;
+  thread_t crashedThread = THREAD_NULL;
   FIRCLSCrashedThreadLookup(message, &crashedThread);
   FIRCLSSDKLog("Crashed threads: %d\n", crashedThread);
   FIRCLSHandler(&file, crashedThread, NULL, true);
-
+  if (crashedThread != THREAD_NULL) {
+    mach_port_deallocate(mach_task_self(), crashedThread);
+  }
   FIRCLSFileClose(&file);
 
   return true;
@@ -539,35 +549,32 @@ static void FIRCLSCrashedThreadLookup(MachExceptionProtectedMessage* message, th
   thread_act_array_t threadList;
   mach_msg_type_number_t threadCount;
 
-  // last 64 bits include thread id info
-  MachExceptionProtectedThreadInfo protected_thread_info = *(MachExceptionProtectedThreadInfo *) &message->thread_id;
   kern_return_t kr = task_threads(mach_task_self(), &threadList, &threadCount);
-
   if (kr != KERN_SUCCESS) {
     FIRCLSSDKLogError("Failed to get threads: %d\n", kr);
     return;
   }
+
+  // Find the crashed thread.
   for (int i = 0; i < threadCount; i++) {
-      thread_t thread = threadList[i];
+    thread_identifier_info_data_t identifierInfo;
+    mach_msg_type_number_t infoCount = THREAD_IDENTIFIER_INFO_COUNT;
 
-      thread_basic_info_data_t basicInfo;
-      thread_identifier_info_data_t identifierInfo;
-      mach_msg_type_number_t infoCount = THREAD_BASIC_INFO_COUNT;
+    kr = thread_info(threadList[i], THREAD_IDENTIFIER_INFO, (thread_info_t)&identifierInfo, &infoCount);
 
-      kr = thread_info(thread, THREAD_IDENTIFIER_INFO, (thread_info_t)&identifierInfo, &infoCount);
-
-      if (kr == KERN_SUCCESS) {
-        FIRCLSSDKLog("Thread %d: Thread port: %d, thread id: %llx\n", i, thread, identifierInfo.thread_id);
-
-        if (protected_thread_info.thread_id == identifierInfo.thread_id) {
-          FIRCLSSDKLog("Find crashed thread: %d\n", thread);
-          *crashedThread = thread;
-        }
+    if (kr == KERN_SUCCESS) {
+      FIRCLSSDKLog("Thread %d: Thread port: %d, thread id: %llx\n", i, threadList[i], identifierInfo.thread_id);
+      if (message->thread_id == identifierInfo.thread_id) {
+        FIRCLSSDKLog("Find crashed thread: %d\n", threadList[i]);
+        *crashedThread = threadList[i];
+        break;
       }
-
-    // Note: You must deallocate the send right for each thread port
-    // to prevent port leaks, as task_threads increments the ref count.
-    mach_port_deallocate(mach_task_self(), thread);
+    }
+  }
+  for (int i = 0; i < threadCount; i++) {
+    if (threadList[i] != *crashedThread) {
+      mach_port_deallocate(mach_task_self(), threadList[i]);
+    }
   }
   vm_deallocate(mach_task_self(), (vm_address_t)threadList, threadCount * sizeof(thread_t));
 }
