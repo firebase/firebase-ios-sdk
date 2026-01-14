@@ -139,4 +139,4 @@ extension RemoteConfig.RemoteConfigUpdateSequence.Iterator: Sendable {}
 
 // Since RemoteConfig is a thread-safe Objective-C class (it uses a serial queue for its
 // operations), we can safely declare its conformance to Sendable.
-extension RemoteConfig: @unchecked @retroactive Sendable {}
+extension RemoteConfig: @unchecked Sendable {}
