@@ -18,12 +18,9 @@
 
 import PackageDescription
 
-let firebaseVersion = "12.8.0"
+let firebaseVersion = "12.9.0"
 
-// For private preview, Firestore must be built from source.
-let shouldUseSourceFirestore = true
-// Remove the above and uncomment the line below before merging Firestore to main.
-// let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
+let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
 let package = Package(
   name: "Firebase",
@@ -139,10 +136,6 @@ let package = Package(
     .package(
       url: "https://github.com/google/promises.git",
       "2.4.0" ..< "3.0.0"
-    ),
-    .package(
-      url: "https://github.com/apple/swift-protobuf.git",
-      "1.19.0" ..< "2.0.0"
     ),
     googleAppMeasurementDependency(),
     .package(
@@ -353,8 +346,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.5.0/FirebaseAnalytics.zip",
-      checksum: "7ff922682f5d47e6add687979b3126f391c7d2e8f367599d4ec8d2a58dce8cc9"
+      url: "https://dl.google.com/firebase/ios/swiftpm/12.8.0/FirebaseAnalytics.zip",
+      checksum: "7b10e5c90cff02d70af6ad6ab5f997d00dcbe1ed8ad6100d8207844d65187850"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -820,17 +813,9 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseInstallations",
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-        .product(name: "SwiftProtobuf", package: "swift-protobuf"),
       ],
       path: "FirebaseMLModelDownloader/Sources",
-      exclude: [
-        "proto/firebase_ml_log_sdk.proto",
-      ],
-      cSettings: [
-        .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
-      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -1425,7 +1410,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.5.0")
+  return .package(url: appMeasurementURL, exact: "12.8.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1606,8 +1591,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.4.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "58b916624c01a56c5de694cfc9c5cc7aabcafb13b54e7bde8c83bacc51a3460d"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/12.8.0/rc2/FirebaseFirestoreInternal.zip",
+        checksum: "5592480d4920f570b0db02fef4ef0dcb21784d752f714cbe9614fff2515eea39"
       )
     }
   }()

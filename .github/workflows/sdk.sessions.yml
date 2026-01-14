@@ -1,0 +1,41 @@
+name: sdk.sessions
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    - 'FirebaseSessions**'
+    - 'FirebaseSessions.podspec'
+    - '.github/workflows/sdk.sessions.yml'
+    - '.github/workflows/_spm.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 6pm (PDT) / 9pm (EDT) - cron uses UTC times
+    - cron:  '0 1 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  spm:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseSessionsUnit
+
+  catalyst:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseSessions
+      target: FirebaseSessions-Unit-unit
+
+  pod_lib_lint:
+    uses: ./.github/workflows/_cocoapods.yml
+    with:
+      product: FirebaseSessions
+      supports_swift6: true

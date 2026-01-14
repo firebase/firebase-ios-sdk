@@ -264,8 +264,8 @@ struct GenerativeAIService {
       logRPCError(rpcError)
       return rpcError
     } catch {
-      // TODO: Return an error about an unrecognized error payload with the response body
-      return error
+      let responseString = String(data: responseData, encoding: .utf8) ?? ""
+      return UnrecognizedRPCError(responseBody: responseString)
     }
   }
 
