@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] The URL context tool APIs are now GA.
+
 # 12.8.0
 - [feature] Added support for configuring thinking levels with Gemini 3 series
   models and onwards. (#15557)
