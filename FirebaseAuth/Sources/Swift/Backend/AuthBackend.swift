@@ -27,6 +27,7 @@ protocol AuthBackendProtocol: Sendable {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+// TODO: Add documentation.
 final class AuthBackend: AuthBackendProtocol {
   static func authUserAgent() -> String {
     return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
