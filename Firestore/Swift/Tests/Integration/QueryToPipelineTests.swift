@@ -707,7 +707,18 @@ class QueryToPipelineTests: FSTIntegrationTestCase {
     let pipeline = db.pipeline().create(from: query)
     let snapshot = try await pipeline.execute()
 
-    verifyResults(snapshot, [["foo": 3, "bar": 10]])
+    switch FSTIntegrationTestCase.backendEdition() {
+    case .standard:
+      // In Standard, `NOT_IN` requires the field to exist.
+      // So document "2" (with no "bar" field) is filtered out.
+      verifyResults(snapshot, [["foo": 3, "bar": 10]])
+    case .enterprise:
+      // In Enterprise, `NOT_IN` does not require the field to exist.
+      // So document "2" (with no "bar" field) is included.
+      verifyResults(snapshot, [["foo": 2], ["foo": 3, "bar": 10]])
+    @unknown default:
+      XCTFail("Unknown backend edition")
+    }
   }
 
   func testSupportsOrOperator() async throws {
