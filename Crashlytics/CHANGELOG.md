@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Installed Crashlytics signal and mach exception handlers synchronously to
+  improve compatibility with other crash reporters and runtime environments (like
+  Mono/Xamarin). (#15383)
+
 # 12.4.0
 - [fixed] Make set development platform APIs to chain on Crashlytics context init promise.
 
