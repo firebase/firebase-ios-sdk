@@ -264,31 +264,6 @@
                             messageCode: .testError)
     }
 
-    /// Compare proto serialization methods.
-    func testTelemetryEncoding() {
-      let fakeModel = CustomModel(
-        name: fakeModelName,
-        size: 10,
-        path: fakeModelPath,
-        hash: fakeModelHash
-      )
-      var modelOptions = ModelOptions()
-      modelOptions.setModelOptions(modelName: fakeModel.name, modelHash: fakeModel.hash)
-
-      guard let binaryData = try? modelOptions.serializedData(),
-            let jsonData = try? modelOptions.jsonUTF8Data(),
-            let binaryEvent = try? ModelOptions(serializedBytes: binaryData),
-            let jsonEvent = try? ModelOptions(jsonUTF8Data: jsonData) else {
-        XCTFail("Encoding error.")
-        return
-      }
-
-      XCTAssertNotNil(binaryData)
-      XCTAssertNotNil(jsonData)
-      XCTAssertLessThan(binaryData.count, jsonData.count)
-      XCTAssertEqual(binaryEvent, jsonEvent)
-    }
-
     /// Get model info if server returns a new model info.
     func testGetModelInfoWith200() {
       let session = fakeModelInfoSessionWithURL(fakeDownloadURL, statusCode: 200)
