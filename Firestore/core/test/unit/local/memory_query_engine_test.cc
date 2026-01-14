@@ -30,9 +30,12 @@ std::unique_ptr<Persistence> PersistenceFactory() {
 
 }  // namespace
 
-INSTANTIATE_TEST_SUITE_P(MemoryQueryEngineTest,
-                         QueryEngineTest,
-                         testing::Values(PersistenceFactory));
+INSTANTIATE_TEST_SUITE_P(
+    MemoryQueryEngineTest,
+    QueryEngineTest,
+    testing::Values(
+        QueryEngineTestParams{PersistenceFactory, /*use_pipeline=*/false},
+        QueryEngineTestParams{PersistenceFactory, /*use_pipeline=*/true}));
 
 }  // namespace local
 }  // namespace firestore

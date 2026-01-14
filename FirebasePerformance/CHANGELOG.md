@@ -1,3 +1,6 @@
+# 12.8.0
+- [fixed] Use UIScreen.maximumFramesPerSecond for dynamic slow frame threshold. (#10220)
+
 # 12.5.0
 - [fixed] Prevent race condition crash in FPRTraceBackgroundActivityTracker. (#14273)
 - [fixed] Fix app start trace outliers from network delays. (#10733)

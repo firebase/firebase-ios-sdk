@@ -128,8 +128,8 @@ RemoteEvent NoChangeEvent(int target_id,
 
   // Register target data for the target. The query itself is not inspected, so
   // we can listen to any path.
-  TargetData target_data(Query("foo").ToTarget(), target_id, 0,
-                         QueryPurpose::Listen);
+  TargetData target_data(core::TargetOrPipeline(Query("foo").ToTarget()),
+                         target_id, 0, QueryPurpose::Listen);
   metadata_provider.SetSyncedKeys(DocumentKeySet{}, target_data);
 
   WatchChangeAggregator aggregator{&metadata_provider};
@@ -148,8 +148,8 @@ RemoteEvent ExistenceFilterEvent(TargetId target_id,
                                  const DocumentKeySet& synced_keys,
                                  int remote_count,
                                  int version) {
-  TargetData target_data(Query("foo").ToTarget(), target_id, 0,
-                         QueryPurpose::Listen);
+  TargetData target_data(core::TargetOrPipeline(Query("foo").ToTarget()),
+                         target_id, 0, QueryPurpose::Listen);
   remote::FakeTargetMetadataProvider metadata_provider;
   metadata_provider.SetSyncedKeys(synced_keys, target_data);
 
@@ -262,21 +262,40 @@ void LocalStoreTestBase::ConfigureFieldIndexes(
 }
 
 TargetId LocalStoreTestBase::AllocateQuery(core::Query query) {
-  TargetData target_data = local_store_.AllocateTarget(query.ToTarget());
+  core::QueryOrPipeline query_or_pipeline_to_use = core::QueryOrPipeline(query);
+  if (should_use_pipeline_) {
+    query_or_pipeline_to_use =
+        core::QueryOrPipeline(ConvertQueryToPipeline(query));
+  }
+
+  TargetData target_data = local_store_.AllocateTarget(
+      query_or_pipeline_to_use.ToTargetOrPipeline());
   last_target_id_ = target_data.target_id();
   return target_data.target_id();
 }
 
 TargetData LocalStoreTestBase::GetTargetData(const core::Query& query) {
   return persistence_->Run("GetTargetData", [&] {
-    return *local_store_.GetTargetData(query.ToTarget());
+    core::QueryOrPipeline query_or_pipeline_to_use =
+        core::QueryOrPipeline(query);
+    if (should_use_pipeline_) {
+      query_or_pipeline_to_use =
+          core::QueryOrPipeline(ConvertQueryToPipeline(query));
+    }
+    return *local_store_.GetTargetData(
+        query_or_pipeline_to_use.ToTargetOrPipeline());
   });
 }
 
 QueryResult LocalStoreTestBase::ExecuteQuery(const core::Query& query) {
   ResetPersistenceStats();
-  last_query_result_ =
-      local_store_.ExecuteQuery(query, /* use_previous_results= */ true);
+  core::QueryOrPipeline query_or_pipeline_to_run = core::QueryOrPipeline(query);
+  if (should_use_pipeline_) {
+    query_or_pipeline_to_run =
+        core::QueryOrPipeline(ConvertQueryToPipeline(query));
+  }
+  last_query_result_ = local_store_.ExecuteQuery(
+      query_or_pipeline_to_run, /* use_previous_results= */ true);
   return last_query_result_;
 }
 
@@ -306,7 +325,18 @@ void LocalStoreTestBase::ResetPersistenceStats() {
   query_engine_.ResetCounts();
 }
 
-LocalStoreTest::LocalStoreTest() : LocalStoreTestBase(GetParam()()) {
+// Helper to convert a Query to a RealtimePipeline.
+// This is identical to the one in QueryEngineTestBase.
+api::RealtimePipeline LocalStoreTestBase::ConvertQueryToPipeline(
+    const core::Query& query) {
+  return {
+      core::ToPipelineStages(query),
+      std::make_unique<remote::Serializer>(model::DatabaseId("test-project"))};
+}
+
+LocalStoreTest::LocalStoreTest()
+    : LocalStoreTestBase(GetParam().local_store_helper_factory()) {
+  should_use_pipeline_ = GetParam().use_pipeline;
 }
 
 TEST_P(LocalStoreTest, MutationBatchKeys) {
@@ -926,7 +956,7 @@ TEST_P(LocalStoreTest, CanExecuteMixedCollectionQueries) {
 
 TEST_P(LocalStoreTest, ReadsAllDocumentsForInitialCollectionQueries) {
   core::Query query = Query("foo");
-  local_store_.AllocateTarget(query.ToTarget());
+  local_store_.AllocateTarget(core::TargetOrPipeline(query.ToTarget()));
 
   ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/baz", 10, Map()), {2}, {}));
   ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/bar", 20, Map()), {2}, {}));
@@ -947,7 +977,8 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   if (IsGcEager()) return;
 
   core::Query query = Query("foo/bar");
-  TargetData target_data = local_store_.AllocateTarget(query.ToTarget());
+  TargetData target_data =
+      local_store_.AllocateTarget(core::TargetOrPipeline(query.ToTarget()));
   ListenSequenceNumber initial_sequence_number = target_data.sequence_number();
   TargetId target_id = target_data.target_id();
   ByteString resume_token = testutil::ResumeToken(1000);
@@ -967,7 +998,8 @@ TEST_P(LocalStoreTest, PersistsResumeTokens) {
   local_store_.ReleaseTarget(target_id);
 
   // Should come back with the same resume token
-  TargetData target_data2 = local_store_.AllocateTarget(query.ToTarget());
+  TargetData target_data2 =
+      local_store_.AllocateTarget(core::TargetOrPipeline(query.ToTarget()));
   ASSERT_EQ(target_data2.resume_token(), resume_token);
 
   // The sequence number should have been bumped when we saved the new resume

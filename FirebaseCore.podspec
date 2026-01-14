@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '12.6.0'
+  s.version          = '12.8.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -53,9 +53,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/Logger', '~> 8.1'
-  s.dependency 'FirebaseCoreInternal', '~> 12.6.0'
+  s.dependency 'FirebaseCoreInternal', '~> 12.8.0'
 
   s.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'Firebase_VERSION=' + s.version.to_s,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'OTHER_CFLAGS' => '-fno-autolink'

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseInstallations'
-  s.version          = '12.6.0'
+  s.version          = '12.8.0'
   s.summary          = 'Firebase Installations'
 
   s.description      = <<-DESC
@@ -45,13 +45,14 @@ Pod::Spec.new do |s|
   }
 
   s.framework = 'Security'
-  s.dependency 'FirebaseCore', '~> 12.6.0'
+  s.dependency 'FirebaseCore', '~> 12.8.0'
   s.dependency 'PromisesObjC', '~> 2.4'
   s.dependency 'GoogleUtilities/Environment', '~> 8.1'
   s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
 
   preprocessor_definitions = ''
   s.pod_target_xcconfig = {
+    'DEFINES_MODULE' => 'YES',
     'GCC_PREPROCESSOR_DEFINITIONS' => preprocessor_definitions,
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }

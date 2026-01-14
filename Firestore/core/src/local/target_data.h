@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/types.h"
@@ -77,7 +78,7 @@ class TargetData {
    * at the resume token or read time. Documents are counted only when making a
    * listen request with resume token or read time, otherwise, keep it null.
    */
-  TargetData(core::Target target,
+  TargetData(core::TargetOrPipeline target,
              model::TargetId target_id,
              model::ListenSequenceNumber sequence_number,
              QueryPurpose purpose,
@@ -90,7 +91,7 @@ class TargetData {
    * Convenience constructor for use when creating a TargetData for the first
    * time.
    */
-  TargetData(const core::Target target,
+  TargetData(const core::TargetOrPipeline target,
              int target_id,
              model::ListenSequenceNumber sequence_number,
              QueryPurpose purpose);
@@ -108,7 +109,7 @@ class TargetData {
   static TargetData Invalid();
 
   /** The target being listened to. */
-  const core::Target& target() const {
+  const core::TargetOrPipeline& target_or_pipeline() const {
     return target_;
   }
 
@@ -191,7 +192,7 @@ class TargetData {
   friend std::ostream& operator<<(std::ostream& os, const TargetData& value);
 
  private:
-  core::Target target_;
+  core::TargetOrPipeline target_;
   model::TargetId target_id_ = 0;
   model::ListenSequenceNumber sequence_number_ = 0;
   QueryPurpose purpose_ = QueryPurpose::Listen;

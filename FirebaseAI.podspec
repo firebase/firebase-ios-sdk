@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAI'
-  s.version          = '12.6.0'
+  s.version          = '12.8.0'
   s.summary          = 'Firebase AI SDK'
 
   s.description      = <<-DESC
@@ -35,7 +35,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
     'FirebaseAI/Wrapper/Sources/**/*.swift',
   ]
 
-  s.swift_version = '5.9'
+  s.swift_version = '6.0'
 
   s.framework = 'Foundation'
   s.ios.framework = 'UIKit'
@@ -43,8 +43,8 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI SDK
   s.tvos.framework = 'UIKit'
   s.watchos.framework = 'WatchKit'
 
-  s.dependency 'FirebaseAILogic', '12.6.0'
-  s.dependency 'FirebaseCore', '~> 12.6.0'
+  s.dependency 'FirebaseAILogic', '12.8.0'
+  s.dependency 'FirebaseCore', '~> 12.8.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests_dir = 'FirebaseAI/Wrapper/Tests/'

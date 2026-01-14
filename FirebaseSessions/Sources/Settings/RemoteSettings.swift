@@ -76,10 +76,7 @@ final class RemoteSettings: SettingsProvider, Sendable {
       }
     }
   }
-}
 
-typealias RemoteSettingsConfigurations = RemoteSettings
-extension RemoteSettingsConfigurations {
   var sessionsEnabled: Bool? {
     return sessionsCache[RemoteSettings.flagSessionsEnabled] as? Bool
   }
@@ -91,10 +88,7 @@ extension RemoteSettingsConfigurations {
   var sessionTimeout: TimeInterval? {
     return sessionsCache[RemoteSettings.flagSessionTimeout] as? Double
   }
-}
 
-typealias RemoteSettingsProvider = RemoteSettings
-extension RemoteSettingsConfigurations {
   func updateSettings(currentTime: Date) {
     fetchAndCacheSettings(currentTime: currentTime)
   }

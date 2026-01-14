@@ -169,7 +169,19 @@ struct GenerativeAIService {
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
     var urlRequest = try URLRequest(url: request.getURL())
     urlRequest.httpMethod = "POST"
-    urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
+    #if DEBUG
+      let accessToken = ProcessInfo.processInfo.environment[Constants.gCloudAccessTokenEnvVarKey]
+    #else
+      let accessToken: String? = nil
+    #endif // DEBUG
+    if let accessToken {
+      urlRequest.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+    } else {
+      urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
+    }
+    if let bundleID = Bundle.main.bundleIdentifier {
+      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
+    }
     urlRequest.setValue(
       "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
       forHTTPHeaderField: "x-goog-api-client"
@@ -190,9 +202,8 @@ struct GenerativeAIService {
       }
     }
 
-    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(
-      forcingRefresh: false
-    ) {
+    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(forcingRefresh: false),
+       accessToken == nil {
       urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
     }
 
@@ -253,8 +264,8 @@ struct GenerativeAIService {
       logRPCError(rpcError)
       return rpcError
     } catch {
-      // TODO: Return an error about an unrecognized error payload with the response body
-      return error
+      let responseString = String(data: responseData, encoding: .utf8) ?? ""
+      return UnrecognizedRPCError(responseBody: responseString)
     }
   }
 

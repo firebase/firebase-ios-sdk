@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "Firestore/core/src/api/api_fwd.h"
+#include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/credentials/credentials_fwd.h"
@@ -112,6 +113,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
                          const std::vector<model::AggregateField>& aggregates,
                          api::AggregateQueryCallback&& result_callback);
 
+  void RunPipeline(
+      const api::Pipeline& pipeline,
+      util::StatusOrCallback<api::PipelineSnapshot>&& result_callback);
+
   /** Returns true if the given error is a gRPC ABORTED error. */
   static bool IsAbortedError(const util::Status& error);
 
@@ -194,6 +199,12 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       const core::Query& query,
       const std::vector<model::AggregateField>& aggregates,
       api::AggregateQueryCallback&& callback);
+
+  void RunPipelineWithCredentials(
+      const credentials::AuthToken& auth_token,
+      const std::string& app_check_token,
+      const api::Pipeline& pipeline,
+      util::StatusOrCallback<api::PipelineSnapshot>&& result_callback);
 
   using OnCredentials = std::function<void(
       const util::StatusOr<credentials::AuthToken>&, const std::string&)>;

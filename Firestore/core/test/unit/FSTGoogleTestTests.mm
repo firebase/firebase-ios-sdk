@@ -247,16 +247,25 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
     const char* path = part.file_name() ? part.file_name() : "";
     int line = part.line_number() > 0 ? part.line_number() : 0;
 
-    auto* location = [[XCTSourceCodeLocation alloc] initWithFilePath:@(path)
-                                                          lineNumber:line];
-    auto* context = [[XCTSourceCodeContext alloc] initWithLocation:location];
-    auto* issue = [[XCTIssue alloc] initWithType:XCTIssueTypeAssertionFailure
-                              compactDescription:@(part.summary())
-                             detailedDescription:@(part.message())
-                               sourceCodeContext:context
-                                 associatedError:nil
-                                     attachments:@[]];
-    [self recordIssue:issue];
+    NSString* pathString = @(path);
+    NSURL* fileURL = [NSURL fileURLWithPath:pathString];
+    NSString* absolutePath = fileURL.path;
+
+    if (absolutePath) {
+      auto* location =
+          [[XCTSourceCodeLocation alloc] initWithFilePath:absolutePath
+                                               lineNumber:line];
+      auto* context = [[XCTSourceCodeContext alloc] initWithLocation:location];
+      auto* issue = [[XCTIssue alloc] initWithType:XCTIssueTypeAssertionFailure
+                                compactDescription:@(part.summary())
+                               detailedDescription:@(part.message())
+                                 sourceCodeContext:context
+                                   associatedError:nil
+                                       attachments:@[]];
+      [self recordIssue:issue];
+    } else {
+      XCTFail(@"(%s:%d) %s", path, line, part.summary());
+    }
   }
 }
 

@@ -299,11 +299,18 @@ public final class FirebaseAI: Sendable {
 
   private func developerModelResourceName(modelName: String) -> String {
     switch apiConfig.service.endpoint {
-    case .firebaseProxyStaging, .firebaseProxyProd:
-      let projectID = firebaseInfo.projectID
-      return "projects/\(projectID)/models/\(modelName)"
-    case .googleAIBypassProxy:
-      return "models/\(modelName)"
+    case .firebaseProxyProd:
+      return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
+    #if DEBUG
+      case .googleAIBypassProxy:
+        return "models/\(modelName)"
+      case .firebaseProxyStaging:
+        return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
+      case .vertexAIStagingBypassProxy:
+        fatalError(
+          "The Vertex AI staging endpoint does not support the Gemini Developer API (Google AI)."
+        )
+    #endif // DEBUG
     }
   }
 

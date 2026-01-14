@@ -1,3 +1,7 @@
+# 12.7.0
+- [fixed] Fix `Fatal Exception: FirebaseDatabasePersistenceFailure`. (#4493)
+- [fixed] Concurrency crash in FView. (#15514)
+
 # 11.9.0
 - [fixed] Fix connection failure issue introduced in 10.27.0 by restoring the
   Socket Rocket implementation instead of `NSURLSessionWebSocket`. Note that
