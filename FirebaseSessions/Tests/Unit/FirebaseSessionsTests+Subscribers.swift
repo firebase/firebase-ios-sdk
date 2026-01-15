@@ -123,4 +123,28 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
       }
     )
   }
+
+  @MainActor func test_registerSubscriber_isAsync() {
+    runSessionsSDK(
+      subscriberSDKs: [
+        mockCrashlyticsSubscriber,
+      ], preSessionsInit: { _ in
+        // Nothing
+
+      }, postSessionsInit: {
+        // Register the subscribers
+        // This is called on the Main Actor
+        sessions.register(subscriber: self.mockCrashlyticsSubscriber)
+
+        // Since register is async, the subscriber should NOT have received the session update yet
+        // Previously this was synchronous, so it would have been set.
+        // We do this check before yielding the main loop.
+        XCTAssertNil(self.mockCrashlyticsSubscriber.sessionThatChanged)
+
+      }, postLogEvent: { result, subscriberSDKs in
+        // After the flow completes (wait expectation), it SHOULD be set.
+        self.assertValidChangedSessionID()
+      }
+    )
+  }
 }

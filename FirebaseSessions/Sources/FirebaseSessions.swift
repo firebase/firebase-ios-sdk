@@ -49,14 +49,48 @@ private enum GoogleDataTransportConfig {
   /// `subscribers` are used to determine the Data Collection state of the Sessions SDK.
   /// If any Subscribers has Data Collection enabled, the Sessions SDK will send events
   private var subscribers: [SessionsSubscriber] = []
-  /// `subscriberPromises` are used to wait until all Subscribers have registered
-  /// themselves. Subscribers must have Data Collection state available upon registering.
-  private var subscriberPromises: [SessionsSubscriberName: Promise<Void>] = [:]
-
   /// Notifications
   static let SessionIDChangedNotificationName = Notification
     .Name("SessionIDChangedNotificationName")
   let notificationCenter = NotificationCenter()
+
+  /// Thread-safe state for subscribers
+  private actor SubscriberState {
+    var subscribers: [SessionsSubscriber] = []
+    var subscriberPromises: [SessionsSubscriberName: Promise<Void>] = [:]
+
+    func add(_ subscriber: SessionsSubscriber) {
+      subscribers.append(subscriber)
+      subscriberPromises[subscriber.sessionsSubscriberName]?.fulfill(())
+    }
+
+    func setPromise(for name: SessionsSubscriberName, promise: Promise<Void>) {
+      subscriberPromises[name] = promise
+    }
+
+    func getPromises() -> [Promise<Void>] {
+      return Array(subscriberPromises.values)
+    }
+
+    var isAnyDataCollectionEnabled: Bool {
+      for subscriber in subscribers {
+        if subscriber.isDataCollectionEnabled {
+          return true
+        }
+      }
+      return false
+    }
+
+    func apply(to event: SessionStartEvent, appInfo: ApplicationInfoProtocol) {
+      for subscriber in subscribers {
+        event.set(subscriber: subscriber.sessionsSubscriberName,
+                  isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
+                  appInfo: appInfo)
+      }
+    }
+  }
+
+  private let subscriberState = SubscriberState()
 
   // MARK: - Initializers
 
@@ -153,8 +187,13 @@ private enum GoogleDataTransportConfig {
     super.init()
 
     let dependencies = SessionsDependencies.dependencies
-    for subscriberName in dependencies {
-      subscriberPromises[subscriberName] = Promise<Void>.pending()
+    // We must initialize promises synchronously before listening, but the actor is isolated.
+    // Since we are in init and cannot await, we launch a Task to populate.
+    Task { [weak self] in
+      guard let self = self else { return }
+      for subscriberName in dependencies {
+         await self.subscriberState.setPromise(for: subscriberName, promise: Promise<Void>.pending())
+      }
     }
 
     Logger
@@ -173,45 +212,56 @@ private enum GoogleDataTransportConfig {
 
       let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: self.appInfo)
 
-      // If there are no Dependencies, then the Sessions SDK can't acknowledge
-      // any products data collection state, so the Sessions SDK won't send events.
-      guard !self.subscriberPromises.isEmpty else {
-        loggedEventCallback(.failure(.NoDependenciesError))
-        return
-      }
+      // Start an async context to interact with actor
+      Task { [weak self] in
+         guard let self = self else { return }
+         let promises = await self.subscriberState.getPromises()
+         
+         // If there are no Dependencies, then the Sessions SDK can't acknowledge
+         // any products data collection state, so the Sessions SDK won't send events.
+         guard !promises.isEmpty else {
+            loggedEventCallback(.failure(.NoDependenciesError))
+            return
+         }
 
-      // Wait until all subscriber promises have been fulfilled before
-      // doing any data collection.
-      all(self.subscriberPromises.values).then(on: loggedEventCallbackQueue) { _ in
-        guard self.isAnyDataCollectionEnabled else {
-          loggedEventCallback(.failure(.DataCollectionError))
-          return
-        }
+          // Wait until all subscriber promises have been fulfilled before
+          // doing any data collection.
+          all(promises).then(on: loggedEventCallbackQueue) { _ in
+            Task { [weak self] in
+                guard let self = self else { return }
+                
+                let isEnabled = await self.subscriberState.isAnyDataCollectionEnabled
+                guard isEnabled else {
+                  loggedEventCallback(.failure(.DataCollectionError))
+                  return
+                }
 
-        Logger.logDebug("Data Collection is enabled for at least one Subscriber")
+                Logger.logDebug("Data Collection is enabled for at least one Subscriber")
 
-        // Fetch settings if they have expired. This must happen after the check for
-        // data collection because it uses the network, but it must happen before the
-        // check for sessionsEnabled from Settings because otherwise we would permanently
-        // turn off the Sessions SDK when we disabled it.
-        self.settings.updateSettings()
+                // Fetch settings if they have expired. This must happen after the check for
+                // data collection because it uses the network, but it must happen before the
+                // check for sessionsEnabled from Settings because otherwise we would permanently
+                // turn off the Sessions SDK when we disabled it.
+                self.settings.updateSettings()
 
-        self.addSubscriberFields(event: event)
-        event.setSamplingRate(samplingRate: self.settings.samplingRate)
+                await self.subscriberState.apply(to: event, appInfo: self.appInfo)
+                event.setSamplingRate(samplingRate: self.settings.samplingRate)
 
-        guard sessionInfo.shouldDispatchEvents else {
-          loggedEventCallback(.failure(.SessionSamplingError))
-          return
-        }
+                guard sessionInfo.shouldDispatchEvents else {
+                  loggedEventCallback(.failure(.SessionSamplingError))
+                  return
+                }
 
-        guard self.settings.sessionsEnabled else {
-          loggedEventCallback(.failure(.DisabledViaSettingsError))
-          return
-        }
+                guard self.settings.sessionsEnabled else {
+                  loggedEventCallback(.failure(.DisabledViaSettingsError))
+                  return
+                }
 
-        self.coordinator.attemptLoggingSessionStart(event: event) { result in
-          loggedEventCallback(result)
-        }
+                self.coordinator.attemptLoggingSessionStart(event: event) { result in
+                  loggedEventCallback(result)
+                }
+            }
+          }
       }
     }
   }
@@ -225,24 +275,7 @@ private enum GoogleDataTransportConfig {
     return randomValue <= settings.samplingRate
   }
 
-  // MARK: - Data Collection
 
-  var isAnyDataCollectionEnabled: Bool {
-    for subscriber in subscribers {
-      if subscriber.isDataCollectionEnabled {
-        return true
-      }
-    }
-    return false
-  }
-
-  func addSubscriberFields(event: SessionStartEvent) {
-    for subscriber in subscribers {
-      event.set(subscriber: subscriber.sessionsSubscriberName,
-                isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
-                appInfo: appInfo)
-    }
-  }
 
   // MARK: - SessionsProvider
 
@@ -265,6 +298,7 @@ private enum GoogleDataTransportConfig {
     }
   }
 
+
   func register(subscriber: SessionsSubscriber) {
     Logger
       .logDebug(
@@ -277,21 +311,27 @@ private enum GoogleDataTransportConfig {
       subscriber.onSessionChanged(self.currentSessionDetails)
     }
 
-    // Guaranteed to execute its callback on the main queue because of the queue parameter.
-    notificationCenter.addObserver(
-      forName: Sessions.SessionIDChangedNotificationName,
-      object: nil,
-      queue: OperationQueue.main
-    ) { notification in
-      callback.invoke(notification: notification)
-    }
-    // Immediately call the callback because the Sessions SDK starts
-    // before subscribers, so subscribers will miss the first Notification
-    subscriber.onSessionChanged(currentSessionDetails)
+    // Bridge to async world
+    Task {
+        // Guaranteed to execute its callback on the main queue because of the queue parameter.
+        self.notificationCenter.addObserver(
+          forName: Sessions.SessionIDChangedNotificationName,
+          object: nil,
+          queue: OperationQueue.main
+        ) { notification in
+          callback.invoke(notification: notification)
+        }
 
-    // Fulfil this subscriber's promise
-    subscribers.append(subscriber)
-    subscriberPromises[subscriber.sessionsSubscriberName]?.fulfill(())
+        // Immediately call the callback because the Sessions SDK starts
+        // before subscribers, so subscribers will miss the first Notification
+        // Since we are likely not on main thread here, we ensure main thread for the callback
+        await MainActor.run {
+             subscriber.onSessionChanged(self.currentSessionDetails)
+        }
+
+        // Fulfil this subscriber's promise via actor
+        await self.subscriberState.add(subscriber)
+    }
   }
 
   // MARK: - Library conformance
