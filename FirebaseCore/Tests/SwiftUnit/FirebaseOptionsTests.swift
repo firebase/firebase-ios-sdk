@@ -108,6 +108,35 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertNotEqual(options.apiKey, apiKey)
   }
 
+  func testCopying() {
+    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
+                                  gcmSenderID: Constants.Options.gcmSenderID)
+    options.apiKey = Constants.Options.apiKey
+    options.projectID = Constants.Options.projectID
+
+    // Set a custom app group ID to verify it is copied (since it's not in the dictionary)
+    let customAppGroupID = "customAppGroupID"
+    options.appGroupID = customAppGroupID
+
+    guard let copiedOptions = options.copy() as? FirebaseOptions else {
+      XCTFail("Copy failed to return a FirebaseOptions instance")
+      return
+    }
+
+    XCTAssertEqual(copiedOptions.googleAppID, options.googleAppID)
+    XCTAssertEqual(copiedOptions.gcmSenderID, options.gcmSenderID)
+    XCTAssertEqual(copiedOptions.apiKey, options.apiKey)
+    XCTAssertEqual(copiedOptions.projectID, options.projectID)
+    XCTAssertEqual(copiedOptions.appGroupID, customAppGroupID)
+
+    // Verify deep copy / independence
+    options.apiKey = "newApiKey"
+    options.appGroupID = "newAppGroupID"
+
+    XCTAssertEqual(copiedOptions.apiKey, Constants.Options.apiKey)
+    XCTAssertEqual(copiedOptions.appGroupID, customAppGroupID)
+  }
+
   func testOptionsEquality() throws {
     let defaultOptions1 = try XCTUnwrap(
       FirebaseOptions.defaultOptions(),
