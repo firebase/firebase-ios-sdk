@@ -185,6 +185,13 @@ FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
       _firclsContext.readonly->machException.path =
           FIRCLSContextAppendToRoot(rootPath, FIRCLSReportMachExceptionFile);
 
+      // MacOS12 below does not support identity protected behavior
+      // check releases here: https://opensource.apple.com/releases/
+      // TODO: remove EXCEPTION_DEFAULT support when we bump min MacOS support to 12+
+      _firclsContext.readonly->machException.behavior = EXCEPTION_DEFAULT;
+      if (@available(macOS 12, *)) {
+        _firclsContext.readonly->machException.behavior = EXCEPTION_IDENTITY_PROTECTED;
+      }
       FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
     });
 #endif

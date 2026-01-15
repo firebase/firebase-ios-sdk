@@ -45,6 +45,25 @@ typedef struct {
 
 typedef struct {
   mach_msg_header_t head;
+  /* start of the kernel processed data */
+  mach_msg_body_t msgh_body;
+  mach_msg_port_descriptor_t thread;
+  mach_msg_port_descriptor_t task;
+  /* end of the kernel processed data */
+  NDR_record_t NDR;
+  exception_type_t exception;
+  mach_msg_type_number_t codeCnt;
+  mach_exception_data_type_t code[EXCEPTION_CODE_MAX];
+  mach_msg_trailer_t trailer;
+} MachExceptionDefaultMessage;
+
+union MachExceptionMessage {
+  MachExceptionProtectedMessage protected_message;
+  MachExceptionDefaultMessage default_message;
+};
+
+typedef struct {
+  mach_msg_header_t head;
   NDR_record_t NDR;
   kern_return_t retCode;
 } MachExceptionReply;
@@ -65,6 +84,7 @@ typedef struct {
 
   exception_mask_t mask;
   FIRCLSMachExceptionOriginalPorts originalPorts;
+  exception_behavior_t behavior;
 } FIRCLSMachExceptionReadContext;
 
 #pragma mark - API
