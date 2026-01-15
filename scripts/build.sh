@@ -121,7 +121,13 @@ function RunXcodebuild() {
   local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
   local log_filename="xcodebuild-${buildaction}.log"
 
-  local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  local xcbeautify_cmd
+  if command -v xcbeautify &> /dev/null; then
+    xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  else
+    echo "xcbeautify not found, using raw xcodebuild output."
+    xcbeautify_cmd=(cat)
+  fi
 
   local result=0
   NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
@@ -190,7 +196,7 @@ macos_flags=(
   -destination 'platform=OS X,arch=x86_64'
 )
 tvos_flags=(
-  -destination 'platform=tvOS Simulator,OS=latest'
+  -destination 'platform=tvOS Simulator,name=Apple TV'
 )
 visionos_flags=(
   # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
