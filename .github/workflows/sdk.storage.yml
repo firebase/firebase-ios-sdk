@@ -68,6 +68,13 @@ jobs:
           FirebaseStorage/Tests/Integration/Credentials.swift "$plist_secret"
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform iOS
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 15
@@ -76,7 +83,6 @@ jobs:
         command: ([ -z $plist_secret ] || scripts/build.sh Storage${{ matrix.language }} all)
 
   quickstart:
-    # TODO: See #12399 and restore Objective-C testing for Xcode 15 if GHA is fixed.
     uses: ./.github/workflows/_quickstart.yml
     with:
       product: Storage
