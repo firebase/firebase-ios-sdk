@@ -190,7 +190,7 @@ macos_flags=(
   -destination 'platform=OS X,arch=x86_64'
 )
 tvos_flags=(
-  -destination 'platform=tvOS Simulator,name=Apple TV'
+  -destination 'platform=tvOS Simulator,OS=latest'
 )
 visionos_flags=(
   # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
