@@ -74,7 +74,9 @@ final class GenerativeModelImplicitCachingTests: XCTestCase {
     // Validate implicit caching fields
     XCTAssertEqual(usageMetadata.cachedContentTokenCount, 11243)
     XCTAssertEqual(usageMetadata.promptTokensDetails.count, 1)
-    XCTAssertEqual(usageMetadata.promptTokensDetails[0].modality, .text)
-    XCTAssertEqual(usageMetadata.promptTokensDetails[0].tokenCount, 12013)
+    let detail = try XCTUnwrap(usageMetadata.promptTokensDetails.first)
+    XCTAssertEqual(detail.modality, .text)
+    XCTAssertEqual(detail.tokenCount, 12013)
+    XCTAssertEqual(usageMetadata.thoughtsTokenCount, 73)
   }
 }
