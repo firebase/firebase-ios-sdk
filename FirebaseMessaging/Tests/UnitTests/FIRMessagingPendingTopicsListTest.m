@@ -23,6 +23,10 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
+@interface FIRMessagingPendingTopicsList (Testing)
+- (instancetype)initWithCommandQueue:(dispatch_queue_t)queue;
+@end
+
 @interface FIRMessagingPendingTopicsListTest : XCTestCase
 
 /// Using this delegate lets us prevent any topic operations from start, making it easy to measure
@@ -107,7 +111,8 @@
 }
 
 - (void)testBatchSizeReductionAfterSuccessfulTopicUpdate {
-  FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc] init];
+  FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc]
+      initWithCommandQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
   pendingTopics.delegate = self.alwaysReadyDelegate;
 
   XCTestExpectation *allOperationsCompleted =
@@ -145,7 +150,8 @@
 }
 
 - (void)testCompletionOfTopicUpdatesInSameThread {
-  FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc] init];
+  FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc]
+      initWithCommandQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
   pendingTopics.delegate = self.alwaysReadyDelegate;
 
   XCTestExpectation *allOperationsSucceededed =
@@ -181,7 +187,8 @@
 }
 
 - (void)testAddingTopicToCurrentBatchWhileCurrentBatchTopicsInFlight {
-  FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc] init];
+  FIRMessagingPendingTopicsList *pendingTopics = [[FIRMessagingPendingTopicsList alloc]
+      initWithCommandQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
   pendingTopics.delegate = self.alwaysReadyDelegate;
 
   NSString *initialTopic = @"/topics/0";
