@@ -242,7 +242,9 @@ struct GenerateContentIntegrationTests {
       // levels, 64 or 68 may be returned.
       let minThoughtTokens = 64
       switch thinkingLevel {
-      case .minimal, .low, .medium, .high:
+      case .minimal:
+        #expect(usageMetadata.thoughtsTokenCount == 0)
+      case .low, .medium, .high:
         #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
       default:
         Issue.record("Unhandled ThinkingLevel: \(thinkingLevel)")
