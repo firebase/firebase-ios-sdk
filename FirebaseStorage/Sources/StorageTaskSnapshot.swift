@@ -51,6 +51,22 @@ import Foundation
    */
   @objc public let status: StorageTaskStatus
 
+  /**
+   * The URI for the upload session. Can be used to resume the upload after app restart
+   * by passing it to `putFile(from:metadata:existingUploadUri:)`.
+   *
+   * This URI remains valid for approximately one week after creation.
+   *
+   * - Note: Only available for upload tasks after the upload has started.
+   *   Returns `nil` for download tasks or before the upload session is established.
+   */
+  @objc public var uploadSessionUri: URL? {
+    guard let uploadTask = task as? StorageUploadTask else {
+      return nil
+    }
+    return uploadTask.uploadSessionUri
+  }
+
   // MARK: NSObject overrides
 
   @objc override public var description: String {

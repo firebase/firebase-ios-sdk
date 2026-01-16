@@ -181,6 +181,77 @@ import Foundation
     return task
   }
 
+  /// Asynchronously uploads a file to the currently specified `StorageReference`,
+  /// optionally resuming from a previous upload session.
+  ///
+  /// Use this method to resume an upload that was interrupted (e.g., by app termination).
+  /// Pass the `uploadSessionUri` from a previous `StorageTaskSnapshot` to continue
+  /// from where the upload left off.
+  ///
+  /// - Parameters:
+  ///   - fileURL: A URL representing the system file path of the object to be uploaded.
+  ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
+  ///       about the object being uploaded.
+  ///   - existingUploadUri: The upload session URI from a previous upload attempt.
+  ///       Obtain this from `StorageTaskSnapshot.uploadSessionUri`. The URI remains valid
+  ///       for approximately one week. Pass `nil` to start a new upload.
+  /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the
+  /// upload.
+  @objc(putFile:metadata:existingUploadUri:) @discardableResult
+  open func putFile(from fileURL: URL,
+                    metadata: StorageMetadata? = nil,
+                    existingUploadUri: URL?) -> StorageUploadTask {
+    let putMetadata: StorageMetadata = metadata ?? StorageMetadata()
+    if let path = path.object {
+      putMetadata.path = path
+      putMetadata.name = (path as NSString).lastPathComponent as String
+    }
+    let task = StorageUploadTask(reference: self,
+                                 queue: storage.dispatchQueue,
+                                 file: fileURL,
+                                 metadata: putMetadata,
+                                 existingUploadUri: existingUploadUri)
+    task.enqueue()
+    return task
+  }
+
+  /// Asynchronously uploads a file to the currently specified `StorageReference`,
+  /// optionally resuming from a previous upload session, with a completion handler.
+  ///
+  /// Use this method to resume an upload that was interrupted (e.g., by app termination).
+  /// Pass the `uploadSessionUri` from a previous `StorageTaskSnapshot` to continue
+  /// from where the upload left off.
+  ///
+  /// - Parameters:
+  ///   - fileURL: A URL representing the system file path of the object to be uploaded.
+  ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.)
+  ///       about the object being uploaded.
+  ///   - existingUploadUri: The upload session URI from a previous upload attempt.
+  ///       Obtain this from `StorageTaskSnapshot.uploadSessionUri`. The URI remains valid
+  ///       for approximately one week. Pass `nil` to start a new upload.
+  ///   - completion: A completion block that either returns the object metadata on success,
+  ///       or an error on failure.
+  /// - Returns: An instance of `StorageUploadTask`, which can be used to monitor or manage the
+  /// upload.
+  @objc(putFile:metadata:existingUploadUri:completion:) @discardableResult
+  open func putFile(from fileURL: URL,
+                    metadata: StorageMetadata? = nil,
+                    existingUploadUri: URL?,
+                    completion: ((_: StorageMetadata?, _: Error?) -> Void)?) -> StorageUploadTask {
+    let putMetadata: StorageMetadata = metadata ?? StorageMetadata()
+    if let path = path.object {
+      putMetadata.path = path
+      putMetadata.name = (path as NSString).lastPathComponent as String
+    }
+    let task = StorageUploadTask(reference: self,
+                                 queue: storage.dispatchQueue,
+                                 file: fileURL,
+                                 metadata: putMetadata,
+                                 existingUploadUri: existingUploadUri)
+    startAndObserveUploadTask(task: task, completion: completion)
+    return task
+  }
+
   // MARK: - Downloads
 
   /// Asynchronously downloads the object at the `StorageReference` to a `Data` instance in memory.
