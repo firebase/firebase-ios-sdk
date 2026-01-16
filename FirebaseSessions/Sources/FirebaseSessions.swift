@@ -211,14 +211,14 @@ private enum GoogleDataTransportConfig {
       let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: self.appInfo)
 
       Task { [weak self] in
-         guard let self = self else { return }
-         let promises = await self.subscriberState.getPromises()
-         // If there are no Dependencies, then the Sessions SDK can't acknowledge
-         // any products data collection state, so the Sessions SDK won't send events.
-         guard !promises.isEmpty else {
-            loggedEventCallback(.failure(.NoDependenciesError))
-            return
-         }
+        guard let self = self else { return }
+        let promises = await self.subscriberState.getPromises()
+        // If there are no Dependencies, then the Sessions SDK can't acknowledge
+        // any products data collection state, so the Sessions SDK won't send events.
+        guard !promises.isEmpty else {
+          loggedEventCallback(.failure(.NoDependenciesError))
+          return
+        }
 
          // Wait until all subscriber promises have been fulfilled before
          // doing any data collection. The `.get()` call can throw, but in our
