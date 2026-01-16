@@ -294,7 +294,7 @@ jobs:
           max_attempts: 5
           retry_wait_seconds: 120
           command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
-    
+
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       - name: Setup build
         run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
@@ -340,7 +340,7 @@ jobs:
 
     - name: Setup build
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
-      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild        
+      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
     - name: Build and test
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
