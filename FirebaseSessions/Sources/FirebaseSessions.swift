@@ -58,11 +58,17 @@ private enum GoogleDataTransportConfig {
 
     func add(_ subscriber: SessionsSubscriber) {
       subscribers.append(subscriber)
-      subscriberPromises[subscriber.sessionsSubscriberName]?.fulfill(())
+      if let promise = subscriberPromises[subscriber.sessionsSubscriberName] {
+        promise.fulfill(())
+      } else {
+        subscriberPromises[subscriber.sessionsSubscriberName] = Promise<Void>(())
+      }
     }
 
     func setPromise(for name: SessionsSubscriberName, promise: Promise<Void>) {
-      subscriberPromises[name] = promise
+      if subscriberPromises[name] == nil {
+        subscriberPromises[name] = promise
+      }
     }
 
     func getPromises() -> [Promise<Void>] {
@@ -207,7 +213,6 @@ private enum GoogleDataTransportConfig {
       Task { [weak self] in
          guard let self = self else { return }
          let promises = await self.subscriberState.getPromises()
-         
          // If there are no Dependencies, then the Sessions SDK can't acknowledge
          // any products data collection state, so the Sessions SDK won't send events.
          guard !promises.isEmpty else {
@@ -298,7 +303,9 @@ private enum GoogleDataTransportConfig {
     }
 
     // Bridge to async world
-    Task {
+    Task { [weak self] in
+      guard let self = self else { return }
+
       // Guaranteed to execute its callback on the main queue because of the queue parameter.
       self.notificationCenter.addObserver(
         forName: Sessions.SessionIDChangedNotificationName,

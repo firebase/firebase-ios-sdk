@@ -130,7 +130,6 @@ final class FirebaseSessionsTestsBase_Subscribers: FirebaseSessionsTestsBase {
         mockCrashlyticsSubscriber,
       ], preSessionsInit: { _ in
         // Nothing
-
       }, postSessionsInit: {
         // Register the subscribers
         // This is called on the Main Actor
