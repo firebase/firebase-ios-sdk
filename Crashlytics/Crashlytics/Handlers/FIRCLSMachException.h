@@ -27,19 +27,21 @@
 
 #pragma mark Structures
 #pragma pack(push, 4)
+// run `mig -DMACH_EXC_SERVER_TASKIDTOKEN_STATE=1 mach/mach_exc.defs`
+// check mach_exc.h
 typedef struct {
   mach_msg_header_t head;
   /* start of the kernel processed data */
   mach_msg_body_t msgh_body;
-  mach_msg_port_descriptor_t thread;
-  mach_msg_port_descriptor_t task;
+  mach_msg_port_descriptor_t task_id_token_t;
   /* end of the kernel processed data */
   NDR_record_t NDR;
+  uint64_t thread_id;
   exception_type_t exception;
   mach_msg_type_number_t codeCnt;
   mach_exception_data_type_t code[EXCEPTION_CODE_MAX];
   mach_msg_trailer_t trailer;
-} MachExceptionMessage;
+} MachExceptionProtectedMessage;
 
 typedef struct {
   mach_msg_header_t head;

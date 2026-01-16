@@ -33,18 +33,18 @@
 static void* FIRCLSMachExceptionServer(void* argument);
 static bool FIRCLSMachExceptionThreadStart(FIRCLSMachExceptionReadContext* context);
 static bool FIRCLSMachExceptionReadMessage(FIRCLSMachExceptionReadContext* context,
-                                           MachExceptionMessage* message);
+                                           MachExceptionProtectedMessage* message);
 static kern_return_t FIRCLSMachExceptionDispatchMessage(FIRCLSMachExceptionReadContext* context,
-                                                        MachExceptionMessage* message);
+                                                        MachExceptionProtectedMessage* message);
 static bool FIRCLSMachExceptionReply(FIRCLSMachExceptionReadContext* context,
-                                     MachExceptionMessage* message,
+                                     MachExceptionProtectedMessage* message,
                                      kern_return_t result);
 static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context);
 static bool FIRCLSMachExceptionUnregister(FIRCLSMachExceptionOriginalPorts* originalPorts,
                                           exception_mask_t mask);
 static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
-                                      MachExceptionMessage* message);
-
+                                      MachExceptionProtectedMessage* message);
+static void FIRCLSCrashedThreadLookup(MachExceptionProtectedMessage* message, thread_t* crashedThread);
 #pragma mark - Initialization
 void FIRCLSMachExceptionInit(FIRCLSMachExceptionReadContext* context) {
   if (!FIRCLSUnlinkIfExists(context->path)) {
@@ -166,7 +166,7 @@ static void* FIRCLSMachExceptionServer(void* argument) {
   pthread_setname_np("com.google.firebase.crashlytics.MachExceptionServer");
 
   while (1) {
-    MachExceptionMessage message;
+    MachExceptionProtectedMessage message;
 
     // read the exception message
     if (!FIRCLSMachExceptionReadMessage(context, &message)) {
@@ -188,12 +188,12 @@ static void* FIRCLSMachExceptionServer(void* argument) {
 }
 
 static bool FIRCLSMachExceptionReadMessage(FIRCLSMachExceptionReadContext* context,
-                                           MachExceptionMessage* message) {
+                                           MachExceptionProtectedMessage* message) {
   mach_msg_return_t r;
 
-  memset(message, 0, sizeof(MachExceptionMessage));
+  memset(message, 0, sizeof(MachExceptionProtectedMessage));
 
-  r = mach_msg(&message->head, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof(MachExceptionMessage),
+  r = mach_msg(&message->head, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof(MachExceptionProtectedMessage),
                context->port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
   if (r != MACH_MSG_SUCCESS) {
     FIRCLSSDKLog("Error receiving mach_msg (%d)\n", r);
@@ -206,14 +206,27 @@ static bool FIRCLSMachExceptionReadMessage(FIRCLSMachExceptionReadContext* conte
 }
 
 static kern_return_t FIRCLSMachExceptionDispatchMessage(FIRCLSMachExceptionReadContext* context,
-                                                        MachExceptionMessage* message) {
+                                                        MachExceptionProtectedMessage* message) {
   FIRCLSSDKLog("Mach exception: 0x%x, count: %d, code: 0x%llx 0x%llx\n", message->exception,
                message->codeCnt, message->codeCnt > 0 ? message->code[0] : -1,
                message->codeCnt > 1 ? message->code[1] : -1);
 
   // This will happen if a child process raises an exception, as the exception ports are
   // inherited.
-  if (message->task.name != mach_task_self()) {
+  mach_port_t actual_port;
+  kern_return_t kr;
+  task_id_token_t token = message->task_id_token_t.name;
+  kr = task_identity_token_get_task_port(token, TASK_FLAVOR_CONTROL, &actual_port);
+
+  if (kr != KERN_SUCCESS) {
+    FIRCLSSDKLog("Could not find task from task id token. returning failure\n");
+    return KERN_FAILURE;
+  }
+
+  const bool is_mismatch = (actual_port != mach_task_self());
+  mach_port_deallocate(mach_task_self(), actual_port);
+
+  if (is_mismatch) {
     FIRCLSSDKLog("Mach exception task mis-match, returning failure\n");
     return KERN_FAILURE;
   }
@@ -240,7 +253,7 @@ static kern_return_t FIRCLSMachExceptionDispatchMessage(FIRCLSMachExceptionReadC
 }
 
 static bool FIRCLSMachExceptionReply(FIRCLSMachExceptionReadContext* context,
-                                     MachExceptionMessage* message,
+                                     MachExceptionProtectedMessage* message,
                                      kern_return_t result) {
   MachExceptionReply reply;
   mach_msg_return_t r;
@@ -296,7 +309,7 @@ static bool FIRCLSMachExceptionRegister(FIRCLSMachExceptionReadContext* context)
 
   // ORing with MACH_EXCEPTION_CODES will produce 64-bit exception data
   kr = task_swap_exception_ports(task, context->mask, context->port,
-                                 EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES, THREAD_STATE_NONE,
+                                 EXCEPTION_IDENTITY_PROTECTED | MACH_EXCEPTION_CODES, THREAD_STATE_NONE,
                                  context->originalPorts.masks, &context->originalPorts.count,
                                  context->originalPorts.ports, context->originalPorts.behaviors,
                                  context->originalPorts.flavors);
@@ -333,7 +346,7 @@ static bool FIRCLSMachExceptionUnregister(FIRCLSMachExceptionOriginalPorts* orig
 
   // Finally, mark any masks we registered for that do not have an original port as unused.
   kr = task_set_exception_ports(mach_task_self(), mask, MACH_PORT_NULL,
-                                EXCEPTION_DEFAULT | MACH_EXCEPTION_CODES, THREAD_STATE_NONE);
+                                EXCEPTION_IDENTITY_PROTECTED | MACH_EXCEPTION_CODES, THREAD_STATE_NONE);
   if (kr != KERN_SUCCESS) {
     FIRCLSSDKLog("unable to unset unregistered mask: 0x%x", mask);
     return false;
@@ -472,7 +485,7 @@ void FIRCLSMachExceptionNameLookup(exception_type_t number,
 }
 
 static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
-                                      MachExceptionMessage* message) {
+                                      MachExceptionProtectedMessage* message) {
   if (!context || !message) {
     return false;
   }
@@ -520,11 +533,50 @@ static bool FIRCLSMachExceptionRecord(FIRCLSMachExceptionReadContext* context,
 
   FIRCLSFileWriteSectionEnd(&file);
 
-  FIRCLSHandler(&file, message->thread.name, NULL, true);
-
+  thread_t crashedThread = THREAD_NULL;
+  FIRCLSCrashedThreadLookup(message, &crashedThread);
+  FIRCLSSDKLog("Crashed threads: %d\n", crashedThread);
+  FIRCLSHandler(&file, crashedThread, NULL, true);
+  if (crashedThread != THREAD_NULL) {
+    mach_port_deallocate(mach_task_self(), crashedThread);
+  }
   FIRCLSFileClose(&file);
 
   return true;
+}
+
+static void FIRCLSCrashedThreadLookup(MachExceptionProtectedMessage* message, thread_t* crashedThread) {
+  thread_act_array_t threadList;
+  mach_msg_type_number_t threadCount;
+
+  kern_return_t kr = task_threads(mach_task_self(), &threadList, &threadCount);
+  if (kr != KERN_SUCCESS) {
+    FIRCLSSDKLogError("Failed to get threads: %d\n", kr);
+    return;
+  }
+
+  // Find the crashed thread.
+  for (int i = 0; i < threadCount; i++) {
+    thread_identifier_info_data_t identifierInfo;
+    mach_msg_type_number_t infoCount = THREAD_IDENTIFIER_INFO_COUNT;
+
+    kr = thread_info(threadList[i], THREAD_IDENTIFIER_INFO, (thread_info_t)&identifierInfo, &infoCount);
+
+    if (kr == KERN_SUCCESS) {
+      FIRCLSSDKLog("Thread %d: Thread port: %d, thread id: %llx\n", i, threadList[i], identifierInfo.thread_id);
+      if (message->thread_id == identifierInfo.thread_id) {
+        FIRCLSSDKLog("Find crashed thread: %d\n", threadList[i]);
+        *crashedThread = threadList[i];
+        break;
+      }
+    }
+  }
+  for (int i = 0; i < threadCount; i++) {
+    if (threadList[i] != *crashedThread) {
+      mach_port_deallocate(mach_task_self(), threadList[i]);
+    }
+  }
+  vm_deallocate(mach_task_self(), (vm_address_t)threadList, threadCount * sizeof(thread_t));
 }
 
 #else
