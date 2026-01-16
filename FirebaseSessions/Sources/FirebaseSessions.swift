@@ -190,7 +190,7 @@ private enum GoogleDataTransportConfig {
     Task { [weak self] in
       guard let self = self else { return }
       for subscriberName in dependencies {
-         await self.subscriberState.setPromise(for: subscriberName, promise: Promise<Void>.pending())
+        await self.subscriberState.setPromise(for: subscriberName, promise: Promise<Void>.pending())
       }
     }
 
