@@ -680,9 +680,6 @@
 }
 
 - (void)testPerformsSumThatOverflowsMaxLong {
-  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
-            @"Skipping test because the emulator's behavior deviates from the expected outcome.");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -708,6 +705,10 @@
       break;
     }
     case FSTBackendEditionEnterprise: {
+      XCTSkipIf(
+          [FSTIntegrationTestCase isRunningAgainstEmulator],
+          @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
       XCTestExpectation* expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
       __block NSError* anError = nil;
       [query aggregationWithSource:FIRAggregateSourceServer
@@ -748,9 +749,6 @@
 }
 
 - (void)testPerformsSumThatIsNegative {
-  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
-            @"Skipping test because the emulator's behavior deviates from the expected outcome.");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -781,6 +779,10 @@
       break;
     }
     case FSTBackendEditionEnterprise: {
+      XCTSkipIf(
+          [FSTIntegrationTestCase isRunningAgainstEmulator],
+          @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
       XCTestExpectation* expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
       __block NSError* anError = nil;
       [query aggregationWithSource:FIRAggregateSourceServer
@@ -873,9 +875,6 @@
 }
 
 - (void)testPerformsSumOverResultSetOfZeroDocuments {
-  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
-            @"Skipping test because the emulator's behavior deviates from the expected outcome.");
-
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -910,6 +909,10 @@
       break;
     }
     case FSTBackendEditionEnterprise: {
+      XCTSkipIf(
+          [FSTIntegrationTestCase isRunningAgainstEmulator],
+          @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
       XCTAssertEqual([snapshot valueForAggregateField:sumOfPages], [NSNull null]);
       break;
     }

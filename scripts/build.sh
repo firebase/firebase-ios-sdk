@@ -31,6 +31,7 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
+  FirestoreEnterprise
   CombineSwift
   InAppMessaging
   Messaging
@@ -120,7 +121,13 @@ function RunXcodebuild() {
   local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
   local log_filename="xcodebuild-${buildaction}.log"
 
-  local xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  local xcbeautify_cmd
+  if command -v xcbeautify &> /dev/null; then
+    xcbeautify_cmd=(xcbeautify --renderer github-actions --disable-logging)
+  else
+    echo "xcbeautify not found, using raw xcodebuild output."
+    xcbeautify_cmd=(cat)
+  fi
 
   local result=0
   NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
@@ -364,6 +371,18 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         test
     ;;
+
+  FirestoreEnterprise-*-xcodebuild)
+      "${firestore_emulator}" start
+      trap '"${firestore_emulator}" stop' ERR EXIT
+
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
+          -enableCodeCoverage YES \
+          "${xcb_flags[@]}" \
+          test
+      ;;
 
   Firestore-macOS-cmake | Firestore-Linux-cmake)
     "${firestore_emulator}" start

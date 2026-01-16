@@ -712,6 +712,12 @@ std::vector<std::shared_ptr<api::EvaluableStage>> ToPipelineStages(
           "exists", std::vector<std::shared_ptr<api::Expr>>{
                         std::make_shared<api::Field>(core_order_by.field())}));
     }
+    if (exists_exprs.size() == 1) {
+      stages.push_back(std::make_shared<api::Where>(exists_exprs[0]));
+    } else {
+      stages.push_back(std::make_shared<api::Where>(
+          std::make_shared<api::FunctionExpr>("and", exists_exprs)));
+    }
   }
 
   // 4. Orderings, Cursors, Limit

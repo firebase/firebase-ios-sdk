@@ -41,6 +41,9 @@ class RealtimePipeline {
   RealtimePipeline(const RealtimePipeline& other);
   RealtimePipeline& operator=(const RealtimePipeline& other);
 
+  RealtimePipeline(RealtimePipeline&& other) noexcept;
+  RealtimePipeline& operator=(RealtimePipeline&& other) noexcept;
+
   RealtimePipeline AddingStage(std::shared_ptr<EvaluableStage> stage);
 
   const std::vector<std::shared_ptr<EvaluableStage>>& stages() const;
