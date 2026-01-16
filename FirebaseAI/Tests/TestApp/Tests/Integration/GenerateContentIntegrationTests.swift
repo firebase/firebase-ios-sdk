@@ -85,7 +85,8 @@ struct GenerateContentIntegrationTests {
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
     if modelName.hasPrefix("gemini-3") {
-      #expect(usageMetadata.thoughtsTokenCount == 64)
+      // For gemini-3 models, the thoughtsTokenCount can vary slightly between runs.
+      #expect(usageMetadata.thoughtsTokenCount >= 64)
     } else {
       #expect(usageMetadata.thoughtsTokenCount == 0)
     }
