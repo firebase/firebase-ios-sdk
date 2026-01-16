@@ -108,6 +108,9 @@ jobs:
           - os: macos-15
             xcode: Xcode_16.2
             platform: iOS
+          - os: macos-14
+            xcode: Xcode_16.2
+            platform: iOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
