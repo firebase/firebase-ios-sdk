@@ -113,6 +113,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 @property(nonatomic, nullable) FBLPromise *contextInitPromise;
 
+@property(nonatomic, assign) NSUInteger stackFramesToSkip;
 @end
 
 @implementation FIRCrashlytics
@@ -147,6 +148,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
+    _stackFramesToSkip = 0;
 
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
     FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
@@ -413,7 +415,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON);
+  FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON, self.stackFramesToSkip);
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
@@ -426,6 +428,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       recordOnDemandExceptionIfQuota:exceptionModel
            withDataCollectionEnabled:[self.dataArbiter isCrashlyticsCollectionEnabled]
           usingExistingReportManager:self.existingReportManager];
+}
+
+- (void)setNumberOfStackFramesToSkipForNotFatalErrors:(NSUInteger)frames {
+  self.stackFramesToSkip = frames;
 }
 
 #pragma mark - FIRSessionsSubscriber

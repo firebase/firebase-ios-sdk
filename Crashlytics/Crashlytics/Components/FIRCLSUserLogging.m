@@ -388,7 +388,8 @@ static void FIRCLSUserLoggingWriteError(FIRCLSFile *file,
 
 void FIRCLSUserLoggingRecordError(NSError *error,
                                   NSDictionary<NSString *, id> *additionalUserInfo,
-                                  NSString *rolloutsInfoJSON) {
+                                  NSString *rolloutsInfoJSON,
+                                  NSUInteger numberOfStacksToSkip) {
   if (!error) {
     return;
   }
@@ -400,6 +401,10 @@ void FIRCLSUserLoggingRecordError(NSError *error,
   // record the stacktrace and timestamp here, so we
   // are as close as possible to the user's log statement
   NSArray *addresses = [NSThread callStackReturnAddresses];
+  if (numberOfStacksToSkip > 0 && [addresses count] > numberOfStacksToSkip) {
+    NSRange range = NSMakeRange(numberOfStacksToSkip, [addresses count] - numberOfStacksToSkip);
+    addresses = [addresses subarrayWithRange:range];
+  }
   uint64_t timestamp = time(NULL);
 
   FIRCLSUserLoggingWriteAndCheckABFiles(
