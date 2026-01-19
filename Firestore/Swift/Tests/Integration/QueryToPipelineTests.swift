@@ -37,7 +37,17 @@ class QueryToPipelineTests: FSTIntegrationTestCase {
                              file: StaticString = #file,
                              line: UInt = #line) {
     let results = snapshot.results.map { $0.data as! [String: AnyHashable?] }
-    XCTAssertEqual(results.count, expected.count, "Result count mismatch.", file: file, line: line)
+    print("results: \(results)")
+    print("expected: \(expected.map(\.debugDescription).joined(separator: "\n"))")
+    print("results.count: \(results.count), expected.count: \(expected.count)")
+    guard results.count == expected.count else {
+      XCTFail(
+        "Result count mismatch. Got \(results.count), expected \(expected.count)",
+        file: file,
+        line: line
+      )
+      return
+    }
 
     if enforceOrder {
       for i in 0 ..< expected.count {
