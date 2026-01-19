@@ -123,8 +123,75 @@ public struct JSONSchema: Sendable {
       references: [String],
       context: JSONSchema.SchemaError.Context
     )
+    case circularDependency(
+      type: String,
+      context: JSONSchema.SchemaError.Context
+    )
 
     public var errorDescription: String? { nil }
     public var recoverySuggestion: String? { nil }
+  }
+
+  public var debugDescription: String {
+    let schemaEncoder = SchemaEncoder(target: .gemini)
+    do {
+      let schema = try schemaEncoder.encode(self)
+      let jsonEncoder = JSONEncoder()
+      jsonEncoder.outputFormatting = [.prettyPrinted]
+      let jsonData = try jsonEncoder.encode(schema)
+      guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+        // TODO: Provide a placeholder schema
+        fatalError("Failed to encode JSONSchema")
+      }
+      return jsonString
+    } catch {
+      // TODO: Provide a placeholder schema
+      fatalError("Failed to encode JSONSchema: \(error)")
+    }
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONSchema {
+  final class Internal: Codable {
+    enum SchemaType: String, Codable {
+      case object, array, string, integer, number, boolean
+    }
+
+    var type: SchemaType?
+    var title: String?
+    var description: String?
+    var properties: [String: JSONSchema.Internal]?
+    var format: String?
+    var required: [String]?
+    var additionalProperties: Bool?
+    var defs: [String: JSONSchema.Internal]?
+    var ref: String?
+    var anyOf: [JSONSchema.Internal]?
+    var items: JSONSchema.Internal?
+    var minItems: Int?
+    var maxItems: Int?
+    var enumValues: [JSONValue]?
+    var minimum: Double?
+    var maximum: Double?
+    var propertyOrdering: [String]?
+    var xOrder: [String]?
+
+    enum CodingKeys: String, CodingKey {
+      case type, title, description, properties, format, required, additionalProperties
+      case defs = "$defs"
+      case ref = "$ref"
+      case anyOf, items, minItems, maxItems
+      case enumValues = "enum"
+      case minimum, maximum
+      case propertyOrdering
+      case xOrder = "x-order"
+    }
+
+    init(type: SchemaType? = nil, ref: String? = nil, anyOf: [JSONSchema.Internal]? = nil) {
+      self.type = type
+      self.ref = ref
+      self.anyOf = anyOf
+    }
   }
 }
