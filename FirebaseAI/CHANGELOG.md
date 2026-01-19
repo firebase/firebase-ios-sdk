@@ -1,3 +1,9 @@
+# Unreleased
+- [changed] The URL context tool APIs are now GA.
+- [feature] Added support for implicit caching (context caching) metadata in `GenerateContentResponse`.
+  You can now access `cachedContentTokenCount` and `cacheTokensDetails` in `UsageMetadata` to see
+  savings from cached content. See the [caching documentation](https://ai.google.dev/gemini-api/docs/caching) for more details.
+
 # 12.8.0
 - [feature] Added support for configuring thinking levels with Gemini 3 series
   models and onwards. (#15557)
