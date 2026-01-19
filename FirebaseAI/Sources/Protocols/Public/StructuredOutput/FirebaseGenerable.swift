@@ -142,7 +142,7 @@ extension Array: FirebaseGenerable where Element: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(
       type: Self.self,
-      kind: .array(item: Element.self, guides: ArrayGuides())
+      kind: .array(item: FirebaseGenerableType(Element.self), guides: ArrayGuides())
     )
   }
 }

@@ -53,7 +53,25 @@ final class AnyGenerationGuides: Sendable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct StringGuides: Sendable {
+extension AnyGenerationGuides: Equatable {
+  static func == (lhs: AnyGenerationGuides, rhs: AnyGenerationGuides) -> Bool {
+    lhs.string == rhs.string && lhs.integer == rhs.integer && lhs.double == rhs.double && lhs
+      .array == rhs.array
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension AnyGenerationGuides: Hashable {
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(string)
+    hasher.combine(integer)
+    hasher.combine(double)
+    hasher.combine(array)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct StringGuides: Sendable, Equatable, Hashable {
   let anyOf: [String]?
 
   init(anyOf: [String]? = nil) {
@@ -79,7 +97,7 @@ struct StringGuides: Sendable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct IntegerGuides: Sendable {
+struct IntegerGuides: Sendable, Equatable, Hashable {
   let minimum: Int?
   let maximum: Int?
 
@@ -107,7 +125,7 @@ struct IntegerGuides: Sendable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct DoubleGuides: Sendable {
+struct DoubleGuides: Sendable, Equatable, Hashable {
   let minimum: Double?
   let maximum: Double?
 
@@ -135,7 +153,7 @@ struct DoubleGuides: Sendable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-struct ArrayGuides: Sendable {
+struct ArrayGuides: Sendable, Equatable, Hashable {
   let minimumCount: Int?
   let maximumCount: Int?
   let element: AnyGenerationGuides?

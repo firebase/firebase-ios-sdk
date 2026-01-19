@@ -19,37 +19,35 @@ import Foundation
 /// Generation  schemas guide the output of the model to deterministically ensure the output is in
 /// the desired format.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct JSONSchema: Sendable {
-  enum Kind: Sendable {
+public struct JSONSchema: Sendable, CustomDebugStringConvertible {
+  enum Kind: Sendable, Equatable, Hashable {
     case string(guides: StringGuides)
     case integer(guides: IntegerGuides)
     case double(guides: DoubleGuides)
     case boolean
-    case array(item: any FirebaseGenerable.Type, guides: ArrayGuides)
+    case array(item: FirebaseGenerableType, guides: ArrayGuides)
     case object(properties: [Property])
-    case anyOf(types: [any FirebaseGenerable.Type])
+    case anyOf(types: [FirebaseGenerableType])
   }
 
-  let type: any FirebaseGenerable.Type
+  let type: FirebaseGenerableType
   let kind: Kind
-  let typeIdentifier: ObjectIdentifier
   let title: String?
   let description: String?
 
   init(type: any FirebaseGenerable.Type, kind: Kind, title: String? = nil,
        description: String? = nil) {
     self.kind = kind
-    self.type = type
-    typeIdentifier = ObjectIdentifier(type)
+    self.type = FirebaseGenerableType(type)
     self.title = title
     self.description = description
   }
 
-  public struct Property: Sendable {
+  public struct Property: Sendable, Equatable, Hashable {
     let name: String
     let description: String?
     let isOptional: Bool
-    let type: any FirebaseGenerable.Type
+    let type: FirebaseGenerableType
     let guides: AnyGenerationGuides
 
     public init<Value>(name: String, description: String? = nil, type: Value.Type,
@@ -58,7 +56,7 @@ public struct JSONSchema: Sendable {
       self.name = name
       self.description = description
       isOptional = false
-      self.type = Value.self
+      self.type = FirebaseGenerableType(Value.self)
       self.guides = AnyGenerationGuides.combine(guides: guides)
     }
 
@@ -68,7 +66,7 @@ public struct JSONSchema: Sendable {
       self.name = name
       self.description = description
       isOptional = true
-      self.type = Value.self
+      self.type = FirebaseGenerableType(Value.self)
       self.guides = AnyGenerationGuides.combine(guides: guides)
     }
   }
@@ -96,7 +94,7 @@ public struct JSONSchema: Sendable {
               anyOf types: [any FirebaseGenerable.Type]) {
     self.init(
       type: type,
-      kind: .anyOf(types: types),
+      kind: .anyOf(types: types.map { FirebaseGenerableType($0) }),
       title: String(describing: type),
       description: description
     )
