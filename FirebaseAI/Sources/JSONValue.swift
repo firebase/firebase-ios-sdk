@@ -99,3 +99,26 @@ extension JSONValue: Encodable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Equatable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONValue: ConvertibleToModelOutput {
+  public var modelOutput: ModelOutput {
+    switch self {
+    case .null:
+      return ModelOutput(kind: .null)
+    case let .number(value):
+      return ModelOutput(kind: .number(value))
+    case let .string(value):
+      return ModelOutput(kind: .string(value))
+    case let .bool(value):
+      return ModelOutput(kind: .bool(value))
+    case let .object(dictionary):
+      return ModelOutput(kind: .structure(
+        properties: dictionary.mapValues(ModelOutput.init),
+        orderedKeys: dictionary.keys.map { $0 }
+      ))
+    case let .array(values):
+      return ModelOutput(kind: .array(values.map(ModelOutput.init)))
+    }
+  }
+}

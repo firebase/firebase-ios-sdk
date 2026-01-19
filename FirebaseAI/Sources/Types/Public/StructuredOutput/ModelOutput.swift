@@ -63,6 +63,16 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     self = value.modelOutput
   }
 
+  public init(json: String) throws {
+    guard let jsonData = json.data(using: .utf8) else {
+      fatalError()
+    }
+
+    let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
+
+    self = jsonValue.modelOutput
+  }
+
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
     where Value: ConvertibleFromModelOutput {
     return try Value(self)
