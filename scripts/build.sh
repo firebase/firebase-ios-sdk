@@ -378,6 +378,7 @@ case "$product-$platform-$method" in
           -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
           -enableCodeCoverage YES \
           "${xcb_flags[@]}" \
+          -jobs 4
           test
       ;;
 
