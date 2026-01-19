@@ -65,6 +65,7 @@ FIRCLSContextInitData* FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
   initData.previouslyCrashedFileRootPath = [fileManager rootPath];
   initData.errorsEnabled = [settings errorReportingEnabled];
   initData.customExceptionsEnabled = [settings customExceptionsEnabled];
+  initData.machExceptionDefaultBehavior = [settings machExceptionDefaultBehavior];
   initData.maxCustomExceptions = [settings maxCustomExceptions];
   initData.maxErrorLogSize = [settings errorLogBufferSize];
   initData.maxLogSize = [settings logBufferSize];
@@ -190,7 +191,9 @@ FBLPromise* FIRCLSContextInitialize(FIRCLSContextInitData* initData,
       // TODO: remove EXCEPTION_DEFAULT support when we bump min MacOS support to 12+
       _firclsContext.readonly->machException.behavior = EXCEPTION_DEFAULT;
       if (@available(macOS 12, *)) {
-        _firclsContext.readonly->machException.behavior = EXCEPTION_IDENTITY_PROTECTED;
+        if (!initData.machExceptionDefaultBehavior) {
+          _firclsContext.readonly->machException.behavior = EXCEPTION_IDENTITY_PROTECTED;
+        }
       }
       FIRCLSMachExceptionInit(&_firclsContext.readonly->machException);
     });
