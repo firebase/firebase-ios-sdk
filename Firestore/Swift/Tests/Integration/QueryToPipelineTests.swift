@@ -37,7 +37,14 @@ class QueryToPipelineTests: FSTIntegrationTestCase {
                              file: StaticString = #file,
                              line: UInt = #line) {
     let results = snapshot.results.map { $0.data as! [String: AnyHashable?] }
-    XCTAssertEqual(results.count, expected.count, "Result count mismatch.", file: file, line: line)
+    guard results.count == expected.count else {
+      XCTFail(
+        "Result count mismatch. Got \(results.count), expected \(expected.count)",
+        file: file,
+        line: line
+      )
+      return
+    }
 
     if enforceOrder {
       for i in 0 ..< expected.count {
@@ -744,5 +751,78 @@ class QueryToPipelineTests: FSTIntegrationTestCase {
       ],
       enforceOrder: true
     )
+  }
+
+  private func verifyIDs(_ snapshot: Pipeline.Snapshot,
+                         _ expected: [String],
+                         enforceOrder: Bool = false,
+                         file: StaticString = #file,
+                         line: UInt = #line) {
+    let results = snapshot.results.map { $0.ref!.documentID }
+    if enforceOrder {
+      XCTAssertEqual(results, expected, "Result IDs do not match or are not in order.",
+                     file: file, line: line)
+    } else {
+      XCTAssertEqual(Set(results), Set(expected), "Result ID sets do not match.",
+                     file: file, line: line)
+    }
+  }
+
+  func testNotInRemovesExistenceFilter() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["field": 2],
+      "doc2": ["field": 1],
+      "doc3": [:],
+    ])
+    let db = collRef.firestore
+
+    let query = collRef.whereField("field", notIn: [1])
+    let pipeline = db.pipeline().create(from: query)
+    let snapshot = try await pipeline.execute()
+
+    verifyIDs(snapshot, ["doc1", "doc3"])
+  }
+
+  func testNotEqualRemovesExistenceFilter() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["field": 2],
+      "doc2": ["field": 1],
+      "doc3": [:],
+    ])
+    let db = collRef.firestore
+
+    let query = collRef.whereField("field", isNotEqualTo: 1)
+    let pipeline = db.pipeline().create(from: query)
+    let snapshot = try await pipeline.execute()
+
+    verifyIDs(snapshot, ["doc1", "doc3"])
+  }
+
+  func testInequalityMaintainsExistenceFilter() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["field": 0],
+      "doc2": [:],
+    ])
+    let db = collRef.firestore
+
+    let query = collRef.whereField("field", isLessThan: 1)
+    let pipeline = db.pipeline().create(from: query)
+    let snapshot = try await pipeline.execute()
+
+    verifyIDs(snapshot, ["doc1"])
+  }
+
+  func testExplicitOrderMaintainsExistenceFilter() async throws {
+    let collRef = collectionRef(withDocuments: [
+      "doc1": ["field": 1],
+      "doc2": [:],
+    ])
+    let db = collRef.firestore
+
+    let query = collRef.order(by: "field")
+    let pipeline = db.pipeline().create(from: query)
+    let snapshot = try await pipeline.execute()
+
+    verifyIDs(snapshot, ["doc1"])
   }
 }
