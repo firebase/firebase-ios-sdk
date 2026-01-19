@@ -373,9 +373,6 @@ case "$product-$platform-$method" in
     ;;
 
   FirestoreEnterprise-*-xcodebuild)
-      "${firestore_emulator}" start
-      trap '"${firestore_emulator}" stop' ERR EXIT
-
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
