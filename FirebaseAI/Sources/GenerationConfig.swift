@@ -51,7 +51,7 @@ public struct GenerationConfig: Sendable {
   /// Output schema of the generated response in [JSON Schema](https://json-schema.org/) format.
   ///
   /// If set, `responseSchema` must be omitted and `responseMIMEType` is required.
-  let responseJSONSchema: JSONObject?
+  let responseJSONSchema: JSONSchema?
 
   /// Supported modalities of the response.
   let responseModalities: [ResponseModality]?
@@ -187,7 +187,7 @@ public struct GenerationConfig: Sendable {
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
        maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-       stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONObject,
+       stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONSchema,
        responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
@@ -223,5 +223,26 @@ extension GenerationConfig: Encodable {
     case responseJSONSchema = "responseJsonSchema"
     case responseModalities
     case thinkingConfig
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(temperature, forKey: .temperature)
+    try container.encodeIfPresent(topP, forKey: .topP)
+    try container.encodeIfPresent(topK, forKey: .topK)
+    try container.encodeIfPresent(candidateCount, forKey: .candidateCount)
+    try container.encodeIfPresent(maxOutputTokens, forKey: .maxOutputTokens)
+    try container.encodeIfPresent(presencePenalty, forKey: .presencePenalty)
+    try container.encodeIfPresent(frequencyPenalty, forKey: .frequencyPenalty)
+    try container.encodeIfPresent(stopSequences, forKey: .stopSequences)
+    try container.encodeIfPresent(responseMIMEType, forKey: .responseMIMEType)
+    try container.encodeIfPresent(responseSchema, forKey: .responseSchema)
+    if let responseJSONSchema = responseJSONSchema {
+      let schemaEncoder = SchemaEncoder(target: .gemini)
+      let jsonSchema = try schemaEncoder.encode(responseJSONSchema)
+      try container.encode(jsonSchema, forKey: .responseJSONSchema)
+    }
+    try container.encodeIfPresent(responseModalities, forKey: .responseModalities)
+    try container.encodeIfPresent(thinkingConfig, forKey: .thinkingConfig)
   }
 }
