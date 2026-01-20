@@ -155,11 +155,6 @@ final class GenerationConfigTests: XCTestCase {
   }
 
   struct Person: FirebaseGenerable {
-    let firstName: String
-    let middleNames: [String]
-    let lastName: String
-    let age: Int
-
     static var jsonSchema: JSONSchema {
       JSONSchema(type: Self.self, properties: [
         JSONSchema.Property(name: "firstName", type: String.self),
@@ -170,18 +165,11 @@ final class GenerationConfigTests: XCTestCase {
     }
 
     init(_ content: FirebaseAILogic.ModelOutput) throws {
-      firstName = try content.value(forProperty: "firstName")
-      middleNames = try content.value(forProperty: "middleNames")
-      lastName = try content.value(forProperty: "lastName")
-      age = try content.value(forProperty: "age")
+      fatalError("\(#function) not needed for \(Self.self) in test file: \(#file)")
     }
 
-    var modelOutput: ModelOutput {
-      ModelOutput(
-        properties: [("firstName", firstName), ("middleNames", middleNames), ("lastName", lastName),
-                     ("age", age)] as [(String, any ConvertibleToModelOutput)],
-        uniquingKeysWith: { _, new in new }
-      )
+    var modelOutput: FirebaseAILogic.ModelOutput {
+      fatalError("\(#function) not needed for \(Self.self) in test file: \(#file)")
     }
   }
 
