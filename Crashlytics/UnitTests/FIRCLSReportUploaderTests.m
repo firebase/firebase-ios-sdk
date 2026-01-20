@@ -58,7 +58,8 @@ NSString *const TestFIID = @"TestFIID";
   FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
   self.queue = [NSOperationQueue new];
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                           appIDModel:appIDModel];
+                                                           appIDModel:appIDModel
+                                                              appInfo:[[NSDictionary alloc] init]];
   self.mockDataTransport = [[FIRMockGDTCORTransport alloc] initWithMappingID:@"1206"
                                                                 transformers:nil
                                                                       target:kGDTCORTargetCSH];
