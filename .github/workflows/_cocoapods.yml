@@ -150,6 +150,14 @@ jobs:
         command: scripts/setup_bundler.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      if: matrix.target != 'macOS'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform ${{ matrix.platform }}
     - name: Set conditional environment variable, if needed.
       if: inputs.product == 'FirebaseAuth'
       run: echo "FIREBASE_CI=true" >> $GITHUB_ENV
