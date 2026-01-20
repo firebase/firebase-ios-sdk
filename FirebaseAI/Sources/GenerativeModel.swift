@@ -282,7 +282,7 @@ public final class GenerativeModel: Sendable {
     }
   }
 
-  public func generate<Content>(_ type: Content.Type = Content.self,
+  public func generate<Content>(_ type: Content.Type,
                                 from parts: any PartsRepresentable...) async throws
     -> Response<Content> where Content: FirebaseGenerable {
     var generationConfig = self.generationConfig ?? GenerationConfig()

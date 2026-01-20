@@ -28,6 +28,7 @@ struct SchemaTests {
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
+  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
 
   struct CityList {
     let cities: [String]
@@ -73,6 +74,28 @@ struct SchemaTests {
     )
   }
 
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeWithArray(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "What are the biggest cities in Canada?"
+
+    let response = try await model.generate(CityList.self, from: prompt)
+
+    let cityList = response.content
+    #expect(
+      cityList.cities.count >= 3,
+      "Expected at least 3 cities, but got \(cityList.cities.count)"
+    )
+    #expect(
+      cityList.cities.count <= 5,
+      "Expected at most 5 cities, but got \(cityList.cities.count)"
+    )
+  }
+
   struct TestNumber {
     let value: Int
   }
@@ -105,6 +128,22 @@ struct SchemaTests {
     let text = try #require(response.text)
     let modelOutput = try ModelOutput(json: text)
     let testNumber = try TestNumber(modelOutput)
+    #expect(testNumber.value >= 110, "Expected a number >= 110, but got \(testNumber.value)")
+    #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeWithNumber(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Give me a number"
+
+    let response = try await model.generate(TestNumber.self, from: prompt)
+
+    let testNumber = response.content
     #expect(testNumber.value >= 110, "Expected a number >= 110, but got \(testNumber.value)")
     #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
   }
@@ -156,6 +195,29 @@ struct SchemaTests {
     let text = try #require(response.text)
     let modelOutput = try ModelOutput(json: text)
     let productInfo = try ProductInfo(modelOutput)
+    let price = productInfo.price
+    let salePrice = productInfo.salePrice
+    let rating = productInfo.rating
+    #expect(price >= 10.0, "Expected a price >= 10.00, but got \(price)")
+    #expect(price <= 120.0, "Expected a price <= 120.00, but got \(price)")
+    #expect(salePrice >= 5.0, "Expected a salePrice >= 5.00, but got \(salePrice)")
+    #expect(salePrice <= 90.0, "Expected a salePrice <= 90.00, but got \(salePrice)")
+    #expect(rating >= 1, "Expected a rating >= 1, but got \(rating)")
+    #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeWithMultipleDataTypes(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Describe a premium wireless headphone, including a user rating and price."
+
+    let response = try await model.generate(ProductInfo.self, from: prompt)
+
+    let productInfo = response.content
     let price = productInfo.price
     let salePrice = productInfo.salePrice
     let rating = productInfo.rating
@@ -232,6 +294,50 @@ struct SchemaTests {
     let modelOutput = try ModelOutput(json: text)
     let mailingAddresses = try [MailingAddress](modelOutput)
     try #require(mailingAddresses.count == 3, "Expected 3 JSON addresses, got \(text).")
+    let waterlooAddress = mailingAddresses[0]
+    #expect(waterlooAddress.city == "Waterloo")
+    if case let .canada(province, postalCode) = waterlooAddress.postalInfo {
+      #expect(province == "ON")
+      #expect(postalCode == "N2L 3G1")
+    } else {
+      Issue.record("Expected Canadian University of Waterloo address, got \(waterlooAddress).")
+    }
+    let berkeleyAddress = mailingAddresses[1]
+    #expect(berkeleyAddress.city == "Berkeley")
+    if case let .unitedStates(state, zipCode) = berkeleyAddress.postalInfo {
+      #expect(state == "CA")
+      #expect(zipCode == "94720")
+    } else {
+      Issue.record("Expected American UC Berkeley address, got \(berkeleyAddress).")
+    }
+    let queensAddress = mailingAddresses[2]
+    #expect(queensAddress.city == "Kingston")
+    if case let .canada(province, postalCode) = queensAddress.postalInfo {
+      #expect(province == "ON")
+      #expect(postalCode == "K7L 3N6")
+    } else {
+      Issue.record("Expected Canadian Queen's University address, got \(queensAddress).")
+    }
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeAnyOf(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_Flash,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    What are the mailing addresses for the University of Waterloo, UC Berkeley and Queen's U?
+    """
+
+    let response = try await model.generate([MailingAddress].self, from: prompt)
+
+    let mailingAddresses = response.content
+    try #require(
+      mailingAddresses.count == 3,
+      "Expected 3 JSON addresses, got \(mailingAddresses.count)."
+    )
     let waterlooAddress = mailingAddresses[0]
     #expect(waterlooAddress.city == "Waterloo")
     if case let .canada(province, postalCode) = waterlooAddress.postalInfo {
