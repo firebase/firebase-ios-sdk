@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAILogic
+import FirebaseAILogicMacro
 import FirebaseAITestApp
 import Testing
 
@@ -30,7 +31,9 @@ struct SchemaTests {
   ]
   let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
 
+  @FirebaseGenerable
   struct CityList {
+    @FirebaseGuide(description: "A list of city names", .count(3 ... 5))
     let cities: [String]
   }
 
@@ -96,7 +99,9 @@ struct SchemaTests {
     )
   }
 
+  @FirebaseGenerable
   struct TestNumber {
+    @FirebaseGuide(description: "A number", .minimum(110), .maximum(120))
     let value: Int
   }
 
@@ -148,10 +153,15 @@ struct SchemaTests {
     #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
   }
 
+  @FirebaseGenerable
   struct ProductInfo {
+    @FirebaseGuide(description: "The name of the product")
     let productName: String
+    @FirebaseGuide(description: "A rating", .range(1 ... 5))
     let rating: Int
+    @FirebaseGuide(description: "A price", .minimum(10.00), .maximum(120.00))
     let price: Double
+    @FirebaseGuide(description: "A sale price", .minimum(5.00), .maximum(90.00))
     let salePrice: Float
   }
 
@@ -229,15 +239,26 @@ struct SchemaTests {
     #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
   }
 
+  @FirebaseGenerable
   struct MailingAddress {
     enum PostalInfo {
+      @FirebaseGenerable
       struct Canada {
+        @FirebaseGuide(description: """
+        The 2-letter province or territory code, for example, 'ON', 'QC', or 'NU'.
+        """)
         let province: String
+        @FirebaseGuide(description: "The postal code, for example, 'A1A 1A1'.")
         let postalCode: String
       }
 
+      @FirebaseGenerable
       struct UnitedStates {
+        @FirebaseGuide(description: """
+        The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'.
+        """)
         let state: String
+        @FirebaseGuide(description: "The 5-digit ZIP code, for example, '12345'.")
         let zipCode: String
       }
 
@@ -245,7 +266,9 @@ struct SchemaTests {
       case unitedStates(state: String, zipCode: String)
     }
 
+    @FirebaseGuide(description: "The civic number and street name, for example, '123 Main Street'.")
     let streetAddress: String
+    @FirebaseGuide(description: "The name of the city.")
     let city: String
     let postalInfo: PostalInfo
   }
@@ -398,227 +421,9 @@ struct SchemaTests {
 
 // MARK: - FirebaseGenerable Conformances
 
-// TODO: Replace manual implementations with `@FirebaseGenerable` macro.
+// MARK: PostalInfo
 
-// MARK: CityList
-
-extension SchemaTests.CityList: FirebaseGenerable {
-  static var jsonSchema: FirebaseAILogic.JSONSchema {
-    JSONSchema(type: Self.self, properties: [
-      .init(
-        name: "cities",
-        description: "A list of city names",
-        type: [String].self,
-        guides: [.count(3 ... 5)]
-      ),
-    ])
-  }
-
-  init(_ content: ModelOutput) throws {
-    cities = try content.value(forProperty: "cities")
-  }
-
-  var modelOutput: ModelOutput {
-    var properties = [(name: String, value: any ConvertibleToModelOutput)]()
-    addProperty(name: "cities", value: cities)
-    return ModelOutput(
-      properties: properties,
-      uniquingKeysWith: { _, second in
-        second
-      }
-    )
-    func addProperty(name: String, value: some FirebaseGenerable) {
-      properties.append((name, value))
-    }
-    func addProperty(name: String, value: (some FirebaseGenerable)?) {
-      if let value {
-        properties.append((name, value))
-      }
-    }
-  }
-}
-
-// MARK: TestNumber
-
-extension SchemaTests.TestNumber: FirebaseGenerable {
-  static var jsonSchema: FirebaseAILogic.JSONSchema {
-    JSONSchema(
-      type: Self.self,
-      properties: [
-        .init(
-          name: "value",
-          description: "A number",
-          type: Int.self,
-          guides: [.minimum(110), .maximum(120)]
-        ),
-      ]
-    )
-  }
-
-  init(_ content: ModelOutput) throws {
-    value = try content.value(forProperty: "value")
-  }
-
-  var modelOutput: ModelOutput {
-    var properties = [(name: String, value: any ConvertibleToModelOutput)]()
-    addProperty(name: "value", value: value)
-    return ModelOutput(
-      properties: properties,
-      uniquingKeysWith: { _, second in
-        second
-      }
-    )
-    func addProperty(name: String, value: some FirebaseGenerable) {
-      properties.append((name, value))
-    }
-    func addProperty(name: String, value: (some FirebaseGenerable)?) {
-      if let value {
-        properties.append((name, value))
-      }
-    }
-  }
-}
-
-// MARK: ProductInfo
-
-extension SchemaTests.ProductInfo: FirebaseGenerable {
-  static var jsonSchema: FirebaseAILogic.JSONSchema {
-    JSONSchema(
-      type: Self.self,
-      properties: [
-        .init(
-          name: "salePrice",
-          description: "A sale price",
-          type: Float.self,
-          guides: [.minimum(5.00), .maximum(90.00)]
-        ),
-        .init(name: "rating", description: "A rating", type: Int.self, guides: [.range(1 ... 5)]),
-        .init(
-          name: "price",
-          description: "A price",
-          type: Double.self,
-          guides: [.minimum(10.00), .maximum(120.00)]
-        ),
-        .init(name: "productName", description: "The name of the product", type: String.self),
-      ]
-    )
-  }
-
-  init(_ content: ModelOutput) throws {
-    productName = try content.value(forProperty: "productName")
-    rating = try content.value(forProperty: "rating")
-    price = try content.value(forProperty: "price")
-    salePrice = try content.value(forProperty: "salePrice")
-  }
-
-  var modelOutput: ModelOutput {
-    var properties = [(name: String, value: any ConvertibleToModelOutput)]()
-    addProperty(name: "productName", value: productName)
-    addProperty(name: "rating", value: rating)
-    addProperty(name: "price", value: price)
-    addProperty(name: "salePrice", value: salePrice)
-    return ModelOutput(
-      properties: properties,
-      uniquingKeysWith: { _, second in
-        second
-      }
-    )
-    func addProperty(name: String, value: some FirebaseGenerable) {
-      properties.append((name, value))
-    }
-    func addProperty(name: String, value: (some FirebaseGenerable)?) {
-      if let value {
-        properties.append((name, value))
-      }
-    }
-  }
-}
-
-// MARK: MailingAddress
-
-extension SchemaTests.MailingAddress.PostalInfo.Canada: FirebaseGenerable {
-  static var jsonSchema: FirebaseAILogic.JSONSchema {
-    JSONSchema(type: Self.self, properties: [
-      .init(
-        name: "province",
-        description: "The 2-letter province or territory code, for example, 'ON', 'QC', or 'NU'.",
-        type: String.self
-      ),
-      .init(
-        name: "postalCode",
-        description: "The postal code, for example, 'A1A 1A1'.",
-        type: String.self
-      ),
-    ])
-  }
-
-  init(_ content: ModelOutput) throws {
-    province = try content.value(forProperty: "province")
-    postalCode = try content.value(forProperty: "postalCode")
-  }
-
-  var modelOutput: ModelOutput {
-    var properties = [(name: String, value: any ConvertibleToModelOutput)]()
-    addProperty(name: "province", value: province)
-    addProperty(name: "postalCode", value: postalCode)
-    return ModelOutput(
-      properties: properties,
-      uniquingKeysWith: { _, second in
-        second
-      }
-    )
-    func addProperty(name: String, value: some FirebaseGenerable) {
-      properties.append((name, value))
-    }
-    func addProperty(name: String, value: (some FirebaseGenerable)?) {
-      if let value {
-        properties.append((name, value))
-      }
-    }
-  }
-}
-
-extension SchemaTests.MailingAddress.PostalInfo.UnitedStates: FirebaseGenerable {
-  static var jsonSchema: FirebaseAILogic.JSONSchema {
-    JSONSchema(type: Self.self, properties: [
-      .init(
-        name: "state",
-        description: "The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'.",
-        type: String.self
-      ),
-      .init(
-        name: "zipCode",
-        description: "The 5-digit ZIP code, for example, '12345'.",
-        type: String.self
-      ),
-    ])
-  }
-
-  init(_ content: ModelOutput) throws {
-    state = try content.value(forProperty: "state")
-    zipCode = try content.value(forProperty: "zipCode")
-  }
-
-  var modelOutput: ModelOutput {
-    var properties = [(name: String, value: any ConvertibleToModelOutput)]()
-    addProperty(name: "state", value: state)
-    addProperty(name: "zipCode", value: zipCode)
-    return ModelOutput(
-      properties: properties,
-      uniquingKeysWith: { _, second in
-        second
-      }
-    )
-    func addProperty(name: String, value: some FirebaseGenerable) {
-      properties.append((name, value))
-    }
-    func addProperty(name: String, value: (some FirebaseGenerable)?) {
-      if let value {
-        properties.append((name, value))
-      }
-    }
-  }
-}
+// TODO: Replace manual implementation with macro when enums with associated values are supported.
 
 extension SchemaTests.MailingAddress.PostalInfo: FirebaseGenerable {
   static var jsonSchema: FirebaseAILogic.JSONSchema {
@@ -668,46 +473,5 @@ extension SchemaTests.MailingAddress.PostalInfo: FirebaseGenerable {
         second
       }
     )
-  }
-}
-
-extension SchemaTests.MailingAddress: FirebaseGenerable {
-  static var jsonSchema: FirebaseAILogic.JSONSchema {
-    JSONSchema(type: Self.self, description: "A mailing address", properties: [
-      .init(
-        name: "streetAddress",
-        description: "The civic number and street name, for example, '123 Main Street'.",
-        type: String.self
-      ),
-      .init(name: "city", description: "The name of the city.", type: String.self),
-      .init(name: "postalInfo", type: PostalInfo.self),
-    ])
-  }
-
-  init(_ content: ModelOutput) throws {
-    streetAddress = try content.value(forProperty: "streetAddress")
-    city = try content.value(forProperty: "city")
-    postalInfo = try content.value(forProperty: "postalInfo")
-  }
-
-  var modelOutput: ModelOutput {
-    var properties = [(name: String, value: any ConvertibleToModelOutput)]()
-    addProperty(name: "streetAddress", value: streetAddress)
-    addProperty(name: "city", value: city)
-    addProperty(name: "postalInfo", value: postalInfo)
-    return ModelOutput(
-      properties: properties,
-      uniquingKeysWith: { _, second in
-        second
-      }
-    )
-    func addProperty(name: String, value: some FirebaseGenerable) {
-      properties.append((name, value))
-    }
-    func addProperty(name: String, value: (some FirebaseGenerable)?) {
-      if let value {
-        properties.append((name, value))
-      }
-    }
   }
 }
