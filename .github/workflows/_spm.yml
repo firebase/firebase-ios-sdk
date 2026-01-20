@@ -157,4 +157,5 @@ jobs:
       with:
         name: xcresults-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
         path: xcresults/*
-        if-no-files-found: error
+        # If build did not succeed, then xcresult won't exist. Warn for visibility.
+        if-no-files-found: warn
