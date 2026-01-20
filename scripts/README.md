@@ -95,10 +95,6 @@ CI script to decrypt a GitHub Actions secret.
 
 CI script to encrypt a GitHub Actions secret.
 
-### [fuzzing_ci.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/fuzzing_ci.sh)
-
-Firestore CI script to run fuzz testing.
-
 ### [generate_access_token.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/generate_access_token.sh)
 
 Script to generate a Firebase access token used by Remote config integration tests.
