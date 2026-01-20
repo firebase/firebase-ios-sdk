@@ -380,6 +380,15 @@ case "$product-$platform-$method" in
           "${xcb_flags[@]}" \
           -jobs 4 \
           build-for-testing
+
+      sleep 10
+          
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
+          -enableCodeCoverage YES \
+          "${xcb_flags[@]}" \
+          test-without-building
       ;;
 
   Firestore-macOS-cmake | Firestore-Linux-cmake)
