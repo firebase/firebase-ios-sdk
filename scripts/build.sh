@@ -191,12 +191,19 @@ macos_flags=(
 tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
-visionos_flags=(
-  # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
-  # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
-  # explicitly specifying OS=2.5 in destination as a workaround.
-  -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
-)
+if [[ "$xcode_major" -ge 26 ]]; then
+  visionos_flags=(
+    -destination 'platform=visionOS Simulator,OS=latest,name=Apple Vision Pro'
+  )
+else
+  # TODO(visionOS): Remove this else case when we no longer need to test against macOS 15.
+  visionos_flags=(
+    # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
+    # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
+    # explicitly specifying OS=2.5 in destination as a workaround.
+    -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
+  )
+fi
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES
   -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
