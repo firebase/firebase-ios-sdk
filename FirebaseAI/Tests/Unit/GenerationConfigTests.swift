@@ -154,39 +154,42 @@ final class GenerationConfigTests: XCTestCase {
     """)
   }
 
+  struct Person: FirebaseGenerable {
+    let firstName: String
+    let middleNames: [String]
+    let lastName: String
+    let age: Int
+
+    static var jsonSchema: JSONSchema {
+      JSONSchema(type: Self.self, properties: [
+        JSONSchema.Property(name: "firstName", type: String.self),
+        JSONSchema.Property(name: "middleNames", type: [String].self, guides: [.count(0 ... 3)]),
+        JSONSchema.Property(name: "lastName", type: String.self),
+        JSONSchema.Property(name: "age", type: Int.self),
+      ])
+    }
+
+    init(_ content: FirebaseAILogic.ModelOutput) throws {
+      firstName = try content.value(forProperty: "firstName")
+      middleNames = try content.value(forProperty: "middleNames")
+      lastName = try content.value(forProperty: "lastName")
+      age = try content.value(forProperty: "age")
+    }
+
+    var modelOutput: ModelOutput {
+      ModelOutput(
+        properties: [("firstName", firstName), ("middleNames", middleNames), ("lastName", lastName),
+                     ("age", age)] as [(String, any ConvertibleToModelOutput)],
+        uniquingKeysWith: { _, new in new }
+      )
+    }
+  }
+
   func testEncodeGenerationConfig_responseJSONSchema() throws {
     let mimeType = "application/json"
-    let responseJSONSchema: JSONObject = [
-      "type": .string("object"),
-      "title": .string("Person"),
-      "properties": .object([
-        "firstName": .object(["type": .string("string")]),
-        "middleNames": .object([
-          "type": .string("array"),
-          "items": .object(["type": .string("string")]),
-          "minItems": .number(0),
-          "maxItems": .number(3),
-        ]),
-        "lastName": .object(["type": .string("string")]),
-        "age": .object(["type": .string("integer")]),
-      ]),
-      "required": .array([
-        .string("firstName"),
-        .string("middleNames"),
-        .string("lastName"),
-        .string("age"),
-      ]),
-      "propertyOrdering": .array([
-        .string("firstName"),
-        .string("middleNames"),
-        .string("lastName"),
-        .string("age"),
-      ]),
-      "additionalProperties": .bool(false),
-    ]
     let generationConfig = GenerationConfig(
       responseMIMEType: mimeType,
-      responseJSONSchema: responseJSONSchema
+      responseJSONSchema: Person.jsonSchema
     )
 
     let jsonData = try encoder.encode(generationConfig)
