@@ -767,9 +767,7 @@ std::vector<std::shared_ptr<api::EvaluableStage>> ToPipelineStages(
       stages.push_back(std::make_shared<api::SortStage>(api_orderings));
     }
   } else {
-    if (!api_orderings.empty()) {
-      stages.push_back(std::make_shared<api::SortStage>(api_orderings));
-    }
+    stages.push_back(std::make_shared<api::SortStage>(api_orderings));
   }
 
   return stages;
