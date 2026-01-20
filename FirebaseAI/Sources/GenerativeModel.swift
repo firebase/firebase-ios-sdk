@@ -142,7 +142,12 @@ public final class GenerativeModel: Sendable {
   /// - Parameter content: The input(s) given to the model as a prompt.
   /// - Returns: The generated content response from the model.
   /// - Throws: A ``GenerateContentError`` if the request failed.
-  public func generateContent(_ content: [ModelContent]) async throws
+  public func generateContent(_ content: [ModelContent]) async throws -> GenerateContentResponse {
+    return try await generateContent(content, generationConfig: generationConfig)
+  }
+
+  func generateContent(_ content: [ModelContent],
+                       generationConfig: GenerationConfig?) async throws
     -> GenerateContentResponse {
     try content.throwIfError()
     let response: GenerateContentResponse
@@ -280,11 +285,17 @@ public final class GenerativeModel: Sendable {
   public func generate<Content>(_ type: Content.Type = Content.self,
                                 from parts: any PartsRepresentable...) async throws
     -> Response<Content> where Content: FirebaseGenerable {
-    // TODO: Set required `GenerationConfig` values for JSON output.
+    var generationConfig = self.generationConfig ?? GenerationConfig()
+    generationConfig.candidateCount = nil
+    generationConfig.responseMIMEType = "application/json"
+    generationConfig.responseJSONSchema = type.jsonSchema
+    generationConfig.responseModalities = nil
 
     let response: GenerateContentResponse
     do {
-      response = try await generateContent([ModelContent(parts: parts)])
+      response = try await generateContent(
+        [ModelContent(parts: parts)], generationConfig: generationConfig
+      )
     } catch let error as GenerateContentError {
       throw GenerationError.generationFailure(error)
     } catch {
