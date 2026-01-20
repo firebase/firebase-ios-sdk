@@ -25,6 +25,7 @@ public extension GenerativeModel {
       }
     }
 
+    case generationFailure(GenerateContentError)
     case decodingFailure(GenerativeModel.GenerationError.Context)
   }
 }

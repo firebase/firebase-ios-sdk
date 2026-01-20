@@ -277,6 +277,53 @@ public final class GenerativeModel: Sendable {
     }
   }
 
+  public func generate<Content>(_ type: Content.Type = Content.self,
+                                from parts: any PartsRepresentable...) async throws
+    -> Response<Content> where Content: FirebaseGenerable {
+    // TODO: Set required `GenerationConfig` values for JSON output.
+
+    let response: GenerateContentResponse
+    do {
+      response = try await generateContent([ModelContent(parts: parts)])
+    } catch let error as GenerateContentError {
+      throw GenerationError.generationFailure(error)
+    } catch {
+      throw GenerationError.generationFailure(GenerateContentError.internalError(underlying: error))
+    }
+
+    // TODO: Add `GenerateContentResponse` as context in errors.
+
+    guard let jsonText = response.text else {
+      throw GenerationError.decodingFailure(
+        GenerationError.Context(debugDescription: "No JSON text in response.")
+      )
+    }
+
+    let modelOutput: ModelOutput
+    do {
+      modelOutput = try ModelOutput(json: jsonText)
+    } catch let error as GenerationError {
+      throw error
+    } catch {
+      throw GenerationError.decodingFailure(
+        GenerationError.Context(debugDescription: "Failed to decode response JSON: \(jsonText)")
+      )
+    }
+
+    let content: Content
+    do {
+      content = try Content(modelOutput)
+    } catch let error as GenerationError {
+      throw error
+    } catch {
+      throw GenerationError.decodingFailure(
+        GenerationError.Context(debugDescription: "Failed to decode \(type) from: \(modelOutput)")
+      )
+    }
+
+    return Response(content: content, rawContent: modelOutput, rawResponse: response)
+  }
+
   /// Creates a new chat conversation using this model with the provided history.
   public func startChat(history: [ModelContent] = []) -> Chat {
     return Chat(model: self, history: history)
@@ -365,5 +412,17 @@ public final class GenerativeModel: Sendable {
       return error
     }
     return GenerateContentError.internalError(underlying: error)
+  }
+
+  public struct Response<Content> where Content: FirebaseGenerable {
+    public let content: Content
+    public let rawContent: ModelOutput
+    public let rawResponse: GenerateContentResponse
+
+    init(content: Content, rawContent: ModelOutput, rawResponse: GenerateContentResponse) {
+      self.content = content
+      self.rawContent = rawContent
+      self.rawResponse = rawResponse
+    }
   }
 }
