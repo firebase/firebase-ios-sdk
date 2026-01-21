@@ -125,9 +125,6 @@ public struct JSONSchema: Sendable, CustomDebugStringConvertible {
       type: String,
       context: JSONSchema.SchemaError.Context
     )
-
-    public var errorDescription: String? { nil }
-    public var recoverySuggestion: String? { nil }
   }
 
   public var debugDescription: String {
@@ -138,13 +135,11 @@ public struct JSONSchema: Sendable, CustomDebugStringConvertible {
       jsonEncoder.outputFormatting = [.prettyPrinted]
       let jsonData = try jsonEncoder.encode(schema)
       guard let jsonString = String(data: jsonData, encoding: .utf8) else {
-        // TODO: Provide a placeholder schema
-        fatalError("Failed to encode JSONSchema")
+        return "Error: Failed to encode JSONSchema (String conversion failed)"
       }
       return jsonString
     } catch {
-      // TODO: Provide a placeholder schema
-      fatalError("Failed to encode JSONSchema: \(error)")
+      return "Error: Failed to encode JSONSchema (\(error))"
     }
   }
 }
