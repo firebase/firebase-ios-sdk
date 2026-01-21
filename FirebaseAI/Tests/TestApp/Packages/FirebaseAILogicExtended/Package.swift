@@ -37,10 +37,8 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "602.0.0-latest"),
-    .package(
-      url: "https://github.com/firebase/firebase-ios-sdk.git",
-      branch: "ai-structured-output"
-    ),
+    .package(name: "firebase-ios-sdk", path: "../../../../../"),
+    // TODO: Replace with remote dependency on 'firebase-ios-sdk'.
   ],
   targets: [
     .macro(
