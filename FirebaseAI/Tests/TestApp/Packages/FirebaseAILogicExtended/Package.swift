@@ -1,4 +1,4 @@
-// swift-tools-version: 6.2.1
+// swift-tools-version: 6.1.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 // Copyright 2026 Google LLC
