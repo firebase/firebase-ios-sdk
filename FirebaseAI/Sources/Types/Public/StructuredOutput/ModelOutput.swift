@@ -22,6 +22,8 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     fatalError("`ModelOutput.jsonSchema` is not implemented.")
   }
 
+  public var id: RequestID?
+
   init(kind: Kind) {
     self.kind = kind
   }

@@ -185,7 +185,7 @@ extension FirebaseGenerableMacro: MemberMacro {
 
       let propertyTypeString = info.type.trimmed.description
       partiallyGeneratedProperties
-        .append("var \(info.name): \(propertyTypeString).FirebasePartiallyGenerated?")
+        .append("var \(info.name): \(propertyTypeString).Partial?")
       partiallyGeneratedInits
         .append("self.\(info.name) = try content.value(forProperty: \"\(info.name)\")")
     }
@@ -248,13 +248,12 @@ extension FirebaseGenerableMacro: MemberMacro {
     let partiallyGeneratedInitsCode = partiallyGeneratedInits.joined(separator: "\n    ")
 
     let partiallyGeneratedStructCode = """
-    nonisolated struct FirebasePartiallyGenerated: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
-      var id: GenerationID
+    nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
+      var id: FirebaseAILogic.RequestID
       \(partiallyGeneratedPropertiesCode)
       nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
-        self.id = content.id ?? GenerationID()
+        self.id = content.id ?? FirebaseAILogic.RequestID()
         \(partiallyGeneratedInitsCode)
-        print(\"Initialized \\(Self.self)\")
       }
     }
     """
@@ -262,7 +261,7 @@ extension FirebaseGenerableMacro: MemberMacro {
     return [
       DeclSyntax(stringLiteral: generationSchemaCode),
       DeclSyntax(stringLiteral: modelOutputCode),
-//        DeclSyntax(stringLiteral: partiallyGeneratedStructCode),
+      DeclSyntax(stringLiteral: partiallyGeneratedStructCode),
     ]
   }
 }

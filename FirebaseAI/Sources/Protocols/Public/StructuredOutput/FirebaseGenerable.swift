@@ -16,7 +16,14 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol FirebaseGenerable: ConvertibleFromModelOutput, ConvertibleToModelOutput {
+  associatedtype Partial: ConvertibleFromModelOutput = Self
+
   static var jsonSchema: JSONSchema { get }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension FirebaseGenerable {
+  typealias Partial = Self
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
