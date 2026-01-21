@@ -57,7 +57,10 @@ elif [ "$TESTINGMODE" = "prerelease_testing" ]; then
   git push origin --delete "${tag_version}" > /dev/null 2>&1
   set -e
   git tag -f -a "${tag_version}" -m "release testing"
-  git push origin "${tag_version}" > /dev/null 2>&1 || echo "Push failed due to expired or insufficient token."
+  git push origin "${tag_version}" || {
+    echo "ERROR: Failed to push tag ${tag_version}. This is likely due to an expired Personal Access Token (PAT) or insufficient permissions." >&2
+    exit 1
+  }
   # Update source and tag, e.g.  ":tag => 'CocoaPods-' + s.version.to_s" to
   # ":tag => ${test_version}.nightly"
   sed -i "" "s/\s*:tag.*/:tag => '${tag_version}'/" *.podspec
