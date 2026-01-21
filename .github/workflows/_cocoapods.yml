@@ -157,6 +157,7 @@ jobs:
         timeout_minutes: 15
         max_attempts: 5
         retry_wait_seconds: 120
+        continue_on_error: true
         command: sudo xcodebuild -downloadPlatform ${{ matrix.platform }}
     - name: Set conditional environment variable, if needed.
       if: inputs.product == 'FirebaseAuth'
