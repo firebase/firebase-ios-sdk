@@ -95,6 +95,7 @@ jobs:
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-15, macos-26]
         xcode: [Xcode_16.4, Xcode_26.1]
