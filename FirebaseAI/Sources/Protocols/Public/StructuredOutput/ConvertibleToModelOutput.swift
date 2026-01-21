@@ -12,7 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public protocol ConvertibleToModelOutput {
-  var modelOutput: ModelOutput { get }
-}
+#if compiler(>=6.2)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public protocol ConvertibleToModelOutput: SendableMetatype {
+    var modelOutput: ModelOutput { get }
+  }
+#else
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public protocol ConvertibleToModelOutput {
+    var modelOutput: ModelOutput { get }
+  }
+#endif // compiler(>=6.2)
