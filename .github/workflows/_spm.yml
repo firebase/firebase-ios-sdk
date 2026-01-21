@@ -127,6 +127,7 @@ jobs:
         timeout_minutes: 15
         max_attempts: 5
         retry_wait_seconds: 120
+        continue_on_error: true
         command: sudo xcodebuild -downloadPlatform ${{ matrix.platform }}
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
