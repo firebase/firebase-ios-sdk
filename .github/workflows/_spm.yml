@@ -65,7 +65,6 @@ on:
 
 jobs:
   spm-package-resolved:
-    name: spm-package-resolved / ${{ inputs.target }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-15
@@ -92,7 +91,6 @@ jobs:
   spm:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
-    name: spm / ${{ inputs.target }}
     needs: [spm-package-resolved]
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
@@ -127,11 +125,11 @@ jobs:
       if: matrix.platform != 'macOS' && matrix.platform != 'catalyst'
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        timeout_minutes: 15
+        timeout_minutes: 5
         max_attempts: 5
         retry_wait_seconds: 120
         continue_on_error: true
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.platform }}
+        command: xcodebuild -downloadPlatform ${{ matrix.platform }}
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
       run: ${{ inputs.setup_command }}
