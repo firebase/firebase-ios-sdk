@@ -121,6 +121,7 @@ jobs:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-15, macos-26]
         xcode: [Xcode_16.4, Xcode_26.1]
