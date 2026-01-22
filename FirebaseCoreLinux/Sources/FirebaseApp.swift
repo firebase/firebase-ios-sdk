@@ -15,7 +15,7 @@
 import Foundation
 
 /// The entry point of Firebase SDKs.
-public class FirebaseApp {
+public final class FirebaseApp: @unchecked Sendable {
     private static let defaultAppName = "__FIRAPP_DEFAULT"
     private static var _allApps: [String: FirebaseApp] = [:]
     private static let lock = NSLock()
