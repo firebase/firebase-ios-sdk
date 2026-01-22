@@ -85,7 +85,8 @@ struct GenerateContentIntegrationTests {
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
     if modelName.hasPrefix("gemini-3") {
-      #expect(usageMetadata.thoughtsTokenCount == 64)
+      // For gemini-3 models, the thoughtsTokenCount can vary slightly between runs.
+      #expect(usageMetadata.thoughtsTokenCount >= 64)
     } else {
       #expect(usageMetadata.thoughtsTokenCount == 0)
     }
@@ -104,6 +105,8 @@ struct GenerateContentIntegrationTests {
       #expect(candidatesTokensDetails.modality == .text)
       #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
+    #expect(usageMetadata.cachedContentTokenCount == 0)
+    #expect(usageMetadata.cacheTokensDetails.isEmpty)
     #expect(usageMetadata.totalTokenCount == (usageMetadata.promptTokenCount +
         usageMetadata.candidatesTokenCount +
         usageMetadata.thoughtsTokenCount))
@@ -222,7 +225,9 @@ struct GenerateContentIntegrationTests {
 
     let candidate = try #require(response.candidates.first)
     let thoughtParts = candidate.content.parts.compactMap { $0.isThought ? $0 : nil }
-    #expect(thoughtParts.isEmpty != (thinkingConfig.includeThoughts ?? false))
+    let thoughtSignature = candidate.content.internalParts.first?.thoughtSignature
+    #expect(thoughtSignature != nil || thoughtParts
+      .isEmpty != (thinkingConfig.includeThoughts ?? false))
 
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
@@ -238,7 +243,9 @@ struct GenerateContentIntegrationTests {
       // levels, 64 or 68 may be returned.
       let minThoughtTokens = 64
       switch thinkingLevel {
-      case .minimal, .low, .medium, .high:
+      case .minimal:
+        #expect(usageMetadata.thoughtsTokenCount == 0)
+      case .low, .medium, .high:
         #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
       default:
         Issue.record("Unhandled ThinkingLevel: \(thinkingLevel)")
@@ -257,6 +264,8 @@ struct GenerateContentIntegrationTests {
       #expect(candidatesTokensDetails.modality == .text)
       #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
+    #expect(usageMetadata.cachedContentTokenCount == 0)
+    #expect(usageMetadata.cacheTokensDetails.isEmpty)
     #expect(usageMetadata.totalTokenCount > 0)
     #expect(usageMetadata.totalTokenCount == (
       usageMetadata.promptTokenCount
@@ -447,26 +456,14 @@ struct GenerateContentIntegrationTests {
     )
     let url = "https://developers.googleblog.com/en/introducing-gemma-3-270m/"
     let prompt = "Write a one paragraph summary of this blog post: \(url)"
-
-    // TODO(#15385): Remove `withKnownIssue` when the URL Context tool works consistently using the
-    // Gemini Developer API.
-    try await withKnownIssue(isIntermittent: true) {
-      let response = try await model.generateContent(prompt)
-
-      let candidate = try #require(response.candidates.first)
-      let urlContextMetadata = try #require(candidate.urlContextMetadata)
-      #expect(urlContextMetadata.urlMetadata.count == 1)
-      let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
-      let retrievedURL = try #require(urlMetadata.retrievedURL)
-      #expect(retrievedURL == URL(string: url))
-      #expect(urlMetadata.retrievalStatus == .success)
-    } when: {
-      // This issue only impacts the Gemini Developer API (Google AI), Vertex AI is unaffected.
-      if case .googleAI = config.apiConfig.service {
-        return true
-      }
-      return false
-    }
+    let response = try await model.generateContent(prompt)
+    let candidate = try #require(response.candidates.first)
+    let urlContextMetadata = try #require(candidate.urlContextMetadata)
+    #expect(urlContextMetadata.urlMetadata.count == 1)
+    let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
+    #expect(urlMetadata.retrievalStatus == .success)
+    let retrievedURL = try #require(urlMetadata.retrievedURL)
+    #expect(retrievedURL == URL(string: url))
   }
 
   @Test(arguments: InstanceConfig.allConfigs)

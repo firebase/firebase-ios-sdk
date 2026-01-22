@@ -62,6 +62,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
                          appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                            appInfo:(nonnull NSDictionary *)appInfo
                       deletionQueue:(dispatch_queue_t)deletionQueue;
 
 @end
@@ -90,6 +91,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   _settings = [[FIRCLSSettings alloc]
       initWithFileManager:_fileManager
                appIDModel:_appIDModel
+                  appInfo:[[NSDictionary alloc] init]
             deletionQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)];
 }
 
@@ -103,6 +105,7 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   XCTAssertTrue(self.settings.errorReportingEnabled);
   XCTAssertTrue(self.settings.customExceptionsEnabled);
   XCTAssertFalse(self.settings.metricKitCollectionEnabled);
+  XCTAssertFalse(self.settings.machExceptionDefaultBehavior);
 
   XCTAssertEqual(self.settings.errorLogBufferSize, 64 * 1000);
   XCTAssertEqual(self.settings.logBufferSize, 64 * 1000);
@@ -484,6 +487,36 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
   XCTAssertNil(error, "%@", error);
+}
+
+- (void)testMachExceptionBehaviorFromAppInfo {
+  // The key is defined in FIRCLSSettings.m, so we'll redefine it here for the test.
+  NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
+      @"FirebaseCrashlyticsMachDefaultBehavior";
+
+  NSDictionary *appInfoWithSetting = @{FirebaseCrashlyticsMachDefaultBehaviorKey : @YES};
+  _settings = [[FIRCLSSettings alloc]
+      initWithFileManager:_fileManager
+               appIDModel:_appIDModel
+                  appInfo:appInfoWithSetting
+            deletionQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)];
+  XCTAssertTrue(self.settings.machExceptionDefaultBehavior);
+
+  NSDictionary *appInfoWithSettingString = @{FirebaseCrashlyticsMachDefaultBehaviorKey : @"true"};
+  _settings = [[FIRCLSSettings alloc]
+      initWithFileManager:_fileManager
+               appIDModel:_appIDModel
+                  appInfo:appInfoWithSettingString
+            deletionQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)];
+  XCTAssertTrue(self.settings.machExceptionDefaultBehavior);
+
+  NSDictionary *appInfoWithSettingFalse = @{FirebaseCrashlyticsMachDefaultBehaviorKey : @NO};
+  _settings = [[FIRCLSSettings alloc]
+      initWithFileManager:_fileManager
+               appIDModel:_appIDModel
+                  appInfo:appInfoWithSettingFalse
+            deletionQueue:dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)];
+  XCTAssertFalse(self.settings.machExceptionDefaultBehavior);
 }
 
 @end

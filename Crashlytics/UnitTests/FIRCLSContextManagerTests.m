@@ -47,7 +47,8 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 
   FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:appIDModel];
+                                                       appIDModel:appIDModel
+                                                          appInfo:[[NSDictionary alloc] init]];
 
   //  NSString *name = @"exception_model_report";
   NSString *reportPath =
