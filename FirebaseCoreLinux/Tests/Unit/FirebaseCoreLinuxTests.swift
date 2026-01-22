@@ -40,12 +40,12 @@ final class FirebaseCoreLinuxTests: XCTestCase {
         XCTAssertEqual(options.bundleID, Bundle.main.bundleIdentifier ?? "")
     }
 
-    func testComponentRegistrationAndResolution() {
-        // Define a dummy service
-        class TestService {
-            let id = UUID()
-        }
+    // Define a dummy service outside
+    class TestService {
+        let id = UUID()
+    }
 
+    func testComponentRegistrationAndResolution() {
         // Register component
         let component = Component(TestService.self) { container in
             return TestService()
