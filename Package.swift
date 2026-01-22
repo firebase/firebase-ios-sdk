@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version:5.9
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -283,7 +283,7 @@ let package = Package(
       dependencies: [],
       path: "FirebaseCoreLinux/Sources",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -293,7 +293,7 @@ let package = Package(
       ],
       path: "FirebaseCoreLinux/Tests/Unit",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
 
@@ -482,7 +482,7 @@ let package = Package(
         .headerSearchPath("../../../.."),
       ],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
 
@@ -504,7 +504,7 @@ let package = Package(
       ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -553,7 +553,7 @@ let package = Package(
         "FIROAuthProviderTests.m",
       ],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .target(
@@ -561,7 +561,7 @@ let package = Package(
       dependencies: ["FirebaseAuth"],
       path: "FirebaseCombineSwift/Sources/Auth",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .target(
@@ -592,7 +592,7 @@ let package = Package(
       dependencies: ["FirebaseCrashlyticsSwift"],
       path: "Crashlytics/UnitTestsSwift/",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -660,7 +660,7 @@ let package = Package(
         .headerSearchPath("../.."),
       ],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -671,7 +671,7 @@ let package = Package(
         .headerSearchPath("../.."),
       ],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .target(
@@ -688,7 +688,7 @@ let package = Package(
       ],
       // TODO(ncooke3): Can this be upgraded to Swift 6?
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -726,7 +726,7 @@ let package = Package(
         .headerSearchPath("../../../"),
       ],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -753,7 +753,7 @@ let package = Package(
       dependencies: ["FirebaseFunctions"],
       path: "FirebaseCombineSwift/Sources/Functions",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -809,7 +809,7 @@ let package = Package(
       dependencies: ["FirebaseInAppMessagingInternal"],
       path: "FirebaseInAppMessaging/Swift/Source",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
 
@@ -842,7 +842,7 @@ let package = Package(
       ],
       path: "FirebaseMLModelDownloader/Sources",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -1030,7 +1030,7 @@ let package = Package(
       path: "FirebaseRemoteConfig/Swift",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -1050,7 +1050,7 @@ let package = Package(
         .headerSearchPath("../../../"),
       ],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .target(
@@ -1167,7 +1167,7 @@ let package = Package(
       ],
       path: "FirebaseStorage/Sources",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -1179,7 +1179,7 @@ let package = Package(
         .headerSearchPath("../../../"),
       ],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -1228,7 +1228,7 @@ let package = Package(
       ],
       path: "SwiftPMTests/swift-test",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -1239,7 +1239,7 @@ let package = Package(
       ],
       path: "SwiftPMTests/analytics-import-test",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
     .testTarget(
@@ -1333,7 +1333,7 @@ let package = Package(
       dependencies: ["FirebaseAppCheck"],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ]
     ),
 
@@ -1599,7 +1599,7 @@ func firestoreTargets() -> [Target] {
         ],
         resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")],
         swiftSettings: [
-          .swiftLanguageMode(SwiftLanguageMode.v5),
+          .swiftLanguageVersion(.v5),
         ]
       ),
     ]
@@ -1650,7 +1650,7 @@ func firestoreTargets() -> [Target] {
       path: "Firestore/Swift/Source",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .swiftLanguageVersion(.v5),
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
