@@ -283,7 +283,7 @@ let package = Package(
       dependencies: [],
       path: "FirebaseCoreLinux/Sources",
       swiftSettings: [
-        .swiftLanguageMode(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -293,7 +293,7 @@ let package = Package(
       ],
       path: "FirebaseCoreLinux/Tests/Unit",
       swiftSettings: [
-        .swiftLanguageMode(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
 
