@@ -30,7 +30,7 @@ protocol GenerationIDProtocol: Sendable, Hashable {}
 public struct ResponseID: Sendable, Hashable {
   enum Identifier {
     case value(String)
-    case generationID(GenerationIDProtocol)
+    case generationID(any GenerationIDProtocol)
   }
 
   let identifier: Identifier
