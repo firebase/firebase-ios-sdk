@@ -44,11 +44,8 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
     // In StorageFactory.swift, I extended FileStorage and UserDefaultsStorage to conform to StorageFactory.
     // But `makeStorage` is static on the type.
 
-    #if os(tvOS)
-      let storage = UserDefaultsStorage.makeStorage(id: id)
-    #else
-      let storage = FileStorage.makeStorage(id: id)
-    #endif
+    // Always use FileStorage for Linux target to ensure compatibility
+    let storage = FileStorage.makeStorage(id: id)
     return HeartbeatStorage(id: id, storage: storage)
   }
 
