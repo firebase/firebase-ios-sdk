@@ -1,13 +1,14 @@
 import Foundation
 
+/// Error types for `RingBuffer` operations.
+enum RingBufferError: Swift.Error {
+    case outOfBoundsPush
+}
+
 /// A generic circular queue structure.
 struct RingBuffer<Element>: Sequence {
   private var circularQueue: [Element?]
   private var tailIndex: Array<Element?>.Index
-
-  enum Error: Swift.Error {
-    case outOfBoundsPush
-  }
 
   init(capacity: Int) {
     circularQueue = Array(repeating: nil, count: capacity)

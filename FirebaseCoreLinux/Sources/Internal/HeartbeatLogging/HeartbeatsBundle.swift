@@ -36,7 +36,7 @@ struct HeartbeatsBundle: Codable, HeartbeatsPayloadConvertible {
         lastAddedHeartbeatDates[timePeriod] = heartbeat.date
       }
 
-    } catch let error as RingBuffer<Heartbeat>.Error {
+    } catch let error as RingBufferError {
       self = HeartbeatsBundle(capacity: capacity)
 
       // RingBuffer error logic
