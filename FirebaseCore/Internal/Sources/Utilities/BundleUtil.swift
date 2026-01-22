@@ -17,7 +17,8 @@ import Foundation
 /// A utility class for accessing resources and configuration in bundles.
 /// This class replaces the legacy `FIRBundleUtil` Objective-C class.
 @objc(FIRBundleUtil)
-open class BundleUtil: NSObject {
+@objcMembers
+public class BundleUtil: NSObject {
   /// Internal testing override for isAppExtension
   internal static var isAppExtensionOverride: Bool?
 
