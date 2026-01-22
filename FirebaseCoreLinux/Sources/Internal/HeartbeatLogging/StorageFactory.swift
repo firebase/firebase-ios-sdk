@@ -13,7 +13,8 @@ protocol StorageFactory {
 
 extension FileStorage: StorageFactory {
   static func makeStorage(id: String) -> Storage {
-    let rootDirectory = FileManager.default.applicationSupportDirectory
+    // Use temporary directory for better compatibility in restricted environments (CI/Linux)
+    let rootDirectory = FileManager.default.temporaryDirectory
     let heartbeatDirectoryPath = Constants.heartbeatFileStorageDirectoryPath
     let sanitizedID = id.replacingOccurrences(of: ":", with: "_")
     let heartbeatFilePath = "heartbeats-\(sanitizedID)"
