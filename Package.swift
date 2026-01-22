@@ -247,7 +247,6 @@ let package = Package(
       name: "CoreUnit",
       dependencies: [
         "FirebaseCore",
-        "FirebaseCoreInternal",
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
