@@ -31,7 +31,7 @@
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 
-#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
+@import FirebaseCoreInternal;
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
 

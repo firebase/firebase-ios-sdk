@@ -17,7 +17,7 @@
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 
-#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
+@import FirebaseCoreInternal;
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
