@@ -289,7 +289,6 @@ private enum GoogleDataTransportConfig {
     }
   }
 
-
   func register(subscriber: SessionsSubscriber) {
     Logger
       .logDebug(
