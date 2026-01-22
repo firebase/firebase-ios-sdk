@@ -18,7 +18,7 @@ import Foundation
 /// This class replaces the legacy `FIRBundleUtil` Objective-C class.
 @objc(FIRBundleUtil)
 @objcMembers
-public class BundleUtil: NSObject {
+open class BundleUtil: NSObject {
   /// Internal testing override for isAppExtension
   internal static var isAppExtensionOverride: Bool?
 
