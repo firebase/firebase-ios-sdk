@@ -45,10 +45,8 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
       return Self.emptyPayload.headerValue()
     }
 
-    // Skip GZIP for Linux compatibility as GULNSData is not available.
-    // If GZIP is strictly required by backend, we might need a Swift GZIP library.
-    // However, usually servers handle non-gzipped if not specified or just base64 is fine?
-    // The original code fell back to base64 if gzip failed.
+    // GZIP compression removed for Linux compatibility (no GULNSData dependency).
+    // Using simple Base64 URL encoding.
     return data.base64URLEncodedString()
   }
 }
