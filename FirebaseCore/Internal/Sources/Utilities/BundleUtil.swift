@@ -22,6 +22,21 @@ open class BundleUtil: NSObject {
   /// Internal testing override for isAppExtension
   internal static var isAppExtensionOverride: Bool?
 
+  private static var _additionalBundles: [Bundle] = []
+
+  /// Registers an additional bundle to be included in `relevantBundles`.
+  /// - Parameter bundle: The bundle to register.
+  @objc
+  public static func registerAdditionalBundle(_ bundle: Bundle) {
+    _additionalBundles.append(bundle)
+  }
+
+  /// Clears all registered additional bundles.
+  @objc
+  public static func clearAdditionalBundles() {
+    _additionalBundles.removeAll()
+  }
+
   /// Checks if the current environment is an app extension.
   private static var isAppExtension: Bool {
     if let override = isAppExtensionOverride {
@@ -36,7 +51,7 @@ open class BundleUtil: NSObject {
   /// - Returns: An array of `Bundle` objects, typically containing `Bundle.main` and the bundle containing this class.
   @objc
   public static func relevantBundles() -> [Bundle] {
-    return [Bundle.main, Bundle(for: self)]
+    return [Bundle.main, Bundle(for: self)] + _additionalBundles
   }
 
   /// Reads the path to the options dictionary (plist) from one of the provided bundles.

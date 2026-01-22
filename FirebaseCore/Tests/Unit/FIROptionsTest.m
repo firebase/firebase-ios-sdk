@@ -54,6 +54,12 @@ extern NSString *const kFIRLibraryVersionID;
 - (void)setUp {
   [super setUp];
   [FIROptions resetDefaultOptions];
+  [FIRBundleUtil registerAdditionalBundle:[NSBundle bundleForClass:[self class]]];
+}
+
+- (void)tearDown {
+  [FIRBundleUtil clearAdditionalBundles];
+  [super tearDown];
 }
 
 - (void)testInit {
