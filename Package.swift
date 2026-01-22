@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:6.0
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -476,7 +476,7 @@ let package = Package(
         .headerSearchPath("../../../.."),
       ],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
 
@@ -498,7 +498,7 @@ let package = Package(
       ],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ],
       linkerSettings: [
         .linkedFramework("Security"),
@@ -547,7 +547,7 @@ let package = Package(
         "FIROAuthProviderTests.m",
       ],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .target(
@@ -555,7 +555,7 @@ let package = Package(
       dependencies: ["FirebaseAuth"],
       path: "FirebaseCombineSwift/Sources/Auth",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .target(
@@ -586,7 +586,7 @@ let package = Package(
       dependencies: ["FirebaseCrashlyticsSwift"],
       path: "Crashlytics/UnitTestsSwift/",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -654,7 +654,7 @@ let package = Package(
         .headerSearchPath("../.."),
       ],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -665,7 +665,7 @@ let package = Package(
         .headerSearchPath("../.."),
       ],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .target(
@@ -682,7 +682,7 @@ let package = Package(
       ],
       // TODO(ncooke3): Can this be upgraded to Swift 6?
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -720,7 +720,7 @@ let package = Package(
         .headerSearchPath("../../../"),
       ],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -747,7 +747,7 @@ let package = Package(
       dependencies: ["FirebaseFunctions"],
       path: "FirebaseCombineSwift/Sources/Functions",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -803,7 +803,7 @@ let package = Package(
       dependencies: ["FirebaseInAppMessagingInternal"],
       path: "FirebaseInAppMessaging/Swift/Source",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
 
@@ -836,7 +836,7 @@ let package = Package(
       ],
       path: "FirebaseMLModelDownloader/Sources",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1024,7 +1024,7 @@ let package = Package(
       path: "FirebaseRemoteConfig/Swift",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1044,7 +1044,7 @@ let package = Package(
         .headerSearchPath("../../../"),
       ],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .target(
@@ -1161,7 +1161,7 @@ let package = Package(
       ],
       path: "FirebaseStorage/Sources",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1173,7 +1173,7 @@ let package = Package(
         .headerSearchPath("../../../"),
       ],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1222,7 +1222,7 @@ let package = Package(
       ],
       path: "SwiftPMTests/swift-test",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1233,7 +1233,7 @@ let package = Package(
       ],
       path: "SwiftPMTests/analytics-import-test",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -1327,7 +1327,7 @@ let package = Package(
       dependencies: ["FirebaseAppCheck"],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
 
@@ -1593,7 +1593,7 @@ func firestoreTargets() -> [Target] {
         ],
         resources: [.process("Source/Resources/PrivacyInfo.xcprivacy")],
         swiftSettings: [
-          .swiftLanguageVersion(.v5),
+          .swiftLanguageMode(SwiftLanguageMode.v5),
         ]
       ),
     ]
@@ -1644,7 +1644,7 @@ func firestoreTargets() -> [Target] {
       path: "Firestore/Swift/Source",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       swiftSettings: [
-        .swiftLanguageVersion(.v5),
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ],
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
