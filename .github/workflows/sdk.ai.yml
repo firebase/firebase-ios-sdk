@@ -102,7 +102,6 @@ jobs:
         timeout_minutes: 5
         max_attempts: 5
         retry_wait_seconds: 120
-        continue_on_error: true
         command: xcodebuild -downloadPlatform iOS
     - name: Build Quickstart
       run: scripts/quickstart_build_spm.sh FirebaseAI
