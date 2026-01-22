@@ -249,10 +249,10 @@ extension FirebaseGenerableMacro: MemberMacro {
 
     let partiallyGeneratedStructCode = """
     nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
-      var id: FirebaseAILogic.RequestID
+      var id: FirebaseAILogic.ResponseID
       \(partiallyGeneratedPropertiesCode)
       nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
-        self.id = content.id ?? FirebaseAILogic.RequestID()
+        self.id = content.id ?? FirebaseAILogic.ResponseID()
         \(partiallyGeneratedInitsCode)
       }
     }

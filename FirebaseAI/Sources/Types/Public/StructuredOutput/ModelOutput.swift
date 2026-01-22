@@ -22,7 +22,7 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     fatalError("`ModelOutput.jsonSchema` is not implemented.")
   }
 
-  public var id: RequestID?
+  public var id: ResponseID?
 
   init(kind: Kind) {
     self.kind = kind
@@ -65,14 +65,16 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     self = value.modelOutput
   }
 
-  public init(json: String) throws {
+  public init(json: String, id: ResponseID? = nil) throws {
     guard let jsonData = json.data(using: .utf8) else {
       fatalError()
     }
 
     let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
+    var modelOutput = jsonValue.modelOutput
+    modelOutput.id = id
 
-    self = jsonValue.modelOutput
+    self = modelOutput
   }
 
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value

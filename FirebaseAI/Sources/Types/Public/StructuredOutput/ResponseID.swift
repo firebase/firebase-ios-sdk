@@ -27,7 +27,7 @@ protocol GenerationIDProtocol: Sendable, Hashable {}
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct RequestID: Sendable, Hashable {
+public struct ResponseID: Sendable, Hashable {
   enum Identifier {
     case value(String)
     case generationID(GenerationIDProtocol)
@@ -54,8 +54,8 @@ public struct RequestID: Sendable, Hashable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension RequestID.Identifier: Equatable {
-  static func == (lhs: RequestID.Identifier, rhs: RequestID.Identifier) -> Bool {
+extension ResponseID.Identifier: Equatable {
+  static func == (lhs: ResponseID.Identifier, rhs: ResponseID.Identifier) -> Bool {
     if case let .value(lhsValue) = lhs, case let .value(rhsValue) = rhs {
       return lhsValue == rhsValue
     } else if case let .generationID(lhsGenerationID) = lhs,
@@ -77,7 +77,7 @@ extension RequestID.Identifier: Equatable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension RequestID.Identifier: Hashable {
+extension ResponseID.Identifier: Hashable {
   func hash(into hasher: inout Hasher) {
     switch self {
     case let .value(value):
