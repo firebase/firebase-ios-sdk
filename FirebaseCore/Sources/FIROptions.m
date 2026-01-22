@@ -14,8 +14,9 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
+
+@import FirebaseCoreInternal;
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
 // Keys for the strings in the plist file.
