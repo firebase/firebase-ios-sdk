@@ -139,7 +139,6 @@ extension Decimal: FirebaseGenerable {
   }
 
   public var modelOutput: ModelOutput {
-    let doubleValue = (self as NSDecimalNumber).doubleValue
     return ModelOutput(kind: .number(doubleValue))
   }
 }
