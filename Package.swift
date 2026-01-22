@@ -88,6 +88,10 @@ let package = Package(
       targets: ["FirebaseCore"]
     ),
     .library(
+      name: "FirebaseCoreLinux",
+      targets: ["FirebaseCoreLinux"]
+    ),
+    .library(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
     ),
@@ -269,6 +273,30 @@ let package = Package(
       publicHeadersPath: ".",
       cSettings: [
         .headerSearchPath("../../"),
+      ]
+    ),
+
+    // MARK: - Firebase Core Linux
+
+    .target(
+      name: "FirebaseCoreLinux",
+      dependencies: [
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "GULLogger", package: "GoogleUtilities"),
+      ],
+      path: "FirebaseCoreLinux/Sources",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseCoreLinuxTests",
+      dependencies: [
+        "FirebaseCoreLinux",
+      ],
+      path: "FirebaseCoreLinux/Tests/Unit",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
 
