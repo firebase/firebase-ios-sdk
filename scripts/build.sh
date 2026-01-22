@@ -196,7 +196,7 @@ if [[ "$xcode_major" -ge 26 ]]; then
     -destination 'platform=visionOS Simulator,OS=latest,name=Apple Vision Pro'
   )
 else
-  # TODO(visionOS): Remove this else case when we no longer need to test against macOS 15.
+  # TODO(ncooke3): Remove this else case when we no longer need to test against macOS 15.
   visionos_flags=(
     # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
     # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
