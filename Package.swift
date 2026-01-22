@@ -280,10 +280,7 @@ let package = Package(
 
     .target(
       name: "FirebaseCoreLinux",
-      dependencies: [
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULLogger", package: "GoogleUtilities"),
-      ],
+      dependencies: [],
       path: "FirebaseCoreLinux/Sources",
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
