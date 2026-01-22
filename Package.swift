@@ -281,20 +281,14 @@ let package = Package(
     .target(
       name: "FirebaseCoreLinux",
       dependencies: [],
-      path: "FirebaseCoreLinux/Sources",
-      swiftSettings: [
-        .swiftLanguageVersion(.v5),
-      ]
+      path: "FirebaseCoreLinux/Sources"
     ),
     .testTarget(
       name: "FirebaseCoreLinuxTests",
       dependencies: [
         "FirebaseCoreLinux",
       ],
-      path: "FirebaseCoreLinux/Tests/Unit",
-      swiftSettings: [
-        .swiftLanguageVersion(.v5),
-      ]
+      path: "FirebaseCoreLinux/Tests/Unit"
     ),
 
     // MARK: - Firebase Core Internal
