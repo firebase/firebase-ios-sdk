@@ -713,7 +713,7 @@ struct SchemaTests {
     let text = try #require(response.text)
     let modelOutput = try ModelOutput(json: text)
     let statement = try Statement(modelOutput)
-#expect(statement.balance == Decimal(string: "123.45")!)
+    #expect(statement.balance == Decimal(string: "123.45")!)
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
@@ -728,7 +728,7 @@ struct SchemaTests {
     let response = try await model.generate(Statement.self, from: prompt)
 
     let statement = response.content
-#expect(statement.balance == Decimal(string: "123.45")!)
+    #expect(statement.balance == Decimal(string: "123.45")!)
   }
 
   @FirebaseGenerable
