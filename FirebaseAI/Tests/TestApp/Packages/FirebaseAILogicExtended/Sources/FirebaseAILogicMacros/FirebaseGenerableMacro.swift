@@ -183,7 +183,10 @@ extension FirebaseGenerableMacro: MemberMacro {
 
       propertySchemas.append(propertySchemaString)
 
-      let propertyTypeString = info.type.trimmed.description
+      var propertyTypeString = info.type.trimmed.description
+      if let optionalType = info.type.as(OptionalTypeSyntax.self) {
+        propertyTypeString = optionalType.wrappedType.trimmed.description
+      }
       partiallyGeneratedProperties
         .append("var \(info.name): \(propertyTypeString).Partial?")
       partiallyGeneratedInits

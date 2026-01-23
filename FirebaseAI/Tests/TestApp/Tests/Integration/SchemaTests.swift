@@ -15,6 +15,7 @@
 import FirebaseAILogic
 import FirebaseAILogicMacro
 import FirebaseAITestApp
+import Foundation
 import Testing
 
 @testable import struct FirebaseAILogic.GenerationConfig
@@ -384,6 +385,465 @@ struct SchemaTests {
       #expect(postalCode == "K7L 3N6")
     } else {
       Issue.record("Expected Canadian Queen's University address, got \(queensAddress).")
+    }
+  }
+
+  @FirebaseGenerable
+  struct FeatureToggle {
+    @FirebaseGuide(description: "Whether the experimental feature should be active")
+    let isEnabled: Bool
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "isEnabled": .boolean(description: "Whether the experimental feature should be active"),
+      ],
+      title: "FeatureToggle"
+    ),
+    jsonSchema: FeatureToggle.jsonSchema
+  ))
+  func generateContentBoolean(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Should the experimental feature be active? Answer yes."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let featureToggle = try FeatureToggle(modelOutput)
+    #expect(featureToggle.isEnabled)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeBoolean(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Should the experimental feature be active? Answer yes."
+
+    let response = try await model.generate(FeatureToggle.self, from: prompt)
+
+    let featureToggle = response.content
+    #expect(featureToggle.isEnabled)
+  }
+
+  @FirebaseGenerable
+  struct UserProfile {
+    let username: String
+    @FirebaseGuide(description: "The user's optional middle name")
+    let middleName: String?
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "username": .string(),
+        "middleName": .string(description: "The user's optional middle name", nullable: true),
+      ],
+      optionalProperties: ["middleName"],
+      title: "UserProfile"
+    ),
+    jsonSchema: UserProfile.jsonSchema
+  ))
+  func generateContentOptional(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a user profile for 'jdoe' without a middle name."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let userProfile = try UserProfile(modelOutput)
+    #expect(userProfile.username == "jdoe")
+    #expect(userProfile.middleName == nil)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeOptional(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a user profile for 'jdoe' without a middle name."
+
+    let response = try await model.generate(UserProfile.self, from: prompt)
+
+    let userProfile = response.content
+    #expect(userProfile.username == "jdoe")
+    #expect(userProfile.middleName == nil)
+  }
+
+  @FirebaseGenerable
+  struct Task {
+    let title: String
+    @FirebaseGuide(description: "The priority level", .anyOf(["low", "medium", "high"]))
+    let priority: String
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "title": .string(),
+        "priority": .enumeration(
+          values: ["low", "medium", "high"],
+          description: "The priority level"
+        ),
+      ],
+      title: "Task"
+    ),
+    jsonSchema: Task.jsonSchema
+  ))
+  func generateContentStringEnum(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a high priority task titled 'Fix Bug'."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let task = try Task(modelOutput)
+    #expect(task.title == "Fix Bug")
+    #expect(task.priority == "high")
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeStringEnum(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a high priority task titled 'Fix Bug'."
+
+    let response = try await model.generate(Task.self, from: prompt)
+
+    let task = response.content
+    #expect(task.title == "Fix Bug")
+    #expect(task.priority == "high")
+  }
+
+  @FirebaseGenerable
+  struct GradeBook {
+    @FirebaseGuide(description: "A list of exam scores", .element(.range(0 ... 100)))
+    let scores: [Int]
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "scores": .array(
+          items: .integer(minimum: 0, maximum: 100),
+          description: "A list of exam scores"
+        ),
+      ],
+      title: "GradeBook"
+    ),
+    jsonSchema: GradeBook.jsonSchema
+  ))
+  func generateContentArrayConstraints(_ config: InstanceConfig,
+                                       _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a gradebook with scores 95, 80, and 100."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let gradeBook = try GradeBook(modelOutput)
+    #expect(gradeBook.scores.count == 3)
+    for score in gradeBook.scores {
+      #expect(score >= 0 && score <= 100)
+    }
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeArrayConstraints(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a gradebook with scores 95, 80, and 100."
+
+    let response = try await model.generate(GradeBook.self, from: prompt)
+
+    let gradeBook = response.content
+    #expect(gradeBook.scores.count == 3)
+    for score in gradeBook.scores {
+      #expect(score >= 0 && score <= 100)
+    }
+  }
+
+  @FirebaseGenerable
+  struct Catalog {
+    let name: String
+    let categories: [Category]
+
+    @FirebaseGenerable
+    struct Category {
+      let title: String
+      let items: [Item]
+
+      @FirebaseGenerable
+      struct Item {
+        let name: String
+        let price: Double
+      }
+    }
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "name": .string(),
+        "categories": .array(items: .object(
+          properties: [
+            "title": .string(),
+            "items": .array(items: .object(
+              properties: [
+                "name": .string(),
+                "price": .double(),
+              ],
+              title: "Item"
+            )),
+          ],
+          title: "Category"
+        )),
+      ],
+      title: "Catalog"
+    ),
+    jsonSchema: Catalog.jsonSchema
+  ))
+  func generateContentNesting(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    Create a catalog named 'Tech' with a category 'Computers' containing an item 'Laptop' for 999.99.
+    """
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let catalog = try Catalog(modelOutput)
+    #expect(catalog.name == "Tech")
+    #expect(catalog.categories.count == 1)
+    #expect(catalog.categories[0].title == "Computers")
+    #expect(catalog.categories[0].items.count == 1)
+    #expect(catalog.categories[0].items[0].name == "Laptop")
+    #expect(catalog.categories[0].items[0].price == 999.99)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeNesting(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    Create a catalog named 'Tech' with a category 'Computers' containing an item 'Laptop' for 999.99.
+    """
+
+    let response = try await model.generate(Catalog.self, from: prompt)
+
+    let catalog = response.content
+    #expect(catalog.name == "Tech")
+    #expect(catalog.categories.count == 1)
+    #expect(catalog.categories[0].title == "Computers")
+    #expect(catalog.categories[0].items.count == 1)
+    #expect(catalog.categories[0].items[0].name == "Laptop")
+    #expect(catalog.categories[0].items[0].price == 999.99)
+  }
+
+  @FirebaseGenerable
+  struct Statement {
+    @FirebaseGuide(description: "The total balance", .minimum(0.0))
+    let balance: Decimal
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "balance": .double(description: "The total balance", minimum: 0.0),
+      ],
+      title: "Statement"
+    ),
+    jsonSchema: Statement.jsonSchema
+  ))
+  func generateContentDecimal(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a statement with balance 123.45."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let statement = try Statement(modelOutput)
+    #expect(statement.balance == 123.45)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeDecimal(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a statement with balance 123.45."
+
+    let response = try await model.generate(Statement.self, from: prompt)
+
+    let statement = response.content
+    #expect(statement.balance == 123.45)
+  }
+
+  @FirebaseGenerable
+  struct Metadata {
+    @FirebaseGuide(description: "Optional tags, up to 3", .count(0 ... 3))
+    let tags: [String]
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "tags": .array(
+          items: .string(),
+          description: "Optional tags, up to 3",
+          minItems: 0,
+          maxItems: 3
+        ),
+      ],
+      title: "Metadata"
+    ),
+    jsonSchema: Metadata.jsonSchema
+  ))
+  func generateContentEmptyCollection(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate metadata with no tags."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let metadata = try Metadata(modelOutput)
+    #expect(metadata.tags.isEmpty)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeEmptyCollection(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate metadata with no tags."
+
+    let response = try await model.generate(Metadata.self, from: prompt)
+
+    let metadata = response.content
+    #expect(metadata.tags.isEmpty)
+  }
+
+  @FirebaseGenerable
+  struct ConstrainedValue {
+    @FirebaseGuide(description: "A value between 10 and 20", .minimum(10), .maximum(20))
+    let value: Int
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "value": .integer(description: "A value between 10 and 20", minimum: 10, maximum: 20),
+      ],
+      title: "ConstrainedValue"
+    ),
+    jsonSchema: ConstrainedValue.jsonSchema
+  ))
+  func generateContentCombinedGuides(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Give me the value 15."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let constrainedValue = try ConstrainedValue(modelOutput)
+    #expect(constrainedValue.value == 15)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeCombinedGuides(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Give me the value 15."
+
+    let response = try await model.generate(ConstrainedValue.self, from: prompt)
+
+    let constrainedValue = response.content
+    #expect(constrainedValue.value == 15)
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(properties: ["value": .integer()], title: "TestNumber"),
+    jsonSchema: TestNumber.jsonSchema
+  ))
+  func generateContentErrorHandling(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    // Since we are adding integration tests, let's verify that providing a JSON that is missing a
+    // field fails.
+    let invalidJson = """
+    { "value": "not an int" }
+    """
+    let modelOutput = try ModelOutput(json: invalidJson)
+    #expect(throws: Error.self) {
+      _ = try TestNumber(modelOutput)
     }
   }
 

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FirebaseGenerationGuide<Value> {
   let wrapped: AnyGenerationGuides
@@ -92,6 +94,42 @@ public extension FirebaseGenerationGuide where Value == Double {
     FirebaseGenerationGuide(
       wrapped: AnyGenerationGuides(
         double: DoubleGuides(minimum: range.lowerBound, maximum: range.upperBound)
+      )
+    )
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension FirebaseGenerationGuide where Value == Decimal {
+  static func minimum(_ value: Decimal) -> FirebaseGenerationGuide<Value> {
+    FirebaseGenerationGuide(
+      wrapped: AnyGenerationGuides(
+        double: DoubleGuides(
+          minimum: (value as NSDecimalNumber).doubleValue,
+          maximum: nil
+        )
+      )
+    )
+  }
+
+  static func maximum(_ value: Decimal) -> FirebaseGenerationGuide<Value> {
+    FirebaseGenerationGuide(
+      wrapped: AnyGenerationGuides(
+        double: DoubleGuides(
+          minimum: nil,
+          maximum: (value as NSDecimalNumber).doubleValue
+        )
+      )
+    )
+  }
+
+  static func range(_ range: ClosedRange<Decimal>) -> FirebaseGenerationGuide<Value> {
+    FirebaseGenerationGuide(
+      wrapped: AnyGenerationGuides(
+        double: DoubleGuides(
+          minimum: (range.lowerBound as NSDecimalNumber).doubleValue,
+          maximum: (range.upperBound as NSDecimalNumber).doubleValue
+        )
       )
     )
   }

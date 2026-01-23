@@ -125,7 +125,7 @@ public struct GenerateContentResponse: Sendable {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
-    self.responseID = nil
+    responseID = nil
   }
 
   func text(isThought: Bool) -> String? {
