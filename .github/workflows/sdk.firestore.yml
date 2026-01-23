@@ -530,7 +530,8 @@ jobs:
     name: Check all required Firestore tests results
     needs:
       - cmake
-      - xcodebuild_prod
+      - xcodetest_emulator
+      - xcodetest_prod
       - spm-source
       - spm-binary
       - sanitizers-mac
