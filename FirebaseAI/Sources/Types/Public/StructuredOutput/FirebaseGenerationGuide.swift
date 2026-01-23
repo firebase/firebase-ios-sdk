@@ -101,34 +101,23 @@ public extension FirebaseGenerationGuide where Value == Double {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension FirebaseGenerationGuide where Value == Decimal {
-  static func minimum(_ value: Decimal) -> FirebaseGenerationGuide<Value> {
+  static func minimum(_ value: Value) -> FirebaseGenerationGuide<Value> {
     FirebaseGenerationGuide(
-      wrapped: AnyGenerationGuides(
-        double: DoubleGuides(
-          minimum: (value as NSDecimalNumber).doubleValue,
-          maximum: nil
-        )
-      )
+      wrapped: AnyGenerationGuides(double: DoubleGuides(minimum: value.doubleValue, maximum: nil))
     )
   }
 
-  static func maximum(_ value: Decimal) -> FirebaseGenerationGuide<Value> {
+  static func maximum(_ value: Value) -> FirebaseGenerationGuide<Value> {
     FirebaseGenerationGuide(
-      wrapped: AnyGenerationGuides(
-        double: DoubleGuides(
-          minimum: nil,
-          maximum: (value as NSDecimalNumber).doubleValue
-        )
-      )
+      wrapped: AnyGenerationGuides(double: DoubleGuides(minimum: nil, maximum: value.doubleValue))
     )
   }
 
-  static func range(_ range: ClosedRange<Decimal>) -> FirebaseGenerationGuide<Value> {
+  static func range(_ range: ClosedRange<Value>) -> FirebaseGenerationGuide<Value> {
     FirebaseGenerationGuide(
       wrapped: AnyGenerationGuides(
         double: DoubleGuides(
-          minimum: (range.lowerBound as NSDecimalNumber).doubleValue,
-          maximum: (range.upperBound as NSDecimalNumber).doubleValue
+          minimum: range.lowerBound.doubleValue, maximum: range.upperBound.doubleValue
         )
       )
     )

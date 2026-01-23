@@ -27,6 +27,11 @@ public extension FirebaseGenerable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension Optional where Wrapped: FirebaseGenerable {
+  typealias Partial = Wrapped.Partial
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOutput {
   public var modelOutput: ModelOutput {
     guard let self else { return ModelOutput(kind: .null) }
@@ -150,7 +155,6 @@ extension Decimal: FirebaseGenerable {
   }
 
   public var modelOutput: ModelOutput {
-    let doubleValue = (self as NSDecimalNumber).doubleValue
     return ModelOutput(kind: .number(doubleValue))
   }
 }
