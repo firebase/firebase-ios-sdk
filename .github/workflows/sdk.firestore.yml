@@ -258,7 +258,7 @@ jobs:
   #       scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
-  xcodebuild_prod:
+  xcodetest_prod:
     needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
@@ -299,15 +299,21 @@ jobs:
       - name: Setup build
         run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
-      - name: Build and test
+      - name: Build
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 60
+          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+
+      - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 60
           max_attempts: 3
           retry_wait_seconds: 120
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
-  xcodebuild_emulator:
+  xcodetest_emulator:
     needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
@@ -342,13 +348,19 @@ jobs:
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
-    - name: Build and test
+    - name: Build
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 120
+        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+
+    - name: Test
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 120
         max_attempts: 3
         retry_wait_seconds: 120
-        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   # pod_lib_lint:
   #   needs: check
