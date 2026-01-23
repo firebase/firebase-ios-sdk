@@ -120,6 +120,10 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
       return nil
     }
 
+    if case .null = value.kind {
+      return nil
+    }
+
     return try Value(value)
   }
 }

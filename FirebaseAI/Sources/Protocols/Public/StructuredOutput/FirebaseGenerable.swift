@@ -41,6 +41,17 @@ extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOu
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension Optional: ConvertibleFromModelOutput where Wrapped: ConvertibleFromModelOutput {
+  public init(_ content: ModelOutput) throws {
+    if case .null = content.kind {
+      self = nil
+      return
+    }
+    self = try Wrapped(content)
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Bool: FirebaseGenerable {
   public static var jsonSchema: JSONSchema {
     JSONSchema(type: Bool.self, kind: .boolean)

@@ -36,6 +36,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
         @FirebaseGenerable
         struct Person {
           let firstName: String
+          let middleName: String?
           let lastName: String
           let age: Int
         }
@@ -43,6 +44,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
         expandedSource: """
         struct Person {
           let firstName: String
+          let middleName: String?
           let lastName: String
           let age: Int
 
@@ -51,6 +53,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
                 type: Self.self,
                 properties: [
                     FirebaseAILogic.JSONSchema.Property(name: "firstName", type: String.self),
+                    FirebaseAILogic.JSONSchema.Property(name: "middleName", type: String?.self),
                     FirebaseAILogic.JSONSchema.Property(name: "lastName", type: String.self),
                     FirebaseAILogic.JSONSchema.Property(name: "age", type: Int.self)
                 ]
@@ -60,6 +63,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
             nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
               var properties = [(name: String, value: any ConvertibleToModelOutput)]()
               addProperty(name: "firstName", value: self.firstName)
+              addProperty(name: "middleName", value: self.middleName)
               addProperty(name: "lastName", value: self.lastName)
               addProperty(name: "age", value: self.age)
               return ModelOutput(
@@ -81,11 +85,13 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
             nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
               var id: FirebaseAILogic.ResponseID
               var firstName: String.Partial?
+              var middleName: String?.Partial?
               var lastName: String.Partial?
               var age: Int.Partial?
               nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
                 self.id = content.id ?? FirebaseAILogic.ResponseID()
                 self.firstName = try content.value(forProperty: "firstName")
+                self.middleName = try content.value(forProperty: "middleName")
                 self.lastName = try content.value(forProperty: "lastName")
                 self.age = try content.value(forProperty: "age")
               }
@@ -96,6 +102,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
         extension Person: FirebaseAILogic.FirebaseGenerable {
           nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
             self.firstName = try content.value(forProperty: "firstName")
+            self.middleName = try content.value(forProperty: "middleName")
             self.lastName = try content.value(forProperty: "lastName")
             self.age = try content.value(forProperty: "age")
           }
