@@ -379,7 +379,6 @@ case "$product-$platform-$method" in
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \
-          -enableCodeCoverage YES \
           "${xcb_flags[@]}" \
           # Memory intensive, so we limit jobs
           -jobs 4 \
@@ -402,7 +401,6 @@ case "$product-$platform-$method" in
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
-          -enableCodeCoverage YES \
           "${xcb_flags[@]}" \
           # Memory intensive, so we limit jobs
           -jobs 4 \
