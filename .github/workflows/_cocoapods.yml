@@ -140,6 +140,10 @@ jobs:
             platform: iOS
     runs-on: ${{ matrix.os }}
     steps:
+    - name: Skip, if applicable.
+      # Skip matrix combinations that weren't requested, while preserving the specific macos-14 / iOS inclusion.
+      if: contains(join(inputs.platforms), matrix.platform) == false && matrix.os != 'macos-14'
+      run: exit 0
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
