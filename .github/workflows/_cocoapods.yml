@@ -132,9 +132,6 @@ jobs:
           - os: macos-26
             xcode: Xcode_16.4
         include:
-          - os: macos-15
-            xcode: Xcode_16.2
-            platform: iOS
           - os: macos-14
             xcode: Xcode_16.2
             platform: iOS
