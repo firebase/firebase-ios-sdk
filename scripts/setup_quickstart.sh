@@ -185,7 +185,7 @@ update_spm_dependency() {
         fi
         # In a PR, read the real commit SHA from the event payload
         # This guarantees a hash that exists on the remote server
-        current_revision=$(jq -r .pull_request.head.sha "${GITHUB_EVENT_PATH}")
+        current_revision=$(jq -er .pull_request.head.sha "${GITHUB_EVENT_PATH}")
       else
         # In a Push (or local run), HEAD is safe to use
         current_revision=$(git -C "$root_dir" rev-parse HEAD)
