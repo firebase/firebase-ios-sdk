@@ -713,7 +713,7 @@ struct SchemaTests {
     let text = try #require(response.text)
     let modelOutput = try ModelOutput(json: text)
     let statement = try Statement(modelOutput)
-    #expect(statement.balance == 123.45)
+    #expect(statement.balance == Decimal(123.45))
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
@@ -728,7 +728,7 @@ struct SchemaTests {
     let response = try await model.generate(Statement.self, from: prompt)
 
     let statement = response.content
-    #expect(statement.balance == 123.45)
+    #expect(statement.balance == Decimal(123.45))
   }
 
   @FirebaseGenerable
@@ -836,10 +836,27 @@ struct SchemaTests {
     jsonSchema: TestNumber.jsonSchema
   ))
   func generateContentErrorHandling(_ config: InstanceConfig, _ schema: SchemaType) async throws {
-    // Since we are adding integration tests, let's verify that providing a JSON that is missing a
-    // field fails.
+    // Since we are adding integration tests, let's verify that providing a JSON with a property of
+    // the wrong type fails to decode.
     let invalidJson = """
     { "value": "not an int" }
+    """
+    let modelOutput = try ModelOutput(json: invalidJson)
+    #expect(throws: Error.self) {
+      _ = try TestNumber(modelOutput)
+    }
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(properties: ["value": .integer()], title: "TestNumber"),
+    jsonSchema: TestNumber.jsonSchema
+  ))
+  func generateContentMissingFieldFailure(_ config: InstanceConfig,
+                                          _ schema: SchemaType) async throws {
+    // Verify that providing a JSON that is missing a required field fails.
+    let invalidJson = """
+    { "otherField": 123 }
     """
     let modelOutput = try ModelOutput(json: invalidJson)
     #expect(throws: Error.self) {
