@@ -221,6 +221,38 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.appGroupID, @"1");
 }
 
+- (void)testCopy {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                    GCMSenderID:kGCMSenderID];
+  options.APIKey = kAPIKey;
+  options.appGroupID = @"appGroupID";
+  options.editingLocked = YES;
+
+  FIROptions *optionsCopy = [options copy];
+
+  XCTAssertNotEqual(options, optionsCopy);
+  XCTAssertEqualObjects(options, optionsCopy);
+
+  XCTAssertEqualObjects(optionsCopy.googleAppID, kGoogleAppID);
+  XCTAssertEqualObjects(optionsCopy.GCMSenderID, kGCMSenderID);
+  XCTAssertEqualObjects(optionsCopy.APIKey, kAPIKey);
+  XCTAssertEqualObjects(optionsCopy.appGroupID, @"appGroupID");
+  XCTAssertTrue(optionsCopy.isEditingLocked);
+  XCTAssertFalse(optionsCopy.usingOptionsFromDefaultPlist);
+
+  // Verify independence of properties by creating a new unlocked options
+  FIROptions *options2 = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                     GCMSenderID:kGCMSenderID];
+  options2.APIKey = kAPIKey;
+  // Don't lock it
+  FIROptions *options2Copy = [options2 copy];
+
+  XCTAssertEqualObjects(options2, options2Copy);
+  options2.APIKey = @"newAPIKey";
+  XCTAssertNotEqualObjects(options2.APIKey, options2Copy.APIKey);
+  XCTAssertEqualObjects(options2Copy.APIKey, kAPIKey);
+}
+
 - (void)testAnalyticsConstants {
   // The keys are public values and should never change.
   XCTAssertEqualObjects(kFIRIsMeasurementEnabled, @"IS_MEASUREMENT_ENABLED");
