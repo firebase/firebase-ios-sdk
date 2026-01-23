@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ import Foundation
 /// The entry point of Firebase SDKs.
 public final class FirebaseApp: @unchecked Sendable {
     private static let defaultAppName = "__FIRAPP_DEFAULT"
-    private static var _allApps: [String: FirebaseApp] = [:]
+    nonisolated(unsafe) private static var _allApps: [String: FirebaseApp] = [:]
     private static let lock = NSLock()
 
     // Components registered by other SDKs
@@ -64,13 +64,9 @@ public final class FirebaseApp: @unchecked Sendable {
         configure(options: options)
     }
 
-    /// Configures the default Firebase app with the provided options.
-    public static func configure(options: FirebaseOptions) {
-        configure(name: defaultAppName, options: options)
-    }
-
     /// Configures a Firebase app with the given name and options.
-    public static func configure(name: String, options: FirebaseOptions) {
+    /// If name is omitted, the default app name is used.
+    public static func configure(name: String = defaultAppName, options: FirebaseOptions) {
         lock.lock()
         defer { lock.unlock() }
 
