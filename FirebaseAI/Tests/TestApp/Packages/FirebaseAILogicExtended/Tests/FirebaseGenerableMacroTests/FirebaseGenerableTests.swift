@@ -81,6 +81,19 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
                 }
               }
             }
+
+            nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
+              var id: FirebaseAILogic.ResponseID
+              var firstName: String.Partial?
+              var lastName: String.Partial?
+              var age: Int.Partial?
+              nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+                self.id = content.id ?? FirebaseAILogic.ResponseID()
+                self.firstName = try content.value(forProperty: "firstName")
+                self.lastName = try content.value(forProperty: "lastName")
+                self.age = try content.value(forProperty: "age")
+              }
+            }
         }
 
         @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
