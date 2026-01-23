@@ -95,16 +95,19 @@ jobs:
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-15]
-        xcode: [Xcode_16.4]
+        os: [macos-15, macos-26]
+        xcode: [Xcode_16.4, Xcode_26.1]
         platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+        exclude:
+          - os: macos-15
+            xcode: Xcode_26.1
+          - os: macos-26
+            xcode: Xcode_16.4
         include:
           - os: macos-14
             xcode: Xcode_16.2
-            platform: iOS
-          - os: macos-26
-            xcode: Xcode_26.1
             platform: iOS
     runs-on: ${{ matrix.os }}
     steps:
@@ -115,6 +118,15 @@ jobs:
         key: ${{needs.spm-package-resolved.outputs.cache_key}}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      if: matrix.platform != 'macOS' && matrix.platform != 'catalyst'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: xcodebuild -downloadPlatform ${{ matrix.platform }}
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
       run: ${{ inputs.setup_command }}
@@ -144,4 +156,5 @@ jobs:
       with:
         name: xcresults-${{ inputs.target }}-${{ matrix.platform }}-${{ matrix.os }}-${{ matrix.xcode }}
         path: xcresults/*
-        if-no-files-found: error
+        # If build did not succeed, then xcresult won't exist. Warn for visibility.
+        if-no-files-found: warn
