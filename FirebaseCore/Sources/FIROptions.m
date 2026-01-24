@@ -14,7 +14,13 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
+#if __has_include("FirebaseCore-Swift.h")
+#import "FirebaseCore-Swift.h"
+#elif __has_include(<FirebaseCore/FirebaseCore-Swift.h>)
+#import <FirebaseCore/FirebaseCore-Swift.h>
+#else
+// Internal Swift header not found
+#endif
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
