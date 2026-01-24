@@ -155,6 +155,33 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertFalse(plainOptions.isEqual(defaultOptions1))
   }
 
+  func testEqualityAndHashWithModifications() {
+    let options1 = FirebaseOptions(googleAppID: "appID", gcmSenderID: "senderID")
+    let options2 = FirebaseOptions(googleAppID: "appID", gcmSenderID: "senderID")
+
+    // Initial state
+    XCTAssertEqual(options1, options2)
+    XCTAssertEqual(options1.hash, options2.hash)
+
+    // Modify dictionary-backed property
+    options1.apiKey = "someKey"
+    XCTAssertNotEqual(options1, options2)
+
+    // Revert
+    options1.apiKey = nil
+    XCTAssertEqual(options1, options2)
+    XCTAssertEqual(options1.hash, options2.hash)
+
+    // Modify manual property
+    options1.appGroupID = "group1"
+    XCTAssertNotEqual(options1, options2)
+
+    // Revert
+    options1.appGroupID = nil
+    XCTAssertEqual(options1, options2)
+    XCTAssertEqual(options1.hash, options2.hash)
+  }
+
   // MARK: - Helpers
 
   private func assertOptionsMatchDefaultOptions(options: FirebaseOptions) {
