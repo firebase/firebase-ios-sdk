@@ -67,6 +67,7 @@ jobs:
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name)
     env:
       plist_secret: ${{ secrets.plist_secret }}
+      HAVE_SECRETS: ${{ secrets.plist_secret != '' }}
       QUICKSTART_BRANCH: ${{ inputs.quickstart_branch }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-15
