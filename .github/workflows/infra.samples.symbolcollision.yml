@@ -1,5 +1,8 @@
 name: infra.samples.symbolcollision
 
+permissions:
+  contents: read
+
 # Tests the Pods listed in SymbolCollisionTest/Podfile for symbol collisions.
 
 on:
