@@ -1,0 +1,133 @@
+name: _build
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      product:
+        required: true
+        type: string
+      platform:
+        required: true
+        type: string
+      method:
+        required: true
+        type: string
+      sanitizers:
+        required: false
+        type: string
+        description: "Space-separated list of sanitizers (asan, tsan, ubsan)"
+      setup_command:
+        required: false
+        type: string
+        description: "Command to run before build (e.g., for setting up secrets or prerequisites)"
+      xcode:
+        required: false
+        type: string
+        default: 'Xcode_16.4'
+      os:
+        required: false
+        type: string
+        default: 'macos-15'
+      timeout_minutes:
+        required: false
+        type: number
+        default: 120
+
+    # IMPORTANT: When adding new secrets to this workflow, update the
+    # 'has_secrets' logic in the 'check_secrets' job to include the new secret.
+    secrets:
+      plist_secret:
+        required: false
+
+jobs:
+  check_secrets:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.determine_run.outputs.should_run }}
+      has_secrets: ${{ steps.determine_run.outputs.has_secrets }}
+    env:
+      plist_secret: ${{ secrets.plist_secret }}
+    steps:
+      - name: Determine if build should run and if secrets are present
+        id: determine_run
+        run: |
+          # 1. Check for secrets.
+          #    - IMPORTANT: Extend this logic if adding new secrets.
+          if [[ -n "$plist_secret" ]]; then
+            has_secrets="true"
+          else
+            has_secrets="false"
+          fi
+          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
+
+          # 2. Determine if the build job should run.
+          #    - Skip if on a fork AND secrets are present.
+          if [[ "${{ github.repository }}" != "firebase/firebase-ios-sdk" && "$has_secrets" == "true" ]]; then
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: check_secrets
+    # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
+    if: |
+      needs.check_secrets.outputs.should_run == 'true' &&
+      (
+        (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+        contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+      )
+    runs-on: ${{ inputs.os }}
+    env:
+      SANITIZERS: ${{ inputs.sanitizers }}
+      plist_secret: ${{ secrets.plist_secret }}
+      HAVE_SECRETS: ${{ needs.check_secrets.outputs.has_secrets }}
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+      if: inputs.method != 'spm' && inputs.method != 'spmbuildonly' && inputs.method != 'cmake'
+    - name: Setup Bundler
+      if: inputs.method != 'spm' && inputs.method != 'spmbuildonly' && inputs.method != 'cmake'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 10
+        max_attempts: 5
+        retry_wait_seconds: 300
+        command: scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ inputs.xcode }}.app/Contents/Developer
+    - name: Install simulators
+      if: inputs.platform != 'macOS' && inputs.platform != 'catalyst'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: |
+          if [[ "${{ inputs.platform }}" == "all" ]]; then
+            xcodebuild -downloadAllPlatforms
+          else
+            xcodebuild -downloadPlatform ${{ inputs.platform }}
+          fi
+    - name: Run setup command
+      if: inputs.setup_command != ''
+      run: ${{ inputs.setup_command }}
+    - name: Build
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: ${{ inputs.timeout_minutes }}
+        max_attempts: 3
+        retry_wait_seconds: 120
+        command: |
+          scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: ${{ failure() }}
+      with:
+        name: xcodebuild-logs-${{ inputs.product }}-${{ inputs.platform }}-${{ inputs.method }}
+        path: xcodebuild-*.log
+        if-no-files-found: error

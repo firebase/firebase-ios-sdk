@@ -25,7 +25,6 @@ concurrency:
 
 jobs:
   client-app-spm:
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
         #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
@@ -37,41 +36,36 @@ jobs:
             xcode: Xcode_16.2
           - os: macos-15
             xcode: Xcode_16.4
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Xcode
-        run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-      - name: Build Client App - ${{ matrix.platform }}
-        run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ matrix.scheme }} ${{ matrix.platform }} xcodebuild
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.scheme }}
+      platform: ${{ matrix.platform }}
+      method: xcodebuild
+      os: ${{ matrix.os }}
+      xcode: ${{ matrix.xcode }}
 
   client-app-spm-source-firestore:
-      if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-      env:
-        FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-        FIREBASE_SOURCE_FIRESTORE: 1
-      strategy:
-        matrix:
-          #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
-          platform: [iOS]
-          scheme: [ClientApp]
-          os: [macos-14, macos-15]
-          include:
-            - os: macos-14
-              xcode: Xcode_16.2
-            - os: macos-15
-              xcode: Xcode_16.4
-      runs-on: ${{ matrix.os }}
-      steps:
-        - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-        - name: Xcode
-          run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-        - name: Build Client App - ${{ matrix.platform }}
-          run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ matrix.scheme }} ${{ matrix.platform }} xcodebuild
+    strategy:
+      matrix:
+        #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
+        platform: [iOS]
+        scheme: [ClientApp]
+        os: [macos-14, macos-15]
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.4
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.scheme }}
+      platform: ${{ matrix.platform }}
+      method: xcodebuild
+      os: ${{ matrix.os }}
+      xcode: ${{ matrix.xcode }}
+      setup_command: echo "FIREBASE_SOURCE_FIRESTORE=1" >> $GITHUB_ENV
 
   client-app-cocoapods:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
         scheme: [ClientApp-CocoaPods]
@@ -81,15 +75,11 @@ jobs:
             xcode: Xcode_16.2
           - os: macos-15
             xcode: Xcode_16.4
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-      - name: Setup Bundler
-        run: scripts/setup_bundler.sh
-      - name: Xcode
-        run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-      - name: Prereqs
-        run: scripts/install_prereqs.sh ClientApp iOS xcodebuild
-      - name: Build
-        run: scripts/build.sh ${{ matrix.scheme }} iOS xcodebuild
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.scheme }}
+      platform: iOS
+      method: xcodebuild
+      os: ${{ matrix.os }}
+      xcode: ${{ matrix.xcode }}
+      setup_command: scripts/install_prereqs.sh ClientApp iOS xcodebuild

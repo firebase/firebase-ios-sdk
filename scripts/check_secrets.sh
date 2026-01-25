@@ -22,12 +22,9 @@ echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF:-}"
 
 check_secrets()
 {
-  # GitHub Actions: Secrets are available if we're not running on a fork.
-  # See https://help.github.com/en/actions/automating-your-workflow-with-github-actions/using-environment-variables
-  # TODO- Both GITHUB_BASE_REF and GITHUB_HEAD_REF are set in main repo
-  # PRs even thought the docs say otherwise. They are not set in cron jobs on main.
-  # Investigate how do to distinguish fork PRs from main repo PRs.
-  if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
+  # Only return success if the workflow explicitly signals that secrets are available.
+  # This decouples the script from specific secret names.
+  if [[ "${HAVE_SECRETS:-}" == "true" ]]; then
     return 0
   fi
   return 1
