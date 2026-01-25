@@ -29,7 +29,11 @@
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
+#if __has_include("FirebaseCore-Swift.h")
+#import "FirebaseCore-Swift.h"
+#elif __has_include(<FirebaseCore/FirebaseCore-Swift.h>)
+#import <FirebaseCore/FirebaseCore-Swift.h>
+#endif
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"

@@ -15,7 +15,11 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
+#if __has_include("FirebaseCore-Swift.h")
+#import "FirebaseCore-Swift.h"
+#elif __has_include(<FirebaseCore/FirebaseCore-Swift.h>)
+#import <FirebaseCore/FirebaseCore-Swift.h>
+#endif
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
