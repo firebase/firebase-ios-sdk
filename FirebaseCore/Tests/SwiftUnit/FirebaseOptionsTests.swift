@@ -155,6 +155,45 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertFalse(plainOptions.isEqual(defaultOptions1))
   }
 
+  func testLibraryVersionID_Behavior() {
+    let options = FirebaseOptions(googleAppID: Constants.Options.googleAppID,
+                                  gcmSenderID: Constants.Options.gcmSenderID)
+
+    // Ensure libraryVersionID is initialized.
+    // Using KVC to access the property since it might not be directly exposed in Swift.
+    let initialVersion = options.value(forKey: "libraryVersionID") as? String
+    XCTAssertNotNil(initialVersion)
+
+    guard let optionsCopy = options.copy() as? FirebaseOptions else {
+      XCTFail("Copy failed")
+      return
+    }
+
+    // Verify initial equality
+    XCTAssertEqual(options, optionsCopy)
+
+    // Set libraryVersionID using KVC to a new value.
+    // Note: The setter implementation in FIROptions.m is quirky; it uses the *value* of the
+    // library version string as the *key* in the internal dictionary.
+    let newValue = "9.9.9"
+    optionsCopy.setValue(newValue, forKey: "libraryVersionID")
+
+    // 1. Verify the getter IGNORES the update (it returns the static global version).
+    let currentVersion = options.value(forKey: "libraryVersionID") as? String
+    let copyVersion = optionsCopy.value(forKey: "libraryVersionID") as? String
+
+    // Both should return the same static version because the getter ignores the dictionary
+    XCTAssertEqual(currentVersion, copyVersion)
+    XCTAssertEqual(copyVersion, initialVersion)
+    // The getter does NOT return the new value we set
+    XCTAssertNotEqual(copyVersion, newValue)
+
+    // 2. Verify that `isEqual:` returns FALSE.
+    // This proves that the internal dictionary WAS modified, causing equality to fail,
+    // even though the public property (via getter) appears unchanged.
+    XCTAssertNotEqual(options, optionsCopy)
+  }
+
   // MARK: - Helpers
 
   private func assertOptionsMatchDefaultOptions(options: FirebaseOptions) {
