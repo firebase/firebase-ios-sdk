@@ -22,10 +22,22 @@ echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF:-}"
 
 check_secrets()
 {
-  # Only return success if the workflow explicitly signals that secrets are available.
-  # This decouples the script from specific secret names.
-  if [[ "${HAVE_SECRETS:-}" == "true" ]]; then
-    return 0
+  # 1. Prioritize explicit workflow signal (HAVE_SECRETS).
+  #    - If set, use its value (true or false).
+  if [[ -n "${HAVE_SECRETS:-}" ]]; then
+    if [[ "$HAVE_SECRETS" == "true" ]]; then
+      return 0 # Workflow says: Secrets ARE available.
+    else
+      return 1 # Workflow says: Secrets are NOT available.
+    fi
   fi
+
+  # 2. Fallback for un-migrated/legacy workflows: assume secrets if in GHA.
+  #    - This maintains original behavior for workflows not yet updated with HAVE_SECRETS.
+  if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
+    return 0 # Assume secrets if running in GHA (legacy behavior).
+  fi
+
+  # 3. Default: No secrets available.
   return 1
 }
