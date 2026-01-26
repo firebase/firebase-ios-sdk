@@ -244,7 +244,7 @@ extension FirebaseGenerableMacro: MemberMacro {
   private static func expansionForStruct(of node: SwiftSyntax.AttributeSyntax,
                                          structDecl: StructDeclSyntax) throws
     -> [SwiftSyntax.DeclSyntax] {
-    // Find the description for the struct itself from the @Generable macro.
+    // Find the description for the struct itself from the @FirebaseGenerable macro.
     let structDescription = try getDescriptionFromGenerableMacro(node)
 
     var propertyInfos = [PropertyInfo]()
@@ -331,6 +331,9 @@ extension FirebaseGenerableMacro: MemberMacro {
       $0.type.trimmed.description == "String"
     } ?? false
 
+    // Find the description for the enum itself from the @FirebaseGenerable macro.
+    let enumDescription = try getDescriptionFromGenerableMacro(node)
+
     // Generate `static var jsonSchema: ...` computed property.
     let anyOfList: String
     if isStringBacked {
@@ -339,9 +342,16 @@ extension FirebaseGenerableMacro: MemberMacro {
       anyOfList = rawValues.map { "\"\($0)\"" }.joined(separator: ", ")
     }
 
+    var schemaParameters = ["type: Self.self"]
+    if let enumDescription {
+      schemaParameters.append("description: \"\(enumDescription)\"")
+    }
+    schemaParameters.append("anyOf: [\(anyOfList)]")
+    let schemaParametersCode = schemaParameters.joined(separator: ", ")
+
     let generationSchemaCode = """
     nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-      FirebaseAILogic.JSONSchema(type: Self.self, anyOf: [\(anyOfList)])
+      FirebaseAILogic.JSONSchema(\(schemaParametersCode))
     }
     """
 

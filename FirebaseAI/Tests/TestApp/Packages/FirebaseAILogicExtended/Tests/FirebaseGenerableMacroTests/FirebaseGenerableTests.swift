@@ -120,7 +120,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
     #if canImport(FirebaseAILogicMacros)
       assertMacroExpansion(
         """
-        @FirebaseGenerable
+        @FirebaseGenerable(description: "A type of pet")
         enum Pet {
           case cat
           case dog
@@ -134,7 +134,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
           case fish
 
           nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-            FirebaseAILogic.JSONSchema(type: Self.self, anyOf: ["cat", "dog", "fish"])
+            FirebaseAILogic.JSONSchema(type: Self.self, description: "A type of pet", anyOf: ["cat", "dog", "fish"])
           }
 
           nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
