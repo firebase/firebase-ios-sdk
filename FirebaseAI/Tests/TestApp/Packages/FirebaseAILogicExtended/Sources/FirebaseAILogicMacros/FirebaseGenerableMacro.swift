@@ -105,25 +105,49 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
       }
     }
 
-    let caseChecks = caseNames.map { caseName in
-      "case \"\(caseName)\":\nself = .\(caseName)"
-    }.joined(separator: "\n")
+    let isStringBacked = enumDecl.inheritanceClause?.inheritedTypes.contains {
+      $0.type.trimmed.description == "String"
+    } ?? false
+
+    let initBody: String
+    if isStringBacked {
+      initBody = """
+      let rawValue = try content.value(String.self)
+      if let value = Self(rawValue: rawValue) {
+        self = value
+      } else {
+        throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
+          FirebaseAILogic.GenerativeModel.GenerationError.Context(
+            debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
+          )
+        )
+      }
+      """
+    } else {
+      let caseChecks = caseNames.map { caseName in
+        "case \"\(caseName)\":\nself = .\(caseName)"
+      }.joined(separator: "\n")
+
+      initBody = """
+      let rawValue = try content.value(String.self)
+      switch rawValue {
+      \(caseChecks)
+      default:
+        throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
+          FirebaseAILogic.GenerativeModel.GenerationError.Context(
+            debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
+          )
+        )
+      }
+      """
+    }
 
     var declarations = [ExtensionDeclSyntax]()
     let declSyntaxString = """
     @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
     extension \(type.trimmed): FirebaseAILogic.FirebaseGenerable {
       nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
-        let rawValue = try content.value(String.self)
-        switch rawValue {
-        \(caseChecks)
-        default:
-          throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
-            FirebaseAILogic.GenerativeModel.GenerationError.Context(
-              debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
-            )
-          )
-        }
+        \(initBody)
       }
     }
     """
@@ -284,6 +308,7 @@ extension FirebaseGenerableMacro: MemberMacro {
   private static func expansionForEnum(of node: SwiftSyntax.AttributeSyntax,
                                        enumDecl: EnumDeclSyntax) throws
     -> [SwiftSyntax.DeclSyntax] {
+    var rawValues = [String]()
     var caseNames = [String]()
 
     for member in enumDecl.memberBlock.members {
@@ -292,13 +317,28 @@ extension FirebaseGenerableMacro: MemberMacro {
       }
 
       for element in caseDecl.elements {
-        // Validation already happened in ExtensionMacro
         caseNames.append(element.name.text)
+        if let rawValueExpr = element.rawValue?.value.as(StringLiteralExprSyntax.self),
+           let segment = rawValueExpr.segments.first?.as(StringSegmentSyntax.self) {
+          rawValues.append(segment.content.text)
+        } else {
+          rawValues.append(element.name.text)
+        }
       }
     }
 
+    let isStringBacked = enumDecl.inheritanceClause?.inheritedTypes.contains {
+      $0.type.trimmed.description == "String"
+    } ?? false
+
     // Generate `static var jsonSchema: ...` computed property.
-    let anyOfList = caseNames.map { "\"\($0)\"" }.joined(separator: ", ")
+    let anyOfList: String
+    if isStringBacked {
+      anyOfList = caseNames.map { "\($0).rawValue" }.joined(separator: ", ")
+    } else {
+      anyOfList = rawValues.map { "\"\($0)\"" }.joined(separator: ", ")
+    }
+
     let generationSchemaCode = """
     nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
       FirebaseAILogic.JSONSchema(type: Self.self, anyOf: [\(anyOfList)])
@@ -306,17 +346,26 @@ extension FirebaseGenerableMacro: MemberMacro {
     """
 
     // Generate `var modelOutput: ...` computed property.
-    let switchCases = caseNames.map { caseName in
-      "case .\(caseName):\n    \"\(caseName)\".modelOutput"
-    }.joined(separator: "\n  ")
-
-    let modelOutputCode = """
-    nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-      switch self {
-      \(switchCases)
+    let modelOutputCode: String
+    if isStringBacked {
+      modelOutputCode = """
+      nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+        rawValue.modelOutput
       }
+      """
+    } else {
+      let switchCases = caseNames.map { caseName in
+        "case .\(caseName):\n    \"\(caseName)\".modelOutput"
+      }.joined(separator: "\n  ")
+
+      modelOutputCode = """
+      nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+        switch self {
+        \(switchCases)
+        }
+      }
+      """
     }
-    """
 
     return [
       DeclSyntax(stringLiteral: generationSchemaCode),
