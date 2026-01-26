@@ -26,10 +26,20 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
                                in _: some SwiftSyntaxMacros
                                  .MacroExpansionContext) throws
     -> [SwiftSyntax.ExtensionDeclSyntax] {
-    guard let structDecl = declaration.as(StructDeclSyntax.self) else {
-      throw MacroExpansionErrorMessage("`@FirebaseGenerable` can only be applied to a struct.")
+    if let structDecl = declaration.as(StructDeclSyntax.self) {
+      return try expansionForStruct(of: structDecl, type: type)
+    } else if let enumDecl = declaration.as(EnumDeclSyntax.self) {
+      return try expansionForEnum(of: enumDecl, type: type)
+    } else {
+      throw MacroExpansionErrorMessage(
+        "`@FirebaseGenerable` can only be applied to a struct or enum."
+      )
     }
+  }
 
+  private static func expansionForStruct(of structDecl: StructDeclSyntax,
+                                         type: some SwiftSyntax.TypeSyntaxProtocol) throws
+    -> [SwiftSyntax.ExtensionDeclSyntax] {
     var propertyInits = [String]()
 
     for member in structDecl.memberBlock.members {
@@ -66,8 +76,62 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
     }
     """
     guard let extensionDecl = declSyntax.as(ExtensionDeclSyntax.self) else {
-      // TODO: Throw an error
-      return []
+      throw MacroExpansionErrorMessage("""
+      Failed to generate `FirebaseGenerable` extension for struct `\(type.trimmed)`.
+      """)
+    }
+    declarations.append(extensionDecl)
+
+    return declarations
+  }
+
+  private static func expansionForEnum(of enumDecl: EnumDeclSyntax,
+                                       type: some SwiftSyntax.TypeSyntaxProtocol) throws
+    -> [SwiftSyntax.ExtensionDeclSyntax] {
+    var caseNames = [String]()
+
+    for member in enumDecl.memberBlock.members {
+      guard let caseDecl = member.decl.as(EnumCaseDeclSyntax.self) else {
+        continue
+      }
+
+      for element in caseDecl.elements {
+        if element.parameterClause != nil {
+          throw MacroExpansionErrorMessage(
+            "`@FirebaseGenerable` does not currently support enums with associated values."
+          )
+        }
+        caseNames.append(element.name.text)
+      }
+    }
+
+    let caseChecks = caseNames.map { caseName in
+      "case \"\(caseName)\":\nself = .\(caseName)"
+    }.joined(separator: "\n")
+
+    var declarations = [ExtensionDeclSyntax]()
+    let declSyntaxString = """
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+    extension \(type.trimmed): FirebaseAILogic.FirebaseGenerable {
+      nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+        let rawValue = try content.value(String.self)
+        switch rawValue {
+        \(caseChecks)
+        default:
+          throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
+            FirebaseAILogic.GenerativeModel.GenerationError.Context(
+              debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
+            )
+          )
+        }
+      }
+    }
+    """
+    let declSyntax = DeclSyntax(stringLiteral: declSyntaxString)
+    guard let extensionDecl = declSyntax.as(ExtensionDeclSyntax.self) else {
+      throw MacroExpansionErrorMessage("""
+      Failed to generate `FirebaseGenerable` extension for enum `\(type.trimmed)`.
+      """)
     }
     declarations.append(extensionDecl)
 
@@ -89,11 +153,20 @@ extension FirebaseGenerableMacro: MemberMacro {
                                conformingTo _: [SwiftSyntax.TypeSyntax],
                                in _: some SwiftSyntaxMacros
                                  .MacroExpansionContext) throws -> [SwiftSyntax.DeclSyntax] {
-    // Ensure the macro is attached to a struct declaration.
-    guard let structDecl = declaration.as(StructDeclSyntax.self) else {
-      throw MacroExpansionErrorMessage("`@Generable` can only be applied to a struct.")
+    if let structDecl = declaration.as(StructDeclSyntax.self) {
+      return try expansionForStruct(of: node, structDecl: structDecl)
+    } else if let enumDecl = declaration.as(EnumDeclSyntax.self) {
+      return try expansionForEnum(of: node, enumDecl: enumDecl)
+    } else {
+      throw MacroExpansionErrorMessage(
+        "`@FirebaseGenerable` can only be applied to a struct or enum."
+      )
     }
+  }
 
+  private static func expansionForStruct(of node: SwiftSyntax.AttributeSyntax,
+                                         structDecl: StructDeclSyntax) throws
+    -> [SwiftSyntax.DeclSyntax] {
     // Find the description for the struct itself from the @Generable macro.
     let structDescription = try getDescriptionFromGenerableMacro(node)
 
@@ -149,16 +222,57 @@ extension FirebaseGenerableMacro: MemberMacro {
       ))
     }
 
-    let declarations = generateMembers(
+    return generateStructMembers(
       structDescription: structDescription,
       propertyInfos: propertyInfos
     )
-
-    return declarations
   }
 
-  private static func generateMembers(structDescription: String?,
-                                      propertyInfos: [PropertyInfo]) -> [DeclSyntax] {
+  private static func expansionForEnum(of node: SwiftSyntax.AttributeSyntax,
+                                       enumDecl: EnumDeclSyntax) throws
+    -> [SwiftSyntax.DeclSyntax] {
+    var caseNames = [String]()
+
+    for member in enumDecl.memberBlock.members {
+      guard let caseDecl = member.decl.as(EnumCaseDeclSyntax.self) else {
+        continue
+      }
+
+      for element in caseDecl.elements {
+        // Validation already happened in ExtensionMacro
+        caseNames.append(element.name.text)
+      }
+    }
+
+    // Generate `static var jsonSchema: ...` computed property.
+    let anyOfList = caseNames.map { "\"\($0)\"" }.joined(separator: ", ")
+    let generationSchemaCode = """
+    nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
+      FirebaseAILogic.JSONSchema(type: Self.self, anyOf: [\(anyOfList)])
+    }
+    """
+
+    // Generate `var modelOutput: ...` computed property.
+    let switchCases = caseNames.map { caseName in
+      "case .\(caseName):\n    \"\(caseName)\".modelOutput"
+    }.joined(separator: "\n  ")
+
+    let modelOutputCode = """
+    nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+      switch self {
+      \(switchCases)
+      }
+    }
+    """
+
+    return [
+      DeclSyntax(stringLiteral: generationSchemaCode),
+      DeclSyntax(stringLiteral: modelOutputCode),
+    ]
+  }
+
+  private static func generateStructMembers(structDescription: String?,
+                                            propertyInfos: [PropertyInfo]) -> [DeclSyntax] {
     var propertyNames = [String]()
     var propertySchemas = [String]()
     var partiallyGeneratedProperties = [String]()

@@ -61,7 +61,7 @@ extension ResponseID.Identifier: Equatable {
     } else if case let .generationID(lhsGenerationID) = lhs,
               case let .generationID(rhsGenerationID) = rhs {
       #if canImport(FoundationModels)
-        if #available(iOS 26.0, macOS 26.0, *) {
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           guard let lhsGenerationID = lhsGenerationID as? GenerationID,
                 let rhsGenerationID = rhsGenerationID as? GenerationID else {
             return false

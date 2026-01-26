@@ -48,54 +48,54 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
           let lastName: String
           let age: Int
 
-            nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-              FirebaseAILogic.JSONSchema(
-                type: Self.self,
-                properties: [
-                    FirebaseAILogic.JSONSchema.Property(name: "firstName", type: String.self),
-                    FirebaseAILogic.JSONSchema.Property(name: "middleName", type: String?.self),
-                    FirebaseAILogic.JSONSchema.Property(name: "lastName", type: String.self),
-                    FirebaseAILogic.JSONSchema.Property(name: "age", type: Int.self)
-                ]
-              )
-            }
+          nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
+            FirebaseAILogic.JSONSchema(
+              type: Self.self,
+              properties: [
+                FirebaseAILogic.JSONSchema.Property(name: "firstName", type: String.self),
+                FirebaseAILogic.JSONSchema.Property(name: "middleName", type: String?.self),
+                FirebaseAILogic.JSONSchema.Property(name: "lastName", type: String.self),
+                FirebaseAILogic.JSONSchema.Property(name: "age", type: Int.self)
+              ]
+            )
+          }
 
-            nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-              var properties = [(name: String, value: any ConvertibleToModelOutput)]()
-              addProperty(name: "firstName", value: self.firstName)
-              addProperty(name: "middleName", value: self.middleName)
-              addProperty(name: "lastName", value: self.lastName)
-              addProperty(name: "age", value: self.age)
-              return ModelOutput(
-                properties: properties,
-                uniquingKeysWith: { _, second in
-                  second
-                }
-              )
-              func addProperty(name: String, value: some FirebaseGenerable) {
+          nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+            var properties = [(name: String, value: any ConvertibleToModelOutput)]()
+            addProperty(name: "firstName", value: self.firstName)
+            addProperty(name: "middleName", value: self.middleName)
+            addProperty(name: "lastName", value: self.lastName)
+            addProperty(name: "age", value: self.age)
+            return ModelOutput(
+              properties: properties,
+              uniquingKeysWith: { _, second in
+                second
+              }
+            )
+            func addProperty(name: String, value: some FirebaseGenerable) {
+              properties.append((name, value))
+            }
+            func addProperty(name: String, value: (some FirebaseGenerable)?) {
+              if let value {
                 properties.append((name, value))
               }
-              func addProperty(name: String, value: (some FirebaseGenerable)?) {
-                if let value {
-                  properties.append((name, value))
-                }
-              }
             }
+          }
 
-            nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
-              var id: FirebaseAILogic.ResponseID
-              var firstName: String.Partial?
-              var middleName: String?.Partial?
-              var lastName: String.Partial?
-              var age: Int.Partial?
-              nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
-                self.id = content.id ?? FirebaseAILogic.ResponseID()
-                self.firstName = try content.value(forProperty: "firstName")
-                self.middleName = try content.value(forProperty: "middleName")
-                self.lastName = try content.value(forProperty: "lastName")
-                self.age = try content.value(forProperty: "age")
-              }
+          nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
+            var id: FirebaseAILogic.ResponseID
+            var firstName: String.Partial?
+            var middleName: String?.Partial?
+            var lastName: String.Partial?
+            var age: Int.Partial?
+            nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+              self.id = content.id ?? FirebaseAILogic.ResponseID()
+              self.firstName = try content.value(forProperty: "firstName")
+              self.middleName = try content.value(forProperty: "middleName")
+              self.lastName = try content.value(forProperty: "lastName")
+              self.age = try content.value(forProperty: "age")
             }
+          }
         }
 
         @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -108,7 +108,70 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
           }
         }
         """,
-        macros: testMacros
+        macros: testMacros,
+        indentationWidth: .spaces(2)
+      )
+    #else
+      throw XCTSkip("Macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  func testEnumMacro() throws {
+    #if canImport(FirebaseAILogicMacros)
+      assertMacroExpansion(
+        """
+        @FirebaseGenerable
+        enum Pet {
+          case cat
+          case dog
+          case fish
+        }
+        """,
+        expandedSource: """
+        enum Pet {
+          case cat
+          case dog
+          case fish
+
+          nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
+            FirebaseAILogic.JSONSchema(type: Self.self, anyOf: ["cat", "dog", "fish"])
+          }
+
+          nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+            switch self {
+            case .cat:
+              "cat".modelOutput
+            case .dog:
+              "dog".modelOutput
+            case .fish:
+              "fish".modelOutput
+            }
+          }
+        }
+
+        @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+        extension Pet: FirebaseAILogic.FirebaseGenerable {
+          nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+            let rawValue = try content.value(String.self)
+            switch rawValue {
+            case "cat":
+              self = .cat
+            case "dog":
+              self = .dog
+            case "fish":
+              self = .fish
+            default:
+              throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
+                FirebaseAILogic.GenerativeModel.GenerationError.Context(
+                  debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
+                )
+              )
+            }
+          }
+        }
+        """,
+        macros: testMacros,
+        indentationWidth: .spaces(2)
       )
     #else
       throw XCTSkip("Macros are only supported when running tests for the host platform")
