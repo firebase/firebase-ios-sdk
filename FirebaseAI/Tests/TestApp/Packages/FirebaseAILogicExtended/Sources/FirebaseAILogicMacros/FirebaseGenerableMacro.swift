@@ -137,6 +137,57 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
 
     return declarations
   }
+
+  private static func expansionForEnum(of enumDecl: EnumDeclSyntax,
+                                       type: some SwiftSyntax.TypeSyntaxProtocol) throws
+    -> [SwiftSyntax.ExtensionDeclSyntax] {
+    var caseNames = [String]()
+
+    for member in enumDecl.memberBlock.members {
+      guard let caseDecl = member.decl.as(EnumCaseDeclSyntax.self) else {
+        continue
+      }
+
+      for element in caseDecl.elements {
+        if element.parameterClause != nil {
+          throw MacroExpansionErrorMessage(
+            "`@FirebaseGenerable` does not currently support enums with associated values."
+          )
+        }
+        caseNames.append(element.name.text)
+      }
+    }
+
+    let caseChecks = caseNames.map { caseName in
+      "case \"\(caseName)\":\nself = .\(caseName)"
+    }.joined(separator: "\n")
+
+    var declarations = [ExtensionDeclSyntax]()
+    let declSyntaxString = """
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+    extension \(type.trimmed): FirebaseAILogic.FirebaseGenerable {
+      nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+        let rawValue = try content.value(String.self)
+        switch rawValue {
+        \(caseChecks)
+        default:
+          throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
+            FirebaseAILogic.GenerativeModel.GenerationError.Context(
+              debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
+            )
+          )
+        }
+      }
+    }
+    """
+    let declSyntax = DeclSyntax(stringLiteral: declSyntaxString)
+    guard let extensionDecl = declSyntax.as(ExtensionDeclSyntax.self) else {
+      return []
+    }
+    declarations.append(extensionDecl)
+
+    return declarations
+  }
 }
 
 struct PropertyInfo {
