@@ -797,6 +797,59 @@ public protocol Expression: Sendable {
   /// - Returns: A new `BooleanExpression` representing the "regex_contains" comparison.
   func regexContains(_ pattern: Expression) -> BooleanExpression
 
+  /// Creates an expression that returns the first substring of a string expression that matches
+  /// a specified regular expression.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Extract the domain name from an email field
+  /// Field("email").regexFind("@[A-Za-z0-9.-]+")
+  /// ```
+  ///
+  /// - Parameter pattern: The literal string regular expression to search for.
+  /// - Returns: A new `FunctionExpression` representing the regular expression find function.
+  func regexFind(_ pattern: String) -> FunctionExpression
+
+  /// Creates an expression that returns the first substring of a string expression that matches
+  /// a specified regular expression.
+  /// Assumes `self` evaluates to a string, and `pattern` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Extract a substring based on a dynamic pattern stored in another field
+  /// Field("email").regexFind(Field("pattern"))
+  /// ```
+  ///
+  /// - Parameter pattern: An `Expression` (evaluating to a string) representing the regular
+  /// expression to search for.
+  /// - Returns: A new `FunctionExpression` representing the regular expression find function.
+  func regexFind(_ pattern: Expression) -> FunctionExpression
+  /// Creates an expression that evaluates to a list of all substrings in a string expression that
+  /// match a specified regular expression.
+  /// Assumes `self` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Extract all hashtags from a post content field
+  /// Field("content").regexFindAll("#[A-Za-z0-9_]+")
+  /// ```
+  ///
+  /// - Parameter pattern: The literal string regular expression to search for.
+  /// - Returns: A new `FunctionExpression` that evaluates to an array of matched substrings.
+  func regexFindAll(_ pattern: String) -> FunctionExpression
+
+  /// Creates an expression that evaluates to a list of all substrings in a string expression that
+  /// match a specified regular expression.
+  /// Assumes `self` evaluates to a string, and `pattern` evaluates to a string.
+  ///
+  /// ```swift
+  /// // Extract all matches based on a dynamic pattern stored in another field
+  /// Field("content").regexFindAll(Field("pattern"))
+  /// ```
+  ///
+  /// - Parameter pattern: An `Expression` (evaluating to a string) representing the regular
+  /// expression to search for.
+  /// - Returns: A new `FunctionExpression` that evaluates to an array of matched substrings.
+  func regexFindAll(_ pattern: Expression) -> FunctionExpression
+
   /// Creates an expression that checks if a string (from `self`) matches a specified regular
   /// expression literal entirely.
   /// Assumes `self` evaluates to a string.

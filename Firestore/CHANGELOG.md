@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for `regexFind` and `regexFindAll` Pipeline expressions. 
+
 # 12.8.0
 - [fixed] Fix crash while fetching Auth and App Check tokens. (#15281)
 - [feature] `Pipeline` support is now available for the `Enterprise edition` as a public preview feature. (#15625)
