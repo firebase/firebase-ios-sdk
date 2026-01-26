@@ -412,13 +412,9 @@ bool FIRCLSContextRecordMetadata(NSString* rootPath, const FIRCLSContextInitData
   const char* appQualitySessionId = [[initData appQualitySessionId] UTF8String];
   const char* path =
       [[rootPath stringByAppendingPathComponent:FIRCLSReportMetadataFile] fileSystemRepresentation];
-  if (!FIRCLSUnlinkIfExists(path)) {
-    FIRCLSSDKLog("Unable to unlink existing metadata file %s\n", strerror(errno));
-  }
-
   FIRCLSFile file;
 
-  if (!FIRCLSFileInitWithPath(&file, path, false)) {
+  if (!FIRCLSFileInitWithPathMode(&file, path, false, false)) {
     FIRCLSSDKLog("Unable to open metadata file %s\n", strerror(errno));
     return false;
   }
