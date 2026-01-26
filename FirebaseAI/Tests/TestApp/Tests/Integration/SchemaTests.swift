@@ -490,8 +490,14 @@ struct SchemaTests {
   @FirebaseGenerable
   struct Task {
     let title: String
-    @FirebaseGuide(description: "The priority level", .anyOf(["low", "medium", "high"]))
-    let priority: String
+
+    @FirebaseGuide(description: "The priority level")
+    let priority: Priority
+
+    @FirebaseGenerable
+    enum Priority {
+      case low, medium, high
+    }
   }
 
   @Test(arguments: testConfigs(
@@ -514,15 +520,15 @@ struct SchemaTests {
       generationConfig: SchemaTests.generationConfig(schema: schema),
       safetySettings: safetySettings
     )
-    let prompt = "Create a high priority task titled 'Fix Bug'."
+    let prompt = "Create a medium priority task titled 'Feature Request'."
 
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
     let modelOutput = try ModelOutput(json: text)
     let task = try Task(modelOutput)
-    #expect(task.title == "Fix Bug")
-    #expect(task.priority == "high")
+    #expect(task.title == "Feature Request")
+    #expect(task.priority == .medium)
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
@@ -538,7 +544,7 @@ struct SchemaTests {
 
     let task = response.content
     #expect(task.title == "Fix Bug")
-    #expect(task.priority == "high")
+    #expect(task.priority == .high)
   }
 
   @FirebaseGenerable
