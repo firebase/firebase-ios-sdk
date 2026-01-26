@@ -76,8 +76,9 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
     }
     """
     guard let extensionDecl = declSyntax.as(ExtensionDeclSyntax.self) else {
-      // TODO: Throw an error
-      return []
+      throw MacroExpansionErrorMessage("""
+      Failed to generate `FirebaseGenerable` extension for struct `\(type.trimmed)`.
+      """)
     }
     declarations.append(extensionDecl)
 
@@ -128,7 +129,9 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
     """
     let declSyntax = DeclSyntax(stringLiteral: declSyntaxString)
     guard let extensionDecl = declSyntax.as(ExtensionDeclSyntax.self) else {
-      return []
+      throw MacroExpansionErrorMessage("""
+      Failed to generate `FirebaseGenerable` extension for enum `\(type.trimmed)`.
+      """)
     }
     declarations.append(extensionDecl)
 
