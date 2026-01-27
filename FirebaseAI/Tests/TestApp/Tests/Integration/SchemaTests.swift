@@ -488,6 +488,66 @@ struct SchemaTests {
   }
 
   @FirebaseGenerable
+  struct Pet {
+    let name: String
+    let species: Species
+
+    @FirebaseGenerable(description: "Animal species types")
+    enum Species {
+      case cat, dog
+    }
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "name": .string(),
+        "species": .enumeration(
+          values: ["cat", "dog"],
+          description: "Animal species types"
+        ),
+      ],
+      title: "Pet"
+    ),
+    jsonSchema: Pet.jsonSchema
+  ))
+  func generateContentSimpleStringEnum(_ config: InstanceConfig,
+                                       _ schema: SchemaType) async throws {
+    print(Pet.jsonSchema.debugDescription)
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a pet cat named 'Fluffy'."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let pet = try Pet(modelOutput)
+    #expect(pet.name == "Fluffy")
+    #expect(pet.species == .cat)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeSimpleStringEnum(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a pet dog named 'Buddy'."
+
+    let response = try await model.generate(Pet.self, from: prompt)
+
+    let pet = response.content
+    #expect(pet.name == "Buddy")
+    #expect(pet.species == .dog)
+  }
+
+  @FirebaseGenerable
   struct Task {
     let title: String
 
@@ -495,8 +555,10 @@ struct SchemaTests {
     let priority: Priority
 
     @FirebaseGenerable
-    enum Priority {
-      case low, medium, high
+    enum Priority: String {
+      case low
+      case medium = "med"
+      case high
     }
   }
 
@@ -506,7 +568,7 @@ struct SchemaTests {
       properties: [
         "title": .string(),
         "priority": .enumeration(
-          values: ["low", "medium", "high"],
+          values: ["low", "med", "high"],
           description: "The priority level"
         ),
       ],
@@ -514,7 +576,8 @@ struct SchemaTests {
     ),
     jsonSchema: Task.jsonSchema
   ))
-  func generateContentStringEnum(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+  func generateContentStringRawValueEnum(_ config: InstanceConfig,
+                                         _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: SchemaTests.generationConfig(schema: schema),
@@ -532,7 +595,7 @@ struct SchemaTests {
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeStringEnum(_ config: InstanceConfig) async throws {
+  func generateTypeStringRawValueEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: generationConfig,

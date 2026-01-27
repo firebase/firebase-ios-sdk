@@ -120,7 +120,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
     #if canImport(FirebaseAILogicMacros)
       assertMacroExpansion(
         """
-        @FirebaseGenerable
+        @FirebaseGenerable(description: "A type of pet")
         enum Pet {
           case cat
           case dog
@@ -134,7 +134,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
           case fish
 
           nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-            FirebaseAILogic.JSONSchema(type: Self.self, anyOf: ["cat", "dog", "fish"])
+            FirebaseAILogic.JSONSchema(type: Self.self, description: "A type of pet", anyOf: ["cat", "dog", "fish"])
           }
 
           nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
@@ -161,6 +161,56 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
             case "fish":
               self = .fish
             default:
+              throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
+                FirebaseAILogic.GenerativeModel.GenerationError.Context(
+                  debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
+                )
+              )
+            }
+          }
+        }
+        """,
+        macros: testMacros,
+        indentationWidth: .spaces(2)
+      )
+    #else
+      throw XCTSkip("Macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  func testEnumMacroWithRawValue() throws {
+    #if canImport(FirebaseAILogicMacros)
+      assertMacroExpansion(
+        """
+        @FirebaseGenerable
+        enum Priority: String {
+          case high
+          case medium = "med"
+          case low
+        }
+        """,
+        expandedSource: """
+        enum Priority: String {
+          case high
+          case medium = "med"
+          case low
+
+          nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
+            FirebaseAILogic.JSONSchema(type: Self.self, anyOf: [high.rawValue, medium.rawValue, low.rawValue])
+          }
+
+          nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+            rawValue.modelOutput
+          }
+        }
+
+        @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+        extension Priority: FirebaseAILogic.FirebaseGenerable {
+          nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+            let rawValue = try content.value(String.self)
+            if let value = Self(rawValue: rawValue) {
+              self = value
+            } else {
               throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
                 FirebaseAILogic.GenerativeModel.GenerationError.Context(
                   debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
