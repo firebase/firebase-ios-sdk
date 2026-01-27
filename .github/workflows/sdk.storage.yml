@@ -46,6 +46,15 @@ jobs:
       product: ${{ matrix.product }}
       platform: all
       method: xcodebuild
+      setup_command: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+            FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
+            FirebaseStorage/Tests/ObjCIntegration/Credentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
+            FirebaseStorage/Tests/Integration/Credentials.swift "$plist_secret"
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart:
     uses: ./.github/workflows/_quickstart.yml
