@@ -22,18 +22,22 @@ echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF:-}"
 
 check_secrets()
 {
-  # 1. Prioritize explicit workflow signal (HAVE_SECRETS).
-  #    - If set, use its value (true or false).
-  if [[ -n "${HAVE_SECRETS:-}" ]]; then
-    if [[ "$HAVE_SECRETS" == "true" ]]; then
-      return 0 # Workflow says: Secrets ARE available.
+  # 1. Prioritize explicit workflow signal (FIREBASECI_SECRETS_PRESENT).
+  if [[ -n "${FIREBASECI_SECRETS_PRESENT:-}" ]]; then
+    if [[ "$FIREBASECI_SECRETS_PRESENT" == "true" ]]; then
+      return 0 # Workflow says: Secrets ARE available. Proceed.
     else
-      return 1 # Workflow says: Secrets are NOT available.
+      # Workflow says: Secrets are NOT available.
+      if [[ "$FIREBASECI_IS_TRUSTED_ENV" == "true" ]]; then
+        return 0 # Secrets not provided on main repo. Proceed (fail if secrets are actually needed).
+      else
+        return 1 # We don't expect secrets (e.g., fork PR). Skip gracefully.
+      fi
     fi
   fi
 
   # 2. Fallback for un-migrated/legacy workflows: assume secrets if in GHA.
-  #    - This maintains original behavior for workflows not yet updated with HAVE_SECRETS.
+  #    - This maintains original behavior for workflows not yet updated with FIREBASECI_SECRETS_PRESENT.
   if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
     return 0 # Assume secrets if running in GHA (legacy behavior).
   fi

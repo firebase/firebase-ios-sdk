@@ -84,7 +84,8 @@ jobs:
     env:
       SANITIZERS: ${{ inputs.sanitizers }}
       plist_secret: ${{ secrets.plist_secret }}
-      HAVE_SECRETS: ${{ needs.check_secrets.outputs.has_secrets }}
+      FIREBASECI_SECRETS_PRESENT: ${{ needs.check_secrets.outputs.has_secrets }}
+      FIREBASECI_IS_TRUSTED_ENV: ${{ github.repository == 'firebase/firebase-ios-sdk' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
