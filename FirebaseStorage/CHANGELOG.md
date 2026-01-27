@@ -1,4 +1,4 @@
-# Unreleased
+# 12.9.0
 - [fixed] Fix "weak never mutated" build warning introduced in Xcode 26.2.
 
 # 12.0.0
