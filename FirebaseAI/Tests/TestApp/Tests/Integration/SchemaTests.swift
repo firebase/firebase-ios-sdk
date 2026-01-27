@@ -13,17 +13,12 @@
 // limitations under the License.
 
 import FirebaseAILogic
+import FirebaseAILogicMacro
 import FirebaseAITestApp
-import FirebaseAuth
-import FirebaseCore
-import FirebaseStorage
+import Foundation
 import Testing
 
-#if canImport(UIKit)
-  import UIKit
-#endif // canImport(UIKit)
-
-@testable import struct FirebaseAILogic.BackendError
+@testable import struct FirebaseAILogic.GenerationConfig
 
 /// Test the schema fields.
 @Suite(.serialized)
@@ -35,26 +30,29 @@ struct SchemaTests {
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
+  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
+
+  @FirebaseGenerable
+  struct CityList {
+    @FirebaseGuide(description: "A list of city names", .count(3 ... 5))
+    let cities: [String]
+  }
 
   @Test(
     arguments: testConfigs(
       instanceConfigs: InstanceConfig.allConfigs,
-      openAPISchema: .array(
-        items: .string(description: "The name of the city"),
-        description: "A list of city names",
-        minItems: 3,
-        maxItems: 5
+      openAPISchema: .object(
+        properties: [
+          "cities": .array(
+            items: .string(description: "The name of the city"),
+            description: "A list of city names",
+            minItems: 3,
+            maxItems: 5
+          ),
+        ],
+        title: "CityList"
       ),
-      jsonSchema: [
-        "type": .string("array"),
-        "description": .string("A list of city names"),
-        "items": .object([
-          "type": .string("string"),
-          "description": .string("The name of the city"),
-        ]),
-        "minItems": .number(3),
-        "maxItems": .number(5),
-      ]
+      jsonSchema: CityList.jsonSchema
     )
   )
   func generateContentItemsSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
@@ -64,27 +62,63 @@ struct SchemaTests {
       safetySettings: safetySettings
     )
     let prompt = "What are the biggest cities in Canada?"
+
     let response = try await model.generateContent(prompt)
-    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
-    let jsonData = try #require(text.data(using: .utf8))
-    let decodedJSON = try JSONDecoder().decode([String].self, from: jsonData)
-    #expect(decodedJSON.count >= 3, "Expected at least 3 cities, but got \(decodedJSON.count)")
-    #expect(decodedJSON.count <= 5, "Expected at most 5 cities, but got \(decodedJSON.count)")
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let cityList = try CityList(modelOutput)
+    #expect(
+      cityList.cities.count >= 3,
+      "Expected at least 3 cities, but got \(cityList.cities.count)"
+    )
+    #expect(
+      cityList.cities.count <= 5,
+      "Expected at most 5 cities, but got \(cityList.cities.count)"
+    )
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeWithArray(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "What are the biggest cities in Canada?"
+
+    let response = try await model.generate(CityList.self, from: prompt)
+
+    let cityList = response.content
+    #expect(
+      cityList.cities.count >= 3,
+      "Expected at least 3 cities, but got \(cityList.cities.count)"
+    )
+    #expect(
+      cityList.cities.count <= 5,
+      "Expected at most 5 cities, but got \(cityList.cities.count)"
+    )
+  }
+
+  @FirebaseGenerable
+  struct TestNumber {
+    @FirebaseGuide(description: "A number", .minimum(110), .maximum(120))
+    let value: Int
   }
 
   @Test(arguments: testConfigs(
     instanceConfigs: InstanceConfig.allConfigs,
-    openAPISchema: .integer(
-      description: "A number",
-      minimum: 110,
-      maximum: 120
+    openAPISchema: .object(
+      properties: [
+        "value": .integer(
+          description: "A number",
+          minimum: 110,
+          maximum: 120
+        ),
+      ],
+      title: "TestNumber"
     ),
-    jsonSchema: [
-      "type": .string("integer"),
-      "description": .string("A number"),
-      "minimum": .number(110),
-      "maximum": .number(120),
-    ]
+    jsonSchema: TestNumber.jsonSchema
   ))
   func generateContentSchemaNumberRange(_ config: InstanceConfig,
                                         _ schema: SchemaType) async throws {
@@ -94,12 +128,42 @@ struct SchemaTests {
       safetySettings: safetySettings
     )
     let prompt = "Give me a number"
+
     let response = try await model.generateContent(prompt)
-    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
-    let jsonData = try #require(text.data(using: .utf8))
-    let decodedNumber = try JSONDecoder().decode(Double.self, from: jsonData)
-    #expect(decodedNumber >= 110.0, "Expected a number >= 110, but got \(decodedNumber)")
-    #expect(decodedNumber <= 120.0, "Expected a number <= 120, but got \(decodedNumber)")
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let testNumber = try TestNumber(modelOutput)
+    #expect(testNumber.value >= 110, "Expected a number >= 110, but got \(testNumber.value)")
+    #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeWithNumber(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Give me a number"
+
+    let response = try await model.generate(TestNumber.self, from: prompt)
+
+    let testNumber = response.content
+    #expect(testNumber.value >= 110, "Expected a number >= 110, but got \(testNumber.value)")
+    #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
+  }
+
+  @FirebaseGenerable
+  struct ProductInfo {
+    @FirebaseGuide(description: "The name of the product")
+    let productName: String
+    @FirebaseGuide(description: "A rating", .range(1 ... 5))
+    let rating: Int
+    @FirebaseGuide(description: "A price", .minimum(10.00), .maximum(120.00))
+    let price: Double
+    @FirebaseGuide(description: "A sale price", .minimum(5.00), .maximum(90.00))
+    let salePrice: Float
   }
 
   @Test(arguments: testConfigs(
@@ -126,69 +190,25 @@ struct SchemaTests {
       propertyOrdering: ["salePrice", "rating", "price", "productName"],
       title: "ProductInfo"
     ),
-    jsonSchema: [
-      "type": .string("object"),
-      "title": .string("ProductInfo"),
-      "properties": .object([
-        "productName": .object([
-          "type": .string("string"),
-          "description": .string("The name of the product"),
-        ]),
-        "price": .object([
-          "type": .string("number"),
-          "description": .string("A price"),
-          "minimum": .number(10.00),
-          "maximum": .number(120.00),
-        ]),
-        "salePrice": .object([
-          "type": .string("number"),
-          "description": .string("A sale price"),
-          "minimum": .number(5.00),
-          "maximum": .number(90.00),
-        ]),
-        "rating": .object([
-          "type": .string("integer"),
-          "description": .string("A rating"),
-          "minimum": .number(1),
-          "maximum": .number(5),
-        ]),
-      ]),
-      "required": .array([
-        .string("productName"),
-        .string("price"),
-        .string("salePrice"),
-        .string("rating"),
-      ]),
-      "propertyOrdering": .array([
-        .string("salePrice"),
-        .string("rating"),
-        .string("price"),
-        .string("productName"),
-      ]),
-    ]
+    jsonSchema: ProductInfo.jsonSchema
   ))
   func generateContentSchemaNumberRangeMultiType(_ config: InstanceConfig,
                                                  _ schema: SchemaType) async throws {
-    struct ProductInfo: Codable {
-      let productName: String
-      let rating: Int
-      let price: Double
-      let salePrice: Float
-    }
-
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: SchemaTests.generationConfig(schema: schema),
       safetySettings: safetySettings
     )
     let prompt = "Describe a premium wireless headphone, including a user rating and price."
+
     let response = try await model.generateContent(prompt)
-    let text = try #require(response.text).trimmingCharacters(in: .whitespacesAndNewlines)
-    let jsonData = try #require(text.data(using: .utf8))
-    let decodedProduct = try JSONDecoder().decode(ProductInfo.self, from: jsonData)
-    let price = decodedProduct.price
-    let salePrice = decodedProduct.salePrice
-    let rating = decodedProduct.rating
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let productInfo = try ProductInfo(modelOutput)
+    let price = productInfo.price
+    let salePrice = productInfo.salePrice
+    let rating = productInfo.rating
     #expect(price >= 10.0, "Expected a price >= 10.00, but got \(price)")
     #expect(price <= 120.0, "Expected a price <= 120.00, but got \(price)")
     #expect(salePrice >= 5.0, "Expected a salePrice >= 5.00, but got \(salePrice)")
@@ -197,15 +217,49 @@ struct SchemaTests {
     #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
   }
 
-  fileprivate struct MailingAddress {
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeWithMultipleDataTypes(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Describe a premium wireless headphone, including a user rating and price."
+
+    let response = try await model.generate(ProductInfo.self, from: prompt)
+
+    let productInfo = response.content
+    let price = productInfo.price
+    let salePrice = productInfo.salePrice
+    let rating = productInfo.rating
+    #expect(price >= 10.0, "Expected a price >= 10.00, but got \(price)")
+    #expect(price <= 120.0, "Expected a price <= 120.00, but got \(price)")
+    #expect(salePrice >= 5.0, "Expected a salePrice >= 5.00, but got \(salePrice)")
+    #expect(salePrice <= 90.0, "Expected a salePrice <= 90.00, but got \(salePrice)")
+    #expect(rating >= 1, "Expected a rating >= 1, but got \(rating)")
+    #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
+  }
+
+  @FirebaseGenerable
+  struct MailingAddress {
     enum PostalInfo {
-      struct Canada: Decodable {
+      @FirebaseGenerable
+      struct Canada {
+        @FirebaseGuide(description: """
+        The 2-letter province or territory code, for example, 'ON', 'QC', or 'NU'.
+        """)
         let province: String
+        @FirebaseGuide(description: "The postal code, for example, 'A1A 1A1'.")
         let postalCode: String
       }
 
-      struct UnitedStates: Decodable {
+      @FirebaseGenerable
+      struct UnitedStates {
+        @FirebaseGuide(description: """
+        The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'.
+        """)
         let state: String
+        @FirebaseGuide(description: "The 5-digit ZIP code, for example, '12345'.")
         let zipCode: String
       }
 
@@ -213,106 +267,41 @@ struct SchemaTests {
       case unitedStates(state: String, zipCode: String)
     }
 
+    @FirebaseGuide(description: "The civic number and street name, for example, '123 Main Street'.")
     let streetAddress: String
+    @FirebaseGuide(description: "The name of the city.")
     let city: String
     let postalInfo: PostalInfo
   }
 
-  private static let generateContentAnyOfOpenAPISchema = {
-    let streetSchema = Schema.string(description:
-      "The civic number and street name, for example, '123 Main Street'.")
-    let citySchema = Schema.string(description: "The name of the city.")
-    let canadaPostalInfoSchema = Schema.object(
-      properties: [
-        "province": .string(description:
-          "The 2-letter province or territory code, for example, 'ON', 'QC', or 'NU'."),
-        "postalCode": .string(description: "The postal code, for example, 'A1A 1A1'."),
-      ]
-    )
-    let unitedStatesPostalInfoSchema = Schema.object(
-      properties: [
-        "state": .string(description:
-          "The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'."),
-        "zipCode": .string(description: "The 5-digit ZIP code, for example, '12345'."),
-      ]
-    )
-    let mailingAddressSchema = Schema.object(properties: [
-      "streetAddress": streetSchema,
-      "city": citySchema,
-      "postalInfo": .anyOf(schemas: [canadaPostalInfoSchema, unitedStatesPostalInfoSchema]),
-    ])
-    return Schema.array(items: mailingAddressSchema)
-  }()
-
-  private static let generateContentAnyOfJSONSchema = {
-    let streetSchema: JSONValue = .object([
-      "type": .string("string"),
-      "description": .string("The civic number and street name, for example, '123 Main Street'."),
-    ])
-    let citySchema: JSONValue = .object([
-      "type": .string("string"),
-      "description": .string("The name of the city."),
-    ])
-    let postalInfoSchema: JSONValue = .object([
-      "anyOf": .array([
-        .object([
-          "type": .string("object"),
-          "properties": .object([
-            "province": .object([
-              "type": .string("string"),
-              "description": .string(
-                "The 2-letter Canadian province or territory code, for example, 'ON', 'QC', or 'NU'."
-              ),
-            ]),
-            "postalCode": .object([
-              "type": .string("string"),
-              "description": .string("The Canadian postal code, for example, 'A1A 1A1'."),
-            ]),
-          ]),
-          "required": .array([.string("province"), .string("postalCode")]),
-        ]),
-        .object([
-          "type": .string("object"),
-          "properties": .object([
-            "state": .object([
-              "type": .string("string"),
-              "description": .string(
-                "The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'."
-              ),
-            ]),
-            "zipCode": .object([
-              "type": .string("string"),
-              "description": .string("The 5-digit U.S. ZIP code, for example, '12345'."),
-            ]),
-          ]),
-          "required": .array([.string("state"), .string("zipCode")]),
-        ]),
-      ]),
-    ])
-    let mailingAddressSchema: JSONObject = [
-      "type": .string("object"),
-      "description": .string("A mailing address"),
-      "properties": .object([
-        "streetAddress": streetSchema,
-        "city": citySchema,
-        "postalInfo": postalInfoSchema,
-      ]),
-      "required": .array([
-        .string("streetAddress"),
-        .string("city"),
-        .string("postalInfo"),
-      ]),
-    ]
-    return [
-      "type": .string("array"),
-      "items": .object(mailingAddressSchema),
-    ] as JSONObject
-  }()
-
   @Test(arguments: testConfigs(
     instanceConfigs: InstanceConfig.allConfigs,
-    openAPISchema: generateContentAnyOfOpenAPISchema,
-    jsonSchema: generateContentAnyOfJSONSchema
+    openAPISchema: .array(items: {
+      let streetSchema = Schema.string(description:
+        "The civic number and street name, for example, '123 Main Street'.")
+      let citySchema = Schema.string(description: "The name of the city.")
+      let canadaPostalInfoSchema = Schema.object(
+        properties: [
+          "province": .string(description:
+            "The 2-letter province or territory code, for example, 'ON', 'QC', or 'NU'."),
+          "postalCode": .string(description: "The postal code, for example, 'A1A 1A1'."),
+        ]
+      )
+      let unitedStatesPostalInfoSchema = Schema.object(
+        properties: [
+          "state": .string(description:
+            "The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'."),
+          "zipCode": .string(description: "The 5-digit ZIP code, for example, '12345'."),
+        ]
+      )
+
+      return Schema.object(properties: [
+        "streetAddress": streetSchema,
+        "city": citySchema,
+        "postalInfo": .anyOf(schemas: [canadaPostalInfoSchema, unitedStatesPostalInfoSchema]),
+      ])
+    }()),
+    jsonSchema: [MailingAddress].jsonSchema
   ))
   func generateContentAnyOfSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -324,11 +313,12 @@ struct SchemaTests {
     What are the mailing addresses for the University of Waterloo, UC Berkeley and Queen's U?
     """
     let response = try await model.generateContent(prompt)
+
     let text = try #require(response.text)
-    let jsonData = try #require(text.data(using: .utf8))
-    let decodedAddresses = try JSONDecoder().decode([MailingAddress].self, from: jsonData)
-    try #require(decodedAddresses.count == 3, "Expected 3 JSON addresses, got \(text).")
-    let waterlooAddress = decodedAddresses[0]
+    let modelOutput = try ModelOutput(json: text)
+    let mailingAddresses = try [MailingAddress](modelOutput)
+    try #require(mailingAddresses.count == 3, "Expected 3 JSON addresses, got \(text).")
+    let waterlooAddress = mailingAddresses[0]
     #expect(waterlooAddress.city == "Waterloo")
     if case let .canada(province, postalCode) = waterlooAddress.postalInfo {
       #expect(province == "ON")
@@ -336,7 +326,7 @@ struct SchemaTests {
     } else {
       Issue.record("Expected Canadian University of Waterloo address, got \(waterlooAddress).")
     }
-    let berkeleyAddress = decodedAddresses[1]
+    let berkeleyAddress = mailingAddresses[1]
     #expect(berkeleyAddress.city == "Berkeley")
     if case let .unitedStates(state, zipCode) = berkeleyAddress.postalInfo {
       #expect(state == "CA")
@@ -344,7 +334,7 @@ struct SchemaTests {
     } else {
       Issue.record("Expected American UC Berkeley address, got \(berkeleyAddress).")
     }
-    let queensAddress = decodedAddresses[2]
+    let queensAddress = mailingAddresses[2]
     #expect(queensAddress.city == "Kingston")
     if case let .canada(province, postalCode) = queensAddress.postalInfo {
       #expect(province == "ON")
@@ -354,9 +344,598 @@ struct SchemaTests {
     }
   }
 
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeAnyOf(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_Flash,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    What are the mailing addresses for the University of Waterloo, UC Berkeley and Queen's U?
+    """
+
+    let response = try await model.generate([MailingAddress].self, from: prompt)
+
+    let mailingAddresses = response.content
+    try #require(
+      mailingAddresses.count == 3,
+      "Expected 3 JSON addresses, got \(mailingAddresses.count)."
+    )
+    let waterlooAddress = mailingAddresses[0]
+    #expect(waterlooAddress.city == "Waterloo")
+    if case let .canada(province, postalCode) = waterlooAddress.postalInfo {
+      #expect(province == "ON")
+      #expect(postalCode == "N2L 3G1")
+    } else {
+      Issue.record("Expected Canadian University of Waterloo address, got \(waterlooAddress).")
+    }
+    let berkeleyAddress = mailingAddresses[1]
+    #expect(berkeleyAddress.city == "Berkeley")
+    if case let .unitedStates(state, zipCode) = berkeleyAddress.postalInfo {
+      #expect(state == "CA")
+      #expect(zipCode == "94720")
+    } else {
+      Issue.record("Expected American UC Berkeley address, got \(berkeleyAddress).")
+    }
+    let queensAddress = mailingAddresses[2]
+    #expect(queensAddress.city == "Kingston")
+    if case let .canada(province, postalCode) = queensAddress.postalInfo {
+      #expect(province == "ON")
+      #expect(postalCode == "K7L 3N6")
+    } else {
+      Issue.record("Expected Canadian Queen's University address, got \(queensAddress).")
+    }
+  }
+
+  @FirebaseGenerable
+  struct FeatureToggle {
+    @FirebaseGuide(description: "Whether the experimental feature should be active")
+    let isEnabled: Bool
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "isEnabled": .boolean(description: "Whether the experimental feature should be active"),
+      ],
+      title: "FeatureToggle"
+    ),
+    jsonSchema: FeatureToggle.jsonSchema
+  ))
+  func generateContentBoolean(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Should the experimental feature be active? Answer yes."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let featureToggle = try FeatureToggle(modelOutput)
+    #expect(featureToggle.isEnabled)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeBoolean(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Should the experimental feature be active? Answer yes."
+
+    let response = try await model.generate(FeatureToggle.self, from: prompt)
+
+    let featureToggle = response.content
+    #expect(featureToggle.isEnabled)
+  }
+
+  @FirebaseGenerable
+  struct UserProfile {
+    let username: String
+    @FirebaseGuide(description: "The user's optional middle name")
+    let middleName: String?
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "username": .string(),
+        "middleName": .string(description: "The user's optional middle name", nullable: true),
+      ],
+      optionalProperties: ["middleName"],
+      title: "UserProfile"
+    ),
+    jsonSchema: UserProfile.jsonSchema
+  ))
+  func generateContentOptional(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a user profile for 'jdoe' without a middle name."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let userProfile = try UserProfile(modelOutput)
+    #expect(userProfile.username == "jdoe")
+    #expect(userProfile.middleName == nil)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeOptional(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a user profile for 'jdoe' without a middle name."
+
+    let response = try await model.generate(UserProfile.self, from: prompt)
+
+    let userProfile = response.content
+    #expect(userProfile.username == "jdoe")
+    #expect(userProfile.middleName == nil)
+  }
+
+  @FirebaseGenerable
+  struct Pet {
+    let name: String
+    let species: Species
+
+    @FirebaseGenerable(description: "Animal species types")
+    enum Species {
+      case cat, dog
+    }
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "name": .string(),
+        "species": .enumeration(
+          values: ["cat", "dog"],
+          description: "Animal species types"
+        ),
+      ],
+      title: "Pet"
+    ),
+    jsonSchema: Pet.jsonSchema
+  ))
+  func generateContentSimpleStringEnum(_ config: InstanceConfig,
+                                       _ schema: SchemaType) async throws {
+    print(Pet.jsonSchema.debugDescription)
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a pet cat named 'Fluffy'."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let pet = try Pet(modelOutput)
+    #expect(pet.name == "Fluffy")
+    #expect(pet.species == .cat)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeSimpleStringEnum(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a pet dog named 'Buddy'."
+
+    let response = try await model.generate(Pet.self, from: prompt)
+
+    let pet = response.content
+    #expect(pet.name == "Buddy")
+    #expect(pet.species == .dog)
+  }
+
+  @FirebaseGenerable
+  struct Task {
+    let title: String
+
+    @FirebaseGuide(description: "The priority level")
+    let priority: Priority
+
+    @FirebaseGenerable
+    enum Priority: String {
+      case low
+      case medium = "med"
+      case high
+    }
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "title": .string(),
+        "priority": .enumeration(
+          values: ["low", "med", "high"],
+          description: "The priority level"
+        ),
+      ],
+      title: "Task"
+    ),
+    jsonSchema: Task.jsonSchema
+  ))
+  func generateContentStringRawValueEnum(_ config: InstanceConfig,
+                                         _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a medium priority task titled 'Feature Request'."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let task = try Task(modelOutput)
+    #expect(task.title == "Feature Request")
+    #expect(task.priority == .medium)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeStringRawValueEnum(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Create a high priority task titled 'Fix Bug'."
+
+    let response = try await model.generate(Task.self, from: prompt)
+
+    let task = response.content
+    #expect(task.title == "Fix Bug")
+    #expect(task.priority == .high)
+  }
+
+  @FirebaseGenerable
+  struct GradeBook {
+    @FirebaseGuide(description: "A list of exam scores", .element(.range(0 ... 100)))
+    let scores: [Int]
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "scores": .array(
+          items: .integer(minimum: 0, maximum: 100),
+          description: "A list of exam scores"
+        ),
+      ],
+      title: "GradeBook"
+    ),
+    jsonSchema: GradeBook.jsonSchema
+  ))
+  func generateContentArrayConstraints(_ config: InstanceConfig,
+                                       _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a gradebook with scores 95, 80, and 100."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let gradeBook = try GradeBook(modelOutput)
+    #expect(gradeBook.scores.count == 3)
+    for score in gradeBook.scores {
+      #expect(score >= 0 && score <= 100)
+    }
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeArrayConstraints(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a gradebook with scores 95, 80, and 100."
+
+    let response = try await model.generate(GradeBook.self, from: prompt)
+
+    let gradeBook = response.content
+    #expect(gradeBook.scores.count == 3)
+    for score in gradeBook.scores {
+      #expect(score >= 0 && score <= 100)
+    }
+  }
+
+  @FirebaseGenerable
+  struct Catalog {
+    let name: String
+    let categories: [Category]
+
+    @FirebaseGenerable
+    struct Category {
+      let title: String
+      let items: [Item]
+
+      @FirebaseGenerable
+      struct Item {
+        let name: String
+        let price: Double
+      }
+    }
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "name": .string(),
+        "categories": .array(items: .object(
+          properties: [
+            "title": .string(),
+            "items": .array(items: .object(
+              properties: [
+                "name": .string(),
+                "price": .double(),
+              ],
+              title: "Item"
+            )),
+          ],
+          title: "Category"
+        )),
+      ],
+      title: "Catalog"
+    ),
+    jsonSchema: Catalog.jsonSchema
+  ))
+  func generateContentNesting(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    Create a catalog named 'Tech' with a category 'Computers' containing an item 'Laptop' for 999.99.
+    """
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let catalog = try Catalog(modelOutput)
+    #expect(catalog.name == "Tech")
+    #expect(catalog.categories.count == 1)
+    #expect(catalog.categories[0].title == "Computers")
+    #expect(catalog.categories[0].items.count == 1)
+    #expect(catalog.categories[0].items[0].name == "Laptop")
+    #expect(catalog.categories[0].items[0].price == 999.99)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeNesting(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    Create a catalog named 'Tech' with a category 'Computers' containing an item 'Laptop' for 999.99.
+    """
+
+    let response = try await model.generate(Catalog.self, from: prompt)
+
+    let catalog = response.content
+    #expect(catalog.name == "Tech")
+    #expect(catalog.categories.count == 1)
+    #expect(catalog.categories[0].title == "Computers")
+    #expect(catalog.categories[0].items.count == 1)
+    #expect(catalog.categories[0].items[0].name == "Laptop")
+    #expect(catalog.categories[0].items[0].price == 999.99)
+  }
+
+  @FirebaseGenerable
+  struct Statement {
+    @FirebaseGuide(description: "The total balance", .minimum(0.0))
+    let balance: Decimal
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "balance": .double(description: "The total balance", minimum: 0.0),
+      ],
+      title: "Statement"
+    ),
+    jsonSchema: Statement.jsonSchema
+  ))
+  func generateContentDecimal(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a statement with balance 123.45."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let statement = try Statement(modelOutput)
+    #expect(statement.balance == Decimal(string: "123.45")!)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeDecimal(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate a statement with balance 123.45."
+
+    let response = try await model.generate(Statement.self, from: prompt)
+
+    let statement = response.content
+    #expect(statement.balance == Decimal(string: "123.45")!)
+  }
+
+  @FirebaseGenerable
+  struct Metadata {
+    @FirebaseGuide(description: "Optional tags, up to 3", .count(0 ... 3))
+    let tags: [String]
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "tags": .array(
+          items: .string(),
+          description: "Optional tags, up to 3",
+          minItems: 0,
+          maxItems: 3
+        ),
+      ],
+      title: "Metadata"
+    ),
+    jsonSchema: Metadata.jsonSchema
+  ))
+  func generateContentEmptyCollection(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate metadata with no tags."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let metadata = try Metadata(modelOutput)
+    #expect(metadata.tags.isEmpty)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeEmptyCollection(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate metadata with no tags."
+
+    let response = try await model.generate(Metadata.self, from: prompt)
+
+    let metadata = response.content
+    #expect(metadata.tags.isEmpty)
+  }
+
+  @FirebaseGenerable
+  struct ConstrainedValue {
+    @FirebaseGuide(description: "A value between 10 and 20", .minimum(10), .maximum(20))
+    let value: Int
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(
+      properties: [
+        "value": .integer(description: "A value between 10 and 20", minimum: 10, maximum: 20),
+      ],
+      title: "ConstrainedValue"
+    ),
+    jsonSchema: ConstrainedValue.jsonSchema
+  ))
+  func generateContentCombinedGuides(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: SchemaTests.generationConfig(schema: schema),
+      safetySettings: safetySettings
+    )
+    let prompt = "Give me the value 15."
+
+    let response = try await model.generateContent(prompt)
+
+    let text = try #require(response.text)
+    let modelOutput = try ModelOutput(json: text)
+    let constrainedValue = try ConstrainedValue(modelOutput)
+    #expect(constrainedValue.value == 15)
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateTypeCombinedGuides(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Give me the value 15."
+
+    let response = try await model.generate(ConstrainedValue.self, from: prompt)
+
+    let constrainedValue = response.content
+    #expect(constrainedValue.value == 15)
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(properties: ["value": .integer()], title: "TestNumber"),
+    jsonSchema: TestNumber.jsonSchema
+  ))
+  func generateContentErrorHandling(_ config: InstanceConfig, _ schema: SchemaType) async throws {
+    // Since we are adding integration tests, let's verify that providing a JSON with a property of
+    // the wrong type fails to decode.
+    let invalidJson = """
+    { "value": "not an int" }
+    """
+    let modelOutput = try ModelOutput(json: invalidJson)
+    #expect(throws: Error.self) {
+      _ = try TestNumber(modelOutput)
+    }
+  }
+
+  @Test(arguments: testConfigs(
+    instanceConfigs: InstanceConfig.allConfigs,
+    openAPISchema: .object(properties: ["value": .integer()], title: "TestNumber"),
+    jsonSchema: TestNumber.jsonSchema
+  ))
+  func generateContentMissingFieldFailure(_ config: InstanceConfig,
+                                          _ schema: SchemaType) async throws {
+    // Verify that providing a JSON that is missing a required field fails.
+    let invalidJson = """
+    { "otherField": 123 }
+    """
+    let modelOutput = try ModelOutput(json: invalidJson)
+    #expect(throws: Error.self) {
+      _ = try TestNumber(modelOutput)
+    }
+  }
+
   enum SchemaType: CustomTestStringConvertible {
     case openAPI(Schema)
-    case json(JSONObject)
+    case json(JSONSchema)
 
     var testDescription: String {
       switch self {
@@ -381,50 +960,64 @@ struct SchemaTests {
   }
 
   private static func testConfigs(instanceConfigs: [InstanceConfig], openAPISchema: Schema,
-                                  jsonSchema: JSONObject) -> [(InstanceConfig, SchemaType)] {
+                                  jsonSchema: JSONSchema) -> [(InstanceConfig, SchemaType)] {
     return instanceConfigs.flatMap { [($0, .openAPI(openAPISchema)), ($0, .json(jsonSchema))] }
   }
 }
 
-extension SchemaTests.MailingAddress: Decodable {
-  enum CodingKeys: CodingKey {
-    case streetAddress
-    case city
-    case postalInfo
+// MARK: - FirebaseGenerable Conformances
+
+// MARK: PostalInfo
+
+// TODO: Replace manual implementation with macro when enums with associated values are supported.
+
+extension SchemaTests.MailingAddress.PostalInfo: FirebaseGenerable {
+  static var jsonSchema: FirebaseAILogic.JSONSchema {
+    JSONSchema(type: Self.self, anyOf: [Canada.self, UnitedStates.self])
   }
 
-  init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    streetAddress = try container.decode(String.self, forKey: .streetAddress)
-    city = try container.decode(String.self, forKey: .city)
-    let canadaPostalInfo = try? container.decode(PostalInfo.Canada.self, forKey: .postalInfo)
-    let unitedStatesPostalInfo = try? container.decode(
-      PostalInfo.UnitedStates.self, forKey: .postalInfo
-    )
-
-    if canadaPostalInfo != nil, unitedStatesPostalInfo != nil {
-      throw DecodingError.dataCorruptedError(
-        forKey: .postalInfo,
-        in: container,
-        debugDescription: "Ambiguous postal info: matches both Canadian and U.S. formats."
-      )
-    }
-
-    if let canadaPostalInfo {
-      postalInfo = .canada(
-        province: canadaPostalInfo.province, postalCode: canadaPostalInfo.postalCode
-      )
-    } else if let unitedStatesPostalInfo {
-      postalInfo = .unitedStates(
-        state: unitedStatesPostalInfo.state, zipCode: unitedStatesPostalInfo.zipCode
-      )
+  init(_ content: ModelOutput) throws {
+    if let province = try content.value(String?.self, forProperty: "province"),
+       let postalCode = try content.value(String?.self, forProperty: "postalCode") {
+      self = .canada(province: province, postalCode: postalCode)
+    } else if let state = try content.value(String?.self, forProperty: "state"),
+              let zipCode = try content.value(
+                String?.self, forProperty: "zipCode"
+              ) {
+      self = .unitedStates(state: state, zipCode: zipCode)
     } else {
-      throw DecodingError.typeMismatch(
-        PostalInfo.self, .init(
-          codingPath: container.codingPath,
-          debugDescription: "Expected Canadian or U.S. postal info."
+      throw GenerativeModel.GenerationError.decodingFailure(
+        GenerativeModel.GenerationError.Context(
+          debugDescription: "Unexpected type \"\(Self.self)\" from: \(content.debugDescription)"
         )
       )
     }
+  }
+
+  var modelOutput: ModelOutput {
+    func addProperty(name: String, value: some FirebaseGenerable) {
+      properties.append((name, value))
+    }
+    func addProperty(name: String, value: (some FirebaseGenerable)?) {
+      if let value {
+        properties.append((name, value))
+      }
+    }
+
+    var properties = [(name: String, value: any ConvertibleToModelOutput)]()
+    switch self {
+    case let .canada(province, postalCode):
+      addProperty(name: "province", value: province)
+      addProperty(name: "postalCode", value: postalCode)
+    case let .unitedStates(state, zipCode):
+      addProperty(name: "state", value: state)
+      addProperty(name: "zipCode", value: zipCode)
+    }
+    return ModelOutput(
+      properties: properties,
+      uniquingKeysWith: { _, second in
+        second
+      }
+    )
   }
 }
