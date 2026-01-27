@@ -823,6 +823,7 @@ public protocol Expression: Sendable {
   /// expression to search for.
   /// - Returns: A new `FunctionExpression` representing the regular expression find function.
   func regexFind(_ pattern: Expression) -> FunctionExpression
+
   /// Creates an expression that evaluates to a list of all substrings in a string expression that
   /// match a specified regular expression.
   /// Assumes `self` evaluates to a string.

@@ -2117,9 +2117,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([
         Field("title").regexFind("^\\w+").as("firstWordInTitle"),
       ])
-      .select([
-        Field("firstWordInTitle"),
-      ])
       .sort([Field("firstWordInTitle").ascending()])
       .limit(3)
 
@@ -2142,9 +2139,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .select([
         Field("title").regexFindAll("\\w+").as("wordsInTitle"),
-      ])
-      .select([
-        Field("wordsInTitle"),
       ])
       .sort([Field("wordsInTitle").ascending()])
       .limit(3)
