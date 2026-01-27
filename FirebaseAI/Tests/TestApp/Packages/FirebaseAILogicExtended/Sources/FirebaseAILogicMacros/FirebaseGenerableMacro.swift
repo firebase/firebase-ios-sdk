@@ -105,22 +105,20 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
       }
     }
 
-    let isStringBacked = enumDecl.inheritanceClause?.inheritedTypes.contains {
-      $0.type.trimmed.description == "String"
-    } ?? false
-
-    let initBody: String
-    if isStringBacked {
-      initBody = """
-      let rawValue = try content.value(String.self)
+    let unexpectedValue: CodeBlockItemSyntax = """
+    throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
+      FirebaseAILogic.GenerativeModel.GenerationError.Context(
+        debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
+      )
+    )
+    """
+    let coreInitBody: CodeBlockItemSyntax
+    if isStringBacked(enumDecl: enumDecl) {
+      coreInitBody = """
       if let value = Self(rawValue: rawValue) {
         self = value
       } else {
-        throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
-          FirebaseAILogic.GenerativeModel.GenerationError.Context(
-            debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
-          )
-        )
+        \(unexpectedValue)
       }
       """
     } else {
@@ -128,19 +126,19 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
         "case \"\(caseName)\":\nself = .\(caseName)"
       }.joined(separator: "\n")
 
-      initBody = """
-      let rawValue = try content.value(String.self)
+      coreInitBody = """
       switch rawValue {
-      \(caseChecks)
+      \(raw: caseChecks)
       default:
-        throw FirebaseAILogic.GenerativeModel.GenerationError.decodingFailure(
-          FirebaseAILogic.GenerativeModel.GenerationError.Context(
-            debugDescription: "Unexpected value \\"\\(rawValue)\\" for \\(Self.self)"
-          )
-        )
+        \(unexpectedValue)
       }
       """
     }
+
+    let initBody = """
+    let rawValue = try content.value(String.self)
+    \(coreInitBody)
+    """
 
     var declarations = [ExtensionDeclSyntax]()
     let declSyntaxString = """
@@ -160,6 +158,12 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
     declarations.append(extensionDecl)
 
     return declarations
+  }
+
+  private static func isStringBacked(enumDecl: EnumDeclSyntax) -> Bool {
+    return enumDecl.inheritanceClause?.inheritedTypes.contains {
+      $0.type.trimmed.description == "String"
+    } ?? false
   }
 }
 
@@ -274,16 +278,12 @@ extension FirebaseGenerableMacro: MemberMacro {
       }
     }
 
-    let isStringBacked = enumDecl.inheritanceClause?.inheritedTypes.contains {
-      $0.type.trimmed.description == "String"
-    } ?? false
-
     // Find the description for the enum itself from the @FirebaseGenerable macro.
     let enumDescription = try getDescriptionFromGenerableMacro(node)
 
     // Generate `static var jsonSchema: ...` computed property.
     let anyOfList: String
-    if isStringBacked {
+    if isStringBacked(enumDecl: enumDecl) {
       anyOfList = caseNames.map { "\($0).rawValue" }.joined(separator: ", ")
     } else {
       anyOfList = rawValues.map { "\"\($0)\"" }.joined(separator: ", ")
@@ -304,7 +304,7 @@ extension FirebaseGenerableMacro: MemberMacro {
 
     // Generate `var modelOutput: ...` computed property.
     let modelOutputCode: String
-    if isStringBacked {
+    if isStringBacked(enumDecl: enumDecl) {
       modelOutputCode = """
       nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
         rawValue.modelOutput
