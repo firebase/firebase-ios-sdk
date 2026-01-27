@@ -713,6 +713,28 @@ public extension Expression {
     return BooleanFunctionExpression(functionName: "regex_contains", args: [self, pattern])
   }
 
+  func regexFind(_ pattern: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "regex_find",
+      args: [self, Helper.sendableToExpr(pattern)]
+    )
+  }
+
+  func regexFind(_ pattern: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "regex_find", args: [self, pattern])
+  }
+
+  func regexFindAll(_ pattern: String) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "regex_find_all",
+      args: [self, Helper.sendableToExpr(pattern)]
+    )
+  }
+
+  func regexFindAll(_ pattern: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "regex_find_all", args: [self, pattern])
+  }
+
   func regexMatch(_ pattern: String) -> BooleanExpression {
     return BooleanFunctionExpression(
       functionName: "regex_match",
