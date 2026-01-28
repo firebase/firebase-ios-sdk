@@ -52,6 +52,24 @@ RealtimePipeline& RealtimePipeline::operator=(const RealtimePipeline& other) {
   return *this;
 }
 
+RealtimePipeline::RealtimePipeline(RealtimePipeline&& other) noexcept
+    : stages_(std::move(other.stages_)),
+      rewritten_stages_(std::move(other.rewritten_stages_)),
+      serializer_(std::move(other.serializer_)),
+      listen_options_(std::move(other.listen_options_)) {
+}
+
+RealtimePipeline& RealtimePipeline::operator=(
+    RealtimePipeline&& other) noexcept {
+  if (this != &other) {
+    stages_ = std::move(other.stages_);
+    rewritten_stages_ = std::move(other.rewritten_stages_);
+    serializer_ = std::move(other.serializer_);
+    listen_options_ = std::move(other.listen_options_);
+  }
+  return *this;
+}
+
 RealtimePipeline RealtimePipeline::AddingStage(
     std::shared_ptr<EvaluableStage> stage) {
   auto copy = std::vector<std::shared_ptr<EvaluableStage>>(this->stages_);

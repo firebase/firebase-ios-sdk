@@ -2068,11 +2068,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLike() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Emulator does not support this function."
-    )
-
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2091,11 +2086,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexContains() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Emulator does not support this function."
-    )
-
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2109,11 +2099,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexMatches() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Emulator does not support this function."
-    )
-
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2394,11 +2379,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testExpOverflow() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: [
       "doc1": ["value": 1000],
     ])
@@ -2504,11 +2484,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testChecks() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -3249,11 +3224,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTimestampTruncWorks() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Emulator does not support this function."
-    )
-
     let db = firestore()
     let randomCol = collectionRef()
     try await randomCol.document("dummyDoc").setData(["field": "value"])
@@ -3716,11 +3686,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTypeWorks() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: [
       "doc1": [
         "a": 1,
