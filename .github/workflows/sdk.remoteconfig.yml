@@ -96,6 +96,7 @@ jobs:
       product: RemoteConfigSample
       platform: iOS
       method: xcodebuild
+      setup_command: scripts/install_prereqs.sh RemoteConfigSample iOS
 
   remoteconfig-cron-only:
     needs: pod_lib_lint
