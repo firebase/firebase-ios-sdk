@@ -24,15 +24,10 @@ check_secrets()
 {
   # 1. Prioritize explicit workflow signal (FIREBASECI_SECRETS_PRESENT).
   if [[ -n "${FIREBASECI_SECRETS_PRESENT:-}" ]]; then
-    if [[ "$FIREBASECI_SECRETS_PRESENT" == "true" ]]; then
-      return 0 # Workflow says: Secrets ARE available. Proceed.
+    if [[ "$FIREBASECI_SECRETS_PRESENT" == "true" || "$FIREBASECI_IS_TRUSTED_ENV" == "true" ]]; then
+      return 0 # Secrets are available, or it's a trusted env where they might be.
     else
-      # Workflow says: Secrets are NOT available.
-      if [[ "$FIREBASECI_IS_TRUSTED_ENV" == "true" ]]; then
-        return 0 # Secrets not provided on main repo. Proceed (fail if secrets are actually needed).
-      else
-        return 1 # We don't expect secrets (e.g., fork PR). Skip gracefully.
-      fi
+      return 1 # We don't expect secrets (e.g., fork PR). Skip gracefully.
     fi
   fi
 
