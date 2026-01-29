@@ -75,6 +75,21 @@ jobs:
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
+  pod_lib_lint:
+    uses: ./.github/workflows/_cocoapods.yml
+    with:
+      product: FirebaseRemoteConfig
+
+  quickstart:
+    uses: ./.github/workflows/_quickstart.yml
+    with:
+      product: Config
+      setup_command: scripts/setup_quickstart.sh config
+      plist_src_path: scripts/gha-encrypted/qs-config.plist.gpg
+      plist_dst_path: quickstart-ios/config/GoogleService-Info.plist
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
   sample-build-test:
     uses: ./.github/workflows/_build.yml
     with:
