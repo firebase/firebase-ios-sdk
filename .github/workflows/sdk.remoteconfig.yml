@@ -96,12 +96,6 @@ jobs:
       product: RemoteConfigSample
       platform: iOS
       method: xcodebuild
-      setup_command: |
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
-            FirebaseMessaging/Apps/Shared/GoogleService-Info.plist "$plist_secret"
-        scripts/install_prereqs.sh RemoteConfigSample iOS
-    secrets:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   remoteconfig-cron-only:
     needs: pod_lib_lint
