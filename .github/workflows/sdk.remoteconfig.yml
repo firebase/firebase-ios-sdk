@@ -50,12 +50,6 @@ jobs:
       product: RemoteConfig
       platform: iOS
       method: fakeconsole
-      setup_command: |
-        gem install xcpretty
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/RemoteConfigSwiftAPI/GoogleService-Info.plist.gpg \
-            FirebaseRemoteConfig/Tests/Swift/SwiftAPI/GoogleService-Info.plist "$plist_secret"
-    secrets:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   remoteconfig-integration:
     uses: ./.github/workflows/_build.yml
