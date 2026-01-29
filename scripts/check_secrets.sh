@@ -26,9 +26,8 @@ check_secrets()
   if [[ -n "$FIREBASECI_SECRETS_PRESENT" ]]; then
     if [[ "$FIREBASECI_SECRETS_PRESENT" == "true" || "$FIREBASECI_IS_TRUSTED_ENV" == "true" ]]; then
       return 0 # Secrets are available, or it's a trusted env where they might be.
-    else
-      return 1 # We don't expect secrets (e.g., fork PR). Skip gracefully.
     fi
+    return 1 # We don't expect secrets (e.g., fork PR). Skip gracefully.
   fi
 
   # 2. Fallback for un-migrated/legacy workflows: assume secrets if in GHA.
