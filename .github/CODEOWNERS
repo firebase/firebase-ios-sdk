@@ -10,3 +10,4 @@ scripts/ @firebase/firebase-ios-sdk-admin
 .github/ @firebase/firebase-ios-sdk-admin
 *.md @firebase/firebase-ios-sdk-admin
 CHANGELOG.md # Exempt from the `*.md` rule.
+
