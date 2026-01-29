@@ -33,7 +33,7 @@ check_secrets()
 
   # 2. Fallback for un-migrated/legacy workflows: assume secrets if in GHA.
   #    - This maintains original behavior for workflows not yet updated with FIREBASECI_SECRETS_PRESENT.
-  if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
+  if [[ -n "$GITHUB_WORKFLOW" ]]; then
     return 0 # Assume secrets if running in GHA (legacy behavior).
   fi
 
