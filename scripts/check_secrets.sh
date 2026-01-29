@@ -23,7 +23,7 @@ echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF:-}"
 check_secrets()
 {
   # 1. Prioritize explicit workflow signal (FIREBASECI_SECRETS_PRESENT).
-  if [[ -n "${FIREBASECI_SECRETS_PRESENT:-}" ]]; then
+  if [[ -n "$FIREBASECI_SECRETS_PRESENT" ]]; then
     if [[ "$FIREBASECI_SECRETS_PRESENT" == "true" || "$FIREBASECI_IS_TRUSTED_ENV" == "true" ]]; then
       return 0 # Secrets are available, or it's a trusted env where they might be.
     else
