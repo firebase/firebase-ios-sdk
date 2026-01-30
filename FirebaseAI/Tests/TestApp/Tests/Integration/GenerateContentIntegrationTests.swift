@@ -53,10 +53,12 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
+    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3FlashPreview),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
     // Note: The following configs are commented out for easy one-off manual testing.
+    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
     // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
@@ -82,10 +84,18 @@ struct GenerateContentIntegrationTests {
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
-    #expect(usageMetadata.thoughtsTokenCount == 0)
+    if modelName.hasPrefix("gemini-3") {
+      // For gemini-3 models, the thoughtsTokenCount can vary slightly between runs.
+      #expect(usageMetadata.thoughtsTokenCount >= 64)
+    } else {
+      #expect(usageMetadata.thoughtsTokenCount == 0)
+    }
     // The fields `candidatesTokenCount` and `candidatesTokensDetails` are not included when using
     // Gemma models.
-    if modelName.hasPrefix("gemma") {
+    if modelName.hasPrefix("gemini-3") {
+      #expect(usageMetadata.candidatesTokenCount == 2)
+      #expect(usageMetadata.candidatesTokensDetails.isEmpty)
+    } else if modelName.hasPrefix("gemma") {
       #expect(usageMetadata.candidatesTokenCount == 0)
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
@@ -95,9 +105,11 @@ struct GenerateContentIntegrationTests {
       #expect(candidatesTokensDetails.modality == .text)
       #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
-    #expect(usageMetadata.totalTokenCount > 0)
-    #expect(usageMetadata.totalTokenCount ==
-      (usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount))
+    #expect(usageMetadata.cachedContentTokenCount == 0)
+    #expect(usageMetadata.cacheTokensDetails.isEmpty)
+    #expect(usageMetadata.totalTokenCount == (usageMetadata.promptTokenCount +
+        usageMetadata.candidatesTokenCount +
+        usageMetadata.thoughtsTokenCount))
   }
 
   @Test(
@@ -161,16 +173,25 @@ struct GenerateContentIntegrationTests {
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
-      (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
-      (
-        .googleAI_v1beta_freeTier,
-        ModelNames.gemini2_5_Flash,
-        ThinkingConfig(thinkingBudget: 24576)
-      ),
-      (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(
-        thinkingBudget: 24576, includeThoughts: true
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .minimal)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .low)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .medium)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingLevel: .high)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: 128)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: 32768)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(
+        thinkingBudget: 32768, includeThoughts: true
       )),
       // Note: The following configs are commented out for easy one-off manual testing.
+//      (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
+//      (
+//        .googleAI_v1beta_freeTier,
+//        ModelNames.gemini2_5_Flash,
+//        ThinkingConfig(thinkingBudget: 24576)
+//      ),
+//      (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(
+//        thinkingBudget: 24576, includeThoughts: true
+//      )),
       // (.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_Flash, ThinkingConfig(
       //   thinkingBudget: 0
       // )),
@@ -204,7 +225,9 @@ struct GenerateContentIntegrationTests {
 
     let candidate = try #require(response.candidates.first)
     let thoughtParts = candidate.content.parts.compactMap { $0.isThought ? $0 : nil }
-    #expect(thoughtParts.isEmpty != (thinkingConfig.includeThoughts ?? false))
+    let thoughtSignature = candidate.content.internalParts.first?.thoughtSignature
+    #expect(thoughtSignature != nil || thoughtParts
+      .isEmpty != (thinkingConfig.includeThoughts ?? false))
 
     let usageMetadata = try #require(response.usageMetadata)
     #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
@@ -215,6 +238,18 @@ struct GenerateContentIntegrationTests {
     if let thinkingBudget = thinkingConfig.thinkingBudget, thinkingBudget > 0 {
       #expect(usageMetadata.thoughtsTokenCount > 0)
       #expect(usageMetadata.thoughtsTokenCount <= thinkingBudget)
+    } else if let thinkingLevel = thinkingConfig.thinkingLevel {
+      // For gemini3FlashPreview, repeated runs show that for any of the four
+      // levels, 64 or 68 may be returned.
+      let minThoughtTokens = 64
+      switch thinkingLevel {
+      case .minimal:
+        #expect(usageMetadata.thoughtsTokenCount == 0)
+      case .low, .medium, .high:
+        #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
+      default:
+        Issue.record("Unhandled ThinkingLevel: \(thinkingLevel)")
+      }
     } else {
       #expect(usageMetadata.thoughtsTokenCount == 0)
     }
@@ -229,6 +264,8 @@ struct GenerateContentIntegrationTests {
       #expect(candidatesTokensDetails.modality == .text)
       #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
     }
+    #expect(usageMetadata.cachedContentTokenCount == 0)
+    #expect(usageMetadata.cacheTokensDetails.isEmpty)
     #expect(usageMetadata.totalTokenCount > 0)
     #expect(usageMetadata.totalTokenCount == (
       usageMetadata.promptTokenCount
@@ -253,6 +290,10 @@ struct GenerateContentIntegrationTests {
       )),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
+        thinkingBudget: -1, includeThoughts: true
+      )),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(thinkingBudget: -1)),
+      (.googleAI_v1beta, ModelNames.gemini3FlashPreview, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
     ] as [(InstanceConfig, String, ThinkingConfig)]
@@ -415,26 +456,14 @@ struct GenerateContentIntegrationTests {
     )
     let url = "https://developers.googleblog.com/en/introducing-gemma-3-270m/"
     let prompt = "Write a one paragraph summary of this blog post: \(url)"
-
-    // TODO(#15385): Remove `withKnownIssue` when the URL Context tool works consistently using the
-    // Gemini Developer API.
-    try await withKnownIssue(isIntermittent: true) {
-      let response = try await model.generateContent(prompt)
-
-      let candidate = try #require(response.candidates.first)
-      let urlContextMetadata = try #require(candidate.urlContextMetadata)
-      #expect(urlContextMetadata.urlMetadata.count == 1)
-      let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
-      let retrievedURL = try #require(urlMetadata.retrievedURL)
-      #expect(retrievedURL == URL(string: url))
-      #expect(urlMetadata.retrievalStatus == .success)
-    } when: {
-      // This issue only impacts the Gemini Developer API (Google AI), Vertex AI is unaffected.
-      if case .googleAI = config.apiConfig.service {
-        return true
-      }
-      return false
-    }
+    let response = try await model.generateContent(prompt)
+    let candidate = try #require(response.candidates.first)
+    let urlContextMetadata = try #require(candidate.urlContextMetadata)
+    #expect(urlContextMetadata.urlMetadata.count == 1)
+    let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
+    #expect(urlMetadata.retrievalStatus == .success)
+    let retrievedURL = try #require(urlMetadata.retrievedURL)
+    #expect(retrievedURL == URL(string: url))
   }
 
   @Test(arguments: InstanceConfig.allConfigs)
@@ -470,19 +499,19 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
-    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3FlashPreview),
+    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini3FlashPreview),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
+//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
   ])
   func generateContentStream(_ config: InstanceConfig, modelName: String) async throws {
     let expectedResponse = [

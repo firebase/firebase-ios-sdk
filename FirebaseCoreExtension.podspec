@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseCoreExtension'
-    s.version          = '12.7.0'
+    s.version          = '12.9.0'
     s.summary          = 'Extended FirebaseCore APIs for Firebase product SDKs'
 
     s.description      = <<-DESC
@@ -38,5 +38,5 @@ Pod::Spec.new do |s|
       'DEFINES_MODULE' => 'YES'
     }
 
-    s.dependency 'FirebaseCore', '~> 12.7.0'
+    s.dependency 'FirebaseCore', '~> 12.9.0'
   end

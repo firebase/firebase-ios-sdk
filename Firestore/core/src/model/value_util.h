@@ -77,6 +77,9 @@ enum class TypeOrder {
   kMaxValue = 12
 };
 
+/** Result type for StrictEquals comparison. */
+enum class StrictEqualsResult { kEq, kNotEq, kNull };
+
 /** Returns the backend's type order of the given Value type. */
 TypeOrder GetTypeOrder(const google_firestore_v1_Value& value);
 
@@ -102,6 +105,15 @@ bool Equals(const google_firestore_v1_Value& left,
 
 bool Equals(const google_firestore_v1_ArrayValue& left,
             const google_firestore_v1_ArrayValue& right);
+
+/**
+ * Performs a strict equality comparison used in Pipeline expressions
+ * evaluations. The main difference to Equals is its handling of null
+ * propagation, and it uses direct double value comparison (as opposed to Equals
+ * which use bits comparison).
+ */
+StrictEqualsResult StrictEquals(const google_firestore_v1_Value& left,
+                                const google_firestore_v1_Value& right);
 
 /**
  * Generates the canonical ID for the provided field value (as used in Target
@@ -203,6 +215,10 @@ google_firestore_v1_Value NaNValue();
 /** Returns `true` if `value` is `NaN` in its Protobuf representation. */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
+google_firestore_v1_Value TrueValue();
+
+google_firestore_v1_Value FalseValue();
+
 google_firestore_v1_Value MinBoolean();
 
 google_firestore_v1_Value MinNumber();
@@ -231,6 +247,25 @@ google_firestore_v1_Value MinMap();
  */
 nanopb::Message<google_firestore_v1_Value> RefValue(
     const DatabaseId& database_id, const DocumentKey& document_key);
+
+/**
+ * Returns a Protobuf string value.
+ *
+ * The returned value might point to heap allocated memory that is owned by
+ * this function. To take ownership of this memory, call `DeepClone`.
+ */
+nanopb::Message<google_firestore_v1_Value> StringValue(
+    const std::string& value);
+
+nanopb::Message<google_firestore_v1_Value> StringValue(absl::string_view value);
+
+/**
+ * Returns a Protobuf array value representing the given values.
+ *
+ * This function owns the passed in vector and might move the values out.
+ */
+nanopb::Message<google_firestore_v1_Value> ArrayValue(
+    std::vector<nanopb::Message<google_firestore_v1_Value>> values);
 
 /** Creates a copy of the contents of the Value proto. */
 nanopb::Message<google_firestore_v1_Value> DeepClone(
@@ -272,6 +307,19 @@ inline bool IsMap(const absl::optional<google_firestore_v1_Value>& value) {
   return value &&
          value->which_value_type == google_firestore_v1_Value_map_value_tag;
 }
+
+/**
+ * Extracts the integer value if the input is an integer type.
+ * Returns nullopt otherwise.
+ */
+absl::optional<int64_t> GetInteger(const google_firestore_v1_Value& value);
+
+/**
+ * Finds an entry by key in the provided map value. Returns `nullptr` if the
+ * entry does not exist.
+ */
+google_firestore_v1_MapValue_FieldsEntry* FindEntry(
+    const google_firestore_v1_Value& value, absl::string_view field);
 
 }  // namespace model
 

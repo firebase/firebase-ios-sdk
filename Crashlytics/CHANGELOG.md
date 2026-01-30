@@ -1,3 +1,6 @@
+# 12.9.0
+- [fixed] Conformed to Mach IPC security restrictions. (#15393)
+
 # 12.4.0
 - [fixed] Make set development platform APIs to chain on Crashlytics context init promise.
 

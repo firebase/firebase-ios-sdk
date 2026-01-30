@@ -64,6 +64,8 @@ const auto kRpcNameCommit = "/google.firestore.v1.Firestore/Commit";
 const auto kRpcNameLookup = "/google.firestore.v1.Firestore/BatchGetDocuments";
 const auto kRpcNameRunAggregationQuery =
     "/google.firestore.v1.Firestore/RunAggregationQuery";
+const auto kRpcNameExecutePipeline =
+    "/google.firestore.v1.Firestore/ExecutePipeline";
 
 std::unique_ptr<Executor> CreateExecutor() {
   return Executor::CreateSerial("com.google.firebase.firestore.rpc");
@@ -309,6 +311,67 @@ void Datastore::RunAggregateQueryWithCredentials(
 
     RemoveGrpcCall(call);
   });
+}
+
+void Datastore::RunPipeline(
+    const api::Pipeline& pipeline,
+    util::StatusOrCallback<api::PipelineSnapshot>&& result_callback) {
+  ResumeRpcWithCredentials(
+      [this, pipeline, result_callback = std::move(result_callback)](
+          const StatusOr<AuthToken>& auth_token,
+          const std::string& app_check_token) mutable {
+        if (!auth_token.ok()) {
+          result_callback(auth_token.status());
+          return;
+        }
+        RunPipelineWithCredentials(auth_token.ValueOrDie(), app_check_token,
+                                   pipeline, std::move(result_callback));
+      });
+}
+
+void Datastore::RunPipelineWithCredentials(
+    const credentials::AuthToken& auth_token,
+    const std::string& app_check_token,
+    const api::Pipeline& pipeline,
+    util::StatusOrCallback<api::PipelineSnapshot>&& callback) {
+  auto request = datastore_serializer_.EncodeExecutePipelineRequest(pipeline);
+  LOG_DEBUG("Run Pipeline: %s", request.ToString());
+
+  grpc::ByteBuffer message = MakeByteBuffer(request);
+  std::unique_ptr<GrpcStreamingReader> call_owning =
+      grpc_connection_.CreateStreamingReader(kRpcNameExecutePipeline,
+                                             auth_token, app_check_token,
+                                             std::move(message));
+  GrpcStreamingReader* call = call_owning.get();
+  active_calls_.push_back(std::move(call_owning));
+
+  auto responses_callback = [this, db = pipeline.firestore(), callback](
+                                const std::vector<grpc::ByteBuffer>& result) {
+    if (result.empty()) {
+      callback(util::Status(Error::kErrorInternal,
+                            "Received empty response for RunPipeline"));
+      return;
+    }
+
+    auto response = datastore_serializer_.MergeExecutePipelineResponses(
+        result, std::move(db));
+    callback(response);
+  };
+
+  auto close_callback = [this, call, callback](const util::Status& status,
+                                               bool callback_fired) {
+    if (!callback_fired) {
+      callback(status);
+    }
+    if (!status.ok()) {
+      LogGrpcCallFinished("ExecutePipeline", call, status);
+      HandleCallStatus(status);
+    }
+    RemoveGrpcCall(call);
+  };
+
+  call->Start(util::Status(Error::kErrorUnknown, "Unknown response count"),
+              responses_callback, close_callback);
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {

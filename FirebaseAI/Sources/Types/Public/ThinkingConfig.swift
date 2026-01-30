@@ -14,9 +14,10 @@
 
 /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
 ///
-/// Certain models, like Gemini 2.5 Flash and Pro, utilize a thinking process before generating a
-/// response. This allows them to reason through complex problems and plan a more coherent and
-/// accurate answer.
+/// Gemini 2.5 series models and newer utilize a thinking process before generating a response. This
+/// allows them to reason through complex problems and plan a more coherent and accurate answer.
+/// See the [thinking documentation](https://firebase.google.com/docs/ai-logic/thinking) for more
+/// details.
 public struct ThinkingConfig: Sendable {
   /// The thinking budget in tokens.
   ///
@@ -27,15 +28,12 @@ public struct ThinkingConfig: Sendable {
   /// If you don't specify a budget (`nil`), the model will automatically determine the appropriate
   /// amount of thinking based on the complexity of the prompt.
   ///
-  /// **Model-Specific Behavior:**
-  /// - **Gemini 2.5 Flash:** The budget can range from `0` to `24576`. Setting the budget to `0`
-  ///   disables the thinking process, which prioritizes the lowest latency and cost.
-  /// - **Gemini 2.5 Pro:** The budget must be an integer between `128` and `32768`. Thinking cannot
-  ///   be disabled for this model.
-  ///
   /// An error will be thrown if you set a thinking budget for a model that does not support this
   /// feature or if the specified budget is not within the model's supported range.
   let thinkingBudget: Int?
+
+  /// The level of thoughts tokens that the model should generate.
+  let thinkingLevel: ThinkingLevel?
 
   /// Whether summaries of the model's "thoughts" are included in responses.
   ///
@@ -51,10 +49,70 @@ public struct ThinkingConfig: Sendable {
   ///
   /// - Parameters:
   ///   - thinkingBudget: The maximum number of tokens to be used for the model's thinking process.
+  ///     The range of [supported thinking budget values
+  ///     ](https://firebase.google.com/docs/ai-logic/thinking#supported-thinking-budget-values)
+  ///     depends on the model.
+  ///       - To use the default thinking budget or thinking level for a model, set this value to
+  ///         `nil` or omit it.
+  ///       - To disable thinking, when supported by the model, set this value to `0`.
+  ///       - To use dynamic thinking, allowing the model to decide on the thinking budget based on
+  ///         the task, set this value to `-1`.
   ///   - includeThoughts: If true, summaries of the model's "thoughts" are included in responses.
   public init(thinkingBudget: Int? = nil, includeThoughts: Bool? = nil) {
     self.thinkingBudget = thinkingBudget
+    thinkingLevel = nil
     self.includeThoughts = includeThoughts
+  }
+
+  /// Initializes a `ThinkingConfig` with a ``ThinkingLevel``.
+  ///
+  /// If you don't specify a thinking level, Gemini will use the model's default dynamic thinking
+  /// level.
+  ///
+  /// > Important: Gemini 2.5 series models do not support thinking levels; use
+  /// > ``init(thinkingBudget:includeThoughts:)`` to set a thinking budget instead.
+  ///
+  /// - Parameters:
+  ///   - thinkingLevel: A preset that controls the model's "thinking" process. Use
+  ///     ``ThinkingLevel/low`` for faster responses on less complex tasks, and
+  ///     ``ThinkingLevel/high`` for better reasoning on more complex tasks.
+  ///   - includeThoughts: If true, summaries of the model's "thoughts" are included in responses.
+  public init(thinkingLevel: ThinkingLevel, includeThoughts: Bool? = nil) {
+    thinkingBudget = nil
+    self.thinkingLevel = thinkingLevel
+    self.includeThoughts = includeThoughts
+  }
+}
+
+public extension ThinkingConfig {
+  /// A preset that balances the trade-off between reasoning quality and response speed for a
+  /// model's "thinking" process.
+  struct ThinkingLevel: EncodableProtoEnum, Equatable {
+    enum Kind: String {
+      case minimal = "MINIMAL"
+      case low = "LOW"
+      case medium = "MEDIUM"
+      case high = "HIGH"
+    }
+
+    /// Use this level when you want to minimize latency, allowing for minimal thought. This
+    /// level is faster than ``low``.
+    public static let minimal = ThinkingLevel(kind: .minimal)
+
+    /// This level is suitable for simpler queries or when speed is the priority. This level is
+    /// faster than ``medium``.
+    public static let low = ThinkingLevel(kind: .low)
+
+    /// Offers a balanced approach suitable for tasks of moderate complexity that benefit from
+    /// reasoning but don't require deep, multi-step planning. It provides more reasoning
+    /// capability than ``low`` while maintaining lower latency than ``high``.
+    public static let medium = ThinkingLevel(kind: .medium)
+
+    /// Use this level for complex queries where quality is more important than speed. It allows the
+    /// model to engage in deeper reasoning but increases latency.
+    public static let high = ThinkingLevel(kind: .high)
+
+    var rawValue: String
   }
 }
 

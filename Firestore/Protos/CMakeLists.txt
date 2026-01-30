@@ -42,13 +42,16 @@ set(
   firestore/local/target
   firestore/bundle
   google/api/annotations
+  google/api/field_behavior
   google/api/http
   google/firestore/admin/index
   google/firestore/v1/aggregation_result
   google/firestore/v1/bloom_filter
   google/firestore/v1/common
   google/firestore/v1/document
+  google/firestore/v1/explain_stats
   google/firestore/v1/firestore
+  google/firestore/v1/pipeline
   google/firestore/v1/query
   google/firestore/v1/write
   google/rpc/status

@@ -75,8 +75,9 @@ TEST(FirebaseAuthCredentialsProviderTest, GetTokenNoProvider) {
   auto token_promise = std::make_shared<std::promise<AuthToken>>();
 
   FIRApp* app = testutil::AppForUnitTesting();
-  FirebaseAuthCredentialsProvider credentials_provider(app, nil);
-  credentials_provider.GetToken(
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, nil);
+  credentials_provider->GetToken(
       [token_promise](util::StatusOr<AuthToken> result) {
         EXPECT_TRUE(result.ok());
         const AuthToken& token = result.ValueOrDie();
@@ -99,8 +100,9 @@ TEST(FirebaseAuthCredentialsProviderTest, GetTokenNoProvider) {
 TEST(FirebaseAuthCredentialsProviderTest, GetTokenUnauthenticated) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:nil uid:nil];
-  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
+  credentials_provider->GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
     const AuthToken& token = result.ValueOrDie();
     EXPECT_ANY_THROW(token.token());
@@ -114,8 +116,9 @@ TEST(FirebaseAuthCredentialsProviderTest, GetToken) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
-  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.GetToken([](util::StatusOr<AuthToken> result) {
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
+  credentials_provider->GetToken([](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
     const AuthToken& token = result.ValueOrDie();
     EXPECT_EQ("token for fake uid", token.token());
@@ -129,22 +132,24 @@ TEST(FirebaseAuthCredentialsProviderTest, SetListener) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"default token"
                                                      uid:@"fake uid"];
-  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.SetCredentialChangeListener([](User user) {
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
+  credentials_provider->SetCredentialChangeListener([](User user) {
     EXPECT_EQ("fake uid", user.uid());
     EXPECT_TRUE(user.is_authenticated());
   });
 
-  credentials_provider.SetCredentialChangeListener(nullptr);
+  credentials_provider->SetCredentialChangeListener(nullptr);
 }
 
 TEST(FirebaseAuthCredentialsProviderTest, InvalidateToken) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
-  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.InvalidateToken();
-  credentials_provider.GetToken([&auth](util::StatusOr<AuthToken> result) {
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
+  credentials_provider->InvalidateToken();
+  credentials_provider->GetToken([&auth](util::StatusOr<AuthToken> result) {
     EXPECT_TRUE(result.ok());
     EXPECT_TRUE(auth.forceRefreshTriggered);
     const AuthToken& token = result.ValueOrDie();
@@ -160,14 +165,15 @@ TEST(FirebaseAuthCredentialsProviderTest, GetTokenCalledByAnotherThread) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token for fake uid"
                                                      uid:@"fake uid"];
-  FirebaseAuthCredentialsProvider credentials_provider(app, auth);
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
 
-  std::thread thread1([&credentials_provider] {
-    credentials_provider.GetToken(
+  std::thread thread1([credentials_provider] {
+    credentials_provider->GetToken(
         [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });
   });
-  std::thread thread2([&credentials_provider] {
-    credentials_provider.GetToken(
+  std::thread thread2([credentials_provider] {
+    credentials_provider->GetToken(
         [](util::StatusOr<AuthToken> result) { EXPECT_TRUE(result.ok()); });
   });
 

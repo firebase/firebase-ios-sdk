@@ -25,11 +25,10 @@ struct LiveSessionTests {
     switch config.apiConfig.service {
     case .vertexAI:
       [
-        (config, ModelNames.gemini2FlashLivePreview),
+        (config, ModelNames.gemini2_5_FlashLive),
       ]
     case .googleAI:
       [
-        (config, ModelNames.gemini2FlashLive),
         (config, ModelNames.gemini2_5_FlashLivePreview),
       ]
     }
@@ -49,10 +48,7 @@ struct LiveSessionTests {
       ),
     ]),
   ]
-  private let textConfig = LiveGenerationConfig(
-    responseModalities: [.text]
-  )
-  private let audioConfig = LiveGenerationConfig(
+  private let generationConfig = LiveGenerationConfig(
     responseModalities: [.audio],
     outputAudioTranscription: AudioTranscriptionConfig()
   )
@@ -77,8 +73,8 @@ struct LiveSessionTests {
       role: "system",
       parts: """
       When you receive a message, if the message is a single word, assume it's the first name of a \
-      person, and call the getLastName tool to get the last name of said person. Only respond with \
-      the last name.
+      person, and call the getLastName tool to get the last name of said person. Once you get the \
+      response, say the response.
       """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
 
@@ -92,56 +88,11 @@ struct LiveSessionTests {
   }
 
   @Test(arguments: arguments)
-  func sendTextRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
-    let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelName,
-      generationConfig: textConfig,
-      systemInstruction: SystemInstructions.yesOrNo
-    )
-
-    let session = try await model.connect()
-    await session.sendTextRealtime("Does five plus five equal ten?")
-
-    let text = try await session.collectNextTextResponse()
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "yes")
-  }
-
-  @Test(arguments: arguments)
-  func sendTextRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
-                                                      modelName: String) async throws {
-    let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelName,
-      generationConfig: audioConfig,
-      systemInstruction: SystemInstructions.yesOrNo
-    )
-
-    let session = try await model.connect()
-    await session.sendTextRealtime("Does five plus five equal ten?")
-
-    let text = try await session.collectNextAudioOutputTranscript()
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "yes")
-  }
-
-  @Test(arguments: arguments)
   func sendAudioRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
                                                        modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
-      generationConfig: audioConfig,
+      generationConfig: generationConfig,
       systemInstruction: SystemInstructions.helloGoodbye
     )
 
@@ -166,39 +117,11 @@ struct LiveSessionTests {
   }
 
   @Test(arguments: arguments)
-  func sendAudioRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
+  func sendVideoRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
+                                                       modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
-      generationConfig: textConfig,
-      systemInstruction: SystemInstructions.helloGoodbye
-    )
-
-    let session = try await model.connect()
-
-    let audioFile = try #require(
-      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
-    )
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
-
-    let text = try await session.collectNextTextResponse()
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "goodbye")
-  }
-
-  @Test(arguments: arguments.filter { $0.1 != ModelNames.gemini2FlashLive })
-  // gemini-2.0-flash-live-001 is buggy and likes to respond to the audio or system instruction
-  // (eg; it will say 'okay' or 'hello', instead of following the instructions)
-  func sendVideoRealtime_receiveText(_ config: InstanceConfig, modelName: String) async throws {
-    let model = FirebaseAI.componentInstance(config).liveModel(
-      modelName: modelName,
-      generationConfig: textConfig,
+      generationConfig: generationConfig,
       systemInstruction: SystemInstructions.animalInVideo
     )
 
@@ -223,7 +146,7 @@ struct LiveSessionTests {
     await session.sendAudioRealtime(audioFile.data)
     await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
 
-    let text = try await session.collectNextTextResponse()
+    let text = try await session.collectNextAudioOutputTranscript()
 
     await session.close()
     let modelResponse = text
@@ -239,7 +162,7 @@ struct LiveSessionTests {
   func realtime_functionCalling(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
-      generationConfig: textConfig,
+      generationConfig: generationConfig,
       tools: tools,
       systemInstruction: SystemInstructions.lastNames
     )
@@ -267,11 +190,9 @@ struct LiveSessionTests {
         functionId: functionCall.functionId
       ),
     ])
-
-    var text = try await session.collectNextTextResponse()
+    var text = try await session.collectNextAudioOutputTranscript()
     if text.isEmpty {
-      // The model sometimes sends an empty text response first
-      text = try await session.collectNextTextResponse()
+      text = try await session.collectNextAudioOutputTranscript()
     }
 
     await session.close()
@@ -283,20 +204,22 @@ struct LiveSessionTests {
     #expect(modelResponse == "smith")
   }
 
-  @Test(arguments: arguments.filter {
-    // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
-    switch $0.0.apiConfig.service {
-    case .googleAI:
-      true
-    case .vertexAI:
-      false
+  @Test(
+    arguments: arguments.filter {
+      // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
+      switch $0.0.apiConfig.service {
+      case .googleAI:
+        true
+      case .vertexAI:
+        false
+      }
     }
-  })
+  )
   func realtime_functionCalling_cancellation(_ config: InstanceConfig,
                                              modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
-      generationConfig: textConfig,
+      generationConfig: generationConfig,
       tools: tools,
       systemInstruction: SystemInstructions.lastNames
     )
@@ -324,14 +247,12 @@ struct LiveSessionTests {
     await session.close()
   }
 
-  @Test(
-    arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens }
-  )
+  @Test(arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens })
   // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   func realtime_interruption(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
-      generationConfig: audioConfig
+      generationConfig: generationConfig
     )
 
     let audioFile = try #require(
@@ -364,7 +285,7 @@ struct LiveSessionTests {
   func incremental_works(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
-      generationConfig: textConfig,
+      generationConfig: generationConfig,
       systemInstruction: SystemInstructions.yesOrNo
     )
 
@@ -372,7 +293,11 @@ struct LiveSessionTests {
     await session.sendContent("Does five plus")
     await session.sendContent(" five equal ten?", turnComplete: true)
 
-    let text = try await session.collectNextTextResponse()
+    var text = try await session.collectNextAudioOutputTranscript()
+    if text.isEmpty {
+      // The model sometimes sends an empty text response first
+      text = try await session.collectNextAudioOutputTranscript()
+    }
 
     await session.close()
     let modelResponse = text
@@ -400,26 +325,6 @@ struct LiveSessionTests {
 }
 
 private extension LiveSession {
-  /// Collects the text that the model sends for the next turn.
-  ///
-  /// Will listen for `LiveServerContent` messages from the model,
-  /// incrementally keeping track of any `TextPart`s it sends. Once
-  /// the model signals that its turn is complete, the function will return
-  /// a string concatenated of all the `TextPart`s.
-  func collectNextTextResponse() async throws -> String {
-    var text = ""
-
-    for try await content in responsesOf(LiveServerContent.self) {
-      text += content.modelTurn?.allText() ?? ""
-
-      if content.isTurnComplete {
-        break
-      }
-    }
-
-    return text
-  }
-
   /// Collects the audio output transcripts that the model sends for the next turn.
   ///
   /// Will listen for `LiveServerContent` messages from the model,
@@ -456,11 +361,7 @@ private extension LiveSession {
       case let .toolCall(toolCall):
         return toolCall
       case let .content(content):
-        if let text = content.modelTurn?.allText() {
-          error += text
-        } else {
-          error += content.outputAudioText()
-        }
+        error += content.outputAudioText()
 
         if content.isTurnComplete {
           Issue.record("The model didn't send a tool call. Text received: \(error)")
@@ -523,16 +424,6 @@ private extension LiveSession {
 private struct NoInterruptionError: Error,
   CustomStringConvertible {
   var description: String { "The model never sent an interrupted message." }
-}
-
-private extension ModelContent {
-  /// A collection of text from all parts.
-  ///
-  /// If this doesn't contain any `TextPart`, then an empty
-  /// string will be returned instead.
-  func allText() -> String {
-    parts.compactMap { ($0 as? TextPart)?.text }.joined()
-  }
 }
 
 extension LiveServerContent {

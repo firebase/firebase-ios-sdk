@@ -1,3 +1,7 @@
+# 12.9.0
+- [fixed] Stop doing unnecessary AppCheck token refreshes. Introduced
+  in 11.0.0. (#15372)
+
 # 12.7.0
 - [fixed] Add a mechanism to prevent concurrent token refreshes. (#15474)
 - [fixed] Fix "weak never mutated" build warning introduced in Xcode 26.2.

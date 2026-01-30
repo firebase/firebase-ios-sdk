@@ -108,7 +108,14 @@ source scripts/check_secrets.sh
 # Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
-  echo xcodebuild "$@"
+  # Print the command in a copy-pasteable format
+  echo xcodebuild $(printf "%q " "$@")
+
+  if [[ -n "${DRY_RUN:-}" ]]; then
+    echo "DRY_RUN is set. Exiting before build."
+    return 0
+  fi
+
   local xcodebuild_args=("$@")
   local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
   local log_filename="xcodebuild-${buildaction}.log"
@@ -166,7 +173,7 @@ else
     -destination "platform=iOS Simulator,name=${iphone_simulator_name}"
   )
   watchos_flags=(
-    -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
+    -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (42mm)'
   )
 fi
 
@@ -184,12 +191,19 @@ macos_flags=(
 tvos_flags=(
   -destination 'platform=tvOS Simulator,name=Apple TV'
 )
-visionos_flags=(
-  # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
-  # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
-  # explicitly specifying OS=2.5 in destination as a workaround.
-  -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
-)
+if [[ "$xcode_major" -ge 26 ]]; then
+  visionos_flags=(
+    -destination 'platform=visionOS Simulator,OS=latest,name=Apple Vision Pro'
+  )
+else
+  # TODO(ncooke3): Remove this else case when we no longer need to test against macOS 15.
+  visionos_flags=(
+    # As of Aug 15, 2025, the default OS "latest" was failing as it matched both
+    # the visionOS 26 beta and visionOS 2.5 (from Xcode 16.4) simulators;
+    # explicitly specifying OS=2.5 in destination as a workaround.
+    -destination 'platform=visionOS Simulator,OS=2.5,name=Apple Vision Pro'
+  )
+fi
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES
   -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
@@ -255,8 +269,12 @@ xcb_flags+=(
   COMPILER_INDEX_STORE_ENABLE=NO
 )
 
-source scripts/buildcache.sh
-xcb_flags=("${xcb_flags[@]}" "${buildcache_xcb_flags[@]}")
+# If running in Gemini CLI, pass -quiet to xcodebuild.
+# This reduces chance of exceeding the request token count.
+if [[ -n "${GEMINI_CLI:-}" ]]; then
+  echo "Running in Gemini CLI, adding -quiet to xcodebuild invocation."
+  xcb_flags+=(-quiet)
+fi
 
 # TODO(varconst): Add --warn-unused-vars and --warn-uninitialized.
 # Right now, it makes the log overflow on Travis because many of our

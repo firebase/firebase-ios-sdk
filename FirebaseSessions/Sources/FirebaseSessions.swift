@@ -135,9 +135,12 @@ private enum GoogleDataTransportConfig {
   }
 
   // Initializes the SDK and begins the process of listening for lifecycle events and logging
-  // events. `logEventCallback` is invoked on a global background queue.
+  // events. The given `logEventCallback` is invoked on a global background queue by default,
+  // but configurable via `loggedEventCallbackQueue` for providing a higher priority queue
+  // during tests to reduce flakes.
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
        initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
+       loggedEventCallbackQueue: DispatchQueue = .global(qos: .background),
        loggedEventCallback: @escaping @Sendable (Result<Void, FirebaseSessionsError>) -> Void) {
     self.appID = appID
 
@@ -179,7 +182,7 @@ private enum GoogleDataTransportConfig {
 
       // Wait until all subscriber promises have been fulfilled before
       // doing any data collection.
-      all(self.subscriberPromises.values).then(on: .global(qos: .background)) { _ in
+      all(self.subscriberPromises.values).then(on: loggedEventCallbackQueue) { _ in
         guard self.isAnyDataCollectionEnabled else {
           loggedEventCallback(.failure(.DataCollectionError))
           return
