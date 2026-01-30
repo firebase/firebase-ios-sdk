@@ -19,7 +19,7 @@ env:
   # When specified, build jobs will be skipped and the specified
   # run's artifacts will be used for testing.
   PINNED_RUN_ID: ''
-  # Firebase's minimum supported Xcode. This what the binary artifacts are
+  # Firebase's minimum supported Xcode. This is what the binary artifacts are
   # built with. Changing this version must only be done in alignment with
   # updates to the minimum supported Xcode supported for App Store submissions.
   MIN_XCODE: Xcode_16.2 # WARNING: Read above comment.
