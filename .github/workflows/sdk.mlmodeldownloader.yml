@@ -61,8 +61,6 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   mlmodeldownloader-sample-build-test:
-    # Don't run on private repo unless it is a PR.
-    if: github.repository == 'Firebase/firebase-ios-sdk' && (github.event_name == 'schedule' || github.event_name == 'pull_request')
     uses: ./.github/workflows/_build.yml
     with:
       product: MLModelDownloaderSample

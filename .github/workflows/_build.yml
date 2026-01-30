@@ -35,6 +35,10 @@ on:
         required: false
         type: number
         default: 120
+      max_attempts:
+        required: false
+        type: number
+        default: 3
 
     # IMPORTANT: When adding new secrets to this workflow, update the
     # 'has_secrets' logic in the 'check_secrets' job to include the new secret.
@@ -65,7 +69,8 @@ jobs:
 
           # 2. Determine if the build job should run.
           #    - Skip if on a fork AND secrets are present.
-          if [[ "${{ github.repository }}" != "firebase/firebase-ios-sdk" && "$has_secrets" == "true" ]]; then
+          repo_full_name=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          if [[ "$repo_full_name" != "firebase/firebase-ios-sdk" && "$has_secrets" == "true" ]]; then
             echo "should_run=false" >> $GITHUB_OUTPUT
           else
             echo "should_run=true" >> $GITHUB_OUTPUT
@@ -122,7 +127,7 @@ jobs:
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: ${{ inputs.timeout_minutes }}
-        max_attempts: 3
+        max_attempts: ${{ inputs.max_attempts }}
         retry_wait_seconds: 120
         command: |
           scripts/build.sh "${{ inputs.product }}" "${{ inputs.platform }}" "${{ inputs.method }}"
