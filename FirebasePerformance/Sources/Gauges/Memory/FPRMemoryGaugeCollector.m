@@ -19,7 +19,7 @@
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/FPRConsoleLogger.h"
 
-#include <mach/mach.h>
+#include <malloc/malloc.h>
 
 @interface FPRMemoryGaugeCollector ()
 
@@ -37,19 +37,12 @@
 FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   NSDate *collectionTime = [NSDate date];
 
-  // Using task_info(TASK_VM_INFO) avoids allocator-introspection (mstats/malloc_zone_statistics),
-  // which could crash under heavy allocation contention. it's safe to call from any thread.
-  task_vm_info_data_t vmInfo;
-  mach_msg_type_number_t count = TASK_VM_INFO_COUNT;
-  uint64_t usedBytes = 0;
+  // Use malloc_zone_statistics to get heap memory usage.
+  // Passing nil aggregates statistics from all malloc zones.
+  malloc_statistics_t stats;
+  malloc_zone_statistics(nil, &stats);
+  uint64_t usedBytes = stats.size_in_use;
 
-  kern_return_t kr = task_info(mach_task_self(), TASK_VM_INFO, (task_info_t)&vmInfo, &count);
-  if (kr == KERN_SUCCESS) {
-    // phys_footprint is the memory footprint used by Jetsam accounting.
-    usedBytes = (u_long)vmInfo.phys_footprint;
-  } else {
-    FPRLogDebug(kFPRMemoryCollection, @"task_info() failed with error: %d", kr);
-  }
   FPRMemoryGaugeData *gaugeData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
                                                                             heapUsed:usedBytes
                                                                        heapAvailable:0];
