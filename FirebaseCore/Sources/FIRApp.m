@@ -29,7 +29,6 @@
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
@@ -41,6 +40,8 @@
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+
+#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 

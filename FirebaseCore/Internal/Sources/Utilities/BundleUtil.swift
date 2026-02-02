@@ -17,9 +17,9 @@
 import Foundation
 
 #if SWIFT_PACKAGE
-  internal import GoogleUtilities_Environment
+internal import GoogleUtilities_Environment
 #else
-  internal import GoogleUtilities
+internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
 /// Utilities for accessing resources in bundles.

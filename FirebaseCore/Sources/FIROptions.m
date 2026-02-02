@@ -14,9 +14,10 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+
+#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";
