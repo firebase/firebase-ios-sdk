@@ -29,7 +29,7 @@
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
@@ -508,7 +508,8 @@ static FIRApp *sDefaultApp;
 }
 
 - (void)checkExpectedBundleID {
-  NSArray *bundles = [FIRBundleUtil relevantBundles];
+  NSArray *bundles =
+      [FIRBundleUtil relevantBundlesIncludingBundle:[NSBundle bundleForClass:[self class]]];
   NSString *expectedBundleID = [self expectedBundleID];
   // The checking is only done when the bundle ID is provided in the serviceInfo dictionary for
   // backward compatibility.

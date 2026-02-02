@@ -279,6 +279,7 @@ let package = Package(
       name: "FirebaseCoreInternal",
       dependencies: [
         .product(name: "GULNSData", package: "GoogleUtilities"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],
       path: "FirebaseCore/Internal/Sources",
       resources: [.process("Resources/PrivacyInfo.xcprivacy")]

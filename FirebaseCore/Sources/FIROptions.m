@@ -14,7 +14,7 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
@@ -136,7 +136,8 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
 // Returns the path of the plist file with a given file name.
 + (NSString *)plistFilePathWithName:(NSString *)fileName {
-  NSArray *bundles = [FIRBundleUtil relevantBundles];
+  NSArray *bundles =
+      [FIRBundleUtil relevantBundlesIncludingBundle:[NSBundle bundleForClass:[self class]]];
   NSString *plistFilePath =
       [FIRBundleUtil optionsDictionaryPathWithResourceName:fileName
                                                andFileType:kServiceInfoFileType
