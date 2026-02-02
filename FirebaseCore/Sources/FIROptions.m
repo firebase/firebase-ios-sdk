@@ -14,9 +14,16 @@
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+
+#if __has_include(<FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>)
+#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
+#elif __has_include("FirebaseCoreInternal-Swift.h")
+#import "FirebaseCoreInternal-Swift.h"
+#else
+// Fallback or error if neither is found.
+#endif
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";
@@ -136,11 +143,12 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
 // Returns the path of the plist file with a given file name.
 + (NSString *)plistFilePathWithName:(NSString *)fileName {
-  NSArray *bundles = [FIRBundleUtil relevantBundles];
-  NSString *plistFilePath =
-      [FIRBundleUtil optionsDictionaryPathWithResourceName:fileName
-                                               andFileType:kServiceInfoFileType
-                                                 inBundles:bundles];
+  NSArray *bundles = [FIRBundleUtil
+      relevantBundlesIncludingBundle:[NSBundle bundleForClass:[self class]]];
+  NSString *plistFilePath = [FIRBundleUtil
+      optionsDictionaryPathWithResourceName:fileName
+                                andFileType:kServiceInfoFileType
+                                  inBundles:bundles];
   if (plistFilePath == nil) {
     FIRLogError(kFIRLoggerCore, @"I-COR000012", @"Could not locate configuration file: '%@.%@'.",
                 fileName, kServiceInfoFileType);

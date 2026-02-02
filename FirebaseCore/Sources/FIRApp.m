@@ -29,7 +29,6 @@
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"
@@ -41,6 +40,15 @@
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+
+#if __has_include(<FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>)
+#import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
+#elif __has_include("FirebaseCoreInternal-Swift.h")
+#import "FirebaseCoreInternal-Swift.h"
+#else
+// Fallback or error if neither is found, though one should exist.
+// This might happen if the module isn't built yet.
+#endif
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
@@ -508,12 +516,13 @@ static FIRApp *sDefaultApp;
 }
 
 - (void)checkExpectedBundleID {
-  NSArray *bundles = [FIRBundleUtil relevantBundles];
+  NSArray *bundles =
+      [FIRBundleUtil relevantBundlesIncludingBundle:[NSBundle bundleForClass:[self class]]];
   NSString *expectedBundleID = [self expectedBundleID];
   // The checking is only done when the bundle ID is provided in the serviceInfo dictionary for
   // backward compatibility.
-  if (expectedBundleID != nil && ![FIRBundleUtil hasBundleIdentifierPrefix:expectedBundleID
-                                                                 inBundles:bundles]) {
+  if (expectedBundleID != nil &&
+      ![FIRBundleUtil hasBundleIdentifierPrefix:expectedBundleID inBundles:bundles]) {
     FIRLogError(kFIRLoggerCore, @"I-COR000008",
                 @"The project's Bundle ID is inconsistent with "
                 @"either the Bundle ID in '%@.%@', or the Bundle ID in the options if you are "
