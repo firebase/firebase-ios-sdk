@@ -15,7 +15,12 @@
  */
 
 import Foundation
-import GoogleUtilities
+
+#if SWIFT_PACKAGE
+  internal import GoogleUtilities_Environment
+#else
+  internal import GoogleUtilities
+#endif // SWIFT_PACKAGE
 
 /// Utilities for accessing resources in bundles.
 @objc(FIRBundleUtil)
