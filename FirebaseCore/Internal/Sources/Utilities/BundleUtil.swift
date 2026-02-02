@@ -17,9 +17,9 @@
 import Foundation
 
 #if canImport(GoogleUtilities_Environment)
-  import GoogleUtilities_Environment
+  internal import GoogleUtilities_Environment
 #elseif canImport(GoogleUtilities)
-  import GoogleUtilities
+  internal import GoogleUtilities
 #endif
 
 /// Utilities for accessing resources in bundles.
