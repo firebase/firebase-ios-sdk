@@ -17,7 +17,13 @@
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
+#if __has_include(<FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>)
 #import <FirebaseCoreInternal/FirebaseCoreInternal-Swift.h>
+#elif __has_include("FirebaseCoreInternal-Swift.h")
+#import "FirebaseCoreInternal-Swift.h"
+#else
+// Fallback or error if neither is found.
+#endif
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";

@@ -16,11 +16,11 @@
 
 import Foundation
 
-#if SWIFT_PACKAGE
-internal import GoogleUtilities_Environment
-#else
-internal import GoogleUtilities
-#endif // SWIFT_PACKAGE
+#if canImport(GoogleUtilities_Environment)
+  import GoogleUtilities_Environment
+#elseif canImport(GoogleUtilities)
+  import GoogleUtilities
+#endif
 
 /// Utilities for accessing resources in bundles.
 @objc(FIRBundleUtil)
