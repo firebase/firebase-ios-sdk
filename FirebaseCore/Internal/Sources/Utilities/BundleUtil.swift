@@ -20,7 +20,6 @@ import GoogleUtilities
 /// Utilities for accessing resources in bundles.
 @objc(FIRBundleUtil)
 public class BundleUtil: NSObject {
-
   /// Finds all relevant bundles, starting with `Bundle.main`, `Bundle(for: BundleUtil.self)`, and optionally an additional bundle.
   /// - Parameter additionalBundle: An optional bundle to include in the search.
   /// - Returns: An array of relevant bundles.
@@ -40,7 +39,9 @@ public class BundleUtil: NSObject {
   ///   - bundles: The bundles to expect, in priority order.
   /// - Returns: The path to the options dictionary, or nil if not found.
   @objc(optionsDictionaryPathWithResourceName:andFileType:inBundles:)
-  public static func optionsDictionaryPath(resourceName: String, andFileType fileType: String, inBundles bundles: [Bundle]) -> String? {
+  public static func optionsDictionaryPath(resourceName: String,
+                                           andFileType fileType: String,
+                                           inBundles bundles: [Bundle]) -> String? {
     for bundle in bundles {
       if let path = bundle.path(forResource: resourceName, ofType: fileType) {
         return path
@@ -72,7 +73,8 @@ public class BundleUtil: NSObject {
   ///   - bundles: The bundles to check against.
   /// - Returns: True if a match is found.
   @objc(hasBundleIdentifierPrefix:inBundles:)
-  public static func hasBundleIdentifierPrefix(_ bundleIdentifier: String, inBundles bundles: [Bundle]) -> Bool {
+  public static func hasBundleIdentifierPrefix(_ bundleIdentifier: String,
+                                               inBundles bundles: [Bundle]) -> Bool {
     for bundle in bundles {
       if bundle.bundleIdentifier == bundleIdentifier {
         return true

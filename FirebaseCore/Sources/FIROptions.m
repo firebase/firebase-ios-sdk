@@ -136,12 +136,12 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 
 // Returns the path of the plist file with a given file name.
 + (NSString *)plistFilePathWithName:(NSString *)fileName {
-  NSArray *bundles =
-      [FIRBundleUtil relevantBundlesIncludingBundle:[NSBundle bundleForClass:[self class]]];
-  NSString *plistFilePath =
-      [FIRBundleUtil optionsDictionaryPathWithResourceName:fileName
-                                               andFileType:kServiceInfoFileType
-                                                 inBundles:bundles];
+  NSArray *bundles = [FIRBundleUtil
+      relevantBundlesIncludingBundle:[NSBundle bundleForClass:[self class]]];
+  NSString *plistFilePath = [FIRBundleUtil
+      optionsDictionaryPathWithResourceName:fileName
+                                andFileType:kServiceInfoFileType
+                                  inBundles:bundles];
   if (plistFilePath == nil) {
     FIRLogError(kFIRLoggerCore, @"I-COR000012", @"Could not locate configuration file: '%@.%@'.",
                 fileName, kServiceInfoFileType);

@@ -513,8 +513,8 @@ static FIRApp *sDefaultApp;
   NSString *expectedBundleID = [self expectedBundleID];
   // The checking is only done when the bundle ID is provided in the serviceInfo dictionary for
   // backward compatibility.
-  if (expectedBundleID != nil && ![FIRBundleUtil hasBundleIdentifierPrefix:expectedBundleID
-                                                                 inBundles:bundles]) {
+  if (expectedBundleID != nil &&
+      ![FIRBundleUtil hasBundleIdentifierPrefix:expectedBundleID inBundles:bundles]) {
     FIRLogError(kFIRLoggerCore, @"I-COR000008",
                 @"The project's Bundle ID is inconsistent with "
                 @"either the Bundle ID in '%@.%@', or the Bundle ID in the options if you are "
