@@ -55,7 +55,7 @@ NSDate *TestDate(int year, int month, int day, int hour, int minute, int second)
   XCTAssertEqualObjects(actual, expected);
 }
 
-- (void)testSO8601String {
+- (void)testISO8601String {
   NSDate *date = TestDate(1912, 4, 14, 23, 40, 0);
   FIRTimestamp *timestamp =
       [[FIRTimestamp alloc] initWithSeconds:(int64_t)date.timeIntervalSince1970
@@ -95,6 +95,28 @@ NSDate *TestDate(int year, int month, int day, int hour, int minute, int second)
     XCTAssertEqual([timestamps[i] compare:timestamps[i + 1]], NSOrderedAscending);
     XCTAssertEqual([timestamps[i + 1] compare:timestamps[i]], NSOrderedDescending);
   }
+}
+
+- (void)testEquality {
+  FIRTimestamp *t1 = [[FIRTimestamp alloc] initWithSeconds:123 nanoseconds:456];
+  FIRTimestamp *t2 = [[FIRTimestamp alloc] initWithSeconds:123 nanoseconds:456];
+  FIRTimestamp *t3 = [[FIRTimestamp alloc] initWithSeconds:123 nanoseconds:457];
+  FIRTimestamp *t4 = [[FIRTimestamp alloc] initWithSeconds:124 nanoseconds:456];
+
+  XCTAssertEqualObjects(t1, t2);
+  XCTAssertNotEqualObjects(t1, t3);
+  XCTAssertNotEqualObjects(t1, t4);
+
+  XCTAssertEqual(t1.hash, t2.hash);
+}
+
+- (void)testTimestampWithDate_NegativeFraction {
+  // -0.5 seconds: -1 second + 0.5 nanoseconds
+  NSDate *date = [NSDate dateWithTimeIntervalSince1970:-0.5];
+  FIRTimestamp *timestamp = [FIRTimestamp timestampWithDate:date];
+
+  XCTAssertEqual(timestamp.seconds, -1);
+  XCTAssertEqual(timestamp.nanoseconds, 500000000);
 }
 
 @end
