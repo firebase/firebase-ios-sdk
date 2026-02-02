@@ -89,4 +89,19 @@ final class ToolTests: XCTestCase {
     }
     """)
   }
+
+  func testEncodeTool_urlContext() throws {
+    let tool = Tool.urlContext()
+
+    let jsonData = try encoder.encode(tool)
+
+    let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(jsonString, """
+    {
+      "urlContext" : {
+
+      }
+    }
+    """)
+  }
 }

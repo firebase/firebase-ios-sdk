@@ -43,6 +43,7 @@ jobs:
     with:
       product: FirebaseCrashlytics
       buildonly_platforms: tvOS, macOS, watchOS
+      timeout_minutes: 20
 
   quickstart:
     uses: ./.github/workflows/_quickstart.yml

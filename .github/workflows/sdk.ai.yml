@@ -96,5 +96,13 @@ jobs:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: xcodebuild -downloadPlatform iOS
     - name: Build Quickstart
       run: scripts/quickstart_build_spm.sh FirebaseAI

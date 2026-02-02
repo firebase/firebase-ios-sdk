@@ -38,28 +38,19 @@ jobs:
       platforms: iOS, tvOS
 
   tests:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-
-# TODO(#12770): Update to macos-14 when tests are updated for Xcode 15.
-    runs-on: macos-15
     strategy:
       matrix:
 # TODO(#8682): Reenable iPad after fixing Xcode 13 test failures.
 #        platform: [iOS, iPad]
         platform: [iOS]
         xcode: [Xcode_16.4]
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Prereqs
-      run: scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
-    - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/build.sh InAppMessaging ${{ matrix.platform }} xcodebuild
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: InAppMessaging
+      platform: ${{ matrix.platform }}
+      method: xcodebuild
+      xcode: ${{ matrix.xcode }}
+      setup_command: scripts/install_prereqs.sh InAppMessaging ${{ matrix.platform }} xcodebuild
 
   fiam-cron-only:
     needs: pod_lib_lint

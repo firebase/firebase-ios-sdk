@@ -54,36 +54,19 @@ jobs:
 
   # TODO(#12205) Update the build.sh script for this job from "test" instead of "build"
   messaging-integration-tests:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-15
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - name: Install simulators in case they are missing.
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform iOS
-    - name: Configure test keychain
-      run: scripts/configure_test_keychain.sh
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Install xcpretty
-      run: gem install xcpretty
-    - name: Install Secret GoogleService-Info.plist
-      run: |
-        mkdir FirebaseMessaging/Tests/IntegrationTests/Resources
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: Messaging
+      platform: all
+      method: xcodebuild
+      setup_command: |
+        scripts/configure_test_keychain.sh
+        gem install xcpretty
+        mkdir -p FirebaseMessaging/Tests/IntegrationTests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
           FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
-    - name: BuildAndTest
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging all)
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart:
     uses: ./.github/workflows/_quickstart.yml
@@ -105,11 +88,6 @@ jobs:
       flags: '[ "--use-static-frameworks" ]'
 
   sample-build-test:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-    runs-on: macos-15
     strategy:
       matrix:
         include:
@@ -119,32 +97,15 @@ jobs:
             platform: iOS
           - target: MessagingSampleStandaloneWatchApp
             platform: watchOS
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Install Secret GoogleService-Info.plist
-      run: |
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.target }}
+      platform: ${{ matrix.platform }}
+      method: xcodebuild
+      setup_command: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
           FirebaseMessaging/Apps/Shared/GoogleService-Info.plist "$plist_secret"
-    - name: Prereqs
-      run: scripts/install_prereqs.sh ${{ matrix.target }} ${{ matrix.platform }}
-    - name: Install simulators in case they are missing.
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.platform }}
-    - name: Build
-      run: ([ -z $plist_secret ] || scripts/build.sh ${{ matrix.target }} ${{ matrix.platform }})
-    - name: Upload xcodebuild logs
-      if: failure()
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-      with:
-        name: xcodebuild-logs-${{ matrix.target }}
-        path: xcodebuild-*.log
+        scripts/install_prereqs.sh ${{ matrix.target }} ${{ matrix.platform }}
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 

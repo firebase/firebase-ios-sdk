@@ -2098,6 +2098,52 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results.count, 5)
   }
 
+  func testRegexFind() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("title").regexFind("^\\w+").as("firstWordInTitle"),
+      ])
+      .sort([Field("firstWordInTitle").ascending()])
+      .limit(3)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["firstWordInTitle": "1984"],
+      ["firstWordInTitle": "Crime"],
+      ["firstWordInTitle": "Dune"],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testRegexFindAll() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("title").regexFindAll("\\w+").as("wordsInTitle"),
+      ])
+      .sort([Field("wordsInTitle").ascending()])
+      .limit(3)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["wordsInTitle": ["1984"]],
+      ["wordsInTitle": ["Crime", "and", "Punishment"]],
+      ["wordsInTitle": ["Dune"]],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testRegexMatches() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore

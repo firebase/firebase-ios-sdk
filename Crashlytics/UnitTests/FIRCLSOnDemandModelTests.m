@@ -62,7 +62,8 @@
 
   FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                       appIDModel:appIDModel];
+                                                       appIDModel:appIDModel
+                                                          appInfo:[[NSDictionary alloc] init]];
   _onDemandModel = [[FIRCLSMockOnDemandModel alloc] initWithFIRCLSSettings:_mockSettings
                                                                fileManager:_fileManager
                                                                 sleepBlock:^(int delay){

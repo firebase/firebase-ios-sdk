@@ -110,27 +110,37 @@ on:
         required: false
         default: ""
 
-      # The timeout (in minutes) for the linting to complete. Defaults to 15.
+      # The timeout (in minutes) for the linting to complete. Defaults to 20.
       timeout_minutes:
         type: number
         required: false
-        default: 15
+        default: 20
 
 jobs:
   pod-lib-lint:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
     if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
     strategy:
+      fail-fast: false
       matrix:
-        os: [macos-15]
-        xcode: [Xcode_16.4]
+        os: [macos-15, macos-26]
+        xcode: [Xcode_16.4, Xcode_26.2]
         platform: [iOS, tvOS, macOS, watchOS]
+        exclude:
+          - os: macos-15
+            xcode: Xcode_26.2
+          - os: macos-26
+            xcode: Xcode_16.4
         include:
           - os: macos-14
             xcode: Xcode_16.2
             platform: iOS
     runs-on: ${{ matrix.os }}
     steps:
+    - name: Skip, if applicable.
+      # Skip matrix combinations that weren't requested, while preserving the specific macos-14 / iOS inclusion.
+      if: contains(join(inputs.platforms), matrix.platform) == false && matrix.os != 'macos-14'
+      run: exit 0
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
@@ -142,6 +152,15 @@ jobs:
         command: scripts/setup_bundler.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Install simulators in case they are missing.
+      if: matrix.platform != 'macOS'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        continue_on_error: true
+        command: xcodebuild -downloadPlatform ${{ matrix.platform }}
     - name: Set conditional environment variable, if needed.
       if: inputs.product == 'FirebaseAuth'
       run: echo "FIREBASE_CI=true" >> $GITHUB_ENV

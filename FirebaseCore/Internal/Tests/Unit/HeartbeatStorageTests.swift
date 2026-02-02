@@ -64,7 +64,11 @@ class HeartbeatStorageTests: XCTestCase {
   func testCachedInstancesCannotBeRetainedWeakly() {
     // Given
     var strongHeartbeatStorage: HeartbeatStorage? = .getInstance(id: "sparky")
-    weak var weakHeartbeatStorage: HeartbeatStorage? = .getInstance(id: "sparky")
+    #if swift(>=6.2)
+      weak let weakHeartbeatStorage: HeartbeatStorage? = .getInstance(id: "sparky")
+    #else
+      weak var weakHeartbeatStorage: HeartbeatStorage? = .getInstance(id: "sparky")
+    #endif
     XCTAssert(
       strongHeartbeatStorage === weakHeartbeatStorage,
       "Instances should reference the same object."

@@ -94,7 +94,8 @@
       [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
   self.appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                           appIDModel:self.appIDModel];
+                                                           appIDModel:self.appIDModel
+                                                              appInfo:[[NSDictionary alloc] init]];
 
   // Allow nil values only in tests
 #pragma clang diagnostic push
