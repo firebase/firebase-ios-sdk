@@ -394,7 +394,7 @@ jobs:
           '--use-static-frameworks',
           '',
         ]
-        os: [macos-15, macos-14]
+        os: [macos-15]
         # Skip matrix cells covered by pod-lib-lint job.
         exclude:
           - os: macos-15
