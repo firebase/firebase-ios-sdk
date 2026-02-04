@@ -37,7 +37,7 @@ extension InstallationsProtocol {
   }
 
   // TODO(ncooke3): Convert o async await ahead of Firebase 12.
-
+  
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
     let authTokenComplete = UnfairLock<String>("")
     let installationComplete = UnfairLock<String?>(nil)
@@ -60,16 +60,8 @@ extension InstallationsProtocol {
       }
       workingGroup.leave()
     }
-
-    // adding timeout for 10 seconds
-    let result = workingGroup
-      .wait(timeout: .now() + DispatchTimeInterval.seconds(installationsWaitTimeInSecond))
-
-    switch result {
-    case .timedOut:
-      completion(.failure(FirebaseSessionsError.SessionInstallationsTimeOutError))
-      return
-    default:
+    
+    workingGroup.notify(queue: .main) {
       if let installationComplete = installationComplete.value() {
         completion(.success((installationComplete, authTokenComplete.value())))
       } else if let errorComplete = errorComplete.value() {
