@@ -380,10 +380,7 @@ case "$product-$platform-$method" in
     ;;
 
   Firestore-*-xcodebuild)
-      "${firestore_emulator}" start
-      trap '"${firestore_emulator}" stop' ERR EXIT
-
-      # Memory intensive, so we limit jobs
+      # Memory intensive, so we limit jobs.
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \
@@ -393,6 +390,9 @@ case "$product-$platform-$method" in
       ;;
 
   Firestore-*-xcodetest)
+      "${firestore_emulator}" start
+      trap '"${firestore_emulator}" stop' ERR EXIT
+
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_IntegrationTests_$platform" \
