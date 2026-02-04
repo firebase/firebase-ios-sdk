@@ -61,9 +61,9 @@ class SessionCoordinatorTests: XCTestCase {
     coordinator.attemptLoggingSessionStart(event: event) { result in
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 10.0)
-    
+
     // Make sure we've set the Installation ID
     assertEqualProtoString(
       event.proto.session_data.firebase_installation_id,
@@ -86,7 +86,7 @@ class SessionCoordinatorTests: XCTestCase {
     // Start success so it must be set to false
     let resultSuccess = SendableBox(value: true)
     let expectation = XCTestExpectation(description: "Attempt Logging Session")
-    
+
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
@@ -94,12 +94,12 @@ class SessionCoordinatorTests: XCTestCase {
       case .failure:
         resultSuccess.value = false
       }
-      
+
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 10.0)
-    
+
     XCTAssertTrue(installations.authTokenFinished)
     XCTAssertTrue(installations.installationIdFinished)
 
@@ -123,7 +123,7 @@ class SessionCoordinatorTests: XCTestCase {
     // Start success so it must be set to false
     let resultSuccess = SendableBox(value: true)
     let expectation = XCTestExpectation(description: "Attempt Logging Session")
-    
+
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
@@ -133,7 +133,7 @@ class SessionCoordinatorTests: XCTestCase {
       }
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 10.0)
 
     XCTAssertTrue(installations.authTokenFinished)
@@ -155,7 +155,7 @@ class SessionCoordinatorTests: XCTestCase {
     // Start success so it must be set to false
     let resultSuccess = SendableBox(value: true)
     let expectation = XCTestExpectation(description: "Attempt Logging Session")
-    
+
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
@@ -168,7 +168,7 @@ class SessionCoordinatorTests: XCTestCase {
       }
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 10.0)
 
     XCTAssertTrue(installations.authTokenFinished)
