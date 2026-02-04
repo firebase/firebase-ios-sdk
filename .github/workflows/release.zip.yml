@@ -22,7 +22,7 @@ env:
   # Firebase's minimum supported Xcode. This is what the binary artifacts are
   # built with. Changing this version must only be done in alignment with
   # updates to the minimum supported Xcode supported for App Store submissions.
-  MIN_XCODE: Xcode_16.2 # WARNING: Read above comment.
+  MIN_XCODE: Xcode_26.2 # WARNING: Read above comment.
 
 on:
   pull_request:
@@ -82,7 +82,7 @@ jobs:
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       needs.should_package.outputs.should_package == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
@@ -111,7 +111,7 @@ jobs:
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       needs.should_package.outputs.should_package == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
@@ -127,7 +127,7 @@ jobs:
     strategy:
       matrix:
         linking_type: [static, dynamic]
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
     - name: Xcode
@@ -178,7 +178,7 @@ jobs:
     if: ${{ !cancelled() }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Xcode
         run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
