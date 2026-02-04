@@ -60,7 +60,7 @@ extension InstallationsProtocol {
       workingGroup.leave()
     }
     
-    workingGroup.notify(queue: .main) {
+    workingGroup.notify(queue: .global(qos: .utility)) {
       if let installationComplete = installationComplete.value() {
         completion(.success((installationComplete, authTokenComplete.value())))
       } else if let errorComplete = errorComplete.value() {
