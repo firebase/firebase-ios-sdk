@@ -37,7 +37,6 @@ extension InstallationsProtocol {
   }
 
   // TODO(ncooke3): Convert o async await ahead of Firebase 12.
-  
   func installationID(completion: @escaping (Result<(String, String), Error>) -> Void) {
     let authTokenComplete = UnfairLock<String>("")
     let installationComplete = UnfairLock<String?>(nil)

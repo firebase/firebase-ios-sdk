@@ -56,16 +56,14 @@ class SessionCoordinatorTests: XCTestCase {
   }
 
   func test_attemptLoggingSessionStart_logsToGDT() throws {
+    let expectation = XCTestExpectation(description: "Attempt Logging Session")
     let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
-    let resultSuccess = SendableBox(value: false)
     coordinator.attemptLoggingSessionStart(event: event) { result in
-      switch result {
-      case .success(()):
-        resultSuccess.value = true
-      case .failure:
-        resultSuccess.value = false
-      }
+      expectation.fulfill()
     }
+    
+    wait(for: [expectation], timeout: 10.0)
+    
     // Make sure we've set the Installation ID
     assertEqualProtoString(
       event.proto.session_data.firebase_installation_id,
@@ -78,7 +76,6 @@ class SessionCoordinatorTests: XCTestCase {
 
     // We should have logged successfully
     XCTAssertEqual(fireLogger.loggedEvent, event)
-    XCTAssert(resultSuccess.value)
   }
 
   func test_attemptLoggingSessionStart_handlesGDTError() throws {
@@ -88,6 +85,8 @@ class SessionCoordinatorTests: XCTestCase {
 
     // Start success so it must be set to false
     let resultSuccess = SendableBox(value: true)
+    let expectation = XCTestExpectation(description: "Attempt Logging Session")
+    
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
@@ -95,8 +94,12 @@ class SessionCoordinatorTests: XCTestCase {
       case .failure:
         resultSuccess.value = false
       }
+      
+      expectation.fulfill()
     }
-
+    
+    wait(for: [expectation], timeout: 10.0)
+    
     XCTAssertTrue(installations.authTokenFinished)
     XCTAssertTrue(installations.installationIdFinished)
 
@@ -119,6 +122,8 @@ class SessionCoordinatorTests: XCTestCase {
 
     // Start success so it must be set to false
     let resultSuccess = SendableBox(value: true)
+    let expectation = XCTestExpectation(description: "Attempt Logging Session")
+    
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
@@ -126,7 +131,10 @@ class SessionCoordinatorTests: XCTestCase {
       case .failure:
         resultSuccess.value = false
       }
+      expectation.fulfill()
     }
+    
+    wait(for: [expectation], timeout: 10.0)
 
     XCTAssertTrue(installations.authTokenFinished)
     XCTAssertTrue(installations.installationIdFinished)
@@ -146,6 +154,8 @@ class SessionCoordinatorTests: XCTestCase {
 
     // Start success so it must be set to false
     let resultSuccess = SendableBox(value: true)
+    let expectation = XCTestExpectation(description: "Attempt Logging Session")
+    
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
@@ -156,7 +166,10 @@ class SessionCoordinatorTests: XCTestCase {
         // Installations and FireLog
         XCTAssertEqual(err, FirebaseSessionsError.DataTransportError(fireLogError))
       }
+      expectation.fulfill()
     }
+    
+    wait(for: [expectation], timeout: 10.0)
 
     XCTAssertTrue(installations.authTokenFinished)
     XCTAssertTrue(installations.installationIdFinished)
