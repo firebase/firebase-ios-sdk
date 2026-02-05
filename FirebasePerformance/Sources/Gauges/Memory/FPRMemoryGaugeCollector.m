@@ -42,10 +42,13 @@ FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   malloc_statistics_t stats;
   malloc_zone_statistics(nil, &stats);
   uint64_t usedBytes = stats.size_in_use;
+  uint64_t totalHeapBytes = stats.size_allocated;
+  uint64_t freeInsideHeap = totalHeapBytes - usedBytes;
 
-  FPRMemoryGaugeData *gaugeData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
-                                                                            heapUsed:usedBytes
-                                                                       heapAvailable:0];
+  FPRMemoryGaugeData *gaugeData =
+      [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
+                                                heapUsed:usedBytes
+                                           heapAvailable:freeInsideHeap];
   return gaugeData;
 }
 
