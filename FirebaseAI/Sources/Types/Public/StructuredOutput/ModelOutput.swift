@@ -13,6 +13,10 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  public import protocol FoundationModels.ConvertibleToGeneratedContent
+  public import struct FoundationModels.GeneratedContent
+#endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGenerable {
@@ -173,3 +177,30 @@ public extension ModelOutput {
     }
   }
 }
+
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension ModelOutput: ConvertibleToGeneratedContent {
+    public var generatedContent: GeneratedContent {
+      switch kind {
+      case .null:
+        return GeneratedContent(kind: .null)
+      case let .bool(value):
+        return GeneratedContent(kind: .bool(value))
+      case let .number(value):
+        return GeneratedContent(kind: .number(value))
+      case let .string(value):
+        return GeneratedContent(kind: .string(value))
+      case let .array(values):
+        return GeneratedContent(kind: .array(values.map { $0.generatedContent }))
+      case let .structure(properties: properties, orderedKeys: orderedKeys):
+        return GeneratedContent(kind: .structure(
+          properties: properties.mapValues { $0.generatedContent },
+          orderedKeys: orderedKeys
+        ))
+      }
+    }
+  }
+#endif // canImport(FoundationModels)
