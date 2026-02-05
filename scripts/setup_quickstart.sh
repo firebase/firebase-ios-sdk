@@ -176,7 +176,20 @@ update_spm_dependency() {
     *)
       # For PR testing, point to the current commit.
       local current_revision
-      current_revision=$(git -C "$root_dir" rev-parse HEAD)
+
+      # Detect if we are in a PR or a regular push
+      if [ "${GITHUB_EVENT_NAME:-}" == "pull_request" ]; then
+        if ! command -v jq &> /dev/null; then
+          echo "Error: jq is required for PR testing." >&2
+          exit 1
+        fi
+        # In a PR, read the real commit SHA from the event payload
+        # This guarantees a hash that exists on the remote server
+        current_revision=$(jq -er .pull_request.head.sha "${GITHUB_EVENT_PATH}")
+      else
+        # In a Push (or local run), HEAD is safe to use
+        current_revision=$(git -C "$root_dir" rev-parse HEAD)
+      fi
       echo "Setting SPM dependency to current revision: ${current_revision}"
       "$scripts_dir/update_firebase_spm_dependency.sh" \
         "$absolute_project_file" --revision "$current_revision"

@@ -19,6 +19,10 @@ env:
   # When specified, build jobs will be skipped and the specified
   # run's artifacts will be used for testing.
   PINNED_RUN_ID: ''
+  # Firebase's minimum supported Xcode. This is what the binary artifacts are
+  # built with. Changing this version must only be done in alignment with
+  # updates to the minimum supported Xcode supported for App Store submissions.
+  MIN_XCODE: Xcode_16.2 # WARNING: Read above comment.
 
 on:
   pull_request:
@@ -81,8 +85,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - name: Xcode 16.2
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -110,8 +114,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - name: Xcode 16.2
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
     - name: Build
       run: |
         cd ReleaseTooling
@@ -126,8 +130,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - name: Xcode 16.2
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -176,8 +180,8 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-14
     steps:
-      - name: Xcode 16.2
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Get framework dir
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0

@@ -602,6 +602,10 @@ std::shared_ptr<api::Expr> ToPipelineBooleanExpr(const Filter& filter) {
     comparison_expr = std::make_shared<api::FunctionExpr>(
         func_name,
         std::vector<std::shared_ptr<api::Expr>>{api_field, api_constant});
+    if (op == FieldFilter::Operator::NotIn ||
+        op == FieldFilter::Operator::NotEqual) {
+      return comparison_expr;
+    }
     return std::make_shared<api::FunctionExpr>(
         "and",
         std::vector<std::shared_ptr<api::Expr>>{exists_expr, comparison_expr});
@@ -699,27 +703,33 @@ std::vector<std::shared_ptr<api::EvaluableStage>> ToPipelineStages(
   }
 
   // 3. OrderBy Existence Checks
-  const auto& query_order_bys = query.normalized_order_bys();
-  if (!query_order_bys.empty()) {
+  const auto& query_explicit_order_bys = query.explicit_order_bys();
+  if (!query_explicit_order_bys.empty()) {
     std::vector<std::shared_ptr<api::Expr>> exists_exprs;
-    exists_exprs.reserve(query_order_bys.size());
-    for (const auto& core_order_by : query_order_bys) {
+    exists_exprs.reserve(query_explicit_order_bys.size());
+    for (const auto& core_order_by : query.explicit_order_bys()) {
       exists_exprs.push_back(std::make_shared<api::FunctionExpr>(
           "exists", std::vector<std::shared_ptr<api::Expr>>{
                         std::make_shared<api::Field>(core_order_by.field())}));
     }
-    if (exists_exprs.size() == 1) {
-      stages.push_back(std::make_shared<api::Where>(exists_exprs[0]));
-    } else {
-      stages.push_back(std::make_shared<api::Where>(
-          std::make_shared<api::FunctionExpr>("and", exists_exprs)));
+
+    if (!exists_exprs.empty()) {
+      std::shared_ptr<api::Expr> final_exists_expr;
+      if (exists_exprs.size() == 1) {
+        final_exists_expr = exists_exprs[0];
+      } else {
+        final_exists_expr =
+            std::make_shared<api::FunctionExpr>("and", exists_exprs);
+      }
+      stages.push_back(std::make_shared<api::Where>(final_exists_expr));
     }
   }
 
   // 4. Orderings, Cursors, Limit
   std::vector<api::Ordering> api_orderings;
-  api_orderings.reserve(query_order_bys.size());
-  for (const auto& core_order_by : query_order_bys) {
+  const auto& query_normalized_order_bys = query.normalized_order_bys();
+  api_orderings.reserve(query_normalized_order_bys.size());
+  for (const auto& core_order_by : query_normalized_order_bys) {
     api_orderings.emplace_back(
         std::make_shared<api::Field>(core_order_by.field()),
         core_order_by.direction() == Direction::Ascending
