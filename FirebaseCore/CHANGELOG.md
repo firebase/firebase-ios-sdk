@@ -1,3 +1,7 @@
+# Unreleased
+- [changed] Firebase now requires at least Xcode 26.2. See
+  https://developer.apple.com/news/?id=ueeok6yw for more info.
+
 # Firebase 12.7.0
 - [fixed] [CocoaPods] Enable module map generation for Firebase pods. This
   resolves build failures when using static linking
