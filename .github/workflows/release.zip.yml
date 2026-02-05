@@ -264,8 +264,8 @@ jobs:
           - product: "Database"
             plist_src: "scripts/gha-encrypted/qs-database.plist.gpg"
             plist_dst: "quickstart-ios/database/GoogleService-Info.plist"
-            os: "macos-14" # Override default
-            xcode: "Xcode_16.2" # Override default
+            # os: "macos-14" # Override default
+            # xcode: "Xcode_16.2" # Override default
             command: |
               SAMPLE="Database" TARGET="DatabaseExample" NON_FIREBASE_SDKS="FirebaseDatabaseUI" \
                 scripts/zip/setup_quickstart_framework.sh \
