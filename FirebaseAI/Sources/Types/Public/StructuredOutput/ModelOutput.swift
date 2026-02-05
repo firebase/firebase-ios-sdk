@@ -14,6 +14,7 @@
 
 import Foundation
 #if canImport(FoundationModels)
+  public import protocol FoundationModels.ConvertibleFromGeneratedContent
   public import protocol FoundationModels.ConvertibleToGeneratedContent
   public import struct FoundationModels.GeneratedContent
 #endif // canImport(FoundationModels)
@@ -28,7 +29,7 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
 
   public var id: ResponseID?
 
-  init(kind: Kind) {
+  init(kind: Kind, id: ResponseID? = nil) {
     self.kind = kind
   }
 
@@ -200,6 +201,38 @@ public extension ModelOutput {
           properties: properties.mapValues { $0.generatedContent },
           orderedKeys: orderedKeys
         ))
+      }
+    }
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension ModelOutput: ConvertibleFromGeneratedContent {
+    public init(_ content: GeneratedContent) throws {
+      let responseID = content.id.map { ResponseID(generationID: $0) }
+
+      switch content.kind {
+      case .null:
+        self.init(kind: .null, id: responseID)
+      case let .bool(value):
+        self.init(kind: .bool(value), id: responseID)
+      case let .number(value):
+        self.init(kind: .number(value), id: responseID)
+      case let .string(value):
+        self.init(kind: .string(value), id: responseID)
+      case let .array(values):
+        try self.init(kind: .array(values.map { try ModelOutput($0) }), id: responseID)
+      case let .structure(properties: properties, orderedKeys: orderedKeys):
+        try self.init(
+          kind: .structure(
+            properties: properties.mapValues { try ModelOutput($0) }, orderedKeys: orderedKeys
+          ),
+          id: responseID
+        )
+      @unknown default:
+        assertionFailure("Unknown `FoundationModels.GeneratedContent` kind: \(content.kind)")
+        self.init(kind: .null, id: responseID)
       }
     }
   }
