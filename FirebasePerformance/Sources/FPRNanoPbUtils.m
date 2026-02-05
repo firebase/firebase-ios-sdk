@@ -363,6 +363,9 @@ firebase_perf_v1_GaugeMetric FPRGetGaugeMetric(NSArray *gaugeData, NSString *ses
       memoryReadings[memoryReadingsCount].used_app_heap_memory_kb =
           (int32_t)BYTES_TO_KB(gaugeData.heapUsed);
       memoryReadings[memoryReadingsCount].has_used_app_heap_memory_kb = true;
+      memoryReadings[memoryReadingsCount].free_app_heap_memory_kb =
+          (int32_t)BYTES_TO_KB(gaugeData.heapAvailable);
+      memoryReadings[memoryReadingsCount].has_free_app_heap_memory_kb = true;
       memoryReadingsCount++;
     }
   }];
