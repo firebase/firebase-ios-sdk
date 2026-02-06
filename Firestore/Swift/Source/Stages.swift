@@ -390,3 +390,67 @@ class RawStage: Stage {
     bridge = RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
 }
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+public enum DeleteReturn: String, Sendable {
+  case empty = "EMPTY"
+  case documentID = "DOCUMENT_ID"
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+public enum UpsertReturn: String, Sendable {
+  case empty = "EMPTY"
+  case documentID = "DOCUMENT_ID"
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+public enum InsertReturn: String, Sendable {
+  case empty = "EMPTY"
+  case documentID = "DOCUMENT_ID"
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+public enum ConflictResolution: String, Sendable {
+  case overwrite = "OVERWRITE"
+  case merge = "MERGE"
+  case fail = "FAIL"
+  case keep = "KEEP"
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class DeleteStage: RawStage {
+  init(returns: DeleteReturn?, transactional: Bool?, rawOptions: [String: Sendable]? = nil) {
+    var combinedOptions: [String: Sendable] = rawOptions ?? [:]
+    if let returns = returns { combinedOptions["returns"] = returns.rawValue }
+    if let transactional = transactional { combinedOptions["transactional"] = transactional }
+    super.init(name: "delete", params: [], options: combinedOptions.isEmpty ? nil : combinedOptions)
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class UpsertStage: RawStage {
+  init(collection: CollectionReference?, returns: UpsertReturn?, transformations: [Selectable]?,
+       conflictResolution: ConflictResolution?, transactional: Bool?,
+       rawOptions: [String: Sendable]? = nil) {
+    var combinedOptions: [String: Sendable] = rawOptions ?? [:]
+    if let returns = returns { combinedOptions["returns"] = returns.rawValue }
+    if let conflictResolution = conflictResolution {
+      combinedOptions["conflictResolution"] = conflictResolution.rawValue
+    }
+    if let transactional = transactional { combinedOptions["transactional"] = transactional }
+    // Note: prototype mocks bridge behavior for collections/transformations at this level
+    super.init(name: "upsert", params: [], options: combinedOptions.isEmpty ? nil : combinedOptions)
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class InsertStage: RawStage {
+  init(collection: CollectionReference, returns: InsertReturn?, transformations: [Selectable]?,
+       transactional: Bool?, rawOptions: [String: Sendable]? = nil) {
+    var combinedOptions: [String: Sendable] = rawOptions ?? [:]
+    if let returns = returns { combinedOptions["returns"] = returns.rawValue }
+    if let transactional = transactional { combinedOptions["transactional"] = transactional }
+    // Note: prototype mocks bridge behavior for collections/transformations at this level
+    super.init(name: "insert", params: [], options: combinedOptions.isEmpty ? nil : combinedOptions)
+  }
+}

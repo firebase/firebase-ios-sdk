@@ -3992,4 +3992,63 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     snapshot = try await pipeline.execute()
     TestHelper.compare(snapshot: snapshot, expectedCount: 0)
   }
+
+  func testDmlDelete() async throws {
+    let collRef = db.collection("testing_dml")
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .delete(returns: .documentID, transactional: true)
+
+    // Demonstrate using an undefined option 'batch_size' via rawOptions
+    let pipelineWithBatchSize = db.pipeline()
+      .collection(collRef.path)
+      .delete(rawOptions: ["batch_size": 50])
+
+    _ = try await pipeline.execute()
+    _ = try await pipelineWithBatchSize.execute()
+  }
+
+  func testDmlUpsert() async throws {
+    let collRef = db.collection("testing_dml")
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .upsert(
+        collection: collRef,
+        returns: .documentID,
+        transformations: [Field("a").add(1).as("b")],
+        conflictResolution: .merge,
+        transactional: false
+      )
+
+    // Demonstrate using an undefined option 'batch_size' via rawOptions
+    let pipelineWithBatchSize = db.pipeline()
+      .collection(collRef.path)
+      .upsert(rawOptions: ["batch_size": 50])
+
+    _ = try await pipeline.execute()
+    _ = try await pipelineWithBatchSize.execute()
+  }
+
+  func testDmlInsert() async throws {
+    let collRef = db.collection("testing_dml")
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .insert(
+        collection: collRef,
+        returns: .documentID,
+        transformations: [Field("a").add(1).as("b")],
+        transactional: true
+      )
+
+    // Demonstrate using an undefined option 'batch_size' via rawOptions
+    let pipelineWithBatchSize = db.pipeline()
+      .collection(collRef.path)
+      .insert(
+        collection: collRef,
+        rawOptions: ["batch_size": 50]
+      )
+
+    _ = try await pipeline.execute()
+    _ = try await pipelineWithBatchSize.execute()
+  }
 }
