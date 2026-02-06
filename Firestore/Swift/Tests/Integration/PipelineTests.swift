@@ -2068,11 +2068,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testLike() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Emulator does not support this function."
-    )
-
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2091,11 +2086,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testRegexContains() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Emulator does not support this function."
-    )
-
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2108,12 +2098,53 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results.count, 5)
   }
 
-  func testRegexMatches() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Emulator does not support this function."
-    )
+  func testRegexFind() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
 
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("title").regexFind("^\\w+").as("firstWordInTitle"),
+      ])
+      .sort([Field("firstWordInTitle").ascending()])
+      .limit(3)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["firstWordInTitle": "1984"],
+      ["firstWordInTitle": "Crime"],
+      ["firstWordInTitle": "Dune"],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testRegexFindAll() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([
+        Field("title").regexFindAll("\\w+").as("wordsInTitle"),
+      ])
+      .sort([Field("wordsInTitle").ascending()])
+      .limit(3)
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["wordsInTitle": ["1984"]],
+      ["wordsInTitle": ["Crime", "and", "Punishment"]],
+      ["wordsInTitle": ["Dune"]],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testRegexMatches() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -2394,11 +2425,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testExpOverflow() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: [
       "doc1": ["value": 1000],
     ])
@@ -2504,11 +2530,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testChecks() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -3249,11 +3270,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTimestampTruncWorks() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Emulator does not support this function."
-    )
-
     let db = firestore()
     let randomCol = collectionRef()
     try await randomCol.document("dummyDoc").setData(["field": "value"])
@@ -3716,11 +3732,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testTypeWorks() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collRef = collectionRef(withDocuments: [
       "doc1": [
         "a": 1,

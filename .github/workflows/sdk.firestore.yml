@@ -160,100 +160,6 @@ jobs:
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
-
-  cmake-prod-db:
-    needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-
-    strategy:
-      matrix:
-        os: [macos-14]
-        databaseId: [(default), test-db]
-
-    env:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      MINT_PATH: ${{ github.workspace }}/mint
-      TARGET_DATABASE_ID: ${{ matrix.databaseId }}
-      USE_LATEST_CMAKE: false
-
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-    - name: Prepare ccache
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-      with:
-        path: ${{ runner.temp }}/ccache
-        key: firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-${{ github.sha }}
-        restore-keys: |
-          firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-
-
-    - name: Cache Mint packages
-      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-      with:
-        path: ${{ env.MINT_PATH }}
-        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-        restore-keys: ${{ runner.os }}-mint-
-
-    - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
-      with:
-        python-version: '3.11'
-
-    - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
-        Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
-
-    - name: Install Google Service Account key
-      run: |
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
-        google-service-account.json "$plist_secret"
-
-    # create composite indexes with Terraform
-    - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # v2
-    - name: Terraform Init
-      run: |
-        cd Firestore
-        terraform init
-    - name: Terraform Apply
-      run: |
-        cd Firestore
-
-        # Define a temporary file, redirect both stdout and stderr to it
-        output_file=$(mktemp)
-        if ! terraform apply -var-file=../google-service-account.json -auto-approve > "$output_file" 2>&1 ; then
-          cat "$output_file"
-          if cat "$output_file" | grep -q "index already exists"; then
-            echo "==================================================================================="
-            echo "Terraform apply failed due to index already exists; We can safely ignore this error."
-            echo "==================================================================================="
-          fi
-          exit 1
-        fi
-        rm -f "$output_file"
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: ../google-service-account.json
-      continue-on-error: true
-
-    - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
-      with:
-        cmake-version: '3.31.1'
-
-    - name: Setup build
-      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
-
-    - name: Build and test
-      run: |
-        export CCACHE_DIR=${{ runner.temp }}/ccache
-        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
-
-
   sanitizers-mac:
     needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
@@ -352,7 +258,7 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
-  xcodebuild:
+  xcodetest_prod:
     needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
@@ -363,6 +269,63 @@ jobs:
     strategy:
       matrix:
         target: [iOS, macOS, tvOS]
+        scheme: [Firestore, FirestoreEnterprise]
+
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+
+      - name: Install Secret GoogleService-Info.plist
+        run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
+          Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+
+      - name: Install simulators in case they are missing.
+        if: matrix.target != 'macOS'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 5
+          retry_wait_seconds: 120
+          command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+
+      # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
+      - name: Setup build
+        run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+
+      - name: Build
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 60
+          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+
+      - name: Test
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          retry_wait_seconds: 120
+          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+
+  xcodetest_emulator:
+    needs: check
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request')
+    runs-on: macos-15
+
+    strategy:
+      matrix:
+        target: [iOS, macOS, tvOS]
+        # Skip the FirestoreEnterprise test against emulator since emulator is under development.
+        scheme: [Firestore]
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -372,12 +335,32 @@ jobs:
     - name: Select Xcode
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
 
+    - name: Install simulators in case they are missing.
+      if: matrix.target != 'macOS'
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
+
     - name: Setup build
+      # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
-    - name: Build and test
-      run: |
-        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+    - name: Build
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 120
+        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+
+    - name: Test
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 120
+        max_attempts: 3
+        retry_wait_seconds: 120
+        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   pod_lib_lint:
     needs: check
@@ -411,7 +394,7 @@ jobs:
           '--use-static-frameworks',
           '',
         ]
-        os: [macos-15, macos-14]
+        os: [macos-15]
         # Skip matrix cells covered by pod-lib-lint job.
         exclude:
           - os: macos-15
@@ -508,22 +491,21 @@ jobs:
       platforms: iOS
       buildonly_platforms: iOS
 
-  # TODO: Re-enable either in or after #11706.
-  # spm-source-cron:
-  #   # Don't run on private repo.
-  #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-  #   runs-on: macos-14
-  #   strategy:
-  #     matrix:
-  #       target: [tvOS, macOS, catalyst]
-  #   env:
-  #     FIREBASE_SOURCE_FIRESTORE: 1
-  #   steps:
-  #   - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-  #   - name: Initialize xcodebuild
-  #     run: scripts/setup_spm_tests.sh
-  #   - name: Build Test - Binary
-  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+  spm-source-cron:
+     # Don't run on private repo.
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-14
+    strategy:
+      matrix:
+        target: [tvOS, macOS, catalyst]
+    env:
+      FIREBASE_SOURCE_FIRESTORE: 1
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Build Test - Binary
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary-cron:
     # Don't run on private repo.
@@ -546,7 +528,15 @@ jobs:
   check-required-tests:
     runs-on: ubuntu-latest
     name: Check all required Firestore tests results
-    needs: [cmake, cmake-prod-db, xcodebuild, spm-source, spm-binary]
+    needs:
+      - cmake
+      - xcodetest_emulator
+      - xcodetest_prod
+      - spm-source
+      - spm-binary
+      - sanitizers-mac
+      - sanitizers-ubuntu
+      - pod_lib_lint
     steps:
       - name: Check test matrix
         if: needs.*.result == 'failure'
