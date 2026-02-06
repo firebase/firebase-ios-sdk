@@ -72,15 +72,63 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
   }
 
   public init(json: String, id: ResponseID? = nil) throws {
+    var modelOutput: ModelOutput
+    var decodingError: Error?
+
+    // 1. Attempt to decode the JSON with the standard `JSONDecoder` since it likely offers the best
+    //    performance and is available on iOS 15+.
+    // TODO: Skip this approach when streaming.
     guard let jsonData = json.data(using: .utf8) else {
-      fatalError()
+      fatalError("TODO: Throw a reasonable decoding error")
+    }
+    do {
+      let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
+      modelOutput = jsonValue.modelOutput
+      modelOutput.id = id
+
+      self = modelOutput
+
+      return
+    } catch {
+      decodingError = error
     }
 
-    let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
-    var modelOutput = jsonValue.modelOutput
-    modelOutput.id = id
+    // 2. Attempt to decode using `GeneratedContent` from Foundation Models when available. It is
+    //    designed to handle streaming JSON.
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, *) {
+        do {
+          let generatedContent = try GeneratedContent(json: json)
+          modelOutput = generatedContent.modelOutput
+          modelOutput.id = id
 
-    self = modelOutput
+          self = modelOutput
+
+          return
+        } catch {
+          decodingError = error
+        }
+      }
+    #endif // canImport(FoundationModels)
+
+    // 3. Fallback to decoding with a custom `StreamingJSONParser` when `GeneratedContent` is not
+    //    available.
+    let parser = StreamingJSONParser(json)
+    if let parsedModelOutput = parser.parse() {
+      modelOutput = parsedModelOutput
+      modelOutput.id = id
+
+      self = modelOutput
+
+      return
+    }
+
+    // 4. Throw a decoding error if all attempts to decode the JSON have failed.
+    if let decodingError {
+      throw decodingError
+    } else {
+      fatalError("TODO: Throw a decoding error")
+    }
   }
 
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
