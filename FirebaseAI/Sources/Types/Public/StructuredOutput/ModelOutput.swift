@@ -14,9 +14,9 @@
 
 import Foundation
 #if canImport(FoundationModels)
-public import protocol FoundationModels.ConvertibleToGeneratedContent
-public import struct FoundationModels.GenerationID
-public import struct FoundationModels.GeneratedContent
+  public import protocol FoundationModels.ConvertibleToGeneratedContent
+  public import struct FoundationModels.GenerationID
+  public import struct FoundationModels.GeneratedContent
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -181,64 +181,64 @@ public extension ModelOutput {
 }
 
 #if canImport(FoundationModels)
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-extension ModelOutput: ConvertibleToGeneratedContent {
-  public var generatedContent: GeneratedContent {
-    let generationID = id?.generationID
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension ModelOutput: ConvertibleToGeneratedContent {
+    public var generatedContent: GeneratedContent {
+      let generationID = id?.generationID
 
-    switch kind {
-    case .null:
-      return GeneratedContent(kind: .null, id: generationID)
-    case let .bool(value):
-      return GeneratedContent(kind: .bool(value), id: generationID)
-    case let .number(value):
-      return GeneratedContent(kind: .number(value), id: generationID)
-    case let .string(value):
-      return GeneratedContent(kind: .string(value), id: generationID)
-    case let .array(values):
-      return GeneratedContent(kind: .array(values.map { $0.generatedContent }), id: generationID)
-    case let .structure(properties: properties, orderedKeys: orderedKeys):
-      return GeneratedContent(
-        kind: .structure(
-          properties: properties.mapValues { $0.generatedContent }, orderedKeys: orderedKeys
-        ),
-        id: generationID
-      )
+      switch kind {
+      case .null:
+        return GeneratedContent(kind: .null, id: generationID)
+      case let .bool(value):
+        return GeneratedContent(kind: .bool(value), id: generationID)
+      case let .number(value):
+        return GeneratedContent(kind: .number(value), id: generationID)
+      case let .string(value):
+        return GeneratedContent(kind: .string(value), id: generationID)
+      case let .array(values):
+        return GeneratedContent(kind: .array(values.map { $0.generatedContent }), id: generationID)
+      case let .structure(properties: properties, orderedKeys: orderedKeys):
+        return GeneratedContent(
+          kind: .structure(
+            properties: properties.mapValues { $0.generatedContent }, orderedKeys: orderedKeys
+          ),
+          id: generationID
+        )
+      }
     }
   }
-}
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-extension GeneratedContent: ConvertibleToModelOutput {
-  public var modelOutput: ModelOutput {
-    let responseID = self.id.map { ResponseID(generationID: $0) }
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension GeneratedContent: ConvertibleToModelOutput {
+    public var modelOutput: ModelOutput {
+      let responseID = id.map { ResponseID(generationID: $0) }
 
-    switch self.kind {
-        case .null:
-      return ModelOutput(kind: .null, id: responseID)
-        case let .bool(value):
-      return ModelOutput(kind: .bool(value), id: responseID)
-        case let .number(value):
-      return ModelOutput(kind: .number(value), id: responseID)
-        case let .string(value):
-      return ModelOutput(kind: .string(value), id: responseID)
-        case let .array(values):
-      return ModelOutput(kind: .array(values.map { $0.modelOutput }), id: responseID)
-        case let .structure(properties: properties, orderedKeys: orderedKeys):
-      return ModelOutput(
-            kind: .structure(
-              properties: properties.mapValues { $0.modelOutput }, orderedKeys: orderedKeys
-            ),
-            id: responseID
-          )
-        @unknown default:
-          assertionFailure("Unknown `FoundationModels.GeneratedContent` kind: \(kind)")
-      return ModelOutput(kind: .null, id: responseID)
-        }
+      switch kind {
+      case .null:
+        return ModelOutput(kind: .null, id: responseID)
+      case let .bool(value):
+        return ModelOutput(kind: .bool(value), id: responseID)
+      case let .number(value):
+        return ModelOutput(kind: .number(value), id: responseID)
+      case let .string(value):
+        return ModelOutput(kind: .string(value), id: responseID)
+      case let .array(values):
+        return ModelOutput(kind: .array(values.map { $0.modelOutput }), id: responseID)
+      case let .structure(properties: properties, orderedKeys: orderedKeys):
+        return ModelOutput(
+          kind: .structure(
+            properties: properties.mapValues { $0.modelOutput }, orderedKeys: orderedKeys
+          ),
+          id: responseID
+        )
+      @unknown default:
+        assertionFailure("Unknown `FoundationModels.GeneratedContent` kind: \(kind)")
+        return ModelOutput(kind: .null, id: responseID)
+      }
+    }
   }
-}
 #endif // canImport(FoundationModels)

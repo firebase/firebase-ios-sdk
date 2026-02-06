@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #if canImport(FoundationModels)
-public import protocol FoundationModels.ConvertibleToGeneratedContent
-public import struct FoundationModels.GeneratedContent
+  public import protocol FoundationModels.ConvertibleToGeneratedContent
+  public import struct FoundationModels.GeneratedContent
 #endif // canImport(FoundationModels)
 
 #if compiler(>=6.2)
@@ -30,12 +30,12 @@ public import struct FoundationModels.GeneratedContent
 #endif // compiler(>=6.2)
 
 #if canImport(FoundationModels)
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public extension ConvertibleToModelOutput where Self: ConvertibleToGeneratedContent {
-  var modelOutput: ModelOutput {
-    self.generatedContent.modelOutput
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public extension ConvertibleToModelOutput where Self: ConvertibleToGeneratedContent {
+    var modelOutput: ModelOutput {
+      generatedContent.modelOutput
+    }
   }
-}
 #endif // canImport(FoundationModels)
