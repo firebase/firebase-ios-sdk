@@ -161,9 +161,7 @@ struct SchemaEncoder {
           }
         }
         internalSchema.properties = props
-        if !required.isEmpty {
-          internalSchema.required = required
-        }
+        internalSchema.required = required
 
       case let .anyOf(types):
         internalSchema.anyOf = try types

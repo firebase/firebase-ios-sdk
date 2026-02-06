@@ -15,6 +15,11 @@
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import Foundation
+#if canImport(FoundationModels)
+  internal import class FoundationModels.LanguageModelSession
+  internal import protocol FoundationModels.Tool
+  internal import struct FoundationModels.GenerationSchema
+#endif // canImport(FoundationModels)
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
@@ -358,6 +363,23 @@ public final class GenerativeModel: Sendable {
     return try await countTokens([ModelContent(parts: parts)])
   }
 
+  // TODO: Replace with real public API
+  public static func respond(to prompt: String, tools: [any FirebaseTool]) async throws -> String {
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, *) {
+        let appleTools = try tools.map {
+          try GenerativeModel.makeAdapter(for: $0)
+        }
+        let session = try LanguageModelSession(model: .default, tools: appleTools)
+        let response = try await session.respond(to: prompt)
+
+        return response.content
+      }
+    #endif // canImport(FoundationModels)
+
+    fatalError("TODO: Implement fallback to cloud model.")
+  }
+
   /// Runs the model's tokenizer on the input content and returns the token count.
   ///
   /// - Parameter content: The input given to the model as a prompt.
@@ -436,4 +458,19 @@ public final class GenerativeModel: Sendable {
       self.rawResponse = rawResponse
     }
   }
+
+  #if canImport(FoundationModels)
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    private static func makeAdapter<T: FirebaseTool>(for tool: T) throws
+      -> any FoundationModels.Tool {
+      let schemaEncoder = SchemaEncoder(target: .foundationModels)
+      let jsonSchema = try schemaEncoder.encode(tool.parametersJSONSchema)
+      let schemaData = try JSONEncoder().encode(jsonSchema)
+      let generationSchema = try JSONDecoder().decode(GenerationSchema.self, from: schemaData)
+
+      return ToolAdapter(tool: tool, parameters: generationSchema)
+    }
+  #endif // canImport(FoundationModels)
 }
