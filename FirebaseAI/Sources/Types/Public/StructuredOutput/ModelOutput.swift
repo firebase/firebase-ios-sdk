@@ -96,7 +96,7 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     // 2. Attempt to decode using `GeneratedContent` from Foundation Models when available. It is
     //    designed to handle streaming JSON.
     #if canImport(FoundationModels)
-      if #available(iOS 26.0, macOS 26.0, *) {
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
         do {
           let generatedContent = try GeneratedContent(json: json)
           modelOutput = generatedContent.modelOutput
