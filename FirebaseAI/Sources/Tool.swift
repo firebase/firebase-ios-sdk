@@ -16,7 +16,8 @@ import Foundation
 
 /// Structured representation of a function declaration.
 ///
-/// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
+/// This `FunctionDeclaration` is a representation of a block of code that can be used as a
+/// ``ModelTool``
 /// by the model and executed by the client.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionDeclaration: Sendable {
@@ -63,12 +64,25 @@ public struct GoogleSearch: Sendable {
   public init() {}
 }
 
+@available(*, deprecated, renamed: "ModelTool", message: """
+`FirebaseAILogic.Tool` has been renamed to `ModelTool` to avoid naming conflicts with the `Tool` \
+type provided by the Foundation Models framework. Update call sites where applicable:
+- `Tool.functionDeclaration(...)` to `ModelTool.functionDeclarations(...)`
+- `Tool.googleSearch()` to `ModelTool.googleSearch()`
+- `Tool.urlContext()` to `ModelTool.urlContext()`
+- `Tool.codeExecution()` to `ModelTool.codeExecution()`
+
+Note: If you are using the shorthand syntax, for example `.googleSearch()`, no changes are required.
+""")
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public typealias Tool = ModelTool
+
 /// A helper tool that the model may use when generating responses.
 ///
-/// A `Tool` is a piece of code that enables the system to interact with external systems to perform
-/// an action, or set of actions, outside of knowledge and scope of the model.
+/// A `ModelTool` is a piece of code that enables the system to interact with external systems to
+/// perform an action, or set of actions, outside of knowledge and scope of the model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct Tool: Sendable {
+public struct ModelTool: Sendable {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
 
@@ -107,7 +121,8 @@ public struct Tool: Sendable {
   ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
   ///   `"function"`; this response contains the result of executing the function on the client,
   ///   providing generation context for the model's next turn.
-  public static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
+  public static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration])
+    -> ModelTool {
     return self.init(functionDeclarations: functionDeclarations)
   }
 
@@ -126,8 +141,8 @@ public struct Tool: Sendable {
   ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list
   ///     of tools enables the model to use Google Search.
   ///
-  /// - Returns: A `Tool` configured for Google Search.
-  public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
+  /// - Returns: A `ModelTool` configured for Google Search.
+  public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> ModelTool {
     return self.init(googleSearch: googleSearch)
   }
 
@@ -136,14 +151,14 @@ public struct Tool: Sendable {
   ///
   /// By including URLs in your request, the Gemini model will access the content from those pages
   /// to inform and enhance its response.
-  public static func urlContext() -> Tool {
+  public static func urlContext() -> ModelTool {
     return self.init(urlContext: URLContext())
   }
 
   /// Creates a tool that allows the model to execute code.
   ///
   /// For more details, see ``CodeExecution``.
-  public static func codeExecution() -> Tool {
+  public static func codeExecution() -> ModelTool {
     return self.init(codeExecution: CodeExecution())
   }
 }
@@ -194,7 +209,7 @@ public struct FunctionCallingConfig: Sendable {
   }
 }
 
-/// Tool configuration for any `Tool` specified in the request.
+/// Tool configuration for any `ModelTool` specified in the request.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ToolConfig: Sendable {
   let functionCallingConfig: FunctionCallingConfig?
@@ -223,7 +238,7 @@ extension FunctionDeclaration: Encodable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Tool: Encodable {}
+extension ModelTool: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig: Encodable {}
