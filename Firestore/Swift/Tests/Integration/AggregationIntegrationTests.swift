@@ -295,11 +295,6 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testPerformsAggregateOverResultSetOfZeroDocuments() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collection = collectionRef()
     try await collection.addDocument(data: ["pages": 100])
     try await collection.addDocument(data: ["pages": 50])
@@ -328,11 +323,6 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testPerformsAggregateOverResultSetOfZeroFields() async throws {
-    try XCTSkipIf(
-      FSTIntegrationTestCase.isRunningAgainstEmulator(),
-      "Skipping test because the emulator's behavior deviates from the expected outcome."
-    )
-
     let collection = collectionRef()
     try await collection.addDocument(data: ["pages": 100])
     try await collection.addDocument(data: ["pages": 50])
