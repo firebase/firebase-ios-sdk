@@ -151,6 +151,18 @@ public struct ModelContent: Equatable, Sendable {
           isThought: functionResponsePart._isThought,
           thoughtSignature: functionResponsePart.thoughtSignature
         ))
+      case let executableCodePart as ExecutableCodePart:
+        convertedParts.append(InternalPart(
+          .executableCode(executableCodePart.executableCode),
+          isThought: executableCodePart._isThought,
+          thoughtSignature: executableCodePart.thoughtSignature
+        ))
+      case let codeExecutionResultPart as CodeExecutionResultPart:
+        convertedParts.append(InternalPart(
+          .codeExecutionResult(codeExecutionResultPart.codeExecutionResult),
+          isThought: codeExecutionResultPart._isThought,
+          thoughtSignature: codeExecutionResultPart.thoughtSignature
+        ))
       default:
         fatalError()
       }
