@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,17 +72,29 @@ final class ModelContentTests: XCTestCase {
 
   func testInitWithExecutableCodePartPreservesThoughtMetadata() {
     // Test that thought-related metadata is preserved through the conversion
-    let executableCodePart = ExecutableCodePart(language: .python, code: "print('test')")
+    let pythonLanguage = ExecutableCodePart.Language.python
+    let executableCode = ExecutableCode(
+      language: pythonLanguage.internalLanguage,
+      code: "print('test')"
+    )
+    let internalExecutableCodePart = ExecutableCodePart(
+      executableCode,
+      isThought: true,
+      thoughtSignature: "some-signature"
+    )
 
-    let content = ModelContent(role: "model", parts: [executableCodePart])
+    let content = ModelContent(role: "model", parts: [internalExecutableCodePart])
 
     guard let resultPart = content.parts.first as? ExecutableCodePart else {
       XCTFail("Expected ExecutableCodePart")
       return
     }
+
     // Verify the part maintains its properties after round-trip
-    XCTAssertEqual(resultPart.language, executableCodePart.language)
-    XCTAssertEqual(resultPart.code, executableCodePart.code)
+    XCTAssertEqual(resultPart.language, internalExecutableCodePart.language)
+    XCTAssertEqual(resultPart.code, internalExecutableCodePart.code)
+    XCTAssertTrue(resultPart.isThought)
+    XCTAssertEqual(resultPart.thoughtSignature, "some-signature")
   }
 
   func testInitWithCodeExecutionResultPartWithDeadlockedOutcome() {
