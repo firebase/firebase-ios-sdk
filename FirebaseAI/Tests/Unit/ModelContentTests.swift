@@ -72,9 +72,8 @@ final class ModelContentTests: XCTestCase {
 
   func testInitWithExecutableCodePartPreservesThoughtMetadata() {
     // Test that thought-related metadata is preserved through the conversion
-    let pythonLanguage = ExecutableCodePart.Language.python
     let executableCode = ExecutableCode(
-      language: pythonLanguage.internalLanguage,
+      language: ExecutableCode.Language(kind: .python),
       code: "print('test')"
     )
     let internalExecutableCodePart = ExecutableCodePart(
@@ -82,6 +81,10 @@ final class ModelContentTests: XCTestCase {
       isThought: true,
       thoughtSignature: "some-signature"
     )
+
+    // Verify metadata is set correctly on the part itself
+    XCTAssertTrue(internalExecutableCodePart.isThought)
+    XCTAssertEqual(internalExecutableCodePart.thoughtSignature, "some-signature")
 
     let content = ModelContent(role: "model", parts: [internalExecutableCodePart])
 
@@ -91,8 +94,8 @@ final class ModelContentTests: XCTestCase {
     }
 
     // Verify the part maintains its properties after round-trip
-    XCTAssertEqual(resultPart.language, internalExecutableCodePart.language)
-    XCTAssertEqual(resultPart.code, internalExecutableCodePart.code)
+    XCTAssertEqual(resultPart.language, .python)
+    XCTAssertEqual(resultPart.code, "print('test')")
     XCTAssertTrue(resultPart.isThought)
     XCTAssertEqual(resultPart.thoughtSignature, "some-signature")
   }
