@@ -383,6 +383,8 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
   public struct GroundingChunk: Sendable, Equatable, Hashable {
     /// Contains details if the grounding chunk is from a web source.
     public let web: WebGroundingChunk?
+    /// Contains details if the grounding chunk is from Google Maps.
+    public let maps: MapsGroundingChunk?
   }
 
   /// A grounding chunk sourced from the web.
@@ -396,6 +398,23 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
     ///
     /// This field is only populated when using the Vertex AI Gemini API.
     public let domain: String?
+  }
+
+  /// A grounding chunk sourced from Google Maps.
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public struct MapsGroundingChunk: Sendable, Equatable, Hashable {
+    /// The URI of the retrieved map data.
+    public let uri: String?
+    /// The title of the retrieved map data.
+    public let title: String?
+    /// The place ID of the retrieved map data.
+    public let placeID: String?
+
+    enum CodingKeys: String, CodingKey {
+      case uri
+      case title
+      case placeID = "placeId"
+    }
   }
 
   /// Provides information about how a specific segment of the model's response is supported by the
@@ -720,6 +739,9 @@ extension GroundingMetadata.GroundingChunk: Decodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.WebGroundingChunk: Decodable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GroundingMetadata.MapsGroundingChunk: Decodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.GroundingSupport.Internal: Decodable {
