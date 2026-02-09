@@ -70,7 +70,6 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart:
-    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_quickstart.yml
     with:
       product: Messaging
