@@ -20,7 +20,7 @@ import Foundation
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGenerable {
+public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGenerable, Equatable {
   public let kind: Kind
 
   public static var jsonSchema: JSONSchema {
@@ -28,17 +28,37 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
   }
 
   public var id: ResponseID?
+  public internal(set) var isComplete: Bool
 
-  init(kind: Kind, id: ResponseID? = nil) {
+  init(kind: Kind, id: ResponseID? = nil, isComplete: Bool = true) {
     self.kind = kind
     self.id = id
+    self.isComplete = isComplete
   }
 
   public var debugDescription: String {
     return kind.debugDescription
   }
 
-  public init<S>(properties: S,
+  public init(properties: KeyValuePairs<String, any ConvertibleToModelOutput>,
+              id: ResponseID? = nil) {
+    var propertyMap = [String: ModelOutput]()
+    for (key, value) in properties {
+      guard propertyMap[key] == nil else {
+        preconditionFailure("Multiple properties with name \"\(key)\".")
+      }
+      propertyMap[key] = value.modelOutput
+    }
+    let propertyNames = properties.map { $0.key }
+
+    self.init(
+      kind: .structure(properties: propertyMap, orderedKeys: propertyNames),
+      id: id,
+      isComplete: true
+    )
+  }
+
+  public init<S>(properties: S, id: ResponseID? = nil,
                  uniquingKeysWith combine: (ModelOutput, ModelOutput) throws
                    -> some ConvertibleToModelOutput) rethrows where S: Sequence, S.Element == (
     String,
@@ -60,7 +80,11 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
       }
     }
 
-    kind = .structure(properties: propertyMap, orderedKeys: propertyNames)
+    self.init(
+      kind: .structure(properties: propertyMap, orderedKeys: propertyNames),
+      id: id,
+      isComplete: true
+    )
   }
 
   public init<S>(elements: S) where S: Sequence, S.Element == any ConvertibleToModelOutput {
@@ -196,7 +220,7 @@ extension ModelOutput: ConvertibleToModelOutput {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ModelOutput {
-  enum Kind: Sendable, CustomDebugStringConvertible {
+  enum Kind: Sendable, Equatable, CustomDebugStringConvertible {
     case null
     case bool(Bool)
     case number(Double)
@@ -264,28 +288,31 @@ public extension ModelOutput {
   extension GeneratedContent: ConvertibleToModelOutput {
     public var modelOutput: ModelOutput {
       let responseID = id.map { ResponseID(generationID: $0) }
+      return toModelOutput(id: responseID)
+    }
 
+    private func toModelOutput(id: ResponseID?) -> ModelOutput {
       switch kind {
       case .null:
-        return ModelOutput(kind: .null, id: responseID)
+        return ModelOutput(kind: .null, id: id)
       case let .bool(value):
-        return ModelOutput(kind: .bool(value), id: responseID)
+        return ModelOutput(kind: .bool(value), id: id)
       case let .number(value):
-        return ModelOutput(kind: .number(value), id: responseID)
+        return ModelOutput(kind: .number(value), id: id)
       case let .string(value):
-        return ModelOutput(kind: .string(value), id: responseID)
+        return ModelOutput(kind: .string(value), id: id)
       case let .array(values):
-        return ModelOutput(kind: .array(values.map { $0.modelOutput }), id: responseID)
+        return ModelOutput(kind: .array(values.map { $0.toModelOutput(id: nil) }), id: id)
       case let .structure(properties: properties, orderedKeys: orderedKeys):
         return ModelOutput(
           kind: .structure(
-            properties: properties.mapValues { $0.modelOutput }, orderedKeys: orderedKeys
+            properties: properties.mapValues { $0.toModelOutput(id: nil) }, orderedKeys: orderedKeys
           ),
-          id: responseID
+          id: id
         )
       @unknown default:
         assertionFailure("Unknown `FoundationModels.GeneratedContent` kind: \(kind)")
-        return ModelOutput(kind: .null, id: responseID)
+        return ModelOutput(kind: .null, id: id)
       }
     }
   }

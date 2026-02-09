@@ -28,7 +28,7 @@ public protocol ConvertibleFromModelOutput {
   @available(watchOS, unavailable)
   public extension ConvertibleFromModelOutput where Self: ConvertibleFromGeneratedContent {
     init(_ content: ModelOutput) throws {
-      try self.init(GeneratedContent(content))
+      try self.init(content.generatedContent)
     }
   }
 #endif // canImport(FoundationModels)

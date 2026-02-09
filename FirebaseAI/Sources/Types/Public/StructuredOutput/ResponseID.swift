@@ -55,11 +55,11 @@ public struct ResponseID: Sendable, Hashable {
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     var generationID: GenerationID? {
-      guard case let .generationID(value) = identifier else {
+      guard case let .generationID(id as GenerationID) = identifier else {
         return nil
       }
 
-      return value as? GenerationID
+      return id
     }
   #endif // canImport(FoundationModels)
 }
