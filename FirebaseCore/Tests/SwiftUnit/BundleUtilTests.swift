@@ -18,7 +18,7 @@ import XCTest
 // FIRBundleUtil is available as ObjC class.
 
 /// A mock bundle to simulate `NSBundle` behavior for testing.
-class MockBundle: Bundle {
+class MockBundle: Bundle, @unchecked Sendable {
   private let _bundleIdentifier: String?
   private let _resources: [String: String]
 
@@ -73,7 +73,7 @@ class BundleUtilTests: XCTestCase {
   /// Verifies that `relevantBundles` returns the main bundle as the first element.
   func testRelevantBundles_mainIsFirst() {
     let bundles = FIRBundleUtil.relevantBundles()
-    XCTAssertEqual(Bundle.main, bundles.first as? Bundle)
+    XCTAssertEqual(Bundle.main, bundles?.first as? Bundle)
   }
 
   /// Verifies that `optionsDictionaryPath` finds the resource when present.
