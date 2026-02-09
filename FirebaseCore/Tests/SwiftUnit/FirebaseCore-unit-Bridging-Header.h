@@ -15,3 +15,8 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "SharedTestUtilities/ExceptionCatcher.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
+
+#import "FirebaseCore/Sources/FIRBundleUtil.h"
+
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <OCMock/OCMock.h>
