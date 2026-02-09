@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 @testable import FirebaseCoreInternal
+import XCTest
 
 final class UnfairLockTests: XCTestCase {
-
   func testLockProtectsState() {
     let lock = UnfairLock(0)
     let iterations = 1000
