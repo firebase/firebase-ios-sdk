@@ -27,6 +27,7 @@ jobs:
 
   # Public repository: Build and run the Integration Tests for the Firebase sessions E2E Test App across all environments.
   sessions-integration-tests:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_build.yml
     with:
       product: Sessions

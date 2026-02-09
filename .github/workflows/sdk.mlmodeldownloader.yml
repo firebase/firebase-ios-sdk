@@ -35,6 +35,7 @@ jobs:
       target: FirebaseMLModelDownloader-Unit-unit
 
   pod_lib_lint:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseMLModelDownloader
@@ -46,6 +47,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   mlmodeldownloader-cron-only:
+    if: github.event.pull_request.head.repo.fork == false
     needs: pod_lib_lint
     uses: ./.github/workflows/_cocoapods.cron.yml
     with:
@@ -61,6 +63,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   mlmodeldownloader-sample-build-test:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_build.yml
     with:
       product: MLModelDownloaderSample

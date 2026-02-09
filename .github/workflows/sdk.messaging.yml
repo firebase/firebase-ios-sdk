@@ -54,6 +54,7 @@ jobs:
 
   # TODO(#12205) Update the build.sh script for this job from "test" instead of "build"
   messaging-integration-tests:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_build.yml
     with:
       product: Messaging
@@ -69,6 +70,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   quickstart:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_quickstart.yml
     with:
       product: Messaging
@@ -88,6 +90,7 @@ jobs:
       flags: '[ "--use-static-frameworks" ]'
 
   sample-build-test:
+    if: github.event.pull_request.head.repo.fork == false
     strategy:
       matrix:
         include:
