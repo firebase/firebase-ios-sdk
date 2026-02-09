@@ -93,7 +93,7 @@ class ModelOutputTests: XCTestCase {
       let expectedAge = 40
       let modelOutput = ModelOutput(properties: ["name": expectedName, "age": expectedAge])
 
-      let person = try PersonConvertibleFromGeneratedContent(modelOutput).self
+      let person = try PersonConvertibleFromGeneratedContent(modelOutput)
 
       XCTAssertEqual(person.name, expectedName)
       XCTAssertEqual(person.age, expectedAge)
