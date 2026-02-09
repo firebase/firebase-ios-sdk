@@ -120,7 +120,10 @@ class BundleUtilTests: XCTestCase {
     let bundleID = "com.google.test"
     mockBundle = MockBundle(identifier: bundleID)
 
-    XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix(bundleID, inBundles: [mockBundle!] as [Any]))
+    XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix(
+      bundleID,
+      inBundles: [mockBundle!] as [Any]
+    ))
   }
 
   /// Verifies `hasBundleIdentifierPrefix` returns false for mismatch.
