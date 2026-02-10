@@ -51,6 +51,7 @@ concurrency:
 
 jobs:
   xcodebuild:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_build.yml
     with:
       product: CombineSwift
@@ -61,6 +62,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   storage-combine-integration:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_build.yml
     with:
       product: StorageCombine
