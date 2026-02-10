@@ -1,8 +1,8 @@
 # Unreleased
-- [fixed] Remote Config data may remain empty after a device restore if the app was 
-  opened with an older SDK version (< 12.6.0) before upgrading. To restore 
-  service, publish a new version of your Remote Config template in the Firebase 
-  console to force a full synchronization. An automatic fix for this scenario 
+- [fixed] Remote Config data may remain empty after a device restore if the app
+  was opened with an older SDK version (< 12.6.0) before upgrading. To restore
+  service, publish a new version of your Remote Config template in the Firebase
+  console to force a full synchronization. An automatic fix for this scenario
   is currently under development. (#15764)
 
 # 12.6.0
