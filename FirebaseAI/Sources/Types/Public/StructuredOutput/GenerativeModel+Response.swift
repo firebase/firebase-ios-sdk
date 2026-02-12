@@ -12,17 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension GenerativeModel {
-  struct Response<Content> where Content: FirebaseGenerable {
-    public let content: Content
-    public let rawContent: ModelOutput
-    public let rawResponse: GenerateContentResponse
+// TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+#if compiler(>=6.2)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public extension GenerativeModel {
+    struct Response<Content> where Content: FirebaseGenerable {
+      public let content: Content
+      public let rawContent: ModelOutput
+      public let rawResponse: GenerateContentResponse
 
-    init(content: Content, rawContent: ModelOutput, rawResponse: GenerateContentResponse) {
-      self.content = content
-      self.rawContent = rawContent
-      self.rawResponse = rawResponse
+      init(content: Content, rawContent: ModelOutput, rawResponse: GenerateContentResponse) {
+        self.content = content
+        self.rawContent = rawContent
+        self.rawResponse = rawResponse
+      }
     }
   }
-}
+#endif // compiler(>=6.2)
