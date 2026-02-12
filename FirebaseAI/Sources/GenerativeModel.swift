@@ -267,16 +267,9 @@ public final class GenerativeModel: Sendable {
                                             options: GenerationConfig? = nil)
     -> sending GenerativeModel.ResponseStream<Content>
     where Content: FirebaseGenerable {
-    // TODO: Merge `options` with `self.generationConfig`
-    let generationConfig = {
-      var generationConfig = self.generationConfig ?? GenerationConfig()
-      generationConfig.candidateCount = nil
-      generationConfig.responseMIMEType = "application/json"
-      generationConfig.responseJSONSchema = type.jsonSchema
-      generationConfig.responseModalities = nil
-
-      return generationConfig
-    }()
+    let generationConfig = GenerationConfig.merge(
+      self.generationConfig, with: options, enforcingJSONSchema: type.jsonSchema
+    ) ?? GenerationConfig()
 
     return GenerativeModel.ResponseStream { context in
       do {

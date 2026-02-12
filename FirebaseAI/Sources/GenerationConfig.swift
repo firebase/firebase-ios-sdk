@@ -19,34 +19,34 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerationConfig: Sendable {
   /// Controls the degree of randomness in token selection.
-  let temperature: Float?
+  var temperature: Float?
 
   /// Controls diversity of generated text.
-  let topP: Float?
+  var topP: Float?
 
   /// Limits the number of highest probability words considered.
-  let topK: Int?
+  var topK: Int?
 
   /// The number of response variations to return.
   var candidateCount: Int?
 
   /// Maximum number of tokens that can be generated in the response.
-  let maxOutputTokens: Int?
+  var maxOutputTokens: Int?
 
   /// Controls the likelihood of repeating the same words or phrases already generated in the text.
-  let presencePenalty: Float?
+  var presencePenalty: Float?
 
   /// Controls the likelihood of repeating words, with the penalty increasing for each repetition.
-  let frequencyPenalty: Float?
+  var frequencyPenalty: Float?
 
   /// A set of up to 5 `String`s that will stop output generation.
-  let stopSequences: [String]?
+  var stopSequences: [String]?
 
   /// Output response MIME type of the generated candidate text.
   var responseMIMEType: String?
 
   /// Output schema of the generated candidate text.
-  let responseSchema: Schema?
+  var responseSchema: Schema?
 
   /// Output schema of the generated response in [JSON Schema](https://json-schema.org/) format.
   ///
@@ -57,7 +57,7 @@ public struct GenerationConfig: Sendable {
   var responseModalities: [ResponseModality]?
 
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
-  let thinkingConfig: ThinkingConfig?
+  var thinkingConfig: ThinkingConfig?
 
   /// Creates a new `GenerationConfig` value.
   ///
@@ -202,6 +202,89 @@ public struct GenerationConfig: Sendable {
     self.responseJSONSchema = responseJSONSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
+  }
+
+  /// Merges two configurations, giving precedence to values found in the `overrides` parameter.
+  ///
+  /// - Parameters:
+  ///   - base: The foundational configuration (e.g., model-level defaults).
+  ///   - overrides: The configuration containing values that should supersede the base (e.g.,
+  /// request-level specific settings).
+  /// - Returns: A merged `GenerationConfig` prioritizing `overrides`, or `nil` if both inputs are
+  /// `nil`.
+  static func merge(_ base: GenerationConfig?,
+                    with overrides: GenerationConfig?) -> GenerationConfig? {
+    // 1. If the base config is missing, return the overrides (which might be nil).
+    guard let baseConfig = base else {
+      return overrides
+    }
+
+    // 2. If overrides are missing, strictly return the base.
+    guard let overrideConfig = overrides else {
+      return baseConfig
+    }
+
+    // 3. Start with a copy of the base config.
+    var config = baseConfig
+
+    // 4. Overwrite with any non-nil values found in the overrides.
+    if let temperature = overrideConfig.temperature { config.temperature = temperature }
+    if let topP = overrideConfig.topP { config.topP = topP }
+    if let topK = overrideConfig.topK { config.topK = topK }
+    if let candidateCount = overrideConfig.candidateCount { config.candidateCount = candidateCount }
+    if let maxOutputTokens = overrideConfig.maxOutputTokens {
+      config.maxOutputTokens = maxOutputTokens
+    }
+    if let presencePenalty = overrideConfig.presencePenalty {
+      config.presencePenalty = presencePenalty
+    }
+    if let frequencyPenalty = overrideConfig.frequencyPenalty {
+      config.frequencyPenalty = frequencyPenalty
+    }
+    if let stopSequences = overrideConfig.stopSequences { config.stopSequences = stopSequences }
+    if let responseMIMEType = overrideConfig.responseMIMEType {
+      config.responseMIMEType = responseMIMEType
+    }
+    if let responseModalities = overrideConfig.responseModalities {
+      config.responseModalities = responseModalities
+    }
+    if let thinkingConfig = overrideConfig.thinkingConfig { config.thinkingConfig = thinkingConfig }
+
+    // 5. Handle Schema mutual exclusivity with precedence for `responseJSONSchema`.
+    if let responseJSONSchema = overrideConfig.responseJSONSchema {
+      config.responseJSONSchema = responseJSONSchema
+      config.responseSchema = nil
+    } else if let responseSchema = overrideConfig.responseSchema {
+      config.responseSchema = responseSchema
+      config.responseJSONSchema = nil
+    }
+
+    return config
+  }
+
+  /// Merges configurations and explicitly enforces settings required for JSON structured output.
+  ///
+  /// - Parameters:
+  ///   - base: The foundational configuration (e.g., model defaults).
+  ///   - overrides: The configuration containing overrides (e.g., request specific).
+  ///   - jsonSchema: The JSON schema to enforce on the output.
+  /// - Returns: A non-nil `GenerationConfig` with the merged values and JSON constraints applied.
+  static func merge(_ base: GenerationConfig?,
+                    with overrides: GenerationConfig?,
+                    enforcingJSONSchema jsonSchema: JSONSchema) -> GenerationConfig {
+    // 1. Merge base and overrides, defaulting to a fresh config if both are nil.
+    var config = GenerationConfig.merge(base, with: overrides) ?? GenerationConfig()
+
+    // 2. Enforce the specific constraints for JSON Schema generation.
+    config.responseMIMEType = "application/json"
+    config.responseJSONSchema = jsonSchema
+    config.responseSchema = nil // Clear conflicting legacy schema
+
+    // 3. Clear incompatible or conflicting options.
+    config.candidateCount = nil // Structured output typically requires default candidate behaviour
+    config.responseModalities = nil // Ensure text-only output for JSON
+
+    return config
   }
 }
 
