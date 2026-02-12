@@ -317,48 +317,18 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request')
-    runs-on: macos-15
-
     strategy:
       matrix:
         target: [iOS, macOS, tvOS]
         # Skip the FirestoreEnterprise test against emulator since emulator is under development.
         scheme: [Firestore]
-
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
-
-    - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-
-    - name: Install simulators in case they are missing.
-      if: matrix.target != 'macOS'
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 15
-        max_attempts: 5
-        retry_wait_seconds: 120
-        command: sudo xcodebuild -downloadPlatform ${{ matrix.target }}
-
-    - name: Setup build
-      # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
-      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
-
-    - name: Build
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 120
-        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
-
-    - name: Test
-      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      with:
-        timeout_minutes: 120
-        max_attempts: 3
-        retry_wait_seconds: 120
-        command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.scheme }}
+      platform: ${{ matrix.target }}
+      method: xcodebuild
+      setup_command: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+      timeout_minutes: 120
 
   pod_lib_lint:
     needs: check
@@ -418,70 +388,18 @@ jobs:
             --allow-warnings \
             --no-analyze
 
-  spm-package-resolved:
-    runs-on: macos-14
-    env:
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      FIREBASE_SOURCE_FIRESTORE: 1
-    outputs:
-      cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-      - name: Generate Swift Package.resolved
-        id: swift_package_resolve
-        run: |
-          swift package resolve
-      - name: Generate cache key
-        id: generate_cache_key
-        run: |
-          cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
-          echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-        id: cache
-        with:
-          path: .build
-          key: ${{ steps.generate_cache_key.outputs.cache_key }}
-
   spm-source:
-    needs: [check, spm-package-resolved]
+    needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request')
-    strategy:
-      matrix:
-        include:
-          - os: macos-14
-            xcode: Xcode_16.2
-            target: iOS
-          - os: macos-15
-            xcode: Xcode_16.4
-            target: iOS
-          - os: macos-15
-            xcode: Xcode_16.4
-            target: tvOS
-          - os: macos-15
-            xcode: Xcode_16.4
-            target: macOS
-          - os: macos-15
-            xcode: Xcode_16.4
-            target: catalyst
-          - os: macos-15
-            xcode: Xcode_16.4
-            target: visionOS
-    runs-on: ${{ matrix.os }}
-    env:
-      FIREBASE_SOURCE_FIRESTORE: 1
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: iOS Build Test
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseFirestore
+      platforms: iOS, tvOS, macOS, catalyst, visionOS
+      buildonly_platforms: iOS, tvOS, macOS, catalyst, visionOS
+      firebase_source_firestore: true
 
   spm-binary:
     uses: ./.github/workflows/_spm.yml
@@ -493,36 +411,21 @@ jobs:
   spm-source-cron:
      # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-14
-    strategy:
-      matrix:
-        target: [tvOS, macOS, catalyst]
-    env:
-      FIREBASE_SOURCE_FIRESTORE: 1
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Build Test - Binary
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseFirestore
+      platforms: tvOS, macOS, catalyst
+      buildonly_platforms: tvOS, macOS, catalyst
+      firebase_source_firestore: true
 
   spm-binary-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-15
-    strategy:
-      matrix:
-        target: [tvOS, macOS, catalyst]
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Build Test - Binary
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseFirestore
+      platforms: tvOS, macOS, catalyst
+      buildonly_platforms: tvOS, macOS, catalyst
 
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.

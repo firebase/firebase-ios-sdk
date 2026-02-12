@@ -116,9 +116,9 @@ jobs:
         continue_on_error: true
         command: |
           if [[ "${{ inputs.platform }}" == "all" ]]; then
-            xcodebuild -downloadAllPlatforms
+            sudo xcodebuild -downloadAllPlatforms
           else
-            xcodebuild -downloadPlatform ${{ inputs.platform }}
+            sudo xcodebuild -downloadPlatform ${{ inputs.platform }}
           fi
     - name: Run setup command
       if: inputs.setup_command != ''

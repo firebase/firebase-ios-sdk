@@ -58,6 +58,12 @@ on:
         required: false
         default: false
 
+      # Whether to use the Firestore source. Defaults to false.
+      firebase_source_firestore:
+        type: boolean
+        required: false
+        default: false
+
     outputs:
       cache_key:
         description: "The cache key for the Swift package resolution."
@@ -67,6 +73,7 @@ jobs:
   spm-package-resolved:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+      FIREBASE_SOURCE_FIRESTORE: ${{ inputs.firebase_source_firestore && '1' || '' }}
     runs-on: macos-15
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
@@ -94,6 +101,7 @@ jobs:
     needs: [spm-package-resolved]
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
+        FIREBASE_SOURCE_FIRESTORE: ${{ inputs.firebase_source_firestore && '1' || '' }}
     strategy:
       fail-fast: false
       matrix:
