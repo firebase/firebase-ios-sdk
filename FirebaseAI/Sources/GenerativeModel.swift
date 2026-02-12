@@ -233,59 +233,54 @@ public final class GenerativeModel: Sendable {
     return Response(content: content, rawContent: modelOutput, rawResponse: response)
   }
 
+  public final func streamResponse(to parts: any PartsRepresentable...,
+                                   options: GenerationConfig? = nil)
+    -> sending GenerativeModel.ResponseStream<String> {
+    let parts = [ModelContent(parts: parts)]
+    return streamResponse(to: parts, options: options)
+  }
+
+  public final func streamResponse(to parts: [ModelContent],
+                                   options: GenerationConfig? = nil)
+    -> sending GenerativeModel.ResponseStream<String> {
+    return streamResponse(to: parts, generating: String.self, schema: nil,
+                          includeSchemaInPrompt: false, options: options)
+  }
+
+  public final func streamResponse(to parts: any PartsRepresentable..., schema: JSONSchema,
+                                   includeSchemaInPrompt: Bool = true,
+                                   options: GenerationConfig? = nil)
+    -> sending GenerativeModel.ResponseStream<ModelOutput> {
+    let parts = [ModelContent(parts: parts)]
+    return streamResponse(to: parts, schema: schema, includeSchemaInPrompt: includeSchemaInPrompt,
+                          options: options)
+  }
+
+  public final func streamResponse(to parts: [ModelContent], schema: JSONSchema,
+                                   includeSchemaInPrompt: Bool = true,
+                                   options: GenerationConfig? = nil)
+    -> sending GenerativeModel.ResponseStream<ModelOutput> {
+    return streamResponse(to: parts, generating: ModelOutput.self, schema: schema,
+                          includeSchemaInPrompt: includeSchemaInPrompt, options: options)
+  }
+
   public final func streamResponse<Content>(to parts: any PartsRepresentable...,
                                             generating type: Content.Type = Content.self,
                                             includeSchemaInPrompt: Bool = true,
                                             options: GenerationConfig? = nil)
-    -> sending GenerativeModel.ResponseStream<Content>
-    where Content: FirebaseGenerable {
+    -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
     let parts = [ModelContent(parts: parts)]
-
-    return streamResponse(
-      to: parts,
-      generating: type,
-      includeSchemaInPrompt: includeSchemaInPrompt,
-      options: options
-    )
+    return streamResponse(to: parts, generating: type, includeSchemaInPrompt: includeSchemaInPrompt,
+                          options: options)
   }
 
   public final func streamResponse<Content>(to parts: [ModelContent],
                                             generating type: Content.Type = Content.self,
                                             includeSchemaInPrompt: Bool = true,
                                             options: GenerationConfig? = nil)
-    -> sending GenerativeModel.ResponseStream<Content>
-    where Content: FirebaseGenerable {
-    let generationConfig = GenerationConfig.merge(
-      self.generationConfig, with: options, enforcingJSONSchema: type.jsonSchema
-    ) ?? GenerationConfig()
-
-    return GenerativeModel.ResponseStream { context in
-      do {
-        let stream = try self.generateContentStream(parts, generationConfig: generationConfig)
-        var json = ""
-        for try await response in stream {
-          if let text = response.text {
-            json += text
-            let responseID = response.responseID.map { ResponseID(responseID: $0) }
-            let modelOutput = try ModelOutput(json: json, id: responseID, streaming: true)
-            try await context.yield(
-              GenerativeModel.ResponseStream<Content>.Snapshot(
-                content: Content.Partial(modelOutput),
-                rawContent: modelOutput,
-                rawResponse: response
-              )
-            )
-          }
-        }
-        await context.finish()
-      } catch let error as GenerateContentError {
-        await context.finish(throwing: GenerationError.generationFailure(error))
-      } catch {
-        await context.finish(throwing: GenerationError.generationFailure(
-          GenerateContentError.internalError(underlying: error)
-        ))
-      }
-    }
+    -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
+    return streamResponse(to: parts, generating: type, schema: type.jsonSchema,
+                          includeSchemaInPrompt: includeSchemaInPrompt, options: options)
   }
 
   /// Creates a new chat conversation using this model with the provided history.
@@ -487,6 +482,50 @@ public final class GenerativeModel: Sendable {
           continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
           return
         }
+      }
+    }
+  }
+
+  public final func streamResponse<Content>(to parts: [ModelContent],
+                                            generating type: Content.Type,
+                                            schema: JSONSchema?,
+                                            includeSchemaInPrompt: Bool,
+                                            options: GenerationConfig?)
+    -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
+    let generationConfig: GenerationConfig?
+    if let schema {
+      generationConfig = GenerationConfig.merge(
+        self.generationConfig, with: options, enforcingJSONSchema: schema
+      )
+    } else {
+      generationConfig = GenerationConfig.merge(self.generationConfig, with: options)
+    }
+
+    return GenerativeModel.ResponseStream { context in
+      do {
+        let stream = try self.generateContentStream(parts, generationConfig: generationConfig)
+        var json = ""
+        for try await response in stream {
+          if let text = response.text {
+            json += text
+            let responseID = response.responseID.map { ResponseID(responseID: $0) }
+            let modelOutput = try ModelOutput(json: json, id: responseID, streaming: true)
+            try await context.yield(
+              GenerativeModel.ResponseStream<Content>.Snapshot(
+                content: Content.Partial(modelOutput),
+                rawContent: modelOutput,
+                rawResponse: response
+              )
+            )
+          }
+        }
+        await context.finish()
+      } catch let error as GenerateContentError {
+        await context.finish(throwing: GenerationError.generationFailure(error))
+      } catch {
+        await context.finish(throwing: GenerationError.generationFailure(
+          GenerateContentError.internalError(underlying: error)
+        ))
       }
     }
   }
