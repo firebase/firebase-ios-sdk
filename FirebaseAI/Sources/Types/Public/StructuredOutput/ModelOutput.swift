@@ -95,26 +95,28 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     self = value.modelOutput
   }
 
-  public init(json: String, id: ResponseID? = nil) throws {
+  init(json: String, id: ResponseID? = nil, streaming: Bool) throws {
     var modelOutput: ModelOutput
     var decodingError: Error?
 
     // 1. Attempt to decode the JSON with the standard `JSONDecoder` since it likely offers the best
-    //    performance and is available on iOS 15+.
-    // TODO: Skip this approach when streaming.
-    guard let jsonData = json.data(using: .utf8) else {
-      fatalError("TODO: Throw a reasonable decoding error")
-    }
-    do {
-      let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
-      modelOutput = jsonValue.modelOutput
-      modelOutput.id = id
+    //    performance and is available on iOS 15+. Note: This approach does not support decoding
+    //    partial JSON when streaming.
+    if !streaming {
+      guard let jsonData = json.data(using: .utf8) else {
+        fatalError("TODO: Throw a reasonable decoding error")
+      }
+      do {
+        let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
+        modelOutput = jsonValue.modelOutput
+        modelOutput.id = id
 
-      self = modelOutput
+        self = modelOutput
 
-      return
-    } catch {
-      decodingError = error
+        return
+      } catch {
+        decodingError = error
+      }
     }
 
     // 2. Attempt to decode using `GeneratedContent` from Foundation Models when available. It is
@@ -153,6 +155,10 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     } else {
       fatalError("TODO: Throw a decoding error")
     }
+  }
+
+  public init(json: String) throws {
+    try self.init(json: json, id: nil, streaming: true)
   }
 
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value

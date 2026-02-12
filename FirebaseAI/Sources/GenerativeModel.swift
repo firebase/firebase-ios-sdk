@@ -146,49 +146,6 @@ public final class GenerativeModel: Sendable {
     return try await generateContent(content, generationConfig: generationConfig)
   }
 
-  func generateContent(_ content: [ModelContent],
-                       generationConfig: GenerationConfig?) async throws
-    -> GenerateContentResponse {
-    try content.throwIfError()
-    let response: GenerateContentResponse
-    let generateContentRequest = GenerateContentRequest(
-      model: modelResourceName,
-      contents: content,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
-      tools: tools,
-      toolConfig: toolConfig,
-      systemInstruction: systemInstruction,
-      apiConfig: apiConfig,
-      apiMethod: .generateContent,
-      options: requestOptions
-    )
-    do {
-      response = try await generativeAIService.loadRequest(request: generateContentRequest)
-    } catch {
-      throw GenerativeModel.generateContentError(from: error)
-    }
-
-    // Check the prompt feedback to see if the prompt was blocked.
-    if response.promptFeedback?.blockReason != nil {
-      throw GenerateContentError.promptBlocked(response: response)
-    }
-
-    // Check to see if an error should be thrown for stop reason.
-    if let reason = response.candidates.first?.finishReason, reason != .stop {
-      throw GenerateContentError.responseStoppedEarly(reason: reason, response: response)
-    }
-
-    // If all candidates are empty (contain no information that a developer could act on) then throw
-    if response.candidates.allSatisfy({ $0.isEmpty }) {
-      throw GenerateContentError.internalError(underlying: InvalidCandidateError.emptyContent(
-        underlyingError: Candidate.EmptyContentError()
-      ))
-    }
-
-    return response
-  }
-
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
   /// representable as one or more ``Part``s.
   ///
@@ -231,57 +188,10 @@ public final class GenerativeModel: Sendable {
       options: requestOptions
     )
 
-    return AsyncThrowingStream { continuation in
-      let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
-      Task {
-        do {
-          var didYieldResponse = false
-          for try await response in responseStream {
-            // Check the prompt feedback to see if the prompt was blocked.
-            if response.promptFeedback?.blockReason != nil {
-              throw GenerateContentError.promptBlocked(response: response)
-            }
-
-            // If the stream ended early unexpectedly, throw an error.
-            if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
-              throw GenerateContentError.responseStoppedEarly(
-                reason: finishReason,
-                response: response
-              )
-            }
-
-            // Skip returning the response if all candidates are empty (i.e., they contain no
-            // information that a developer could act on).
-            if response.candidates.allSatisfy({ $0.isEmpty }) {
-              AILog.log(
-                level: .debug,
-                code: .generateContentResponseEmptyCandidates,
-                "Skipped response with all empty candidates: \(response)"
-              )
-            } else {
-              continuation.yield(response)
-              didYieldResponse = true
-            }
-          }
-
-          // Throw an error if all responses were skipped due to empty content.
-          if didYieldResponse {
-            continuation.finish()
-          } else {
-            continuation.finish(throwing: GenerativeModel.generateContentError(
-              from: InvalidCandidateError.emptyContent(
-                underlyingError: Candidate.EmptyContentError()
-              )
-            ))
-          }
-        } catch {
-          continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
-          return
-        }
-      }
-    }
+    return try generateContentStream(content, generationConfig: generationConfig)
   }
 
+  // TODO: Update public API
   public func generate<Content>(_ type: Content.Type,
                                 from parts: any PartsRepresentable...) async throws
     -> Response<Content> where Content: FirebaseGenerable {
@@ -333,6 +243,68 @@ public final class GenerativeModel: Sendable {
     }
 
     return Response(content: content, rawContent: modelOutput, rawResponse: response)
+  }
+
+  public final func streamResponse<Content>(to parts: any PartsRepresentable...,
+                                            generating type: Content.Type = Content.self,
+                                            includeSchemaInPrompt: Bool = true,
+                                            options: GenerationConfig? = nil)
+    -> sending GenerativeModel.ResponseStream<Content>
+    where Content: FirebaseGenerable {
+    let parts = [ModelContent(parts: parts)]
+
+    return streamResponse(
+      to: parts,
+      generating: type,
+      includeSchemaInPrompt: includeSchemaInPrompt,
+      options: options
+    )
+  }
+
+  public final func streamResponse<Content>(to parts: [ModelContent],
+                                            generating type: Content.Type = Content.self,
+                                            includeSchemaInPrompt: Bool = true,
+                                            options: GenerationConfig? = nil)
+    -> sending GenerativeModel.ResponseStream<Content>
+    where Content: FirebaseGenerable {
+    // TODO: Merge `options` with `self.generationConfig`
+    let generationConfig = {
+      var generationConfig = self.generationConfig ?? GenerationConfig()
+      generationConfig.candidateCount = nil
+      generationConfig.responseMIMEType = "application/json"
+      generationConfig.responseJSONSchema = type.jsonSchema
+      generationConfig.responseModalities = nil
+
+      return generationConfig
+    }()
+
+    return GenerativeModel.ResponseStream { context in
+      do {
+        let stream = try self.generateContentStream(parts, generationConfig: generationConfig)
+        var json = ""
+        for try await response in stream {
+          if let text = response.text {
+            json += text
+            let responseID = response.responseID.map { ResponseID(responseID: $0) }
+            let modelOutput = try ModelOutput(json: json, id: responseID, streaming: true)
+            try await context.yield(
+              GenerativeModel.ResponseStream<Content>.Snapshot(
+                content: Content.Partial(modelOutput),
+                rawContent: modelOutput,
+                rawResponse: response
+              )
+            )
+          }
+        }
+        await context.finish()
+      } catch let error as GenerateContentError {
+        await context.finish(throwing: GenerationError.generationFailure(error))
+      } catch {
+        await context.finish(throwing: GenerationError.generationFailure(
+          GenerateContentError.internalError(underlying: error)
+        ))
+      }
+    }
   }
 
   /// Creates a new chat conversation using this model with the provided history.
@@ -425,15 +397,116 @@ public final class GenerativeModel: Sendable {
     return GenerateContentError.internalError(underlying: error)
   }
 
-  public struct Response<Content> where Content: FirebaseGenerable {
-    public let content: Content
-    public let rawContent: ModelOutput
-    public let rawResponse: GenerateContentResponse
+  // MARK: - Internal Helpers
 
-    init(content: Content, rawContent: ModelOutput, rawResponse: GenerateContentResponse) {
-      self.content = content
-      self.rawContent = rawContent
-      self.rawResponse = rawResponse
+  func generateContent(_ content: [ModelContent],
+                       generationConfig: GenerationConfig?) async throws
+    -> GenerateContentResponse {
+    try content.throwIfError()
+    let response: GenerateContentResponse
+    let generateContentRequest = GenerateContentRequest(
+      model: modelResourceName,
+      contents: content,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      apiConfig: apiConfig,
+      apiMethod: .generateContent,
+      options: requestOptions
+    )
+    do {
+      response = try await generativeAIService.loadRequest(request: generateContentRequest)
+    } catch {
+      throw GenerativeModel.generateContentError(from: error)
+    }
+
+    // Check the prompt feedback to see if the prompt was blocked.
+    if response.promptFeedback?.blockReason != nil {
+      throw GenerateContentError.promptBlocked(response: response)
+    }
+
+    // Check to see if an error should be thrown for stop reason.
+    if let reason = response.candidates.first?.finishReason, reason != .stop {
+      throw GenerateContentError.responseStoppedEarly(reason: reason, response: response)
+    }
+
+    // If all candidates are empty (contain no information that a developer could act on) then throw
+    if response.candidates.allSatisfy({ $0.isEmpty }) {
+      throw GenerateContentError.internalError(underlying: InvalidCandidateError.emptyContent(
+        underlyingError: Candidate.EmptyContentError()
+      ))
+    }
+
+    return response
+  }
+
+  func generateContentStream(_ content: [ModelContent],
+                             generationConfig: GenerationConfig?) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    try content.throwIfError()
+    let generateContentRequest = GenerateContentRequest(
+      model: modelResourceName,
+      contents: content,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      apiConfig: apiConfig,
+      apiMethod: .streamGenerateContent,
+      options: requestOptions
+    )
+
+    return AsyncThrowingStream { continuation in
+      let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
+      Task {
+        do {
+          var didYieldResponse = false
+          for try await response in responseStream {
+            // Check the prompt feedback to see if the prompt was blocked.
+            if response.promptFeedback?.blockReason != nil {
+              throw GenerateContentError.promptBlocked(response: response)
+            }
+
+            // If the stream ended early unexpectedly, throw an error.
+            if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
+              throw GenerateContentError.responseStoppedEarly(
+                reason: finishReason,
+                response: response
+              )
+            }
+
+            // Skip returning the response if all candidates are empty (i.e., they contain no
+            // information that a developer could act on).
+            if response.candidates.allSatisfy({ $0.isEmpty }) {
+              AILog.log(
+                level: .debug,
+                code: .generateContentResponseEmptyCandidates,
+                "Skipped response with all empty candidates: \(response)"
+              )
+            } else {
+              continuation.yield(response)
+              didYieldResponse = true
+            }
+          }
+
+          // Throw an error if all responses were skipped due to empty content.
+          if didYieldResponse {
+            continuation.finish()
+          } else {
+            continuation.finish(throwing: GenerativeModel.generateContentError(
+              from: InvalidCandidateError.emptyContent(
+                underlyingError: Candidate.EmptyContentError()
+              )
+            ))
+          }
+        } catch {
+          continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
+          return
+        }
+      }
     }
   }
 }
