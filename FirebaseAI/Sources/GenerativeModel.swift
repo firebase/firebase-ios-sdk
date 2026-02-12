@@ -175,18 +175,6 @@ public final class GenerativeModel: Sendable {
   public func generateContentStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     try content.throwIfError()
-    let generateContentRequest = GenerateContentRequest(
-      model: modelResourceName,
-      contents: content,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
-      tools: tools,
-      toolConfig: toolConfig,
-      systemInstruction: systemInstruction,
-      apiConfig: apiConfig,
-      apiMethod: .streamGenerateContent,
-      options: requestOptions
-    )
 
     return try generateContentStream(content, generationConfig: generationConfig)
   }
