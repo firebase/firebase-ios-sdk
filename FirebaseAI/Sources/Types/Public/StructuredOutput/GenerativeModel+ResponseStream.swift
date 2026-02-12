@@ -47,15 +47,27 @@ public extension GenerativeModel {
       return _stream.makeAsyncIterator()
     }
 
-    public nonisolated(nonsending) func collect() async throws -> sending GenerativeModel
-      .Response<Content> {
-      let finalResult = try await _context.value
-      return try GenerativeModel.Response(
-        content: Content(finalResult.rawContent),
-        rawContent: finalResult.rawContent,
-        rawResponse: finalResult.rawResponse
-      )
-    }
+    // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+    #if compiler(>=6.2)
+      public nonisolated(nonsending) func collect()
+        async throws -> sending GenerativeModel.Response<Content> {
+        let finalResult = try await _context.value
+        return try GenerativeModel.Response(
+          content: Content(finalResult.rawContent),
+          rawContent: finalResult.rawContent,
+          rawResponse: finalResult.rawResponse
+        )
+      }
+    #else
+      public func collect() async throws -> sending GenerativeModel.Response<Content> {
+        let finalResult = try await _context.value
+        return try GenerativeModel.Response(
+          content: Content(finalResult.rawContent),
+          rawContent: finalResult.rawContent,
+          rawResponse: finalResult.rawResponse
+        )
+      }
+    #endif // compiler(>=6.2)
   }
 }
 
