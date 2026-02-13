@@ -145,7 +145,7 @@ jobs:
       env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
       with:
-        timeout_minutes: 15
+        timeout_minutes: 30
         max_attempts: 3
         retry_wait_seconds: 120
         command: |

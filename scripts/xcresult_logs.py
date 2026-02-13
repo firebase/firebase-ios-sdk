@@ -51,11 +51,14 @@ def main():
   xcresult_path = flags.get('-resultBundlePath')
   if xcresult_path is None:
     workspace = flags.get('-workspace')
+    project_flag = flags.get('-project')
     if workspace:
-        project = project_from_workspace_path(workspace)
+      project = project_from_path(workspace, '.xcworkspace')
+    elif project_flag:
+      project = project_from_path(project_flag, '.xcodeproj')
     else:
-        # For SwiftPM, the project name is the name of the directory.
-        project = os.path.basename(os.getcwd())
+      # For SwiftPM, the project name is the name of the directory.
+      project = os.path.basename(os.getcwd())
     scheme = flags['-scheme']
     xcresult_path = find_xcresult_path(project, scheme)
 
@@ -95,6 +98,7 @@ def main():
 # Most flags on the xcodebuild command-line are uninteresting, so only pull
 # flags with known behavior with names in this set.
 INTERESTING_FLAGS = {
+    '-project',
     '-resultBundlePath',
     '-scheme',
     '-workspace',
@@ -120,21 +124,21 @@ def parse_xcodebuild_flags(args):
   return result
 
 
-def project_from_workspace_path(path):
-  """Extracts the project name from a workspace path.
+def project_from_path(path, expected_ext):
+  """Extracts the project name from a workspace or project path.
   Args:
-    path: The path to a .xcworkspace file
+    path: The path to a .xcworkspace or .xcodeproj file
+    expected_ext: The expected extension (e.g. .xcworkspace)
 
   Returns:
-    The project name from the basename of the path. For example, if path were
-    'Firestore/Example/Firestore.xcworkspace', returns 'Firestore'.
+    The project name from the basename of the path.
   """
   root, ext = os.path.splitext(os.path.basename(path))
-  if ext == '.xcworkspace':
-    _logger.debug('Using project %s from workspace %s', root, path)
+  if ext == expected_ext:
+    _logger.debug('Using project %s from path %s', root, path)
     return root
 
-  raise ValueError('%s is not a valid workspace path' % path)
+  raise ValueError('%s is not a valid path (expected %s)' % (path, expected_ext))
 
 
 def find_xcresult_path(project, scheme):
