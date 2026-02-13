@@ -183,18 +183,10 @@ public final class GenerativeModel: Sendable {
   #if compiler(>=6.2)
     @discardableResult
     public final nonisolated(nonsending)
-    func respond(to parts: any PartsRepresentable..., options: GenerationConfig? = nil)
-      async throws -> GenerativeModel.Response<String> {
-      let parts = [ModelContent(parts: parts)]
-      return try await respond(to: parts, options: options)
-    }
-
-    @discardableResult
-    public final nonisolated(nonsending)
-    func respond(to parts: [ModelContent], options: GenerationConfig? = nil)
+    func respond(to prompt: any PartsRepresentable, options: GenerationConfig? = nil)
       async throws -> GenerativeModel.Response<String> {
       return try await respond(
-        to: parts,
+        to: prompt,
         generating: String.self,
         schema: nil,
         includeSchemaInPrompt: false,
@@ -204,25 +196,11 @@ public final class GenerativeModel: Sendable {
 
     @discardableResult
     public final nonisolated(nonsending)
-    func respond(to parts: any PartsRepresentable..., schema: JSONSchema,
+    func respond(to prompt: any PartsRepresentable, schema: JSONSchema,
                  includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil)
       async throws -> GenerativeModel.Response<ModelOutput> {
-      let parts = [ModelContent(parts: parts)]
       return try await respond(
-        to: parts,
-        schema: schema,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
-
-    @discardableResult
-    public final nonisolated(nonsending)
-    func respond(to parts: [ModelContent], schema: JSONSchema, includeSchemaInPrompt: Bool = true,
-                 options: GenerationConfig? = nil)
-      async throws -> GenerativeModel.Response<ModelOutput> {
-      return try await respond(
-        to: parts,
+        to: prompt,
         generating: ModelOutput.self,
         schema: schema,
         includeSchemaInPrompt: includeSchemaInPrompt,
@@ -232,27 +210,12 @@ public final class GenerativeModel: Sendable {
 
     @discardableResult
     public final nonisolated(nonsending)
-    func respond<Content>(to parts: any PartsRepresentable...,
-                          generating type: Content.Type = Content.self,
-                          includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil)
-      async throws -> GenerativeModel.Response<Content> where Content: FirebaseGenerable {
-      let parts = [ModelContent(parts: parts)]
-      return try await respond(
-        to: parts,
-        generating: type,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
-
-    @discardableResult
-    public final nonisolated(nonsending)
-    func respond<Content>(to parts: [ModelContent],
+    func respond<Content>(to prompt: any PartsRepresentable,
                           generating type: Content.Type = Content.self,
                           includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil)
       async throws -> GenerativeModel.Response<Content> where Content: FirebaseGenerable {
       return try await respond(
-        to: parts,
+        to: prompt,
         generating: type,
         schema: type.jsonSchema,
         includeSchemaInPrompt: includeSchemaInPrompt,
@@ -260,56 +223,27 @@ public final class GenerativeModel: Sendable {
       )
     }
 
-    public final func streamResponse(to parts: any PartsRepresentable...,
+    public final func streamResponse(to prompt: any PartsRepresentable,
                                      options: GenerationConfig? = nil)
       -> sending GenerativeModel.ResponseStream<String> {
-      let parts = [ModelContent(parts: parts)]
-      return streamResponse(to: parts, options: options)
-    }
-
-    public final func streamResponse(to parts: [ModelContent], options: GenerationConfig? = nil)
-      -> sending GenerativeModel.ResponseStream<String> {
-      return streamResponse(to: parts, generating: String.self, schema: nil,
+      return streamResponse(to: prompt, generating: String.self, schema: nil,
                             includeSchemaInPrompt: false, options: options)
     }
 
-    public final func streamResponse(to parts: any PartsRepresentable..., schema: JSONSchema,
+    public final func streamResponse(to prompt: any PartsRepresentable, schema: JSONSchema,
                                      includeSchemaInPrompt: Bool = true,
                                      options: GenerationConfig? = nil)
       -> sending GenerativeModel.ResponseStream<ModelOutput> {
-      let parts = [ModelContent(parts: parts)]
-      return streamResponse(to: parts, schema: schema, includeSchemaInPrompt: includeSchemaInPrompt,
-                            options: options)
-    }
-
-    public final func streamResponse(to parts: [ModelContent], schema: JSONSchema,
-                                     includeSchemaInPrompt: Bool = true,
-                                     options: GenerationConfig? = nil)
-      -> sending GenerativeModel.ResponseStream<ModelOutput> {
-      return streamResponse(to: parts, generating: ModelOutput.self, schema: schema,
+      return streamResponse(to: prompt, generating: ModelOutput.self, schema: schema,
                             includeSchemaInPrompt: includeSchemaInPrompt, options: options)
     }
 
-    public final func streamResponse<Content>(to parts: any PartsRepresentable...,
+    public final func streamResponse<Content>(to prompt: any PartsRepresentable,
                                               generating type: Content.Type = Content.self,
                                               includeSchemaInPrompt: Bool = true,
                                               options: GenerationConfig? = nil)
       -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
-      let parts = [ModelContent(parts: parts)]
-      return streamResponse(
-        to: parts,
-        generating: type,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
-
-    public final func streamResponse<Content>(to parts: [ModelContent],
-                                              generating type: Content.Type = Content.self,
-                                              includeSchemaInPrompt: Bool = true,
-                                              options: GenerationConfig? = nil)
-      -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
-      return streamResponse(to: parts, generating: type, schema: type.jsonSchema,
+      return streamResponse(to: prompt, generating: type, schema: type.jsonSchema,
                             includeSchemaInPrompt: includeSchemaInPrompt, options: options)
     }
   #endif // compiler(>=6.2)
@@ -520,10 +454,12 @@ public final class GenerativeModel: Sendable {
   // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
   #if compiler(>=6.2)
     final nonisolated(nonsending)
-    func respond<Content>(to parts: [ModelContent], generating type: Content.Type,
+    func respond<Content>(to prompt: any PartsRepresentable, generating type: Content.Type,
                           schema: JSONSchema?, includeSchemaInPrompt: Bool,
                           options: GenerationConfig?)
       async throws -> GenerativeModel.Response<Content> where Content: FirebaseGenerable {
+      let parts = [ModelContent(parts: prompt)]
+
       let generationConfig: GenerationConfig?
       if let schema {
         generationConfig = GenerationConfig.merge(
@@ -562,10 +498,12 @@ public final class GenerativeModel: Sendable {
       // TODO: Add `GenerateContentResponse` as context in errors.
     }
 
-    final func streamResponse<Content>(to parts: [ModelContent], generating type: Content.Type,
-                                       schema: JSONSchema?, includeSchemaInPrompt: Bool,
-                                       options: GenerationConfig?)
+    final func streamResponse<Content>(to prompt: any PartsRepresentable,
+                                       generating type: Content.Type, schema: JSONSchema?,
+                                       includeSchemaInPrompt: Bool, options: GenerationConfig?)
       -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
+      let parts = [ModelContent(parts: prompt)]
+
       let generationConfig: GenerationConfig?
       if let schema {
         generationConfig = GenerationConfig.merge(
