@@ -591,11 +591,16 @@ public final class GenerativeModel: Sendable {
 
       do {
         let response = try await generateContent(parts, generationConfig: generationConfig)
-        guard let json = response.text else {
+        guard let text = response.text else {
           throw GenerationError.decodingFailure(.init(debugDescription: "No text in response."))
         }
         let responseID = response.responseID.map { ResponseID(responseID: $0) }
-        let modelOutput = try ModelOutput(json: json, id: responseID, streaming: false)
+        let modelOutput: ModelOutput
+        if schema == nil {
+          modelOutput = ModelOutput(kind: .string(text), id: responseID, isComplete: true)
+        } else {
+          modelOutput = try ModelOutput(json: text, id: responseID, streaming: false)
+        }
         return try GenerativeModel.Response<Content>(
           content: Content(modelOutput),
           rawContent: modelOutput,
