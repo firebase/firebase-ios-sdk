@@ -134,8 +134,7 @@ struct GenerateContentIntegrationTests {
     #expect(text == "Blue")
 
     let usageMetadata = try #require(response.usageMetadata)
-    if config == InstanceConfig.googleAI_v1beta ||
-        config == InstanceConfig.googleAI_v1beta_appCheckLimitedUse {
+    if case .googleAI = config.apiConfig.service {
       #expect(usageMetadata.promptTokenCount.isEqual(to: 11, accuracy: tokenCountAccuracy))
       #expect(usageMetadata.candidatesTokensDetails.count == 0)
     } else {
