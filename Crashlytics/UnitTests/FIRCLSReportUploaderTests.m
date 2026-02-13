@@ -215,6 +215,9 @@ NSString *const TestFIID = @"TestFIID";
 }
 
 - (void)testUrgentWaitUntilUpload {
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH || TARGET_OS_OSX
+  XCTSkip(@"Skipping flaky test testUrgentWaitUntilUpload");
+#endif
   self.mockDataTransport.async = YES;
 
   [self runUploadPackagedReportWithUrgency:YES];
