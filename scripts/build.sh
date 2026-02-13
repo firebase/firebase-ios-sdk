@@ -367,7 +367,6 @@ case "$product-$platform-$method" in
         build
     ;;
 
-    ;;
 
   Firestore-*-xcodebuild)
       # Memory intensive, so we limit jobs.
