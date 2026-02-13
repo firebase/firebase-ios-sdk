@@ -25,7 +25,7 @@ import Testing
 
 @testable import struct FirebaseAILogic.BackendError
 
-@Suite(.serialized)
+@Suite(.serialized, .disabled("Skipping tests to avoid quota issues"))
 struct GenerateContentIntegrationTests {
   // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
   let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
@@ -66,8 +66,6 @@ struct GenerateContentIntegrationTests {
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: generationConfig,
@@ -119,8 +117,6 @@ struct GenerateContentIntegrationTests {
     arguments: InstanceConfig.allConfigs
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2FlashLite,
       generationConfig: GenerationConfig(
@@ -209,8 +205,6 @@ struct GenerateContentIntegrationTests {
   )
   func generateContentThinking(_ config: InstanceConfig, modelName: String,
                                thinkingConfig: ThinkingConfig) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: GenerationConfig(
@@ -306,8 +300,6 @@ struct GenerateContentIntegrationTests {
   )
   func generateContentThinkingFunctionCalling(_ config: InstanceConfig, modelName: String,
                                               thinkingConfig: ThinkingConfig) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let getTemperatureDeclaration = FunctionDeclaration(
       name: "getTemperature",
       description: "Returns the current temperature in Celsius for the specified location",
@@ -378,8 +370,6 @@ struct GenerateContentIntegrationTests {
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
   ])
   func generateImage(_ config: InstanceConfig, modelName: String) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let generationConfig = GenerationConfig(
       temperature: 0.0,
       topP: 0.0,
@@ -421,8 +411,6 @@ struct GenerateContentIntegrationTests {
     arguments: InstanceConfig.allConfigs
   )
   func generateContent_withGoogleSearch_succeeds(_ config: InstanceConfig) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash,
       tools: [.googleSearch()]
@@ -462,8 +450,6 @@ struct GenerateContentIntegrationTests {
     arguments: InstanceConfig.allConfigs
   )
   func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_Flash,
       tools: [.urlContext()]
@@ -482,8 +468,6 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: InstanceConfig.allConfigs)
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: generationConfig,
@@ -530,8 +514,6 @@ struct GenerateContentIntegrationTests {
 //    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
   ])
   func generateContentStream(_ config: InstanceConfig, modelName: String) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let expectedResponse = [
       "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune",
     ]
@@ -586,8 +568,6 @@ struct GenerateContentIntegrationTests {
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
   ])
   func generateImageStreaming(_ config: InstanceConfig, modelName: String) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let generationConfig = GenerationConfig(
       temperature: 0.0,
       topP: 0.0,
@@ -635,8 +615,6 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: InstanceConfig.appCheckNotConfiguredConfigs)
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
-    // Skip all tests in this suite to avoid quota issues
-    try #require(false, "Skipping tests to avoid quota issues")
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2Flash
     )

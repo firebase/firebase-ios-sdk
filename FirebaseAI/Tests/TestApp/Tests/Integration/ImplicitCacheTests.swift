@@ -17,7 +17,7 @@ import FirebaseAITestApp
 import Foundation
 import Testing
 
-@Suite(.serialized)
+@Suite(.serialized, .disabled("Skipping tests to avoid quota issues"))
 struct ImplicitCacheTests {
   // A large repeating string to exceed the 1024 token threshold for implicit caching.
   // 500 repetitions of ~68 chars = ~34000 chars, which is > 1024 tokens.

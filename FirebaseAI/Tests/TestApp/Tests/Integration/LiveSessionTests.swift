@@ -19,7 +19,7 @@ import Testing
 
 @testable import struct FirebaseAILogic.APIConfig
 
-@Suite(.serialized)
+@Suite(.serialized, .disabled("Skipping tests to avoid quota issues"))
 struct LiveSessionTests {
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
