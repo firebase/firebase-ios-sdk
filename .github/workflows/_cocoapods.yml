@@ -110,11 +110,11 @@ on:
         required: false
         default: ""
 
-      # The timeout (in minutes) for the linting to complete. Defaults to 20.
+      # The timeout (in minutes) for the linting to complete. Defaults to 60.
       timeout_minutes:
         type: number
         required: false
-        default: 20
+        default: 60
 
 jobs:
   pod-lib-lint:
