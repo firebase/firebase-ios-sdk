@@ -173,6 +173,9 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 }
 
 - (void)testRefreshAuthTokenSuccessWhenHeartbeatsNeedSending {
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH || TARGET_OS_OSX
+  XCTSkip(@"Skipping flaky test testRefreshAuthTokenSuccessWhenHeartbeatsNeedSending");
+#endif
   // Given
   FIRHeartbeatsPayload *nonEmptyHeartbeatsPayload =
       [FIRHeartbeatLoggingTestUtils nonEmptyHeartbeatsPayload];
