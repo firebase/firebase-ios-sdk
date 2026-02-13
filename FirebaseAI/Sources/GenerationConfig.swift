@@ -228,9 +228,9 @@ public struct GenerationConfig: Sendable {
     var config = baseConfig
 
     // 4. Overwrite with any non-nil values found in the overrides.
-    if let temperature = overrideConfig.temperature { config.temperature = temperature }
-    if let topP = overrideConfig.topP { config.topP = topP }
-    if let topK = overrideConfig.topK { config.topK = topK }
+    config.temperature = overrideConfig.temperature ?? config.temperature
+    config.topP = overrideConfig.topP ?? config.topP
+    config.topK = overrideConfig.topK ?? config.topK
     config.candidateCount = overrideConfig.candidateCount ?? config.candidateCount
     config.maxOutputTokens = overrideConfig.maxOutputTokens ?? config.maxOutputTokens
     config.presencePenalty = overrideConfig.presencePenalty ?? config.presencePenalty
