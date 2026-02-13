@@ -181,62 +181,6 @@ public final class GenerativeModel: Sendable {
 
   // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
   #if compiler(>=6.2)
-
-    // TODO: Update public API
-    public func generate<Content>(_ type: Content.Type,
-                                  from parts: any PartsRepresentable...) async throws
-      -> Response<Content> where Content: FirebaseGenerable {
-      var generationConfig = self.generationConfig ?? GenerationConfig()
-      generationConfig.candidateCount = nil
-      generationConfig.responseMIMEType = "application/json"
-      generationConfig.responseJSONSchema = type.jsonSchema
-      generationConfig.responseModalities = nil
-
-      let response: GenerateContentResponse
-      do {
-        response = try await generateContent(
-          [ModelContent(parts: parts)], generationConfig: generationConfig
-        )
-      } catch let error as GenerateContentError {
-        throw GenerationError.generationFailure(error)
-      } catch {
-        throw GenerationError
-          .generationFailure(GenerateContentError.internalError(underlying: error))
-      }
-
-      // TODO: Add `GenerateContentResponse` as context in errors.
-
-      guard let jsonText = response.text else {
-        throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "No JSON text in response.")
-        )
-      }
-
-      let modelOutput: ModelOutput
-      do {
-        modelOutput = try ModelOutput(json: jsonText)
-      } catch let error as GenerationError {
-        throw error
-      } catch {
-        throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "Failed to decode response JSON: \(jsonText)")
-        )
-      }
-
-      let content: Content
-      do {
-        content = try Content(modelOutput)
-      } catch let error as GenerationError {
-        throw error
-      } catch {
-        throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "Failed to decode \(type) from: \(modelOutput)")
-        )
-      }
-
-      return Response(content: content, rawContent: modelOutput, rawResponse: response)
-    }
-
     @discardableResult
     public final nonisolated(nonsending)
     func respond(to parts: any PartsRepresentable..., options: GenerationConfig? = nil)
@@ -615,6 +559,7 @@ public final class GenerativeModel: Sendable {
           GenerateContentError.internalError(underlying: error)
         )
       }
+      // TODO: Add `GenerateContentResponse` as context in errors.
     }
 
     final func streamResponse<Content>(to parts: [ModelContent], generating type: Content.Type,
@@ -656,6 +601,7 @@ public final class GenerativeModel: Sendable {
             GenerateContentError.internalError(underlying: error)
           ))
         }
+        // TODO: Add `GenerateContentResponse` as context in errors.
       }
     }
   #endif // compiler(>=6.2)
