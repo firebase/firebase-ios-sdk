@@ -84,6 +84,9 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
 }
 
 - (void)test_settingSessionIDMultipleTimes_protoHasLastSessionID {
+#if TARGET_OS_MACCATALYST
+  XCTSkip(@"Skipping flaky test on Catalyst");
+#endif
   [self.contextManager setAppQualitySessionId:TestContextSessionID];
 
   FBLPromiseAwait([self.contextManager setupContextWithReport:self.report
