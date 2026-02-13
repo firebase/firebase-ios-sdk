@@ -63,4 +63,30 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
     fieldName = fieldBridge.field_name()
     alias = fieldName
   }
+
+  /// Creates a condition that evaluates to true if the field matches the search query.
+  ///
+  /// - Parameters:
+  ///   - query: The text to search for.
+  ///   - mode: The search mode to use (e.g. `.semantic`). Defaults to standard full-text search.
+  /// - Returns: A `BooleanExpression` representing the search predicate.
+  public func searchFor(_ query: String, mode: SearchMode? = nil) -> BooleanExpression {
+    var args: [Sendable] = [self, query]
+    if let mode = mode {
+      args.append(mode.rawValue)
+    }
+    let expressionArgs = args.map { Helper.sendableToExpr($0) }
+    return BooleanFunctionExpression(functionName: "search_for", args: expressionArgs)
+  }
+
+  /// Calculates the distance between the GeoPoint in this field and a target location.
+  ///
+  /// - Parameter location: The target `GeoPoint`.
+  /// - Returns: An `Expression` representing the distance in meters.
+  public func geoDistance(_ location: FirebaseFirestore.GeoPoint) -> Expression {
+    return FunctionExpression(
+      functionName: "geo_distance",
+      args: [self, Constant(location)]
+    )
+  }
 }

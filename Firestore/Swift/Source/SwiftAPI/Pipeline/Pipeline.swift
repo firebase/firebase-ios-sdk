@@ -700,6 +700,81 @@ public struct Pipeline: @unchecked Sendable {
     }
   }
 
+  /// Performs a search on the collection.
+  ///
+  /// - Parameters:
+  ///   - query: An `Expression` defining the search criteria (e.g.,
+  /// `Field("menu").searchFor("waffles")`).
+  ///   - limit: The maximum number of documents to return.
+  ///   - maxToScore: The maximum number of documents to score.
+  ///   - sort: An array of `Ordering` objects to sort the results.
+  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
+  ///   - select: An array of `Selectable` fields or field names to include in the result.
+  ///   - offset: The number of documents to skip.
+  ///   - partition: A dictionary defining the partition key values for the search index.
+  /// - Returns: A new `Pipeline` with the search stage appended.
+  public func search(query: Expression? = nil,
+                     limit: Int? = nil,
+                     maxToScore: Int? = nil,
+                     sort: [Ordering]? = nil,
+                     addFields: [Selectable]? = nil,
+                     select: [Selectable]? = nil,
+                     offset: Int? = nil,
+                     partition: [String: Sendable]? = nil) -> Pipeline {
+    if let errorMessage = errorMessage {
+      return withError(errorMessage)
+    }
+    let stage = Search(
+      query: query,
+      limit: limit,
+      maxToScore: maxToScore,
+      sort: sort,
+      addFields: addFields,
+      select: select,
+      offset: offset,
+      partition: partition
+    )
+    if let errorMessage = stage.errorMessage {
+      return withError(errorMessage)
+    } else {
+      return Pipeline(stages: stages + [stage], db: db)
+    }
+  }
+
+  /// Performs a search using a raw query string (RQuery).
+  ///
+  /// - Parameters:
+  ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
+  ///   - limit: The maximum number of documents to return.
+  ///   - maxToScore: The maximum number of documents to score.
+  ///   - sort: An array of `Ordering` objects to sort the results.
+  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
+  ///   - select: An array of `Selectable` fields or field names to include in the result.
+  ///   - offset: The number of documents to skip.
+  ///   - partition: A dictionary defining the partition key values for the search index.
+  /// - Returns: A new `Pipeline` with the search stage appended.
+  public func search(query: String? = nil,
+                     limit: Int? = nil,
+                     maxToScore: Int? = nil,
+                     sort: [Ordering]? = nil,
+                     addFields: [Selectable]? = nil,
+                     select: [Selectable]? = nil,
+                     offset: Int? = nil,
+                     partition: [String: Sendable]? = nil) -> Pipeline {
+    // Convert String? to Expression?
+    let expressionQuery = query.map { Constant($0) }
+    return search(
+      query: expressionQuery,
+      limit: limit,
+      maxToScore: maxToScore,
+      sort: sort,
+      addFields: addFields,
+      select: select,
+      offset: offset,
+      partition: partition
+    )
+  }
+
   /// Performs a union of all documents from this pipeline and another, including duplicates.
   ///
   /// Passes through documents from this pipeline's previous stage and also those from

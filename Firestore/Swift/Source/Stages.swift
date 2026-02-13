@@ -341,6 +341,67 @@ class Sample: Stage {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class Search: Stage {
+  let name: String = "search"
+  let bridge: StageBridge
+  let errorMessage: String?
+
+  init(query: Expression? = nil,
+       limit: Int? = nil,
+       maxToScore: Int? = nil,
+       sort: [Ordering]? = nil,
+       addFields: [Selectable]? = nil,
+       select: [Selectable]? = nil,
+       offset: Int? = nil,
+       partition: [String: Sendable]? = nil) {
+    var options: [String: Sendable] = [:]
+    if let limit = limit {
+      options["limit"] = limit
+    }
+    if let maxToScore = maxToScore {
+      options["maxToScore"] = maxToScore
+    }
+    if let sort = sort {
+      options["sort"] = sort.map { $0.bridge }
+    }
+    if let addFields = addFields {
+      let (map, error) = Helper.selectablesToMap(selectables: addFields)
+      if let error = error {
+        errorMessage = error.localizedDescription
+        bridge = RawStageBridge(name: name, params: [], options: [:])
+        return
+      }
+      options["addFields"] = map.mapValues { $0.toBridge() }
+    }
+    if let select = select {
+      let (map, error) = Helper.selectablesToMap(selectables: select)
+      if let error = error {
+        errorMessage = error.localizedDescription
+        bridge = RawStageBridge(name: name, params: [], options: [:])
+        return
+      }
+      options["select"] = map.mapValues { $0.toBridge() }
+    }
+    if let offset = offset {
+      options["offset"] = offset
+    }
+    if let partition = partition {
+      options["partition"] = partition
+    }
+
+    errorMessage = nil
+    // As SearchStageBridge is not available, we use RawStageBridge.
+    // The query is the main parameter.
+    var bridgeParams: [AnyObject] = []
+    if let query = query {
+      bridgeParams.append(Helper.sendableToAnyObjectForRawStage(query))
+    }
+    let bridgeOptions = options.mapValues { Helper.sendableToExpr($0).toBridge() }
+    bridge = RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Union: Stage {
   let name: String = "union"
   let bridge: StageBridge

@@ -1084,4 +1084,80 @@ public extension Expression {
   func type() -> FunctionExpression {
     return FunctionExpression(functionName: "type", args: [self])
   }
+
+  // MARK: - Snippet
+
+  /// Evaluates to an HTML-formatted text snippet highlighting terms matching the search query.
+  ///
+  /// - Parameters:
+  ///   - rquery: The search query string used to find matches (Required).
+  ///   - maxSnippetWidth: The maximum width of the snippet (default: 160).
+  ///   - maxSnippets: The maximum number of text pieces to return (default: 1).
+  ///   - separator: The string used to join pieces (default: "\n").
+  ///   - searchMode: The mode to use for matching.
+  /// - Returns: An `Expression` evaluating to the HTML snippet string.
+  func snippet(_ rquery: String,
+               maxSnippetWidth: Int? = nil,
+               maxSnippets: Int? = nil,
+               separator: String? = nil,
+               searchMode: SearchMode? = nil) -> Expression {
+    var args: [Expression] = [self, Constant(rquery)]
+
+    var options: [String: Sendable] = [:]
+    if let maxSnippetWidth = maxSnippetWidth {
+      options["maxSnippetWidth"] = maxSnippetWidth
+    }
+    if let maxSnippets = maxSnippets {
+      options["maxSnippets"] = maxSnippets
+    }
+    if let separator = separator {
+      options["separator"] = separator
+    }
+    if let searchMode = searchMode {
+      options["searchMode"] = searchMode.rawValue
+    }
+
+    if !options.isEmpty {
+      args.append(Helper.sendableToExpr(options))
+    }
+
+    return FunctionExpression(functionName: "snippet", args: args)
+  }
+
+  // MARK: - Range Operations
+
+  /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
+  /// and `upperBound` (inclusive).
+  ///
+  /// ```swift
+  /// // Evaluate if the "tireWidth" is between 2.2 and 2.4
+  /// Field("tireWidth").between(2.2, 2.4)
+  ///
+  /// // This is functionally equivalent to:
+  /// // Field("tireWidth").greaterThanOrEqual(2.2) && Field("tireWidth").lessThanOrEqual(2.4)
+  /// ```
+  ///
+  /// - Parameters:
+  ///   - lowerBound: The lower bound value (inclusive).
+  ///   - upperBound: The upper bound value (inclusive).
+  /// - Returns: A `BooleanExpression` representing the range check.
+  func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression {
+    return between(Helper.sendableToExpr(lowerBound), Helper.sendableToExpr(upperBound))
+  }
+
+  /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
+  /// and `upperBound` (inclusive).
+  ///
+  /// ```swift
+  /// // Evaluate if "tireWidth" is between the values of "minWidth" and "maxWidth" fields
+  /// Field("tireWidth").between(Field("minWidth"), Field("maxWidth"))
+  /// ```
+  ///
+  // - Parameters:
+  ///   - lowerBound: The lower bound expression (inclusive).
+  ///   - upperBound: The upper bound expression (inclusive).
+  /// - Returns: A `BooleanExpression` representing the range check.
+  func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression {
+    return greaterThanOrEqual(lowerBound) && lessThanOrEqual(upperBound)
+  }
 }

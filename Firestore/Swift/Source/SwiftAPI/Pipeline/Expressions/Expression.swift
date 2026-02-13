@@ -1689,4 +1689,42 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
   func type() -> FunctionExpression
+
+  /// Evaluates to an HTML-formatted text snippet highlighting terms matching the search query.
+  ///
+  /// - Parameters:
+  ///   - rquery: The search query string used to find matches (Required).
+  ///   - maxSnippetWidth: The maximum width of the snippet (default: 160).
+  ///   - maxSnippets: The maximum number of text pieces to return (default: 1).
+  ///   - separator: The string used to join pieces (default: "\n").
+  ///   - searchMode: The mode to use for matching.
+  /// - Returns: An `Expression` evaluating to the HTML snippet string.
+  func snippet(_ rquery: String,
+               maxSnippetWidth: Int?,
+               maxSnippets: Int?,
+               separator: String?,
+               searchMode: SearchMode?) -> Expression
+
+  /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
+  /// and `upperBound` (inclusive).
+  ///
+  /// - Parameters:
+  ///   - lowerBound: The lower bound value (inclusive).
+  ///   - upperBound: The upper bound value (inclusive).
+  /// - Returns: A `BooleanExpression` representing the range check.
+  func between(_ lowerBound: Sendable, _ upperBound: Sendable) -> BooleanExpression
+
+  /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
+  /// and `upperBound` (inclusive).
+  ///
+  /// - Parameters:
+  ///   - lowerBound: The lower bound expression (inclusive).
+  ///   - upperBound: The upper bound expression (inclusive).
+  /// - Returns: A `BooleanExpression` representing the range check.
+  func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression
+}
+
+public enum SearchMode: String, Sendable {
+  case standard
+  case semantic
 }
