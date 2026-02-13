@@ -95,14 +95,15 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     self = value.modelOutput
   }
 
-  init(json: String, id: ResponseID? = nil, streaming: Bool) throws {
+  init(json: String, id: ResponseID? = nil, streaming: Bool?) throws {
     var modelOutput: ModelOutput
     var decodingError: Error?
 
     // 1. Attempt to decode the JSON with the standard `JSONDecoder` since it likely offers the best
-    //    performance and is available on iOS 15+. Note: This approach does not support decoding
-    //    partial JSON when streaming.
-    if !streaming {
+    //    performance and is available on iOS 15+.
+    //    Note: This approach does not support decoding partial JSON when streaming. As an
+    //    optimization, this approach is skipped when `streaming` is explicitly set to `true`.
+    if streaming != true {
       guard let jsonData = json.data(using: .utf8) else {
         throw GenerativeModel.GenerationError.decodingFailure(
           GenerativeModel.GenerationError.Context(
@@ -156,7 +157,9 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
   }
 
   public init(json: String) throws {
-    try self.init(json: json, id: nil, streaming: true)
+    // Since it's unknown if the JSON is partial (for streaming), disable the optimizations by
+    // specifying `streaming: nil`.
+    try self.init(json: json, id: nil, streaming: nil)
   }
 
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
