@@ -728,9 +728,7 @@ class StorageResultTests: StorageIntegrationCommon {
     XCTAssertEqual(resumeAtBytes, Int.max)
   }
 
-  func testResumeGetFileInBackgroundQueue() throws {
-    // Skipping flaky test.
-    try XCTSkipIf(true, "Skipping flaky test testResumeGetFileInBackgroundQueue")
+  func testResumeGetFileInBackgroundQueue() {
     let expectation = self.expectation(description: #function)
     let expectationPause = self.expectation(description: "pause")
     let expectationResume = self.expectation(description: "resume")

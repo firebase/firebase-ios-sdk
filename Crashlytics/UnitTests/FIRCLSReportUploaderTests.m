@@ -214,7 +214,7 @@ NSString *const TestFIID = @"TestFIID";
   [self runUploadPackagedReportWithUrgency:YES];
 }
 
-- (void)disabled_testUrgentWaitUntilUpload {
+- (void)testUrgentWaitUntilUpload {
   self.mockDataTransport.async = YES;
 
   [self runUploadPackagedReportWithUrgency:YES];

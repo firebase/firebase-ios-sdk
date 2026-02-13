@@ -367,16 +367,6 @@ case "$product-$platform-$method" in
         build
     ;;
 
-  Firestore-*-xcodebuild)
-    "${firestore_emulator}" start
-    trap '"${firestore_emulator}" stop' ERR EXIT
-
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_IntegrationTests_$platform" \
-        -enableCodeCoverage YES \
-        "${xcb_flags[@]}" \
-        test
     ;;
 
   Firestore-*-xcodebuild)
