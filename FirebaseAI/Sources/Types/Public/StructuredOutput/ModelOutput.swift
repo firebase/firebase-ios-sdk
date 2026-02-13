@@ -104,7 +104,11 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     //    partial JSON when streaming.
     if !streaming {
       guard let jsonData = json.data(using: .utf8) else {
-        fatalError("TODO: Throw a reasonable decoding error")
+        throw GenerativeModel.GenerationError.decodingFailure(
+          GenerativeModel.GenerationError.Context(
+            debugDescription: "Failed to convert JSON to `Data`: \(json)"
+          )
+        )
       }
       do {
         let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
@@ -139,21 +143,15 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
 
     // 3. Fallback to decoding with a custom `StreamingJSONParser` when `GeneratedContent` is not
     //    available.
-    let parser = StreamingJSONParser(json)
-    if let parsedModelOutput = parser.parse() {
-      modelOutput = parsedModelOutput
-      modelOutput.id = id
-
-      self = modelOutput
-
-      return
-    }
+    // TODO: Add a fallback streaming JSON parser
 
     // 4. Throw a decoding error if all attempts to decode the JSON have failed.
     if let decodingError {
       throw decodingError
     } else {
-      fatalError("TODO: Throw a decoding error")
+      throw GenerativeModel.GenerationError.decodingFailure(
+        GenerativeModel.GenerationError.Context(debugDescription: "Failed to decode JSON: \(json)")
+      )
     }
   }
 
