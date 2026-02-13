@@ -112,7 +112,7 @@
         } else if let last = _latestRaw {
           result = .success(last)
         } else {
-          result = .failure(AsyncSequenceErrors.unexpectedlyEmpty)
+          result = .failure(ResponseStreamError.noContentGenerated)
         }
 
         _finalResult = result
@@ -122,11 +122,12 @@
         }
         _waitingContinuations.removeAll()
       }
+    }
 
-      // TODO: Create a better error type
-      enum AsyncSequenceErrors: Error {
-        case unexpectedlyEmpty
-      }
+    enum ResponseStreamError: Error {
+      /// Thrown when `collect()` is called on a stream that finishes without producing any
+      /// snapshots.
+      case noContentGenerated
     }
   }
 #endif // compiler(>=6.2)

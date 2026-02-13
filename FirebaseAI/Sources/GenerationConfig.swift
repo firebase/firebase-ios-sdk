@@ -231,24 +231,14 @@ public struct GenerationConfig: Sendable {
     if let temperature = overrideConfig.temperature { config.temperature = temperature }
     if let topP = overrideConfig.topP { config.topP = topP }
     if let topK = overrideConfig.topK { config.topK = topK }
-    if let candidateCount = overrideConfig.candidateCount { config.candidateCount = candidateCount }
-    if let maxOutputTokens = overrideConfig.maxOutputTokens {
-      config.maxOutputTokens = maxOutputTokens
-    }
-    if let presencePenalty = overrideConfig.presencePenalty {
-      config.presencePenalty = presencePenalty
-    }
-    if let frequencyPenalty = overrideConfig.frequencyPenalty {
-      config.frequencyPenalty = frequencyPenalty
-    }
-    if let stopSequences = overrideConfig.stopSequences { config.stopSequences = stopSequences }
-    if let responseMIMEType = overrideConfig.responseMIMEType {
-      config.responseMIMEType = responseMIMEType
-    }
-    if let responseModalities = overrideConfig.responseModalities {
-      config.responseModalities = responseModalities
-    }
-    if let thinkingConfig = overrideConfig.thinkingConfig { config.thinkingConfig = thinkingConfig }
+    config.candidateCount = overrideConfig.candidateCount ?? config.candidateCount
+    config.maxOutputTokens = overrideConfig.maxOutputTokens ?? config.maxOutputTokens
+    config.presencePenalty = overrideConfig.presencePenalty ?? config.presencePenalty
+    config.frequencyPenalty = overrideConfig.frequencyPenalty ?? config.frequencyPenalty
+    config.stopSequences = overrideConfig.stopSequences ?? config.stopSequences
+    config.responseMIMEType = overrideConfig.responseMIMEType ?? config.responseMIMEType
+    config.responseModalities = overrideConfig.responseModalities ?? config.responseModalities
+    config.thinkingConfig = overrideConfig.thinkingConfig ?? config.thinkingConfig
 
     // 5. Handle Schema mutual exclusivity with precedence for `responseJSONSchema`.
     if let responseJSONSchema = overrideConfig.responseJSONSchema {
