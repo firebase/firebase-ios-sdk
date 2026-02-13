@@ -138,7 +138,8 @@ def project_from_path(path, expected_ext):
     _logger.debug('Using project %s from path %s', root, path)
     return root
 
-  raise ValueError('%s is not a valid path (expected %s)' % (path, expected_ext))
+  raise ValueError(
+      '%s is not a valid path (expected %s)' % (path, expected_ext))
 
 
 def find_xcresult_path(project, scheme):
