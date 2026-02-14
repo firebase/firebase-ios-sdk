@@ -51,18 +51,16 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
-    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3FlashPreview),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
     (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
     // Note: The following configs are commented out for easy one-off manual testing.
-    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
     // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
-    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
   ])
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
@@ -186,7 +184,7 @@ struct GenerateContentIntegrationTests {
   )
   func generateContentEnum(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2FlashLite,
+      modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "text/x.enum",
         responseSchema: .enumeration(values: ["Red", "Green", "Blue"])
@@ -204,7 +202,16 @@ struct GenerateContentIntegrationTests {
     #expect(text == "Blue")
 
     let usageMetadata = try #require(response.usageMetadata)
-    #expect(usageMetadata.promptTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
+    if case .googleAI = config.apiConfig.service {
+      #expect(usageMetadata.promptTokenCount.isEqual(to: 11, accuracy: tokenCountAccuracy))
+      #expect(usageMetadata.candidatesTokensDetails.count == 0)
+    } else {
+      #expect(usageMetadata.promptTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
+      #expect(usageMetadata.candidatesTokensDetails.count == 1)
+      let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+      #expect(candidatesTokensDetails.modality == .text)
+      #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+    }
     #expect(usageMetadata.candidatesTokenCount.isEqual(to: 1, accuracy: tokenCountAccuracy))
     #expect(usageMetadata.thoughtsTokenCount == 0)
     #expect(usageMetadata.totalTokenCount
@@ -213,10 +220,6 @@ struct GenerateContentIntegrationTests {
     let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
-    #expect(usageMetadata.candidatesTokensDetails.count == 1)
-    let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
-    #expect(candidatesTokensDetails.modality == .text)
-    #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
   }
 
   // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
@@ -610,16 +613,16 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3FlashPreview),
     (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini3FlashPreview),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
-    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
     // Note: The following configs are commented out for easy one-off manual testing.
-    // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
-    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
+    // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
+    // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
-//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
+//    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
 //    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
   ])
   func generateContentStream(_ config: InstanceConfig, modelName: String) async throws {
@@ -725,7 +728,7 @@ struct GenerateContentIntegrationTests {
   @Test(arguments: InstanceConfig.appCheckNotConfiguredConfigs)
   func generateContent_appCheckNotConfigured_shouldFail(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash
+      modelName: ModelNames.gemini2_5_Flash
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
 

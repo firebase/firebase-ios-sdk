@@ -54,7 +54,7 @@ on:
 
 jobs:
   quickstart_framework:
-    if: ${{ !cancelled() }}
+    if: github.event.pull_request.head.repo.fork == false && ${{ !cancelled() }}
     env:
       plist_secret: ${{ secrets.plist_secret }}
       SDK: ${{ inputs.product }}

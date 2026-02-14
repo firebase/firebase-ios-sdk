@@ -206,7 +206,7 @@ jobs:
 
   quickstart_framework_matrix:
     needs: packaging_done
-    if: ${{ !cancelled() }}
+    if: github.event.pull_request.head.repo.fork == false && ${{ !cancelled() }}
     strategy:
       fail-fast: false
       matrix:

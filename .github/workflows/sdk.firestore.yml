@@ -28,8 +28,6 @@ concurrency:
 jobs:
   changes:
     runs-on: macos-14
-    # Only when this is not a scheduled run
-    if: github.event_name != 'schedule'
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
@@ -263,7 +261,7 @@ jobs:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request')
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: macos-15
 
     strategy:
@@ -395,6 +393,7 @@ jobs:
           '',
         ]
         os: [macos-15]
+        xcode: [Xcode_16.4]
         # Skip matrix cells covered by pod-lib-lint job.
         exclude:
           - os: macos-15
@@ -502,6 +501,8 @@ jobs:
       FIREBASE_SOURCE_FIRESTORE: 1
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
