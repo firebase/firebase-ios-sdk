@@ -95,16 +95,71 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     self = value.modelOutput
   }
 
-  public init(json: String, id: ResponseID? = nil) throws {
-    guard let jsonData = json.data(using: .utf8) else {
-      fatalError()
+  init(json: String, id: ResponseID? = nil, streaming: Bool?) throws {
+    var modelOutput: ModelOutput
+    var decodingError: Error?
+
+    // 1. Attempt to decode the JSON with the standard `JSONDecoder` since it likely offers the best
+    //    performance and is available on iOS 15+.
+    //    Note: This approach does not support decoding partial JSON when streaming. As an
+    //    optimization, this approach is skipped when `streaming` is explicitly set to `true`.
+    if streaming != true {
+      guard let jsonData = json.data(using: .utf8) else {
+        throw GenerativeModel.GenerationError.decodingFailure(
+          GenerativeModel.GenerationError.Context(
+            debugDescription: "Failed to convert JSON to `Data`: \(json)"
+          )
+        )
+      }
+      do {
+        let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
+        modelOutput = jsonValue.modelOutput
+        modelOutput.id = id
+
+        self = modelOutput
+
+        return
+      } catch {
+        decodingError = error
+      }
     }
 
-    let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
-    var modelOutput = jsonValue.modelOutput
-    modelOutput.id = id
+    // 2. Attempt to decode using `GeneratedContent` from Foundation Models when available. It is
+    //    designed to handle streaming JSON.
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+        do {
+          let generatedContent = try GeneratedContent(json: json)
+          modelOutput = generatedContent.modelOutput
+          modelOutput.id = id
 
-    self = modelOutput
+          self = modelOutput
+
+          return
+        } catch {
+          decodingError = error
+        }
+      }
+    #endif // canImport(FoundationModels)
+
+    // 3. Fallback to decoding with a custom `StreamingJSONParser` when `GeneratedContent` is not
+    //    available.
+    // TODO: Add a fallback streaming JSON parser
+
+    // 4. Throw a decoding error if all attempts to decode the JSON have failed.
+    if let decodingError {
+      throw decodingError
+    } else {
+      throw GenerativeModel.GenerationError.decodingFailure(
+        GenerativeModel.GenerationError.Context(debugDescription: "Failed to decode JSON: \(json)")
+      )
+    }
+  }
+
+  public init(json: String) throws {
+    // Since it's unknown if the JSON is partial (for streaming), disable the optimizations by
+    // specifying `streaming: nil`.
+    try self.init(json: json, id: nil, streaming: nil)
   }
 
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
