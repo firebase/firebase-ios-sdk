@@ -283,7 +283,7 @@ public final class GenerativeModel: Sendable {
         let appleTools = try tools.map {
           try GenerativeModel.makeAdapter(for: $0)
         }
-        let session = try LanguageModelSession(model: .default, tools: appleTools)
+        let session = LanguageModelSession(model: .default, tools: appleTools)
         let response = try await session.respond(to: prompt)
 
         return response.content
