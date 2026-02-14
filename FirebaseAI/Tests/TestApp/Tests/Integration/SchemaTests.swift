@@ -999,8 +999,14 @@ struct SchemaTests {
   }
 
   private static func testConfigs(instanceConfigs: [InstanceConfig], openAPISchema: Schema,
-                                  firebaseGenerationSchema: FirebaseGenerationSchema) -> [(InstanceConfig, SchemaType)] {
-    return instanceConfigs.flatMap { [($0, .openAPI(openAPISchema)), ($0, .json(firebaseGenerationSchema))] }
+                                  firebaseGenerationSchema: FirebaseGenerationSchema) -> [(
+    InstanceConfig,
+    SchemaType
+  )] {
+    return instanceConfigs.flatMap { [
+      ($0, .openAPI(openAPISchema)),
+      ($0, .json(firebaseGenerationSchema)),
+    ] }
   }
 }
 
