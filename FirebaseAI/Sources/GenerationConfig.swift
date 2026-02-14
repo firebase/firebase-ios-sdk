@@ -187,7 +187,8 @@ public struct GenerationConfig: Sendable {
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
        maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-       stopSequences: [String]? = nil, responseMIMEType: String, responseFirebaseGenerationSchema: FirebaseGenerationSchema,
+       stopSequences: [String]? = nil, responseMIMEType: String,
+       responseFirebaseGenerationSchema: FirebaseGenerationSchema,
        responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
@@ -261,7 +262,8 @@ public struct GenerationConfig: Sendable {
   /// - Returns: A non-nil `GenerationConfig` with the merged values and JSON constraints applied.
   static func merge(_ base: GenerationConfig?,
                     with overrides: GenerationConfig?,
-                    enforcingFirebaseGenerationSchema firebaseGenerationSchema: FirebaseGenerationSchema) -> GenerationConfig {
+                    enforcingFirebaseGenerationSchema firebaseGenerationSchema: FirebaseGenerationSchema)
+    -> GenerationConfig {
     // 1. Merge base and overrides, defaulting to a fresh config if both are nil.
     var config = GenerationConfig.merge(base, with: overrides) ?? GenerationConfig()
 
