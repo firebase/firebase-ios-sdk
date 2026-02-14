@@ -158,7 +158,11 @@ final class GenerationConfigTests: XCTestCase {
     static var firebaseGenerationSchema: FirebaseGenerationSchema {
       FirebaseGenerationSchema(type: Self.self, properties: [
         FirebaseGenerationSchema.Property(name: "firstName", type: String.self),
-        FirebaseGenerationSchema.Property(name: "middleNames", type: [String].self, guides: [.count(0 ... 3)]),
+        FirebaseGenerationSchema.Property(
+          name: "middleNames",
+          type: [String].self,
+          guides: [.count(0 ... 3)]
+        ),
         FirebaseGenerationSchema.Property(name: "lastName", type: String.self),
         FirebaseGenerationSchema.Property(name: "age", type: Int.self),
       ])

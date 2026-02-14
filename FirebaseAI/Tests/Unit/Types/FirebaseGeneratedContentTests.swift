@@ -70,7 +70,10 @@ class FirebaseGeneratedContentTests: XCTestCase {
       XCTAssertEqual(try firebaseGeneratedContent.value(forProperty: "age"), expectedAge)
       XCTAssertEqual(firebaseGeneratedContent.id, expectedResponseID)
       XCTAssertEqual(firebaseGeneratedContent.kind, expectedFirebaseGeneratedContent.kind)
-      XCTAssertEqual(firebaseGeneratedContent.isComplete, expectedFirebaseGeneratedContent.isComplete)
+      XCTAssertEqual(
+        firebaseGeneratedContent.isComplete,
+        expectedFirebaseGeneratedContent.isComplete
+      )
     }
 
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
@@ -91,7 +94,10 @@ class FirebaseGeneratedContentTests: XCTestCase {
 
       let expectedName = "John Doe"
       let expectedAge = 40
-      let firebaseGeneratedContent = FirebaseGeneratedContent(properties: ["name": expectedName, "age": expectedAge])
+      let firebaseGeneratedContent = FirebaseGeneratedContent(properties: [
+        "name": expectedName,
+        "age": expectedAge,
+      ])
 
       let person = try PersonConvertibleFromGeneratedContent(firebaseGeneratedContent)
 
