@@ -15,7 +15,8 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public protocol FirebaseGenerable: ConvertibleFromFirebaseGeneratedContent, ConvertibleToFirebaseGeneratedContent {
+public protocol FirebaseGenerable: ConvertibleFromFirebaseGeneratedContent,
+  ConvertibleToFirebaseGeneratedContent {
   associatedtype Partial: ConvertibleFromFirebaseGeneratedContent = Self
 
   static var firebaseGenerationSchema: FirebaseGenerationSchema { get }
@@ -32,7 +33,8 @@ public extension Optional where Wrapped: FirebaseGenerable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Optional: ConvertibleToFirebaseGeneratedContent where Wrapped: ConvertibleToFirebaseGeneratedContent {
+extension Optional: ConvertibleToFirebaseGeneratedContent
+  where Wrapped: ConvertibleToFirebaseGeneratedContent {
   public var firebaseGeneratedContent: FirebaseGeneratedContent {
     guard let self else { return FirebaseGeneratedContent(kind: .null) }
 
@@ -41,7 +43,8 @@ extension Optional: ConvertibleToFirebaseGeneratedContent where Wrapped: Convert
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Optional: ConvertibleFromFirebaseGeneratedContent where Wrapped: ConvertibleFromFirebaseGeneratedContent {
+extension Optional: ConvertibleFromFirebaseGeneratedContent
+  where Wrapped: ConvertibleFromFirebaseGeneratedContent {
   public init(_ content: FirebaseGeneratedContent) throws {
     if case .null = content.kind {
       self = nil
@@ -170,7 +173,8 @@ extension Array: FirebaseGenerable where Element: FirebaseGenerable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Array: ConvertibleToFirebaseGeneratedContent where Element: ConvertibleToFirebaseGeneratedContent {
+extension Array: ConvertibleToFirebaseGeneratedContent
+  where Element: ConvertibleToFirebaseGeneratedContent {
   public var firebaseGeneratedContent: FirebaseGeneratedContent {
     let values = map { $0.firebaseGeneratedContent }
     return FirebaseGeneratedContent(kind: .array(values))
@@ -178,7 +182,8 @@ extension Array: ConvertibleToFirebaseGeneratedContent where Element: Convertibl
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Array: ConvertibleFromFirebaseGeneratedContent where Element: ConvertibleFromFirebaseGeneratedContent {
+extension Array: ConvertibleFromFirebaseGeneratedContent
+  where Element: ConvertibleFromFirebaseGeneratedContent {
   public init(_ content: FirebaseGeneratedContent) throws {
     guard case let .array(values) = content.kind else {
       throw Self.decodingFailure(content)
@@ -190,7 +195,8 @@ extension Array: ConvertibleFromFirebaseGeneratedContent where Element: Converti
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 private extension ConvertibleFromFirebaseGeneratedContent {
   /// Helper method to create ``GenerativeModel/GenerationError/decodingFailure(_:)`` instances.
-  static func decodingFailure(_ content: FirebaseGeneratedContent) -> GenerativeModel.GenerationError {
+  static func decodingFailure(_ content: FirebaseGeneratedContent) -> GenerativeModel
+    .GenerationError {
     return GenerativeModel.GenerationError.decodingFailure(
       GenerativeModel.GenerationError.Context(debugDescription: """
       \(content.self) does not contain \(Self.self).

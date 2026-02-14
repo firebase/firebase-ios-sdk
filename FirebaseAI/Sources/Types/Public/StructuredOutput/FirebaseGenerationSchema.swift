@@ -109,7 +109,11 @@ public struct FirebaseGenerationSchema: Sendable, CustomDebugStringConvertible {
       }
     }
 
-    case duplicateType(schema: String?, type: String, context: FirebaseGenerationSchema.SchemaError.Context)
+    case duplicateType(
+      schema: String?,
+      type: String,
+      context: FirebaseGenerationSchema.SchemaError.Context
+    )
     case duplicateProperty(
       schema: String,
       property: String,
@@ -181,7 +185,8 @@ extension FirebaseGenerationSchema {
       case xOrder = "x-order"
     }
 
-    init(type: SchemaType? = nil, ref: String? = nil, anyOf: [FirebaseGenerationSchema.Internal]? = nil) {
+    init(type: SchemaType? = nil, ref: String? = nil,
+         anyOf: [FirebaseGenerationSchema.Internal]? = nil) {
       self.type = type
       self.ref = ref
       self.anyOf = anyOf

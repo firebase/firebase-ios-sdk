@@ -26,7 +26,8 @@ public protocol ConvertibleFromFirebaseGeneratedContent {
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public extension ConvertibleFromFirebaseGeneratedContent where Self: ConvertibleFromGeneratedContent {
+  public extension ConvertibleFromFirebaseGeneratedContent
+    where Self: ConvertibleFromGeneratedContent {
     init(_ content: FirebaseGeneratedContent) throws {
       try self.init(content.generatedContent)
     }

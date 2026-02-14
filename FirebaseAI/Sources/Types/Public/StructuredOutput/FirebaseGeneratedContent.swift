@@ -20,7 +20,8 @@ import Foundation
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct FirebaseGeneratedContent: Sendable, CustomDebugStringConvertible, FirebaseGenerable, Equatable {
+public struct FirebaseGeneratedContent: Sendable, CustomDebugStringConvertible, FirebaseGenerable,
+  Equatable {
   public let kind: Kind
 
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
@@ -59,11 +60,13 @@ public struct FirebaseGeneratedContent: Sendable, CustomDebugStringConvertible, 
   }
 
   public init<S>(properties: S, id: ResponseID? = nil,
-                 uniquingKeysWith combine: (FirebaseGeneratedContent, FirebaseGeneratedContent) throws
-                   -> some ConvertibleToFirebaseGeneratedContent) rethrows where S: Sequence, S.Element == (
-    String,
-    any ConvertibleToFirebaseGeneratedContent
-  ) {
+                 uniquingKeysWith combine: (FirebaseGeneratedContent,
+                                            FirebaseGeneratedContent) throws
+                   -> some ConvertibleToFirebaseGeneratedContent) rethrows where S: Sequence,
+    S.Element == (
+      String,
+      any ConvertibleToFirebaseGeneratedContent
+    ) {
     var propertyNames = [String]()
     var propertyMap = [String: FirebaseGeneratedContent]()
     for (key, value) in properties {
@@ -87,7 +90,8 @@ public struct FirebaseGeneratedContent: Sendable, CustomDebugStringConvertible, 
     )
   }
 
-  public init<S>(elements: S) where S: Sequence, S.Element == any ConvertibleToFirebaseGeneratedContent {
+  public init<S>(elements: S) where S: Sequence,
+    S.Element == any ConvertibleToFirebaseGeneratedContent {
     fatalError("`FirebaseGeneratedContent.init(elements:)` is not implemented.")
   }
 
@@ -309,11 +313,15 @@ public extension FirebaseGeneratedContent {
       case let .string(value):
         return FirebaseGeneratedContent(kind: .string(value), id: id)
       case let .array(values):
-        return FirebaseGeneratedContent(kind: .array(values.map { $0.toFirebaseGeneratedContent(id: nil) }), id: id)
+        return FirebaseGeneratedContent(
+          kind: .array(values.map { $0.toFirebaseGeneratedContent(id: nil) }),
+          id: id
+        )
       case let .structure(properties: properties, orderedKeys: orderedKeys):
         return FirebaseGeneratedContent(
           kind: .structure(
-            properties: properties.mapValues { $0.toFirebaseGeneratedContent(id: nil) }, orderedKeys: orderedKeys
+            properties: properties.mapValues { $0.toFirebaseGeneratedContent(id: nil) },
+            orderedKeys: orderedKeys
           ),
           id: id
         )

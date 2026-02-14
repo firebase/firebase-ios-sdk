@@ -57,7 +57,8 @@ struct SchemaEncoder {
 
     // MARK: - Recursive Processing
 
-    func process(_ schema: FirebaseGenerationSchema, isRoot: Bool) throws -> FirebaseGenerationSchema.Internal {
+    func process(_ schema: FirebaseGenerationSchema,
+                 isRoot: Bool) throws -> FirebaseGenerationSchema.Internal {
       // 1. Check for Root Reference
       // If this is not the root call, but the type matches the root, return a ref to "#".
       if !isRoot, schema.type == rootIdentifier {
@@ -105,7 +106,8 @@ struct SchemaEncoder {
 
     // MARK: - Body Encoding
 
-    func encodeBody(_ schema: FirebaseGenerationSchema) throws -> FirebaseGenerationSchema.Internal {
+    func encodeBody(_ schema: FirebaseGenerationSchema) throws -> FirebaseGenerationSchema
+      .Internal {
       let internalSchema = FirebaseGenerationSchema.Internal()
       internalSchema.description = schema.description
 
