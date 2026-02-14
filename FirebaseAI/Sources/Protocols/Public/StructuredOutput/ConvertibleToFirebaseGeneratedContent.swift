@@ -19,13 +19,13 @@
 
 #if compiler(>=6.2)
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public protocol ConvertibleToModelOutput: SendableMetatype {
-    var modelOutput: ModelOutput { get }
+  public protocol ConvertibleToFirebaseGeneratedContent: SendableMetatype {
+    var firebaseGeneratedContent: FirebaseGeneratedContent { get }
   }
 #else
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  public protocol ConvertibleToModelOutput {
-    var modelOutput: ModelOutput { get }
+  public protocol ConvertibleToFirebaseGeneratedContent {
+    var firebaseGeneratedContent: FirebaseGeneratedContent { get }
   }
 #endif // compiler(>=6.2)
 
@@ -33,9 +33,9 @@
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public extension ConvertibleToModelOutput where Self: ConvertibleToGeneratedContent {
-    var modelOutput: ModelOutput {
-      generatedContent.modelOutput
+  public extension ConvertibleToFirebaseGeneratedContent where Self: ConvertibleToGeneratedContent {
+    var firebaseGeneratedContent: FirebaseGeneratedContent {
+      generatedContent.firebaseGeneratedContent
     }
   }
 #endif // canImport(FoundationModels)

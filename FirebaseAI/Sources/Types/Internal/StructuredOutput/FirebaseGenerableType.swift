@@ -23,7 +23,7 @@ struct FirebaseGenerableType: Sendable {
   }
 
   var typeName: String { String(describing: type) }
-  var jsonSchema: JSONSchema { type.jsonSchema }
+  var firebaseGenerationSchema: FirebaseGenerationSchema { type.firebaseGenerationSchema }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)

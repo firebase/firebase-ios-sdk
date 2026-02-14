@@ -23,7 +23,7 @@ struct SchemaEncoder {
 
   // MARK: - Entry Point
 
-  func encode(_ schema: JSONSchema) throws -> JSONSchema.Internal {
+  func encode(_ schema: FirebaseGenerationSchema) throws -> FirebaseGenerationSchema.Internal {
     let state = State(target: target, rootIdentifier: schema.type)
     return try state.process(schema, isRoot: true)
   }
@@ -32,7 +32,7 @@ struct SchemaEncoder {
 
   private class State {
     /// Stores the encoded schema bodies for types that are referenced by title.
-    var definitions: [String: JSONSchema.Internal] = [:]
+    var definitions: [String: FirebaseGenerationSchema.Internal] = [:]
 
     /// Tracks the types that have been successfully processed or are currently being processed as
     /// definitions.
@@ -57,11 +57,11 @@ struct SchemaEncoder {
 
     // MARK: - Recursive Processing
 
-    func process(_ schema: JSONSchema, isRoot: Bool) throws -> JSONSchema.Internal {
+    func process(_ schema: FirebaseGenerationSchema, isRoot: Bool) throws -> FirebaseGenerationSchema.Internal {
       // 1. Check for Root Reference
       // If this is not the root call, but the type matches the root, return a ref to "#".
       if !isRoot, schema.type == rootIdentifier {
-        return JSONSchema.Internal(ref: "#")
+        return FirebaseGenerationSchema.Internal(ref: "#")
       }
 
       // 2. Check for Definition Reference
@@ -69,20 +69,20 @@ struct SchemaEncoder {
       if !isRoot, let title = schema.title {
         if visitedTypes.contains(schema.type) {
           // Already visited (or currently visiting as root/def), return reference
-          return JSONSchema.Internal(ref: "#/$defs/\(title)")
+          return FirebaseGenerationSchema.Internal(ref: "#/$defs/\(title)")
         }
 
         // New Definition:
         visitedTypes.insert(schema.type)
         let body = try encodeBody(schema)
         definitions[title] = body
-        return JSONSchema.Internal(ref: "#/$defs/\(title)")
+        return FirebaseGenerationSchema.Internal(ref: "#/$defs/\(title)")
       }
 
       // 3. Inline Encoding (Recursion Check)
       // Anonymous objects (nil title) must be inlined.
       if codingPath.contains(schema.type) {
-        throw JSONSchema.SchemaError.circularDependency(
+        throw FirebaseGenerationSchema.SchemaError.circularDependency(
           type: String(describing: schema.title),
           context: .init(debugDescription: "Circular dependency detected for type \(schema)")
         )
@@ -105,8 +105,8 @@ struct SchemaEncoder {
 
     // MARK: - Body Encoding
 
-    func encodeBody(_ schema: JSONSchema) throws -> JSONSchema.Internal {
-      let internalSchema = JSONSchema.Internal()
+    func encodeBody(_ schema: FirebaseGenerationSchema) throws -> FirebaseGenerationSchema.Internal {
+      let internalSchema = FirebaseGenerationSchema.Internal()
       internalSchema.description = schema.description
 
       switch schema.kind {
@@ -131,14 +131,14 @@ struct SchemaEncoder {
 
       case let .array(itemType, guides):
         internalSchema.type = .array
-        internalSchema.items = try process(itemType.jsonSchema, isRoot: false)
+        internalSchema.items = try process(itemType.firebaseGenerationSchema, isRoot: false)
         if let min = guides.minimumCount { internalSchema.minItems = min }
         if let max = guides.maximumCount { internalSchema.maxItems = max }
 
       case let .object(properties):
         internalSchema.type = .object
         internalSchema.additionalProperties = false
-        var props: [String: JSONSchema.Internal] = [:]
+        var props: [String: FirebaseGenerationSchema.Internal] = [:]
         var required: [String] = []
         let orderedNames = properties.map(\.name)
 
@@ -149,7 +149,7 @@ struct SchemaEncoder {
         }
 
         for property in properties {
-          let propSchema = property.type.jsonSchema
+          let propSchema = property.type.firebaseGenerationSchema
           let internalProp = try process(propSchema, isRoot: false)
 
           internalProp.description = property.description ?? internalProp.description
@@ -167,7 +167,7 @@ struct SchemaEncoder {
 
       case let .anyOf(types):
         internalSchema.anyOf = try types
-          .map { try process($0.jsonSchema, isRoot: false) }
+          .map { try process($0.firebaseGenerationSchema, isRoot: false) }
       }
 
       return internalSchema
@@ -179,7 +179,7 @@ struct SchemaEncoder {
     ///
     /// This effectively narrows the allowed values of the schema (e.g., if the schema says
     /// min: 0 and guides says min: 5, the result is min: 5).
-    func applyIntersectedGuides(to schema: JSONSchema.Internal,
+    func applyIntersectedGuides(to schema: FirebaseGenerationSchema.Internal,
                                 from guides: AnyGenerationGuides) {
       // String narrowing (enum intersection)
       if let s = guides.string {

@@ -15,10 +15,10 @@
 import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public protocol FirebaseGenerable: ConvertibleFromModelOutput, ConvertibleToModelOutput {
-  associatedtype Partial: ConvertibleFromModelOutput = Self
+public protocol FirebaseGenerable: ConvertibleFromFirebaseGeneratedContent, ConvertibleToFirebaseGeneratedContent {
+  associatedtype Partial: ConvertibleFromFirebaseGeneratedContent = Self
 
-  static var jsonSchema: JSONSchema { get }
+  static var firebaseGenerationSchema: FirebaseGenerationSchema { get }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -32,17 +32,17 @@ public extension Optional where Wrapped: FirebaseGenerable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Optional: ConvertibleToModelOutput where Wrapped: ConvertibleToModelOutput {
-  public var modelOutput: ModelOutput {
-    guard let self else { return ModelOutput(kind: .null) }
+extension Optional: ConvertibleToFirebaseGeneratedContent where Wrapped: ConvertibleToFirebaseGeneratedContent {
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    guard let self else { return FirebaseGeneratedContent(kind: .null) }
 
-    return ModelOutput(self)
+    return FirebaseGeneratedContent(self)
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Optional: ConvertibleFromModelOutput where Wrapped: ConvertibleFromModelOutput {
-  public init(_ content: ModelOutput) throws {
+extension Optional: ConvertibleFromFirebaseGeneratedContent where Wrapped: ConvertibleFromFirebaseGeneratedContent {
+  public init(_ content: FirebaseGeneratedContent) throws {
     if case .null = content.kind {
       self = nil
       return
@@ -53,116 +53,116 @@ extension Optional: ConvertibleFromModelOutput where Wrapped: ConvertibleFromMod
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Bool: FirebaseGenerable {
-  public static var jsonSchema: JSONSchema {
-    JSONSchema(type: Bool.self, kind: .boolean)
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    FirebaseGenerationSchema(type: Bool.self, kind: .boolean)
   }
 
-  public init(_ content: ModelOutput) throws {
+  public init(_ content: FirebaseGeneratedContent) throws {
     guard case let .bool(value) = content.kind else {
       throw Self.decodingFailure(content)
     }
     self = value
   }
 
-  public var modelOutput: ModelOutput {
-    return ModelOutput(kind: .bool(self))
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    return FirebaseGeneratedContent(kind: .bool(self))
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension String: FirebaseGenerable {
-  public static var jsonSchema: JSONSchema {
-    JSONSchema(type: String.self, kind: .string(guides: StringGuides()))
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    FirebaseGenerationSchema(type: String.self, kind: .string(guides: StringGuides()))
   }
 
-  public init(_ content: ModelOutput) throws {
+  public init(_ content: FirebaseGeneratedContent) throws {
     guard case let .string(value) = content.kind else {
       throw Self.decodingFailure(content)
     }
     self = value
   }
 
-  public var modelOutput: ModelOutput {
-    return ModelOutput(kind: .string(self))
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    return FirebaseGeneratedContent(kind: .string(self))
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Int: FirebaseGenerable {
-  public static var jsonSchema: JSONSchema {
-    JSONSchema(type: Int.self, kind: .integer(guides: IntegerGuides()))
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    FirebaseGenerationSchema(type: Int.self, kind: .integer(guides: IntegerGuides()))
   }
 
-  public init(_ content: ModelOutput) throws {
+  public init(_ content: FirebaseGeneratedContent) throws {
     guard case let .number(value) = content.kind, let integer = Int(exactly: value) else {
       throw Self.decodingFailure(content)
     }
     self = integer
   }
 
-  public var modelOutput: ModelOutput {
-    return ModelOutput(kind: .number(Double(self)))
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    return FirebaseGeneratedContent(kind: .number(Double(self)))
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Float: FirebaseGenerable {
-  public static var jsonSchema: JSONSchema {
-    JSONSchema(type: Float.self, kind: .double(guides: DoubleGuides()))
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    FirebaseGenerationSchema(type: Float.self, kind: .double(guides: DoubleGuides()))
   }
 
-  public init(_ content: ModelOutput) throws {
+  public init(_ content: FirebaseGeneratedContent) throws {
     guard case let .number(value) = content.kind else {
       throw Self.decodingFailure(content)
     }
     self = Float(value)
   }
 
-  public var modelOutput: ModelOutput {
-    return ModelOutput(kind: .number(Double(self)))
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    return FirebaseGeneratedContent(kind: .number(Double(self)))
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Double: FirebaseGenerable {
-  public static var jsonSchema: JSONSchema {
-    JSONSchema(type: Double.self, kind: .double(guides: DoubleGuides()))
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    FirebaseGenerationSchema(type: Double.self, kind: .double(guides: DoubleGuides()))
   }
 
-  public init(_ content: ModelOutput) throws {
+  public init(_ content: FirebaseGeneratedContent) throws {
     guard case let .number(value) = content.kind else {
       throw Self.decodingFailure(content)
     }
     self = value
   }
 
-  public var modelOutput: ModelOutput {
-    return ModelOutput(kind: .number(self))
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    return FirebaseGeneratedContent(kind: .number(self))
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Decimal: FirebaseGenerable {
-  public static var jsonSchema: JSONSchema {
-    JSONSchema(type: Decimal.self, kind: .double(guides: DoubleGuides()))
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    FirebaseGenerationSchema(type: Decimal.self, kind: .double(guides: DoubleGuides()))
   }
 
-  public init(_ content: ModelOutput) throws {
+  public init(_ content: FirebaseGeneratedContent) throws {
     guard case let .number(value) = content.kind else {
       throw Self.decodingFailure(content)
     }
     self = Decimal(value)
   }
 
-  public var modelOutput: ModelOutput {
-    return ModelOutput(kind: .number(doubleValue))
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    return FirebaseGeneratedContent(kind: .number(doubleValue))
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Array: FirebaseGenerable where Element: FirebaseGenerable {
-  public static var jsonSchema: JSONSchema {
-    JSONSchema(
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    FirebaseGenerationSchema(
       type: Self.self,
       kind: .array(item: FirebaseGenerableType(Element.self), guides: ArrayGuides())
     )
@@ -170,16 +170,16 @@ extension Array: FirebaseGenerable where Element: FirebaseGenerable {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Array: ConvertibleToModelOutput where Element: ConvertibleToModelOutput {
-  public var modelOutput: ModelOutput {
-    let values = map { $0.modelOutput }
-    return ModelOutput(kind: .array(values))
+extension Array: ConvertibleToFirebaseGeneratedContent where Element: ConvertibleToFirebaseGeneratedContent {
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    let values = map { $0.firebaseGeneratedContent }
+    return FirebaseGeneratedContent(kind: .array(values))
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Array: ConvertibleFromModelOutput where Element: ConvertibleFromModelOutput {
-  public init(_ content: ModelOutput) throws {
+extension Array: ConvertibleFromFirebaseGeneratedContent where Element: ConvertibleFromFirebaseGeneratedContent {
+  public init(_ content: FirebaseGeneratedContent) throws {
     guard case let .array(values) = content.kind else {
       throw Self.decodingFailure(content)
     }
@@ -188,9 +188,9 @@ extension Array: ConvertibleFromModelOutput where Element: ConvertibleFromModelO
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-private extension ConvertibleFromModelOutput {
+private extension ConvertibleFromFirebaseGeneratedContent {
   /// Helper method to create ``GenerativeModel/GenerationError/decodingFailure(_:)`` instances.
-  static func decodingFailure(_ content: ModelOutput) -> GenerativeModel.GenerationError {
+  static func decodingFailure(_ content: FirebaseGeneratedContent) -> GenerativeModel.GenerationError {
     return GenerativeModel.GenerationError.decodingFailure(
       GenerativeModel.GenerationError.Context(debugDescription: """
       \(content.self) does not contain \(Self.self).

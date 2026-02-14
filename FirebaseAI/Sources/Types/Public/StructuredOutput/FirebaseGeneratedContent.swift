@@ -20,11 +20,11 @@ import Foundation
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGenerable, Equatable {
+public struct FirebaseGeneratedContent: Sendable, CustomDebugStringConvertible, FirebaseGenerable, Equatable {
   public let kind: Kind
 
-  public static var jsonSchema: JSONSchema {
-    fatalError("`ModelOutput.jsonSchema` is not implemented.")
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    fatalError("`FirebaseGeneratedContent.firebaseGenerationSchema` is not implemented.")
   }
 
   public var id: ResponseID?
@@ -40,14 +40,14 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     return kind.debugDescription
   }
 
-  public init(properties: KeyValuePairs<String, any ConvertibleToModelOutput>,
+  public init(properties: KeyValuePairs<String, any ConvertibleToFirebaseGeneratedContent>,
               id: ResponseID? = nil) {
-    var propertyMap = [String: ModelOutput]()
+    var propertyMap = [String: FirebaseGeneratedContent]()
     for (key, value) in properties {
       guard propertyMap[key] == nil else {
         preconditionFailure("Multiple properties with name \"\(key)\".")
       }
-      propertyMap[key] = value.modelOutput
+      propertyMap[key] = value.firebaseGeneratedContent
     }
     let propertyNames = properties.map { $0.key }
 
@@ -59,24 +59,24 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
   }
 
   public init<S>(properties: S, id: ResponseID? = nil,
-                 uniquingKeysWith combine: (ModelOutput, ModelOutput) throws
-                   -> some ConvertibleToModelOutput) rethrows where S: Sequence, S.Element == (
+                 uniquingKeysWith combine: (FirebaseGeneratedContent, FirebaseGeneratedContent) throws
+                   -> some ConvertibleToFirebaseGeneratedContent) rethrows where S: Sequence, S.Element == (
     String,
-    any ConvertibleToModelOutput
+    any ConvertibleToFirebaseGeneratedContent
   ) {
     var propertyNames = [String]()
-    var propertyMap = [String: ModelOutput]()
+    var propertyMap = [String: FirebaseGeneratedContent]()
     for (key, value) in properties {
       if !propertyNames.contains(key) {
         propertyNames.append(key)
-        propertyMap[key] = value.modelOutput
+        propertyMap[key] = value.firebaseGeneratedContent
       } else {
         guard let existingProperty = propertyMap[key] else {
           // TODO: Figure out an error to throw
           fatalError()
         }
-        let deduplicatedProperty = try combine(existingProperty, value.modelOutput)
-        propertyMap[key] = deduplicatedProperty.modelOutput
+        let deduplicatedProperty = try combine(existingProperty, value.firebaseGeneratedContent)
+        propertyMap[key] = deduplicatedProperty.firebaseGeneratedContent
       }
     }
 
@@ -87,16 +87,16 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     )
   }
 
-  public init<S>(elements: S) where S: Sequence, S.Element == any ConvertibleToModelOutput {
-    fatalError("`ModelOutput.init(elements:)` is not implemented.")
+  public init<S>(elements: S) where S: Sequence, S.Element == any ConvertibleToFirebaseGeneratedContent {
+    fatalError("`FirebaseGeneratedContent.init(elements:)` is not implemented.")
   }
 
-  public init(_ value: some ConvertibleToModelOutput) {
-    self = value.modelOutput
+  public init(_ value: some ConvertibleToFirebaseGeneratedContent) {
+    self = value.firebaseGeneratedContent
   }
 
   init(json: String, id: ResponseID? = nil, streaming: Bool?) throws {
-    var modelOutput: ModelOutput
+    var firebaseGeneratedContent: FirebaseGeneratedContent
     var decodingError: Error?
 
     // 1. Attempt to decode the JSON with the standard `JSONDecoder` since it likely offers the best
@@ -113,10 +113,10 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
       }
       do {
         let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
-        modelOutput = jsonValue.modelOutput
-        modelOutput.id = id
+        firebaseGeneratedContent = jsonValue.firebaseGeneratedContent
+        firebaseGeneratedContent.id = id
 
-        self = modelOutput
+        self = firebaseGeneratedContent
 
         return
       } catch {
@@ -130,10 +130,10 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
       if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
         do {
           let generatedContent = try GeneratedContent(json: json)
-          modelOutput = generatedContent.modelOutput
-          modelOutput.id = id
+          firebaseGeneratedContent = generatedContent.firebaseGeneratedContent
+          firebaseGeneratedContent.id = id
 
-          self = modelOutput
+          self = firebaseGeneratedContent
 
           return
         } catch {
@@ -163,13 +163,13 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
   }
 
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
-    where Value: ConvertibleFromModelOutput {
+    where Value: ConvertibleFromFirebaseGeneratedContent {
     return try Value(self)
   }
 
   public func value<Value>(_ type: Value.Type = Value.self,
                            forProperty property: String) throws -> Value
-    where Value: ConvertibleFromModelOutput {
+    where Value: ConvertibleFromFirebaseGeneratedContent {
     guard case let .structure(properties, _) = kind else {
       throw GenerativeModel.GenerationError.decodingFailure(
         GenerativeModel.GenerationError.Context(debugDescription: """
@@ -192,7 +192,7 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
 
   public func value<Value>(_ type: Value?.Type = Value?.self,
                            forProperty property: String) throws -> Value?
-    where Value: ConvertibleFromModelOutput {
+    where Value: ConvertibleFromFirebaseGeneratedContent {
     guard case let .structure(properties, _) = kind else {
       throw GenerativeModel.GenerationError.decodingFailure(
         GenerativeModel.GenerationError.Context(debugDescription: """
@@ -214,26 +214,26 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelOutput: ConvertibleFromModelOutput {
-  public init(_ content: ModelOutput) throws {
+extension FirebaseGeneratedContent: ConvertibleFromFirebaseGeneratedContent {
+  public init(_ content: FirebaseGeneratedContent) throws {
     self = content
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ModelOutput: ConvertibleToModelOutput {
-  public var modelOutput: ModelOutput { self }
+extension FirebaseGeneratedContent: ConvertibleToFirebaseGeneratedContent {
+  public var firebaseGeneratedContent: FirebaseGeneratedContent { self }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension ModelOutput {
+public extension FirebaseGeneratedContent {
   enum Kind: Sendable, Equatable, CustomDebugStringConvertible {
     case null
     case bool(Bool)
     case number(Double)
     case string(String)
-    case array([ModelOutput])
-    case structure(properties: [String: ModelOutput], orderedKeys: [String])
+    case array([FirebaseGeneratedContent])
+    case structure(properties: [String: FirebaseGeneratedContent], orderedKeys: [String])
 
     public var debugDescription: String {
       switch self {
@@ -263,7 +263,7 @@ public extension ModelOutput {
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  extension ModelOutput: ConvertibleToGeneratedContent {
+  extension FirebaseGeneratedContent: ConvertibleToGeneratedContent {
     public var generatedContent: GeneratedContent {
       let generationID = id?.generationID
 
@@ -292,34 +292,34 @@ public extension ModelOutput {
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  extension GeneratedContent: ConvertibleToModelOutput {
-    public var modelOutput: ModelOutput {
+  extension GeneratedContent: ConvertibleToFirebaseGeneratedContent {
+    public var firebaseGeneratedContent: FirebaseGeneratedContent {
       let responseID = id.map { ResponseID(generationID: $0) }
-      return toModelOutput(id: responseID)
+      return toFirebaseGeneratedContent(id: responseID)
     }
 
-    private func toModelOutput(id: ResponseID?) -> ModelOutput {
+    private func toFirebaseGeneratedContent(id: ResponseID?) -> FirebaseGeneratedContent {
       switch kind {
       case .null:
-        return ModelOutput(kind: .null, id: id)
+        return FirebaseGeneratedContent(kind: .null, id: id)
       case let .bool(value):
-        return ModelOutput(kind: .bool(value), id: id)
+        return FirebaseGeneratedContent(kind: .bool(value), id: id)
       case let .number(value):
-        return ModelOutput(kind: .number(value), id: id)
+        return FirebaseGeneratedContent(kind: .number(value), id: id)
       case let .string(value):
-        return ModelOutput(kind: .string(value), id: id)
+        return FirebaseGeneratedContent(kind: .string(value), id: id)
       case let .array(values):
-        return ModelOutput(kind: .array(values.map { $0.toModelOutput(id: nil) }), id: id)
+        return FirebaseGeneratedContent(kind: .array(values.map { $0.toFirebaseGeneratedContent(id: nil) }), id: id)
       case let .structure(properties: properties, orderedKeys: orderedKeys):
-        return ModelOutput(
+        return FirebaseGeneratedContent(
           kind: .structure(
-            properties: properties.mapValues { $0.toModelOutput(id: nil) }, orderedKeys: orderedKeys
+            properties: properties.mapValues { $0.toFirebaseGeneratedContent(id: nil) }, orderedKeys: orderedKeys
           ),
           id: id
         )
       @unknown default:
         assertionFailure("Unknown `FoundationModels.GeneratedContent` kind: \(kind)")
-        return ModelOutput(kind: .null, id: id)
+        return FirebaseGeneratedContent(kind: .null, id: id)
       }
     }
   }

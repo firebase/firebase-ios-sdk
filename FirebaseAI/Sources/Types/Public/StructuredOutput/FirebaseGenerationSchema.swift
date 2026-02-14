@@ -19,7 +19,7 @@ import Foundation
 /// Generation  schemas guide the output of the model to deterministically ensure the output is in
 /// the desired format.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct JSONSchema: Sendable, CustomDebugStringConvertible {
+public struct FirebaseGenerationSchema: Sendable, CustomDebugStringConvertible {
   enum Kind: Sendable, Equatable, Hashable {
     case string(guides: StringGuides)
     case integer(guides: IntegerGuides)
@@ -72,7 +72,7 @@ public struct JSONSchema: Sendable, CustomDebugStringConvertible {
   }
 
   public init(type: any FirebaseGenerable.Type, description: String? = nil,
-              properties: [JSONSchema.Property]) {
+              properties: [FirebaseGenerationSchema.Property]) {
     self.init(
       type: type,
       kind: .object(properties: properties),
@@ -109,21 +109,21 @@ public struct JSONSchema: Sendable, CustomDebugStringConvertible {
       }
     }
 
-    case duplicateType(schema: String?, type: String, context: JSONSchema.SchemaError.Context)
+    case duplicateType(schema: String?, type: String, context: FirebaseGenerationSchema.SchemaError.Context)
     case duplicateProperty(
       schema: String,
       property: String,
-      context: JSONSchema.SchemaError.Context
+      context: FirebaseGenerationSchema.SchemaError.Context
     )
-    case emptyTypeChoices(schema: String, context: JSONSchema.SchemaError.Context)
+    case emptyTypeChoices(schema: String, context: FirebaseGenerationSchema.SchemaError.Context)
     case undefinedReferences(
       schema: String?,
       references: [String],
-      context: JSONSchema.SchemaError.Context
+      context: FirebaseGenerationSchema.SchemaError.Context
     )
     case circularDependency(
       type: String,
-      context: JSONSchema.SchemaError.Context
+      context: FirebaseGenerationSchema.SchemaError.Context
     )
   }
 
@@ -135,17 +135,17 @@ public struct JSONSchema: Sendable, CustomDebugStringConvertible {
       jsonEncoder.outputFormatting = [.prettyPrinted]
       let jsonData = try jsonEncoder.encode(schema)
       guard let jsonString = String(data: jsonData, encoding: .utf8) else {
-        return "Error: Failed to encode JSONSchema (String conversion failed)"
+        return "Error: Failed to encode FirebaseGenerationSchema (String conversion failed)"
       }
       return jsonString
     } catch {
-      return "Error: Failed to encode JSONSchema (\(error))"
+      return "Error: Failed to encode FirebaseGenerationSchema (\(error))"
     }
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension JSONSchema {
+extension FirebaseGenerationSchema {
   final class Internal: Codable {
     enum SchemaType: String, Codable {
       case object, array, string, integer, number, boolean
@@ -154,14 +154,14 @@ extension JSONSchema {
     var type: SchemaType?
     var title: String?
     var description: String?
-    var properties: [String: JSONSchema.Internal]?
+    var properties: [String: FirebaseGenerationSchema.Internal]?
     var format: String?
     var required: [String]?
     var additionalProperties: Bool?
-    var defs: [String: JSONSchema.Internal]?
+    var defs: [String: FirebaseGenerationSchema.Internal]?
     var ref: String?
-    var anyOf: [JSONSchema.Internal]?
-    var items: JSONSchema.Internal?
+    var anyOf: [FirebaseGenerationSchema.Internal]?
+    var items: FirebaseGenerationSchema.Internal?
     var minItems: Int?
     var maxItems: Int?
     var enumValues: [JSONValue]?
@@ -181,7 +181,7 @@ extension JSONSchema {
       case xOrder = "x-order"
     }
 
-    init(type: SchemaType? = nil, ref: String? = nil, anyOf: [JSONSchema.Internal]? = nil) {
+    init(type: SchemaType? = nil, ref: String? = nil, anyOf: [FirebaseGenerationSchema.Internal]? = nil) {
       self.type = type
       self.ref = ref
       self.anyOf = anyOf

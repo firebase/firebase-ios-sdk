@@ -19,26 +19,26 @@
 import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-class ModelOutputTests: XCTestCase {
+class FirebaseGeneratedContentTests: XCTestCase {
   // MARK: - Type Conversions
 
   #if canImport(FoundationModels)
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    func testModelOutputIsConvertibleToGeneratedContent() throws {
+    func testFirebaseGeneratedContentIsConvertibleToGeneratedContent() throws {
       let expectedName = "John Doe"
       let expectedAge = 40
       let expectedGenerationID = GenerationID()
       let expectedGeneratedContent = GeneratedContent(
         properties: ["name": expectedName, "age": expectedAge], id: expectedGenerationID
       )
-      let modelOutput = ModelOutput(
+      let firebaseGeneratedContent = FirebaseGeneratedContent(
         properties: ["name": expectedName, "age": expectedAge],
         id: ResponseID(generationID: expectedGenerationID)
       )
 
-      let generatedContent = modelOutput.generatedContent
+      let generatedContent = firebaseGeneratedContent.generatedContent
 
       XCTAssertEqual(generatedContent, expectedGeneratedContent)
       XCTAssertEqual(try generatedContent.value(forProperty: "name"), expectedName)
@@ -51,34 +51,34 @@ class ModelOutputTests: XCTestCase {
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    func testGeneratedContentIsConvertibleToModelOutput() throws {
+    func testGeneratedContentIsConvertibleToFirebaseGeneratedContent() throws {
       let expectedName = "Bob Loblaw"
       let expectedAge = 50
       let generationID = GenerationID()
       let expectedResponseID = ResponseID(generationID: generationID)
-      let expectedModelOutput = ModelOutput(
+      let expectedFirebaseGeneratedContent = FirebaseGeneratedContent(
         properties: ["name": expectedName, "age": expectedAge], id: expectedResponseID
       )
       let generatedContent = GeneratedContent(
         properties: ["name": expectedName, "age": expectedAge], id: generationID
       )
 
-      let modelOutput = generatedContent.modelOutput
+      let firebaseGeneratedContent = generatedContent.firebaseGeneratedContent
 
-      XCTAssertEqual(modelOutput, expectedModelOutput)
-      XCTAssertEqual(try modelOutput.value(forProperty: "name"), expectedName)
-      XCTAssertEqual(try modelOutput.value(forProperty: "age"), expectedAge)
-      XCTAssertEqual(modelOutput.id, expectedResponseID)
-      XCTAssertEqual(modelOutput.kind, expectedModelOutput.kind)
-      XCTAssertEqual(modelOutput.isComplete, expectedModelOutput.isComplete)
+      XCTAssertEqual(firebaseGeneratedContent, expectedFirebaseGeneratedContent)
+      XCTAssertEqual(try firebaseGeneratedContent.value(forProperty: "name"), expectedName)
+      XCTAssertEqual(try firebaseGeneratedContent.value(forProperty: "age"), expectedAge)
+      XCTAssertEqual(firebaseGeneratedContent.id, expectedResponseID)
+      XCTAssertEqual(firebaseGeneratedContent.kind, expectedFirebaseGeneratedContent.kind)
+      XCTAssertEqual(firebaseGeneratedContent.isComplete, expectedFirebaseGeneratedContent.isComplete)
     }
 
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    func testConvertibleFromGeneratedContentIsConvertibleFromModelOutput() throws {
+    func testConvertibleFromGeneratedContentIsConvertibleFromFirebaseGeneratedContent() throws {
       struct PersonConvertibleFromGeneratedContent: ConvertibleFromGeneratedContent,
-        ConvertibleFromModelOutput {
+        ConvertibleFromFirebaseGeneratedContent {
         let name: String
         let age: Int
 
@@ -91,9 +91,9 @@ class ModelOutputTests: XCTestCase {
 
       let expectedName = "John Doe"
       let expectedAge = 40
-      let modelOutput = ModelOutput(properties: ["name": expectedName, "age": expectedAge])
+      let firebaseGeneratedContent = FirebaseGeneratedContent(properties: ["name": expectedName, "age": expectedAge])
 
-      let person = try PersonConvertibleFromGeneratedContent(modelOutput)
+      let person = try PersonConvertibleFromGeneratedContent(firebaseGeneratedContent)
 
       XCTAssertEqual(person.name, expectedName)
       XCTAssertEqual(person.age, expectedAge)
@@ -102,9 +102,9 @@ class ModelOutputTests: XCTestCase {
     @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    func testConvertibleToGeneratedContentIsConvertibleToModelOutput() throws {
+    func testConvertibleToGeneratedContentIsConvertibleToFirebaseGeneratedContent() throws {
       struct PersonConvertibleToGeneratedContent: ConvertibleToGeneratedContent,
-        ConvertibleToModelOutput {
+        ConvertibleToFirebaseGeneratedContent {
         let name: String
         let age: Int
 
@@ -118,11 +118,11 @@ class ModelOutputTests: XCTestCase {
       let expectedAge = 40
       let person = PersonConvertibleToGeneratedContent(name: expectedName, age: expectedAge)
 
-      let modelOutput = person.modelOutput
+      let firebaseGeneratedContent = person.firebaseGeneratedContent
 
-      XCTAssertEqual(try modelOutput.value(forProperty: "name"), person.name)
-      XCTAssertEqual(try modelOutput.value(forProperty: "age"), person.age)
-      XCTAssertTrue(modelOutput.isComplete)
+      XCTAssertEqual(try firebaseGeneratedContent.value(forProperty: "name"), person.name)
+      XCTAssertEqual(try firebaseGeneratedContent.value(forProperty: "age"), person.age)
+      XCTAssertTrue(firebaseGeneratedContent.isComplete)
     }
   #endif // canImport(FoundationModels)
 }

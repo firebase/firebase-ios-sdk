@@ -26,7 +26,7 @@
 
       public struct Snapshot: Sendable {
         public let content: Content.Partial
-        public let rawContent: ModelOutput
+        public let rawContent: FirebaseGeneratedContent
         public let rawResponse: GenerateContentResponse
       }
 
@@ -65,7 +65,7 @@
   extension GenerativeModel.ResponseStream {
     actor StreamContext {
       struct RawResult: Sendable {
-        let rawContent: ModelOutput
+        let rawContent: FirebaseGeneratedContent
         let rawResponse: GenerateContentResponse
       }
 

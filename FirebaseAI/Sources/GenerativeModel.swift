@@ -196,12 +196,12 @@ public final class GenerativeModel: Sendable {
 
     @discardableResult
     public final nonisolated(nonsending)
-    func respond(to prompt: any PartsRepresentable, schema: JSONSchema,
+    func respond(to prompt: any PartsRepresentable, schema: FirebaseGenerationSchema,
                  includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil)
-      async throws -> GenerativeModel.Response<ModelOutput> {
+      async throws -> GenerativeModel.Response<FirebaseGeneratedContent> {
       return try await respond(
         to: prompt,
-        generating: ModelOutput.self,
+        generating: FirebaseGeneratedContent.self,
         schema: schema,
         includeSchemaInPrompt: includeSchemaInPrompt,
         options: options
@@ -217,7 +217,7 @@ public final class GenerativeModel: Sendable {
       return try await respond(
         to: prompt,
         generating: type,
-        schema: type.jsonSchema,
+        schema: type.firebaseGenerationSchema,
         includeSchemaInPrompt: includeSchemaInPrompt,
         options: options
       )
@@ -230,11 +230,11 @@ public final class GenerativeModel: Sendable {
                             includeSchemaInPrompt: false, options: options)
     }
 
-    public final func streamResponse(to prompt: any PartsRepresentable, schema: JSONSchema,
+    public final func streamResponse(to prompt: any PartsRepresentable, schema: FirebaseGenerationSchema,
                                      includeSchemaInPrompt: Bool = true,
                                      options: GenerationConfig? = nil)
-      -> sending GenerativeModel.ResponseStream<ModelOutput> {
-      return streamResponse(to: prompt, generating: ModelOutput.self, schema: schema,
+      -> sending GenerativeModel.ResponseStream<FirebaseGeneratedContent> {
+      return streamResponse(to: prompt, generating: FirebaseGeneratedContent.self, schema: schema,
                             includeSchemaInPrompt: includeSchemaInPrompt, options: options)
     }
 
@@ -243,7 +243,7 @@ public final class GenerativeModel: Sendable {
                                               includeSchemaInPrompt: Bool = true,
                                               options: GenerationConfig? = nil)
       -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
-      return streamResponse(to: prompt, generating: type, schema: type.jsonSchema,
+      return streamResponse(to: prompt, generating: type, schema: type.firebaseGenerationSchema,
                             includeSchemaInPrompt: includeSchemaInPrompt, options: options)
     }
   #endif // compiler(>=6.2)
@@ -455,7 +455,7 @@ public final class GenerativeModel: Sendable {
   #if compiler(>=6.2)
     final nonisolated(nonsending)
     func respond<Content>(to prompt: any PartsRepresentable, generating type: Content.Type,
-                          schema: JSONSchema?, includeSchemaInPrompt: Bool,
+                          schema: FirebaseGenerationSchema?, includeSchemaInPrompt: Bool,
                           options: GenerationConfig?)
       async throws -> GenerativeModel.Response<Content> where Content: FirebaseGenerable {
       let parts = [ModelContent(parts: prompt)]
@@ -463,7 +463,7 @@ public final class GenerativeModel: Sendable {
       let generationConfig: GenerationConfig?
       if let schema {
         generationConfig = GenerationConfig.merge(
-          self.generationConfig, with: options, enforcingJSONSchema: schema
+          self.generationConfig, with: options, enforcingFirebaseGenerationSchema: schema
         )
       } else {
         generationConfig = GenerationConfig.merge(self.generationConfig, with: options)
@@ -475,15 +475,15 @@ public final class GenerativeModel: Sendable {
           throw GenerationError.decodingFailure(.init(debugDescription: "No text in response."))
         }
         let responseID = response.responseID.map { ResponseID(responseID: $0) }
-        let modelOutput: ModelOutput
+        let firebaseGeneratedContent: FirebaseGeneratedContent
         if schema == nil {
-          modelOutput = ModelOutput(kind: .string(text), id: responseID, isComplete: true)
+          firebaseGeneratedContent = FirebaseGeneratedContent(kind: .string(text), id: responseID, isComplete: true)
         } else {
-          modelOutput = try ModelOutput(json: text, id: responseID, streaming: false)
+          firebaseGeneratedContent = try FirebaseGeneratedContent(json: text, id: responseID, streaming: false)
         }
         return try GenerativeModel.Response<Content>(
-          content: Content(modelOutput),
-          rawContent: modelOutput,
+          content: Content(firebaseGeneratedContent),
+          rawContent: firebaseGeneratedContent,
           rawResponse: response
         )
       } catch let error as GenerationError {
@@ -499,7 +499,7 @@ public final class GenerativeModel: Sendable {
     }
 
     final func streamResponse<Content>(to prompt: any PartsRepresentable,
-                                       generating type: Content.Type, schema: JSONSchema?,
+                                       generating type: Content.Type, schema: FirebaseGenerationSchema?,
                                        includeSchemaInPrompt: Bool, options: GenerationConfig?)
       -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
       let parts = [ModelContent(parts: prompt)]
@@ -507,7 +507,7 @@ public final class GenerativeModel: Sendable {
       let generationConfig: GenerationConfig?
       if let schema {
         generationConfig = GenerationConfig.merge(
-          self.generationConfig, with: options, enforcingJSONSchema: schema
+          self.generationConfig, with: options, enforcingFirebaseGenerationSchema: schema
         )
       } else {
         generationConfig = GenerationConfig.merge(self.generationConfig, with: options)
@@ -521,11 +521,11 @@ public final class GenerativeModel: Sendable {
             if let text = response.text {
               json += text
               let responseID = response.responseID.map { ResponseID(responseID: $0) }
-              let modelOutput = try ModelOutput(json: json, id: responseID, streaming: true)
+              let firebaseGeneratedContent = try FirebaseGeneratedContent(json: json, id: responseID, streaming: true)
               try await context.yield(
                 GenerativeModel.ResponseStream<Content>.Snapshot(
-                  content: Content.Partial(modelOutput),
-                  rawContent: modelOutput,
+                  content: Content.Partial(firebaseGeneratedContent),
+                  rawContent: firebaseGeneratedContent,
                   rawResponse: response
                 )
               )
