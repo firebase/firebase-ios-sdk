@@ -50,6 +50,17 @@ public struct ResponseID: Sendable, Hashable {
     init(generationID: GenerationID) {
       identifier = .generationID(generationID)
     }
+
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    var generationID: GenerationID? {
+      guard case let .generationID(id as GenerationID) = identifier else {
+        return nil
+      }
+
+      return id
+    }
   #endif // canImport(FoundationModels)
 }
 

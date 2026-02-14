@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix a race condition by replacing `mstats()` with `malloc_zone_statistics()`. (#15501)
+
 # 12.8.0
 - [fixed] Use UIScreen.maximumFramesPerSecond for dynamic slow frame threshold. (#10220)
 

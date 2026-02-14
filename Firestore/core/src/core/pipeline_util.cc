@@ -707,22 +707,20 @@ std::vector<std::shared_ptr<api::EvaluableStage>> ToPipelineStages(
   if (!query_explicit_order_bys.empty()) {
     std::vector<std::shared_ptr<api::Expr>> exists_exprs;
     exists_exprs.reserve(query_explicit_order_bys.size());
-    for (const auto& core_order_by : query.explicit_order_bys()) {
+    for (const auto& core_order_by : query_explicit_order_bys) {
       exists_exprs.push_back(std::make_shared<api::FunctionExpr>(
           "exists", std::vector<std::shared_ptr<api::Expr>>{
                         std::make_shared<api::Field>(core_order_by.field())}));
     }
 
-    if (!exists_exprs.empty()) {
-      std::shared_ptr<api::Expr> final_exists_expr;
-      if (exists_exprs.size() == 1) {
-        final_exists_expr = exists_exprs[0];
-      } else {
-        final_exists_expr =
-            std::make_shared<api::FunctionExpr>("and", exists_exprs);
-      }
-      stages.push_back(std::make_shared<api::Where>(final_exists_expr));
+    std::shared_ptr<api::Expr> final_exists_expr;
+    if (exists_exprs.size() == 1) {
+      final_exists_expr = exists_exprs[0];
+    } else {
+      final_exists_expr =
+          std::make_shared<api::FunctionExpr>("and", exists_exprs);
     }
+    stages.push_back(std::make_shared<api::Where>(final_exists_expr));
   }
 
   // 4. Orderings, Cursors, Limit

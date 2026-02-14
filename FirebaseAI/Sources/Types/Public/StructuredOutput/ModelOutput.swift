@@ -16,11 +16,12 @@ import Foundation
 #if canImport(FoundationModels)
   public import protocol FoundationModels.ConvertibleFromGeneratedContent
   public import protocol FoundationModels.ConvertibleToGeneratedContent
+  public import struct FoundationModels.GenerationID
   public import struct FoundationModels.GeneratedContent
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGenerable {
+public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGenerable, Equatable {
   public let kind: Kind
 
   public static var jsonSchema: JSONSchema {
@@ -28,16 +29,37 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
   }
 
   public var id: ResponseID?
+  public internal(set) var isComplete: Bool
 
-  init(kind: Kind, id: ResponseID? = nil) {
+  init(kind: Kind, id: ResponseID? = nil, isComplete: Bool = true) {
     self.kind = kind
+    self.id = id
+    self.isComplete = isComplete
   }
 
   public var debugDescription: String {
     return kind.debugDescription
   }
 
-  public init<S>(properties: S,
+  public init(properties: KeyValuePairs<String, any ConvertibleToModelOutput>,
+              id: ResponseID? = nil) {
+    var propertyMap = [String: ModelOutput]()
+    for (key, value) in properties {
+      guard propertyMap[key] == nil else {
+        preconditionFailure("Multiple properties with name \"\(key)\".")
+      }
+      propertyMap[key] = value.modelOutput
+    }
+    let propertyNames = properties.map { $0.key }
+
+    self.init(
+      kind: .structure(properties: propertyMap, orderedKeys: propertyNames),
+      id: id,
+      isComplete: true
+    )
+  }
+
+  public init<S>(properties: S, id: ResponseID? = nil,
                  uniquingKeysWith combine: (ModelOutput, ModelOutput) throws
                    -> some ConvertibleToModelOutput) rethrows where S: Sequence, S.Element == (
     String,
@@ -59,7 +81,11 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
       }
     }
 
-    kind = .structure(properties: propertyMap, orderedKeys: propertyNames)
+    self.init(
+      kind: .structure(properties: propertyMap, orderedKeys: propertyNames),
+      id: id,
+      isComplete: true
+    )
   }
 
   public init<S>(elements: S) where S: Sequence, S.Element == any ConvertibleToModelOutput {
@@ -70,16 +96,71 @@ public struct ModelOutput: Sendable, CustomDebugStringConvertible, FirebaseGener
     self = value.modelOutput
   }
 
-  public init(json: String, id: ResponseID? = nil) throws {
-    guard let jsonData = json.data(using: .utf8) else {
-      fatalError()
+  init(json: String, id: ResponseID? = nil, streaming: Bool?) throws {
+    var modelOutput: ModelOutput
+    var decodingError: Error?
+
+    // 1. Attempt to decode the JSON with the standard `JSONDecoder` since it likely offers the best
+    //    performance and is available on iOS 15+.
+    //    Note: This approach does not support decoding partial JSON when streaming. As an
+    //    optimization, this approach is skipped when `streaming` is explicitly set to `true`.
+    if streaming != true {
+      guard let jsonData = json.data(using: .utf8) else {
+        throw GenerativeModel.GenerationError.decodingFailure(
+          GenerativeModel.GenerationError.Context(
+            debugDescription: "Failed to convert JSON to `Data`: \(json)"
+          )
+        )
+      }
+      do {
+        let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
+        modelOutput = jsonValue.modelOutput
+        modelOutput.id = id
+
+        self = modelOutput
+
+        return
+      } catch {
+        decodingError = error
+      }
     }
 
-    let jsonValue = try JSONDecoder().decode(JSONValue.self, from: jsonData)
-    var modelOutput = jsonValue.modelOutput
-    modelOutput.id = id
+    // 2. Attempt to decode using `GeneratedContent` from Foundation Models when available. It is
+    //    designed to handle streaming JSON.
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+        do {
+          let generatedContent = try GeneratedContent(json: json)
+          modelOutput = generatedContent.modelOutput
+          modelOutput.id = id
 
-    self = modelOutput
+          self = modelOutput
+
+          return
+        } catch {
+          decodingError = error
+        }
+      }
+    #endif // canImport(FoundationModels)
+
+    // 3. Fallback to decoding with a custom `StreamingJSONParser` when `GeneratedContent` is not
+    //    available.
+    // TODO: Add a fallback streaming JSON parser
+
+    // 4. Throw a decoding error if all attempts to decode the JSON have failed.
+    if let decodingError {
+      throw decodingError
+    } else {
+      throw GenerativeModel.GenerationError.decodingFailure(
+        GenerativeModel.GenerationError.Context(debugDescription: "Failed to decode JSON: \(json)")
+      )
+    }
+  }
+
+  public init(json: String) throws {
+    // Since it's unknown if the JSON is partial (for streaming), disable the optimizations by
+    // specifying `streaming: nil`.
+    try self.init(json: json, id: nil, streaming: nil)
   }
 
   public func value<Value>(_ type: Value.Type = Value.self) throws -> Value
@@ -147,7 +228,7 @@ extension ModelOutput: ConvertibleToModelOutput {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ModelOutput {
-  enum Kind: Sendable, CustomDebugStringConvertible {
+  enum Kind: Sendable, Equatable, CustomDebugStringConvertible {
     case null
     case bool(Bool)
     case number(Double)
@@ -185,22 +266,26 @@ public extension ModelOutput {
   @available(watchOS, unavailable)
   extension ModelOutput: ConvertibleToGeneratedContent {
     public var generatedContent: GeneratedContent {
+      let generationID = id?.generationID
+
       switch kind {
       case .null:
-        return GeneratedContent(kind: .null)
+        return GeneratedContent(kind: .null, id: generationID)
       case let .bool(value):
-        return GeneratedContent(kind: .bool(value))
+        return GeneratedContent(kind: .bool(value), id: generationID)
       case let .number(value):
-        return GeneratedContent(kind: .number(value))
+        return GeneratedContent(kind: .number(value), id: generationID)
       case let .string(value):
-        return GeneratedContent(kind: .string(value))
+        return GeneratedContent(kind: .string(value), id: generationID)
       case let .array(values):
-        return GeneratedContent(kind: .array(values.map { $0.generatedContent }))
+        return GeneratedContent(kind: .array(values.map { $0.generatedContent }), id: generationID)
       case let .structure(properties: properties, orderedKeys: orderedKeys):
-        return GeneratedContent(kind: .structure(
-          properties: properties.mapValues { $0.generatedContent },
-          orderedKeys: orderedKeys
-        ))
+        return GeneratedContent(
+          kind: .structure(
+            properties: properties.mapValues { $0.generatedContent }, orderedKeys: orderedKeys
+          ),
+          id: generationID
+        )
       }
     }
   }
@@ -208,31 +293,34 @@ public extension ModelOutput {
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  extension ModelOutput: ConvertibleFromGeneratedContent {
-    public init(_ content: GeneratedContent) throws {
-      let responseID = content.id.map { ResponseID(generationID: $0) }
+  extension GeneratedContent: ConvertibleToModelOutput {
+    public var modelOutput: ModelOutput {
+      let responseID = id.map { ResponseID(generationID: $0) }
+      return toModelOutput(id: responseID)
+    }
 
-      switch content.kind {
+    private func toModelOutput(id: ResponseID?) -> ModelOutput {
+      switch kind {
       case .null:
-        self.init(kind: .null, id: responseID)
+        return ModelOutput(kind: .null, id: id)
       case let .bool(value):
-        self.init(kind: .bool(value), id: responseID)
+        return ModelOutput(kind: .bool(value), id: id)
       case let .number(value):
-        self.init(kind: .number(value), id: responseID)
+        return ModelOutput(kind: .number(value), id: id)
       case let .string(value):
-        self.init(kind: .string(value), id: responseID)
+        return ModelOutput(kind: .string(value), id: id)
       case let .array(values):
-        try self.init(kind: .array(values.map { try ModelOutput($0) }), id: responseID)
+        return ModelOutput(kind: .array(values.map { $0.toModelOutput(id: nil) }), id: id)
       case let .structure(properties: properties, orderedKeys: orderedKeys):
-        try self.init(
+        return ModelOutput(
           kind: .structure(
-            properties: properties.mapValues { try ModelOutput($0) }, orderedKeys: orderedKeys
+            properties: properties.mapValues { $0.toModelOutput(id: nil) }, orderedKeys: orderedKeys
           ),
-          id: responseID
+          id: id
         )
       @unknown default:
-        assertionFailure("Unknown `FoundationModels.GeneratedContent` kind: \(content.kind)")
-        self.init(kind: .null, id: responseID)
+        assertionFailure("Unknown `FoundationModels.GeneratedContent` kind: \(kind)")
+        return ModelOutput(kind: .null, id: id)
       }
     }
   }

@@ -78,27 +78,30 @@ struct SchemaTests {
     )
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeWithArray(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "What are the biggest cities in Canada?"
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithArray(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "What are the biggest cities in Canada?"
 
-    let response = try await model.generate(CityList.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: CityList.self)
 
-    let cityList = response.content
-    #expect(
-      cityList.cities.count >= 3,
-      "Expected at least 3 cities, but got \(cityList.cities.count)"
-    )
-    #expect(
-      cityList.cities.count <= 5,
-      "Expected at most 5 cities, but got \(cityList.cities.count)"
-    )
-  }
+      let cityList = response.content
+      #expect(
+        cityList.cities.count >= 3,
+        "Expected at least 3 cities, but got \(cityList.cities.count)"
+      )
+      #expect(
+        cityList.cities.count <= 5,
+        "Expected at most 5 cities, but got \(cityList.cities.count)"
+      )
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct TestNumber {
@@ -138,21 +141,24 @@ struct SchemaTests {
     #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeWithNumber(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Give me a number"
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithNumber(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Give me a number"
 
-    let response = try await model.generate(TestNumber.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: TestNumber.self)
 
-    let testNumber = response.content
-    #expect(testNumber.value >= 110, "Expected a number >= 110, but got \(testNumber.value)")
-    #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
-  }
+      let testNumber = response.content
+      #expect(testNumber.value >= 110, "Expected a number >= 110, but got \(testNumber.value)")
+      #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct ProductInfo {
@@ -217,28 +223,31 @@ struct SchemaTests {
     #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeWithMultipleDataTypes(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Describe a premium wireless headphone, including a user rating and price."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithMultipleDataTypes(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Describe a premium wireless headphone, including a user rating and price."
 
-    let response = try await model.generate(ProductInfo.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: ProductInfo.self)
 
-    let productInfo = response.content
-    let price = productInfo.price
-    let salePrice = productInfo.salePrice
-    let rating = productInfo.rating
-    #expect(price >= 10.0, "Expected a price >= 10.00, but got \(price)")
-    #expect(price <= 120.0, "Expected a price <= 120.00, but got \(price)")
-    #expect(salePrice >= 5.0, "Expected a salePrice >= 5.00, but got \(salePrice)")
-    #expect(salePrice <= 90.0, "Expected a salePrice <= 90.00, but got \(salePrice)")
-    #expect(rating >= 1, "Expected a rating >= 1, but got \(rating)")
-    #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
-  }
+      let productInfo = response.content
+      let price = productInfo.price
+      let salePrice = productInfo.salePrice
+      let rating = productInfo.rating
+      #expect(price >= 10.0, "Expected a price >= 10.00, but got \(price)")
+      #expect(price <= 120.0, "Expected a price <= 120.00, but got \(price)")
+      #expect(salePrice >= 5.0, "Expected a salePrice >= 5.00, but got \(salePrice)")
+      #expect(salePrice <= 90.0, "Expected a salePrice <= 90.00, but got \(salePrice)")
+      #expect(rating >= 1, "Expected a rating >= 1, but got \(rating)")
+      #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct MailingAddress {
@@ -344,49 +353,52 @@ struct SchemaTests {
     }
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeAnyOf(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_Flash,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = """
-    What are the mailing addresses for the University of Waterloo, UC Berkeley and Queen's U?
-    """
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithAnyOfArray(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_Flash,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = """
+      What are the mailing addresses for the University of Waterloo, UC Berkeley and Queen's U?
+      """
 
-    let response = try await model.generate([MailingAddress].self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: [MailingAddress].self)
 
-    let mailingAddresses = response.content
-    try #require(
-      mailingAddresses.count == 3,
-      "Expected 3 JSON addresses, got \(mailingAddresses.count)."
-    )
-    let waterlooAddress = mailingAddresses[0]
-    #expect(waterlooAddress.city == "Waterloo")
-    if case let .canada(province, postalCode) = waterlooAddress.postalInfo {
-      #expect(province == "ON")
-      #expect(postalCode == "N2L 3G1")
-    } else {
-      Issue.record("Expected Canadian University of Waterloo address, got \(waterlooAddress).")
+      let mailingAddresses = response.content
+      try #require(
+        mailingAddresses.count == 3,
+        "Expected 3 JSON addresses, got \(mailingAddresses.count)."
+      )
+      let waterlooAddress = mailingAddresses[0]
+      #expect(waterlooAddress.city == "Waterloo")
+      if case let .canada(province, postalCode) = waterlooAddress.postalInfo {
+        #expect(province == "ON")
+        #expect(postalCode == "N2L 3G1")
+      } else {
+        Issue.record("Expected Canadian University of Waterloo address, got \(waterlooAddress).")
+      }
+      let berkeleyAddress = mailingAddresses[1]
+      #expect(berkeleyAddress.city == "Berkeley")
+      if case let .unitedStates(state, zipCode) = berkeleyAddress.postalInfo {
+        #expect(state == "CA")
+        #expect(zipCode == "94720")
+      } else {
+        Issue.record("Expected American UC Berkeley address, got \(berkeleyAddress).")
+      }
+      let queensAddress = mailingAddresses[2]
+      #expect(queensAddress.city == "Kingston")
+      if case let .canada(province, postalCode) = queensAddress.postalInfo {
+        #expect(province == "ON")
+        #expect(postalCode == "K7L 3N6")
+      } else {
+        Issue.record("Expected Canadian Queen's University address, got \(queensAddress).")
+      }
     }
-    let berkeleyAddress = mailingAddresses[1]
-    #expect(berkeleyAddress.city == "Berkeley")
-    if case let .unitedStates(state, zipCode) = berkeleyAddress.postalInfo {
-      #expect(state == "CA")
-      #expect(zipCode == "94720")
-    } else {
-      Issue.record("Expected American UC Berkeley address, got \(berkeleyAddress).")
-    }
-    let queensAddress = mailingAddresses[2]
-    #expect(queensAddress.city == "Kingston")
-    if case let .canada(province, postalCode) = queensAddress.postalInfo {
-      #expect(province == "ON")
-      #expect(postalCode == "K7L 3N6")
-    } else {
-      Issue.record("Expected Canadian Queen's University address, got \(queensAddress).")
-    }
-  }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct FeatureToggle {
@@ -420,20 +432,23 @@ struct SchemaTests {
     #expect(featureToggle.isEnabled)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeBoolean(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Should the experimental feature be active? Answer yes."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithBoolean(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Should the experimental feature be active? Answer yes."
 
-    let response = try await model.generate(FeatureToggle.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: FeatureToggle.self)
 
-    let featureToggle = response.content
-    #expect(featureToggle.isEnabled)
-  }
+      let featureToggle = response.content
+      #expect(featureToggle.isEnabled)
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct UserProfile {
@@ -471,21 +486,24 @@ struct SchemaTests {
     #expect(userProfile.middleName == nil)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeOptional(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Create a user profile for 'jdoe' without a middle name."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithUserProfile(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Create a user profile for 'jdoe' without a middle name."
 
-    let response = try await model.generate(UserProfile.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: UserProfile.self)
 
-    let userProfile = response.content
-    #expect(userProfile.username == "jdoe")
-    #expect(userProfile.middleName == nil)
-  }
+      let userProfile = response.content
+      #expect(userProfile.username == "jdoe")
+      #expect(userProfile.middleName == nil)
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct Pet {
@@ -531,21 +549,24 @@ struct SchemaTests {
     #expect(pet.species == .cat)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeSimpleStringEnum(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Create a pet dog named 'Buddy'."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithSimpleStringEnum(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Create a pet dog named 'Buddy'."
 
-    let response = try await model.generate(Pet.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: Pet.self)
 
-    let pet = response.content
-    #expect(pet.name == "Buddy")
-    #expect(pet.species == .dog)
-  }
+      let pet = response.content
+      #expect(pet.name == "Buddy")
+      #expect(pet.species == .dog)
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct Task {
@@ -594,21 +615,24 @@ struct SchemaTests {
     #expect(task.priority == .medium)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeStringRawValueEnum(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Create a high priority task titled 'Fix Bug'."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithStringRawValueEnum(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Create a high priority task titled 'Fix Bug'."
 
-    let response = try await model.generate(Task.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: Task.self)
 
-    let task = response.content
-    #expect(task.title == "Fix Bug")
-    #expect(task.priority == .high)
-  }
+      let task = response.content
+      #expect(task.title == "Fix Bug")
+      #expect(task.priority == .high)
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct GradeBook {
@@ -649,23 +673,26 @@ struct SchemaTests {
     }
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeArrayConstraints(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Generate a gradebook with scores 95, 80, and 100."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithConstrainedArray(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Generate a gradebook with scores 95, 80, and 100."
 
-    let response = try await model.generate(GradeBook.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: GradeBook.self)
 
-    let gradeBook = response.content
-    #expect(gradeBook.scores.count == 3)
-    for score in gradeBook.scores {
-      #expect(score >= 0 && score <= 100)
+      let gradeBook = response.content
+      #expect(gradeBook.scores.count == 3)
+      for score in gradeBook.scores {
+        #expect(score >= 0 && score <= 100)
+      }
     }
-  }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct Catalog {
@@ -731,27 +758,30 @@ struct SchemaTests {
     #expect(catalog.categories[0].items[0].price == 999.99)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeNesting(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = """
-    Create a catalog named 'Tech' with a category 'Computers' containing an item 'Laptop' for 999.99.
-    """
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithNestedType(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = """
+      Create a catalog named 'Tech' with a category 'Computers' containing an item 'Laptop' for 999.99.
+      """
 
-    let response = try await model.generate(Catalog.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: Catalog.self)
 
-    let catalog = response.content
-    #expect(catalog.name == "Tech")
-    #expect(catalog.categories.count == 1)
-    #expect(catalog.categories[0].title == "Computers")
-    #expect(catalog.categories[0].items.count == 1)
-    #expect(catalog.categories[0].items[0].name == "Laptop")
-    #expect(catalog.categories[0].items[0].price == 999.99)
-  }
+      let catalog = response.content
+      #expect(catalog.name == "Tech")
+      #expect(catalog.categories.count == 1)
+      #expect(catalog.categories[0].title == "Computers")
+      #expect(catalog.categories[0].items.count == 1)
+      #expect(catalog.categories[0].items[0].name == "Laptop")
+      #expect(catalog.categories[0].items[0].price == 999.99)
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct Statement {
@@ -785,20 +815,23 @@ struct SchemaTests {
     #expect(statement.balance == Decimal(string: "123.45")!)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeDecimal(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Generate a statement with balance 123.45."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithDecimalType(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Generate a statement with balance 123.45."
 
-    let response = try await model.generate(Statement.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: Statement.self)
 
-    let statement = response.content
-    #expect(statement.balance == Decimal(string: "123.45")!)
-  }
+      let statement = response.content
+      #expect(statement.balance == Decimal(string: "123.45")!)
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct Metadata {
@@ -837,20 +870,23 @@ struct SchemaTests {
     #expect(metadata.tags.isEmpty)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeEmptyCollection(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Generate metadata with no tags."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithEmptyCollection(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Generate metadata with no tags."
 
-    let response = try await model.generate(Metadata.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: Metadata.self)
 
-    let metadata = response.content
-    #expect(metadata.tags.isEmpty)
-  }
+      let metadata = response.content
+      #expect(metadata.tags.isEmpty)
+    }
+  #endif // compiler(>=6.2)
 
   @FirebaseGenerable
   struct ConstrainedValue {
@@ -884,20 +920,23 @@ struct SchemaTests {
     #expect(constrainedValue.value == 15)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
-  func generateTypeCombinedGuides(_ config: InstanceConfig) async throws {
-    let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2_5_FlashLite,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings
-    )
-    let prompt = "Give me the value 15."
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: InstanceConfig.allConfigs)
+    func respondWithTypeCombinedGuides(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings
+      )
+      let prompt = "Give me the value 15."
 
-    let response = try await model.generate(ConstrainedValue.self, from: prompt)
+      let response = try await model.respond(to: prompt, generating: ConstrainedValue.self)
 
-    let constrainedValue = response.content
-    #expect(constrainedValue.value == 15)
-  }
+      let constrainedValue = response.content
+      #expect(constrainedValue.value == 15)
+    }
+  #endif // compiler(>=6.2)
 
   @Test(arguments: testConfigs(
     instanceConfigs: InstanceConfig.allConfigs,
