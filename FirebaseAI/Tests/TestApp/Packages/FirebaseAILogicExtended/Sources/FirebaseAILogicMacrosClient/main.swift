@@ -22,4 +22,4 @@ struct Person {
   let age: Int
 }
 
-print(Person.jsonSchema)
+print(Person.firebaseGenerationSchema)

@@ -155,29 +155,33 @@ final class GenerationConfigTests: XCTestCase {
   }
 
   struct Person: FirebaseGenerable {
-    static var jsonSchema: JSONSchema {
-      JSONSchema(type: Self.self, properties: [
-        JSONSchema.Property(name: "firstName", type: String.self),
-        JSONSchema.Property(name: "middleNames", type: [String].self, guides: [.count(0 ... 3)]),
-        JSONSchema.Property(name: "lastName", type: String.self),
-        JSONSchema.Property(name: "age", type: Int.self),
+    static var firebaseGenerationSchema: FirebaseGenerationSchema {
+      FirebaseGenerationSchema(type: Self.self, properties: [
+        FirebaseGenerationSchema.Property(name: "firstName", type: String.self),
+        FirebaseGenerationSchema.Property(
+          name: "middleNames",
+          type: [String].self,
+          guides: [.count(0 ... 3)]
+        ),
+        FirebaseGenerationSchema.Property(name: "lastName", type: String.self),
+        FirebaseGenerationSchema.Property(name: "age", type: Int.self),
       ])
     }
 
-    init(_ content: FirebaseAILogic.ModelOutput) throws {
+    init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
       fatalError("\(#function) not needed for \(Self.self) in test file: \(#file)")
     }
 
-    var modelOutput: FirebaseAILogic.ModelOutput {
+    var firebaseGeneratedContent: FirebaseAILogic.FirebaseGeneratedContent {
       fatalError("\(#function) not needed for \(Self.self) in test file: \(#file)")
     }
   }
 
-  func testEncodeGenerationConfig_responseJSONSchema() throws {
+  func testEncodeGenerationConfig_responseFirebaseGenerationSchema() throws {
     let mimeType = "application/json"
     let generationConfig = GenerationConfig(
       responseMIMEType: mimeType,
-      responseJSONSchema: Person.jsonSchema
+      responseFirebaseGenerationSchema: Person.firebaseGenerationSchema
     )
 
     let jsonData = try encoder.encode(generationConfig)

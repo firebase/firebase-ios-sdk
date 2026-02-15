@@ -70,7 +70,7 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
     let declSyntax: DeclSyntax = """
     @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
     extension \(type.trimmed): FirebaseAILogic.FirebaseGenerable {
-      nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+      nonisolated init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
         \(raw: inits)
       }
     }
@@ -144,7 +144,7 @@ public struct FirebaseGenerableMacro: ExtensionMacro {
     let declSyntaxString = """
     @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
     extension \(type.trimmed): FirebaseAILogic.FirebaseGenerable {
-      nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+      nonisolated init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
         \(initBody)
       }
     }
@@ -281,7 +281,7 @@ extension FirebaseGenerableMacro: MemberMacro {
     // Find the description for the enum itself from the @FirebaseGenerable macro.
     let enumDescription = try getDescriptionFromGenerableMacro(node)
 
-    // Generate `static var jsonSchema: ...` computed property.
+    // Generate `static var firebaseGenerationSchema: ...` computed property.
     let anyOfList: String
     if isStringBacked(enumDecl: enumDecl) {
       anyOfList = caseNames.map { "\($0).rawValue" }.joined(separator: ", ")
@@ -297,26 +297,26 @@ extension FirebaseGenerableMacro: MemberMacro {
     let schemaParametersCode = schemaParameters.joined(separator: ", ")
 
     let generationSchemaCode = """
-    nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-      FirebaseAILogic.JSONSchema(\(schemaParametersCode))
+    nonisolated static var firebaseGenerationSchema: FirebaseAILogic.FirebaseGenerationSchema {
+      FirebaseAILogic.FirebaseGenerationSchema(\(schemaParametersCode))
     }
     """
 
-    // Generate `var modelOutput: ...` computed property.
-    let modelOutputCode: String
+    // Generate `var firebaseGeneratedContent: ...` computed property.
+    let firebaseGeneratedContentCode: String
     if isStringBacked(enumDecl: enumDecl) {
-      modelOutputCode = """
-      nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-        rawValue.modelOutput
+      firebaseGeneratedContentCode = """
+      nonisolated var firebaseGeneratedContent: FirebaseAILogic.FirebaseGeneratedContent {
+        rawValue.firebaseGeneratedContent
       }
       """
     } else {
       let switchCases = caseNames.map { caseName in
-        "case .\(caseName):\n    \"\(caseName)\".modelOutput"
+        "case .\(caseName):\n    \"\(caseName)\".firebaseGeneratedContent"
       }.joined(separator: "\n  ")
 
-      modelOutputCode = """
-      nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+      firebaseGeneratedContentCode = """
+      nonisolated var firebaseGeneratedContent: FirebaseAILogic.FirebaseGeneratedContent {
         switch self {
         \(switchCases)
         }
@@ -326,7 +326,7 @@ extension FirebaseGenerableMacro: MemberMacro {
 
     return [
       DeclSyntax(stringLiteral: generationSchemaCode),
-      DeclSyntax(stringLiteral: modelOutputCode),
+      DeclSyntax(stringLiteral: firebaseGeneratedContentCode),
     ]
   }
 
@@ -342,7 +342,7 @@ extension FirebaseGenerableMacro: MemberMacro {
 
       // Build the property schema code string.
       var propertySchemaString =
-        "FirebaseAILogic.JSONSchema.Property(name: \"\(info.name)\", "
+        "FirebaseAILogic.FirebaseGenerationSchema.Property(name: \"\(info.name)\", "
       if let desc = info.description {
         propertySchemaString += "description: \"\(desc)\", "
       }
@@ -380,25 +380,25 @@ extension FirebaseGenerableMacro: MemberMacro {
 
     let schemaParametersCode = schemaInitializerList.joined(separator: ",\n")
 
-    // Generate `static var jsonSchema: ...` computed property.
+    // Generate `static var firebaseGenerationSchema: ...` computed property.
     let generationSchemaCode = """
-    nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-      FirebaseAILogic.JSONSchema(
+    nonisolated static var firebaseGenerationSchema: FirebaseAILogic.FirebaseGenerationSchema {
+      FirebaseAILogic.FirebaseGenerationSchema(
         \(schemaParametersCode)
       )
     }
     """
 
-    // Generate `var modelOutput: ...` computed property.
+    // Generate `var firebaseGeneratedContent: ...` computed property.
     let addPropertiesList = propertyNames.map { propertyName in
       "addProperty(name: \"\(propertyName)\", value: self.\(propertyName))"
     }.joined(separator: "\n")
 
-    let modelOutputCode = """
-    nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-      var properties = [(name: String, value: any ConvertibleToModelOutput)]()
+    let firebaseGeneratedContentCode = """
+    nonisolated var firebaseGeneratedContent: FirebaseAILogic.FirebaseGeneratedContent {
+      var properties = [(name: String, value: any ConvertibleToFirebaseGeneratedContent)]()
       \(addPropertiesList)
-      return ModelOutput(
+      return FirebaseGeneratedContent(
         properties: properties,
         uniquingKeysWith: { _, second in
           second
@@ -421,10 +421,10 @@ extension FirebaseGenerableMacro: MemberMacro {
     let partiallyGeneratedInitsCode = partiallyGeneratedInits.joined(separator: "\n    ")
 
     let partiallyGeneratedStructCode = """
-    nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
+    nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromFirebaseGeneratedContent {
       var id: FirebaseAILogic.ResponseID
       \(partiallyGeneratedPropertiesCode)
-      nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+      nonisolated init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
         self.id = content.id ?? FirebaseAILogic.ResponseID()
         \(partiallyGeneratedInitsCode)
       }
@@ -433,7 +433,7 @@ extension FirebaseGenerableMacro: MemberMacro {
 
     return [
       DeclSyntax(stringLiteral: generationSchemaCode),
-      DeclSyntax(stringLiteral: modelOutputCode),
+      DeclSyntax(stringLiteral: firebaseGeneratedContentCode),
       DeclSyntax(stringLiteral: partiallyGeneratedStructCode),
     ]
   }

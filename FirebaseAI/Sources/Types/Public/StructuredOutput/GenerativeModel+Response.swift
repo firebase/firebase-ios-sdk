@@ -18,10 +18,11 @@
   public extension GenerativeModel {
     struct Response<Content> where Content: FirebaseGenerable {
       public let content: Content
-      public let rawContent: ModelOutput
+      public let rawContent: FirebaseGeneratedContent
       public let rawResponse: GenerateContentResponse
 
-      init(content: Content, rawContent: ModelOutput, rawResponse: GenerateContentResponse) {
+      init(content: Content, rawContent: FirebaseGeneratedContent,
+           rawResponse: GenerateContentResponse) {
         self.content = content
         self.rawContent = rawContent
         self.rawResponse = rawResponse

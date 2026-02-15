@@ -18,16 +18,17 @@
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public protocol ConvertibleFromModelOutput {
-  init(_ content: ModelOutput) throws
+public protocol ConvertibleFromFirebaseGeneratedContent {
+  init(_ content: FirebaseGeneratedContent) throws
 }
 
 #if canImport(FoundationModels)
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public extension ConvertibleFromModelOutput where Self: ConvertibleFromGeneratedContent {
-    init(_ content: ModelOutput) throws {
+  public extension ConvertibleFromFirebaseGeneratedContent
+    where Self: ConvertibleFromGeneratedContent {
+    init(_ content: FirebaseGeneratedContent) throws {
       try self.init(content.generatedContent)
     }
   }

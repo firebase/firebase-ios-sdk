@@ -51,7 +51,7 @@ public struct GenerationConfig: Sendable {
   /// Output schema of the generated response in [JSON Schema](https://json-schema.org/) format.
   ///
   /// If set, `responseSchema` must be omitted and `responseMIMEType` is required.
-  var responseJSONSchema: JSONSchema?
+  var responseFirebaseGenerationSchema: FirebaseGenerationSchema?
 
   /// Supported modalities of the response.
   var responseModalities: [ResponseModality]?
@@ -180,14 +180,15 @@ public struct GenerationConfig: Sendable {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
-    responseJSONSchema = nil
+    responseFirebaseGenerationSchema = nil
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
   }
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
        maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-       stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONSchema,
+       stopSequences: [String]? = nil, responseMIMEType: String,
+       responseFirebaseGenerationSchema: FirebaseGenerationSchema,
        responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
@@ -199,7 +200,7 @@ public struct GenerationConfig: Sendable {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     responseSchema = nil
-    self.responseJSONSchema = responseJSONSchema
+    self.responseFirebaseGenerationSchema = responseFirebaseGenerationSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
   }
@@ -240,13 +241,13 @@ public struct GenerationConfig: Sendable {
     config.responseModalities = overrideConfig.responseModalities ?? config.responseModalities
     config.thinkingConfig = overrideConfig.thinkingConfig ?? config.thinkingConfig
 
-    // 5. Handle Schema mutual exclusivity with precedence for `responseJSONSchema`.
-    if let responseJSONSchema = overrideConfig.responseJSONSchema {
-      config.responseJSONSchema = responseJSONSchema
+    // 5. Handle Schema mutual exclusivity with precedence for `responseFirebaseGenerationSchema`.
+    if let responseFirebaseGenerationSchema = overrideConfig.responseFirebaseGenerationSchema {
+      config.responseFirebaseGenerationSchema = responseFirebaseGenerationSchema
       config.responseSchema = nil
     } else if let responseSchema = overrideConfig.responseSchema {
       config.responseSchema = responseSchema
-      config.responseJSONSchema = nil
+      config.responseFirebaseGenerationSchema = nil
     }
 
     return config
@@ -257,17 +258,18 @@ public struct GenerationConfig: Sendable {
   /// - Parameters:
   ///   - base: The foundational configuration (e.g., model defaults).
   ///   - overrides: The configuration containing overrides (e.g., request specific).
-  ///   - jsonSchema: The JSON schema to enforce on the output.
+  ///   - firebaseGenerationSchema: The JSON schema to enforce on the output.
   /// - Returns: A non-nil `GenerationConfig` with the merged values and JSON constraints applied.
   static func merge(_ base: GenerationConfig?,
                     with overrides: GenerationConfig?,
-                    enforcingJSONSchema jsonSchema: JSONSchema) -> GenerationConfig {
+                    enforcingFirebaseGenerationSchema firebaseGenerationSchema: FirebaseGenerationSchema)
+    -> GenerationConfig {
     // 1. Merge base and overrides, defaulting to a fresh config if both are nil.
     var config = GenerationConfig.merge(base, with: overrides) ?? GenerationConfig()
 
     // 2. Enforce the specific constraints for JSON Schema generation.
     config.responseMIMEType = "application/json"
-    config.responseJSONSchema = jsonSchema
+    config.responseFirebaseGenerationSchema = firebaseGenerationSchema
     config.responseSchema = nil // Clear conflicting legacy schema
 
     // 3. Clear incompatible or conflicting options.
@@ -293,7 +295,7 @@ extension GenerationConfig: Encodable {
     case stopSequences
     case responseMIMEType = "responseMimeType"
     case responseSchema
-    case responseJSONSchema = "responseJsonSchema"
+    case responseFirebaseGenerationSchema = "responseJsonSchema"
     case responseModalities
     case thinkingConfig
   }
@@ -310,10 +312,10 @@ extension GenerationConfig: Encodable {
     try container.encodeIfPresent(stopSequences, forKey: .stopSequences)
     try container.encodeIfPresent(responseMIMEType, forKey: .responseMIMEType)
     try container.encodeIfPresent(responseSchema, forKey: .responseSchema)
-    if let responseJSONSchema = responseJSONSchema {
+    if let responseFirebaseGenerationSchema {
       let schemaEncoder = SchemaEncoder(target: .gemini)
-      let jsonSchema = try schemaEncoder.encode(responseJSONSchema)
-      try container.encode(jsonSchema, forKey: .responseJSONSchema)
+      let firebaseGenerationSchema = try schemaEncoder.encode(responseFirebaseGenerationSchema)
+      try container.encode(firebaseGenerationSchema, forKey: .responseFirebaseGenerationSchema)
     }
     try container.encodeIfPresent(responseModalities, forKey: .responseModalities)
     try container.encodeIfPresent(thinkingConfig, forKey: .thinkingConfig)

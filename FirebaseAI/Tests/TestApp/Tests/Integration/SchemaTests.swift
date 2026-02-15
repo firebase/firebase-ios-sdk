@@ -52,7 +52,7 @@ struct SchemaTests {
         ],
         title: "CityList"
       ),
-      jsonSchema: CityList.jsonSchema
+      firebaseGenerationSchema: CityList.firebaseGenerationSchema
     )
   )
   func generateContentItemsSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
@@ -66,8 +66,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let cityList = try CityList(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let cityList = try CityList(firebaseGeneratedContent)
     #expect(
       cityList.cities.count >= 3,
       "Expected at least 3 cities, but got \(cityList.cities.count)"
@@ -121,7 +121,7 @@ struct SchemaTests {
       ],
       title: "TestNumber"
     ),
-    jsonSchema: TestNumber.jsonSchema
+    firebaseGenerationSchema: TestNumber.firebaseGenerationSchema
   ))
   func generateContentSchemaNumberRange(_ config: InstanceConfig,
                                         _ schema: SchemaType) async throws {
@@ -135,8 +135,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let testNumber = try TestNumber(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let testNumber = try TestNumber(firebaseGeneratedContent)
     #expect(testNumber.value >= 110, "Expected a number >= 110, but got \(testNumber.value)")
     #expect(testNumber.value <= 120, "Expected a number <= 120, but got \(testNumber.value)")
   }
@@ -196,7 +196,7 @@ struct SchemaTests {
       propertyOrdering: ["salePrice", "rating", "price", "productName"],
       title: "ProductInfo"
     ),
-    jsonSchema: ProductInfo.jsonSchema
+    firebaseGenerationSchema: ProductInfo.firebaseGenerationSchema
   ))
   func generateContentSchemaNumberRangeMultiType(_ config: InstanceConfig,
                                                  _ schema: SchemaType) async throws {
@@ -210,8 +210,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let productInfo = try ProductInfo(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let productInfo = try ProductInfo(firebaseGeneratedContent)
     let price = productInfo.price
     let salePrice = productInfo.salePrice
     let rating = productInfo.rating
@@ -310,7 +310,7 @@ struct SchemaTests {
         "postalInfo": .anyOf(schemas: [canadaPostalInfoSchema, unitedStatesPostalInfoSchema]),
       ])
     }()),
-    jsonSchema: [MailingAddress].jsonSchema
+    firebaseGenerationSchema: [MailingAddress].firebaseGenerationSchema
   ))
   func generateContentAnyOfSchema(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -324,8 +324,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let mailingAddresses = try [MailingAddress](modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let mailingAddresses = try [MailingAddress](firebaseGeneratedContent)
     try #require(mailingAddresses.count == 3, "Expected 3 JSON addresses, got \(text).")
     let waterlooAddress = mailingAddresses[0]
     #expect(waterlooAddress.city == "Waterloo")
@@ -414,7 +414,7 @@ struct SchemaTests {
       ],
       title: "FeatureToggle"
     ),
-    jsonSchema: FeatureToggle.jsonSchema
+    firebaseGenerationSchema: FeatureToggle.firebaseGenerationSchema
   ))
   func generateContentBoolean(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -427,8 +427,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let featureToggle = try FeatureToggle(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let featureToggle = try FeatureToggle(firebaseGeneratedContent)
     #expect(featureToggle.isEnabled)
   }
 
@@ -467,7 +467,7 @@ struct SchemaTests {
       optionalProperties: ["middleName"],
       title: "UserProfile"
     ),
-    jsonSchema: UserProfile.jsonSchema
+    firebaseGenerationSchema: UserProfile.firebaseGenerationSchema
   ))
   func generateContentOptional(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -480,8 +480,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let userProfile = try UserProfile(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let userProfile = try UserProfile(firebaseGeneratedContent)
     #expect(userProfile.username == "jdoe")
     #expect(userProfile.middleName == nil)
   }
@@ -528,11 +528,11 @@ struct SchemaTests {
       ],
       title: "Pet"
     ),
-    jsonSchema: Pet.jsonSchema
+    firebaseGenerationSchema: Pet.firebaseGenerationSchema
   ))
   func generateContentSimpleStringEnum(_ config: InstanceConfig,
                                        _ schema: SchemaType) async throws {
-    print(Pet.jsonSchema.debugDescription)
+    print(Pet.firebaseGenerationSchema.debugDescription)
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: SchemaTests.generationConfig(schema: schema),
@@ -543,8 +543,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let pet = try Pet(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let pet = try Pet(firebaseGeneratedContent)
     #expect(pet.name == "Fluffy")
     #expect(pet.species == .cat)
   }
@@ -595,7 +595,7 @@ struct SchemaTests {
       ],
       title: "Task"
     ),
-    jsonSchema: Task.jsonSchema
+    firebaseGenerationSchema: Task.firebaseGenerationSchema
   ))
   func generateContentStringRawValueEnum(_ config: InstanceConfig,
                                          _ schema: SchemaType) async throws {
@@ -609,8 +609,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let task = try Task(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let task = try Task(firebaseGeneratedContent)
     #expect(task.title == "Feature Request")
     #expect(task.priority == .medium)
   }
@@ -651,7 +651,7 @@ struct SchemaTests {
       ],
       title: "GradeBook"
     ),
-    jsonSchema: GradeBook.jsonSchema
+    firebaseGenerationSchema: GradeBook.firebaseGenerationSchema
   ))
   func generateContentArrayConstraints(_ config: InstanceConfig,
                                        _ schema: SchemaType) async throws {
@@ -665,8 +665,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let gradeBook = try GradeBook(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let gradeBook = try GradeBook(firebaseGeneratedContent)
     #expect(gradeBook.scores.count == 3)
     for score in gradeBook.scores {
       #expect(score >= 0 && score <= 100)
@@ -733,7 +733,7 @@ struct SchemaTests {
       ],
       title: "Catalog"
     ),
-    jsonSchema: Catalog.jsonSchema
+    firebaseGenerationSchema: Catalog.firebaseGenerationSchema
   ))
   func generateContentNesting(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -748,8 +748,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let catalog = try Catalog(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let catalog = try Catalog(firebaseGeneratedContent)
     #expect(catalog.name == "Tech")
     #expect(catalog.categories.count == 1)
     #expect(catalog.categories[0].title == "Computers")
@@ -797,7 +797,7 @@ struct SchemaTests {
       ],
       title: "Statement"
     ),
-    jsonSchema: Statement.jsonSchema
+    firebaseGenerationSchema: Statement.firebaseGenerationSchema
   ))
   func generateContentDecimal(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -810,8 +810,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let statement = try Statement(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let statement = try Statement(firebaseGeneratedContent)
     #expect(statement.balance == Decimal(string: "123.45")!)
   }
 
@@ -852,7 +852,7 @@ struct SchemaTests {
       ],
       title: "Metadata"
     ),
-    jsonSchema: Metadata.jsonSchema
+    firebaseGenerationSchema: Metadata.firebaseGenerationSchema
   ))
   func generateContentEmptyCollection(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -865,8 +865,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let metadata = try Metadata(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let metadata = try Metadata(firebaseGeneratedContent)
     #expect(metadata.tags.isEmpty)
   }
 
@@ -902,7 +902,7 @@ struct SchemaTests {
       ],
       title: "ConstrainedValue"
     ),
-    jsonSchema: ConstrainedValue.jsonSchema
+    firebaseGenerationSchema: ConstrainedValue.firebaseGenerationSchema
   ))
   func generateContentCombinedGuides(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -915,8 +915,8 @@ struct SchemaTests {
     let response = try await model.generateContent(prompt)
 
     let text = try #require(response.text)
-    let modelOutput = try ModelOutput(json: text)
-    let constrainedValue = try ConstrainedValue(modelOutput)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: text)
+    let constrainedValue = try ConstrainedValue(firebaseGeneratedContent)
     #expect(constrainedValue.value == 15)
   }
 
@@ -941,7 +941,7 @@ struct SchemaTests {
   @Test(arguments: testConfigs(
     instanceConfigs: InstanceConfig.allConfigs,
     openAPISchema: .object(properties: ["value": .integer()], title: "TestNumber"),
-    jsonSchema: TestNumber.jsonSchema
+    firebaseGenerationSchema: TestNumber.firebaseGenerationSchema
   ))
   func generateContentErrorHandling(_ config: InstanceConfig, _ schema: SchemaType) async throws {
     // Since we are adding integration tests, let's verify that providing a JSON with a property of
@@ -949,16 +949,16 @@ struct SchemaTests {
     let invalidJson = """
     { "value": "not an int" }
     """
-    let modelOutput = try ModelOutput(json: invalidJson)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: invalidJson)
     #expect(throws: Error.self) {
-      _ = try TestNumber(modelOutput)
+      _ = try TestNumber(firebaseGeneratedContent)
     }
   }
 
   @Test(arguments: testConfigs(
     instanceConfigs: InstanceConfig.allConfigs,
     openAPISchema: .object(properties: ["value": .integer()], title: "TestNumber"),
-    jsonSchema: TestNumber.jsonSchema
+    firebaseGenerationSchema: TestNumber.firebaseGenerationSchema
   ))
   func generateContentMissingFieldFailure(_ config: InstanceConfig,
                                           _ schema: SchemaType) async throws {
@@ -966,15 +966,15 @@ struct SchemaTests {
     let invalidJson = """
     { "otherField": 123 }
     """
-    let modelOutput = try ModelOutput(json: invalidJson)
+    let firebaseGeneratedContent = try FirebaseGeneratedContent(json: invalidJson)
     #expect(throws: Error.self) {
-      _ = try TestNumber(modelOutput)
+      _ = try TestNumber(firebaseGeneratedContent)
     }
   }
 
   enum SchemaType: CustomTestStringConvertible {
     case openAPI(Schema)
-    case json(JSONSchema)
+    case json(FirebaseGenerationSchema)
 
     var testDescription: String {
       switch self {
@@ -992,15 +992,21 @@ struct SchemaTests {
     case let .openAPI(openAPISchema):
       return GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1, responseMIMEType: mimeType,
                               responseSchema: openAPISchema)
-    case let .json(jsonSchema):
+    case let .json(firebaseGenerationSchema):
       return GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1, responseMIMEType: mimeType,
-                              responseJSONSchema: jsonSchema)
+                              responseFirebaseGenerationSchema: firebaseGenerationSchema)
     }
   }
 
   private static func testConfigs(instanceConfigs: [InstanceConfig], openAPISchema: Schema,
-                                  jsonSchema: JSONSchema) -> [(InstanceConfig, SchemaType)] {
-    return instanceConfigs.flatMap { [($0, .openAPI(openAPISchema)), ($0, .json(jsonSchema))] }
+                                  firebaseGenerationSchema: FirebaseGenerationSchema) -> [(
+    InstanceConfig,
+    SchemaType
+  )] {
+    return instanceConfigs.flatMap { [
+      ($0, .openAPI(openAPISchema)),
+      ($0, .json(firebaseGenerationSchema)),
+    ] }
   }
 }
 
@@ -1011,11 +1017,11 @@ struct SchemaTests {
 // TODO: Replace manual implementation with macro when enums with associated values are supported.
 
 extension SchemaTests.MailingAddress.PostalInfo: FirebaseGenerable {
-  static var jsonSchema: FirebaseAILogic.JSONSchema {
-    JSONSchema(type: Self.self, anyOf: [Canada.self, UnitedStates.self])
+  static var firebaseGenerationSchema: FirebaseAILogic.FirebaseGenerationSchema {
+    FirebaseGenerationSchema(type: Self.self, anyOf: [Canada.self, UnitedStates.self])
   }
 
-  init(_ content: ModelOutput) throws {
+  init(_ content: FirebaseGeneratedContent) throws {
     if let province = try content.value(String?.self, forProperty: "province"),
        let postalCode = try content.value(String?.self, forProperty: "postalCode") {
       self = .canada(province: province, postalCode: postalCode)
@@ -1033,7 +1039,7 @@ extension SchemaTests.MailingAddress.PostalInfo: FirebaseGenerable {
     }
   }
 
-  var modelOutput: ModelOutput {
+  var firebaseGeneratedContent: FirebaseGeneratedContent {
     func addProperty(name: String, value: some FirebaseGenerable) {
       properties.append((name, value))
     }
@@ -1043,7 +1049,7 @@ extension SchemaTests.MailingAddress.PostalInfo: FirebaseGenerable {
       }
     }
 
-    var properties = [(name: String, value: any ConvertibleToModelOutput)]()
+    var properties = [(name: String, value: any ConvertibleToFirebaseGeneratedContent)]()
     switch self {
     case let .canada(province, postalCode):
       addProperty(name: "province", value: province)
@@ -1052,7 +1058,7 @@ extension SchemaTests.MailingAddress.PostalInfo: FirebaseGenerable {
       addProperty(name: "state", value: state)
       addProperty(name: "zipCode", value: zipCode)
     }
-    return ModelOutput(
+    return FirebaseGeneratedContent(
       properties: properties,
       uniquingKeysWith: { _, second in
         second

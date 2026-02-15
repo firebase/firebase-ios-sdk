@@ -48,25 +48,25 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
           let lastName: String
           let age: Int
 
-          nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-            FirebaseAILogic.JSONSchema(
+          nonisolated static var firebaseGenerationSchema: FirebaseAILogic.FirebaseGenerationSchema {
+            FirebaseAILogic.FirebaseGenerationSchema(
               type: Self.self,
               properties: [
-                FirebaseAILogic.JSONSchema.Property(name: "firstName", type: String.self),
-                FirebaseAILogic.JSONSchema.Property(name: "middleName", type: String?.self),
-                FirebaseAILogic.JSONSchema.Property(name: "lastName", type: String.self),
-                FirebaseAILogic.JSONSchema.Property(name: "age", type: Int.self)
+                FirebaseAILogic.FirebaseGenerationSchema.Property(name: "firstName", type: String.self),
+                FirebaseAILogic.FirebaseGenerationSchema.Property(name: "middleName", type: String?.self),
+                FirebaseAILogic.FirebaseGenerationSchema.Property(name: "lastName", type: String.self),
+                FirebaseAILogic.FirebaseGenerationSchema.Property(name: "age", type: Int.self)
               ]
             )
           }
 
-          nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-            var properties = [(name: String, value: any ConvertibleToModelOutput)]()
+          nonisolated var firebaseGeneratedContent: FirebaseAILogic.FirebaseGeneratedContent {
+            var properties = [(name: String, value: any ConvertibleToFirebaseGeneratedContent)]()
             addProperty(name: "firstName", value: self.firstName)
             addProperty(name: "middleName", value: self.middleName)
             addProperty(name: "lastName", value: self.lastName)
             addProperty(name: "age", value: self.age)
-            return ModelOutput(
+            return FirebaseGeneratedContent(
               properties: properties,
               uniquingKeysWith: { _, second in
                 second
@@ -82,13 +82,13 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
             }
           }
 
-          nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromModelOutput {
+          nonisolated struct Partial: Identifiable, FirebaseAILogic.ConvertibleFromFirebaseGeneratedContent {
             var id: FirebaseAILogic.ResponseID
             var firstName: String.Partial?
             var middleName: String?.Partial?
             var lastName: String.Partial?
             var age: Int.Partial?
-            nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+            nonisolated init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
               self.id = content.id ?? FirebaseAILogic.ResponseID()
               self.firstName = try content.value(forProperty: "firstName")
               self.middleName = try content.value(forProperty: "middleName")
@@ -100,7 +100,7 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
 
         @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
         extension Person: FirebaseAILogic.FirebaseGenerable {
-          nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+          nonisolated init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
             self.firstName = try content.value(forProperty: "firstName")
             self.middleName = try content.value(forProperty: "middleName")
             self.lastName = try content.value(forProperty: "lastName")
@@ -133,25 +133,25 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
           case dog
           case fish
 
-          nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-            FirebaseAILogic.JSONSchema(type: Self.self, description: "A type of pet", anyOf: ["cat", "dog", "fish"])
+          nonisolated static var firebaseGenerationSchema: FirebaseAILogic.FirebaseGenerationSchema {
+            FirebaseAILogic.FirebaseGenerationSchema(type: Self.self, description: "A type of pet", anyOf: ["cat", "dog", "fish"])
           }
 
-          nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
+          nonisolated var firebaseGeneratedContent: FirebaseAILogic.FirebaseGeneratedContent {
             switch self {
             case .cat:
-              "cat".modelOutput
+              "cat".firebaseGeneratedContent
             case .dog:
-              "dog".modelOutput
+              "dog".firebaseGeneratedContent
             case .fish:
-              "fish".modelOutput
+              "fish".firebaseGeneratedContent
             }
           }
         }
 
         @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
         extension Pet: FirebaseAILogic.FirebaseGenerable {
-          nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+          nonisolated init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
             let rawValue = try content.value(String.self)
             switch rawValue {
             case "cat":
@@ -195,18 +195,18 @@ final class FirebaseAILogicMacrosTests: XCTestCase {
           case medium = "med"
           case low
 
-          nonisolated static var jsonSchema: FirebaseAILogic.JSONSchema {
-            FirebaseAILogic.JSONSchema(type: Self.self, anyOf: [high.rawValue, medium.rawValue, low.rawValue])
+          nonisolated static var firebaseGenerationSchema: FirebaseAILogic.FirebaseGenerationSchema {
+            FirebaseAILogic.FirebaseGenerationSchema(type: Self.self, anyOf: [high.rawValue, medium.rawValue, low.rawValue])
           }
 
-          nonisolated var modelOutput: FirebaseAILogic.ModelOutput {
-            rawValue.modelOutput
+          nonisolated var firebaseGeneratedContent: FirebaseAILogic.FirebaseGeneratedContent {
+            rawValue.firebaseGeneratedContent
           }
         }
 
         @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
         extension Priority: FirebaseAILogic.FirebaseGenerable {
-          nonisolated init(_ content: FirebaseAILogic.ModelOutput) throws {
+          nonisolated init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
             let rawValue = try content.value(String.self)
             if let value = Self(rawValue: rawValue) {
               self = value

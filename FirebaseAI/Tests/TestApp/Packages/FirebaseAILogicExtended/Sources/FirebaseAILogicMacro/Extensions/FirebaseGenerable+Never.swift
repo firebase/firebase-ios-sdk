@@ -15,15 +15,15 @@
 import FirebaseAILogic
 
 extension Never: @retroactive FirebaseGenerable {
-  public static var jsonSchema: JSONSchema {
+  public static var firebaseGenerationSchema: FirebaseGenerationSchema {
     fatalError("Conformance of `Never` to `FirebaseGenerable` is only used for macro expansion.")
   }
 
-  public init(_ content: ModelOutput) throws {
+  public init(_ content: FirebaseGeneratedContent) throws {
     fatalError("Conformance of `Never` to `FirebaseGenerable` is only used for macro expansion.")
   }
 
-  public var modelOutput: ModelOutput {
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
     fatalError("Conformance of `Never` to `FirebaseGenerable` is only used for macro expansion.")
   }
 }
