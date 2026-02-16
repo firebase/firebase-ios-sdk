@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 import Foundation
+import XCTest
 
 // FIRBundleUtil is exposed via FirebaseCoreExtension in SPM
 #if canImport(FirebaseCoreExtension)
-import FirebaseCoreExtension
+  import FirebaseCoreExtension
 #endif
 
 // Or via bridging header in CocoaPods (where it's just available)
@@ -44,7 +44,6 @@ final class MockBundle: Bundle, @unchecked Sendable {
 }
 
 final class BundleUtilTests: XCTestCase {
-
   private var mockBundle: MockBundle!
 
   override func setUp() {
@@ -69,16 +68,20 @@ final class BundleUtilTests: XCTestCase {
 
     mockBundle.mockedPaths["\(resourceName).\(fileType)"] = expectedPath
 
-    let path = FIRBundleUtil.optionsDictionaryPath(withResourceName: resourceName,
-                                                   andFileType: fileType,
-                                                   inBundles: [mockBundle!])
+    let path = FIRBundleUtil.optionsDictionaryPath(
+      withResourceName: resourceName,
+      andFileType: fileType,
+      inBundles: [mockBundle!]
+    )
     XCTAssertEqual(path, expectedPath)
   }
 
   func testFindOptionsDictionaryPath_NotFound() {
-    let path = FIRBundleUtil.optionsDictionaryPath(withResourceName: "GoogleService-Info",
-                                                   andFileType: "plist",
-                                                   inBundles: [mockBundle!])
+    let path = FIRBundleUtil.optionsDictionaryPath(
+      withResourceName: "GoogleService-Info",
+      andFileType: "plist",
+      inBundles: [mockBundle!]
+    )
     XCTAssertNil(path)
   }
 
@@ -90,9 +93,11 @@ final class BundleUtilTests: XCTestCase {
     let emptyBundle = MockBundle()
     mockBundle.mockedPaths["\(resourceName).\(fileType)"] = expectedPath
 
-    let path = FIRBundleUtil.optionsDictionaryPath(withResourceName: resourceName,
-                                                   andFileType: fileType,
-                                                   inBundles: [emptyBundle, mockBundle!])
+    let path = FIRBundleUtil.optionsDictionaryPath(
+      withResourceName: resourceName,
+      andFileType: fileType,
+      inBundles: [emptyBundle, mockBundle!]
+    )
     XCTAssertEqual(path, expectedPath)
   }
 
@@ -100,22 +105,28 @@ final class BundleUtilTests: XCTestCase {
     let bundleID = "com.google.test"
     mockBundle.mockedBundleIdentifier = bundleID
 
-    XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix(bundleID,
-                                                          inBundles: [mockBundle!],
-                                                          isAppExtension: false))
+    XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix(
+      bundleID,
+      inBundles: [mockBundle!],
+      isAppExtension: false
+    ))
   }
 
   func testBundleIdentifierExistsInBundles_NotExist() {
     mockBundle.mockedBundleIdentifier = "com.google.test"
-    XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("not-exist",
-                                                           inBundles: [mockBundle!],
-                                                           isAppExtension: false))
+    XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix(
+      "not-exist",
+      inBundles: [mockBundle!],
+      isAppExtension: false
+    ))
   }
 
   func testBundleIdentifierExistsInBundles_EmptyBundles() {
-    XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test",
-                                                           inBundles: [],
-                                                           isAppExtension: false))
+    XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix(
+      "com.google.test",
+      inBundles: [],
+      isAppExtension: false
+    ))
   }
 
   func testBundleIdentifierHasPrefixInBundlesForExtension() {
@@ -124,9 +135,11 @@ final class BundleUtilTests: XCTestCase {
     mockBundle.mockedBundleIdentifier = "com.google.test.someextension"
 
     // Verify it matches when isAppExtension is true
-    XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix(appBundleID,
-                                                          inBundles: [mockBundle!],
-                                                          isAppExtension: true))
+    XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix(
+      appBundleID,
+      inBundles: [mockBundle!],
+      isAppExtension: true
+    ))
   }
 
   func testBundleIdentifierExistsInBundlesForExtensions_ExactMatch() {
@@ -134,50 +147,60 @@ final class BundleUtilTests: XCTestCase {
     mockBundle.mockedBundleIdentifier = extensionBundleID
 
     // Verify it matches exactly even if isAppExtension is true
-    XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix(extensionBundleID,
-                                                          inBundles: [mockBundle!],
-                                                          isAppExtension: true))
+    XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix(
+      extensionBundleID,
+      inBundles: [mockBundle!],
+      isAppExtension: true
+    ))
   }
 
   func testBundleIdentifierHasPrefixInBundlesNotValidExtension() {
-     // Case 1: Extra component
-     mockBundle.mockedBundleIdentifier = "com.google.test.someextension.some"
-     XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test",
-                                                            inBundles: [mockBundle!],
-                                                            isAppExtension: true))
+    // Case 1: Extra component
+    mockBundle.mockedBundleIdentifier = "com.google.test.someextension.some"
+    XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix(
+      "com.google.test",
+      inBundles: [mockBundle!],
+      isAppExtension: true
+    ))
 
-     // Case 2: No dot separator
-     mockBundle.mockedBundleIdentifier = "com.google.testsomeextension"
-     XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test",
-                                                            inBundles: [mockBundle!],
-                                                            isAppExtension: true))
+    // Case 2: No dot separator
+    mockBundle.mockedBundleIdentifier = "com.google.testsomeextension"
+    XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix(
+      "com.google.test",
+      inBundles: [mockBundle!],
+      isAppExtension: true
+    ))
 
-     // Case 3: Totally different
-     mockBundle.mockedBundleIdentifier = "not-exist"
-     XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test",
-                                                            inBundles: [mockBundle!],
-                                                            isAppExtension: true))
+    // Case 3: Totally different
+    mockBundle.mockedBundleIdentifier = "not-exist"
+    XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix(
+      "com.google.test",
+      inBundles: [mockBundle!],
+      isAppExtension: true
+    ))
 
-     // Case 4: Logic check - if searching for extension ID, app ID matching shouldn't work backwards
-     // The utility removes the last part of BUNDLE identifier to match TARGET identifier.
-     // If target is "com.google.tests" and bundle is "com.google", it shouldn't match.
-     // (Bundle ID "com.google" -> remove last part -> "com" != "com.google.tests")
-     mockBundle.mockedBundleIdentifier = "com.google"
-     XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.tests",
-                                                            inBundles: [mockBundle!],
-                                                            isAppExtension: true))
+    // Case 4: Logic check - if searching for extension ID, app ID matching shouldn't work backwards
+    // The utility removes the last part of BUNDLE identifier to match TARGET identifier.
+    // If target is "com.google.tests" and bundle is "com.google", it shouldn't match.
+    // (Bundle ID "com.google" -> remove last part -> "com" != "com.google.tests")
+    mockBundle.mockedBundleIdentifier = "com.google"
+    XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix(
+      "com.google.tests",
+      inBundles: [mockBundle!],
+      isAppExtension: true
+    ))
   }
 
   func testRelevantURLSchemes() {
     mockBundle.mockedInfoDictionary = [
       "CFBundleURLTypes": [
         [
-          "CFBundleURLSchemes": ["scheme1", "scheme2"]
+          "CFBundleURLSchemes": ["scheme1", "scheme2"],
         ],
         [
-          "CFBundleURLSchemes": ["scheme3"]
-        ]
-      ]
+          "CFBundleURLSchemes": ["scheme3"],
+        ],
+      ],
     ]
 
     let schemes = FIRBundleUtil.relevantURLSchemes(inBundles: [mockBundle!]) as? [String]

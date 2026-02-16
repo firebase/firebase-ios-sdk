@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseCore/Extension/FIRBundleUtil.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "SharedTestUtilities/ExceptionCatcher.h"
 #import "SharedTestUtilities/FIROptionsMock.h"

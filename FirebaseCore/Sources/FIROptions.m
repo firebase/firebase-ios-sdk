@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
-#import "FirebaseCore/Extension/FIRLogger.h"
 #import "FirebaseCore/Extension/FIRBundleUtil.h"
+#import "FirebaseCore/Extension/FIRLogger.h"
 #import "FirebaseCore/Sources/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
