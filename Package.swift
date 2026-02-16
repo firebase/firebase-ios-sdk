@@ -256,6 +256,19 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
+    .testTarget(
+      name: "CoreSwiftUnit",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "SharedTestUtilities",
+        .product(name: "OCMock", package: "ocmock"),
+      ],
+      path: "FirebaseCore/Tests/SwiftUnit",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
 
     // MARK: - Firebase Core Extension
 

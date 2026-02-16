@@ -13,5 +13,6 @@
 // limitations under the License.
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FIRBundleUtil.h"
 #import "SharedTestUtilities/ExceptionCatcher.h"
 #import "SharedTestUtilities/FIROptionsMock.h"

@@ -29,7 +29,7 @@
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h"
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import "FirebaseCore/Extension/FIRBundleUtil.h"
 #import "FirebaseCore/Sources/FIRComponentContainerInternal.h"
 #import "FirebaseCore/Sources/FIRConfigurationInternal.h"
 #import "FirebaseCore/Sources/FIRFirebaseUserAgent.h"

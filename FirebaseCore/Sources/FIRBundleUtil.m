@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseCore/Sources/FIRBundleUtil.h"
+#import "FirebaseCore/Extension/FIRBundleUtil.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
@@ -37,8 +37,12 @@
 }
 
 + (NSArray *)relevantURLSchemes {
+  return [self relevantURLSchemesInBundles:[[self class] relevantBundles]];
+}
+
++ (NSArray *)relevantURLSchemesInBundles:(NSArray *)bundles {
   NSMutableArray *result = [[NSMutableArray alloc] init];
-  for (NSBundle *bundle in [[self class] relevantBundles]) {
+  for (NSBundle *bundle in bundles) {
     NSArray *urlTypes = [bundle objectForInfoDictionaryKey:@"CFBundleURLTypes"];
     for (NSDictionary *urlType in urlTypes) {
       [result addObjectsFromArray:urlType[@"CFBundleURLSchemes"]];
@@ -48,12 +52,20 @@
 }
 
 + (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles {
+  return [self hasBundleIdentifierPrefix:bundleIdentifier
+                               inBundles:bundles
+                          isAppExtension:[GULAppEnvironmentUtil isAppExtension]];
+}
+
++ (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier
+                        inBundles:(NSArray *)bundles
+                   isAppExtension:(BOOL)isAppExtension {
   for (NSBundle *bundle in bundles) {
     if ([bundle.bundleIdentifier isEqualToString:bundleIdentifier]) {
       return YES;
     }
 
-    if ([GULAppEnvironmentUtil isAppExtension]) {
+    if (isAppExtension) {
       // A developer could be using the same `FIROptions` for both their app and extension. Since
       // extensions have a suffix added to the bundleID, we consider a matching prefix as valid.
       NSString *appBundleIDFromExtension =
