@@ -50,4 +50,17 @@
  */
 + (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles;
 
+/**
+ * Checks if any of the given bundles have a matching bundle identifier prefix (removing extension
+ * suffixes), with an explicit app extension check.
+ */
++ (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier
+                        inBundles:(NSArray *)bundles
+                   isAppExtension:(BOOL)isAppExtension;
+
+/**
+ * Finds URL schemes defined in the provided bundles.
+ */
++ (NSArray *)relevantURLSchemesInBundles:(NSArray *)bundles;
+
 @end
