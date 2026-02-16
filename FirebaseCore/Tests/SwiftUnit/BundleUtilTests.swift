@@ -61,7 +61,7 @@ final class BundleUtilTests: XCTestCase {
       XCTFail("Expected relevantBundles to return an array, got nil")
       return
     }
-    let containsMain = bundles.contains { ($0 as? Bundle) == Bundle.main }
+    let containsMain = bundles.contains(where: { ($0 as? Bundle) == Bundle.main })
     XCTAssertTrue(containsMain, "Relevant bundles should contain main bundle")
   }
 
