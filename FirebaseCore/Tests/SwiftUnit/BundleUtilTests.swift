@@ -58,7 +58,8 @@ final class BundleUtilTests: XCTestCase {
 
   func testRelevantBundlesContainsMain() {
     let bundles = FIRBundleUtil.relevantBundles()
-    XCTAssertTrue(bundles.contains(Bundle.main), "Relevant bundles should contain main bundle")
+    let containsMain = bundles.contains { ($0 as? Bundle) == Bundle.main }
+    XCTAssertTrue(containsMain, "Relevant bundles should contain main bundle")
   }
 
   func testFindOptionsDictionaryPath() {
