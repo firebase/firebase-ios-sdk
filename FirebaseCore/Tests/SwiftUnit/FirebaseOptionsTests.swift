@@ -155,6 +155,28 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertFalse(plainOptions.isEqual(defaultOptions1))
   }
 
+  func testAppGroupIDEqualityBehavior() {
+    let options1 = FirebaseOptions(googleAppID: "appID", gcmSenderID: "senderID")
+    let options2 = FirebaseOptions(googleAppID: "appID", gcmSenderID: "senderID")
+
+    // Verify initial equality
+    XCTAssertEqual(options1, options2)
+
+    // Modify appGroupID
+    options1.appGroupID = "group1"
+
+    // Verify inequality
+    XCTAssertNotEqual(options1, options2)
+
+    // Verify equality when both are set to same value
+    options2.appGroupID = "group1"
+    XCTAssertEqual(options1, options2)
+
+    // Verify inequality when values differ
+    options2.appGroupID = "group2"
+    XCTAssertNotEqual(options1, options2)
+  }
+
   // MARK: - Helpers
 
   private func assertOptionsMatchDefaultOptions(options: FirebaseOptions) {
