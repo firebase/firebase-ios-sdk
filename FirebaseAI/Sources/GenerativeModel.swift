@@ -600,26 +600,30 @@ public final class GenerativeModel: Sendable {
                   )
                 )
                 return
-              } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
-                        let partiallyGeneratedMetatype = PartiallyGeneratedContent.self as? (
-                          any FoundationModels.Generable.Type
-                        ),
-                        let partiallyGeneratedContent = try partiallyGeneratedMetatype
-                        .init(firebaseGeneratedContent
-                          .generatedContent) as? PartiallyGeneratedContent {
-                await context.yield(
-                  GenerativeModel.ResponseStream<Content, PartiallyGeneratedContent>.Snapshot(
-                    content: partiallyGeneratedContent,
-                    rawContent: firebaseGeneratedContent,
-                    rawResponse: response
-                  )
-                )
-                return
-              } else {
-                fatalError(
-                  "\(Content.self) does not conform to FirebaseGenerable or FoundationModels.Generable"
-                )
               }
+
+              #if canImport(FoundationModels)
+                if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
+                   let partiallyGeneratedMetatype = PartiallyGeneratedContent.self as? (
+                     any FoundationModels.Generable.Type
+                   ),
+                   let partiallyGeneratedContent = try partiallyGeneratedMetatype.init(
+                     firebaseGeneratedContent.generatedContent
+                   ) as? PartiallyGeneratedContent {
+                  await context.yield(
+                    GenerativeModel.ResponseStream<Content, PartiallyGeneratedContent>.Snapshot(
+                      content: partiallyGeneratedContent,
+                      rawContent: firebaseGeneratedContent,
+                      rawResponse: response
+                    )
+                  )
+                  return
+                }
+              #endif // canImport(FoundationModels)
+
+              fatalError("""
+              \(Content.self) does not conform to FirebaseGenerable or FoundationModels.Generable
+              """)
             }
           }
           await context.finish()

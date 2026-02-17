@@ -60,30 +60,33 @@
         if let contentMetatype = Content.self as? (
           any ConvertibleFromFirebaseGeneratedContent.Type
         ),
-          let content = try contentMetatype.init(
-            finalResult.rawContent
-          ) as? Content {
-          return try GenerativeModel.Response(
+          let content = try contentMetatype.init(finalResult.rawContent) as? Content {
+          return GenerativeModel.Response(
             content: content,
             rawContent: finalResult.rawContent,
             rawResponse: finalResult.rawResponse
-          )
-        } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
-                  let contentMetatype = Content.self as? (
-                    any FoundationModels.ConvertibleFromGeneratedContent.Type
-                  ),
-                  let content = try contentMetatype
-                  .init(finalResult.rawContent.generatedContent) as? Content {
-          return try GenerativeModel.Response(
-            content: content,
-            rawContent: finalResult.rawContent,
-            rawResponse: finalResult.rawResponse
-          )
-        } else {
-          fatalError(
-            "\(Content.self) does not conform to FirebaseGenerable or FoundationModels.Generable"
           )
         }
+
+        #if canImport(FoundationModels)
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
+             let contentMetatype = Content.self as? (
+               any FoundationModels.ConvertibleFromGeneratedContent.Type
+             ),
+             let content = try contentMetatype.init(
+               finalResult.rawContent.generatedContent
+             ) as? Content {
+            return GenerativeModel.Response(
+              content: content,
+              rawContent: finalResult.rawContent,
+              rawResponse: finalResult.rawResponse
+            )
+          }
+        #endif // canImport(FoundationModels)
+
+        fatalError(
+          "\(Content.self) does not conform to FirebaseGenerable or FoundationModels.Generable"
+        )
       }
     }
   }
