@@ -1,4 +1,4 @@
-# Unreleased
+# 12.10.0
 - [feature] Added support for `regexFind` and `regexFindAll` Pipeline expressions.
 
 # 12.8.0
