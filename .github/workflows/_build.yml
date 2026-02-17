@@ -112,6 +112,8 @@ jobs:
       run: sudo xcode-select -s /Applications/"$XCODE_VERSION".app/Contents/Developer
     - name: Install simulators
       if: inputs.platform != 'macOS' && inputs.platform != 'catalyst'
+      env:
+        PLATFORM_INPUT: ${{ inputs.platform }}
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 15
@@ -119,10 +121,10 @@ jobs:
         retry_wait_seconds: 120
         continue_on_error: true
         command: |
-          if [[ "${{ inputs.platform }}" == "all" ]]; then
+          if [[ "$PLATFORM_INPUT" == "all" ]]; then
             xcodebuild -downloadAllPlatforms
           else
-            xcodebuild -downloadPlatform "${{ inputs.platform }}"
+            xcodebuild -downloadPlatform "$PLATFORM_INPUT"
           fi
     - name: Run setup command
       if: inputs.setup_command != ''
