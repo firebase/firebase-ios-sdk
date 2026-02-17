@@ -1,4 +1,4 @@
-# Unreleased
+# 12.10.0
 - [fixed] Fix a race condition by replacing `mstats()` with `malloc_zone_statistics()`. (#15501)
 
 # 12.8.0
