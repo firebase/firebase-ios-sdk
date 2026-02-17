@@ -20,22 +20,28 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol FirebaseGenerable: ConvertibleFromFirebaseGeneratedContent,
   ConvertibleToFirebaseGeneratedContent {
-  associatedtype PartiallyGenerated: SendableMetatype = Self
+  #if compiler(>=6.2)
+    associatedtype PartiallyGenerated: SendableMetatype = Self
+  #else
+    associatedtype PartiallyGenerated = Self
+  #endif
 
   static var firebaseGenerationSchema: FirebaseGenerationSchema { get }
 }
 
-@available(iOS 26.0, macOS 26.0, *)
-@available(tvOS, unavailable)
-@available(watchOS, unavailable)
-public extension FirebaseGenerable where Self: FoundationModels.Generable {
-  static var firebaseGenerationSchema: FirebaseGenerationSchema {
-    fatalError("""
-    TODO: Implement conversion from `FoundationModels.GenerationSchema` to \
-    `FirebaseGenerationSchema` to enable conditional conformance to `FoundationModels.Generable`.
-    """)
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public extension FirebaseGenerable where Self: FoundationModels.Generable {
+    static var firebaseGenerationSchema: FirebaseGenerationSchema {
+      fatalError("""
+      TODO: Implement conversion from `FoundationModels.GenerationSchema` to \
+      `FirebaseGenerationSchema` to enable conditional conformance to `FoundationModels.Generable`.
+      """)
+    }
   }
-}
+#endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension FirebaseGenerable {
