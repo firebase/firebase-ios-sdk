@@ -11,6 +11,9 @@ on:
     branches:
       - none
 
+permissions:
+  contents: read
+
 env:
   METRICS_SERVICE_SECRET: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
@@ -48,12 +51,13 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: check files
         id: check_files
         env:
           pr_branch: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
+          if [ ! -z "$METRICS_SERVICE_SECRET"  ]; then
             ./scripts/health_metrics/get_updated_files.sh
           fi
 
@@ -67,6 +71,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -87,6 +93,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -107,6 +115,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -130,6 +140,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -151,6 +163,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -171,6 +185,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -191,6 +207,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -206,12 +224,14 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: always() && github.repository == 'Firebase/firebase-ios-sdk' && (needs.check.outputs.performance_run_job == 'true'|| github.event.pull_request.merged)
     # TODO(#11903) Update to macos-14
-    runs-on: macos-12
+    runs-on: macos-14
     strategy:
       matrix:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -234,6 +254,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -254,6 +276,8 @@ jobs:
         target: [iOS]
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -273,18 +297,19 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Access to Metrics Service
         if: github.event.pull_request.head.repo.full_name == github.repository && (github.event.action != 'closed' || github.event.pull_request.merged)
         run: |
           # Install gcloud sdk
           curl https://sdk.cloud.google.com > install.sh
           bash install.sh --disable-prompts
-          echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
+          echo "${HOME}/google-cloud-sdk/bin/" >> "$GITHUB_PATH"
           export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
 
           # Activate the service account for Metrics Service.
           scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
-          metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
+          metrics-access.json "$METRICS_SERVICE_SECRET"
           gcloud auth activate-service-account --key-file metrics-access.json
       - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         id: download
@@ -294,11 +319,15 @@ jobs:
         if: github.event.pull_request.merged != true && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.base.ref == 'main'
         env:
           base_commit: ${{ needs.check.outputs.target_branch_head }}
+          DOWNLOAD_PATH: ${{ steps.download.outputs.download-path }}
+          GITHUB_SHA_ENV: "${{ github.sha }}"
+          GITHUB_RUN_ID_ENV: "${{ github.run_id }}"
+          PULL_REQUEST_NUMBER_ENV: "${{ github.event.pull_request.number }}"
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
-          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+          if [ -d "$DOWNLOAD_PATH" ]; then
             cd scripts/health_metrics/generate_code_coverage_report
-            swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
+            swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "$GITHUB_SHA_ENV" --token "$(gcloud auth print-identity-token)" --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/$GITHUB_RUN_ID_ENV" --pull-request-num "$PULL_REQUEST_NUMBER_ENV" --base-commit "$base_commit"
           fi
       # Will reactivate the job after the issue #8305 is resovled.
       # - name: Incremental Code Coverage
@@ -328,8 +357,11 @@ jobs:
       #     fi
       - name: Update New Coverage Data
         if: github.event.pull_request.merged && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          DOWNLOAD_PATH: ${{ steps.download.outputs.download-path }}
+          SOURCE_BRANCH: ${{ github.base_ref }}
         run: |
-          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+          if [ -d "$DOWNLOAD_PATH" ]; then
             cd scripts/health_metrics/generate_code_coverage_report
-            swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch "${{ github.base_ref }}"
+            swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token "$(gcloud auth print-identity-token)" --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch "$SOURCE_BRANCH"
           fi

@@ -109,7 +109,7 @@ jobs:
       run:  scripts/check.sh --test-only
 
   cmake:
-    needs: check
+    needs: [changes, check]
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -159,7 +159,7 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
   sanitizers-mac:
-    needs: check
+    needs: [changes, check]
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -206,7 +206,7 @@ jobs:
 
 
   sanitizers-ubuntu:
-    needs: check
+    needs: [changes, check]
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -540,7 +540,7 @@ jobs:
       - pod_lib_lint
     steps:
       - name: Check test matrix
-        if: needs.*.result == 'failure'
+        if: contains(needs.*.result, 'failure')
         run: exit 1
 
   # TODO: Disable until FirebaseUI is updated to accept Firebase 9 and

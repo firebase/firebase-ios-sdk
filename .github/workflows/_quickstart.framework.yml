@@ -54,7 +54,7 @@ on:
 
 jobs:
   quickstart_framework:
-    if: github.event.pull_request.head.repo.fork == false && ${{ !cancelled() }}
+    if: github.event.pull_request.head.repo.fork == false && !cancelled()
     env:
       plist_secret: ${{ secrets.plist_secret }}
       SDK: ${{ inputs.product }}
@@ -62,6 +62,8 @@ jobs:
     runs-on: ${{ inputs.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Get framework dir
       uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
@@ -70,7 +72,9 @@ jobs:
         github-token: ${{ secrets.github_token }}
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ inputs.xcode }}.app/Contents/Developer
+      env:
+        XCODE_VERSION: ${{ inputs.xcode }}
+      run: sudo xcode-select -s /Applications/"$XCODE_VERSION".app/Contents/Developer
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Move frameworks
@@ -78,10 +82,15 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
-      run: ${{ inputs.setup_command }}
+      env:
+        SETUP_COMMAND: ${{ inputs.setup_command }}
+      run: $SETUP_COMMAND
     - name: Install Secret GoogleService-Info.plist
-      run: scripts/decrypt_gha_secret.sh ${{ inputs.plist_src_path }} \
-        ${{ inputs.plist_dst_path }} "$plist_secret"
+      env:
+        PLIST_SRC_PATH: ${{ inputs.plist_src_path }}
+        PLIST_DST_PATH: ${{ inputs.plist_dst_path }}
+      run: scripts/decrypt_gha_secret.sh "$PLIST_SRC_PATH" \
+        "$PLIST_DST_PATH" "$plist_secret"
     - name: Test Quickstart
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
