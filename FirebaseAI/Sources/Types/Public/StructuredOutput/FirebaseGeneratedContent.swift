@@ -22,6 +22,8 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FirebaseGeneratedContent: Sendable, CustomDebugStringConvertible, FirebaseGenerable,
   Equatable {
+  public typealias PartiallyGenerated = Self
+
   public let kind: Kind
 
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
@@ -267,23 +269,26 @@ public extension FirebaseGeneratedContent {
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  extension FirebaseGeneratedContent: ConvertibleToGeneratedContent {
-    public var generatedContent: GeneratedContent {
+  extension FirebaseGeneratedContent: FoundationModels.ConvertibleToGeneratedContent {
+    public var generatedContent: FoundationModels.GeneratedContent {
       let generationID = id?.generationID
 
       switch kind {
       case .null:
-        return GeneratedContent(kind: .null, id: generationID)
+        return FoundationModels.GeneratedContent(kind: .null, id: generationID)
       case let .bool(value):
-        return GeneratedContent(kind: .bool(value), id: generationID)
+        return FoundationModels.GeneratedContent(kind: .bool(value), id: generationID)
       case let .number(value):
-        return GeneratedContent(kind: .number(value), id: generationID)
+        return FoundationModels.GeneratedContent(kind: .number(value), id: generationID)
       case let .string(value):
-        return GeneratedContent(kind: .string(value), id: generationID)
+        return FoundationModels.GeneratedContent(kind: .string(value), id: generationID)
       case let .array(values):
-        return GeneratedContent(kind: .array(values.map { $0.generatedContent }), id: generationID)
+        return FoundationModels.GeneratedContent(
+          kind: .array(values.map { $0.generatedContent }),
+          id: generationID
+        )
       case let .structure(properties: properties, orderedKeys: orderedKeys):
-        return GeneratedContent(
+        return FoundationModels.GeneratedContent(
           kind: .structure(
             properties: properties.mapValues { $0.generatedContent }, orderedKeys: orderedKeys
           ),
@@ -296,7 +301,7 @@ public extension FirebaseGeneratedContent {
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  extension GeneratedContent: ConvertibleToFirebaseGeneratedContent {
+  extension FoundationModels.GeneratedContent: ConvertibleToFirebaseGeneratedContent {
     public var firebaseGeneratedContent: FirebaseGeneratedContent {
       let responseID = id.map { ResponseID(generationID: $0) }
       return toFirebaseGeneratedContent(id: responseID)

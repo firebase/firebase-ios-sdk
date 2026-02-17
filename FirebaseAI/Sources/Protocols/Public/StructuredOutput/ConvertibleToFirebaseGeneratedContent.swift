@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #if canImport(FoundationModels)
-  public import protocol FoundationModels.ConvertibleToGeneratedContent
-  public import struct FoundationModels.GeneratedContent
+  import protocol FoundationModels.ConvertibleToGeneratedContent
+  import struct FoundationModels.GeneratedContent
 #endif // canImport(FoundationModels)
 
 #if compiler(>=6.2)
@@ -33,7 +33,8 @@
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  public extension ConvertibleToFirebaseGeneratedContent where Self: ConvertibleToGeneratedContent {
+  public extension ConvertibleToFirebaseGeneratedContent
+    where Self: FoundationModels.ConvertibleToGeneratedContent {
     var firebaseGeneratedContent: FirebaseGeneratedContent {
       generatedContent.firebaseGeneratedContent
     }

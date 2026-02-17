@@ -13,23 +13,38 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol FirebaseGenerable: ConvertibleFromFirebaseGeneratedContent,
   ConvertibleToFirebaseGeneratedContent {
-  associatedtype Partial: ConvertibleFromFirebaseGeneratedContent = Self
+  associatedtype PartiallyGenerated: SendableMetatype = Self
 
   static var firebaseGenerationSchema: FirebaseGenerationSchema { get }
 }
 
+@available(iOS 26.0, macOS 26.0, *)
+@available(tvOS, unavailable)
+@available(watchOS, unavailable)
+public extension FirebaseGenerable where Self: FoundationModels.Generable {
+  static var firebaseGenerationSchema: FirebaseGenerationSchema {
+    fatalError("""
+    TODO: Implement conversion from `FoundationModels.GenerationSchema` to \
+    `FirebaseGenerationSchema` to enable conditional conformance to `FoundationModels.Generable`.
+    """)
+  }
+}
+
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension FirebaseGenerable {
-  typealias Partial = Self
+  typealias PartiallyGenerated = Self
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension Optional where Wrapped: FirebaseGenerable {
-  typealias Partial = Wrapped.Partial
+  typealias PartiallyGenerated = Wrapped.PartiallyGenerated
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -74,6 +89,8 @@ extension Bool: FirebaseGenerable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension String: FirebaseGenerable {
+  public typealias PartiallyGenerated = Self
+
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
     FirebaseGenerationSchema(type: String.self, kind: .string(guides: StringGuides()))
   }

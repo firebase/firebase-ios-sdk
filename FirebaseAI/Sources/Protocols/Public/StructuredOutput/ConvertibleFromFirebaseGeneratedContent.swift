@@ -27,7 +27,7 @@ public protocol ConvertibleFromFirebaseGeneratedContent {
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public extension ConvertibleFromFirebaseGeneratedContent
-    where Self: ConvertibleFromGeneratedContent {
+    where Self: FoundationModels.ConvertibleFromGeneratedContent {
     init(_ content: FirebaseGeneratedContent) throws {
       try self.init(content.generatedContent)
     }
