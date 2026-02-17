@@ -177,13 +177,13 @@ jobs:
       run: git checkout master && bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
       working-directory: firebase-ios-sdk
-      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}/main/
+      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${ARTIFACTS_DIR}/main/
     - name: Switch branches
       working-directory: firebase-ios-sdk
       run: git checkout "${GITHUB_HEAD_REF}" && scripts/setup_bundler.sh
     - name: Build documentation
       working-directory: firebase-ios-sdk
-      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}//changes/
+      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${ARTIFACTS_DIR}//changes/
     - name: Run docdiff
       working-directory: firebase-ios-sdk
-      run: ./scripts/docdiff.sh ${{ env.ARTIFACTS_DIR }}/changes/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${{ env.ARTIFACTS_DIR }}/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
+      run: ./scripts/docdiff.sh ${ARTIFACTS_DIR}/changes/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${ARTIFACTS_DIR}/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
