@@ -15,8 +15,7 @@ inputs:
   search-local-pod-version:
     description: 'Add pod version from local spec repo'
     required: true
-    default: false
-    type: boolean
+    default: 'false'
   notices-path:
     description: 'Path of Notices file containing all licences.'
     required: true
