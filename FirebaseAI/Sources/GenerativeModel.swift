@@ -253,47 +253,49 @@ public final class GenerativeModel: Sendable {
                             includeSchemaInPrompt: includeSchemaInPrompt, options: options)
     }
 
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public final func streamResponse<Content>(to prompt: any PartsRepresentable,
-                                              generating type: Content.Type = Content.self,
-                                              includeSchemaInPrompt: Bool = true,
-                                              options: GenerationConfig? = nil)
-      -> sending GenerativeModel.ResponseStream<Content, Content.PartiallyGenerated>
-      where Content: FoundationModels.Generable {
-      return streamResponse(
-        to: prompt,
-        generating: type,
-        // TODO: Implement conversion from `FoundationModels.GenerationSchema`
-        //       to `FirebaseGenerationSchema`.
-        schema: FirebaseGeneratedContent.firebaseGenerationSchema,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
+    #if canImport(FoundationModels)
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      public final func streamResponse<Content>(to prompt: any PartsRepresentable,
+                                                generating type: Content.Type = Content.self,
+                                                includeSchemaInPrompt: Bool = true,
+                                                options: GenerationConfig? = nil)
+        -> sending GenerativeModel.ResponseStream<Content, Content.PartiallyGenerated>
+        where Content: FoundationModels.Generable {
+        return streamResponse(
+          to: prompt,
+          generating: type,
+          // TODO: Implement conversion from `FoundationModels.GenerationSchema`
+          //       to `FirebaseGenerationSchema`.
+          schema: FirebaseGeneratedContent.firebaseGenerationSchema,
+          includeSchemaInPrompt: includeSchemaInPrompt,
+          options: options
+        )
+      }
 
-    /// :nodoc:
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    @_documentation(visibility: private)
-    public final func streamResponse<Content>(to prompt: any PartsRepresentable,
-                                              generating type: Content.Type = Content.self,
-                                              includeSchemaInPrompt: Bool = true,
-                                              options: GenerationConfig? = nil)
-      -> sending GenerativeModel.ResponseStream<Content, Content.PartiallyGenerated>
-      where Content: FirebaseGenerable & FoundationModels.Generable {
-      return streamResponse(
-        to: prompt,
-        generating: type,
-        // TODO: Implement conversion from `FoundationModels.GenerationSchema`
-        //       to `FirebaseGenerationSchema`.
-        schema: FirebaseGeneratedContent.firebaseGenerationSchema,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
+      /// :nodoc:
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      @_documentation(visibility: private)
+      public final func streamResponse<Content>(to prompt: any PartsRepresentable,
+                                                generating type: Content.Type = Content.self,
+                                                includeSchemaInPrompt: Bool = true,
+                                                options: GenerationConfig? = nil)
+        -> sending GenerativeModel.ResponseStream<Content, Content.PartiallyGenerated>
+        where Content: FirebaseGenerable & FoundationModels.Generable {
+        return streamResponse(
+          to: prompt,
+          generating: type,
+          // TODO: Implement conversion from `FoundationModels.GenerationSchema`
+          //       to `FirebaseGenerationSchema`.
+          schema: FirebaseGeneratedContent.firebaseGenerationSchema,
+          includeSchemaInPrompt: includeSchemaInPrompt,
+          options: options
+        )
+      }
+    #endif // canImport(FoundationModels)
   #endif // compiler(>=6.2)
 
   /// Creates a new chat conversation using this model with the provided history.
