@@ -43,7 +43,7 @@ jobs:
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling"
         swift run manifest --sdk-repo-url "${GITHUB_WORKSPACE}" --output-file-path ./output.json --for-gha-matrix-generation
-        echo "::set-output name=matrix::{\"include\":$( cat output.json )}"
+        echo "matrix={\"include\":$( cat output.json )}" >> "$GITHUB_OUTPUT"
     - name: Update SpecsReleasing repo setup
       run: |
          podspec_repo_branch="${podspec_repo_branch}" \
@@ -102,10 +102,11 @@ jobs:
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsReleasing.git
-        BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
+        export BOT_TOKEN="${botaccess}"
+        "${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh" .build/debug/spec-repo-builder \
                                 --sdk-repo "${local_sdk_repo_dir}" \
                                 --local-spec-repo-name "${local_repo}" \
-                                --pod-sources 'https://github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+                                --pod-sources "https://${BOT_TOKEN}@github.com/Firebase/SpecsReleasing" "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
                                 --include-pods "${targeted_pod}" --keep-repo
     - name: Clean Artifacts
       if: ${{ always() }}
@@ -139,19 +140,22 @@ jobs:
         git config --global user.email "google-oss-bot@example.com"
         git config --global user.name "google-oss-bot"
     - name: Update SpecsReleasing repo
+      env:
+        ALLOW_WARNINGS: ${{ matrix.allowwarnings }}
       run: |
-        [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
+        [[ "$ALLOW_WARNINGS" == "true" ]] && ALLOWWARNINGS=true
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsReleasing.git
         # ${ALLOWWARNINGS:+--allow-warnings} will add --allow-warnings to the
         # command if ${ALLOWWARNINGS} is not null.
-        BOT_TOKEN="${botaccess}" ${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh .build/debug/spec-repo-builder \
+        export BOT_TOKEN="${botaccess}"
+        "${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh" .build/debug/spec-repo-builder \
                                 --sdk-repo "${local_sdk_repo_dir}" \
                                 --local-spec-repo-name "${local_repo}" \
-                                --pod-sources 'https://github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
+                                --pod-sources "https://${BOT_TOKEN}@github.com/Firebase/SpecsReleasing" "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
                                 --include-pods "${targeted_pod}" \
-                                --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
+                                --keep-repo "${ALLOWWARNINGS:+--allow-warnings}"
     - name: Clean Artifacts
       if: ${{ always() }}
       run: pod repo remove "${local_repo}"
