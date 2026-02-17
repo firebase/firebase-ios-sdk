@@ -34,19 +34,23 @@ struct CacheKey: Codable {
 
 /// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
 protocol SettingsCacheClient: Sendable {
-  // TODO(15394): Add docs.
+  /// Reads a value from the cache for the given key.
   func value<T>(forKey key: String) -> T?
-  // TODO(15394): Add docs.
+
+  /// Updates the cache content with the new dictionary.
+  /// If the dictionary contains the namespace key, it merges the inner dictionary.
   func updateContents(_ content: [String: Any])
-  // TODO(15394): Add docs.
+
+  /// Updates the cache metadata (CacheKey).
   func updateMetadata(_ metadata: CacheKey)
+
   /// Removes all cache content and cache-key
   func removeCache()
+
   /// Returns whether the cache is expired for the given app info structure and time.
   func isExpired(for appInfo: ApplicationInfoProtocol, time: Date) -> Bool
 }
 
-// TODO(15394): Update docs.
 /// SettingsCache uses UserDefaults to store Settings on-disk, but also directly query UserDefaults
 /// when accessing Settings values during run-time. This is because UserDefaults encapsulates both
 /// in-memory and persisted-on-disk storage, allowing fast synchronous access in-app while hiding
@@ -66,7 +70,6 @@ final class SettingsCache: SettingsCacheClient {
   private let diskCache: GULUserDefaults = .standard()
   let namespace: String
 
-  // TODO(15394): populate from disk, read from namespaced contents
   private let memoryCache: UnfairLock<[String: Any]>
   private let memoryCacheKey: UnfairLock<CacheKey?>
 
@@ -79,11 +82,9 @@ final class SettingsCache: SettingsCacheClient {
       let storedNamespace = storedContents[namespace] as? [String: Any] {
       memoryCache = UnfairLock(storedNamespace)
     } else {
-      // TODO(15394): Should we clear diskCache?
       memoryCache = UnfairLock([:])
     }
 
-    // TODO(15394): Can I make this easier to read?
     // Load the cache key.
     if let data = diskCache.object(forKey: UserDefaultsKeys.forCacheKey) as? Data {
       do {
@@ -91,11 +92,9 @@ final class SettingsCache: SettingsCacheClient {
         memoryCacheKey = UnfairLock(metadata)
       } catch {
         Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
-        // TODO(15394): Should we clear diskCache?
         memoryCacheKey = UnfairLock(nil)
       }
     } else {
-      // TODO(15394): Should we clear diskCache?
       memoryCacheKey = UnfairLock(nil)
     }
   }
@@ -106,18 +105,37 @@ final class SettingsCache: SettingsCacheClient {
   // if [String:Any] is non-nil, but val missing, then bool
   func value<T>(forKey key: String) -> T? {
     memoryCache.withLock { memoryCache in
-      memoryCache[key] as? T
+      let value = memoryCache[key]
+      if let typedValue = value as? T {
+        return typedValue
+      }
+      // Try to bridge via NSNumber to handle Int <-> Double conversions automatically
+      // like UserDefaults/JSONSerialization would in ObjC.
+      if let number = value as? NSNumber {
+        return number as? T
+      }
+      return nil
     }
   }
 
   // write
   func updateContents(_ contents: [String: Any]) {
+    var dataToStore = contents
+    if let inner = contents[namespace] as? [String: Any] {
+      dataToStore.merge(inner) { _, new in new }
+    }
+
+    struct SendableContainer: @unchecked Sendable {
+      let data: [String: Any]
+    }
+    let container = SendableContainer(data: dataToStore)
+
     // Write to in-memory cache.
-    memoryCache.withLock { memoryCache in
-      memoryCache = memoryCache
+    memoryCache.withLock { cache in
+      cache = container.data
     }
     // Write to disk cache.
-    let namespacedContents = [namespace: contents]
+    let namespacedContents = [namespace: dataToStore]
     diskCache.setObject(namespacedContents, forKey: UserDefaultsKeys.forContent)
   }
 
@@ -174,10 +192,9 @@ final class SettingsCache: SettingsCacheClient {
     return false
   }
 
-  // TODO(15394): Is the refactor in isExpired above cause a behavior change from before?
   private func cacheDuration() -> TimeInterval {
-    let cacheDuration = memoryCache.withLock { $0[Self.flagCacheDuration] }
-    guard let duration = cacheDuration as? Double else {
+    let cacheDuration: Double? = value(forKey: Self.flagCacheDuration)
+    guard let duration = cacheDuration else {
       return Self.cacheDurationSecondsDefault
     }
     Logger.logDebug("[Settings] Cache duration: \(duration)")
