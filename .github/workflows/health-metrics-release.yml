@@ -20,7 +20,7 @@ jobs:
           scripts/decrypt_gha_secret.sh \
             scripts/gha-encrypted/metrics_service_access.json.gpg \
             service_account.json \
-            "${{ env.gpg_passphrase }}"
+            "${GPG_PASSPHRASE}"
           gcloud auth activate-service-account --key-file service_account.json
       - name: Produce health metric diff reports
         uses: FirebaseExtended/github-actions/health-metrics/release-diffing@master
