@@ -38,4 +38,4 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh WatchOSSample watchOS
     - name: Build
-      run: ([ -z $plist_secret ] || scripts/build.sh WatchOSSample watchOS)
+      run: ([ -z "$plist_secret" ] || scripts/build.sh WatchOSSample watchOS)

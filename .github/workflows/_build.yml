@@ -65,15 +65,15 @@ jobs:
           else
             has_secrets="false"
           fi
-          echo "has_secrets=$has_secrets" >> $GITHUB_OUTPUT
+          echo "has_secrets=$has_secrets" >> "$GITHUB_OUTPUT"
 
           # 2. Determine if the build job should run.
           #    - Skip if on a fork AND secrets are present.
           repo_full_name=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           if [[ "$repo_full_name" != "firebase/firebase-ios-sdk" && "$has_secrets" == "true" ]]; then
-            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
           else
-            echo "should_run=true" >> $GITHUB_OUTPUT
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
           fi
 
   build:
@@ -94,6 +94,8 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
       if: inputs.method != 'spm' && inputs.method != 'spmbuildonly' && inputs.method != 'cmake'
     - name: Setup Bundler
@@ -105,9 +107,13 @@ jobs:
         retry_wait_seconds: 300
         command: scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ inputs.xcode }}.app/Contents/Developer
+      env:
+        XCODE_VERSION: ${{ inputs.xcode }}
+      run: sudo xcode-select -s /Applications/"$XCODE_VERSION".app/Contents/Developer
     - name: Install simulators
       if: inputs.platform != 'macOS' && inputs.platform != 'catalyst'
+      env:
+        PLATFORM_INPUT: ${{ inputs.platform }}
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
         timeout_minutes: 15
@@ -115,10 +121,10 @@ jobs:
         retry_wait_seconds: 120
         continue_on_error: true
         command: |
-          if [[ "${{ inputs.platform }}" == "all" ]]; then
+          if [[ "$PLATFORM_INPUT" == "all" ]]; then
             xcodebuild -downloadAllPlatforms
           else
-            xcodebuild -downloadPlatform ${{ inputs.platform }}
+            xcodebuild -downloadPlatform "$PLATFORM_INPUT"
           fi
     - name: Run setup command
       if: inputs.setup_command != ''

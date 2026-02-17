@@ -95,7 +95,7 @@ jobs:
           ${{ matrix.plist_dst_path }} \
           "$plist_secret"
     - name: Build swift quickstart
-      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh ${{ matrix.build_command }})
+      run: ([ -z "$plist_secret" ] || scripts/third_party/travis/retry.sh ${{ matrix.build_command }})
     - id: ftl_test
       uses: FirebaseExtended/github-actions/firebase-test-lab@57091ac526b308ae005c6d6d59aab83d5ab2aa71 # v1.5.0
       with:
