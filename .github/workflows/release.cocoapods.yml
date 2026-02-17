@@ -137,7 +137,7 @@ jobs:
         git config --global user.name "google-oss-bot"
     - name: Update SpecsReleasing repo
       run: |
-        [[ ${{ matrix.allowwarnings }} == true ]] && ALLOWWARNINGS=true
+        [[ ${MATRIX_ALLOWWARNINGS} == true ]] && ALLOWWARNINGS=true
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsReleasing.git
@@ -149,6 +149,8 @@ jobs:
                                 --pod-sources 'https://github.com/Firebase/SpecsReleasing' "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
                                 --include-pods "${targeted_pod}" \
                                 --keep-repo ${ALLOWWARNINGS:+--allow-warnings}
+      env:
+        MATRIX_ALLOWWARNINGS: ${{ matrix.allowwarnings }}
     - name: Clean Artifacts
       if: ${{ always() }}
       run: pod repo remove "${local_repo}"
