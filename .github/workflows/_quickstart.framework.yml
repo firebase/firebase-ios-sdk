@@ -82,9 +82,7 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup quickstart
-      env:
-        SETUP_COMMAND: ${{ inputs.setup_command }}
-      run: $SETUP_COMMAND
+      run: ${{ inputs.setup_command }}
     - name: Install Secret GoogleService-Info.plist
       env:
         PLIST_SRC_PATH: ${{ inputs.plist_src_path }}

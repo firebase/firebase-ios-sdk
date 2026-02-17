@@ -173,10 +173,7 @@ jobs:
       run: sed -i "" "s/s.swift_version[[:space:]]*=[[:space:]]*'5.9'/s.swift_version = '6.0'/" "$PRODUCT".podspec
     - name: Run setup command, if needed.
       if: inputs.setup_command != ''
-      env:
-        plist_secret: ${{ secrets.plist_secret }}
-        SETUP_COMMAND: ${{ inputs.setup_command }}
-      run: $SETUP_COMMAND
+      run: ${{ inputs.setup_command }}
     - name: Lint ${{ inputs.product }}.podspec for ${{ matrix.platform }}
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       if: contains(inputs.platforms, matrix.platform) || matrix.os == 'macos-14'

@@ -126,9 +126,7 @@ jobs:
           fi
     - name: Run setup command
       if: inputs.setup_command != ''
-      env:
-        SETUP_COMMAND: ${{ inputs.setup_command }}
-      run: $SETUP_COMMAND
+      run: ${{ inputs.setup_command }}
     - name: Build
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
