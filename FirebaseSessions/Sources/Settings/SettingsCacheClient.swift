@@ -34,11 +34,11 @@ struct CacheKey: Codable {
 
 /// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
 protocol SettingsCacheClient: Sendable {
-  // TODO: Add docs.
+  // TODO(15394): Add docs.
   func value<T>(forKey key: String) -> T?
-  // TODO: Add docs.
+  // TODO(15394): Add docs.
   func updateContents(_ content: [String: Any])
-  // TODO: Add docs.
+  // TODO(15394): Add docs.
   func updateMetadata(_ metadata: CacheKey)
   /// Removes all cache content and cache-key
   func removeCache()
@@ -46,7 +46,7 @@ protocol SettingsCacheClient: Sendable {
   func isExpired(for appInfo: ApplicationInfoProtocol, time: Date) -> Bool
 }
 
-// TODO: Update docs.
+// TODO(15394): Update docs.
 /// SettingsCache uses UserDefaults to store Settings on-disk, but also directly query UserDefaults
 /// when accessing Settings values during run-time. This is because UserDefaults encapsulates both
 /// in-memory and persisted-on-disk storage, allowing fast synchronous access in-app while hiding
@@ -66,7 +66,7 @@ final class SettingsCache: SettingsCacheClient {
   private let diskCache: GULUserDefaults = .standard()
   let namespace: String
 
-  // TODO: populate from disk, read from namespaced contents
+  // TODO(15394): populate from disk, read from namespaced contents
   private let memoryCache: UnfairLock<[String: Any]>
   private let memoryCacheKey: UnfairLock<CacheKey?>
 
@@ -79,11 +79,11 @@ final class SettingsCache: SettingsCacheClient {
       let storedNamespace = storedContents[namespace] as? [String: Any] {
       memoryCache = UnfairLock(storedNamespace)
     } else {
-      // TODO: Should we clear diskCache?
+      // TODO(15394): Should we clear diskCache?
       memoryCache = UnfairLock([:])
     }
 
-    // TODO: Can I make this easier to read?
+    // TODO(15394): Can I make this easier to read?
     // Load the cache key.
     if let data = diskCache.object(forKey: UserDefaultsKeys.forCacheKey) as? Data {
       do {
@@ -91,11 +91,11 @@ final class SettingsCache: SettingsCacheClient {
         memoryCacheKey = UnfairLock(metadata)
       } catch {
         Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
-        // TODO: Should we clear diskCache?
+        // TODO(15394): Should we clear diskCache?
         memoryCacheKey = UnfairLock(nil)
       }
     } else {
-      // TODO: Should we clear diskCache?
+      // TODO(15394): Should we clear diskCache?
       memoryCacheKey = UnfairLock(nil)
     }
   }
@@ -174,7 +174,7 @@ final class SettingsCache: SettingsCacheClient {
     return false
   }
 
-  // TODO: Is the refactor in isExpired above cause a behavior change from before?
+  // TODO(15394): Is the refactor in isExpired above cause a behavior change from before?
   private func cacheDuration() -> TimeInterval {
     let cacheDuration = memoryCache.withLock { $0[Self.flagCacheDuration] }
     guard let duration = cacheDuration as? Double else {
