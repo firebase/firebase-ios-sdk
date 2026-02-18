@@ -67,6 +67,11 @@ final class SettingsCache: SettingsCacheClient {
     static let forCacheKey = "firebase-sessions-cache-key"
   }
 
+  /// Box type to workaround legacy `[String: Any]` type.
+  private struct SendableContainer: @unchecked Sendable {
+    let data: [String: Any]
+  }
+
   /// UserDefaults holds values in memory, making access O(1) and synchronous within the app, while
   /// abstracting away async disk IO.
   private let diskCache: GULUserDefaults = .standard()
@@ -102,7 +107,7 @@ final class SettingsCache: SettingsCacheClient {
 
   func rootValue<T>(forKey key: String) -> T? {
     memoryCache.withLock { memoryCache in
-      resolve(key: key, in: memoryCache)
+      resolve(key: key, in: SendableContainer(data: memoryCache))
     }
   }
 
@@ -111,17 +116,17 @@ final class SettingsCache: SettingsCacheClient {
       guard let inner = memoryCache[namespace] as? [String: Any] else {
         return nil
       }
-      return resolve(key: key, in: inner)
+      return resolve(key: key, in: SendableContainer(data: inner))
     }
   }
 
-  private func resolve<T>(key: String, in dict: [String: Any]) -> T? {
-    let value = dict[key]
+  private func resolve<T>(key: String, in dict: SendableContainer) -> T? {
+    let value = dict.data[key]
     if let typedValue = value as? T {
       return typedValue
     }
-    // Try to bridge via NSNumber to handle Int <-> Double conversions automatically
-    // like UserDefaults/JSONSerialization would in ObjC.
+    // Try to bridge via NSNumber to handle Int <-> Double conversions
+    // automatically like UserDefaults/JSONSerialization would in ObjC.
     if let number = value as? NSNumber {
       return number as? T
     }
@@ -130,9 +135,6 @@ final class SettingsCache: SettingsCacheClient {
 
   func updateContents(_ contents: [String: Any]) {
     // Write to in-memory cache directly (no flattening).
-    struct SendableContainer: @unchecked Sendable {
-      let data: [String: Any]
-    }
     let container = SendableContainer(data: contents)
 
     memoryCache.withLock { cache in
