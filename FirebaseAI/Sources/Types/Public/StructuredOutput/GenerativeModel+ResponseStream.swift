@@ -12,16 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels)
-  import protocol FoundationModels.ConvertibleFromGeneratedContent
-#endif // canImport(FoundationModels)
-
 // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
 #if compiler(>=6.2)
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModel {
-    struct ResponseStream<Content, PartiallyGenerated>: AsyncSequence, Sendable
-      where Content: Sendable, PartiallyGenerated: Sendable {
+    struct ResponseStream<Content>: AsyncSequence, Sendable
+      where Content: FirebaseGenerable & Sendable, Content.PartiallyGenerated: Sendable {
       public typealias Element = Snapshot
       public typealias AsyncIterator = AsyncThrowingStream<Snapshot, Error>.Iterator
 
@@ -29,7 +25,7 @@
       private let _context: StreamContext
 
       public struct Snapshot: Sendable {
-        public let content: PartiallyGenerated
+        public let content: Content.PartiallyGenerated
         public let rawContent: FirebaseGeneratedContent
         public let rawResponse: GenerateContentResponse
       }
@@ -56,36 +52,10 @@
       public nonisolated(nonsending) func collect()
         async throws -> sending GenerativeModel.Response<Content> {
         let finalResult = try await _context.value
-
-        if let contentMetatype = Content.self as? (
-          any ConvertibleFromFirebaseGeneratedContent.Type
-        ),
-          let content = try contentMetatype.init(finalResult.rawContent) as? Content {
-          return GenerativeModel.Response(
-            content: content,
-            rawContent: finalResult.rawContent,
-            rawResponse: finalResult.rawResponse
-          )
-        }
-
-        #if canImport(FoundationModels)
-          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
-             let contentMetatype = Content.self as? (
-               any FoundationModels.ConvertibleFromGeneratedContent.Type
-             ),
-             let content = try contentMetatype.init(
-               finalResult.rawContent.generatedContent
-             ) as? Content {
-            return GenerativeModel.Response(
-              content: content,
-              rawContent: finalResult.rawContent,
-              rawResponse: finalResult.rawResponse
-            )
-          }
-        #endif // canImport(FoundationModels)
-
-        fatalError(
-          "\(Content.self) does not conform to FirebaseGenerable or FoundationModels.Generable"
+        return try GenerativeModel.Response(
+          content: Content(finalResult.rawContent),
+          rawContent: finalResult.rawContent,
+          rawResponse: finalResult.rawResponse
         )
       }
     }

@@ -12,24 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels)
-  public import protocol FoundationModels.ConvertibleFromGeneratedContent
-  public import struct FoundationModels.GeneratedContent
-#endif // canImport(FoundationModels)
-
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol ConvertibleFromFirebaseGeneratedContent {
   init(_ content: FirebaseGeneratedContent) throws
 }
-
-#if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  public extension ConvertibleFromFirebaseGeneratedContent
-    where Self: FoundationModels.ConvertibleFromGeneratedContent {
-    init(_ content: FirebaseGeneratedContent) throws {
-      try self.init(content.generatedContent)
-    }
-  }
-#endif // canImport(FoundationModels)

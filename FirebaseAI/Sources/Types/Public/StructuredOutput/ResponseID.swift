@@ -14,7 +14,7 @@
 
 import Foundation
 #if canImport(FoundationModels)
-  public import struct FoundationModels.GenerationID
+  private import FoundationModels
 #endif // canImport(FoundationModels)
 
 protocol GenerationIDProtocol: Sendable, Hashable {}
@@ -43,18 +43,22 @@ public struct ResponseID: Sendable, Hashable {
     identifier = .value(responseID)
   }
 
+  init(generationID: any GenerationIDProtocol) {
+    identifier = .generationID(generationID)
+  }
+
   #if canImport(FoundationModels)
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    public init(generationID: GenerationID) {
+    private init(generationID: GenerationID) {
       identifier = .generationID(generationID)
     }
 
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    var generationID: GenerationID? {
+    private var generationID: GenerationID? {
       guard case let .generationID(id as GenerationID) = identifier else {
         return nil
       }

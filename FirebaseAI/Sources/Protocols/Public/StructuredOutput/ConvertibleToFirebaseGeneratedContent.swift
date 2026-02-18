@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels)
-  import protocol FoundationModels.ConvertibleToGeneratedContent
-  import struct FoundationModels.GeneratedContent
-#endif // canImport(FoundationModels)
-
 #if compiler(>=6.2)
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public protocol ConvertibleToFirebaseGeneratedContent: SendableMetatype {
@@ -28,15 +23,3 @@
     var firebaseGeneratedContent: FirebaseGeneratedContent { get }
   }
 #endif // compiler(>=6.2)
-
-#if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  public extension ConvertibleToFirebaseGeneratedContent
-    where Self: FoundationModels.ConvertibleToGeneratedContent {
-    var firebaseGeneratedContent: FirebaseGeneratedContent {
-      generatedContent.firebaseGeneratedContent
-    }
-  }
-#endif // canImport(FoundationModels)

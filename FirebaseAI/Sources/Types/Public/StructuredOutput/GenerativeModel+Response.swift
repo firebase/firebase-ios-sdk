@@ -16,7 +16,7 @@
 #if compiler(>=6.2)
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModel {
-    struct Response<Content> {
+    struct Response<Content> where Content: FirebaseGenerable {
       public let content: Content
       public let rawContent: FirebaseGeneratedContent
       public let rawResponse: GenerateContentResponse

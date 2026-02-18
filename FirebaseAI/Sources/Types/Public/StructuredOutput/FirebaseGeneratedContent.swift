@@ -14,9 +14,7 @@
 
 import Foundation
 #if canImport(FoundationModels)
-  public import protocol FoundationModels.ConvertibleToGeneratedContent
-  public import struct FoundationModels.GenerationID
-  public import struct FoundationModels.GeneratedContent
+  private import FoundationModels
 #endif // canImport(FoundationModels)
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -136,10 +134,9 @@ public struct FirebaseGeneratedContent: Sendable, CustomDebugStringConvertible, 
       if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
         do {
           let generatedContent = try GeneratedContent(json: json)
-          firebaseGeneratedContent = generatedContent.firebaseGeneratedContent
-          firebaseGeneratedContent.id = id
-
-          self = firebaseGeneratedContent
+          self = FirebaseGeneratedContent.from(
+            generatedContent: generatedContent, id: id
+          )
 
           return
         } catch {
@@ -217,6 +214,47 @@ public struct FirebaseGeneratedContent: Sendable, CustomDebugStringConvertible, 
 
     return try Value(value)
   }
+
+  #if canImport(FoundationModels)
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    private static func from(generatedContent: GeneratedContent,
+                             id: ResponseID?) -> FirebaseGeneratedContent {
+      switch generatedContent.kind {
+      case .null:
+        return FirebaseGeneratedContent(kind: .null, id: id)
+      case let .bool(value):
+        return FirebaseGeneratedContent(kind: .bool(value), id: id)
+      case let .number(value):
+        return FirebaseGeneratedContent(kind: .number(value), id: id)
+      case let .string(value):
+        return FirebaseGeneratedContent(kind: .string(value), id: id)
+      case let .array(values):
+        return FirebaseGeneratedContent(
+          kind: .array(values.map {
+            from(generatedContent: $0, id: nil)
+          }),
+          id: id
+        )
+      case let .structure(properties: properties, orderedKeys: orderedKeys):
+        return FirebaseGeneratedContent(
+          kind: .structure(
+            properties: properties.mapValues {
+              from(generatedContent: $0, id: nil)
+            },
+            orderedKeys: orderedKeys
+          ),
+          id: id
+        )
+      @unknown default:
+        assertionFailure(
+          "Unknown `FoundationModels.GeneratedContent` kind: \(generatedContent.kind)"
+        )
+        return FirebaseGeneratedContent(kind: .null, id: id)
+      }
+    }
+  #endif // canImport(FoundationModels)
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -264,76 +302,3 @@ public extension FirebaseGeneratedContent {
     }
   }
 }
-
-#if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  extension FirebaseGeneratedContent: FoundationModels.ConvertibleToGeneratedContent {
-    public var generatedContent: FoundationModels.GeneratedContent {
-      let generationID = id?.generationID
-
-      switch kind {
-      case .null:
-        return FoundationModels.GeneratedContent(kind: .null, id: generationID)
-      case let .bool(value):
-        return FoundationModels.GeneratedContent(kind: .bool(value), id: generationID)
-      case let .number(value):
-        return FoundationModels.GeneratedContent(kind: .number(value), id: generationID)
-      case let .string(value):
-        return FoundationModels.GeneratedContent(kind: .string(value), id: generationID)
-      case let .array(values):
-        return FoundationModels.GeneratedContent(
-          kind: .array(values.map { $0.generatedContent }),
-          id: generationID
-        )
-      case let .structure(properties: properties, orderedKeys: orderedKeys):
-        return FoundationModels.GeneratedContent(
-          kind: .structure(
-            properties: properties.mapValues { $0.generatedContent }, orderedKeys: orderedKeys
-          ),
-          id: generationID
-        )
-      }
-    }
-  }
-
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  extension FoundationModels.GeneratedContent: ConvertibleToFirebaseGeneratedContent {
-    public var firebaseGeneratedContent: FirebaseGeneratedContent {
-      let responseID = id.map { ResponseID(generationID: $0) }
-      return toFirebaseGeneratedContent(id: responseID)
-    }
-
-    private func toFirebaseGeneratedContent(id: ResponseID?) -> FirebaseGeneratedContent {
-      switch kind {
-      case .null:
-        return FirebaseGeneratedContent(kind: .null, id: id)
-      case let .bool(value):
-        return FirebaseGeneratedContent(kind: .bool(value), id: id)
-      case let .number(value):
-        return FirebaseGeneratedContent(kind: .number(value), id: id)
-      case let .string(value):
-        return FirebaseGeneratedContent(kind: .string(value), id: id)
-      case let .array(values):
-        return FirebaseGeneratedContent(
-          kind: .array(values.map { $0.toFirebaseGeneratedContent(id: nil) }),
-          id: id
-        )
-      case let .structure(properties: properties, orderedKeys: orderedKeys):
-        return FirebaseGeneratedContent(
-          kind: .structure(
-            properties: properties.mapValues { $0.toFirebaseGeneratedContent(id: nil) },
-            orderedKeys: orderedKeys
-          ),
-          id: id
-        )
-      @unknown default:
-        assertionFailure("Unknown `FoundationModels.GeneratedContent` kind: \(kind)")
-        return FirebaseGeneratedContent(kind: .null, id: id)
-      }
-    }
-  }
-#endif // canImport(FoundationModels)

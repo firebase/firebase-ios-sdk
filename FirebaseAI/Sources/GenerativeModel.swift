@@ -15,9 +15,6 @@
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import Foundation
-#if canImport(FoundationModels)
-  import FoundationModels
-#endif // canImport(FoundationModels)
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
@@ -228,7 +225,7 @@ public final class GenerativeModel: Sendable {
 
     public final func streamResponse(to prompt: any PartsRepresentable,
                                      options: GenerationConfig? = nil)
-      -> sending GenerativeModel.ResponseStream<String, String.PartiallyGenerated> {
+      -> sending GenerativeModel.ResponseStream<String> {
       return streamResponse(to: prompt, generating: String.self, schema: nil,
                             includeSchemaInPrompt: false, options: options)
     }
@@ -237,8 +234,7 @@ public final class GenerativeModel: Sendable {
                                      schema: FirebaseGenerationSchema,
                                      includeSchemaInPrompt: Bool = true,
                                      options: GenerationConfig? = nil)
-      -> sending GenerativeModel
-      .ResponseStream<FirebaseGeneratedContent, FirebaseGeneratedContent.PartiallyGenerated> {
+      -> sending GenerativeModel.ResponseStream<FirebaseGeneratedContent> {
       return streamResponse(to: prompt, generating: FirebaseGeneratedContent.self, schema: schema,
                             includeSchemaInPrompt: includeSchemaInPrompt, options: options)
     }
@@ -247,55 +243,10 @@ public final class GenerativeModel: Sendable {
                                               generating type: Content.Type = Content.self,
                                               includeSchemaInPrompt: Bool = true,
                                               options: GenerationConfig? = nil)
-      -> sending GenerativeModel.ResponseStream<Content, Content.PartiallyGenerated>
-      where Content: FirebaseGenerable {
+      -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
       return streamResponse(to: prompt, generating: type, schema: type.firebaseGenerationSchema,
                             includeSchemaInPrompt: includeSchemaInPrompt, options: options)
     }
-
-    #if canImport(FoundationModels)
-      @available(iOS 26.0, macOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      public final func streamResponse<Content>(to prompt: any PartsRepresentable,
-                                                generating type: Content.Type = Content.self,
-                                                includeSchemaInPrompt: Bool = true,
-                                                options: GenerationConfig? = nil)
-        -> sending GenerativeModel.ResponseStream<Content, Content.PartiallyGenerated>
-        where Content: FoundationModels.Generable {
-        return streamResponse(
-          to: prompt,
-          generating: type,
-          // TODO: Implement conversion from `FoundationModels.GenerationSchema`
-          //       to `FirebaseGenerationSchema`.
-          schema: FirebaseGeneratedContent.firebaseGenerationSchema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
-      }
-
-      /// :nodoc:
-      @available(iOS 26.0, macOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      @_documentation(visibility: private)
-      public final func streamResponse<Content>(to prompt: any PartsRepresentable,
-                                                generating type: Content.Type = Content.self,
-                                                includeSchemaInPrompt: Bool = true,
-                                                options: GenerationConfig? = nil)
-        -> sending GenerativeModel.ResponseStream<Content, Content.PartiallyGenerated>
-        where Content: FirebaseGenerable & FoundationModels.Generable {
-        return streamResponse(
-          to: prompt,
-          generating: type,
-          // TODO: Implement conversion from `FoundationModels.GenerationSchema`
-          //       to `FirebaseGenerationSchema`.
-          schema: FirebaseGeneratedContent.firebaseGenerationSchema,
-          includeSchemaInPrompt: includeSchemaInPrompt,
-          options: options
-        )
-      }
-    #endif // canImport(FoundationModels)
   #endif // compiler(>=6.2)
 
   /// Creates a new chat conversation using this model with the provided history.
@@ -556,12 +507,11 @@ public final class GenerativeModel: Sendable {
       // TODO: Add `GenerateContentResponse` as context in errors.
     }
 
-    final func streamResponse<Content, PartiallyGeneratedContent>(to prompt: any PartsRepresentable,
-                                                                  generating type: Content.Type,
-                                                                  schema: FirebaseGenerationSchema?,
-                                                                  includeSchemaInPrompt: Bool,
-                                                                  options: GenerationConfig?)
-      -> sending GenerativeModel.ResponseStream<Content, PartiallyGeneratedContent> {
+    final func streamResponse<Content>(to prompt: any PartsRepresentable,
+                                       generating type: Content.Type,
+                                       schema: FirebaseGenerationSchema?,
+                                       includeSchemaInPrompt: Bool, options: GenerationConfig?)
+      -> sending GenerativeModel.ResponseStream<Content> where Content: FirebaseGenerable {
       let parts = [ModelContent(parts: prompt)]
 
       let generationConfig: GenerationConfig?
@@ -586,44 +536,13 @@ public final class GenerativeModel: Sendable {
                 id: responseID,
                 streaming: true
               )
-              if let partiallyGeneratedMetatype = PartiallyGeneratedContent.self as? (
-                any FirebaseGenerable.Type
-              ),
-                let partiallyGeneratedContent = try partiallyGeneratedMetatype.init(
-                  firebaseGeneratedContent
-                ) as? PartiallyGeneratedContent {
-                await context.yield(
-                  GenerativeModel.ResponseStream<Content, PartiallyGeneratedContent>.Snapshot(
-                    content: partiallyGeneratedContent,
-                    rawContent: firebaseGeneratedContent,
-                    rawResponse: response
-                  )
+              try await context.yield(
+                GenerativeModel.ResponseStream<Content>.Snapshot(
+                  content: Content.PartiallyGenerated(firebaseGeneratedContent),
+                  rawContent: firebaseGeneratedContent,
+                  rawResponse: response
                 )
-                return
-              }
-
-              #if canImport(FoundationModels)
-                if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
-                   let partiallyGeneratedMetatype = PartiallyGeneratedContent.self as? (
-                     any FoundationModels.Generable.Type
-                   ),
-                   let partiallyGeneratedContent = try partiallyGeneratedMetatype.init(
-                     firebaseGeneratedContent.generatedContent
-                   ) as? PartiallyGeneratedContent {
-                  await context.yield(
-                    GenerativeModel.ResponseStream<Content, PartiallyGeneratedContent>.Snapshot(
-                      content: partiallyGeneratedContent,
-                      rawContent: firebaseGeneratedContent,
-                      rawResponse: response
-                    )
-                  )
-                  return
-                }
-              #endif // canImport(FoundationModels)
-
-              fatalError("""
-              \(Content.self) does not conform to FirebaseGenerable or FoundationModels.Generable
-              """)
+              )
             }
           }
           await context.finish()
