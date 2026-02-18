@@ -77,6 +77,8 @@ extension Optional: ConvertibleFromFirebaseGeneratedContent
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Bool: FirebaseGenerable {
+  public typealias PartiallyGenerated = Self
+
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
     FirebaseGenerationSchema(type: Bool.self, kind: .boolean)
   }
@@ -115,6 +117,8 @@ extension String: FirebaseGenerable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Int: FirebaseGenerable {
+  public typealias PartiallyGenerated = Self
+
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
     FirebaseGenerationSchema(type: Int.self, kind: .integer(guides: IntegerGuides()))
   }
@@ -133,6 +137,8 @@ extension Int: FirebaseGenerable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Float: FirebaseGenerable {
+  public typealias PartiallyGenerated = Self
+
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
     FirebaseGenerationSchema(type: Float.self, kind: .double(guides: DoubleGuides()))
   }
@@ -151,6 +157,8 @@ extension Float: FirebaseGenerable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Double: FirebaseGenerable {
+  public typealias PartiallyGenerated = Self
+
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
     FirebaseGenerationSchema(type: Double.self, kind: .double(guides: DoubleGuides()))
   }
@@ -169,6 +177,8 @@ extension Double: FirebaseGenerable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Decimal: FirebaseGenerable {
+  public typealias PartiallyGenerated = Self
+
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
     FirebaseGenerationSchema(type: Decimal.self, kind: .double(guides: DoubleGuides()))
   }
@@ -187,6 +197,8 @@ extension Decimal: FirebaseGenerable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Array: FirebaseGenerable where Element: FirebaseGenerable {
+  public typealias PartiallyGenerated = [Element.PartiallyGenerated]
+
   public static var firebaseGenerationSchema: FirebaseGenerationSchema {
     FirebaseGenerationSchema(
       type: Self.self,
