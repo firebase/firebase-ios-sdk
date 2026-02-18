@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-
 @preconcurrency import FirebaseAppCheckInterop
 @preconcurrency import FirebaseAuthInterop
 @preconcurrency import FirebaseCore
+import Foundation
 
 /// Firebase data used by FirebaseAI
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)

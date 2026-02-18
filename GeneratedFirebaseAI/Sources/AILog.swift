@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
 // limitations under the License.
 
 import Foundation
-#if os(Linux)
-import FoundationNetworking
-#endif
 import Logging
+
+#if os(Linux)
+  import FoundationNetworking
+#endif
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 enum AILog {
@@ -115,37 +116,5 @@ enum AILog {
   /// Returns `true` if additional logging has been enabled via a launch argument.
   static func additionalLoggingEnabled() -> Bool {
     return ProcessInfo.processInfo.arguments.contains(enableArgumentKey)
-  }
-
-  /// Returns the unwrapped optional value if non-nil or returns the fallback value and logs.
-  ///
-  /// This convenience method is intended for use in place of `optionalValue ?? fallbackValue` with
-  /// the addition of logging on use of the fallback value.
-  ///
-  /// - Parameters:
-  ///   - optionalValue: The value to unwrap.
-  ///   - fallbackValue: The fallback (default) value to return when `optionalValue` is `nil`.
-  ///   - level: The logging level to use for fallback messages; defaults to
-  ///     `.default`.
-  ///   - code: The message code to use for fallback messages; defaults to
-  ///     `MessageCode.fallbackValueUsed`.
-  ///   - caller: The name of the unwrapped value; defaults to the name of the computed property or
-  ///     function name from which the unwrapping occurred.
-  static func safeUnwrap<T>(
-    _ optionalValue: T?,
-    fallback fallbackValue: T,
-    level: Logger.Level = .debug,
-    code: MessageCode = .fallbackValueUsed,
-    caller: String = #function
-  ) -> T {
-    guard let unwrappedValue = optionalValue else {
-      AILog.log(
-        level: level, code: code,
-        """
-        No value specified for '\(caller)' (\(T.self)); using fallback value '\(fallbackValue)'.
-        """)
-      return fallbackValue
-    }
-    return unwrappedValue
   }
 }
