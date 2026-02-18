@@ -37,7 +37,7 @@ class SettingsCacheMigrationTests: XCTestCase {
   }
 
   func test_ReadFromLegacyData_Success() {
-    // 1. Setup Legacy Components to write data "The Old Way"
+    // 1. Setup legacy components to write data using the legacy implementation
     let appInfo = MockApplicationInfo()
 
     // Simulate server response with Ints
@@ -62,7 +62,7 @@ class SettingsCacheMigrationTests: XCTestCase {
 
     // 3. Verify it reads the data correctly via value(forKey:)
 
-    // Check ROOT key (should be preserved)
+    // Check root key (should be preserved)
     let cacheDuration: TimeInterval? = cache.rootValue(forKey: "cache_duration")
     XCTAssertEqual(cacheDuration, 60.0)
 
@@ -113,10 +113,10 @@ class SettingsCacheMigrationTests: XCTestCase {
       XCTFail("Namespace \(namespace) missing from disk")
     }
 
-    // Verify legacy "root_key" is GONE (because newSettings didn't have it)
+    // Verify legacy "root_key" is removed (because newSettings didn't have it)
     XCTAssertNil(storedRoot["root_key"])
 
-    // Verify "other_namespace" is GONE (Overwrite behavior confirmed)
+    // Verify "other_namespace" is removed (overwrite behavior confirmed)
     XCTAssertNil(storedRoot["other_namespace"])
   }
 
@@ -168,8 +168,10 @@ class SettingsCacheMigrationTests: XCTestCase {
     let cache = SettingsCache(namespace: namespace)
 
     // 3. Verify it starts empty
-    XCTAssertNil(cache.rootValue(forKey: "cache_duration"))
-    XCTAssertNil(cache.namespacedValue(forKey: "sessions_enabled"))
+    let duration: Double? = cache.rootValue(forKey: "cache_duration")
+    XCTAssertNil(duration)
+    let enabled: Bool? = cache.namespacedValue(forKey: "sessions_enabled")
+    XCTAssertNil(enabled)
   }
 
   func test_MetadataMigration_HonorsLegacyCacheKey() {
@@ -199,5 +201,31 @@ class SettingsCacheMigrationTests: XCTestCase {
     // Advance time by 25 hours
     let wayFutureTime = creationTime.addingTimeInterval(86400 + 1)
     XCTAssertTrue(cache.isExpired(for: appInfo, time: wayFutureTime))
+  }
+
+  func test_Downgrade_WriteFromNew_ReadFromLegacy_Success() {
+    // 1. Initialize New Cache and Write Data
+    let cache = SettingsCache(namespace: namespace)
+    let newSettings: [String: Any] = [
+      namespace: [
+        "sessions_enabled": false,
+        "sampling_rate": 0.25,
+        "session_timeout_seconds": 300,
+      ],
+      "cache_duration": 120,
+    ]
+    cache.updateContents(newSettings)
+
+    // 2. Initialize Legacy Component (Simulating Downgrade)
+    let appInfo = MockApplicationInfo()
+    let downloader = MockSettingsDownloader(successResponse: [:]) // Not used for reading
+    let legacySettings = LegacyRemoteSettings(appInfo: appInfo, downloader: downloader)
+
+    // 3. Verify Legacy component can read the data written by New Cache
+    XCTAssertEqual(legacySettings.sessionsEnabled, false)
+    XCTAssertEqual(legacySettings.samplingRate, 0.25)
+    XCTAssertEqual(legacySettings.sessionTimeout, 300)
+    // LegacySettingsCache reads cache_duration internally to determine expiration
+    // We can verify it didn't crash and read the values correctly.
   }
 }
