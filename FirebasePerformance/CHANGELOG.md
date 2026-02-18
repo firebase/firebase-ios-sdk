@@ -1,4 +1,4 @@
-# Unreleased
+# 12.10.0
 - [fixed] Fix a race condition by replacing `mstats()` with `malloc_zone_statistics()`. (#15501)
 - [fixed] Fixed a deadlock in Firebase Sessions where the main thread could
   block waiting for a lock held by a background thread during settings
