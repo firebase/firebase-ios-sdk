@@ -144,7 +144,6 @@ final class SettingsCache: SettingsCacheClient {
     diskCache.setObject(contents, forKey: UserDefaultsKeys.forContent)
   }
 
-  // write
   func updateMetadata(_ metadata: CacheKey) {
     do {
       let encodedMetadata = try JSONEncoder().encode(metadata)
