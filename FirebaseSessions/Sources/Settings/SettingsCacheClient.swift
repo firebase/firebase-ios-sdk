@@ -58,8 +58,9 @@ protocol SettingsCacheClient: Sendable {
 /// `GULUserDefaults` is used for persisting these settings to disk, enabling the in-memory cache
 /// to provide immediate reads.
 ///
-/// The cache content is expected to be a dictionary. Root-level keys like `cache_duration` are
-/// read directly, while other settings are namespaced. For example:
+/// The cache content is expected to be a dictionary. Root-level keys like 
+/// `cache_duration` are read directly, while other settings are namespaced.
+/// For example:
 ///
 /// ```json
 /// {
