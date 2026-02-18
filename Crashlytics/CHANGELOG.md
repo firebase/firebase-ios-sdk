@@ -1,4 +1,4 @@
-# Unreleased
+# 12.10.0
 - [fixed] Fixed a deadlock in Firebase Sessions where the main thread could
   block waiting for a lock held by a background thread during settings
   updates. (#15394)
