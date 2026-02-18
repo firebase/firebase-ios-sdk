@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file is a snapshot of the RemoteSettings/SettingsCache implementation as of Firebase
-// v12.9.0.
-// It is used exclusively for round-trip persistence testing to ensure compatibility with legacy
-// data.
+// This file is a snapshot of the RemoteSettings/SettingsCache implementation as
+// of Firebase v12.9.0.
+// It is used exclusively for round-trip persistence testing to ensure compatibility with
+// legacy data.
 
 import FirebaseCoreInternal
 @testable import FirebaseSessions
