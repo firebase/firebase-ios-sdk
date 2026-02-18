@@ -38,7 +38,7 @@ jobs:
         env:
           pr_branch: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
+          if [ ! -z "${METRICS_SERVICE_SECRET}"  ]; then
             ./scripts/code_coverage_report/get_updated_files.sh
           fi
 
