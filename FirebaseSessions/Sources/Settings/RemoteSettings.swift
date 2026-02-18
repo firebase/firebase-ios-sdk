@@ -71,15 +71,15 @@ final class RemoteSettings: SettingsProvider, Sendable {
   }
 
   var sessionsEnabled: Bool? {
-    cache.value(forKey: RemoteSettings.flagSessionsEnabled)
+    cache.namespacedValue(forKey: RemoteSettings.flagSessionsEnabled)
   }
 
   var samplingRate: Double? {
-    cache.value(forKey: RemoteSettings.flagSamplingRate)
+    cache.namespacedValue(forKey: RemoteSettings.flagSamplingRate)
   }
 
   var sessionTimeout: TimeInterval? {
-    cache.value(forKey: RemoteSettings.flagSessionTimeout)
+    cache.namespacedValue(forKey: RemoteSettings.flagSessionTimeout)
   }
 
   func updateSettings(currentTime: Date) {

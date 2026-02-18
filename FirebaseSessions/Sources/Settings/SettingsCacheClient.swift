@@ -34,8 +34,11 @@ struct CacheKey: Codable {
 
 /// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
 protocol SettingsCacheClient: Sendable {
-  /// Reads a value from the cache for the given key.
-  func value<T>(forKey key: String) -> T?
+  /// Reads a value from the root level of the cache.
+  func rootValue<T>(forKey key: String) -> T?
+
+  /// Reads a value from the configured namespace within the cache.
+  func namespacedValue<T>(forKey key: String) -> T?
 
   /// Updates the cache content with the new dictionary.
   /// If the dictionary contains the namespace key, it merges the inner dictionary.
@@ -51,10 +54,9 @@ protocol SettingsCacheClient: Sendable {
   func isExpired(for appInfo: ApplicationInfoProtocol, time: Date) -> Bool
 }
 
-/// SettingsCache uses UserDefaults to store Settings on-disk, but also directly query UserDefaults
-/// when accessing Settings values during run-time. This is because UserDefaults encapsulates both
-/// in-memory and persisted-on-disk storage, allowing fast synchronous access in-app while hiding
-/// away the complexity of managing persistence asynchronously.
+/// SettingsCache uses an in-memory cache for fast synchronous access to settings during runtime.
+/// `GULUserDefaults` is used for persisting these settings to disk, providing the underlying
+/// asynchronous persistence while the in-memory cache handles immediate reads.
 final class SettingsCache: SettingsCacheClient {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private static let flagCacheDuration = "cache_duration"
@@ -76,11 +78,10 @@ final class SettingsCache: SettingsCacheClient {
   init(namespace: String) {
     self.namespace = namespace
 
-    // Load the cache contents.
-    if
-      let storedContents = diskCache.object(forKey: UserDefaultsKeys.forContent) as? [String: Any],
-      let storedNamespace = storedContents[namespace] as? [String: Any] {
-      memoryCache = UnfairLock(storedNamespace)
+    // Load the cache contents directly (no flattening).
+    if let storedContents = diskCache
+      .object(forKey: UserDefaultsKeys.forContent) as? [String: Any] {
+      memoryCache = UnfairLock(storedContents)
     } else {
       memoryCache = UnfairLock([:])
     }
@@ -99,44 +100,48 @@ final class SettingsCache: SettingsCacheClient {
     }
   }
 
-  // read
-  // previous behavior:
-  // if [String:Any] is nil, then bool
-  // if [String:Any] is non-nil, but val missing, then bool
-  func value<T>(forKey key: String) -> T? {
+  func rootValue<T>(forKey key: String) -> T? {
     memoryCache.withLock { memoryCache in
-      let value = memoryCache[key]
-      if let typedValue = value as? T {
-        return typedValue
-      }
-      // Try to bridge via NSNumber to handle Int <-> Double conversions automatically
-      // like UserDefaults/JSONSerialization would in ObjC.
-      if let number = value as? NSNumber {
-        return number as? T
-      }
-      return nil
+      resolve(key: key, in: memoryCache)
     }
   }
 
-  // write
-  func updateContents(_ contents: [String: Any]) {
-    var dataToStore = contents
-    if let inner = contents[namespace] as? [String: Any] {
-      dataToStore.merge(inner) { _, new in new }
+  func namespacedValue<T>(forKey key: String) -> T? {
+    memoryCache.withLock { memoryCache in
+      guard let inner = memoryCache[namespace] as? [String: Any] else {
+        return nil
+      }
+      return resolve(key: key, in: inner)
     }
+  }
 
+  private func resolve<T>(key: String, in dict: [String: Any]) -> T? {
+    let value = dict[key]
+    if let typedValue = value as? T {
+      return typedValue
+    }
+    // Try to bridge via NSNumber to handle Int <-> Double conversions automatically
+    // like UserDefaults/JSONSerialization would in ObjC.
+    if let number = value as? NSNumber {
+      return number as? T
+    }
+    return nil
+  }
+
+  func updateContents(_ contents: [String: Any]) {
+    // Write to in-memory cache directly (no flattening).
     struct SendableContainer: @unchecked Sendable {
       let data: [String: Any]
     }
-    let container = SendableContainer(data: dataToStore)
+    let container = SendableContainer(data: contents)
 
-    // Write to in-memory cache.
     memoryCache.withLock { cache in
       cache = container.data
     }
+
     // Write to disk cache.
-    let namespacedContents = [namespace: dataToStore]
-    diskCache.setObject(namespacedContents, forKey: UserDefaultsKeys.forContent)
+    // We overwrite the entire key to match legacy behavior.
+    diskCache.setObject(contents, forKey: UserDefaultsKeys.forContent)
   }
 
   // write
@@ -193,7 +198,8 @@ final class SettingsCache: SettingsCacheClient {
   }
 
   private func cacheDuration() -> TimeInterval {
-    let cacheDuration: Double? = value(forKey: Self.flagCacheDuration)
+    // cache_duration is always at the root level
+    let cacheDuration: Double? = rootValue(forKey: Self.flagCacheDuration)
     guard let duration = cacheDuration else {
       return Self.cacheDurationSecondsDefault
     }
