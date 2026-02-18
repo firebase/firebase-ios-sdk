@@ -23,6 +23,7 @@ concurrency:
 
 jobs:
   specs_checking:
+    environment: release-testing
     permissions:
       contents: write
     # Don't run on private repo unless it is a PR.
@@ -88,6 +89,7 @@ jobs:
           *.podspec.json
 
   buildup_SpecsTesting_repo_FirebaseCore:
+    environment: release-testing
     needs: specs_checking
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
@@ -130,6 +132,7 @@ jobs:
       run: pod repo remove "${local_repo}"
 
   buildup_SpecsTesting_repo:
+    environment: release-testing
     needs: [buildup_SpecsTesting_repo_FirebaseCore, specs_checking]
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'workflow_dispatch'
@@ -181,6 +184,7 @@ jobs:
       run: pod repo remove "${local_repo}"
 
   update_SpecsTesting_repo:
+    environment: release-testing
     permissions:
       contents: write
     # Don't run on private repo unless it is a PR.
