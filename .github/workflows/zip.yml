@@ -65,11 +65,13 @@ jobs:
     - name: Check if packaging should be skipped
       id: check
       run: |
-        if [[ -n "${{ env.PINNED_RUN_ID }}" || -n "${{ github.event.inputs.zip_run_id }}" ]]; then
+        if [[ -n "${{ env.PINNED_RUN_ID }}" || -n "${GITHUB_EVENT_INPUTS_ZIP_RUN_ID}" ]]; then
           echo "should_package=false" >> $GITHUB_OUTPUT
         else
           echo "should_package=true" >> $GITHUB_OUTPUT
         fi
+      env:
+        GITHUB_EVENT_INPUTS_ZIP_RUN_ID: ${{ github.event.inputs.zip_run_id }}
 
   package-release:
     needs: should_package
@@ -161,13 +163,15 @@ jobs:
       - name: Get Run ID
         id: get_run_id
         run: |
-          if [[ -n "${{ github.event.inputs.zip_run_id }}" ]]; then
-            echo "run_id=${{ github.event.inputs.zip_run_id }}" >> $GITHUB_OUTPUT
+          if [[ -n "${GITHUB_EVENT_INPUTS_ZIP_RUN_ID}" ]]; then
+            echo "run_id=${GITHUB_EVENT_INPUTS_ZIP_RUN_ID}" >> $GITHUB_OUTPUT
           elif [[ -n "${{ env.PINNED_RUN_ID }}" ]]; then
             echo "run_id=${{ env.PINNED_RUN_ID }}" >> $GITHUB_OUTPUT
           else
             echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
           fi
+        env:
+          GITHUB_EVENT_INPUTS_ZIP_RUN_ID: ${{ github.event.inputs.zip_run_id }}
 
   check_framework_firestore_symbols:
     needs: packaging_done
