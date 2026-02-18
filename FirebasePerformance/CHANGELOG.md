@@ -1,6 +1,8 @@
 # Unreleased
 - [fixed] Fix a race condition by replacing `mstats()` with `malloc_zone_statistics()`. (#15501)
-- [fixed] Fixed a deadlock in Firebase Sessions where the main thread could block waiting for a lock held by a background thread during settings updates. (#15394)
+- [fixed] Fixed a deadlock in Firebase Sessions where the main thread could
+  block waiting for a lock held by a back ground thread during settings
+  updates. (#15394)
 
 # 12.8.0
 - [fixed] Use UIScreen.maximumFramesPerSecond for dynamic slow frame threshold. (#10220)
