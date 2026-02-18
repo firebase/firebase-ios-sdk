@@ -41,7 +41,8 @@ protocol SettingsCacheClient: Sendable {
   func namespacedValue<T>(forKey key: String) -> T?
 
   /// Updates the cache content with the new dictionary.
-  /// If the dictionary contains the namespace key, it merges the inner dictionary.
+  /// If the dictionary contains the namespace key, it merges the inner
+  /// dictionary.
   func updateContents(_ content: [String: Any])
 
   /// Updates the cache metadata (CacheKey).
