@@ -50,7 +50,7 @@ jobs:
         env:
           pr_branch: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ ! -z "${{ env.METRICS_SERVICE_SECRET }}"  ]; then
+          if [ ! -z "${METRICS_SERVICE_SECRET}"  ]; then
             ./scripts/health_metrics/get_updated_files.sh
           fi
 
@@ -75,32 +75,48 @@ jobs:
 
         # Activate the service account for Metrics Service.
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
-        metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
+        metrics-access.json "${METRICS_SERVICE_SECRET}"
         gcloud auth activate-service-account --key-file metrics-access.json
     - name: Build and test
       run: |
-        FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
-        FirebaseAnalytics=${{ needs.check.outputs.analytics_run_job }} \
-        FirebaseAppCheck=${{ needs.check.outputs.appcheck_run_job }} \
-        FirebaseAppDistribution=${{ needs.check.outputs.appdistribution_run_job }} \
-        FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
-        FirebaseCrashlytics=${{ needs.check.outputs.crashlytics_run_job }} \
-        FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \
-        FirebaseDynamicLinks=${{ needs.check.outputs.dynamiclinks_run_job }} \
-        FirebaseFirestore=${{ needs.check.outputs.firestore_run_job }} \
-        FirebaseFunctions=${{ needs.check.outputs.functions_run_job}} \
-        FirebaseInAppMessaging=${{ needs.check.outputs.inappmessaging_run_job }} \
-        FirebaseInstallations=${{ needs.check.outputs.installations_run_job }} \
-        FirebaseMessaging=${{ needs.check.outputs.messaging_run_job}} \
-        FirebasePerformance=${{ needs.check.outputs.performance_run_job }} \
-        FirebaseRemoteConfig=${{ needs.check.outputs.remoteconfig_run_job }} \
-        FirebaseStorage=${{ needs.check.outputs.storage_run_job }} \
+        FirebaseABTesting=${NEEDS_CHECK_OUTPUTS_ABTESTING_RUN_JOB} \
+        FirebaseAnalytics=${NEEDS_CHECK_OUTPUTS_ANALYTICS_RUN_JOB} \
+        FirebaseAppCheck=${NEEDS_CHECK_OUTPUTS_APPCHECK_RUN_JOB} \
+        FirebaseAppDistribution=${NEEDS_CHECK_OUTPUTS_APPDISTRIBUTION_RUN_JOB} \
+        FirebaseAuth=${NEEDS_CHECK_OUTPUTS_AUTH_RUN_JOB} \
+        FirebaseCrashlytics=${NEEDS_CHECK_OUTPUTS_CRASHLYTICS_RUN_JOB} \
+        FirebaseDatabase=${NEEDS_CHECK_OUTPUTS_DATABASE_RUN_JOB} \
+        FirebaseDynamicLinks=${NEEDS_CHECK_OUTPUTS_DYNAMICLINKS_RUN_JOB} \
+        FirebaseFirestore=${NEEDS_CHECK_OUTPUTS_FIRESTORE_RUN_JOB} \
+        FirebaseFunctions=${NEEDS_CHECK_OUTPUTS_FUNCTIONS_RUN_JOB} \
+        FirebaseInAppMessaging=${NEEDS_CHECK_OUTPUTS_INAPPMESSAGING_RUN_JOB} \
+        FirebaseInstallations=${NEEDS_CHECK_OUTPUTS_INSTALLATIONS_RUN_JOB} \
+        FirebaseMessaging=${NEEDS_CHECK_OUTPUTS_MESSAGING_RUN_JOB} \
+        FirebasePerformance=${NEEDS_CHECK_OUTPUTS_PERFORMANCE_RUN_JOB} \
+        FirebaseRemoteConfig=${NEEDS_CHECK_OUTPUTS_REMOTECONFIG_RUN_JOB} \
+        FirebaseStorage=${NEEDS_CHECK_OUTPUTS_STORAGE_RUN_JOB} \
         ./scripts/health_metrics/create_binary_size_report.sh
       env:
         PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
         BASE_COMMIT: ${{ needs.check.outputs.target_branch_head }}
         POSTSUBMIT: ${{ github.event.pull_request.merged }}
         SOURCE_BRANCH: ${{ github.base_ref }}
+        NEEDS_CHECK_OUTPUTS_ABTESTING_RUN_JOB: ${{ needs.check.outputs.abtesting_run_job }}
+        NEEDS_CHECK_OUTPUTS_ANALYTICS_RUN_JOB: ${{ needs.check.outputs.analytics_run_job }}
+        NEEDS_CHECK_OUTPUTS_APPCHECK_RUN_JOB: ${{ needs.check.outputs.appcheck_run_job }}
+        NEEDS_CHECK_OUTPUTS_APPDISTRIBUTION_RUN_JOB: ${{ needs.check.outputs.appdistribution_run_job }}
+        NEEDS_CHECK_OUTPUTS_AUTH_RUN_JOB: ${{ needs.check.outputs.auth_run_job }}
+        NEEDS_CHECK_OUTPUTS_CRASHLYTICS_RUN_JOB: ${{ needs.check.outputs.crashlytics_run_job }}
+        NEEDS_CHECK_OUTPUTS_DATABASE_RUN_JOB: ${{ needs.check.outputs.database_run_job }}
+        NEEDS_CHECK_OUTPUTS_DYNAMICLINKS_RUN_JOB: ${{ needs.check.outputs.dynamiclinks_run_job }}
+        NEEDS_CHECK_OUTPUTS_FIRESTORE_RUN_JOB: ${{ needs.check.outputs.firestore_run_job }}
+        NEEDS_CHECK_OUTPUTS_FUNCTIONS_RUN_JOB: ${{ needs.check.outputs.functions_run_job}}
+        NEEDS_CHECK_OUTPUTS_INAPPMESSAGING_RUN_JOB: ${{ needs.check.outputs.inappmessaging_run_job }}
+        NEEDS_CHECK_OUTPUTS_INSTALLATIONS_RUN_JOB: ${{ needs.check.outputs.installations_run_job }}
+        NEEDS_CHECK_OUTPUTS_MESSAGING_RUN_JOB: ${{ needs.check.outputs.messaging_run_job}}
+        NEEDS_CHECK_OUTPUTS_PERFORMANCE_RUN_JOB: ${{ needs.check.outputs.performance_run_job }}
+        NEEDS_CHECK_OUTPUTS_REMOTECONFIG_RUN_JOB: ${{ needs.check.outputs.remoteconfig_run_job }}
+        NEEDS_CHECK_OUTPUTS_STORAGE_RUN_JOB: ${{ needs.check.outputs.storage_run_job }}
 
   pod-lib-lint-abtesting:
     needs: check
@@ -375,7 +391,7 @@ jobs:
 
           # Activate the service account for Metrics Service.
           scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
-          metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
+          metrics-access.json "${METRICS_SERVICE_SECRET}"
           gcloud auth activate-service-account --key-file metrics-access.json
       - uses: actions/download-artifact@v2
         id: download
@@ -385,9 +401,10 @@ jobs:
         if: github.event.pull_request.merged != true && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.base.ref == 'master'
         env:
           base_commit: ${{ needs.check.outputs.target_branch_head }}
+          STEPS_DOWNLOAD_OUTPUTS_DOWNLOAD_PATH: ${{steps.download.outputs.download-path}}
         run: |
           # Get Head commit of the branch, instead of a merge commit created by actions/checkout.
-          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+          if [ -d "${STEPS_DOWNLOAD_OUTPUTS_DOWNLOAD_PATH}" ]; then
             cd scripts/health_metrics/generate_code_coverage_report
             swift run CoverageReportGenerator --presubmit "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --pull-request-num ${{github.event.pull_request.number}} --base-commit "$base_commit"
           fi
@@ -420,7 +437,9 @@ jobs:
       - name: Update New Coverage Data
         if: github.event.pull_request.merged && github.event.pull_request.head.repo.full_name == github.repository
         run: |
-          if [ -d "${{steps.download.outputs.download-path}}" ]; then
+          if [ -d "${STEPS_DOWNLOAD_OUTPUTS_DOWNLOAD_PATH}" ]; then
             cd scripts/health_metrics/generate_code_coverage_report
-            swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch "${{ github.base_ref }}"
+            swift run CoverageReportGenerator --merge "firebase/firebase-ios-sdk" --head-commit "${GITHUB_SHA}" --token $(gcloud auth print-identity-token) --xcresult-dir "/Users/runner/test/codecoverage" --log-link "https://github.com/firebase/firebase-ios-sdk/actions/runs/${GITHUB_RUN_ID}" --source-branch "${GITHUB_BASE_REF}"
           fi
+        env:
+          STEPS_DOWNLOAD_OUTPUTS_DOWNLOAD_PATH: ${{steps.download.outputs.download-path}}
