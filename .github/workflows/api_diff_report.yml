@@ -53,8 +53,10 @@ jobs:
       - name: Generate API files for PR branch
         run: |
           python ~/api_diff_report/api_info.py \
-            --file_list ${{ steps.get_changed_files.outputs.file_list }} \
+            --file_list ${STEPS_GET_CHANGED_FILES_OUTPUTS_FILE_LIST} \
             --output_dir ${{ env.PR_API_OUTPUT }}
+        env:
+          STEPS_GET_CHANGED_FILES_OUTPUTS_FILE_LIST: ${{ steps.get_changed_files.outputs.file_list }}
 
       - name: Checkout Base branch
         run: git checkout HEAD^
@@ -62,8 +64,10 @@ jobs:
       - name: Generate API files for Base branch
         run: |
           python ~/api_diff_report/api_info.py \
-            --file_list ${{ steps.get_changed_files.outputs.file_list }} \
+            --file_list ${STEPS_GET_CHANGED_FILES_OUTPUTS_FILE_LIST} \
             --output_dir ${{ env.BASE_API_OUTPUT }}
+        env:
+          STEPS_GET_CHANGED_FILES_OUTPUTS_FILE_LIST: ${{ steps.get_changed_files.outputs.file_list }}
 
       - name: Generate API Diff Report
         run: |
