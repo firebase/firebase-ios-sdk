@@ -34,11 +34,16 @@ runs:
       cd "${{ github.action_path }}"
       bundle install
       if ${{ inputs.search-local-pod-version == 'true' }} ; then
-        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version --notices_path ${{ inputs.notices-path }}
+        ruby app.rb --pods ${INPUTS_PODS} --sources ${INPUTS_SOURCES} --min_ios_version ${INPUTS_MIN_IOS_VERSION} --search_local_pod_version --notices_path ${INPUTS_NOTICES_PATH}
       else
-        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --notices_path ${{ inputs.notices-path }}
+        ruby app.rb --pods ${INPUTS_PODS} --sources ${INPUTS_SOURCES} --min_ios_version ${INPUTS_MIN_IOS_VERSION} --notices_path ${INPUTS_NOTICES_PATH}
       fi
     shell: bash
+    env:
+      INPUTS_PODS: ${{ inputs.pods }}
+      INPUTS_SOURCES: ${{ inputs.sources }}
+      INPUTS_MIN_IOS_VERSION: ${{ inputs.min-ios-version }}
+      INPUTS_NOTICES_PATH: ${{ inputs.notices-path }}
   - name: Upload artifacts
     uses: actions/upload-artifact@v3
     with:
