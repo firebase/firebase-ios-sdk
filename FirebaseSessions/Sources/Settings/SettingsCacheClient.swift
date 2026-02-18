@@ -100,25 +100,20 @@ final class SettingsCache: SettingsCacheClient {
     self.namespace = namespace
 
     // Load the cache contents directly (no flattening).
-    if let storedContents = diskCache
-      .object(forKey: UserDefaultsKeys.forContent) as? [String: Any] {
-      memoryCache = UnfairLock(storedContents)
-    } else {
-      memoryCache = UnfairLock([:])
-    }
+    let storedContents = diskCache
+      .object(forKey: UserDefaultsKeys.forContent) as? [String: Any] ?? [:]
+    memoryCache = UnfairLock(storedContents)
 
     // Load the cache key.
+    var storedMetadata: CacheKey?
     if let data = diskCache.object(forKey: UserDefaultsKeys.forCacheKey) as? Data {
       do {
-        let metadata = try JSONDecoder().decode(CacheKey.self, from: data)
-        memoryCacheKey = UnfairLock(metadata)
+        storedMetadata = try JSONDecoder().decode(CacheKey.self, from: data)
       } catch {
         Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
-        memoryCacheKey = UnfairLock(nil)
       }
-    } else {
-      memoryCacheKey = UnfairLock(nil)
     }
+    memoryCacheKey = UnfairLock(storedMetadata)
   }
 
   func rootValue<T>(forKey key: String) -> T? {
