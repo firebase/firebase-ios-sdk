@@ -119,4 +119,85 @@ class SettingsCacheMigrationTests: XCTestCase {
     // Verify "other_namespace" is GONE (Overwrite behavior confirmed)
     XCTAssertNil(storedRoot["other_namespace"])
   }
+
+  func test_ReadFromLegacyData_MissingNamespace_ReturnsNil() {
+    // 1. Setup Legacy Data without the namespace
+    let legacyServerResponse: [String: Any] = [
+      "cache_duration": 60,
+      "other_namespace": [
+        "some_key": "some_value",
+      ],
+    ]
+    userDefaults.setObject(legacyServerResponse, forKey: contentKey)
+
+    // 2. Initialize Cache
+    let cache = SettingsCache(namespace: namespace)
+
+    // 3. Verify
+    let cacheDuration: Double? = cache.rootValue(forKey: "cache_duration")
+    XCTAssertEqual(cacheDuration, 60)
+    let sessionsEnabled: Bool? = cache.namespacedValue(forKey: "sessions_enabled")
+    XCTAssertNil(sessionsEnabled)
+  }
+
+  func test_ReadFromLegacyData_TypeMismatch_ReturnsNil() {
+    // 1. Setup Legacy Data with mismatched types
+    let legacyServerResponse: [String: Any] = [
+      namespace: [
+        "sessions_enabled": "true", // String instead of Bool
+        "sampling_rate": "0.5", // String instead of Double
+      ],
+    ]
+    userDefaults.setObject(legacyServerResponse, forKey: contentKey)
+
+    // 2. Initialize Cache
+    let cache = SettingsCache(namespace: namespace)
+
+    // 3. Verify
+    let sessionsEnabled: Bool? = cache.namespacedValue(forKey: "sessions_enabled")
+    XCTAssertNil(sessionsEnabled)
+    let samplingRate: Double? = cache.namespacedValue(forKey: "sampling_rate")
+    XCTAssertNil(samplingRate)
+  }
+
+  func test_ReadFromLegacyData_CorruptedRoot_ReturnsEmpty() {
+    // 1. Setup Corrupted Data (String instead of Dict)
+    userDefaults.setObject("Not A Dictionary", forKey: contentKey)
+
+    // 2. Initialize Cache
+    let cache = SettingsCache(namespace: namespace)
+
+    // 3. Verify it starts empty
+    XCTAssertNil(cache.rootValue(forKey: "cache_duration"))
+    XCTAssertNil(cache.namespacedValue(forKey: "sessions_enabled"))
+  }
+
+  func test_MetadataMigration_HonorsLegacyCacheKey() {
+    // 1. Setup Legacy Data & Metadata
+    let appInfo = MockApplicationInfo()
+    let creationTime = Date()
+
+    let legacyResponse: [String: Any] = [
+      "cache_duration": 86400, // 24 hours
+      "app_quality": ["sessions_enabled": true],
+    ]
+    let downloader = MockSettingsDownloader(successResponse: legacyResponse)
+    let legacySettings = LegacyRemoteSettings(appInfo: appInfo, downloader: downloader)
+
+    // Write legacy settings at 'creationTime'
+    legacySettings.updateSettings(currentTime: creationTime)
+
+    // 2. Initialize New Cache
+    let cache = SettingsCache(namespace: namespace)
+
+    // 3. Verify Not Expired (Time < Duration)
+    // Advance time by 1 hour (much less than 24h)
+    let futureTime = creationTime.addingTimeInterval(3600)
+    XCTAssertFalse(cache.isExpired(for: appInfo, time: futureTime))
+
+    // 4. Verify Expired (Time > Duration)
+    // Advance time by 25 hours
+    let wayFutureTime = creationTime.addingTimeInterval(86400 + 1)
+    XCTAssertTrue(cache.isExpired(for: appInfo, time: wayFutureTime))
+  }
 }
