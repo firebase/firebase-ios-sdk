@@ -55,8 +55,22 @@ protocol SettingsCacheClient: Sendable {
 }
 
 /// SettingsCache uses an in-memory cache for fast synchronous access to settings during runtime.
-/// `GULUserDefaults` is used for persisting these settings to disk, providing the underlying
-/// asynchronous persistence while the in-memory cache handles immediate reads.
+/// `GULUserDefaults` is used for persisting these settings to disk, enabling the in-memory cache
+/// to provide immediate reads.
+///
+/// The cache content is expected to be a dictionary. Root-level keys like `cache_duration` are
+/// read directly, while other settings are namespaced. For example:
+///
+/// ```json
+/// {
+///   "cache_duration": 3600, // seconds
+///   "app_quality": {
+///     "sessions_enabled": true,
+///     "sampling_rate": 0.75,
+///     "session_timeout_seconds": 1800
+///   }
+/// }
+/// ```
 final class SettingsCache: SettingsCacheClient {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private static let flagCacheDuration = "cache_duration"
@@ -75,7 +89,7 @@ final class SettingsCache: SettingsCacheClient {
   /// UserDefaults holds values in memory, making access O(1) and synchronous within the app, while
   /// abstracting away async disk IO.
   private let diskCache: GULUserDefaults = .standard()
-  let namespace: String
+  private let namespace: String
 
   private let memoryCache: UnfairLock<[String: Any]>
   private let memoryCacheKey: UnfairLock<CacheKey?>

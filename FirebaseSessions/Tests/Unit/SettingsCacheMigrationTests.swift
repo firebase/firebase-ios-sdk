@@ -52,7 +52,7 @@ class SettingsCacheMigrationTests: XCTestCase {
     let downloader = MockSettingsDownloader(successResponse: legacyServerResponse)
 
     // Use LegacyRemoteSettings to fetch and write to disk
-    // This ensures we are testing against the EXACT disk format used by the old version
+    // This ensures we are testing against the exact disk format used by the old version
     let legacySettings = LegacyRemoteSettings(appInfo: appInfo, downloader: downloader)
     legacySettings.updateSettings(currentTime: Date())
 
