@@ -79,5 +79,7 @@ jobs:
       run: echo "::set-output name=val::$([[ -z $plist_secret ]] && echo "0" || echo "1")"
     - name: PodLibLint InstanceID Cron
       run: |
-        export FIR_IID_INTEGRATION_TESTS_REQUIRED=${{ steps.secrets.outputs.val }}
+        export FIR_IID_INTEGRATION_TESTS_REQUIRED=${STEPS_SECRETS_OUTPUTS_VAL}
         FIR_IID_INTEGRATION_TESTS_REQUIRED="$plist_secret" scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInstanceID.podspec --platforms=${{ matrix.target }} ${{ matrix.flags }}
+      env:
+        STEPS_SECRETS_OUTPUTS_VAL: ${{ steps.secrets.outputs.val }}
