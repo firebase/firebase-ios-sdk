@@ -21,22 +21,22 @@
   names: named(init(_:)),
   named(firebaseGeneratedContent)
 )
-@attached(member, names: arbitrary) public macro FirebaseGenerable(description: String? = nil) =
+@attached(member, names: arbitrary) public macro Generable(description: String? = nil) =
   #externalMacro(
     module: "FirebaseAILogicMacros",
     type: "FirebaseGenerableMacro"
   )
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-@attached(peer) public macro FirebaseGuide<T>(description: String? = nil,
-                                              _ guides: FirebaseGenerationGuide<T>...) =
+@attached(peer) public macro Guide<T>(description: String? = nil,
+                                      _ guides: FirebaseGenerationGuide<T>...) =
   #externalMacro(
     module: "FirebaseAILogicMacros",
     type: "FirebaseGuideMacro"
   ) where T: FirebaseGenerable
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-@attached(peer) public macro FirebaseGuide(description: String) =
+@attached(peer) public macro Guide(description: String) =
   #externalMacro(
     module: "FirebaseAILogicMacros",
     type: "FirebaseGuideMacro"

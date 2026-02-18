@@ -32,9 +32,9 @@ struct SchemaTests {
   ]
   let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
 
-  @FirebaseGenerable
+  @Generable
   struct CityList {
-    @FirebaseGuide(description: "A list of city names", .count(3 ... 5))
+    @Guide(description: "A list of city names", .count(3 ... 5))
     let cities: [String]
   }
 
@@ -103,9 +103,9 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct TestNumber {
-    @FirebaseGuide(description: "A number", .minimum(110), .maximum(120))
+    @Guide(description: "A number", .minimum(110), .maximum(120))
     let value: Int
   }
 
@@ -160,15 +160,15 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct ProductInfo {
-    @FirebaseGuide(description: "The name of the product")
+    @Guide(description: "The name of the product")
     let productName: String
-    @FirebaseGuide(description: "A rating", .range(1 ... 5))
+    @Guide(description: "A rating", .range(1 ... 5))
     let rating: Int
-    @FirebaseGuide(description: "A price", .minimum(10.00), .maximum(120.00))
+    @Guide(description: "A price", .minimum(10.00), .maximum(120.00))
     let price: Double
-    @FirebaseGuide(description: "A sale price", .minimum(5.00), .maximum(90.00))
+    @Guide(description: "A sale price", .minimum(5.00), .maximum(90.00))
     let salePrice: Float
   }
 
@@ -249,26 +249,26 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct MailingAddress {
     enum PostalInfo {
-      @FirebaseGenerable
+      @Generable
       struct Canada {
-        @FirebaseGuide(description: """
+        @Guide(description: """
         The 2-letter province or territory code, for example, 'ON', 'QC', or 'NU'.
         """)
         let province: String
-        @FirebaseGuide(description: "The postal code, for example, 'A1A 1A1'.")
+        @Guide(description: "The postal code, for example, 'A1A 1A1'.")
         let postalCode: String
       }
 
-      @FirebaseGenerable
+      @Generable
       struct UnitedStates {
-        @FirebaseGuide(description: """
+        @Guide(description: """
         The 2-letter U.S. state or territory code, for example, 'CA', 'NY', or 'TX'.
         """)
         let state: String
-        @FirebaseGuide(description: "The 5-digit ZIP code, for example, '12345'.")
+        @Guide(description: "The 5-digit ZIP code, for example, '12345'.")
         let zipCode: String
       }
 
@@ -276,9 +276,9 @@ struct SchemaTests {
       case unitedStates(state: String, zipCode: String)
     }
 
-    @FirebaseGuide(description: "The civic number and street name, for example, '123 Main Street'.")
+    @Guide(description: "The civic number and street name, for example, '123 Main Street'.")
     let streetAddress: String
-    @FirebaseGuide(description: "The name of the city.")
+    @Guide(description: "The name of the city.")
     let city: String
     let postalInfo: PostalInfo
   }
@@ -400,9 +400,9 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct FeatureToggle {
-    @FirebaseGuide(description: "Whether the experimental feature should be active")
+    @Guide(description: "Whether the experimental feature should be active")
     let isEnabled: Bool
   }
 
@@ -450,10 +450,10 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct UserProfile {
     let username: String
-    @FirebaseGuide(description: "The user's optional middle name")
+    @Guide(description: "The user's optional middle name")
     let middleName: String?
   }
 
@@ -505,12 +505,12 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct Pet {
     let name: String
     let species: Species
 
-    @FirebaseGenerable(description: "Animal species types")
+    @Generable(description: "Animal species types")
     enum Species {
       case cat, dog
     }
@@ -568,14 +568,14 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct Task {
     let title: String
 
-    @FirebaseGuide(description: "The priority level")
+    @Guide(description: "The priority level")
     let priority: Priority
 
-    @FirebaseGenerable
+    @Generable
     enum Priority: String {
       case low
       case medium = "med"
@@ -634,9 +634,9 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct GradeBook {
-    @FirebaseGuide(description: "A list of exam scores", .element(.range(0 ... 100)))
+    @Guide(description: "A list of exam scores", .element(.range(0 ... 100)))
     let scores: [Int]
   }
 
@@ -694,17 +694,17 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct Catalog {
     let name: String
     let categories: [Category]
 
-    @FirebaseGenerable
+    @Generable
     struct Category {
       let title: String
       let items: [Item]
 
-      @FirebaseGenerable
+      @Generable
       struct Item {
         let name: String
         let price: Double
@@ -783,9 +783,9 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct Statement {
-    @FirebaseGuide(description: "The total balance", .minimum(0.0))
+    @Guide(description: "The total balance", .minimum(0.0))
     let balance: Decimal
   }
 
@@ -833,9 +833,9 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct Metadata {
-    @FirebaseGuide(description: "Optional tags, up to 3", .count(0 ... 3))
+    @Guide(description: "Optional tags, up to 3", .count(0 ... 3))
     let tags: [String]
   }
 
@@ -888,9 +888,9 @@ struct SchemaTests {
     }
   #endif // compiler(>=6.2)
 
-  @FirebaseGenerable
+  @Generable
   struct ConstrainedValue {
-    @FirebaseGuide(description: "A value between 10 and 20", .minimum(10), .maximum(20))
+    @Guide(description: "A value between 10 and 20", .minimum(10), .maximum(20))
     let value: Int
   }
 

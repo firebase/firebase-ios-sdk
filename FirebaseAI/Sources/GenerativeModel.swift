@@ -538,7 +538,7 @@ public final class GenerativeModel: Sendable {
               )
               try await context.yield(
                 GenerativeModel.ResponseStream<Content>.Snapshot(
-                  content: Content.Partial(firebaseGeneratedContent),
+                  content: Content.PartiallyGenerated(firebaseGeneratedContent),
                   rawContent: firebaseGeneratedContent,
                   rawResponse: response
                 )

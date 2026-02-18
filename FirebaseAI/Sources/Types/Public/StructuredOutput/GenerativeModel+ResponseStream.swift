@@ -17,7 +17,7 @@
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModel {
     struct ResponseStream<Content>: AsyncSequence, Sendable
-      where Content: FirebaseGenerable & Sendable, Content.Partial: Sendable {
+      where Content: FirebaseGenerable & Sendable, Content.PartiallyGenerated: Sendable {
       public typealias Element = Snapshot
       public typealias AsyncIterator = AsyncThrowingStream<Snapshot, Error>.Iterator
 
@@ -25,7 +25,7 @@
       private let _context: StreamContext
 
       public struct Snapshot: Sendable {
-        public let content: Content.Partial
+        public let content: Content.PartiallyGenerated
         public let rawContent: FirebaseGeneratedContent
         public let rawResponse: GenerateContentResponse
       }
