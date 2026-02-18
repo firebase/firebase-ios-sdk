@@ -158,7 +158,6 @@ final class SettingsCache: SettingsCacheClient {
     }
   }
 
-  /// Removes stored cache
   func removeCache() {
     memoryCache.withLock { $0 = [:] }
     memoryCacheKey.withLock { $0 = nil }
