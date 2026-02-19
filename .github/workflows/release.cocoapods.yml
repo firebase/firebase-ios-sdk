@@ -143,19 +143,16 @@ jobs:
       env:
         ALLOW_WARNINGS: ${{ matrix.allowwarnings }}
       run: |
-        [[ "$ALLOW_WARNINGS" == "true" ]] && ALLOWWARNINGS=true
         cd scripts/create_spec_repo/
         swift build
         pod repo add --silent "${local_repo}" https://"$botaccess"@github.com/Firebase/SpecsReleasing.git
-        # ${ALLOWWARNINGS:+--allow-warnings} will add --allow-warnings to the
-        # command if ${ALLOWWARNINGS} is not null.
         export BOT_TOKEN="${botaccess}"
         "${GITHUB_WORKSPACE}/scripts/third_party/travis/retry.sh" .build/debug/spec-repo-builder \
                                 --sdk-repo "${local_sdk_repo_dir}" \
                                 --local-spec-repo-name "${local_repo}" \
                                 --pod-sources "https://${BOT_TOKEN}@github.com/Firebase/SpecsReleasing" "https://github.com/firebase/SpecsStaging.git" "https://github.com/CocoaPods/Specs.git" \
                                 --include-pods "${targeted_pod}" \
-                                --keep-repo "${ALLOWWARNINGS:+--allow-warnings}"
+                                --keep-repo ${ALLOW_WARNINGS:+--allow-warnings}
     - name: Clean Artifacts
       if: ${{ always() }}
       run: pod repo remove "${local_repo}"
