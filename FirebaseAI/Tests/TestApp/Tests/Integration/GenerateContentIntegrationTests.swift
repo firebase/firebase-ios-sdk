@@ -110,6 +110,74 @@ struct GenerateContentIntegrationTests {
         usageMetadata.thoughtsTokenCount))
   }
 
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(arguments: [
+      (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
+      (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2FlashLite),
+      (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini2FlashLite),
+      (InstanceConfig.googleAI_v1beta, ModelNames.gemini2FlashLite),
+      (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2FlashLite),
+      (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
+      (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3FlashPreview),
+      (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
+      (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma3_4B),
+      // Note: The following configs are commented out for easy one-off manual testing.
+      // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2FlashLite),
+      // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2FlashLite),
+      // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma3_4B),
+      // (InstanceConfig.vertexAI_v1beta_staging, ModelNames.gemini2FlashLite),
+      // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2FlashLite),
+      // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemma3_4B),
+    ])
+    func respondWithString(_ config: InstanceConfig, modelName: String) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: modelName,
+        generationConfig: generationConfig,
+        safetySettings: safetySettings,
+      )
+      let prompt = "Where is Google headquarters located? Answer with the city name only."
+
+      let response = try await model.respond(to: prompt)
+
+      let text = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+      #expect(text == "Mountain View")
+
+      let usageMetadata = try #require(response.rawResponse.usageMetadata)
+      #expect(usageMetadata.promptTokenCount.isEqual(to: 13, accuracy: tokenCountAccuracy))
+      #expect(usageMetadata.promptTokensDetails.count == 1)
+      let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
+      #expect(promptTokensDetails.modality == .text)
+      #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
+      if modelName.hasPrefix("gemini-3") {
+        // For gemini-3 models, the thoughtsTokenCount can vary slightly between runs.
+        #expect(usageMetadata.thoughtsTokenCount >= 64)
+      } else {
+        #expect(usageMetadata.thoughtsTokenCount == 0)
+      }
+      // The fields `candidatesTokenCount` and `candidatesTokensDetails` are not included when using
+      // Gemma models.
+      if modelName.hasPrefix("gemini-3") {
+        #expect(usageMetadata.candidatesTokenCount == 2)
+        #expect(usageMetadata.candidatesTokensDetails.isEmpty)
+      } else if modelName.hasPrefix("gemma") {
+        #expect(usageMetadata.candidatesTokenCount == 0)
+        #expect(usageMetadata.candidatesTokensDetails.isEmpty)
+      } else {
+        #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
+        #expect(usageMetadata.candidatesTokensDetails.count == 1)
+        let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+        #expect(candidatesTokensDetails.modality == .text)
+        #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+      }
+      #expect(usageMetadata.cachedContentTokenCount == 0)
+      #expect(usageMetadata.cacheTokensDetails.isEmpty)
+      #expect(usageMetadata.totalTokenCount == (usageMetadata.promptTokenCount +
+          usageMetadata.candidatesTokenCount +
+          usageMetadata.thoughtsTokenCount))
+    }
+  #endif // compiler(>=6.2)
+
   @Test(
     "Generate an enum and provide a system instruction",
     arguments: InstanceConfig.allConfigs
@@ -153,6 +221,47 @@ struct GenerateContentIntegrationTests {
     #expect(promptTokensDetails.modality == .text)
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
   }
+
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    @Test(
+      "Generate an enum and provide a system instruction",
+      arguments: InstanceConfig.allConfigs
+    )
+    func respondWithEnum(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2FlashLite,
+        safetySettings: safetySettings,
+        tools: [],
+        toolConfig: .init(functionCallingConfig: .none()),
+        systemInstruction: ModelContent(role: "system", parts: "Always pick blue.")
+      )
+      let prompt = "What is your favourite colour?"
+
+      let response = try await model.respond(to: prompt, options: GenerationConfig(
+        responseMIMEType: "text/x.enum",
+        responseSchema: .enumeration(values: ["Red", "Green", "Blue"])
+      ))
+
+      let text = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+      #expect(text == "Blue")
+
+      let usageMetadata = try #require(response.rawResponse.usageMetadata)
+      #expect(usageMetadata.promptTokenCount.isEqual(to: 15, accuracy: tokenCountAccuracy))
+      #expect(usageMetadata.candidatesTokenCount.isEqual(to: 1, accuracy: tokenCountAccuracy))
+      #expect(usageMetadata.thoughtsTokenCount == 0)
+      #expect(usageMetadata.totalTokenCount
+        == usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount)
+      #expect(usageMetadata.promptTokensDetails.count == 1)
+      let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
+      #expect(promptTokensDetails.modality == .text)
+      #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
+      #expect(usageMetadata.candidatesTokensDetails.count == 1)
+      let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+      #expect(candidatesTokensDetails.modality == .text)
+      #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+    }
+  #endif // compiler(>=6.2)
 
   @Test(
     arguments: [
