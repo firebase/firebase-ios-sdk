@@ -5,3 +5,7 @@ These protocols define contracts for data models and services, ensuring a consis
 
 When adding new features, refer to the existing protocols to maintain consistency.
 If a new protocol is needed, define it here.
+
+## Directories
+
+- **[`Internal/`](Internal/AGENTS.md)**: This directory contains internal protocols not meant for public consumption.

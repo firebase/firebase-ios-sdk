@@ -5,8 +5,8 @@ These types are not part of the public API and should not be used directly by de
 They are subject to change without notice.
 
 This directory is further organized into subdirectories based on the feature they are related to, for example:
-- `Errors`: Internal error types.
-- `Imagen`: Internal types related to Imagen models.
-- `Live`: Internal types related to real-time features.
-- `Requests`: Internal types for API requests.
-- `Tools`: Internal types for function calling.
+- **[`Errors/`](Errors/AGENTS.md)**: Internal error types.
+- **[`Imagen/`](Imagen/AGENTS.md)**: Internal types related to Imagen models.
+- **[`Live/`](Live/AGENTS.md)**: Internal types related to real-time features.
+- **[`Requests/`](Requests/AGENTS.md)**: Internal types for API requests.
+- **[`Tools/`](Tools/AGENTS.md)**: Internal types for function calling.

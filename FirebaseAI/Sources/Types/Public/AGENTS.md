@@ -4,9 +4,9 @@ This directory contains public data types that are part of the FirebaseAI librar
 These types are safe for developers to use and are documented in the official Firebase documentation.
 
 The types are organized into subdirectories based on the feature they are related to, for example:
-- `Imagen`: Public types related to Imagen models.
-- `Live`: Public types related to real-time features.
-- `Tools`: Public types for function calling.
+- **[`Imagen/`](Imagen/AGENTS.md)**: Public types related to Imagen models.
+- **[`Live/`](Live/AGENTS.md)**: Public types related to real-time features.
+- **[`Tools/`](Tools/AGENTS.md)**: Public types for function calling.
 
 When adding a new public type, it should be placed in the appropriate subdirectory.
 Any changes to these types must be done carefully to avoid breaking changes for users.

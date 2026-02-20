@@ -4,9 +4,9 @@ This directory contains the source code for the FirebaseAI library.
 
 ## Directories
 
-- **`Protocols/`**: This directory contains Swift protocols used throughout the FirebaseAI library. These protocols define contracts for data models and services, ensuring a consistent and predictable structure.
+- **[`Protocols/`](Protocols/AGENTS.md)**: This directory contains Swift protocols used throughout the FirebaseAI library. These protocols define contracts for data models and services, ensuring a consistent and predictable structure.
 
-- **`Types/`**: This directory contains data types used in the FirebaseAI library. These types are organized into `Internal` and `Public` subdirectories.
+- **[`Types/`](Types/AGENTS.md)**: This directory contains data types used in the FirebaseAI library. These types are organized into `Internal` and `Public` subdirectories.
 
 ## Files
 
