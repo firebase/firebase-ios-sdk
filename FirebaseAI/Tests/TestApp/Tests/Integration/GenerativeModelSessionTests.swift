@@ -150,7 +150,7 @@
         modelName: ModelNames.gemini2_5_FlashLite,
       )
       let session = GenerativeModelSession(model: model)
-      let prompt = "Generate a recipe for a vegetarian pasta dish."
+      let prompt = "Generate a recipe for a pasta dish with meat."
 
       let response = try await session.respond(to: prompt, generating: Recipe.self)
 
@@ -158,7 +158,7 @@
       #expect(!recipe.name.isEmpty)
       #expect(recipe.preparationTime >= 5)
       #expect(recipe.preparationTime <= 120)
-      #expect(recipe.isVegetarian == true)
+      #expect(!recipe.isVegetarian)
       #expect(recipe.rating >= 1.0)
       #expect(recipe.rating <= 5.0)
       #expect(!recipe.ingredients.isEmpty)
@@ -185,6 +185,7 @@
         #expect(recipe.preparationTime >= 5)
         #expect(recipe.preparationTime <= 120)
         #expect(!recipe.ingredients.isEmpty)
+        #expect(recipe.isVegetarian)
       }
     }
   }
