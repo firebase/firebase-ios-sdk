@@ -43,18 +43,18 @@ public struct GenerationConfig: Sendable {
   let stopSequences: [String]?
 
   /// Output response MIME type of the generated candidate text.
-  let responseMIMEType: String?
+  var responseMIMEType: String?
 
   /// Output schema of the generated candidate text.
-  let responseSchema: Schema?
+  var responseSchema: Schema?
 
   /// Output schema of the generated response in [JSON Schema](https://json-schema.org/) format.
   ///
   /// If set, `responseSchema` must be omitted and `responseMIMEType` is required.
-  let responseJSONSchema: JSONObject?
+  var responseJSONSchema: JSONObject?
 
   /// Supported modalities of the response.
-  let responseModalities: [ResponseModality]?
+  var responseModalities: [ResponseModality]?
 
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
   let thinkingConfig: ThinkingConfig?
