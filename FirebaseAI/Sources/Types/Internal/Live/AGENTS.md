@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Internal Live Types
 
 This directory contains internal data types for real-time and streaming features of the FirebaseAI library.
 The types here are used for bidirectional communication with the backend, for example, in streaming chat sessions or real-time transcription.

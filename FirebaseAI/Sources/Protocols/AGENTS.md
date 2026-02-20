@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Protocols
 
 This directory contains Swift protocols used throughout the FirebaseAI library.
 These protocols define contracts for data models and services, ensuring a consistent and predictable structure.

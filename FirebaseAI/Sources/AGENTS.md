@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Source Overview
 
 This directory contains the source code for the FirebaseAI library.
 

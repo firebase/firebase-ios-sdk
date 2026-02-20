@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Internal Tool-related Types
 
 This directory contains internal data types related to tools and function calling.
 These types are used to provide context to tools that can be executed by the model.

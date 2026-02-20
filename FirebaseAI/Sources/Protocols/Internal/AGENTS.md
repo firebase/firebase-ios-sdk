@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Internal Protocols
 
 This directory contains internal protocols not meant for public consumption.
 These are used for internal workings of the FirebaseAI library.

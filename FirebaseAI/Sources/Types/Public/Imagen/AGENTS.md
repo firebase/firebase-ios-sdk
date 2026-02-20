@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Public Imagen Types
 
 This directory contains public data types for the Imagen image generation feature.
 These types are part of the public API and are used by developers to interact with the Imagen service.

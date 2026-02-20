@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Internal Error Types
 
 This directory contains internal error types used within the FirebaseAI library.
 These errors are not part of the public API and are used to handle specific error conditions within the SDK.

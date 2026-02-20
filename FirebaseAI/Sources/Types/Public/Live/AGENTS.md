@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Public Live Types
 
 This directory contains public data types for real-time and streaming features of the FirebaseAI library.
 These types are used by developers to interact with live, streaming services, such as real-time chat sessions or audio transcription.

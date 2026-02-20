@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Internal Imagen Types
 
 This directory contains internal data types related to the Imagen feature.
 These types are used for constructing requests and parsing responses from the Imagen image generation service.

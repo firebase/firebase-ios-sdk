@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Internal Request Types
 
 This directory contains internal data types for API requests.
 These types encapsulate the data that needs to be sent to the backend for various operations.

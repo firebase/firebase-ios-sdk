@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Internal Types
 
 This directory contains internal data types used for the implementation of the FirebaseAI library.
 These types are not part of the public API and should not be used directly by developers.

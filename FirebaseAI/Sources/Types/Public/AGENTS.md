@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Public Types
 
 This directory contains public data types that are part of the FirebaseAI library's public API.
 These types are safe for developers to use and are documented in the official Firebase documentation.

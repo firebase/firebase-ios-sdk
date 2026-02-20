@@ -1,4 +1,4 @@
-# Gemini Code Assistant
+# FirebaseAI Types
 
 This directory contains data types used in the FirebaseAI library.
 These types are organized into `Internal` and `Public` subdirectories.
