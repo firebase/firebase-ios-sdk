@@ -35,6 +35,7 @@ struct SchemaTests {
     SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
   ]
+  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
 
   @Test(
     arguments: testConfigs(
@@ -72,6 +73,31 @@ struct SchemaTests {
     #expect(decodedJSON.count <= 5, "Expected at most 5 cities, but got \(decodedJSON.count)")
   }
 
+  struct CityList: Decodable, SchemaConstraintsProvider {
+    let cities: [String]
+
+    static var schemaConstraints: [AnyHashable: SchemaConstraint] {
+      [CodingKeys.cities: .array(minItems: 3, maxItems: 5, description: "A list of city names")]
+    }
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateObjectItemsSchema(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "What are the biggest cities in Canada?"
+
+    let response = try await model.generateObject(CityList.self, prompt: prompt)
+    let cityList = try #require(try response.getObject())
+
+    let cities = cityList.cities
+    #expect(cities.count >= 3, "Expected at least 3 cities, but got \(cities.count)")
+    #expect(cities.count <= 5, "Expected at most 5 cities, but got \(cities.count)")
+  }
+
   @Test(arguments: testConfigs(
     instanceConfigs: InstanceConfig.allConfigs,
     openAPISchema: .integer(
@@ -100,6 +126,22 @@ struct SchemaTests {
     let decodedNumber = try JSONDecoder().decode(Double.self, from: jsonData)
     #expect(decodedNumber >= 110.0, "Expected a number >= 110, but got \(decodedNumber)")
     #expect(decodedNumber <= 120.0, "Expected a number <= 120, but got \(decodedNumber)")
+  }
+
+  struct ProductInfo: Decodable, SchemaConstraintsProvider {
+    let productName: String
+    let rating: Int
+    let price: Double
+    let salePrice: Float
+
+    static var schemaConstraints: [AnyHashable: SchemaConstraint] {
+      [
+        CodingKeys.productName: .string(description: "The name of the product"),
+        CodingKeys.rating: .integer(1 ... 5, description: "A rating"),
+        CodingKeys.price: .number(min: 10.00, max: 120.00, description: "A price"),
+        CodingKeys.salePrice: .number(min: 5.00, max: 90.00, description: "A sale price"),
+      ]
+    }
   }
 
   @Test(arguments: testConfigs(
@@ -169,13 +211,6 @@ struct SchemaTests {
   ))
   func generateContentSchemaNumberRangeMultiType(_ config: InstanceConfig,
                                                  _ schema: SchemaType) async throws {
-    struct ProductInfo: Codable {
-      let productName: String
-      let rating: Int
-      let price: Double
-      let salePrice: Float
-    }
-
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini2_5_FlashLite,
       generationConfig: SchemaTests.generationConfig(schema: schema),
@@ -189,6 +224,29 @@ struct SchemaTests {
     let price = decodedProduct.price
     let salePrice = decodedProduct.salePrice
     let rating = decodedProduct.rating
+    #expect(price >= 10.0, "Expected a price >= 10.00, but got \(price)")
+    #expect(price <= 120.0, "Expected a price <= 120.00, but got \(price)")
+    #expect(salePrice >= 5.0, "Expected a salePrice >= 5.00, but got \(salePrice)")
+    #expect(salePrice <= 90.0, "Expected a salePrice <= 90.00, but got \(salePrice)")
+    #expect(rating >= 1, "Expected a rating >= 1, but got \(rating)")
+    #expect(rating <= 5, "Expected a rating <= 5, but got \(rating)")
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateObjectSchemaNumberRangeMultiType(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Describe a premium wireless headphone, including a user rating and price."
+
+    let response = try await model.generateObject(ProductInfo.self, prompt: prompt)
+    let productInfo = try #require(try response.getObject())
+
+    let price = productInfo.price
+    let salePrice = productInfo.salePrice
+    let rating = productInfo.rating
     #expect(price >= 10.0, "Expected a price >= 10.00, but got \(price)")
     #expect(price <= 120.0, "Expected a price <= 120.00, but got \(price)")
     #expect(salePrice >= 5.0, "Expected a salePrice >= 5.00, but got \(salePrice)")
@@ -352,6 +410,44 @@ struct SchemaTests {
     } else {
       Issue.record("Expected Canadian Queen's University address, got \(queensAddress).")
     }
+  }
+
+  struct Catalog: Decodable {
+    let name: String
+    let categories: [Category]
+
+    struct Category: Decodable {
+      let title: String
+      let items: [Item]
+
+      struct Item: Decodable {
+        let name: String
+        let price: Double
+      }
+    }
+  }
+
+  @Test(arguments: InstanceConfig.allConfigs)
+  func generateObjectSchemaNestedTypes(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_FlashLite,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = """
+    Create a catalog named 'Tech' with a category 'Computers' containing an item 'Laptop' for \
+    $999.99.
+    """
+
+    let response = try await model.generateObject(Catalog.self, prompt: prompt)
+    let catalog = try #require(try response.getObject())
+
+    #expect(catalog.name == "Tech")
+    #expect(catalog.categories.count == 1)
+    #expect(catalog.categories[0].title == "Computers")
+    #expect(catalog.categories[0].items.count == 1)
+    #expect(catalog.categories[0].items[0].name == "Laptop")
+    #expect(catalog.categories[0].items[0].price == 999.99)
   }
 
   enum SchemaType: CustomTestStringConvertible {
