@@ -144,44 +144,7 @@ public final class GenerativeModel: Sendable {
   /// - Throws: A ``GenerateContentError`` if the request failed.
   public func generateContent(_ content: [ModelContent]) async throws
     -> GenerateContentResponse {
-    try content.throwIfError()
-    let response: GenerateContentResponse
-    let generateContentRequest = GenerateContentRequest(
-      model: modelResourceName,
-      contents: content,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
-      tools: tools,
-      toolConfig: toolConfig,
-      systemInstruction: systemInstruction,
-      apiConfig: apiConfig,
-      apiMethod: .generateContent,
-      options: requestOptions
-    )
-    do {
-      response = try await generativeAIService.loadRequest(request: generateContentRequest)
-    } catch {
-      throw GenerativeModel.generateContentError(from: error)
-    }
-
-    // Check the prompt feedback to see if the prompt was blocked.
-    if response.promptFeedback?.blockReason != nil {
-      throw GenerateContentError.promptBlocked(response: response)
-    }
-
-    // Check to see if an error should be thrown for stop reason.
-    if let reason = response.candidates.first?.finishReason, reason != .stop {
-      throw GenerateContentError.responseStoppedEarly(reason: reason, response: response)
-    }
-
-    // If all candidates are empty (contain no information that a developer could act on) then throw
-    if response.candidates.allSatisfy({ $0.isEmpty }) {
-      throw GenerateContentError.internalError(underlying: InvalidCandidateError.emptyContent(
-        underlyingError: Candidate.EmptyContentError()
-      ))
-    }
-
-    return response
+    return try await generateContent(content, generationConfig: generationConfig)
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
@@ -355,6 +318,51 @@ public final class GenerativeModel: Sendable {
     )
 
     return try await generativeAIService.loadRequest(request: countTokensRequest)
+  }
+
+  // MARK: - Internal
+
+  public func generateContent(_ content: [ModelContent],
+                              generationConfig: GenerationConfig?) async throws
+    -> GenerateContentResponse {
+    try content.throwIfError()
+    let response: GenerateContentResponse
+    let generateContentRequest = GenerateContentRequest(
+      model: modelResourceName,
+      contents: content,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      apiConfig: apiConfig,
+      apiMethod: .generateContent,
+      options: requestOptions
+    )
+    do {
+      response = try await generativeAIService.loadRequest(request: generateContentRequest)
+    } catch {
+      throw GenerativeModel.generateContentError(from: error)
+    }
+
+    // Check the prompt feedback to see if the prompt was blocked.
+    if response.promptFeedback?.blockReason != nil {
+      throw GenerateContentError.promptBlocked(response: response)
+    }
+
+    // Check to see if an error should be thrown for stop reason.
+    if let reason = response.candidates.first?.finishReason, reason != .stop {
+      throw GenerateContentError.responseStoppedEarly(reason: reason, response: response)
+    }
+
+    // If all candidates are empty (contain no information that a developer could act on) then throw
+    if response.candidates.allSatisfy({ $0.isEmpty }) {
+      throw GenerateContentError.internalError(underlying: InvalidCandidateError.emptyContent(
+        underlyingError: Candidate.EmptyContentError()
+      ))
+    }
+
+    return response
   }
 
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.
