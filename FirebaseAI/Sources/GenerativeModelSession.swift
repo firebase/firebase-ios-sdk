@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels)
+// TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+#if compiler(>=6.2) && canImport(FoundationModels)
   import Foundation
   import FoundationModels
 
@@ -118,4 +119,4 @@
       case decodingFailure(GenerativeModelSession.GenerationError.Context)
     }
   }
-#endif // canImport(FoundationModels)
+#endif // compiler(>=6.2) && canImport(FoundationModels)
