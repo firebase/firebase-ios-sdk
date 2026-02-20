@@ -13,9 +13,16 @@ env:
   BASE_API_OUTPUT: ci_outputs/base_branch_api
   DIFF_REPORT_OUTPUT: ci_outputs/diff_report
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   diff_report:
     runs-on: macos-latest
+    permissions:
+      contents: read
+      pull-requests: write
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
 
@@ -24,6 +31,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 2
+          persist-credentials: false
 
       - name: Copy diff report tools
         run: cp -a scripts/api_diff_report/. ~/api_diff_report
@@ -31,7 +39,7 @@ jobs:
       - id: get_changed_files
         name: Get changed file list
         run: |
-          echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
       - name: Setup python
         uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
@@ -42,27 +50,36 @@ jobs:
         run:  ~/api_diff_report/prerequisite.sh
 
       - name: Clean Diff Report Comment in PR
+        env:
+          STAGE: ${{ env.STAGE_PROGRESS }}
+          TOKEN: ${{github.token}}
+          PR_NUMBER: ${{github.event.pull_request.number}}
+          RUN_ID: ${{github.run_id}}
         run: |
           python ~/api_diff_report/pr_commenter.py \
-            --stage ${{ env.STAGE_PROGRESS }} \
-            --token ${{github.token}} \
-            --pr_number ${{github.event.pull_request.number}} \
-            --commit $GITHUB_SHA \
-            --run_id ${{github.run_id}}
+            --stage "$STAGE" \
+            --token "$TOKEN" \
+            --pr_number "$PR_NUMBER" \
+            --commit "$GITHUB_SHA" \
+            --run_id "$RUN_ID"
 
       - name: Generate API files for PR branch
+        env:
+          FILE_LIST: ${{ steps.get_changed_files.outputs.file_list }}
         run: |
           python ~/api_diff_report/api_info.py \
-            --file_list ${{ steps.get_changed_files.outputs.file_list }} \
+            --file_list "$FILE_LIST" \
             --output_dir ${{ env.PR_API_OUTPUT }}
 
       - name: Checkout Base branch
         run: git checkout HEAD^
 
       - name: Generate API files for Base branch
+        env:
+          FILE_LIST: ${{ steps.get_changed_files.outputs.file_list }}
         run: |
           python ~/api_diff_report/api_info.py \
-            --file_list ${{ steps.get_changed_files.outputs.file_list }} \
+            --file_list "$FILE_LIST" \
             --output_dir ${{ env.BASE_API_OUTPUT }}
 
       - name: Generate API Diff Report
@@ -73,14 +90,20 @@ jobs:
             --output_dir ${{ env.DIFF_REPORT_OUTPUT }}
 
       - name: Update Diff Report Comment in PR
+        env:
+          STAGE: ${{ env.STAGE_END }}
+          REPORT: ${{ env.DIFF_REPORT_OUTPUT }}
+          TOKEN: ${{github.token}}
+          PR_NUMBER: ${{github.event.pull_request.number}}
+          RUN_ID: ${{github.run_id}}
         run: |
           python ~/api_diff_report/pr_commenter.py \
-            --stage ${{ env.STAGE_END }} \
-            --report ${{ env.DIFF_REPORT_OUTPUT }} \
-            --token ${{github.token}} \
-            --pr_number ${{github.event.pull_request.number}} \
-            --commit $GITHUB_SHA \
-            --run_id ${{github.run_id}}
+            --stage "$STAGE" \
+            --report "$REPORT" \
+            --token "$TOKEN" \
+            --pr_number "$PR_NUMBER" \
+            --commit "$GITHUB_SHA" \
+            --run_id "$RUN_ID"
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ !cancelled() }}

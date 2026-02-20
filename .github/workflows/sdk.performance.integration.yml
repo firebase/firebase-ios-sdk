@@ -26,6 +26,7 @@ jobs:
 
   # Public repository: Build and run the Integration Tests for the Firebase performance E2E Test App.
   performance-integration-tests:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_build.yml
     with:
       product: Performance
