@@ -3,7 +3,7 @@
 This directory contains public data types for real-time and streaming features of the FirebaseAI library.
 These types are used by developers to interact with live, streaming services, such as real-time chat sessions or audio transcription.
 
-### Files:
+### Files
 
 - **`AudioTranscriptionConfig.swift`**: Defines the `AudioTranscriptionConfig` struct, which is used to enable and configure audio transcriptions when communicating with a model that supports the Gemini Live API.
 
@@ -23,7 +23,7 @@ These types are used by developers to interact with live, streaming services, su
 
 - **`LiveServerToolCallCancellation.swift`**: Defines the `LiveServerToolCallCancellation` struct, a notification for the client to cancel a previous function call.
 
-- **`LiveSession.swift`**: Defines the `LiveSession` class, which represents a live WebSocket session. It provides methods for sending real-time data like `sendAudioRealtime(_:)`, `sendVideoRealtime(_:mimeType:)`, `sendTextRealtime(_:)` and also for sending content incrementally with `sendContent(_:turnComplete:)`. It also has a `close()` method to end the session.
+- **`LiveSession.swift`**: Defines the `LiveSession` class, which represents a live WebSocket session. It provides methods for sending real-time data (like `sendAudioRealtime(_:)`, `sendVideoRealtime(_:mimeType:)`, and `sendTextRealtime(_:)`) and for sending content incrementally with `sendContent(_:turnComplete:)`. It also has a `close()` method to end the session.
 
 - **`LiveSessionErrors.swift`**: Defines several public error structs related to live sessions: `LiveSessionUnsupportedMessageError`, `LiveSessionLostConnectionError`, `LiveSessionUnexpectedClosureError`, and `LiveSessionSetupError`.
 

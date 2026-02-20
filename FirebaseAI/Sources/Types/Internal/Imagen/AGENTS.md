@@ -6,7 +6,7 @@ They are not meant for public consumption and can change at any time.
 
 The types in this directory define the structure of the data sent to and received from the Imagen API, including parameters for image generation, safety attributes, and output options.
 
-### Files:
+### Files
 
 - **`ImageGenerationInstance.swift`**: Defines the `ImageGenerationInstance` struct, which contains a `prompt` string for the image generation.
 

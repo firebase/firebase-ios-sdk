@@ -5,7 +5,7 @@ The types here are used for bidirectional communication with the backend, for ex
 
 These types are not part of the public API and are subject to change.
 
-### Files:
+### Files
 
 - **`AsyncWebSocket.swift`**: Provides an async/await wrapper around `URLSessionWebSocketTask` for interacting with web sockets. It simplifies sending and receiving messages and provides a custom error, `WebSocketClosedError`, for when the web socket is closed.
 
