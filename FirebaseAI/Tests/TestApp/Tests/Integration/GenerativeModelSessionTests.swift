@@ -184,8 +184,10 @@
         #expect(!recipe.name.isEmpty)
         #expect(recipe.preparationTime >= 5)
         #expect(recipe.preparationTime <= 120)
-        #expect(!recipe.ingredients.isEmpty)
         #expect(recipe.isVegetarian)
+        #expect(recipe.rating >= 1.0)
+        #expect(recipe.rating <= 5.0)
+        #expect(!recipe.ingredients.isEmpty)
       }
     }
   }
