@@ -243,6 +243,8 @@ NS_SWIFT_NAME(Crashlytics)
  */
 - (void)deleteUnsentReports;
 
+- (void)setNumberOfStackFramesToSkipForNotFatalErrors:(NSUInteger)frames;
+
 @end
 
 NS_ASSUME_NONNULL_END
