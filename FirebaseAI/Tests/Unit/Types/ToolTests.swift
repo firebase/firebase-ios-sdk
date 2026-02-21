@@ -26,7 +26,7 @@ final class ToolTests: XCTestCase {
   }
 
   func testEncodeTool_googleSearch() throws {
-    let tool = Tool.googleSearch()
+    let tool = ModelTool.googleSearch()
 
     let jsonData = try encoder.encode(tool)
 
@@ -41,7 +41,7 @@ final class ToolTests: XCTestCase {
   }
 
   func testEncodeTool_codeExecution() throws {
-    let tool = Tool.codeExecution()
+    let tool = ModelTool.codeExecution()
 
     let jsonData = try encoder.encode(tool)
 
@@ -61,7 +61,7 @@ final class ToolTests: XCTestCase {
       description: "A test function.",
       parameters: ["param1": .string()]
     )
-    let tool = Tool.functionDeclarations([functionDecl])
+    let tool = ModelTool.functionDeclarations([functionDecl])
     let jsonData = try encoder.encode(tool)
 
     let jsonString = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
@@ -91,7 +91,7 @@ final class ToolTests: XCTestCase {
   }
 
   func testEncodeTool_urlContext() throws {
-    let tool = Tool.urlContext()
+    let tool = ModelTool.urlContext()
 
     let jsonData = try encoder.encode(tool)
 
