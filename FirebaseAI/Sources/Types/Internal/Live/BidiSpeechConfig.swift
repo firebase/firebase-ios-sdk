@@ -28,12 +28,12 @@ struct BidiSpeechConfig: Encodable, Sendable {
 
   init(voiceConfig: VoiceConfig, languageCode: String?) {
     self.voiceConfig = voiceConfig
-    self.multiSpeakerVoiceConfig = nil
+    multiSpeakerVoiceConfig = nil
     self.languageCode = languageCode
   }
 
   init(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig, languageCode: String?) {
-    self.voiceConfig = nil
+    voiceConfig = nil
     self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
     self.languageCode = languageCode
   }

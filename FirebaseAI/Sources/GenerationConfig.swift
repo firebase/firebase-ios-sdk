@@ -165,7 +165,8 @@ public struct GenerationConfig: Sendable {
   ///     > backwards-incompatible ways.
   ///   - thinkingConfig: Configuration for controlling the "thinking" behavior of compatible Gemini
   ///     models; see ``ThinkingConfig`` for more details.
-  ///   - speechConfig: Configuration for controlling the voice of the model during conversation; see ``SpeechConfig`` for more details.
+  ///   - speechConfig: Configuration for controlling the voice of the model during conversation;
+  /// see ``SpeechConfig`` for more details.
   public init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil,
               candidateCount: Int? = nil, maxOutputTokens: Int? = nil,
               presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,

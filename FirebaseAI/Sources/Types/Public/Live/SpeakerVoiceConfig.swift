@@ -26,6 +26,6 @@ public struct SpeakerVoiceConfig: Encodable, Sendable {
   /// Creates a configuration using a prebuilt voice.
   public init(speaker: String, prebuiltVoiceConfig: PrebuiltVoiceConfig) {
     self.speaker = speaker
-    self.voiceConfig = .prebuiltVoiceConfig(prebuiltVoiceConfig)
+    voiceConfig = .prebuiltVoiceConfig(prebuiltVoiceConfig)
   }
 }

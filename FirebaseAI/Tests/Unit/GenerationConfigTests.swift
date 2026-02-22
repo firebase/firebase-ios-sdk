@@ -270,6 +270,7 @@ final class GenerationConfigTests: XCTestCase {
       """)
     }
   }
+
   func testEncodeGenerationConfig_speechConfig() throws {
     let testCases: [(SpeechConfig, String)] = [
       (SpeechConfig(voiceName: "Aoede"), """
@@ -292,8 +293,14 @@ final class GenerationConfigTests: XCTestCase {
         }
       """),
       (SpeechConfig(multiSpeakerConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
-        SpeakerVoiceConfig(speaker: "Speaker1", prebuiltVoiceConfig: PrebuiltVoiceConfig(voiceName: "Puck")),
-        SpeakerVoiceConfig(speaker: "Speaker2", prebuiltVoiceConfig: PrebuiltVoiceConfig(voiceName: "Charon"))
+        SpeakerVoiceConfig(
+          speaker: "Speaker1",
+          prebuiltVoiceConfig: PrebuiltVoiceConfig(voiceName: "Puck")
+        ),
+        SpeakerVoiceConfig(
+          speaker: "Speaker2",
+          prebuiltVoiceConfig: PrebuiltVoiceConfig(voiceName: "Charon")
+        ),
       ])), """
       "speechConfig" : {
           "multiSpeakerVoiceConfig" : {

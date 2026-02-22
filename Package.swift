@@ -23,7 +23,8 @@ let firebaseVersion = "12.10.0"
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
 // Handle AI Agent specific behaviours
-let isAIAgent = Context.environment["ANTIGRAVITY_AGENT"] != nil || Context.environment["GEMINI_CLI"] != nil
+let isAIAgent = Context.environment["ANTIGRAVITY_AGENT"] != nil || Context
+  .environment["GEMINI_CLI"] != nil
 
 let package = Package(
   name: "Firebase",
@@ -1413,7 +1414,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.10.0")
+  return .package(url: appMeasurementURL, branch: "main")
 }
 
 func abseilDependency() -> Package.Dependency {
