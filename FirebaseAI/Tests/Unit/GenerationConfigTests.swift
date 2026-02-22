@@ -270,4 +270,65 @@ final class GenerationConfigTests: XCTestCase {
       """)
     }
   }
+  func testEncodeGenerationConfig_speechConfig() throws {
+    let testCases: [(SpeechConfig, String)] = [
+      (SpeechConfig(voiceName: "Aoede"), """
+      "speechConfig" : {
+          "voiceConfig" : {
+            "prebuiltVoiceConfig" : {
+              "voiceName" : "Aoede"
+            }
+          }
+        }
+      """),
+      (SpeechConfig(voiceName: "Aoede", languageCode: "en-US"), """
+      "speechConfig" : {
+          "languageCode" : "en-US",
+          "voiceConfig" : {
+            "prebuiltVoiceConfig" : {
+              "voiceName" : "Aoede"
+            }
+          }
+        }
+      """),
+      (SpeechConfig(multiSpeakerConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
+        SpeakerVoiceConfig(speaker: "Speaker1", prebuiltVoiceConfig: PrebuiltVoiceConfig(voiceName: "Puck")),
+        SpeakerVoiceConfig(speaker: "Speaker2", prebuiltVoiceConfig: PrebuiltVoiceConfig(voiceName: "Charon"))
+      ])), """
+      "speechConfig" : {
+          "multiSpeakerVoiceConfig" : {
+            "speakerVoiceConfigs" : [
+              {
+                "speaker" : "Speaker1",
+                "voiceConfig" : {
+                  "prebuiltVoiceConfig" : {
+                    "voiceName" : "Puck"
+                  }
+                }
+              },
+              {
+                "speaker" : "Speaker2",
+                "voiceConfig" : {
+                  "prebuiltVoiceConfig" : {
+                    "voiceName" : "Charon"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      """),
+    ]
+
+    for (speechConfig, expectedJSONSnippet) in testCases {
+      let generationConfig = GenerationConfig(speechConfig: speechConfig)
+      let jsonData = try encoder.encode(generationConfig)
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+      XCTAssertEqual(json, """
+      {
+        \(expectedJSONSnippet)
+      }
+      """)
+    }
+  }
 }

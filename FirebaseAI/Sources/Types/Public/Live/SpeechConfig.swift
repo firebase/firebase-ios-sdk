@@ -15,16 +15,15 @@
 import Foundation
 
 /// Configuration for controlling the voice of the model during conversation.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
-@available(watchOS, unavailable)
-public struct SpeechConfig: Sendable {
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct SpeechConfig: Sendable, Encodable {
   let speechConfig: BidiSpeechConfig
 
   init(_ speechConfig: BidiSpeechConfig) {
     self.speechConfig = speechConfig
   }
 
-  /// Creates a new ``SpeechConfig`` value.
+  /// Creates a new ``SpeechConfig`` value for a single voice.
   ///
   /// - Parameters:
   ///   - voiceName: The name of the prebuilt voice to be used for the model's speech response.
@@ -43,5 +42,24 @@ public struct SpeechConfig: Sendable {
         languageCode: languageCode
       )
     )
+  }
+
+  /// Creates a new ``SpeechConfig`` value for a multi-speaker setup.
+  ///
+  /// - Parameters:
+  ///   - multiSpeakerConfig: The configuration for the multi-speaker setup.
+  ///   - languageCode: ISO-639 language code to use when parsing text sent from the client.
+  public init(multiSpeakerConfig: MultiSpeakerVoiceConfig, languageCode: String? = nil) {
+    self.init(
+      BidiSpeechConfig(
+        multiSpeakerVoiceConfig: multiSpeakerConfig,
+        languageCode: languageCode
+      )
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(speechConfig)
   }
 }
