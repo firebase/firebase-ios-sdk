@@ -85,8 +85,7 @@ echo "$FILES" | while read -r file; do
         echo "Updating copyright year in $file"
         tmp_file=$(mktemp)
         sed "1,20s/Copyright [0-9]\{4\}\(-[0-9]\{4\}\)\? Google/Copyright ${YEAR} Google/" "$file" > "$tmp_file"
-        cat "$tmp_file" > "$file"
-        rm "$tmp_file"
+        mv "$tmp_file" "$file"
         continue
     fi
 
