@@ -28,9 +28,15 @@ static NSString *const kFileType = @"fileType";
 
 @implementation FIRTestBundleUtil
 static NSArray *_bundlesToReturn;
-+ (NSArray *)bundlesToReturn { return _bundlesToReturn; }
-+ (void)setBundlesToReturn:(NSArray *)bundles { _bundlesToReturn = bundles; }
-+ (NSArray *)relevantBundles { return _bundlesToReturn ?: @[]; }
++ (NSArray *)bundlesToReturn {
+  return _bundlesToReturn;
+}
++ (void)setBundlesToReturn:(NSArray *)bundles {
+  _bundlesToReturn = bundles;
+}
++ (NSArray *)relevantBundles {
+  return _bundlesToReturn ?: @[];
+}
 @end
 
 @interface FIRBundleUtilTest : FIRTestCase
@@ -150,8 +156,8 @@ static NSArray *_bundlesToReturn;
 - (void)testRelevantURLSchemes {
   // Setup mock bundle with URL types
   NSArray *urlTypes = @[
-    @{ @"CFBundleURLSchemes": @[ @"scheme1", @"scheme2" ] },
-    @{ @"CFBundleURLSchemes": @[ @"scheme3" ] }
+    @{@"CFBundleURLSchemes" : @[ @"scheme1", @"scheme2" ]},
+    @{@"CFBundleURLSchemes" : @[ @"scheme3" ]}
   ];
   OCMStub([self.mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(urlTypes);
 
