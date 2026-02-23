@@ -130,6 +130,5 @@ EOF
         cat "$file" >> "$tmp_file"
     fi
 
-    cat "$tmp_file" > "$file"
-    rm "$tmp_file"
+    mv "$tmp_file" "$file"
 done
