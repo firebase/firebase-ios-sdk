@@ -22,9 +22,11 @@
   @available(watchOS, unavailable)
   public final class GenerativeModelSession: Sendable {
     let generativeModel: GenerativeModel
+    let session: Chat
 
     public init(model: GenerativeModel) {
       generativeModel = model
+      session = model.startChat()
     }
 
     @discardableResult
@@ -34,12 +36,12 @@
       let parts = [ModelContent(parts: prompt)]
 
       var config = GenerationConfig.merge(
-        generativeModel.generationConfig, with: options
+        session.generationConfig, with: options
       ) ?? GenerationConfig()
       config.responseModalities = nil // Override to the default (text only)
       config.candidateCount = nil // Override to the default (one candidate)
 
-      let response = try await generativeModel.generateContent(parts, generationConfig: config)
+      let response = try await session.sendMessage(parts, generationConfig: config)
       guard let text = response.text else {
         throw GenerationError.decodingFailure(
           GenerationError.Context(debugDescription: "No text in response: \(response)")
@@ -59,7 +61,7 @@
       -> GenerativeModelSession.Response<GeneratedContent> {
       let parts = [ModelContent(parts: prompt)]
       var config = GenerationConfig.merge(
-        generativeModel.generationConfig, with: options
+        session.generationConfig, with: options
       ) ?? GenerationConfig()
       config.responseMIMEType = "application/json"
       config.responseJSONSchema = includeSchemaInPrompt ? try schema.toGeminiJSONSchema() : nil
@@ -67,7 +69,7 @@
       config.responseModalities = nil // Override to the default (text only)
       config.candidateCount = nil // Override to the default (one candidate)
 
-      let response = try await generativeModel.generateContent(parts, generationConfig: config)
+      let response = try await session.sendMessage(parts, generationConfig: config)
       guard let text = response.text else {
         throw GenerationError.decodingFailure(
           GenerationError.Context(debugDescription: "No text in response: \(response)")
