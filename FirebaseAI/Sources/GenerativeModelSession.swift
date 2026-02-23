@@ -28,122 +28,85 @@
     }
 
     @discardableResult
-    public final nonisolated(nonsending)
+    public nonisolated(nonsending)
     func respond(to prompt: PartsRepresentable..., options: GenerationConfig? = nil) async throws
       -> GenerativeModelSession.Response<String> {
-      let parts = [ModelContent(parts: prompt)]
-
-      var config = GenerationConfig.merge(
-        session.generationConfig, with: options
-      ) ?? GenerationConfig()
-      config.responseModalities = nil // Override to the default (text only)
-      config.candidateCount = nil // Override to the default (one candidate)
-
-      let response = try await session.sendMessage(parts, generationConfig: config)
-      guard let text = response.text else {
-        throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "No text in response: \(response)")
-        )
-      }
-      let generatedContent = GeneratedContent(kind: .string(text))
-
-      return GenerativeModelSession.Response(
-        content: text, rawContent: generatedContent, rawResponse: response
+      return try await respond(
+        to: prompt,
+        schema: nil,
+        generating: String.self,
+        includeSchemaInPrompt: false,
+        options: options
       )
     }
 
     @discardableResult
-    public final nonisolated(nonsending)
+    public nonisolated(nonsending)
     func respond(to prompt: PartsRepresentable..., schema: GenerationSchema,
                  includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil) async throws
       -> GenerativeModelSession.Response<GeneratedContent> {
-      let parts = [ModelContent(parts: prompt)]
-      var config = GenerationConfig.merge(
-        session.generationConfig, with: options
-      ) ?? GenerationConfig()
-      config.responseMIMEType = "application/json"
-      config.responseJSONSchema = includeSchemaInPrompt ? try schema.toGeminiJSONSchema() : nil
-      config.responseSchema = nil // `responseSchema` must not be set with `responseJSONSchema`
-      config.responseModalities = nil // Override to the default (text only)
-      config.candidateCount = nil // Override to the default (one candidate)
-
-      let response = try await session.sendMessage(parts, generationConfig: config)
-      guard let text = response.text else {
-        throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "No text in response: \(response)")
-        )
-      }
-      let generatedContent = try GeneratedContent(json: text)
-
-      return GenerativeModelSession.Response(
-        content: generatedContent, rawContent: generatedContent, rawResponse: response
+      return try await respond(
+        to: prompt,
+        schema: schema,
+        generating: GeneratedContent.self,
+        includeSchemaInPrompt: includeSchemaInPrompt,
+        options: options
       )
     }
 
     @discardableResult
-    public final nonisolated(nonsending)
+    public nonisolated(nonsending)
     func respond<Content>(to prompt: PartsRepresentable...,
                           generating type: Content.Type = Content.self,
                           includeSchemaInPrompt: Bool = true,
                           options: GenerationConfig? = nil) async throws
       -> GenerativeModelSession.Response<Content> where Content: Generable {
-      let response = try await respond(
+      return try await respond(
         to: prompt,
-        schema: type.generationSchema,
+        schema: Content.generationSchema,
+        generating: type,
         includeSchemaInPrompt: includeSchemaInPrompt,
         options: options
       )
+    }
 
-      let content = try Content(response.rawContent)
-
-      return GenerativeModelSession.Response(
-        content: content, rawContent: response.rawContent, rawResponse: response.rawResponse
+    public func streamResponse(to prompt: PartsRepresentable...,
+                               schema: GenerationSchema,
+                               includeSchemaInPrompt: Bool = true,
+                               options: GenerationConfig? = nil)
+      -> sending GenerativeModelSession.ResponseStream<GeneratedContent> {
+      return streamResponse(
+        to: prompt,
+        schema: schema,
+        generating: GeneratedContent.self,
+        includeSchemaInPrompt: includeSchemaInPrompt,
+        options: options
       )
     }
 
-    public final func streamResponse(to prompt: PartsRepresentable...,
-                                     schema: GenerationSchema,
-                                     includeSchemaInPrompt: Bool = true,
-                                     options: GenerationConfig? = nil)
-      -> sending GenerativeModelSession.ResponseStream<GeneratedContent> {
-      let parts = [ModelContent(parts: prompt)]
-      return GenerativeModelSession.ResponseStream { context in
-        do {
-          var config = GenerationConfig.merge(
-            self.session.generationConfig, with: options
-          ) ?? GenerationConfig()
-          config.responseMIMEType = "application/json"
-          config.responseJSONSchema = includeSchemaInPrompt ? try schema.toGeminiJSONSchema() : nil
-          config.responseSchema = nil // `responseSchema` must not be set with `responseJSONSchema`
-          config.responseModalities = nil // Override to the default (text only)
-          config.candidateCount = nil // Override to the default (one candidate)
+    public func streamResponse<Content>(to prompt: PartsRepresentable...,
+                                        generating type: Content.Type = Content.self,
+                                        includeSchemaInPrompt: Bool = true,
+                                        options: GenerationConfig? = nil)
+      -> sending GenerativeModelSession.ResponseStream<Content> where Content: Generable {
+      return streamResponse(
+        to: prompt,
+        schema: type.generationSchema,
+        generating: type,
+        includeSchemaInPrompt: includeSchemaInPrompt,
+        options: options
+      )
+    }
 
-          let stream = try self.session.sendMessageStream(parts, generationConfig: config)
-
-          var json = ""
-          for try await chunk in stream {
-            guard let text = chunk.text else {
-              throw GenerationError.decodingFailure(
-                GenerationError.Context(debugDescription: "No text in response: \(chunk)")
-              )
-            }
-            json.append(text)
-
-            let generatedContent = try GeneratedContent(json: json)
-
-            let rawResult = GenerativeModelSession.ResponseStream<GeneratedContent>.RawResult(
-              rawContent: generatedContent,
-              rawResponse: chunk
-            )
-
-            await context.yield(rawResult)
-          }
-
-          await context.finish()
-        } catch {
-          await context.finish(throwing: error)
-        }
-      }
+    public func streamResponse(to prompt: PartsRepresentable..., options: GenerationConfig? = nil)
+      -> sending GenerativeModelSession.ResponseStream<String> {
+      return streamResponse(
+        to: prompt,
+        schema: nil,
+        generating: String.self,
+        includeSchemaInPrompt: false,
+        options: options
+      )
     }
 
     public enum GenerationError: Error, LocalizedError {
@@ -156,6 +119,97 @@
       }
 
       case decodingFailure(GenerativeModelSession.GenerationError.Context)
+    }
+
+    // MARK: - Internal
+
+    private nonisolated(nonsending)
+    func respond<Content>(to prompt: PartsRepresentable..., schema: GenerationSchema?,
+                          generating type: Content.Type, includeSchemaInPrompt: Bool,
+                          options: GenerationConfig?) async throws
+      -> GenerativeModelSession.Response<Content> where Content: Generable {
+      let parts = [ModelContent(parts: prompt)]
+      var config = GenerationConfig.merge(
+        session.generationConfig, with: options
+      ) ?? GenerationConfig()
+      if let schema {
+        config.responseMIMEType = "application/json"
+        config.responseJSONSchema = includeSchemaInPrompt ? try schema.toGeminiJSONSchema() : nil
+        config.responseSchema = nil // `responseSchema` must not be set with `responseJSONSchema`
+      }
+      config.responseModalities = nil // Override to the default (text only)
+      config.candidateCount = nil // Override to the default (one candidate)
+
+      let response = try await session.sendMessage(parts, generationConfig: config)
+      guard let text = response.text else {
+        throw GenerationError.decodingFailure(
+          GenerationError.Context(debugDescription: "No text in response: \(response)")
+        )
+      }
+      let rawContent: GeneratedContent
+      if schema != nil {
+        rawContent = try GeneratedContent(json: text)
+      } else {
+        rawContent = try GeneratedContent(kind: .string(text))
+      }
+      let content = try (rawContent as? Content) ?? Content(rawContent)
+
+      return GenerativeModelSession.Response(
+        content: content, rawContent: rawContent, rawResponse: response
+      )
+    }
+
+    private func streamResponse<Content>(to prompt: PartsRepresentable...,
+                                         schema: GenerationSchema?, generating type: Content.Type,
+                                         includeSchemaInPrompt: Bool, options: GenerationConfig?)
+      -> sending GenerativeModelSession.ResponseStream<Content> where Content: Generable {
+      let parts = [ModelContent(parts: prompt)]
+      return GenerativeModelSession.ResponseStream { context in
+        do {
+          var config = GenerationConfig.merge(
+            self.session.generationConfig, with: options
+          ) ?? GenerationConfig()
+          if let schema {
+            config.responseMIMEType = "application/json"
+            config.responseJSONSchema = includeSchemaInPrompt ? try schema
+              .toGeminiJSONSchema() : nil
+            config
+              .responseSchema =
+              nil // `responseSchema` must not be set with `responseJSONSchema`
+          }
+          config.responseModalities = nil // Override to the default (text only)
+          config.candidateCount = nil // Override to the default (one candidate)
+
+          let stream = try self.session.sendMessageStream(parts, generationConfig: config)
+
+          var streamedText = ""
+          for try await chunk in stream {
+            guard let text = chunk.text else {
+              throw GenerationError.decodingFailure(
+                GenerationError.Context(debugDescription: "No text in response: \(chunk)")
+              )
+            }
+            streamedText.append(text)
+
+            let rawContent: GeneratedContent
+            if schema != nil {
+              rawContent = try GeneratedContent(json: streamedText)
+            } else {
+              rawContent = try GeneratedContent(kind: .string(streamedText))
+            }
+            let rawResult = GenerativeModelSession.ResponseStream<Content>.RawResult(
+              rawContent: rawContent,
+              rawResponse: chunk
+            )
+
+            await context.yield(rawResult)
+          }
+
+          await context.finish()
+        } catch {
+          await context.finish(throwing: error)
+        }
+      }
     }
   }
 

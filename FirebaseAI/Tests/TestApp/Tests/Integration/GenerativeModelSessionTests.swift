@@ -214,12 +214,40 @@
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    func streamResponseGenerable(_ config: InstanceConfig) async throws {
+    func streamResponseText(_ config: InstanceConfig) async throws {
       let model = FirebaseAI.componentInstance(config).generativeModel(
         modelName: ModelNames.gemini2_5_FlashLite,
       )
       let session = GenerativeModelSession(model: model)
-      let prompt = "Generate a Ragdoll kitten"
+      let prompt = "Why is the sky blue?"
+
+      let stream = session.streamResponse(to: prompt)
+
+      for try await snapshot in stream {
+        let partial = snapshot.content
+        #expect(!partial.isEmpty)
+      }
+
+      let response = try await stream.collect()
+      let content = response.content
+      #expect(!content.isEmpty)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.kind == .string(content))
+      if let text = response.rawResponse.text {
+        #expect(content.hasSuffix(text))
+      }
+    }
+
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func streamResponseGeneratedContent(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+      )
+      let session = GenerativeModelSession(model: model)
+      let prompt = "Generate a friendly Persian cat"
 
       let stream = session.streamResponse(
         to: prompt,
@@ -241,7 +269,47 @@
       }
 
       let response = try await stream.collect()
+      #expect(response.rawContent.isComplete)
       let catProfile = try CatProfile(response.content)
+      #expect(!catProfile.name.isEmpty)
+      #expect(catProfile.age >= 1)
+      #expect(catProfile.age <= 20)
+      #expect(!catProfile.profile.isEmpty)
+    }
+
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func streamResponseGenerable(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+      )
+      let session = GenerativeModelSession(model: model)
+      let prompt = "Generate a Ragdoll kitten"
+
+      let stream = session.streamResponse(
+        to: prompt,
+        generating: CatProfile.self
+      )
+
+      for try await snapshot in stream {
+        let partial = snapshot.content
+        if let name = partial.name {
+          #expect(!name.isEmpty)
+        }
+        if let age = partial.age {
+          #expect(age >= 1)
+          #expect(age <= 20)
+        }
+        if let profile = partial.profile {
+          #expect(!profile.isEmpty)
+        }
+      }
+
+      let response = try await stream.collect()
+      #expect(response.rawContent.isComplete)
+      let catProfile = response.content
       #expect(!catProfile.name.isEmpty)
       #expect(catProfile.age >= 1)
       #expect(catProfile.age <= 20)
