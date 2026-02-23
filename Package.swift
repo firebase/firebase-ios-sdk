@@ -404,7 +404,7 @@ let package = Package(
           name: "FirebaseAnalytics",
           condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
         ),
-        .product(name: "GoogleAppMeasurementIdentitySupport",
+        .product(name: "GoogleIdentitySupport",
                  package: "GoogleAppMeasurement",
                  condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
         "FirebaseCore",
@@ -1414,7 +1414,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.10.0")
+  return .package(url: appMeasurementURL, exact: "main")
 }
 
 func abseilDependency() -> Package.Dependency {
