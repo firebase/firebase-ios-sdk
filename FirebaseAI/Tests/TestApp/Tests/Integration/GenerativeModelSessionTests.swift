@@ -108,6 +108,16 @@
       case hard
     }
 
+    @Generable
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    enum SuggestedCourse {
+      case appetizer
+      case main
+      case dessert
+    }
+
     @Generable(description: "A recipe for a delicious dish")
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
@@ -130,6 +140,9 @@
 
       @Guide(description: "The difficulty of the recipe")
       var difficulty: Difficulty
+
+      @Guide(description: "The course of the dish, such as appetizer, main, or dessert.")
+      var course: SuggestedCourse
     }
 
     @Generable(description: "A list of recipes")
@@ -137,7 +150,7 @@
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     struct RecipeList {
-      @Guide(description: "A list of recipes for a three-course meal.")
+      @Guide(description: "A list of recipes for a three-course meal.", .count(3))
       var recipes: [Recipe]
     }
 
@@ -162,6 +175,7 @@
       #expect(recipe.rating >= 1.0)
       #expect(recipe.rating <= 5.0)
       #expect(!recipe.ingredients.isEmpty)
+      #expect([.appetizer, .main, .dessert].contains(recipe.course))
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
@@ -180,6 +194,7 @@
 
       let recipeList = response.content
       #expect(recipeList.recipes.count == 3)
+      var courses = Set<SuggestedCourse>()
       for recipe in recipeList.recipes {
         #expect(!recipe.name.isEmpty)
         #expect(recipe.preparationTime >= 5)
@@ -188,7 +203,11 @@
         #expect(recipe.rating >= 1.0)
         #expect(recipe.rating <= 5.0)
         #expect(!recipe.ingredients.isEmpty)
+        courses.insert(recipe.course)
       }
+
+      let allCourses: Set<SuggestedCourse> = [.appetizer, .main, .dessert]
+      #expect(courses == allCourses)
     }
   }
 #endif // compiler(>=6.2) && canImport(FoundationModels)
