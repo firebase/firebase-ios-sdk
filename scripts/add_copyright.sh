@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# Add copyright notices to new source files in the current branch.
 
 set -u
 
@@ -83,7 +81,12 @@ echo "$FILES" | while read -r file; do
     esac
 
     # Check if file already has copyright.
-    if grep -q "Copyright.*Google" "$file"; then
+    if head -n 20 "$file" | grep -q "Copyright.*Google"; then
+        echo "Updating copyright year in $file"
+        tmp_file=$(mktemp)
+        sed "1,20s/Copyright [0-9]\{4\}\(-[0-9]\{4\}\)\? Google/Copyright ${YEAR} Google/" "$file" > "$tmp_file"
+        cat "$tmp_file" > "$file"
+        rm "$tmp_file"
         continue
     fi
 
@@ -128,5 +131,6 @@ EOF
         cat "$file" >> "$tmp_file"
     fi
 
-    mv "$tmp_file" "$file"
+    cat "$tmp_file" > "$file"
+    rm "$tmp_file"
 done
