@@ -22,6 +22,17 @@ static NSString *const kResultPath = @"resultPath";
 static NSString *const kResourceName = @"resourceName";
 static NSString *const kFileType = @"fileType";
 
+@interface FIRTestBundleUtil : FIRBundleUtil
+@property(class, nonatomic, strong) NSArray *bundlesToReturn;
+@end
+
+@implementation FIRTestBundleUtil
+static NSArray *_bundlesToReturn;
++ (NSArray *)bundlesToReturn { return _bundlesToReturn; }
++ (void)setBundlesToReturn:(NSArray *)bundles { _bundlesToReturn = bundles; }
++ (NSArray *)relevantBundles { return _bundlesToReturn ?: @[]; }
+@end
+
 @interface FIRBundleUtilTest : FIRTestCase
 
 @property(nonatomic, strong) id mockBundle;
@@ -134,6 +145,30 @@ static NSString *const kFileType = @"fileType";
                                                 inBundles:@[ self.mockBundle ]]);
 
   [environmentUtilsMock stopMocking];
+}
+
+- (void)testRelevantURLSchemes {
+  // Setup mock bundle with URL types
+  NSArray *urlTypes = @[
+    @{ @"CFBundleURLSchemes": @[ @"scheme1", @"scheme2" ] },
+    @{ @"CFBundleURLSchemes": @[ @"scheme3" ] }
+  ];
+  OCMStub([self.mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(urlTypes);
+
+  // Setup subclass to return the mock bundle
+  [FIRTestBundleUtil setBundlesToReturn:@[ self.mockBundle ]];
+
+  // Test
+  NSArray *schemes = [FIRTestBundleUtil relevantURLSchemes];
+
+  // Verify
+  XCTAssertEqual(schemes.count, 3);
+  XCTAssertTrue([schemes containsObject:@"scheme1"]);
+  XCTAssertTrue([schemes containsObject:@"scheme2"]);
+  XCTAssertTrue([schemes containsObject:@"scheme3"]);
+
+  // Cleanup
+  [FIRTestBundleUtil setBundlesToReturn:nil];
 }
 
 @end
