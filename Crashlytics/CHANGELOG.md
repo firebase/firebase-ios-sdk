@@ -2,6 +2,7 @@
 - [fixed] Fixed a deadlock in Firebase Sessions where the main thread could
   block waiting for a lock held by a background thread during settings
   updates. (#15394)
+- [fixed] Fixed an issue where Crashlytics API calls were silently dropped if invoked immediately after Firebase initialization.
 
 # 12.9.0
 - [fixed] Conformed to Mach IPC security restrictions. (#15393)
