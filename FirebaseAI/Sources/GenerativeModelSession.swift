@@ -21,11 +21,9 @@
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public final class GenerativeModelSession: Sendable {
-    let generativeModel: GenerativeModel
     let session: Chat
 
     public init(model: GenerativeModel) {
-      generativeModel = model
       session = model.startChat()
     }
 
@@ -112,7 +110,7 @@
       return GenerativeModelSession.ResponseStream { context in
         do {
           var config = GenerationConfig.merge(
-            self.generativeModel.generationConfig, with: options
+            self.session.generationConfig, with: options
           ) ?? GenerationConfig()
           config.responseMIMEType = "application/json"
           config.responseJSONSchema = includeSchemaInPrompt ? try schema.toGeminiJSONSchema() : nil
@@ -120,9 +118,7 @@
           config.responseModalities = nil // Override to the default (text only)
           config.candidateCount = nil // Override to the default (one candidate)
 
-          let stream = try self.generativeModel.generateContentStream(
-            parts, generationConfig: config
-          )
+          let stream = try self.session.sendMessageStream(parts, generationConfig: config)
 
           var json = ""
           for try await chunk in stream {

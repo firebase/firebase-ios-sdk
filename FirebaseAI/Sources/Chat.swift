@@ -55,7 +55,7 @@ public final class Chat: Sendable {
   /// - Returns: The model's response if no error occurred.
   /// - Throws: A ``GenerateContentError`` if an error occurred.
   public func sendMessage(_ content: [ModelContent]) async throws -> GenerateContentResponse {
-      return try await sendMessage(content, generationConfig: model.generationConfig)
+    return try await sendMessage(content, generationConfig: generationConfig)
   }
 
   /// Sends a message using the existing history of this chat as context. If successful, the message
@@ -75,12 +75,45 @@ public final class Chat: Sendable {
   @available(macOS 12.0, *)
   public func sendMessageStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    return try sendMessageStream(content, generationConfig: generationConfig)
+  }
+
+  // MARK: - Internal
+
+  func sendMessage(_ content: [ModelContent],
+                   generationConfig: GenerationConfig?) async throws -> GenerateContentResponse {
+    // Ensure that the new content has the role set.
+    let newContent = content.map(populateContentRole(_:))
+
+    // Send the history alongside the new message as context.
+    let request = history + newContent
+    let result = try await model.generateContent(request, generationConfig: generationConfig)
+    guard let reply = result.candidates.first?.content else {
+      let error = NSError(domain: "com.google.generative-ai",
+                          code: -1,
+                          userInfo: [
+                            NSLocalizedDescriptionKey: "No candidates with content available.",
+                          ])
+      throw GenerateContentError.internalError(underlying: error)
+    }
+
+    // Make sure we inject the role into the content received.
+    let toAdd = ModelContent(role: "model", parts: reply.parts)
+
+    // Append the request and successful result to history, then return the value.
+    _history.append(contentsOf: newContent)
+    _history.append(toAdd)
+    return result
+  }
+
+  func sendMessageStream(_ content: [ModelContent], generationConfig: GenerationConfig?) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
     // Ensure that the new content has the role set.
     let newContent: [ModelContent] = content.map(populateContentRole(_:))
 
     // Send the history alongside the new message as context.
     let request = history + newContent
-    let stream = try model.generateContentStream(request)
+    let stream = try model.generateContentStream(request, generationConfig: generationConfig)
     return AsyncThrowingStream { continuation in
       Task {
         var aggregatedContent: [ModelContent] = []
@@ -110,34 +143,6 @@ public final class Chat: Sendable {
         continuation.finish()
       }
     }
-  }
-
-  // MARK: - Internal
-
-  func sendMessage(_ content: [ModelContent],
-                   generationConfig: GenerationConfig?) async throws -> GenerateContentResponse {
-    // Ensure that the new content has the role set.
-    let newContent = content.map(populateContentRole(_:))
-
-    // Send the history alongside the new message as context.
-    let request = history + newContent
-    let result = try await model.generateContent(request, generationConfig: generationConfig)
-    guard let reply = result.candidates.first?.content else {
-      let error = NSError(domain: "com.google.generative-ai",
-                          code: -1,
-                          userInfo: [
-                            NSLocalizedDescriptionKey: "No candidates with content available.",
-                          ])
-      throw GenerateContentError.internalError(underlying: error)
-    }
-
-    // Make sure we inject the role into the content received.
-    let toAdd = ModelContent(role: "model", parts: reply.parts)
-
-    // Append the request and successful result to history, then return the value.
-    _history.append(contentsOf: newContent)
-    _history.append(toAdd)
-    return result
   }
 
   /// Populates the `role` field with `user` if it doesn't exist. Required in chat sessions.
