@@ -84,8 +84,14 @@ echo "$FILES" | while read -r file; do
     if head -n 20 "$file" | grep -q "Copyright.*Google"; then
         echo "Updating copyright year in $file"
         tmp_file=$(mktemp)
-        sed "1,20s/Copyright [0-9]\{4\}\(-[0-9]\{4\}\)\? Google/Copyright ${YEAR} Google/" "$file" > "$tmp_file"
-        mv "$tmp_file" "$file"
+        # 1. Expand existing range or single year to range ending in current year.
+        #    e.g. 2020 -> 2020-2026, 2020-2022 -> 2020-2026
+        # 2. Collapse same-year range.
+        #    e.g. 2026-2026 -> 2026
+        sed -E "1,20s/Copyright ([0-9]{4})(-[0-9]{4})? Google/Copyright \1-${YEAR} Google/" "$file" | \
+        sed "1,20s/${YEAR}-${YEAR} Google/${YEAR} Google/" > "$tmp_file"
+        cat "$tmp_file" > "$file"
+        rm "$tmp_file"
         continue
     fi
 
@@ -130,5 +136,6 @@ EOF
         cat "$file" >> "$tmp_file"
     fi
 
-    mv "$tmp_file" "$file"
+    cat "$tmp_file" > "$file"
+    rm "$tmp_file"
 done
