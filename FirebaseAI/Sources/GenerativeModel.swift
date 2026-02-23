@@ -322,8 +322,8 @@ public final class GenerativeModel: Sendable {
 
   // MARK: - Internal
 
-  public func generateContent(_ content: [ModelContent],
-                              generationConfig: GenerationConfig?) async throws
+  func generateContent(_ content: [ModelContent],
+                       generationConfig: GenerationConfig?) async throws
     -> GenerateContentResponse {
     try content.throwIfError()
     let response: GenerateContentResponse
@@ -363,6 +363,75 @@ public final class GenerativeModel: Sendable {
     }
 
     return response
+  }
+
+  @available(macOS 12.0, *)
+  func generateContentStream(_ content: [ModelContent],
+                             generationConfig: GenerationConfig?) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    try content.throwIfError()
+    let generateContentRequest = GenerateContentRequest(
+      model: modelResourceName,
+      contents: content,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      apiConfig: apiConfig,
+      apiMethod: .streamGenerateContent,
+      options: requestOptions
+    )
+
+    return AsyncThrowingStream { continuation in
+      let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
+      Task {
+        do {
+          var didYieldResponse = false
+          for try await response in responseStream {
+            // Check the prompt feedback to see if the prompt was blocked.
+            if response.promptFeedback?.blockReason != nil {
+              throw GenerateContentError.promptBlocked(response: response)
+            }
+
+            // If the stream ended early unexpectedly, throw an error.
+            if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
+              throw GenerateContentError.responseStoppedEarly(
+                reason: finishReason,
+                response: response
+              )
+            }
+
+            // Skip returning the response if all candidates are empty (i.e., they contain no
+            // information that a developer could act on).
+            if response.candidates.allSatisfy({ $0.isEmpty }) {
+              AILog.log(
+                level: .debug,
+                code: .generateContentResponseEmptyCandidates,
+                "Skipped response with all empty candidates: \(response)"
+              )
+            } else {
+              continuation.yield(response)
+              didYieldResponse = true
+            }
+          }
+
+          // Throw an error if all responses were skipped due to empty content.
+          if didYieldResponse {
+            continuation.finish()
+          } else {
+            continuation.finish(throwing: GenerativeModel.generateContentError(
+              from: InvalidCandidateError.emptyContent(
+                underlyingError: Candidate.EmptyContentError()
+              )
+            ))
+          }
+        } catch {
+          continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
+          return
+        }
+      }
+    }
   }
 
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.

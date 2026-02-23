@@ -97,5 +97,43 @@
       #expect(catProfile.age <= 20)
       #expect(!catProfile.profile.isEmpty)
     }
+
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func streamResponseGenerable(_ config: InstanceConfig) async throws {
+      let model = FirebaseAI.componentInstance(config).generativeModel(
+        modelName: ModelNames.gemini2_5_FlashLite,
+      )
+      let session = GenerativeModelSession(model: model)
+      let prompt = "Generate a Ragdoll kitten"
+
+      let stream = session.streamResponse(
+        to: prompt,
+        schema: CatProfile.generationSchema
+      )
+
+      for try await snapshot in stream {
+        let partial = try CatProfile.PartiallyGenerated(snapshot.rawContent)
+        if let name = partial.name {
+          #expect(!name.isEmpty)
+        }
+        if let age = partial.age {
+          #expect(age >= 1)
+          #expect(age <= 20)
+        }
+        if let profile = partial.profile {
+          #expect(!profile.isEmpty)
+        }
+      }
+
+      let response = try await stream.collect()
+      let catProfile = try CatProfile(response.content)
+      #expect(!catProfile.name.isEmpty)
+      #expect(catProfile.age >= 1)
+      #expect(catProfile.age <= 20)
+      #expect(!catProfile.profile.isEmpty)
+    }
   }
 #endif // compiler(>=6.2) && canImport(FoundationModels)
