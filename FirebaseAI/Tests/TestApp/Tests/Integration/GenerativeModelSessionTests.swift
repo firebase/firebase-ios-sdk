@@ -102,7 +102,7 @@
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    enum Difficulty: String, Codable, CaseIterable {
+    enum Difficulty {
       case easy
       case medium
       case hard
