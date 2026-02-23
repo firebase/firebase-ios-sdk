@@ -120,14 +120,12 @@
           config.responseModalities = nil // Override to the default (text only)
           config.candidateCount = nil // Override to the default (one candidate)
 
-          let underlyingStream = try await self.generativeModel.generateContentStream(
+          let stream = try self.generativeModel.generateContentStream(
             parts, generationConfig: config
           )
 
           var json = ""
-          for try await chunk in underlyingStream {
-            guard let rawContent = chunk.candidates.first?.content else { continue }
-
+          for try await chunk in stream {
             guard let text = chunk.text else {
               throw GenerationError.decodingFailure(
                 GenerationError.Context(debugDescription: "No text in response: \(chunk)")
