@@ -31,12 +31,12 @@
               forSuperclass:(Class)superclass
             varFoundHandler:(void (^)(id ivar))varFoundHandler;
 
-/** Registers a proxy object for a given class and runs the onSuccess block whenever an ivar of the
- * given class is discovered on the proxy object.
+/** Registers a proxy object and runs the handler block when an ivar conforming to the given
+ *  protocol is discovered.
  *
- * @param proxy The proxy object whose ivars will be iterated.
- * @param protocol The protocol all ivars will be compared against. See varFoundHandler.
- * @param varFoundHandler The block to run when an ivar conformsToProtocol:protocol.
+ *  @param proxy The proxy object whose ivars will be iterated.
+ *  @param protocol The protocol all ivars will be compared against.
+ *  @param varFoundHandler The block to run when an ivar conformsToProtocol:protocol.
  */
 + (void)registerProxyObject:(id)proxy
                 forProtocol:(Protocol *)protocol

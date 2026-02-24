@@ -33,9 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)registerObject:(id)object;
 
-/** Registers an instance of the delegate class to be instrumented.
+/** Registers an NSProxy instance that wraps a delegate object to be instrumented.
  *
- * @param proxy The instance to instrument.
+ *  @param proxy The NSProxy instance to instrument. This proxy should wrap another delegate object
+ *               that will receive the forwarded method calls.
  */
 - (void)registerProxy:(id)proxy;
 

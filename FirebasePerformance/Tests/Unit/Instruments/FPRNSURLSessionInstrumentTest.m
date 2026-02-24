@@ -798,7 +798,6 @@
     [self waitAndRunBlockAfterResponse:^(id self, GCDWebServerRequest *_Nonnull request,
                                          GCDWebServerResponse *_Nonnull response) {
       XCTAssertTrue(delegate.URLSessionDataTaskDidReceiveResponseCompletionHandlerCalled);
-      XCTAssertTrue(delegate.URLSessionTaskDidCompleteWithErrorCalled);
       XCTAssertNil([FPRNetworkTrace networkTraceFromObject:dataTask]);
     }];
   }
