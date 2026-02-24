@@ -150,7 +150,7 @@
       if schema != nil {
         rawContent = try GeneratedContent(json: text)
       } else {
-        rawContent = try GeneratedContent(kind: .string(text))
+        rawContent = GeneratedContent(kind: .string(text))
       }
       let content = try (rawContent as? Content) ?? Content(rawContent)
 
@@ -195,7 +195,7 @@
             if schema != nil {
               rawContent = try GeneratedContent(json: streamedText)
             } else {
-              rawContent = try GeneratedContent(kind: .string(streamedText))
+              rawContent = GeneratedContent(kind: .string(streamedText))
             }
             let rawResult = GenerativeModelSession.ResponseStream<Content>.RawResult(
               rawContent: rawContent,
