@@ -125,7 +125,7 @@ public final class LiveSession: Sendable {
   /// content.
   ///
   /// - Parameters:
-  ///   - content: Content to append to the current conversation with the model  (see
+  ///   - parts: Content to append to the current conversation with the model  (see
   ///     ``PartsRepresentable`` for conforming types).
   ///   - turnComplete: Whether the server should start generating content with the currently
   ///     accumulated prompt, or await additional messages before starting generation. By default,
