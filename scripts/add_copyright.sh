@@ -16,14 +16,6 @@
 
 set -u
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-  echo "Usage: $0 [BASE_BRANCH]"
-  echo ""
-  echo "Finds newly added files compared to BASE_BRANCH (defaults to 'main')"
-  echo "and automatically prepends or updates the Google copyright header."
-  exit 0
-fi
-
 # Check if git is available.
 if ! command -v git &> /dev/null; then
     echo "git command could not be found."
@@ -31,7 +23,7 @@ if ! command -v git &> /dev/null; then
 fi
 
 # Move to the root of the repository to ensure paths are correct.
-cd "$(git rev-parse --show-toplevel)"
+cd "$(git rev-parse --show-toplevel)" || exit 1
 
 # Define the base branch (defaulting to main).
 BASE_BRANCH=${1:-main}
@@ -52,7 +44,7 @@ echo "Checking for new files against $BASE_BRANCH..."
 # Get list of added files.
 # git diff --name-only --diff-filter=A returns paths relative to repo root.
 # We compare the working directory against the merge base of the current branch and the base branch.
-FILES=$(git diff --name-only --diff-filter=A $(git merge-base "$BASE_BRANCH" HEAD))
+FILES=$(git diff --name-only --diff-filter=A "$(git merge-base "$BASE_BRANCH" HEAD)")
 
 if [ -z "$FILES" ]; then
     echo "No new files found."
