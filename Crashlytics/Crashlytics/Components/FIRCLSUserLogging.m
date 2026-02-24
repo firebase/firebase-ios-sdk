@@ -398,8 +398,7 @@ void FIRCLSUserLoggingRecordError(NSError *error,
   }
 
   if (!FIRCLSContextIsInitialized()) {
-    FIRCLSSDKLogWarn(
-        "Failed to record error. Crashlytics context has not initialized yet.\n");
+    FIRCLSSDKLogWarn("Failed to record error. Crashlytics context has not initialized yet.\n");
     return;
   }
 
