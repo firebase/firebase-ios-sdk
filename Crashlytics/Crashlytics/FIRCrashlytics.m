@@ -426,19 +426,29 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON);
+  [self waitForContextInit:@"recordError"
+                  callback:^{
+                    FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON);
+                  }];
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfoJSON);
+  [self waitForContextInit:@"recordExceptionModel"
+                  callback:^{
+                    FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfoJSON);
+                  }];
 }
 
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
-  [self.managerData.onDemandModel
-      recordOnDemandExceptionIfQuota:exceptionModel
-           withDataCollectionEnabled:[self.dataArbiter isCrashlyticsCollectionEnabled]
-          usingExistingReportManager:self.existingReportManager];
+  [self waitForContextInit:@"recordOnDemandExceptionModel"
+                  callback:^{
+                    [self.managerData.onDemandModel
+                        recordOnDemandExceptionIfQuota:exceptionModel
+                             withDataCollectionEnabled:[self.dataArbiter
+                                                               isCrashlyticsCollectionEnabled]
+                            usingExistingReportManager:self.existingReportManager];
+                  }];
 }
 
 #pragma mark - FIRSessionsSubscriber
