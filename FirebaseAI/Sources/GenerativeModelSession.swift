@@ -59,7 +59,8 @@
       session = model.startChat()
     }
 
-    /// Sends a new prompt to the model and returns the response as a `String`.
+    /// Sends a new prompt to the model and returns a `Response` containing the generated content as
+    /// a `String`.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter options: An optional `GenerationConfig` to override the model's default
     /// generation configuration.
@@ -78,7 +79,8 @@
       )
     }
 
-    /// Sends a new prompt to the model and returns the response as `GeneratedContent`.
+    /// Sends a new prompt to the model and returns a `Response` containing the generated content as
+    /// `GeneratedContent`.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter schema: The `GenerationSchema` to use for generating the content.
     /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
@@ -100,7 +102,8 @@
       )
     }
 
-    /// Sends a new prompt to the model and returns the response as a `Generable` type.
+    /// Sends a new prompt to the model and returns a `Response` containing the generated content as
+    /// a `Generable` type.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter type: The `Generable` type to decode the response into.
     /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
