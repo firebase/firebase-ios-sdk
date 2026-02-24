@@ -27,15 +27,25 @@
   /// Example usage:
   /// ```swift
   /// @Generable
-  /// struct MyData {
-  ///   var name: String
-  ///   var value: Int
+  /// struct UserProfile {
+  ///   @Guide(description: "A unique username for the user.")
+  ///   var username: String
+  ///
+  ///   @Guide(description: "A short bio about the user, no more than 100 characters.")
+  ///   var bio: String
+  ///
+  ///   @Guide(description: "A list of the user's favorite topics.", .count(3))
+  ///   var favoriteTopics: [String]
   /// }
   ///
   /// let model = // ... a GenerativeModel instance
   /// let session = GenerativeModelSession(model: model)
-  /// let response = try await session.respond(to: "generate a name and value", generating: MyData.self)
-  /// print(response.content.name, response.content.value)
+  /// let prompt = "Generate a user profile for a cat lover who enjoys hiking."
+  /// let response = try await session.respond(to: prompt, generating: UserProfile.self)
+  ///
+  /// print("Username: \(response.content.username)")
+  /// print("Bio: \(response.content.bio)")
+  /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
