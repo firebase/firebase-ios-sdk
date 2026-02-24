@@ -24,6 +24,8 @@
   /// decode the model's output into a specific Swift type that conforms to the `Generable`
   /// protocol.
   ///
+  /// **Public Preview**: This API is a public preview and may be subject to change.
+  ///
   /// Example usage:
   /// ```swift
   /// @Generable
@@ -54,6 +56,8 @@
     let session: Chat
 
     /// Creates a new `GenerativeModelSession` with the given model.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter model: The `GenerativeModel` to use for generating content.
     public init(model: GenerativeModel) {
       session = model.startChat()
@@ -61,6 +65,8 @@
 
     /// Sends a new prompt to the model and returns a `Response` containing the generated content as
     /// a `String`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter options: An optional `GenerationConfig` to override the model's default
     /// generation configuration.
@@ -81,6 +87,8 @@
 
     /// Sends a new prompt to the model and returns a `Response` containing the generated content as
     /// `GeneratedContent`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter schema: The `GenerationSchema` to use for generating the content.
     /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
@@ -104,6 +112,8 @@
 
     /// Sends a new prompt to the model and returns a `Response` containing the generated content as
     /// a `Generable` type.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter type: The `Generable` type to decode the response into.
     /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
@@ -128,6 +138,8 @@
     }
 
     /// Streams the model's response as `GeneratedContent`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter schema: The `GenerationSchema` to use for generating the content.
     /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
@@ -149,6 +161,8 @@
     }
 
     /// Streams the model's response as a `Generable` type.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter type: The `Generable` type to decode the response into.
     /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
@@ -170,6 +184,8 @@
     }
 
     /// Streams the model's response as a `String`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter prompt: The content to send to the model.
     /// - Parameter options: An optional `GenerationConfig` to override the model's default
     /// generation configuration.
