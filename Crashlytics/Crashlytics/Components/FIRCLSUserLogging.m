@@ -319,6 +319,8 @@ static void FIRCLSUserLoggingWriteKeysAndValues(NSDictionary *keysAndValues,
 
 NSArray *FIRCLSUserLoggingStoredKeyValues(const char *path) {
   if (!FIRCLSContextIsInitialized()) {
+    FIRCLSSDKLogWarn(
+        "Failed to write key/value pair. Crashlytics context has not initialized yet.\n");
     return nil;
   }
 
@@ -396,6 +398,8 @@ void FIRCLSUserLoggingRecordError(NSError *error,
   }
 
   if (!FIRCLSContextIsInitialized()) {
+    FIRCLSSDKLogWarn(
+        "Failed to record error. Crashlytics context has not initialized yet.\n");
     return;
   }
 
