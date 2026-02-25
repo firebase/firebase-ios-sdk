@@ -69,6 +69,7 @@
       let response = try await session.respond(to: prompt, schema: CatProfile.generationSchema)
 
       let content = response.content
+      #expect(content.isComplete)
       let name: String = try content.value(forProperty: "name")
       #expect(!name.isEmpty)
       let age: Int = try content.value(forProperty: "age")
