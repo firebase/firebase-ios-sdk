@@ -204,22 +204,6 @@
       )
     }
 
-    /// An error that occurs during content generation.
-    public enum GenerationError: Error, LocalizedError {
-      /// A context providing more information about the generation error.
-      public struct Context: Sendable {
-        /// A debug description of the error.
-        public let debugDescription: String
-
-        init(debugDescription: String) {
-          self.debugDescription = debugDescription
-        }
-      }
-
-      /// The model's response could not be decoded.
-      case decodingFailure(GenerativeModelSession.GenerationError.Context)
-    }
-
     // MARK: - Internal
 
     private nonisolated(nonsending)
@@ -342,7 +326,9 @@
       assertionFailure("Unsupported type: \(T.self).")
       // In release builds we throw an error instead of crashing but this state should be
       // unreachable based on the public API.
-      throw GenerativeModelSession.ResponseStreamError.noContentGenerated
+      throw GenerativeModelSession.ResponseTypeConversionError(
+        from: type(of: rawContent), to: T.self
+      )
     }
   }
 
@@ -442,10 +428,6 @@
         )
       }
     }
-
-    enum ResponseStreamError: Error {
-      case noContentGenerated
-    }
   }
 
   @available(iOS 26.0, macOS 26.0, *)
@@ -513,7 +495,13 @@
         } else if let last = latestRaw {
           result = .success(last)
         } else {
-          result = .failure(GenerativeModelSession.ResponseStreamError.noContentGenerated)
+          result = .failure(
+            GenerativeModelSession.GenerationError.decodingFailure(
+              GenerativeModelSession.GenerationError.Context(
+                debugDescription: "No content generated in stream."
+              )
+            )
+          )
         }
 
         finalResult = result
@@ -522,6 +510,51 @@
           continuation.resume(with: result)
         }
         waitingContinuations.removeAll()
+      }
+    }
+  }
+
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension GenerativeModelSession {
+    enum ErrorCodes: Int {
+      // Generation Errors
+      case decodingFailure = 1000
+
+      // Internal Errors
+      case typeConversionFailed = 2000
+    }
+
+    static let errorDomain = "\(Constants.baseErrorDomain).\(GenerativeModelSession.self)"
+
+    /// An error that occurs during content generation.
+    public enum GenerationError: Error, LocalizedError {
+      /// A context providing more information about the generation error.
+      public struct Context: Sendable {
+        /// A debug description of the error.
+        public let debugDescription: String
+
+        init(debugDescription: String) {
+          self.debugDescription = debugDescription
+        }
+      }
+
+      /// The model's response could not be decoded.
+      case decodingFailure(GenerativeModelSession.GenerationError.Context)
+    }
+
+    struct ResponseTypeConversionError: CustomDebugStringConvertible, CustomNSError {
+      public static var errorDomain: String { Self.errorDomain }
+
+      public var errorCode: Int { ErrorCodes.typeConversionFailed.rawValue }
+
+      public var errorUserInfo: [String: Any] { [NSLocalizedDescriptionKey: debugDescription] }
+
+      let debugDescription: String
+
+      init(from fromType: Any.Type, to toType: Any.Type) {
+        debugDescription = "Failed to convert from type '\(fromType)' to '\(toType)'."
       }
     }
   }
