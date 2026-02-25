@@ -71,6 +71,8 @@ public struct GenerateContentResponse: Sendable {
   /// Token usage metadata for processing the generate content request.
   public let usageMetadata: UsageMetadata?
 
+  let responseID: String?
+
   /// The response's content as text, if it exists.
   ///
   /// - Note: This does not include thought summaries; see ``thoughtSummary`` for more details.
@@ -123,6 +125,7 @@ public struct GenerateContentResponse: Sendable {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
+    responseID = nil
   }
 
   func text(isThought: Bool) -> String? {
@@ -453,10 +456,11 @@ public struct Segment: Sendable, Equatable, Hashable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse: Decodable {
-  enum CodingKeys: CodingKey {
+  enum CodingKeys: String, CodingKey {
     case candidates
     case promptFeedback
     case usageMetadata
+    case responseID = "responseId"
   }
 
   public init(from decoder: Decoder) throws {
@@ -482,6 +486,7 @@ extension GenerateContentResponse: Decodable {
     }
     promptFeedback = try container.decodeIfPresent(PromptFeedback.self, forKey: .promptFeedback)
     usageMetadata = try container.decodeIfPresent(UsageMetadata.self, forKey: .usageMetadata)
+    responseID = try container.decodeIfPresent(String.self, forKey: .responseID)
   }
 }
 

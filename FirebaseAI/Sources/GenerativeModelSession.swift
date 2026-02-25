@@ -240,8 +240,13 @@
           GenerationError.Context(debugDescription: "No text in response: \(response)")
         )
       }
+      let generationID = response.responseID.map { FirebaseAI.GenerationID(responseID: $0) }
 
-      let rawContent = try Self.makeRawContent(from: text, hasSchema: schema != nil)
+      let rawContent = try Self.makeRawContent(
+        from: text,
+        generationID: generationID,
+        hasSchema: schema != nil
+      )
       let content: Content = try Self.resolveContent(from: rawContent)
 
       return GenerativeModelSession.Response(
@@ -274,8 +279,13 @@
               )
             }
             streamedText.append(text)
+            let generationID = chunk.responseID.map { FirebaseAI.GenerationID(responseID: $0) }
 
-            let rawContent = try Self.makeRawContent(from: streamedText, hasSchema: schema != nil)
+            let rawContent = try Self.makeRawContent(
+              from: streamedText,
+              generationID: generationID,
+              hasSchema: schema != nil
+            )
             let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
               .RawResult(
                 rawContent: rawContent,
@@ -311,12 +321,12 @@
       return config
     }
 
-    private static func makeRawContent(from text: String, hasSchema: Bool) throws -> FirebaseAI
-      .GeneratedContent {
+    private static func makeRawContent(from text: String, generationID: FirebaseAI.GenerationID?,
+                                       hasSchema: Bool) throws -> FirebaseAI.GeneratedContent {
       if hasSchema {
-        return try FirebaseAI.GeneratedContent(json: text)
+        return try FirebaseAI.GeneratedContent(json: text, id: generationID)
       } else {
-        return FirebaseAI.GeneratedContent(kind: .string(text))
+        return FirebaseAI.GeneratedContent(kind: .string(text), id: generationID)
       }
     }
 

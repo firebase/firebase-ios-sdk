@@ -22,13 +22,23 @@
     struct GeneratedContent: Sendable, Equatable, CustomDebugStringConvertible {
       let wrapped: FoundationModels.GeneratedContent
 
-      init(json: String) throws {
+      public let generationID: FirebaseAI.GenerationID?
+
+      public init(json: String) throws {
         wrapped = try FoundationModels.GeneratedContent(json: json)
+        generationID = nil
       }
 
-      // TODO: Replace `GenerationID` with custom type
-      init(kind: FoundationModels.GeneratedContent.Kind, id: FoundationModels.GenerationID? = nil) {
-        wrapped = FoundationModels.GeneratedContent(kind: kind, id: id)
+      init(json: String, id: FirebaseAI.GenerationID?) throws {
+        var generatedContent = try FoundationModels.GeneratedContent(json: json)
+        generatedContent.id = id?.generationID
+        wrapped = generatedContent
+        generationID = id
+      }
+
+      init(kind: FoundationModels.GeneratedContent.Kind, id: FirebaseAI.GenerationID? = nil) {
+        wrapped = FoundationModels.GeneratedContent(kind: kind, id: id?.generationID)
+        generationID = id
       }
 
       public var jsonString: String { wrapped.jsonString }

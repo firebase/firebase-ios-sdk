@@ -36,7 +36,9 @@
 
       let content = response.content
       #expect(!content.isEmpty)
+      #expect(response.rawContent.isComplete)
       #expect(response.rawContent.kind == .string(content))
+      #expect(response.rawContent.generationID != nil)
       #expect(response.rawResponse.text == content)
     }
 
@@ -77,6 +79,8 @@
       #expect(age <= 20)
       let profile: String = try content.value(forProperty: "profile")
       #expect(!profile.isEmpty)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
@@ -97,6 +101,8 @@
       #expect(catProfile.age >= 1)
       #expect(catProfile.age <= 20)
       #expect(!catProfile.profile.isEmpty)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
     }
 
     @Generable
@@ -177,6 +183,8 @@
       #expect(recipe.rating <= 5.0)
       #expect(!recipe.ingredients.isEmpty)
       #expect([.appetizer, .main, .dessert].contains(recipe.course))
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
@@ -209,6 +217,8 @@
 
       let allCourses: Set<SuggestedCourse> = [.appetizer, .main, .dessert]
       #expect(courses == allCourses)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
@@ -224,15 +234,26 @@
 
       let stream = session.streamResponse(to: prompt)
 
+      var generationID: FirebaseAI.GenerationID?
       for try await snapshot in stream {
         let partial = snapshot.content
         #expect(!partial.isEmpty)
+        if let generationID {
+          #expect(
+            generationID == snapshot.rawContent.generationID,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          #expect(snapshot.rawContent.generationID != nil)
+          generationID = snapshot.rawContent.generationID
+        }
       }
 
       let response = try await stream.collect()
       let content = response.content
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID == generationID)
       #expect(response.rawContent.kind == .string(content))
       if let text = response.rawResponse.text {
         #expect(content.hasSuffix(text))
@@ -255,6 +276,7 @@
         schema: CatProfile.generationSchema
       )
 
+      var generationID: FirebaseAI.GenerationID?
       for try await snapshot in stream {
         let partial = try CatProfile.PartiallyGenerated(snapshot.rawContent)
         if let name = partial.name {
@@ -267,10 +289,20 @@
         if let profile = partial.profile {
           #expect(!profile.isEmpty)
         }
+        if let generationID {
+          #expect(
+            generationID == snapshot.rawContent.generationID,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          #expect(snapshot.rawContent.generationID != nil)
+          generationID = snapshot.rawContent.generationID
+        }
       }
 
       let response = try await stream.collect()
       #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID == generationID)
       let catProfile = try CatProfile(response.content)
       #expect(!catProfile.name.isEmpty)
       #expect(catProfile.age >= 1)
@@ -294,6 +326,7 @@
         generating: CatProfile.self
       )
 
+      var generationID: FirebaseAI.GenerationID?
       for try await snapshot in stream {
         let partial = snapshot.content
         if let name = partial.name {
@@ -306,10 +339,20 @@
         if let profile = partial.profile {
           #expect(!profile.isEmpty)
         }
+        if let generationID {
+          #expect(
+            generationID == snapshot.rawContent.generationID,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          #expect(snapshot.rawContent.generationID != nil)
+          generationID = snapshot.rawContent.generationID
+        }
       }
 
       let response = try await stream.collect()
       #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID == generationID)
       let catProfile = response.content
       #expect(!catProfile.name.isEmpty)
       #expect(catProfile.age >= 1)
