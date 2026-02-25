@@ -17,16 +17,61 @@
   import Foundation
   import FoundationModels
 
+  /// A session that simplifies interaction with a generative model, particularly for generating
+  /// structured data.
+  ///
+  /// A `GenerativeModelSession` is ideal for single-turn requests to a model, where you want to
+  /// decode the model's output into a specific Swift type that conforms to the `Generable`
+  /// protocol.
+  ///
+  /// **Public Preview**: This API is a public preview and may be subject to change.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// @Generable
+  /// struct UserProfile {
+  ///   @Guide(description: "A unique username for the user.")
+  ///   var username: String
+  ///
+  ///   @Guide(description: "A short bio about the user, no more than 100 characters.")
+  ///   var bio: String
+  ///
+  ///   @Guide(description: "A list of the user's favorite topics.", .count(3))
+  ///   var favoriteTopics: [String]
+  /// }
+  ///
+  /// let model = // ... a GenerativeModel instance
+  /// let session = GenerativeModelSession(model: model)
+  /// let prompt = "Generate a user profile for a cat lover who enjoys hiking."
+  /// let response = try await session.respond(to: prompt, generating: UserProfile.self)
+  ///
+  /// print("Username: \(response.content.username)")
+  /// print("Bio: \(response.content.bio)")
+  /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
+  /// ```
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public final class GenerativeModelSession: Sendable {
     let session: Chat
 
+    /// Creates a new `GenerativeModelSession` with the given model.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
+    /// - Parameter model: The `GenerativeModel` to use for generating content.
     public init(model: GenerativeModel) {
       session = model.startChat()
     }
 
+    /// Sends a new prompt to the model and returns a `Response` containing the generated content as
+    /// a `String`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
+    /// - Parameter prompt: The content to send to the model.
+    /// - Parameter options: An optional `GenerationConfig` to override the model's default
+    /// generation configuration.
+    /// - Returns: A `Response` containing the generated content as a `String`.
+    /// - Throws: A `GenerationError` if the model fails to generate a response.
     @discardableResult
     public nonisolated(nonsending)
     func respond(to prompt: PartsRepresentable..., options: GenerationConfig? = nil) async throws
@@ -40,6 +85,17 @@
       )
     }
 
+    /// Sends a new prompt to the model and returns a `Response` containing the generated content as
+    /// `GeneratedContent`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
+    /// - Parameter prompt: The content to send to the model.
+    /// - Parameter schema: The `GenerationSchema` to use for generating the content.
+    /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
+    /// - Parameter options: An optional `GenerationConfig` to override the model's default
+    /// generation configuration.
+    /// - Returns: A `Response` containing the generated content as `GeneratedContent`.
+    /// - Throws: A `GenerationError` if the model fails to generate a response.
     @discardableResult
     public nonisolated(nonsending)
     func respond(to prompt: PartsRepresentable..., schema: GenerationSchema,
@@ -54,6 +110,17 @@
       )
     }
 
+    /// Sends a new prompt to the model and returns a `Response` containing the generated content as
+    /// a `Generable` type.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
+    /// - Parameter prompt: The content to send to the model.
+    /// - Parameter type: The `Generable` type to decode the response into.
+    /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
+    /// - Parameter options: An optional `GenerationConfig` to override the model's default
+    /// generation configuration.
+    /// - Returns: A `Response` containing the generated content as the specified `Generable` type.
+    /// - Throws: A `GenerationError` if the model fails to generate a response.
     @discardableResult
     public nonisolated(nonsending)
     func respond<Content>(to prompt: PartsRepresentable...,
@@ -70,6 +137,15 @@
       )
     }
 
+    /// Streams the model's response as `GeneratedContent`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
+    /// - Parameter prompt: The content to send to the model.
+    /// - Parameter schema: The `GenerationSchema` to use for generating the content.
+    /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
+    /// - Parameter options: An optional `GenerationConfig` to override the model's default
+    /// generation configuration.
+    /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
     public func streamResponse(to prompt: PartsRepresentable...,
                                schema: GenerationSchema,
                                includeSchemaInPrompt: Bool = true,
@@ -86,6 +162,15 @@
       )
     }
 
+    /// Streams the model's response as a `Generable` type.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
+    /// - Parameter prompt: The content to send to the model.
+    /// - Parameter type: The `Generable` type to decode the response into.
+    /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
+    /// - Parameter options: An optional `GenerationConfig` to override the model's default
+    /// generation configuration.
+    /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
     public func streamResponse<Content>(to prompt: PartsRepresentable...,
                                         generating type: Content.Type = Content.self,
                                         includeSchemaInPrompt: Bool = true,
@@ -101,6 +186,13 @@
       )
     }
 
+    /// Streams the model's response as a `String`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
+    /// - Parameter prompt: The content to send to the model.
+    /// - Parameter options: An optional `GenerationConfig` to override the model's default
+    /// generation configuration.
+    /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
     public func streamResponse(to prompt: PartsRepresentable..., options: GenerationConfig? = nil)
       -> sending GenerativeModelSession.ResponseStream<String, String> {
       return streamResponse(
@@ -112,8 +204,11 @@
       )
     }
 
+    /// An error that occurs during content generation.
     public enum GenerationError: Error, LocalizedError {
+      /// A context providing more information about the generation error.
       public struct Context: Sendable {
+        /// A debug description of the error.
         public let debugDescription: String
 
         init(debugDescription: String) {
@@ -121,6 +216,7 @@
         }
       }
 
+      /// The model's response could not be decoded.
       case decodingFailure(GenerativeModelSession.GenerationError.Context)
     }
 
@@ -246,9 +342,13 @@
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public extension GenerativeModelSession {
+    /// The response from a `respond` call.
     struct Response<Content> {
+      /// The generated content, decoded into the requested `Generable` type.
       public let content: Content
+      /// The raw, undecoded `GeneratedContent` from the model.
       public let rawContent: FirebaseAI.GeneratedContent
+      /// The raw `GenerateContentResponse` from the model.
       public let rawResponse: GenerateContentResponse
     }
   }
@@ -257,12 +357,17 @@
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public extension GenerativeModelSession {
+    /// An asynchronous sequence of snapshots of the model's response.
     struct ResponseStream<Content, PartialContent>: AsyncSequence {
       public typealias Element = Snapshot
 
+      /// A snapshot of the model's response at a point in time.
       public struct Snapshot {
+        /// The partially generated content, decoded into the requested `Generable`'s partial type.
         public let content: PartialContent
+        /// The raw, undecoded `GeneratedContent` from the model.
         public let rawContent: FirebaseAI.GeneratedContent
+        /// The raw `GenerateContentResponse` from the model.
         public let rawResponse: GenerateContentResponse
       }
 
@@ -284,6 +389,7 @@
         }
       }
 
+      /// An iterator that provides snapshots of the model's response.
       public struct AsyncIterator: AsyncIteratorProtocol {
         private var rawIterator: AsyncThrowingStream<RawResult, Error>.Iterator
 
@@ -310,6 +416,9 @@
         return AsyncIterator(rawIterator: rawStream.makeAsyncIterator())
       }
 
+      /// Collects the entire streamed response into a single `Response`.
+      /// - Returns: The final `Response` containing the fully generated content.
+      /// - Throws: A `GenerationError` if the model fails to generate a response.
       public nonisolated(nonsending)
       func collect() async throws -> sending GenerativeModelSession.Response<Content> {
         let finalResult = try await context.value
