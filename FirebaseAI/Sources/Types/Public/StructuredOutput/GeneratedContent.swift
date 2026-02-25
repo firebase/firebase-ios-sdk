@@ -15,10 +15,10 @@
 #if canImport(FoundationModels)
   import FoundationModels
 
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
   public extension FirebaseAI {
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
     struct GeneratedContent: Sendable, Equatable, CustomDebugStringConvertible {
       let wrapped: FoundationModels.GeneratedContent
 
