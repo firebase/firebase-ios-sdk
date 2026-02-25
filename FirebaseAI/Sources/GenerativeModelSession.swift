@@ -545,7 +545,7 @@
     }
 
     struct ResponseTypeConversionError: CustomDebugStringConvertible, CustomNSError {
-      public static var errorDomain: String { Self.errorDomain }
+      public static var errorDomain: String { GenerativeModelSession.errorDomain }
 
       public var errorCode: Int { ErrorCodes.typeConversionFailed.rawValue }
 
