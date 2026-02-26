@@ -268,7 +268,9 @@
             streamedText.append(text)
             if generationID == nil {
               generationID = chunk.responseID.map {
-                FirebaseAI.GenerationID(responseID: $0, generationID: GenerationID())
+                FirebaseAI.GenerationID(
+                  responseID: $0, generationID: FoundationModels.GenerationID()
+                )
               }
             }
 
