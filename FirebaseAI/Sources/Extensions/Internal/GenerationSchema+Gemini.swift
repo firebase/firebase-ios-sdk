@@ -24,7 +24,10 @@
     func toGeminiJSONSchema() throws -> JSONObject {
       let encoder = JSONEncoder()
       encoder.keyEncodingStrategy = .custom { keys in
-        let lastKey = keys.last!
+        guard let lastKey = keys.last else {
+          assertionFailure("Unexpected empty coding path.")
+          return SchemaCodingKey(stringValue: "")
+        }
         if lastKey.stringValue == "x-order" {
           return SchemaCodingKey(stringValue: "propertyOrdering")
         }
@@ -47,7 +50,7 @@
 
       init?(intValue: Int) {
         assertionFailure("Unexpected \(Self.self) with integer value: \(intValue)")
-        stringValue = String(intValue)
+        return nil
       }
     }
   }
