@@ -241,6 +241,8 @@ void FIRCLSUserLoggingRecordKeysAndValues(NSDictionary *keysAndValues,
                                           FIRCLSUserLoggingKVStorage *storage,
                                           uint32_t *counter) {
   if (!FIRCLSContextIsInitialized()) {
+    FIRCLSSDKLogWarn(
+        "Failed to write key/value pairs. Crashlytics context has not initialized yet.\n");
     return;
   }
 
@@ -317,6 +319,8 @@ static void FIRCLSUserLoggingWriteKeysAndValues(NSDictionary *keysAndValues,
 
 NSArray *FIRCLSUserLoggingStoredKeyValues(const char *path) {
   if (!FIRCLSContextIsInitialized()) {
+    FIRCLSSDKLogWarn(
+        "Failed to read key/value pairs. Crashlytics context has not initialized yet.\n");
     return nil;
   }
 
@@ -394,6 +398,7 @@ void FIRCLSUserLoggingRecordError(NSError *error,
   }
 
   if (!FIRCLSContextIsInitialized()) {
+    FIRCLSSDKLogWarn("Failed to record error. Crashlytics context has not initialized yet.\n");
     return;
   }
 
