@@ -23,10 +23,28 @@
     /// Returns a Gemini-compatible JSON Schema of this `GenerationSchema`.
     func toGeminiJSONSchema() throws -> JSONObject {
       let generationSchemaData = try JSONEncoder().encode(self)
-      var jsonSchema = try JSONDecoder().decode(JSONObject.self, from: generationSchemaData)
-      if let propertyOrdering = jsonSchema.removeValue(forKey: "x-order") {
-        jsonSchema["propertyOrdering"] = propertyOrdering
+      guard var jsonSchemaJSON = String(data: generationSchemaData, encoding: .utf8) else {
+        throw EncodingError.invalidValue(
+          generationSchemaData,
+          EncodingError.Context(
+            codingPath: [],
+            debugDescription: "Failed to convert `GenerationSchema` data to a UTF-8 string."
+          )
+        )
       }
+      jsonSchemaJSON = jsonSchemaJSON.replacingOccurrences(
+        of: #""x-order""#, with: #""propertyOrdering""#
+      )
+      guard let jsonSchemaData = jsonSchemaJSON.data(using: .utf8) else {
+        throw EncodingError.invalidValue(
+          jsonSchemaJSON,
+          EncodingError.Context(
+            codingPath: [],
+            debugDescription: "Failed to convert JSON Schema string to UTF-8 Data."
+          )
+        )
+      }
+      let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: jsonSchemaData)
 
       return jsonSchema
     }
