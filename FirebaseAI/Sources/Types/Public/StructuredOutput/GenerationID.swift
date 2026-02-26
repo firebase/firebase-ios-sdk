@@ -67,6 +67,7 @@ public extension FirebaseAI {
   extension FoundationModels.GenerationID: FirebaseAI.GenerationID.GenerationIDProtocol {}
 #endif // canImport(FoundationModels)
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FirebaseAI.GenerationID: Equatable {
   public static func == (lhs: FirebaseAI.GenerationID, rhs: FirebaseAI.GenerationID) -> Bool {
     guard lhs.responseID == rhs.responseID else {
@@ -85,6 +86,7 @@ extension FirebaseAI.GenerationID: Equatable {
   }
 }
 
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FirebaseAI.GenerationID: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(responseID)
