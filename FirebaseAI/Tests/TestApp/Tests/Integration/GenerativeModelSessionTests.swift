@@ -327,6 +327,7 @@
       )
 
       var generationID: FirebaseAI.GenerationID?
+      var id: FoundationModels.GenerationID?
       for try await snapshot in stream {
         let partial = snapshot.content
         if let name = partial.name {
@@ -347,6 +348,18 @@
         } else {
           #expect(snapshot.rawContent.generationID != nil)
           generationID = snapshot.rawContent.generationID
+        }
+        if let id {
+          #expect(
+            id == snapshot.content.id,
+            "The generation ID was not stable for the duration of the response."
+          )
+          #expect(
+            id == snapshot.content.id,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          id = snapshot.content.id
         }
       }
 

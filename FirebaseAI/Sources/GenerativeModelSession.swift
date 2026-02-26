@@ -224,7 +224,9 @@
           GenerationError.Context(debugDescription: "No text in response: \(response)")
         )
       }
-      let generationID = response.responseID.map { FirebaseAI.GenerationID(responseID: $0) }
+      let generationID = response.responseID.map {
+        FirebaseAI.GenerationID(responseID: $0, generationID: GenerationID())
+      }
 
       let rawContent = try Self.makeRawContent(
         from: text,
@@ -256,6 +258,7 @@
           let stream = try self.session.sendMessageStream(parts, generationConfig: config)
 
           var streamedText = ""
+          var generationID: FirebaseAI.GenerationID?
           for try await chunk in stream {
             guard let text = chunk.text else {
               throw GenerationError.decodingFailure(
@@ -263,7 +266,11 @@
               )
             }
             streamedText.append(text)
-            let generationID = chunk.responseID.map { FirebaseAI.GenerationID(responseID: $0) }
+            if generationID == nil {
+              generationID = chunk.responseID.map {
+                FirebaseAI.GenerationID(responseID: $0, generationID: GenerationID())
+              }
+            }
 
             let rawContent = try Self.makeRawContent(
               from: streamedText,
