@@ -354,10 +354,6 @@
             id == snapshot.content.id,
             "The generation ID was not stable for the duration of the response."
           )
-          #expect(
-            id == snapshot.content.id,
-            "The generation ID was not stable for the duration of the response."
-          )
         } else {
           id = snapshot.content.id
         }
