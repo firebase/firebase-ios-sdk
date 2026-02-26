@@ -375,22 +375,6 @@ static inline unsigned int OrderedNumLength(uint64_t val) {
   return static_cast<unsigned int>(lg + 1 + 7) / 8;
 }
 
-// Append n bytes from src to *dst.
-// REQUIRES: n <= 9
-// REQUIRES: src[0..8] are readable bytes (even if n is smaller)
-//
-// If we use string::append() instead of this routine, it increases the
-// runtime of WriteNumIncreasingSmall/WriteNumDecreasingSmall from ~7ns to
-// ~13ns.
-static inline void AppendUpto9(std::string* dst,
-                               const char* src,
-                               unsigned int n) {
-  const size_t old_size = dst->size();
-  absl::strings_internal::STLStringResizeUninitialized(dst, old_size + 9);
-  memcpy(&(*dst)[old_size], src, 9);
-  dst->erase(old_size + n);
-}
-
 void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t num) {
   // Values are encoded with a single byte length prefix, followed
   // by the actual value in big-endian format with leading 0 bytes
@@ -406,7 +390,7 @@ void OrderedCode::WriteNumIncreasing(std::string* dest, uint64_t num) {
   const unsigned int length = OrderedNumLength(num);
   char* start = buf + 9 - length - 1;
   *start = static_cast<char>(length);
-  AppendUpto9(dest, start, length + 1);
+  dest->append(start, length + 1);
 }
 
 void OrderedCode::WriteNumDecreasing(std::string* dest, uint64_t num) {
@@ -424,7 +408,7 @@ void OrderedCode::WriteNumDecreasing(std::string* dest, uint64_t num) {
   const unsigned int length = OrderedNumLength(num);
   char* start = buf + 9 - length - 1;
   *start = static_cast<char>(~length);
-  AppendUpto9(dest, start, length + 1);
+  dest->append(start, length + 1);
 }
 
 template <bool INVERT>
