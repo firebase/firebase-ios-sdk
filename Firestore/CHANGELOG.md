@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Minor refactor to avoid using an absl internal function. (#15889)
+
 # 12.10.0
 - [feature] Added support for `regexFind` and `regexFindAll` Pipeline expressions.
 
