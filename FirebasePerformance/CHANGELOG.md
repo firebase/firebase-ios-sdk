@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed NSURLSession delegate instrumentation for NSProxy delegates. (#14478)
+
 # 12.10.0
 - [fixed] Fix a race condition by replacing `mstats()` with `malloc_zone_statistics()`. (#15501)
 - [fixed] Fixed a deadlock in Firebase Sessions where the main thread could
