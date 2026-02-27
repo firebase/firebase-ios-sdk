@@ -19,12 +19,18 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension FirebaseAI {
+  /// An identifier for a specific generation.
+  ///
+  /// **Public Preview**: This API is a public preview and may be subject to change.
   struct GenerationID: Sendable {
     protocol GenerationIDProtocol: Sendable, Hashable {}
 
     let responseID: String
     let appleGenerationID: (any GenerationIDProtocol)?
 
+    /// Creates a new, unique generation identifier.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
     public init() {
       responseID = UUID().uuidString
       #if canImport(FoundationModels)

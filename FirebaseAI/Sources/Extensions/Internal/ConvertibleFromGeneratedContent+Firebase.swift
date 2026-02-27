@@ -19,6 +19,13 @@
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
   public extension FoundationModels.ConvertibleFromGeneratedContent {
+    /// Initializes an instance from `FirebaseAI.GeneratedContent`.
+    ///
+    /// **Public Preview**: This API is a public preview and may be subject to change.
+    ///
+    /// - Parameters:
+    ///   - content: The `FirebaseAI.GeneratedContent` from which to initialize.
+    /// - Throws: An error if initialization fails.
     init(_ content: FirebaseAI.GeneratedContent) throws {
       try self.init(content.wrapped)
     }
