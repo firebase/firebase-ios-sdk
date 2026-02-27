@@ -21,7 +21,7 @@
 
   @Suite(.serialized)
   struct GenerativeModelSessionTests {
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -57,7 +57,7 @@
       var profile: String
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -83,7 +83,7 @@
       #expect(response.rawContent.generationID != nil)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -161,7 +161,7 @@
       var recipes: [Recipe]
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -187,7 +187,7 @@
       #expect(response.rawContent.generationID != nil)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -221,7 +221,7 @@
       #expect(response.rawContent.generationID != nil)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -260,7 +260,7 @@
       }
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -310,7 +310,7 @@
       #expect(!catProfile.profile.isEmpty)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
