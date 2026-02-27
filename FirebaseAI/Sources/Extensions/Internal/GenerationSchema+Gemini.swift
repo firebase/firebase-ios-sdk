@@ -22,13 +22,36 @@
   extension GenerationSchema {
     /// Returns a Gemini-compatible JSON Schema of this `GenerationSchema`.
     func toGeminiJSONSchema() throws -> JSONObject {
-      let generationSchemaData = try JSONEncoder().encode(self)
-      var jsonSchema = try JSONDecoder().decode(JSONObject.self, from: generationSchemaData)
-      if let propertyOrdering = jsonSchema.removeValue(forKey: "x-order") {
-        jsonSchema["propertyOrdering"] = propertyOrdering
+      let encoder = JSONEncoder()
+      encoder.keyEncodingStrategy = .custom { keys in
+        guard let lastKey = keys.last else {
+          assertionFailure("Unexpected empty coding path.")
+          return SchemaCodingKey(stringValue: "")
+        }
+        if lastKey.stringValue == "x-order" {
+          return SchemaCodingKey(stringValue: "propertyOrdering")
+        }
+        return lastKey
       }
 
+      let generationSchemaData = try encoder.encode(self)
+      let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: generationSchemaData)
+
       return jsonSchema
+    }
+
+    private struct SchemaCodingKey: CodingKey {
+      let stringValue: String
+      let intValue: Int? = nil
+
+      init(stringValue: String) {
+        self.stringValue = stringValue
+      }
+
+      init?(intValue: Int) {
+        assertionFailure("Unexpected \(Self.self) with integer value: \(intValue)")
+        return nil
+      }
     }
   }
 #endif // canImport(FoundationModels)

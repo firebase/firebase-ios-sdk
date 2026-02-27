@@ -21,7 +21,7 @@
 
   @Suite(.serialized)
   struct GenerativeModelSessionTests {
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -36,7 +36,9 @@
 
       let content = response.content
       #expect(!content.isEmpty)
+      #expect(response.rawContent.isComplete)
       #expect(response.rawContent.kind == .string(content))
+      #expect(response.rawContent.generationID != nil)
       #expect(response.rawResponse.text == content)
     }
 
@@ -55,7 +57,7 @@
       var profile: String
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -69,6 +71,7 @@
       let response = try await session.respond(to: prompt, schema: CatProfile.generationSchema)
 
       let content = response.content
+      #expect(content.isComplete)
       let name: String = try content.value(forProperty: "name")
       #expect(!name.isEmpty)
       let age: Int = try content.value(forProperty: "age")
@@ -76,9 +79,11 @@
       #expect(age <= 20)
       let profile: String = try content.value(forProperty: "profile")
       #expect(!profile.isEmpty)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -96,6 +101,8 @@
       #expect(catProfile.age >= 1)
       #expect(catProfile.age <= 20)
       #expect(!catProfile.profile.isEmpty)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
     }
 
     @Generable
@@ -154,7 +161,7 @@
       var recipes: [Recipe]
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -176,9 +183,11 @@
       #expect(recipe.rating <= 5.0)
       #expect(!recipe.ingredients.isEmpty)
       #expect([.appetizer, .main, .dessert].contains(recipe.course))
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -208,9 +217,11 @@
 
       let allCourses: Set<SuggestedCourse> = [.appetizer, .main, .dessert]
       #expect(courses == allCourses)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -223,22 +234,33 @@
 
       let stream = session.streamResponse(to: prompt)
 
+      var generationID: FirebaseAI.GenerationID?
       for try await snapshot in stream {
         let partial = snapshot.content
         #expect(!partial.isEmpty)
+        if let generationID {
+          #expect(
+            generationID == snapshot.rawContent.generationID,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          #expect(snapshot.rawContent.generationID != nil)
+          generationID = snapshot.rawContent.generationID
+        }
       }
 
       let response = try await stream.collect()
       let content = response.content
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID == generationID)
       #expect(response.rawContent.kind == .string(content))
       if let text = response.rawResponse.text {
         #expect(content.hasSuffix(text))
       }
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -254,6 +276,7 @@
         schema: CatProfile.generationSchema
       )
 
+      var generationID: FirebaseAI.GenerationID?
       for try await snapshot in stream {
         let partial = try CatProfile.PartiallyGenerated(snapshot.rawContent)
         if let name = partial.name {
@@ -266,10 +289,20 @@
         if let profile = partial.profile {
           #expect(!profile.isEmpty)
         }
+        if let generationID {
+          #expect(
+            generationID == snapshot.rawContent.generationID,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          #expect(snapshot.rawContent.generationID != nil)
+          generationID = snapshot.rawContent.generationID
+        }
       }
 
       let response = try await stream.collect()
       #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID == generationID)
       let catProfile = try CatProfile(response.content)
       #expect(!catProfile.name.isEmpty)
       #expect(catProfile.age >= 1)
@@ -277,7 +310,7 @@
       #expect(!catProfile.profile.isEmpty)
     }
 
-    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
@@ -293,6 +326,8 @@
         generating: CatProfile.self
       )
 
+      var generationID: FirebaseAI.GenerationID?
+      var id: FoundationModels.GenerationID?
       for try await snapshot in stream {
         let partial = snapshot.content
         if let name = partial.name {
@@ -305,10 +340,28 @@
         if let profile = partial.profile {
           #expect(!profile.isEmpty)
         }
+        if let generationID {
+          #expect(
+            generationID == snapshot.rawContent.generationID,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          #expect(snapshot.rawContent.generationID != nil)
+          generationID = snapshot.rawContent.generationID
+        }
+        if let id {
+          #expect(
+            id == snapshot.content.id,
+            "The generation ID was not stable for the duration of the response."
+          )
+        } else {
+          id = snapshot.content.id
+        }
       }
 
       let response = try await stream.collect()
       #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID == generationID)
       let catProfile = response.content
       #expect(!catProfile.name.isEmpty)
       #expect(catProfile.age >= 1)
