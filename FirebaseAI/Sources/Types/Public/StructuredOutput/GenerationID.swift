@@ -23,11 +23,10 @@ public extension FirebaseAI {
     protocol GenerationIDProtocol: Sendable, Hashable {}
 
     let responseID: String
-    let appleGenerationID: GenerationIDProtocol?
+    let appleGenerationID: (any GenerationIDProtocol)?
 
     public init() {
       responseID = UUID().uuidString
-      let appleGenerationID: GenerationIDProtocol?
       #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
           appleGenerationID = FoundationModels.GenerationID()
@@ -37,10 +36,9 @@ public extension FirebaseAI {
       #else
         appleGenerationID = nil
       #endif // canImport(FoundationModels)
-      self.appleGenerationID = appleGenerationID
     }
 
-    init(responseID: String, generationID: GenerationIDProtocol?) {
+    init(responseID: String, generationID: (any GenerationIDProtocol)?) {
       self.responseID = responseID
       appleGenerationID = generationID
     }
