@@ -154,39 +154,34 @@ final class GenerationConfigTests: XCTestCase {
     """)
   }
 
-  func testEncodeGenerationConfig_responseJSONSchema() throws {
+  struct Person: FirebaseGenerable {
+    static var firebaseGenerationSchema: FirebaseGenerationSchema {
+      FirebaseGenerationSchema(type: Self.self, properties: [
+        FirebaseGenerationSchema.Property(name: "firstName", type: String.self),
+        FirebaseGenerationSchema.Property(
+          name: "middleNames",
+          type: [String].self,
+          guides: [.count(0 ... 3)]
+        ),
+        FirebaseGenerationSchema.Property(name: "lastName", type: String.self),
+        FirebaseGenerationSchema.Property(name: "age", type: Int.self),
+      ])
+    }
+
+    init(_ content: FirebaseAILogic.FirebaseGeneratedContent) throws {
+      fatalError("\(#function) not needed for \(Self.self) in test file: \(#file)")
+    }
+
+    var firebaseGeneratedContent: FirebaseAILogic.FirebaseGeneratedContent {
+      fatalError("\(#function) not needed for \(Self.self) in test file: \(#file)")
+    }
+  }
+
+  func testEncodeGenerationConfig_responseFirebaseGenerationSchema() throws {
     let mimeType = "application/json"
-    let responseJSONSchema: JSONObject = [
-      "type": .string("object"),
-      "title": .string("Person"),
-      "properties": .object([
-        "firstName": .object(["type": .string("string")]),
-        "middleNames": .object([
-          "type": .string("array"),
-          "items": .object(["type": .string("string")]),
-          "minItems": .number(0),
-          "maxItems": .number(3),
-        ]),
-        "lastName": .object(["type": .string("string")]),
-        "age": .object(["type": .string("integer")]),
-      ]),
-      "required": .array([
-        .string("firstName"),
-        .string("middleNames"),
-        .string("lastName"),
-        .string("age"),
-      ]),
-      "propertyOrdering": .array([
-        .string("firstName"),
-        .string("middleNames"),
-        .string("lastName"),
-        .string("age"),
-      ]),
-      "additionalProperties": .bool(false),
-    ]
     let generationConfig = GenerationConfig(
       responseMIMEType: mimeType,
-      responseJSONSchema: responseJSONSchema
+      responseFirebaseGenerationSchema: Person.firebaseGenerationSchema
     )
 
     let jsonData = try encoder.encode(generationConfig)

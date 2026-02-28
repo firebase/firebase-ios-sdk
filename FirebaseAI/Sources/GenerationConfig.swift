@@ -19,45 +19,45 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerationConfig: Sendable {
   /// Controls the degree of randomness in token selection.
-  let temperature: Float?
+  var temperature: Float?
 
   /// Controls diversity of generated text.
-  let topP: Float?
+  var topP: Float?
 
   /// Limits the number of highest probability words considered.
-  let topK: Int?
+  var topK: Int?
 
   /// The number of response variations to return.
-  let candidateCount: Int?
+  var candidateCount: Int?
 
   /// Maximum number of tokens that can be generated in the response.
-  let maxOutputTokens: Int?
+  var maxOutputTokens: Int?
 
   /// Controls the likelihood of repeating the same words or phrases already generated in the text.
-  let presencePenalty: Float?
+  var presencePenalty: Float?
 
   /// Controls the likelihood of repeating words, with the penalty increasing for each repetition.
-  let frequencyPenalty: Float?
+  var frequencyPenalty: Float?
 
   /// A set of up to 5 `String`s that will stop output generation.
-  let stopSequences: [String]?
+  var stopSequences: [String]?
 
   /// Output response MIME type of the generated candidate text.
-  let responseMIMEType: String?
+  var responseMIMEType: String?
 
   /// Output schema of the generated candidate text.
-  let responseSchema: Schema?
+  var responseSchema: Schema?
 
   /// Output schema of the generated response in [JSON Schema](https://json-schema.org/) format.
   ///
   /// If set, `responseSchema` must be omitted and `responseMIMEType` is required.
-  let responseJSONSchema: JSONObject?
+  var responseFirebaseGenerationSchema: FirebaseGenerationSchema?
 
   /// Supported modalities of the response.
-  let responseModalities: [ResponseModality]?
+  var responseModalities: [ResponseModality]?
 
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
-  let thinkingConfig: ThinkingConfig?
+  var thinkingConfig: ThinkingConfig?
 
   /// Creates a new `GenerationConfig` value.
   ///
@@ -180,14 +180,15 @@ public struct GenerationConfig: Sendable {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     self.responseSchema = responseSchema
-    responseJSONSchema = nil
+    responseFirebaseGenerationSchema = nil
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
   }
 
   init(temperature: Float? = nil, topP: Float? = nil, topK: Int? = nil, candidateCount: Int? = nil,
        maxOutputTokens: Int? = nil, presencePenalty: Float? = nil, frequencyPenalty: Float? = nil,
-       stopSequences: [String]? = nil, responseMIMEType: String, responseJSONSchema: JSONObject,
+       stopSequences: [String]? = nil, responseMIMEType: String,
+       responseFirebaseGenerationSchema: FirebaseGenerationSchema,
        responseModalities: [ResponseModality]? = nil, thinkingConfig: ThinkingConfig? = nil) {
     self.temperature = temperature
     self.topP = topP
@@ -199,9 +200,83 @@ public struct GenerationConfig: Sendable {
     self.stopSequences = stopSequences
     self.responseMIMEType = responseMIMEType
     responseSchema = nil
-    self.responseJSONSchema = responseJSONSchema
+    self.responseFirebaseGenerationSchema = responseFirebaseGenerationSchema
     self.responseModalities = responseModalities
     self.thinkingConfig = thinkingConfig
+  }
+
+  /// Merges two configurations, giving precedence to values found in the `overrides` parameter.
+  ///
+  /// - Parameters:
+  ///   - base: The foundational configuration (e.g., model-level defaults).
+  ///   - overrides: The configuration containing values that should supersede the base (e.g.,
+  /// request-level specific settings).
+  /// - Returns: A merged `GenerationConfig` prioritizing `overrides`, or `nil` if both inputs are
+  /// `nil`.
+  static func merge(_ base: GenerationConfig?,
+                    with overrides: GenerationConfig?) -> GenerationConfig? {
+    // 1. If the base config is missing, return the overrides (which might be nil).
+    guard let baseConfig = base else {
+      return overrides
+    }
+
+    // 2. If overrides are missing, strictly return the base.
+    guard let overrideConfig = overrides else {
+      return baseConfig
+    }
+
+    // 3. Start with a copy of the base config.
+    var config = baseConfig
+
+    // 4. Overwrite with any non-nil values found in the overrides.
+    config.temperature = overrideConfig.temperature ?? config.temperature
+    config.topP = overrideConfig.topP ?? config.topP
+    config.topK = overrideConfig.topK ?? config.topK
+    config.candidateCount = overrideConfig.candidateCount ?? config.candidateCount
+    config.maxOutputTokens = overrideConfig.maxOutputTokens ?? config.maxOutputTokens
+    config.presencePenalty = overrideConfig.presencePenalty ?? config.presencePenalty
+    config.frequencyPenalty = overrideConfig.frequencyPenalty ?? config.frequencyPenalty
+    config.stopSequences = overrideConfig.stopSequences ?? config.stopSequences
+    config.responseMIMEType = overrideConfig.responseMIMEType ?? config.responseMIMEType
+    config.responseModalities = overrideConfig.responseModalities ?? config.responseModalities
+    config.thinkingConfig = overrideConfig.thinkingConfig ?? config.thinkingConfig
+
+    // 5. Handle Schema mutual exclusivity with precedence for `responseFirebaseGenerationSchema`.
+    if let responseFirebaseGenerationSchema = overrideConfig.responseFirebaseGenerationSchema {
+      config.responseFirebaseGenerationSchema = responseFirebaseGenerationSchema
+      config.responseSchema = nil
+    } else if let responseSchema = overrideConfig.responseSchema {
+      config.responseSchema = responseSchema
+      config.responseFirebaseGenerationSchema = nil
+    }
+
+    return config
+  }
+
+  /// Merges configurations and explicitly enforces settings required for JSON structured output.
+  ///
+  /// - Parameters:
+  ///   - base: The foundational configuration (e.g., model defaults).
+  ///   - overrides: The configuration containing overrides (e.g., request specific).
+  ///   - firebaseGenerationSchema: The JSON schema to enforce on the output.
+  /// - Returns: A non-nil `GenerationConfig` with the merged values and JSON constraints applied.
+  static func merge(_ base: GenerationConfig?,
+                    with overrides: GenerationConfig?,
+                    enforcingFirebaseGenerationSchema firebaseGenerationSchema: FirebaseGenerationSchema)
+    -> GenerationConfig {
+    // 1. Merge base and overrides, defaulting to a fresh config if both are nil.
+    var config = GenerationConfig.merge(base, with: overrides) ?? GenerationConfig()
+
+    // 2. Enforce the specific constraints for JSON Schema generation.
+    config.responseMIMEType = "application/json"
+    config.responseFirebaseGenerationSchema = firebaseGenerationSchema
+    config.responseSchema = nil // Clear conflicting legacy schema
+
+    // 3. Clear incompatible or conflicting options.
+    config.candidateCount = nil // Structured output typically requires default candidate behaviour
+    config.responseModalities = nil // Ensure text-only output for JSON
+
+    return config
   }
 }
 
@@ -220,8 +295,29 @@ extension GenerationConfig: Encodable {
     case stopSequences
     case responseMIMEType = "responseMimeType"
     case responseSchema
-    case responseJSONSchema = "responseJsonSchema"
+    case responseFirebaseGenerationSchema = "responseJsonSchema"
     case responseModalities
     case thinkingConfig
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(temperature, forKey: .temperature)
+    try container.encodeIfPresent(topP, forKey: .topP)
+    try container.encodeIfPresent(topK, forKey: .topK)
+    try container.encodeIfPresent(candidateCount, forKey: .candidateCount)
+    try container.encodeIfPresent(maxOutputTokens, forKey: .maxOutputTokens)
+    try container.encodeIfPresent(presencePenalty, forKey: .presencePenalty)
+    try container.encodeIfPresent(frequencyPenalty, forKey: .frequencyPenalty)
+    try container.encodeIfPresent(stopSequences, forKey: .stopSequences)
+    try container.encodeIfPresent(responseMIMEType, forKey: .responseMIMEType)
+    try container.encodeIfPresent(responseSchema, forKey: .responseSchema)
+    if let responseFirebaseGenerationSchema {
+      let schemaEncoder = SchemaEncoder(target: .gemini)
+      let firebaseGenerationSchema = try schemaEncoder.encode(responseFirebaseGenerationSchema)
+      try container.encode(firebaseGenerationSchema, forKey: .responseFirebaseGenerationSchema)
+    }
+    try container.encodeIfPresent(responseModalities, forKey: .responseModalities)
+    try container.encodeIfPresent(thinkingConfig, forKey: .thinkingConfig)
   }
 }
