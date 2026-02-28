@@ -144,44 +144,7 @@ public final class GenerativeModel: Sendable {
   /// - Throws: A ``GenerateContentError`` if the request failed.
   public func generateContent(_ content: [ModelContent]) async throws
     -> GenerateContentResponse {
-    try content.throwIfError()
-    let response: GenerateContentResponse
-    let generateContentRequest = GenerateContentRequest(
-      model: modelResourceName,
-      contents: content,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
-      tools: tools,
-      toolConfig: toolConfig,
-      systemInstruction: systemInstruction,
-      apiConfig: apiConfig,
-      apiMethod: .generateContent,
-      options: requestOptions
-    )
-    do {
-      response = try await generativeAIService.loadRequest(request: generateContentRequest)
-    } catch {
-      throw GenerativeModel.generateContentError(from: error)
-    }
-
-    // Check the prompt feedback to see if the prompt was blocked.
-    if response.promptFeedback?.blockReason != nil {
-      throw GenerateContentError.promptBlocked(response: response)
-    }
-
-    // Check to see if an error should be thrown for stop reason.
-    if let reason = response.candidates.first?.finishReason, reason != .stop {
-      throw GenerateContentError.responseStoppedEarly(reason: reason, response: response)
-    }
-
-    // If all candidates are empty (contain no information that a developer could act on) then throw
-    if response.candidates.allSatisfy({ $0.isEmpty }) {
-      throw GenerateContentError.internalError(underlying: InvalidCandidateError.emptyContent(
-        underlyingError: Candidate.EmptyContentError()
-      ))
-    }
-
-    return response
+    return try await generateContent(content, generationConfig: generationConfig)
   }
 
   /// Generates content from String and/or image inputs, given to the model as a prompt, that are
@@ -355,6 +318,120 @@ public final class GenerativeModel: Sendable {
     )
 
     return try await generativeAIService.loadRequest(request: countTokensRequest)
+  }
+
+  // MARK: - Internal
+
+  func generateContent(_ content: [ModelContent],
+                       generationConfig: GenerationConfig?) async throws
+    -> GenerateContentResponse {
+    try content.throwIfError()
+    let response: GenerateContentResponse
+    let generateContentRequest = GenerateContentRequest(
+      model: modelResourceName,
+      contents: content,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      apiConfig: apiConfig,
+      apiMethod: .generateContent,
+      options: requestOptions
+    )
+    do {
+      response = try await generativeAIService.loadRequest(request: generateContentRequest)
+    } catch {
+      throw GenerativeModel.generateContentError(from: error)
+    }
+
+    // Check the prompt feedback to see if the prompt was blocked.
+    if response.promptFeedback?.blockReason != nil {
+      throw GenerateContentError.promptBlocked(response: response)
+    }
+
+    // Check to see if an error should be thrown for stop reason.
+    if let reason = response.candidates.first?.finishReason, reason != .stop {
+      throw GenerateContentError.responseStoppedEarly(reason: reason, response: response)
+    }
+
+    // If all candidates are empty (contain no information that a developer could act on) then throw
+    if response.candidates.allSatisfy({ $0.isEmpty }) {
+      throw GenerateContentError.internalError(underlying: InvalidCandidateError.emptyContent(
+        underlyingError: Candidate.EmptyContentError()
+      ))
+    }
+
+    return response
+  }
+
+  @available(macOS 12.0, *)
+  func generateContentStream(_ content: [ModelContent],
+                             generationConfig: GenerationConfig?) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    try content.throwIfError()
+    let generateContentRequest = GenerateContentRequest(
+      model: modelResourceName,
+      contents: content,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings,
+      tools: tools,
+      toolConfig: toolConfig,
+      systemInstruction: systemInstruction,
+      apiConfig: apiConfig,
+      apiMethod: .streamGenerateContent,
+      options: requestOptions
+    )
+
+    return AsyncThrowingStream { continuation in
+      let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
+      Task {
+        do {
+          var didYieldResponse = false
+          for try await response in responseStream {
+            // Check the prompt feedback to see if the prompt was blocked.
+            if response.promptFeedback?.blockReason != nil {
+              throw GenerateContentError.promptBlocked(response: response)
+            }
+
+            // If the stream ended early unexpectedly, throw an error.
+            if let finishReason = response.candidates.first?.finishReason, finishReason != .stop {
+              throw GenerateContentError.responseStoppedEarly(
+                reason: finishReason,
+                response: response
+              )
+            }
+
+            // Skip returning the response if all candidates are empty (i.e., they contain no
+            // information that a developer could act on).
+            if response.candidates.allSatisfy({ $0.isEmpty }) {
+              AILog.log(
+                level: .debug,
+                code: .generateContentResponseEmptyCandidates,
+                "Skipped response with all empty candidates: \(response)"
+              )
+            } else {
+              continuation.yield(response)
+              didYieldResponse = true
+            }
+          }
+
+          // Throw an error if all responses were skipped due to empty content.
+          if didYieldResponse {
+            continuation.finish()
+          } else {
+            continuation.finish(throwing: GenerativeModel.generateContentError(
+              from: InvalidCandidateError.emptyContent(
+                underlyingError: Candidate.EmptyContentError()
+              )
+            ))
+          }
+        } catch {
+          continuation.finish(throwing: GenerativeModel.generateContentError(from: error))
+          return
+        }
+      }
+    }
   }
 
   /// Returns a `GenerateContentError` (for public consumption) from an internal error.
