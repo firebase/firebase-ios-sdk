@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
+#include "gtest/gtest-death-test.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -180,13 +181,13 @@ TEST(FieldPath, IsPrefixOf) {
 
 TEST(FieldPath, AccessFailures) {
   const FieldPath path;
-  ASSERT_ANY_THROW(path.first_segment());
-  ASSERT_ANY_THROW(path.last_segment());
-  ASSERT_ANY_THROW(path[0]);
-  ASSERT_ANY_THROW(path[1]);
-  ASSERT_ANY_THROW(path.PopFirst());
-  ASSERT_ANY_THROW(path.PopFirst(2));
-  ASSERT_ANY_THROW(path.PopLast());
+  ASSERT_DEATH(path.first_segment(), "FIRESTORE INTERNAL ASSERTION FAILED");
+  ASSERT_DEATH(path.last_segment(), "FIRESTORE INTERNAL ASSERTION FAILED");
+  ASSERT_DEATH(path[0], "FIRESTORE INTERNAL ASSERTION FAILED");
+  ASSERT_DEATH(path[1], "FIRESTORE INTERNAL ASSERTION FAILED");
+  ASSERT_DEATH(path.PopFirst(), "FIRESTORE INTERNAL ASSERTION FAILED");
+  ASSERT_DEATH(path.PopFirst(2), "FIRESTORE INTERNAL ASSERTION FAILED");
+  ASSERT_DEATH(path.PopLast(), "FIRESTORE INTERNAL ASSERTION FAILED");
 }
 
 TEST(FieldPath, Parsing) {
