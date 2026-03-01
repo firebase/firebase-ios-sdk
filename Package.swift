@@ -88,6 +88,10 @@ let package = Package(
       targets: ["FirebaseCore"]
     ),
     .library(
+      name: "FirebaseCoreLinux",
+      targets: ["FirebaseCoreLinux"]
+    ),
+    .library(
       name: "FirebaseCrashlytics",
       targets: ["FirebaseCrashlytics"]
     ),
@@ -270,6 +274,21 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
       ]
+    ),
+
+    // MARK: - Firebase Core Linux
+
+    .target(
+      name: "FirebaseCoreLinux",
+      dependencies: [],
+      path: "FirebaseCoreLinux/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseCoreLinuxTests",
+      dependencies: [
+        "FirebaseCoreLinux",
+      ],
+      path: "FirebaseCoreLinux/Tests/Unit"
     ),
 
     // MARK: - Firebase Core Internal
