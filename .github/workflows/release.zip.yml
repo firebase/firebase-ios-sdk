@@ -18,11 +18,11 @@ permissions:
 env:
   # When specified, build jobs will be skipped and the specified
   # run's artifacts will be used for testing.
-  PINNED_RUN_ID: ''
+  PINNED_RUN_ID: '21681625086'
   # Firebase's minimum supported Xcode. This is what the binary artifacts are
   # built with. Changing this version must only be done in alignment with
   # updates to the minimum supported Xcode supported for App Store submissions.
-  MIN_XCODE: Xcode_16.2 # WARNING: Read above comment.
+  MIN_XCODE: Xcode_26.2 # WARNING: Read above comment.
 
 on:
   pull_request:
@@ -84,7 +84,7 @@ jobs:
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       needs.should_package.outputs.should_package == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -117,7 +117,7 @@ jobs:
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       needs.should_package.outputs.should_package == 'true'
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         linking_type: [static, dynamic]
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -192,7 +192,7 @@ jobs:
     if: ${{ !cancelled() }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Xcode
         run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
@@ -280,8 +280,8 @@ jobs:
           - product: "Database"
             plist_src: "scripts/gha-encrypted/qs-database.plist.gpg"
             plist_dst: "quickstart-ios/database/GoogleService-Info.plist"
-            os: "macos-14" # Override default
-            xcode: "Xcode_16.2" # Override default
+            # os: "macos-14" # Override default
+            # xcode: "Xcode_16.2" # Override default
             command: |
               SAMPLE="Database" TARGET="DatabaseExample" NON_FIREBASE_SDKS="FirebaseDatabaseUI" \
                 scripts/zip/setup_quickstart_framework.sh \
@@ -351,7 +351,7 @@ jobs:
       artifact_name: ${{ matrix.artifact }}
       # Use defaults for most, override for Database
       os: ${{ matrix.config.os || 'macos-15' }}
-      xcode: ${{ matrix.config.xcode || 'Xcode_16.4' }}
+      xcode: ${{ matrix.config.xcode || 'Xcode_26.2' }}
       # Optional scheme (only used by FirebaseAI)
       scheme: ${{ matrix.config.scheme }}
       plist_src_path: ${{ matrix.config.plist_src }}
