@@ -154,6 +154,216 @@ struct GenerateContentIntegrationTests {
     #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
   }
 
+  @Test("Generate a JSON object", arguments: InstanceConfig.allConfigs)
+  func generateContentJSONObject(_ config: InstanceConfig) async throws {
+    struct Recipe: Codable {
+      let name: String
+      let ingredients: [RecipeIngredient]
+      let isDelicious: Bool
+    }
+
+    struct RecipeIngredient: Codable, Equatable {
+      let name: String
+      let quantity: Int
+    }
+
+    let expectedResponse = Recipe(
+      name: "Apple Pie",
+      ingredients: [
+        RecipeIngredient(name: "Apple", quantity: 6),
+        RecipeIngredient(name: "Cinnamon", quantity: 1),
+        RecipeIngredient(name: "Sugar", quantity: 1),
+      ],
+      isDelicious: true
+    )
+    let recipeSchema = Schema.object(properties: [
+      "name": .string(),
+      "ingredients": .array(items: .object(properties: [
+        "name": .string(),
+        "quantity": .integer(),
+      ])),
+      "isDelicious": .boolean(),
+    ])
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: GenerationConfig(
+        responseMIMEType: "application/json",
+        responseSchema: recipeSchema
+      ),
+      safetySettings: safetySettings,
+      systemInstruction: ModelContent(
+        role: "system",
+        parts: "Always respond with a recipe for apple pie."
+      )
+    )
+    let prompt = "Give me a recipe for a dessert."
+
+    let response = try await model.generateContent(prompt)
+
+    let responseData = try #require(response.text?.data(using: .utf8))
+    let recipe = try JSONDecoder().decode(Recipe.self, from: responseData)
+    #expect(recipe.name.lowercased() == expectedResponse.name.lowercased())
+    #expect(recipe.ingredients.count >= expectedResponse.ingredients.count)
+    #expect(recipe.isDelicious == expectedResponse.isDelicious)
+
+    let usageMetadata = try #require(response.usageMetadata)
+    #expect(usageMetadata.promptTokenCount.isEqual(to: 36, accuracy: tokenCountAccuracy))
+    #expect(usageMetadata.candidatesTokenCount >= 92)
+    #expect(usageMetadata.thoughtsTokenCount == 0)
+    #expect(usageMetadata.totalTokenCount
+      == usageMetadata.promptTokenCount + usageMetadata.candidatesTokenCount)
+    #expect(usageMetadata.promptTokensDetails.count == 1)
+    let promptTokensDetails = try #require(usageMetadata.promptTokensDetails.first)
+    #expect(promptTokensDetails.modality == .text)
+    #expect(promptTokensDetails.tokenCount == usageMetadata.promptTokenCount)
+    #expect(usageMetadata.candidatesTokensDetails.count == 1)
+    let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
+    #expect(candidatesTokensDetails.modality == .text)
+    #expect(candidatesTokensDetails.tokenCount == usageMetadata.candidatesTokenCount)
+  }
+
+  @FirebaseGenerable
+  struct Ingredient: Codable, Equatable {
+    let name: String
+    let quantity: Int
+  }
+
+  @FirebaseGenerable
+  struct Dessert: Codable, Equatable {
+    let name: String
+    let ingredients: [Ingredient]
+    let isDelicious: Bool
+  }
+
+  @Test("Generate a JSON object with @FirebaseGenerable", arguments: InstanceConfig.allConfigs)
+  func generateContentWithFirebaseGenerable(_ config: InstanceConfig) async throws {
+    let expectedResponse = Dessert(
+      name: "Apple Pie",
+      ingredients: [
+        Ingredient(name: "Apple", quantity: 6),
+        Ingredient(name: "Cinnamon", quantity: 1),
+        Ingredient(name: "Sugar", quantity: 1),
+      ],
+      isDelicious: true
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      generationConfig: GenerationConfig(
+        responseMIMEType: "application/json",
+        responseSchema: Dessert.firebaseGenerationSchema
+      ),
+      safetySettings: safetySettings,
+      systemInstruction: ModelContent(
+        role: "system",
+        parts: "Always respond with a recipe for apple pie."
+      )
+    )
+    let prompt = "Give me a recipe for a dessert."
+
+    let response = try await model.generateContent(prompt)
+
+    let responseData = try #require(response.text?.data(using: .utf8))
+    let dessert = try JSONDecoder().decode(Dessert.self, from: responseData)
+    #expect(dessert.name.lowercased() == expectedResponse.name.lowercased())
+    #expect(dessert.ingredients.count >= expectedResponse.ingredients.count)
+    #expect(dessert.isDelicious == expectedResponse.isDelicious)
+  }
+
+  @Test("Generate a JSON object with generateObject", arguments: InstanceConfig.allConfigs)
+  func generateObject(_ config: InstanceConfig) async throws {
+    let expectedResponse = Dessert(
+      name: "Apple Pie",
+      ingredients: [
+        Ingredient(name: "Apple", quantity: 6),
+        Ingredient(name: "Cinnamon", quantity: 1),
+        Ingredient(name: "Sugar", quantity: 1),
+      ],
+      isDelicious: true
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      systemInstruction: ModelContent(
+        role: "system",
+        parts: "Always respond with a recipe for apple pie."
+      )
+    )
+
+    let dessert = try await model.generateObject(
+      as: Dessert.self,
+      from: "Give me a recipe for a dessert."
+    )
+
+    #expect(dessert.name.lowercased() == expectedResponse.name.lowercased())
+    #expect(dessert.ingredients.count >= 2)
+    #expect(dessert.isDelicious == expectedResponse.isDelicious)
+  }
+
+  @Test(
+    "generateObject inherits parent model's generationConfig",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateObject_inheritsGenerationConfig(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite,
+      // Set a token limit that is too low for the model to generate a valid JSON object.
+      generationConfig: GenerationConfig(maxOutputTokens: 1)
+    )
+
+    // Expect the call to `generateObject` to fail. If the `maxOutputTokens` setting from the
+    // parent model's `generationConfig` is correctly inherited, the model's response will be
+    // truncated
+    // (due to `maxOutputTokens`), causing a `.responseStoppedEarly` error with a `.maxTokens`
+    // reason
+    // to be thrown. If this test fails, it means the configuration was not inherited correctly.
+    do {
+      _ = try await model.generateObject(
+        as: Dessert.self,
+        from: "Give me a recipe for any dessert."
+      )
+      Issue.record("Function was expected to throw, but it did not.")
+    } catch let error as GenerateContentError {
+      switch error {
+      case let .responseStoppedEarly(reason: finishReason, response: _):
+        #expect(finishReason == .maxTokens)
+      // Success: Caught the expected responseStoppedEarly error with maxTokens reason.
+      default:
+        Issue
+          .record(
+            "Caught GenerateContentError, but it was not a responseStoppedEarly error with maxTokens reason."
+          )
+      }
+    } catch {
+      Issue.record("Function threw an unexpected error type: \(error)")
+    }
+  }
+
+  // A dessert with optional properties for testing nullable schema generation.
+  @FirebaseGenerable
+  struct OptionalDessert: Codable, Equatable {
+    let name: String?
+    let ingredients: [Ingredient]?
+    let isDelicious: Bool
+  }
+
+  @Test(
+    "generateObject with optional properties",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateObject_withOptionalProperties_succeeds(_ config: InstanceConfig) async throws {
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2FlashLite
+    )
+
+    let dessert = try await model.generateObject(
+      as: OptionalDessert.self,
+      from: "Generate a dessert that is delicious, but you don't know its name or ingredients."
+    )
+
+    #expect(dessert.name == nil)
+    #expect(dessert.ingredients == nil)
+    #expect(dessert.isDelicious == true)
+  }
+
   @Test(
     arguments: [
       (.vertexAI_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),

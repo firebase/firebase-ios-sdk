@@ -155,6 +155,27 @@ public final class Schema: Sendable {
     self.propertyOrdering = propertyOrdering
   }
 
+  /// Private initializer to create a new schema by copying an existing one with specific overrides.
+  private convenience init(copying other: Schema, nullable: Bool? = nil) {
+    self.init(
+      type: other.dataType,
+      format: other.format,
+      description: other.description,
+      title: other.title,
+      nullable: nullable ?? other.nullable,
+      enumValues: other.enumValues,
+      items: other.items,
+      minItems: other.minItems,
+      maxItems: other.maxItems,
+      minimum: other.minimum,
+      maximum: other.maximum,
+      anyOf: other.anyOf,
+      properties: other.properties,
+      requiredProperties: other.requiredProperties,
+      propertyOrdering: other.propertyOrdering
+    )
+  }
+
   /// Returns a `Schema` representing a string value.
   ///
   /// This schema instructs the model to produce data of type `"STRING"`, which is suitable for
@@ -480,5 +501,22 @@ extension Schema: Encodable {
     case properties
     case requiredProperties = "required"
     case propertyOrdering
+  }
+}
+
+// MARK: - Helpers
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension Schema {
+  /// Returns a new schema that is identical to the receiver, but with the `nullable`
+  /// property set to `true`.
+  ///
+  /// This is useful for representing optional types. For example, if you have a schema
+  /// for a `User` object, you can represent an optional `User?` by calling
+  /// `userSchema.nullable()`.
+  ///
+  /// - Returns: A new `Schema` instance with `nullable` set to `true`.
+  func asNullable() -> Schema {
+    return Schema(copying: self, nullable: true)
   }
 }
