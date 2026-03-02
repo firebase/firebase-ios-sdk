@@ -27,7 +27,7 @@
     ///   - content: The `FirebaseAI.GeneratedContent` from which to initialize.
     /// - Throws: An error if initialization fails.
     init(_ content: FirebaseAI.GeneratedContent) throws {
-      try self.init(content.wrapped)
+      try self.init(content.generatedContent)
     }
   }
 #endif // compiler(>=6.2) && canImport(FoundationModels)
