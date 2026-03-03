@@ -597,7 +597,10 @@ public extension Expression {
   }
 
   func arrayIndexOf(_ value: Expression) -> FunctionExpression {
-    return FunctionExpression(functionName: "array_index_of", args: [self, value, Constant("first")])
+    return FunctionExpression(
+      functionName: "array_index_of",
+      args: [self, value, Constant("first")]
+    )
   }
 
   func arrayLastIndexOf(_ value: Sendable) -> FunctionExpression {

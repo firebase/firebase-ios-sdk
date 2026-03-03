@@ -463,7 +463,8 @@ public protocol Expression: Sendable {
   /// Field("tags").arrayFirstN(Field("count"))
   /// ```
   ///
-  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to return.
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to
+  /// return.
   /// - Returns: A new `FunctionExpression` representing the first `n` elements of the array.
   func arrayFirstN(_ n: Expression) -> FunctionExpression
 
@@ -498,7 +499,8 @@ public protocol Expression: Sendable {
   /// Field("tags").arrayLastN(Field("count"))
   /// ```
   ///
-  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to return.
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to
+  /// return.
   /// - Returns: A new `FunctionExpression` representing the last `n` elements of the array.
   func arrayLastN(_ n: Expression) -> FunctionExpression
 
@@ -658,7 +660,8 @@ public protocol Expression: Sendable {
   /// Field("scores").arrayMinimumN(Field("count"))
   /// ```
   ///
-  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to return.
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to
+  /// return.
   /// - Returns: A new `FunctionExpression` representing the `n` smallest elements of the array.
   func arrayMinimumN(_ n: Expression) -> FunctionExpression
 
@@ -682,7 +685,8 @@ public protocol Expression: Sendable {
   /// Field("scores").arrayMaximumN(Field("count"))
   /// ```
   ///
-  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to return.
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to
+  /// return.
   /// - Returns: A new `FunctionExpression` representing the `n` largest elements of the array.
   func arrayMaximumN(_ n: Expression) -> FunctionExpression
 
