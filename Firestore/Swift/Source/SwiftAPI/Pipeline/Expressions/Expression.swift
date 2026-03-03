@@ -432,6 +432,76 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the length of the array.
   func arrayLength() -> FunctionExpression
 
+  /// Creates an expression that returns the first element of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the first item in the "tags" array.
+  /// Field("tags").arrayFirst()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the first element of the array.
+  func arrayFirst() -> FunctionExpression
+
+  /// Creates an expression that returns the first `n` elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the first 3 items in the "tags" array.
+  /// Field("tags").arrayFirstN(3)
+  /// ```
+  ///
+  /// - Parameter n: The number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the first `n` elements of the array.
+  func arrayFirstN(_ n: Int) -> FunctionExpression
+
+  /// Creates an expression that returns the first `n` elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the first n items in the "tags" array where n is specified by field "count".
+  /// Field("tags").arrayFirstN(Field("count"))
+  /// ```
+  ///
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the first `n` elements of the array.
+  func arrayFirstN(_ n: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the last element of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last item in the "tags" array.
+  /// Field("tags").arrayLast()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the last element of the array.
+  func arrayLast() -> FunctionExpression
+
+  /// Creates an expression that returns the last `n` elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last 3 items in the "tags" array.
+  /// Field("tags").arrayLastN(3)
+  /// ```
+  ///
+  /// - Parameter n: The number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the last `n` elements of the array.
+  func arrayLastN(_ n: Int) -> FunctionExpression
+
+  /// Creates an expression that returns the last `n` elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last n items in the "tags" array where n is specified by field "count".
+  /// Field("tags").arrayLastN(Field("count"))
+  /// ```
+  ///
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the last `n` elements of the array.
+  func arrayLastN(_ n: Expression) -> FunctionExpression
+
   /// Creates an expression that accesses an element in an array (from `self`) at the specified
   /// integer offset.
   /// A negative offset starts from the end. If the offset is out of bounds, an error may be
@@ -466,6 +536,84 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the "arrayGet" operation.
   func arrayGet(_ offsetExpression: Expression) -> FunctionExpression
 
+  /// Creates an expression that returns the index of the first occurrence of a value in an array.
+  /// Returns nil if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the index of "urgent" in the "tags" array.
+  /// Field("tags").arrayIndexOf("urgent")
+  /// ```
+  ///
+  /// - Parameter value: The literal `Sendable` value to search for.
+  /// - Returns: A new `FunctionExpression` representing the index of the value.
+  func arrayIndexOf(_ value: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the index of the first occurrence of a value in an array.
+  /// Returns nil if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the index of the value of field "searchTag" in the "tags" array.
+  /// Field("tags").arrayIndexOf(Field("searchTag"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` representing the value to search for.
+  /// - Returns: A new `FunctionExpression` representing the index of the value.
+  func arrayIndexOf(_ value: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the index of the last occurrence of a value in an array.
+  /// Returns nil if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last index of "urgent" in the "tags" array.
+  /// Field("tags").arrayLastIndexOf("urgent")
+  /// ```
+  ///
+  /// - Parameter value: The literal `Sendable` value to search for.
+  /// - Returns: A new `FunctionExpression` representing the last index of the value.
+  func arrayLastIndexOf(_ value: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns the index of the last occurrence of a value in an array.
+  /// Returns nil if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the last index of the value of field "searchTag" in the "tags" array.
+  /// Field("tags").arrayLastIndexOf(Field("searchTag"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` representing the value to search for.
+  /// - Returns: A new `FunctionExpression` representing the last index of the value.
+  func arrayLastIndexOf(_ value: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns all indices of a value in an array.
+  /// Returns an empty array if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get all indices of "urgent" in the "tags" array.
+  /// Field("tags").arrayIndexOfAll("urgent")
+  /// ```
+  ///
+  /// - Parameter value: The literal `Sendable` value to search for.
+  /// - Returns: A new `FunctionExpression` representing the indices of the value.
+  func arrayIndexOfAll(_ value: Sendable) -> FunctionExpression
+
+  /// Creates an expression that returns all indices of a value in an array.
+  /// Returns an empty array if the value is not found.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get all indices of the value of field "searchTag" in the "tags" array.
+  /// Field("tags").arrayIndexOfAll(Field("searchTag"))
+  /// ```
+  ///
+  /// - Parameter value: An `Expression` representing the value to search for.
+  /// - Returns: A new `FunctionExpression` representing the indices of the value.
+  func arrayIndexOfAll(_ value: Expression) -> FunctionExpression
+
   /// Creates an expression that returns the maximum element of an array.
   ///
   /// Assumes `self` evaluates to an array.
@@ -489,6 +637,54 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `FunctionExpression` representing the minimum element of the array.
   func arrayMinimum() -> FunctionExpression
+
+  /// Creates an expression that returns the `n` smallest elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the 3 lowest scores in the "scores" array.
+  /// Field("scores").arrayMinimumN(3)
+  /// ```
+  ///
+  /// - Parameter n: The number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the `n` smallest elements of the array.
+  func arrayMinimumN(_ n: Int) -> FunctionExpression
+
+  /// Creates an expression that returns the `n` smallest elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the n lowest scores in the "scores" array where n is specified by field "count".
+  /// Field("scores").arrayMinimumN(Field("count"))
+  /// ```
+  ///
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the `n` smallest elements of the array.
+  func arrayMinimumN(_ n: Expression) -> FunctionExpression
+
+  /// Creates an expression that returns the `n` largest elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the 3 highest scores in the "scores" array.
+  /// Field("scores").arrayMaximumN(3)
+  /// ```
+  ///
+  /// - Parameter n: The number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the `n` largest elements of the array.
+  func arrayMaximumN(_ n: Int) -> FunctionExpression
+
+  /// Creates an expression that returns the `n` largest elements of an array.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get the n highest scores in the "scores" array where n is specified by field "count".
+  /// Field("scores").arrayMaximumN(Field("count"))
+  /// ```
+  ///
+  /// - Parameter n: An `Expression` (evaluating to an Int) representing the number of elements to return.
+  /// - Returns: A new `FunctionExpression` representing the `n` largest elements of the array.
+  func arrayMaximumN(_ n: Expression) -> FunctionExpression
 
   /// Creates a `BooleanExpression` that returns `true` if this expression is greater
   /// than the given expression.
