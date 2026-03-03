@@ -71,8 +71,8 @@ FOUNDATION_STATIC_INLINE
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentURLSessionTaskDidSendBodyDataTotalBytesSentTotalBytesExpectedToSend(
     FPRClassInstrumentor *instrumentor) {
-  SEL selector = @selector(URLSession:
-                                 task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:);
+  SEL selector =
+      @selector(URLSession:task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:);
   FPRSelectorInstrumentor *selectorInstrumentor =
       [instrumentor instrumentorForInstanceSelector:selector];
   if (selectorInstrumentor) {
@@ -159,8 +159,8 @@ FOUNDATION_STATIC_INLINE
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
 void InstrumentURLSessionDownloadTaskDidWriteDataTotalBytesWrittenTotalBytesExpectedToWrite(
     FPRClassInstrumentor *instrumentor) {
-  SEL selector = @selector(URLSession:
-                         downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:);
+  SEL selector =
+      @selector(URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:);
   FPRSelectorInstrumentor *selectorInstrumentor =
       [instrumentor instrumentorForInstanceSelector:selector];
   if (selectorInstrumentor) {
@@ -244,9 +244,9 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
     // Register the non-swizzled versions of these methods.
     // NSURLSessionTaskDelegate methods.
     CopySelector(@selector(URLSession:task:didCompleteWithError:), instrumentor);
-    CopySelector(@selector(URLSession:
-                                 task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:),
-                 instrumentor);
+    CopySelector(
+        @selector(URLSession:task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:),
+        instrumentor);
 
     // NSURLSessionDataDelegate methods.
     CopySelector(@selector(URLSession:dataTask:didReceiveData:), instrumentor);
@@ -255,9 +255,10 @@ void CopySelector(SEL selector, FPRObjectInstrumentor *instrumentor) {
     CopySelector(@selector(URLSession:downloadTask:didFinishDownloadingToURL:), instrumentor);
     CopySelector(@selector(URLSession:downloadTask:didResumeAtOffset:expectedTotalBytes:),
                  instrumentor);
-    CopySelector(@selector(URLSession:
-                         downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:),
-                 instrumentor);
+    CopySelector(
+        @selector(
+            URLSession:downloadTask:didWriteData:totalBytesWritten:totalBytesExpectedToWrite:),
+        instrumentor);
 
     [instrumentor swizzle];
   });
