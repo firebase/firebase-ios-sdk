@@ -579,7 +579,7 @@ struct GenerateContentIntegrationTests {
     #expect(promptTextPart.text == prompt)
     let modelHistory = try #require(chat.history.last)
     #expect(modelHistory.role == "model")
-    if modelName.hasPrefix("gemini-3.1") {
+    if modelName.hasPrefix("gemini-3.1-") {
       #expect(modelHistory.parts.count == 2)
     } else {
       #expect(modelHistory.parts.count == 1)
