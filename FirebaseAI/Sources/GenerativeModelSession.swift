@@ -587,9 +587,7 @@
           // 3. Suspend and wait.
           return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
-              Task {
-                await self.add(continuation)
-              }
+              self.add(continuation)
             }
           } onCancel: {
             // If the task calling `collect()` is cancelled, fail the stream immediately.
