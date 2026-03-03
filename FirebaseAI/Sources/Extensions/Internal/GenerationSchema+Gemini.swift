@@ -30,10 +30,16 @@ extension FirebaseAI.GenerationSchema {
       return lastKey
     }
 
-    let generationSchemaData = try encoder.encode(self)
-    let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: generationSchemaData)
+    // TODO: Implement FirebaseAI.GenerationSchema encoding for for iOS < 26.
+    if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+      let generationSchemaData = try encoder.encode(self)
+      let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: generationSchemaData)
 
-    return jsonSchema
+      return jsonSchema
+    } else {
+      assertionFailure("TODO: \(Self.self).#\(#function) not yet implemented for iOS < 26.")
+      return [:]
+    }
   }
 
   private struct SchemaCodingKey: CodingKey {

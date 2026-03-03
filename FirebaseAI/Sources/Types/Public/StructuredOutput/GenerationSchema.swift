@@ -27,10 +27,10 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension FirebaseAI {
-  struct GenerationSchema: Sendable, CustomDebugStringConvertible {
+  struct GenerationSchema: Sendable {
     protocol GenerationSchemaProtocol: Sendable, Codable, CustomDebugStringConvertible {}
 
-    let _generationSchema: (any GenerationSchemaProtocol)?
+    private let _generationSchema: (any GenerationSchemaProtocol)?
 
     #if canImport(FoundationModels)
       @available(iOS 26.0, macOS 26.0, *)
@@ -45,102 +45,47 @@ public extension FirebaseAI {
 
         return generationSchema
       }
-    #endif // canImport(FoundationModels)
 
-    public var debugDescription: String {
-      #if canImport(FoundationModels)
-        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-          return generationSchema.debugDescription
-        }
-      #endif // canImport(FoundationModels)
-
-      fatalError("TODO: \(Self.self).#\(#function) not yet implemented for iOS < 26.")
-    }
-
-    #if canImport(FoundationModels)
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
-      public init(_ generationSchema: FoundationModels.GenerationSchema) {
+      init(_ generationSchema: FoundationModels.GenerationSchema) {
         _generationSchema = generationSchema
       }
-
-      @available(iOS 26.0, macOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      public init(type: any FoundationModels.Generable.Type, description: String? = nil,
-                  properties: [FoundationModels.GenerationSchema.Property]) {
-        _generationSchema = FoundationModels.GenerationSchema(
-          type: type,
-          description: description,
-          properties: properties
-        )
-      }
-
-      @available(iOS 26.0, macOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      public init(type: any FoundationModels.Generable.Type, description: String? = nil,
-                  anyOf choices: [String]) {
-        _generationSchema = FoundationModels.GenerationSchema(
-          type: type,
-          description: description,
-          anyOf: choices
-        )
-      }
-
-      @available(iOS 26.0, macOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      public init(type: any FoundationModels.Generable.Type, description: String? = nil,
-                  anyOf types: [any FoundationModels.Generable.Type]) {
-        _generationSchema = FoundationModels.GenerationSchema(
-          type: type,
-          description: description,
-          anyOf: types
-        )
-      }
-
-      @available(iOS 26.0, macOS 26.0, *)
-      @available(tvOS, unavailable)
-      @available(watchOS, unavailable)
-      public init(root: FoundationModels.DynamicGenerationSchema,
-                  dependencies: [FoundationModels.DynamicGenerationSchema]) throws {
-        _generationSchema = try FoundationModels.GenerationSchema(
-          root: root,
-          dependencies: dependencies
-        )
-      }
     #endif // canImport(FoundationModels)
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FirebaseAI.GenerationSchema: Decodable {
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.singleValueContainer()
-
-    #if canImport(FoundationModels)
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-        _generationSchema = try container.decode(FoundationModels.GenerationSchema.self)
-      }
-    #endif
-
-    fatalError("TODO: \(Self.self).#\(#function) not yet implemented for iOS < 26.")
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension FirebaseAI.GenerationSchema: CustomDebugStringConvertible {
+    // TODO: Add CustomDebugStringConvertible conformance for iOS < 26.
+    public var debugDescription: String {
+      return generationSchema.debugDescription
+    }
   }
-}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension FirebaseAI.GenerationSchema: Encodable {
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.singleValueContainer()
-
-    #if canImport(FoundationModels)
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-        try container.encode(generationSchema)
-      }
-    #endif
-
-    fatalError("TODO: \(Self.self).#\(#function) not yet implemented for iOS < 26.")
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension FirebaseAI.GenerationSchema: Decodable {
+    // TODO: Add Decodable conformance for iOS < 26.
+    public init(from decoder: any Decoder) throws {
+      let container = try decoder.singleValueContainer()
+      _generationSchema = try container.decode(FoundationModels.GenerationSchema.self)
+    }
   }
-}
+
+  @available(iOS 26.0, macOS 26.0, visionOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension FirebaseAI.GenerationSchema: Encodable {
+    // TODO: Add Encodable conformance for iOS < 26.
+    public func encode(to encoder: any Encoder) throws {
+      var container = encoder.singleValueContainer()
+      try container.encode(generationSchema)
+    }
+  }
+#endif // canImport(FoundationModels)
