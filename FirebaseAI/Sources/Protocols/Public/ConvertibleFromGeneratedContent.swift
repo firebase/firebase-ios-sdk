@@ -19,17 +19,19 @@ extension FirebaseAI {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension String: FirebaseAI.ConvertibleFromGeneratedContent {
-  init(_ content: FirebaseAI.GeneratedContent) throws {
-    guard case let .string(value) = content.kind else {
-      throw GenerativeModelSession.GenerationError.decodingFailure(
-        GenerativeModelSession.GenerationError.Context(debugDescription: """
-        Unsupported FirebaseAI.GeneratedContent.Kind '\(content.kind)' for type String.
-        """)
-      )
-    }
+#if compiler(>=6.2)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  extension String: FirebaseAI.ConvertibleFromGeneratedContent {
+    init(_ content: FirebaseAI.GeneratedContent) throws {
+      guard case let .string(value) = content.kind else {
+        throw GenerativeModelSession.GenerationError.decodingFailure(
+          GenerativeModelSession.GenerationError.Context(debugDescription: """
+          Unsupported FirebaseAI.GeneratedContent.Kind '\(content.kind)' for type String.
+          """)
+        )
+      }
 
-    self = value
+      self = value
+    }
   }
-}
+#endif // compiler(>=6.2)
