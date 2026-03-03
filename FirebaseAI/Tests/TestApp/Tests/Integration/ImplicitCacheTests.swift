@@ -30,7 +30,7 @@ struct ImplicitCacheTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_Flash),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Flash),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_Pro),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3FlashPreview),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview),
   ])
   func implicitCaching(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(

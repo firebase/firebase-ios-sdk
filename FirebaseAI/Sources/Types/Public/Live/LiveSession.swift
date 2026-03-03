@@ -19,7 +19,7 @@ import Foundation
 /// Messages are streamed through ``LiveSession/responses``, and can be sent through either the
 /// dedicated realtime API function (such as ``LiveSession/sendAudioRealtime(_:)`` and
 /// ``LiveSession/sendTextRealtime(_:)``), or through the incremental API (such as
-/// ``LiveSession/sendContent(_:turnComplete:)-6x3ae``).
+/// ``LiveSession/sendContent(_:turnComplete:)-(PartsRepresentable...,_)``).
 ///
 /// To create an instance of this class, see ``LiveGenerativeModel``.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
