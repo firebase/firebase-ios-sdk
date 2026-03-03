@@ -172,12 +172,36 @@ struct GenerateContentIntegrationTests {
       (.googleAI_v1beta, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingLevel: .minimal)),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingLevel: .low)),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingLevel: .medium)),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingLevel: .high)),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingBudget: 128)),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(thinkingBudget: 32768)),
+      (
+        .googleAI_v1beta,
+        ModelNames.gemini3_1_FlashLitePreview,
+        ThinkingConfig(thinkingLevel: .minimal)
+      ),
+      (
+        .googleAI_v1beta,
+        ModelNames.gemini3_1_FlashLitePreview,
+        ThinkingConfig(thinkingLevel: .low)
+      ),
+      (
+        .googleAI_v1beta,
+        ModelNames.gemini3_1_FlashLitePreview,
+        ThinkingConfig(thinkingLevel: .medium)
+      ),
+      (
+        .googleAI_v1beta,
+        ModelNames.gemini3_1_FlashLitePreview,
+        ThinkingConfig(thinkingLevel: .high)
+      ),
+      (
+        .googleAI_v1beta,
+        ModelNames.gemini3_1_FlashLitePreview,
+        ThinkingConfig(thinkingBudget: 128)
+      ),
+      (
+        .googleAI_v1beta,
+        ModelNames.gemini3_1_FlashLitePreview,
+        ThinkingConfig(thinkingBudget: 32768)
+      ),
       (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
@@ -499,7 +523,10 @@ struct GenerateContentIntegrationTests {
   @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2FlashLite),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashLitePreview),
-    (InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse, ModelNames.gemini3_1_FlashLitePreview),
+    (
+      InstanceConfig.vertexAI_v1beta_global_appCheckLimitedUse,
+      ModelNames.gemini3_1_FlashLitePreview
+    ),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma3_4B),
