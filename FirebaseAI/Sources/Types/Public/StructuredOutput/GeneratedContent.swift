@@ -144,6 +144,15 @@ public extension FirebaseAI {
     // TODO: Replace `ConvertibleFromGeneratedContent` with custom protocol
 
     #if canImport(FoundationModels)
+
+      /// Decodes the generated content into the specified type.
+      ///
+      /// **Public Preview**: This API is a public preview and may be subject to change.
+      ///
+      /// - Parameters:
+      ///   - type: The type to decode the content into.
+      /// - Returns: The decoded value.
+      /// - Throws: An error if decoding fails.
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -154,6 +163,15 @@ public extension FirebaseAI {
     #endif // canImport(FoundationModels)
 
     #if canImport(FoundationModels)
+      /// Decodes a specific property of the generated content into the specified type.
+      ///
+      /// **Public Preview**: This API is a public preview and may be subject to change.
+      ///
+      /// - Parameters:
+      ///   - type: The type to decode the property into.
+      ///   - property: The name of the property to decode.
+      /// - Returns: The decoded value.
+      /// - Throws: An error if decoding fails or the property does not exist.
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -165,6 +183,15 @@ public extension FirebaseAI {
     #endif // canImport(FoundationModels)
 
     #if canImport(FoundationModels)
+      /// Decodes an optional specific property of the generated content into the specified type.
+      ///
+      /// **Public Preview**: This API is a public preview and may be subject to change.
+      ///
+      /// - Parameters:
+      ///   - type: The optional type to decode the property into.
+      ///   - property: The name of the property to decode.
+      /// - Returns: The decoded value, or `nil` if the property does not exist or is null.
+      /// - Throws: An error if decoding fails.
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -269,19 +296,14 @@ public extension FirebaseAI.GeneratedContent {
       case let .string(value):
         return .string(value)
       case let .array(values):
-        return .array(
-          values.map { FoundationModels.GeneratedContent(
-            kind: $0.kind.toFoundationModels(),
-            id: nil
-          )
-          }
-        )
+        return .array(values.map {
+          FoundationModels.GeneratedContent(kind: $0.kind.toFoundationModels(), id: nil)
+        })
       case let .structure(properties, orderedKeys):
         return .structure(
-          properties: properties
-            .mapValues {
-              FoundationModels.GeneratedContent(kind: $0.kind.toFoundationModels(), id: nil)
-            },
+          properties: properties.mapValues {
+            FoundationModels.GeneratedContent(kind: $0.kind.toFoundationModels(), id: nil)
+          },
           orderedKeys: orderedKeys
         )
       @unknown default:
