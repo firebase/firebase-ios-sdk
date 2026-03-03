@@ -65,7 +65,7 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 21."
+    echo "Please upgrade to clang-format version 22."
     echo "If it's installed via homebrew you can run:"
     echo "brew upgrade clang-format"
     exit 1
