@@ -66,20 +66,22 @@
       ///   - json: The JSON string representation of the generated content.
       /// - Throws: An error if the JSON is invalid.
       public init(json: String) throws {
-        try self.init(json: json, id: nil)
+        try self.init(json: json, id: nil, isComplete: nil)
       }
 
-      init(json: String, id: FirebaseAI.GenerationID?) throws {
+      init(json: String, id: FirebaseAI.GenerationID?, isComplete: Bool?) throws {
         #if canImport(FoundationModels)
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
             var generatedContent = try FoundationModels.GeneratedContent(json: json)
             generatedContent.id = id?.generationID
             _generatedContent = generatedContent
-          } else {
-            _generatedContent = nil
-          }
+            generationID = id
+            let isComplete = isComplete ?? generatedContent.isComplete
+            kind = generatedContent.kind.toFirebase(isComplete: isComplete)
+            self.isComplete = isComplete
 
-          generationID = id
+            return
+          }
         #endif // canImport(FoundationModels)
 
         throw GenerativeModelSession.GenerationError.decodingFailure(

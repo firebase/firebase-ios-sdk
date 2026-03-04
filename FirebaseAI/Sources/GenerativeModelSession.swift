@@ -386,7 +386,7 @@
                                        hasSchema: Bool, isComplete: Bool) throws
       -> FirebaseAI.GeneratedContent {
       if hasSchema {
-        return try FirebaseAI.GeneratedContent(json: text, id: generationID)
+        return try FirebaseAI.GeneratedContent(json: text, id: generationID, isComplete: isComplete)
       }
 
       #if canImport(FoundationModels)
