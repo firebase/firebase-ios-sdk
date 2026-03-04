@@ -284,7 +284,9 @@
         )
 
         var generationID: FirebaseAI.GenerationID?
+        var isComplete = false
         for try await snapshot in stream {
+          #expect(!isComplete, "Stream yielded more elements after a snapshot was marked complete.")
           let partial = try CatProfile.PartiallyGenerated(snapshot.rawContent)
           if let name = partial.name {
             #expect(!name.isEmpty)
@@ -305,10 +307,14 @@
             #expect(snapshot.rawContent.generationID != nil)
             generationID = snapshot.rawContent.generationID
           }
+          isComplete = snapshot.rawContent.isComplete
         }
+        #expect(
+          isComplete, "The stream finished, but the final snapshot was not marked as complete."
+        )
 
         let response = try await stream.collect()
-        #expect(response.rawContent.isComplete)
+        #expect(response.rawContent.isComplete, "The final response was not marked as complete.")
         #expect(response.rawContent.generationID == generationID)
         let catProfile = try CatProfile(response.content)
         #expect(!catProfile.name.isEmpty)
@@ -335,7 +341,9 @@
 
         var generationID: FirebaseAI.GenerationID?
         var id: FoundationModels.GenerationID?
+        var isComplete = false
         for try await snapshot in stream {
+          #expect(!isComplete, "Stream yielded more elements after a snapshot was marked complete.")
           let partial = snapshot.content
           if let name = partial.name {
             #expect(!name.isEmpty)
@@ -364,10 +372,14 @@
           } else {
             id = snapshot.content.id
           }
+          isComplete = snapshot.rawContent.isComplete
         }
+        #expect(
+          isComplete, "The stream finished, but the final snapshot was not marked as complete."
+        )
 
         let response = try await stream.collect()
-        #expect(response.rawContent.isComplete)
+        #expect(response.rawContent.isComplete, "The final response was not marked as complete.")
         #expect(response.rawContent.generationID == generationID)
         let catProfile = response.content
         #expect(!catProfile.name.isEmpty)
