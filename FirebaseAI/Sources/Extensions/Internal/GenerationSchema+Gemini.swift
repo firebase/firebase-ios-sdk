@@ -12,46 +12,50 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels)
-  import Foundation
-  import FoundationModels
+import Foundation
 
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
-  extension GenerationSchema {
-    /// Returns a Gemini-compatible JSON Schema of this `GenerationSchema`.
-    func toGeminiJSONSchema() throws -> JSONObject {
-      let encoder = JSONEncoder()
-      encoder.keyEncodingStrategy = .custom { keys in
-        guard let lastKey = keys.last else {
-          assertionFailure("Unexpected empty coding path.")
-          return SchemaCodingKey(stringValue: "")
-        }
-        if lastKey.stringValue == "x-order" {
-          return SchemaCodingKey(stringValue: "propertyOrdering")
-        }
-        return lastKey
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseAI.GenerationSchema {
+  /// Returns a Gemini-compatible JSON Schema of this `GenerationSchema`.
+  func toGeminiJSONSchema() throws -> JSONObject {
+    let encoder = JSONEncoder()
+    encoder.keyEncodingStrategy = .custom { keys in
+      guard let lastKey = keys.last else {
+        assertionFailure("Unexpected empty coding path.")
+        return SchemaCodingKey(stringValue: "")
       }
-
-      let generationSchemaData = try encoder.encode(self)
-      let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: generationSchemaData)
-
-      return jsonSchema
+      if lastKey.stringValue == "x-order" {
+        return SchemaCodingKey(stringValue: "propertyOrdering")
+      }
+      return lastKey
     }
 
-    private struct SchemaCodingKey: CodingKey {
-      let stringValue: String
-      let intValue: Int? = nil
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+        let generationSchemaData = try encoder.encode(self)
+        let jsonSchema = try JSONDecoder().decode(JSONObject.self, from: generationSchemaData)
 
-      init(stringValue: String) {
-        self.stringValue = stringValue
+        return jsonSchema
       }
+    #endif // canImport(FoundationModels)
 
-      init?(intValue: Int) {
-        assertionFailure("Unexpected \(Self.self) with integer value: \(intValue)")
-        return nil
-      }
+    // TODO: Implement FirebaseAI.GenerationSchema encoding for iOS < 26.
+    throw EncodingError.invalidValue(self, .init(codingPath: [], debugDescription: """
+    \(Self.self).#\(#function): `GenerationSchema` encoding is not yet implemented for iOS < 26.
+    """))
+  }
+
+  private struct SchemaCodingKey: CodingKey {
+    let stringValue: String
+    let intValue: Int? = nil
+
+    init(stringValue: String) {
+      self.stringValue = stringValue
+    }
+
+    init?(intValue: Int) {
+      assertionFailure("Unexpected \(Self.self) with integer value: \(intValue)")
+      return nil
     }
   }
-#endif // canImport(FoundationModels)
+}

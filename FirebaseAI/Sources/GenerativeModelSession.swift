@@ -13,9 +13,11 @@
 // limitations under the License.
 
 // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
-#if compiler(>=6.2) && canImport(FoundationModels)
+#if compiler(>=6.2)
   import Foundation
-  import FoundationModels
+  #if canImport(FoundationModels)
+    import FoundationModels
+  #endif // canImport(FoundationModels)
 
   /// A session that simplifies interaction with a generative model, particularly for generating
   /// structured data.
@@ -49,9 +51,7 @@
   /// print("Bio: \(response.content.bio)")
   /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public final class GenerativeModelSession: Sendable {
     let session: Chat
 
@@ -78,113 +78,135 @@
       -> GenerativeModelSession.Response<String> {
       return try await respond(
         to: prompt,
-        schema: nil,
+        schema: nil as FirebaseAI.GenerationSchema?,
         generating: String.self,
         includeSchemaInPrompt: false,
         options: options
       )
     }
 
-    /// Sends a new prompt to the model and returns a `Response` containing the generated content as
-    /// `GeneratedContent`.
-    ///
-    /// **Public Preview**: This API is a public preview and may be subject to change.
-    /// - Parameter prompt: The content to send to the model.
-    /// - Parameter schema: The `GenerationSchema` to use for generating the content.
-    /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
-    /// - Parameter options: An optional `GenerationConfig` to override the model's default
-    /// generation configuration.
-    /// - Returns: A `Response` containing the generated content as `GeneratedContent`.
-    /// - Throws: A `GenerationError` if the model fails to generate a response.
-    @discardableResult
-    public nonisolated(nonsending)
-    func respond(to prompt: PartsRepresentable..., schema: GenerationSchema,
-                 includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil) async throws
-      -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
-      return try await respond(
-        to: prompt,
-        schema: schema,
-        generating: FirebaseAI.GeneratedContent.self,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
+    #if canImport(FoundationModels)
+      /// Sends a new prompt to the model and returns a `Response` containing the generated content
+      /// as
+      /// `GeneratedContent`.
+      ///
+      /// **Public Preview**: This API is a public preview and may be subject to change.
+      /// - Parameter prompt: The content to send to the model.
+      /// - Parameter schema: The `GenerationSchema` to use for generating the content.
+      /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the
+      /// model.
+      /// - Parameter options: An optional `GenerationConfig` to override the model's default
+      /// generation configuration.
+      /// - Returns: A `Response` containing the generated content as `GeneratedContent`.
+      /// - Throws: A `GenerationError` if the model fails to generate a response.
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      @discardableResult
+      public nonisolated(nonsending)
+      func respond(to prompt: PartsRepresentable..., schema: GenerationSchema,
+                   includeSchemaInPrompt: Bool = true,
+                   options: GenerationConfig? = nil) async throws
+        -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
+        return try await respond(
+          to: prompt,
+          schema: FirebaseAI.GenerationSchema(schema),
+          generating: FirebaseAI.GeneratedContent.self,
+          includeSchemaInPrompt: includeSchemaInPrompt,
+          options: options
+        )
+      }
 
-    /// Sends a new prompt to the model and returns a `Response` containing the generated content as
-    /// a `Generable` type.
-    ///
-    /// **Public Preview**: This API is a public preview and may be subject to change.
-    /// - Parameter prompt: The content to send to the model.
-    /// - Parameter type: The `Generable` type to decode the response into.
-    /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
-    /// - Parameter options: An optional `GenerationConfig` to override the model's default
-    /// generation configuration.
-    /// - Returns: A `Response` containing the generated content as the specified `Generable` type.
-    /// - Throws: A `GenerationError` if the model fails to generate a response.
-    @discardableResult
-    public nonisolated(nonsending)
-    func respond<Content>(to prompt: PartsRepresentable...,
-                          generating type: Content.Type = Content.self,
-                          includeSchemaInPrompt: Bool = true,
-                          options: GenerationConfig? = nil) async throws
-      -> GenerativeModelSession.Response<Content> where Content: Generable {
-      return try await respond(
-        to: prompt,
-        schema: Content.generationSchema,
-        generating: type,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
+      /// Sends a new prompt to the model and returns a `Response` containing the generated content
+      /// as
+      /// a `Generable` type.
+      ///
+      /// **Public Preview**: This API is a public preview and may be subject to change.
+      /// - Parameter prompt: The content to send to the model.
+      /// - Parameter type: The `Generable` type to decode the response into.
+      /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the
+      /// model.
+      /// - Parameter options: An optional `GenerationConfig` to override the model's default
+      /// generation configuration.
+      /// - Returns: A `Response` containing the generated content as the specified `Generable`
+      /// type.
+      /// - Throws: A `GenerationError` if the model fails to generate a response.
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      @discardableResult
+      public nonisolated(nonsending)
+      func respond<Content>(to prompt: PartsRepresentable...,
+                            generating type: Content.Type = Content.self,
+                            includeSchemaInPrompt: Bool = true,
+                            options: GenerationConfig? = nil) async throws
+        -> GenerativeModelSession.Response<Content> where Content: Generable {
+        return try await respond(
+          to: prompt,
+          schema: FirebaseAI.GenerationSchema(Content.generationSchema),
+          generating: type,
+          includeSchemaInPrompt: includeSchemaInPrompt,
+          options: options
+        )
+      }
 
-    /// Streams the model's response as `GeneratedContent`.
-    ///
-    /// **Public Preview**: This API is a public preview and may be subject to change.
-    /// - Parameter prompt: The content to send to the model.
-    /// - Parameter schema: The `GenerationSchema` to use for generating the content.
-    /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
-    /// - Parameter options: An optional `GenerationConfig` to override the model's default
-    /// generation configuration.
-    /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
-    public func streamResponse(to prompt: PartsRepresentable...,
-                               schema: GenerationSchema,
-                               includeSchemaInPrompt: Bool = true,
-                               options: GenerationConfig? = nil)
-      -> sending GenerativeModelSession.ResponseStream<
-        FirebaseAI.GeneratedContent, FirebaseAI.GeneratedContent
-      > {
-      return streamResponse(
-        to: prompt,
-        schema: schema,
-        generating: FirebaseAI.GeneratedContent.self,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
+      /// Streams the model's response as `GeneratedContent`.
+      ///
+      /// **Public Preview**: This API is a public preview and may be subject to change.
+      /// - Parameter prompt: The content to send to the model.
+      /// - Parameter schema: The `GenerationSchema` to use for generating the content.
+      /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the
+      /// model.
+      /// - Parameter options: An optional `GenerationConfig` to override the model's default
+      /// generation configuration.
+      /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      public func streamResponse(to prompt: PartsRepresentable...,
+                                 schema: GenerationSchema,
+                                 includeSchemaInPrompt: Bool = true,
+                                 options: GenerationConfig? = nil)
+        -> sending GenerativeModelSession.ResponseStream<
+          FirebaseAI.GeneratedContent, FirebaseAI.GeneratedContent
+        > {
+        return streamResponse(
+          to: prompt,
+          schema: FirebaseAI.GenerationSchema(schema),
+          generating: FirebaseAI.GeneratedContent.self,
+          includeSchemaInPrompt: includeSchemaInPrompt,
+          options: options
+        )
+      }
 
-    /// Streams the model's response as a `Generable` type.
-    ///
-    /// **Public Preview**: This API is a public preview and may be subject to change.
-    /// - Parameter prompt: The content to send to the model.
-    /// - Parameter type: The `Generable` type to decode the response into.
-    /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the model.
-    /// - Parameter options: An optional `GenerationConfig` to override the model's default
-    /// generation configuration.
-    /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
-    public func streamResponse<Content>(to prompt: PartsRepresentable...,
-                                        generating type: Content.Type = Content.self,
-                                        includeSchemaInPrompt: Bool = true,
-                                        options: GenerationConfig? = nil)
-      -> sending GenerativeModelSession.ResponseStream<Content, Content.PartiallyGenerated>
-      where Content: Generable {
-      return streamResponse(
-        to: prompt,
-        schema: type.generationSchema,
-        generating: type,
-        includeSchemaInPrompt: includeSchemaInPrompt,
-        options: options
-      )
-    }
+      /// Streams the model's response as a `Generable` type.
+      ///
+      /// **Public Preview**: This API is a public preview and may be subject to change.
+      /// - Parameter prompt: The content to send to the model.
+      /// - Parameter type: The `Generable` type to decode the response into.
+      /// - Parameter includeSchemaInPrompt: Whether to include the schema in the prompt to the
+      /// model.
+      /// - Parameter options: An optional `GenerationConfig` to override the model's default
+      /// generation configuration.
+      /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      public func streamResponse<Content>(to prompt: PartsRepresentable...,
+                                          generating type: Content.Type = Content.self,
+                                          includeSchemaInPrompt: Bool = true,
+                                          options: GenerationConfig? = nil)
+        -> sending GenerativeModelSession.ResponseStream<Content, Content.PartiallyGenerated>
+        where Content: Generable {
+        return streamResponse(
+          to: prompt,
+          schema: FirebaseAI.GenerationSchema(type.generationSchema),
+          generating: type,
+          includeSchemaInPrompt: includeSchemaInPrompt,
+          options: options
+        )
+      }
+    #endif // canImport(FoundationModels)
 
     /// Streams the model's response as a `String`.
     ///
@@ -207,7 +229,7 @@
     // MARK: - Internal
 
     private nonisolated(nonsending)
-    func respond<Content>(to prompt: [PartsRepresentable], schema: GenerationSchema?,
+    func respond<Content>(to prompt: [PartsRepresentable], schema: FirebaseAI.GenerationSchema?,
                           generating type: Content.Type, includeSchemaInPrompt: Bool,
                           options: GenerationConfig?) async throws
       -> GenerativeModelSession.Response<Content> {
@@ -225,13 +247,20 @@
         )
       }
       let generationID = response.responseID.map {
-        FirebaseAI.GenerationID(responseID: $0, generationID: GenerationID())
+        #if canImport(FoundationModels)
+          if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+            return FirebaseAI.GenerationID(responseID: $0, generationID: GenerationID())
+          }
+        #endif // canImport(FoundationModels)
+
+        return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
       }
 
       let rawContent = try Self.makeRawContent(
         from: text,
         generationID: generationID,
-        hasSchema: schema != nil
+        hasSchema: schema != nil,
+        isComplete: true
       )
       let content: Content = try Self.resolveContent(from: rawContent)
 
@@ -241,7 +270,7 @@
     }
 
     private func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
-                                                         schema: GenerationSchema?,
+                                                         schema: FirebaseAI.GenerationSchema?,
                                                          generating type: Content.Type,
                                                          includeSchemaInPrompt: Bool,
                                                          options: GenerationConfig?)
@@ -259,32 +288,71 @@
 
           var streamedText = ""
           var generationID: FirebaseAI.GenerationID?
+
+          // 1. Create a buffer to hold the previous iteration's data in order to differentiate
+          //    the last chunk to accurately set `isComplete`.
+          var pendingChunkData: (
+            text: String,
+            id: FirebaseAI.GenerationID?,
+            response: GenerateContentResponse
+          )?
+
           for try await chunk in stream {
             guard let text = chunk.text else {
               throw GenerationError.decodingFailure(
                 GenerationError.Context(debugDescription: "No text in response: \(chunk)")
               )
             }
+
+            // 2. If we have pending data, we now know it wasn't the last chunk.
+            if let pending = pendingChunkData {
+              let rawContent = try Self.makeRawContent(
+                from: pending.text,
+                generationID: pending.id,
+                hasSchema: schema != nil,
+                isComplete: false
+              )
+              let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
+                .RawResult(
+                  rawContent: rawContent,
+                  rawResponse: pending.response
+                )
+              await context.yield(rawResult)
+            }
+
+            // 3. Update our cumulative state for the current chunk
             streamedText.append(text)
             if generationID == nil {
               generationID = chunk.responseID.map {
-                FirebaseAI.GenerationID(
-                  responseID: $0, generationID: FoundationModels.GenerationID()
-                )
+                #if canImport(FoundationModels)
+                  if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+                    return FirebaseAI.GenerationID(
+                      responseID: $0, generationID: FoundationModels.GenerationID()
+                    )
+                  }
+                #endif // canImport(FoundationModels)
+
+                return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
               }
             }
 
+            // 4. Save the current state as the new pending chunk.
+            pendingChunkData = (text: streamedText, id: generationID, response: chunk)
+          }
+
+          // 5. The remaining pending chunk is the final one.
+          if let finalChunk = pendingChunkData {
             let rawContent = try Self.makeRawContent(
-              from: streamedText,
-              generationID: generationID,
-              hasSchema: schema != nil
+              from: finalChunk.text,
+              generationID: finalChunk.id,
+              hasSchema: schema != nil,
+              isComplete: true
             )
             let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
               .RawResult(
                 rawContent: rawContent,
-                rawResponse: chunk
+                rawResponse: finalChunk.response
               )
-
             await context.yield(rawResult)
           }
 
@@ -296,7 +364,7 @@
     }
 
     private func buildConfig(options: GenerationConfig?,
-                             schema: GenerationSchema?,
+                             schema: FirebaseAI.GenerationSchema?,
                              includeSchemaInPrompt: Bool) throws -> GenerationConfig {
       var config = GenerationConfig.merge(
         session.generationConfig, with: options
@@ -315,20 +383,45 @@
     }
 
     private static func makeRawContent(from text: String, generationID: FirebaseAI.GenerationID?,
-                                       hasSchema: Bool) throws -> FirebaseAI.GeneratedContent {
+                                       hasSchema: Bool, isComplete: Bool) throws
+      -> FirebaseAI.GeneratedContent {
       if hasSchema {
-        return try FirebaseAI.GeneratedContent(json: text, id: generationID)
-      } else {
-        return FirebaseAI.GeneratedContent(kind: .string(text), id: generationID)
+        return try FirebaseAI.GeneratedContent(json: text, id: generationID, isComplete: isComplete)
       }
+
+      #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          return FirebaseAI
+            .GeneratedContent(
+              kind: FoundationModels.GeneratedContent.Kind.string(text),
+              id: generationID,
+              isComplete: isComplete
+            )
+        }
+      #endif // canImport(FoundationModels)
+
+      return FirebaseAI.GeneratedContent(
+        kind: FirebaseAI.GeneratedContent.Kind.string(text),
+        id: generationID,
+        isComplete: isComplete
+      )
     }
 
     static func resolveContent<T>(from rawContent: FirebaseAI.GeneratedContent) throws -> T {
       if let content = rawContent as? T {
         return content
-      } else if let contentMetatype = T
-        .self as? (any FoundationModels.ConvertibleFromGeneratedContent.Type),
-        let content = try contentMetatype.init(rawContent) as? T {
+      }
+
+      #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *), let contentMetatype = T
+          .self as? (any FoundationModels.ConvertibleFromGeneratedContent.Type),
+          let content = try contentMetatype.init(rawContent) as? T {
+          return content
+        }
+      #endif // canImport(FoundationModels)
+
+      if let contentMetatype = T.self as? (any FirebaseAI.ConvertibleFromGeneratedContent.Type),
+         let content = try contentMetatype.init(rawContent) as? T {
         return content
       }
 
@@ -343,9 +436,7 @@
 
   // MARK: - Response Types
 
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModelSession {
     /// The response from a `respond` call.
     struct Response<Content> {
@@ -358,9 +449,7 @@
     }
   }
 
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModelSession {
     /// An asynchronous sequence of snapshots of the model's response.
     struct ResponseStream<Content, PartialContent>: AsyncSequence {
@@ -402,13 +491,24 @@
           self.rawIterator = rawIterator
         }
 
+        @available(iOS 18.0, macOS 15.0, macCatalyst 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
         public mutating func next(isolation actor: isolated (any Actor)?) async throws
           -> Snapshot? {
-          guard let rawResult = try await rawIterator.next(isolation: actor) else {
-            return nil
-          }
+          let rawResult = try await rawIterator.next(isolation: actor)
+          return try process(rawResult)
+        }
+
+        public mutating func next() async throws -> Snapshot? {
+          let rawResult = try await rawIterator.next()
+          return try process(rawResult)
+        }
+
+        private func process(_ rawResult: RawResult?) throws -> Snapshot? {
+          guard let rawResult else { return nil }
+
           let partialContent: PartialContent = try GenerativeModelSession
             .resolveContent(from: rawResult.rawContent)
+
           return Snapshot(
             content: partialContent,
             rawContent: rawResult.rawContent,
@@ -439,9 +539,7 @@
     }
   }
 
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension GenerativeModelSession.ResponseStream {
     struct RawResult: Sendable {
       let rawContent: FirebaseAI.GeneratedContent
@@ -487,9 +585,25 @@
           try Task.checkCancellation()
 
           // 3. Suspend and wait.
-          return try await withCheckedThrowingContinuation { continuation in
-            waitingContinuations.append(continuation)
+          return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+              self.add(continuation)
+            }
+          } onCancel: {
+            // If the task calling `collect()` is cancelled, fail the stream immediately.
+            // This guarantees the continuation is resumed with a CancellationError.
+            Task {
+              await self.finish(throwing: CancellationError())
+            }
           }
+        }
+      }
+
+      private func add(_ continuation: CheckedContinuation<RawResult, Error>) {
+        if let result = finalResult {
+          continuation.resume(with: result)
+        } else {
+          waitingContinuations.append(continuation)
         }
       }
 
@@ -523,9 +637,7 @@
     }
   }
 
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension GenerativeModelSession {
     enum ErrorCodes: Int {
       // Generation Errors
@@ -567,4 +679,4 @@
       }
     }
   }
-#endif // compiler(>=6.2) && canImport(FoundationModels)
+#endif // compiler(>=6.2)
