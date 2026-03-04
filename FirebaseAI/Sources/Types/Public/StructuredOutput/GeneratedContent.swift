@@ -208,7 +208,7 @@
     /// The kinds of values that can be represented by generated content.
     ///
     /// **Public Preview**: This API is a public preview and may be subject to change.
-    enum Kind: Sendable {
+    enum Kind: Equatable, Sendable {
       /// A null value.
       case null
       /// A boolean value.
@@ -244,11 +244,6 @@
         return generatedContent.debugDescription
       }
     }
-
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    extension FirebaseAI.GeneratedContent.Kind: Equatable {}
 
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)

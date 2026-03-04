@@ -36,9 +36,7 @@
       let content = response.content
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete)
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-        #expect(response.rawContent.kind == .string(content))
-      }
+      #expect(response.rawContent.kind == .string(content))
       #expect(response.rawContent.generationID != nil)
       #expect(response.rawResponse.text == content)
     }
@@ -258,9 +256,7 @@
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete, "The final response was not marked as complete.")
       #expect(response.rawContent.generationID == generationID)
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-        #expect(response.rawContent.kind == .string(content))
-      }
+      #expect(response.rawContent.kind == .string(content))
       if let text = response.rawResponse.text {
         #expect(content.hasSuffix(text))
       }
