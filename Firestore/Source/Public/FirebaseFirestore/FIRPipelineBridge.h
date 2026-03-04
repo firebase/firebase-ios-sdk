@@ -43,6 +43,12 @@ NS_SWIFT_NAME(FieldBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(VariableBridge)
+@interface FIRVariableBridge : FIRExprBridge
+- (id)initWithName:(NSString *)name;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(ConstantBridge)
 @interface FIRConstantBridge : FIRExprBridge
 - (id)init:(id)input;
@@ -137,6 +143,12 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SelectStageBridge)
 @interface FIRSelectStageBridge : FIRStageBridge
 - (id)initWithSelections:(NSDictionary<NSString *, FIRExprBridge *> *)selections;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(DefineStageBridge)
+@interface FIRDefineStageBridge : FIRStageBridge
+- (id)initWithVariables:(NSDictionary<NSString *, FIRExprBridge *> *)variables;
 @end
 
 NS_SWIFT_SENDABLE

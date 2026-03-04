@@ -1690,3 +1690,24 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
   func type() -> FunctionExpression
 }
+
+/// A `Variable` is an `Expression` that represents a variable in a Firestore pipeline.
+///
+/// Variables are typically defined in a `define` (let) stage and can be referenced in subsequent
+/// stages.
+public struct Variable: Expression, BridgeWrapper, SelectableWrapper, @unchecked Sendable {
+  let bridge: ExprBridge
+
+  let name: String
+  var alias: String { name }
+
+  var expr: Expression { self }
+
+  /// Creates a new `Variable` expression from a variable name.
+  ///
+  /// - Parameter name: The name of the variable.
+  public init(_ name: String) {
+    self.name = name
+    bridge = VariableBridge(name: name)
+  }
+}

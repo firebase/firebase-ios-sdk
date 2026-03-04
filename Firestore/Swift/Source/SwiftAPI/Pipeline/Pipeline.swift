@@ -322,6 +322,23 @@ public struct Pipeline: @unchecked Sendable {
     return Pipeline(stages: stages + [stage], db: db)
   }
 
+  /// Defines variables that can be used in subsequent stages.
+  ///
+  /// - Parameter variables: A dictionary where keys are variable names and values are expressions
+  /// or
+  /// literals.
+  /// - Returns: A new `Pipeline` with the define stage added.
+  public func define(_ variables: [AliasedExpression]) -> Pipeline {
+    if let errorMessage = errorMessage {
+      return withError(errorMessage)
+    }
+    let stage = Define(variables: variables)
+    if let errorMessage = stage.errorMessage {
+      return withError(errorMessage)
+    }
+    return Pipeline(stages: stages + [stage], db: db)
+  }
+
   /// Returns a set of distinct documents based on specified grouping field names.
   ///
   /// This stage ensures that only unique combinations of values for the specified

@@ -198,6 +198,25 @@ class AddFields : public Stage {
   std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
 };
 
+class DefineStage : public Stage {
+ public:
+  explicit DefineStage(
+      std::unordered_map<std::string, std::shared_ptr<Expr>> fields)
+      : fields_(std::move(fields)) {
+  }
+  ~DefineStage() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "let";
+    return kName;
+  }
+
+ private:
+  std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
+};
+
 class AggregateStage : public Stage {
  public:
   AggregateStage(
