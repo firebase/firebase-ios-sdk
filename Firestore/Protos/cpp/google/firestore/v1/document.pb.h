@@ -1278,6 +1278,7 @@ class Value final :
     kFieldReferenceValue = 19,
     kFunctionValue = 20,
     kPipelineValue = 21,
+    kVariableReferenceValue = 22,
     VALUE_TYPE_NOT_SET = 0,
   };
 
@@ -1373,6 +1374,7 @@ class Value final :
     kFieldReferenceValueFieldNumber = 19,
     kFunctionValueFieldNumber = 20,
     kPipelineValueFieldNumber = 21,
+    kVariableReferenceValueFieldNumber = 22,
   };
   // .google.protobuf.NullValue null_value = 11;
   bool has_null_value() const;
@@ -1600,6 +1602,23 @@ class Value final :
   ::google::firestore::v1::Pipeline* _internal_mutable_pipeline_value();
 
   public:
+  // string variable_reference_value = 22;
+  bool has_variable_reference_value() const;
+  void clear_variable_reference_value() ;
+  const std::string& variable_reference_value() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_variable_reference_value(Arg_&& arg, Args_... args);
+  std::string* mutable_variable_reference_value();
+  PROTOBUF_NODISCARD std::string* release_variable_reference_value();
+  void set_allocated_variable_reference_value(std::string* value);
+
+  private:
+  const std::string& _internal_variable_reference_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_variable_reference_value(
+      const std::string& value);
+  std::string* _internal_mutable_variable_reference_value();
+
+  public:
   void clear_value_type();
   ValueTypeCase value_type_case() const;
   // @@protoc_insertion_point(class_scope:google.firestore.v1.Value)
@@ -1619,14 +1638,15 @@ class Value final :
   void set_has_field_reference_value();
   void set_has_function_value();
   void set_has_pipeline_value();
+  void set_has_variable_reference_value();
 
   inline bool has_value_type() const;
   inline void clear_has_value_type();
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 14, 6,
-      90, 2>
+      0, 15, 6,
+      114, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
   friend class ::google::protobuf::Arena;
@@ -1659,6 +1679,7 @@ class Value final :
       ::google::protobuf::internal::ArenaStringPtr field_reference_value_;
       ::google::firestore::v1::Function* function_value_;
       ::google::firestore::v1::Pipeline* pipeline_value_;
+      ::google::protobuf::internal::ArenaStringPtr variable_reference_value_;
     } value_type_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -3139,6 +3160,91 @@ inline ::google::firestore::v1::Pipeline* Value::mutable_pipeline_value() ABSL_A
   ::google::firestore::v1::Pipeline* _msg = _internal_mutable_pipeline_value();
   // @@protoc_insertion_point(field_mutable:google.firestore.v1.Value.pipeline_value)
   return _msg;
+}
+
+// string variable_reference_value = 22;
+inline bool Value::has_variable_reference_value() const {
+  return value_type_case() == kVariableReferenceValue;
+}
+inline void Value::set_has_variable_reference_value() {
+  _impl_._oneof_case_[0] = kVariableReferenceValue;
+}
+inline void Value::clear_variable_reference_value() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() == kVariableReferenceValue) {
+    _impl_.value_type_.variable_reference_value_.Destroy();
+    clear_has_value_type();
+  }
+}
+inline const std::string& Value::variable_reference_value() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Value.variable_reference_value)
+  return _internal_variable_reference_value();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void Value::set_variable_reference_value(Arg_&& arg,
+                                                     Args_... args) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() != kVariableReferenceValue) {
+    clear_value_type();
+
+    set_has_variable_reference_value();
+    _impl_.value_type_.variable_reference_value_.InitDefault();
+  }
+  _impl_.value_type_.variable_reference_value_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:google.firestore.v1.Value.variable_reference_value)
+}
+inline std::string* Value::mutable_variable_reference_value() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_variable_reference_value();
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Value.variable_reference_value)
+  return _s;
+}
+inline const std::string& Value::_internal_variable_reference_value() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  if (value_type_case() != kVariableReferenceValue) {
+    return ::google::protobuf::internal::GetEmptyStringAlreadyInited();
+  }
+  return _impl_.value_type_.variable_reference_value_.Get();
+}
+inline void Value::_internal_set_variable_reference_value(const std::string& value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() != kVariableReferenceValue) {
+    clear_value_type();
+
+    set_has_variable_reference_value();
+    _impl_.value_type_.variable_reference_value_.InitDefault();
+  }
+  _impl_.value_type_.variable_reference_value_.Set(value, GetArena());
+}
+inline std::string* Value::_internal_mutable_variable_reference_value() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (value_type_case() != kVariableReferenceValue) {
+    clear_value_type();
+
+    set_has_variable_reference_value();
+    _impl_.value_type_.variable_reference_value_.InitDefault();
+  }
+  return _impl_.value_type_.variable_reference_value_.Mutable( GetArena());
+}
+inline std::string* Value::release_variable_reference_value() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Value.variable_reference_value)
+  if (value_type_case() != kVariableReferenceValue) {
+    return nullptr;
+  }
+  clear_has_value_type();
+  return _impl_.value_type_.variable_reference_value_.Release();
+}
+inline void Value::set_allocated_variable_reference_value(std::string* value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  if (has_value_type()) {
+    clear_value_type();
+  }
+  if (value != nullptr) {
+    set_has_variable_reference_value();
+    _impl_.value_type_.variable_reference_value_.InitAllocated(value, GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Value.variable_reference_value)
 }
 
 inline bool Value::has_value_type() const {
