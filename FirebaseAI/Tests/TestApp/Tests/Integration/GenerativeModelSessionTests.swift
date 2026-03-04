@@ -254,7 +254,6 @@
       #expect(isComplete, "The stream finished, but the final snapshot was not marked as complete.")
 
       let response = try await stream.collect()
-      print(response.rawContent.isComplete)
       let content = response.content
       #expect(!content.isEmpty)
       #expect(response.rawContent.isComplete, "The final response was not marked as complete.")

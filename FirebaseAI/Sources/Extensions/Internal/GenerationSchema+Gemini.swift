@@ -40,8 +40,11 @@ extension FirebaseAI.GenerationSchema {
     #endif // canImport(FoundationModels)
 
     // TODO: Implement FirebaseAI.GenerationSchema encoding for for iOS < 26.
-    assertionFailure("TODO: \(Self.self).#\(#function) not yet implemented for iOS < 26.")
-    return [:]
+    throw GenerativeModelSession.GenerationError.decodingFailure(
+      GenerativeModelSession.GenerationError.Context(debugDescription: """
+      \(Self.self).#\(#function): `GenerationSchema` encoding is not yet implemented for iOS < 26.
+      """)
+    )
   }
 
   private struct SchemaCodingKey: CodingKey {
