@@ -1869,7 +1869,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
       apiConfig: apiConfig,
       generationConfig: generationConfig,
-      tools: [Tool(functionDeclarations: [sumFunction])],
+      tools: [ModelTool(functionDeclarations: [sumFunction])],
       systemInstruction: systemInstruction,
       requestOptions: RequestOptions(),
       urlSession: urlSession

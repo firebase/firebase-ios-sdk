@@ -25,7 +25,7 @@ public final class LiveGenerativeModel {
   let firebaseInfo: FirebaseInfo
   let apiConfig: APIConfig
   let generationConfig: LiveGenerationConfig?
-  let tools: [Tool]?
+  let tools: [ModelTool]?
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
   let urlSession: URLSession
@@ -35,7 +35,7 @@ public final class LiveGenerativeModel {
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
        generationConfig: LiveGenerationConfig? = nil,
-       tools: [Tool]? = nil,
+       tools: [ModelTool]? = nil,
        toolConfig: ToolConfig? = nil,
        systemInstruction: ModelContent? = nil,
        urlSession: URLSession = GenAIURLSession.default,

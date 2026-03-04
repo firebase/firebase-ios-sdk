@@ -69,15 +69,16 @@ public final class FirebaseAI: Sendable {
   ///     list of supported model names.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
-  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
-  ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
+  ///   - tools: A list of ``ModelTool`` objects that the model may use to generate the next
+  ///     response.
+  ///   - toolConfig: Tool configuration for any `ModelTool` specified in the request.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   public func generativeModel(modelName: String,
                               generationConfig: GenerationConfig? = nil,
                               safetySettings: [SafetySetting]? = nil,
-                              tools: [Tool]? = nil,
+                              tools: [ModelTool]? = nil,
                               toolConfig: ToolConfig? = nil,
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
@@ -170,8 +171,9 @@ public final class FirebaseAI: Sendable {
   /// - Parameters:
   ///   - modelName: The name of the model to use.
   ///   - generationConfig: The content generation parameters your model should use.
-  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
-  ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
+  ///   - tools: A list of ``ModelTool`` objects that the model may use to generate the next
+  ///     response.
+  ///   - toolConfig: Tool configuration for any ``ModelTool`` specified in the request.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
@@ -179,7 +181,7 @@ public final class FirebaseAI: Sendable {
   @available(watchOS, unavailable)
   public func liveModel(modelName: String,
                         generationConfig: LiveGenerationConfig? = nil,
-                        tools: [Tool]? = nil,
+                        tools: [ModelTool]? = nil,
                         toolConfig: ToolConfig? = nil,
                         systemInstruction: ModelContent? = nil,
                         requestOptions: RequestOptions = RequestOptions()) -> LiveGenerativeModel {
