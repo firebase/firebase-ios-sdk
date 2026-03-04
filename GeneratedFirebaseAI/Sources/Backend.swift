@@ -14,7 +14,7 @@
 
 import Foundation
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
 /// API backend to communicate with.
@@ -22,13 +22,17 @@ public enum Backend: Sendable {
   /// Use the [Vertex AI](https://cloud.google.com/vertex-ai/docs) backend.
   ///
   /// - Parameters:
-  ///   - location: Geographic location for API requests to made to. For a list of supported locations, see the docs on
-  ///     [Available locations](https://docs.cloud.google.com/vertex-ai/docs/general/locations#available-regions)\.
+  ///   - location: Geographic location for API requests to made to. For a list of supported
+  /// locations, see the docs on
+  ///     [Available
+  /// locations](https://docs.cloud.google.com/vertex-ai/docs/general/locations#available-regions)\.
   ///     Note that models and feature endpoints may have additional location restrictions.
   ///   - publisher: The name of the model publisher to use for published models.
-  ///   - projectId: The GCloud project ID to use for resource consumption. When using the Firebase authentication method,
+  ///   - projectId: The GCloud project ID to use for resource consumption. When using the Firebase
+  /// authentication method,
   ///     you can retrieve the project ID via `FirebaseApp.options.projectID`.
-  ///   - version: Version of the backend to use. Feature support may vary across different backend versions.
+  ///   - version: Version of the backend to use. Feature support may vary across different backend
+  /// versions.
   case vertexAI(
     location: String = "us-central1",
     publisher: String = "google",
@@ -39,8 +43,10 @@ public enum Backend: Sendable {
   /// Use the [Google AI](https://ai.google.dev/gemini-api/docs) backend.
   ///
   /// - Parameters:
-  ///   - version: Version of the backend to use. Feature support may vary across different backend versions.
-  ///   - direct: Only applicable when using the Firebase authentication method. Instead of communicating through the Firebase
+  ///   - version: Version of the backend to use. Feature support may vary across different backend
+  /// versions.
+  ///   - direct: Only applicable when using the Firebase authentication method. Instead of
+  /// communicating through the Firebase
   ///     proxy, communicate directly with the Google AI API.
   case googleAI(
     version: BackendVersion = .v1beta,

@@ -14,7 +14,7 @@
 
 import Foundation
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
 extension CodingUserInfoKey {
@@ -23,7 +23,7 @@ extension CodingUserInfoKey {
 
 extension Decoder {
   func userInfoOrThrow<T>(_ name: CodingUserInfoKey) throws -> T {
-    guard let value = self.userInfo[name] as? T else {
+    guard let value = userInfo[name] as? T else {
       throw DecodingError.dataCorrupted(
         .init(
           codingPath: codingPath,
@@ -38,7 +38,7 @@ extension Decoder {
 
 extension Encoder {
   func userInfoOrThrow<T>(_ name: CodingUserInfoKey) throws -> T {
-    guard let value = self.userInfo[name] as? T else {
+    guard let value = userInfo[name] as? T else {
       throw DecodingError.dataCorrupted(
         .init(
           codingPath: codingPath,

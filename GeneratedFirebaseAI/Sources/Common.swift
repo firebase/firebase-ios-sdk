@@ -21,7 +21,8 @@ public enum common {
    - getValueByPath(["a": ["b": v]], ["a", "b"]) -> v
    - getValueByPath(["a": ["b": [["c": v1], ["c": v2]]]], ["a", "b[]", "c"]) -> [v1, v2]
    */
-  public static func getValueByPath(_ object: Any?, _ keys: [String], _ defaultValue: Any? = nil) -> Any? {
+  public static func getValueByPath(_ object: Any?, _ keys: [String],
+                                    _ defaultValue: Any? = nil) -> Any? {
     guard let object = object, !keys.isEmpty else {
       return defaultValue
     }
@@ -32,7 +33,7 @@ public enum common {
 
     var currentObject: Any? = object
 
-    for i in 0..<keys.count {
+    for i in 0 ..< keys.count {
       let key = keys[i]
 
       guard let currentDict = currentObject as? [String: Any] else {
@@ -81,7 +82,8 @@ public enum common {
    - setValueByPath({}, ["a", "b[]", "c"], [v1, v2]) -> ["a": ["b": [["c": v1], ["c": v2]]]]
    - setValueByPath(["a": ["b": [["c": v1], ["c": v2]]]], ["a", "b[]", "d"], v3) -> ["a": ["b": [["c": v1, "d": v3], ["c": v2, "d": v3]]]]
    */
-  public static func setValueByPath(_ jsonObject: inout [String: Any], _ path: [String], _ value: Any) {
+  public static func setValueByPath(_ jsonObject: inout [String: Any], _ path: [String],
+                                    _ value: Any) {
     guard !path.isEmpty else {
       print("Path cannot be empty.")
       return
@@ -89,7 +91,7 @@ public enum common {
 
     var currentObject: [String: Any] = jsonObject
 
-    for i in 0..<(path.count - 1) {
+    for i in 0 ..< (path.count - 1) {
       let key = path[i]
 
       if key.hasSuffix("[]") {
@@ -123,7 +125,7 @@ public enum common {
       } else if key.hasSuffix("[0]") {
         let keyName = String(key.dropLast(3))
         if currentObject[keyName] == nil {
-            currentObject[keyName] = [[String: Any]()]
+          currentObject[keyName] = [[String: Any]()]
         }
         if var array = currentObject[keyName] as? [[String: Any]], !array.isEmpty {
           var firstElement = array[0]
@@ -145,8 +147,8 @@ public enum common {
 
           var a = temp
           for k in deepPath {
-              if a[k] == nil { a[k] = [String:Any]()}
-              a = a[k] as! [String:Any]
+            if a[k] == nil { a[k] = [String: Any]() }
+            a = a[k] as! [String: Any]
           }
           a[lastKey] = value
 

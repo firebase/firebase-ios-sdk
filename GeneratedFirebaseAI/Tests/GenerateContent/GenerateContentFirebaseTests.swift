@@ -12,21 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 import Foundation
 @testable import GeneratedFirebaseAI
 @testable import TestServer
+import XCTest
 
 final class GenerateContentFirebaseTest: FirebaseE2ETestBase {
+  func testGenerateContent() async throws {
+    let models = Models(apiClient: client)
 
-    func testGenerateContent() async throws {
+    let content = [Content(parts: [Part(text: "Hello from Firebase!")], role: "user")]
+    let params = GenerateContentParameters(model: "gemini-2.5-flash", contents: content)
 
-        let models = Models(apiClient: client)
-
-        let content = [Content(parts: [Part(text: "Hello from Firebase!")], role: "user")]
-        let params = GenerateContentParameters(model: "gemini-2.5-flash", contents: content)
-
-        let response = try await models.generateContentInternal(params: params)
-        XCTAssertNotNil(response.candidates)
-    }
+    let response = try await models.generateContentInternal(params: params)
+    XCTAssertNotNil(response.candidates)
+  }
 }

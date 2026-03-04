@@ -14,7 +14,7 @@
 
 import Foundation
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
 /// Wrapper around an RPC error from the backend.
@@ -26,9 +26,9 @@ public struct BackendError: Error, Sendable {
 
   init(httpResponseCode: Int, error: RPCError) {
     self.httpResponseCode = httpResponseCode
-    self.message = error.error.message ?? "Unknown error"
-    self.status = error.error.status
-    self.details = error.error.details ?? []
+    message = error.error.message ?? "Unknown error"
+    status = error.error.status
+    details = error.error.details ?? []
   }
 
   func isVertexAIInFirebaseServiceDisabledError() -> Bool {
@@ -73,11 +73,12 @@ extension BackendError: CustomNSError {
     httpResponseCode
   }
 
-  public var errorUserInfo: [String : Any] {
-    [NSLocalizedDescriptionKey: "\(message) (\(Self.errorDomain) - HTTP \(httpResponseCode) \(status ?? "")"]
+  public var errorUserInfo: [String: Any] {
+    [
+      NSLocalizedDescriptionKey: "\(message) (\(Self.errorDomain) - HTTP \(httpResponseCode) \(status ?? "")",
+    ]
   }
 }
-
 
 /// RPC error from any of the backends.
 public struct RPCError: Sendable, Decodable {
@@ -126,11 +127,9 @@ public struct MissingRequiredFieldError: Error, Sendable, CustomNSError {
 }
 
 extension KeyedEncodingContainer {
-  mutating func encodeOrThrow<T>(
-    _ value: T?,
-    forKey key: Key,
-    error: @autoclosure () -> Error
-  ) throws where T: Encodable {
+  mutating func encodeOrThrow<T>(_ value: T?,
+                                 forKey key: Key,
+                                 error: @autoclosure () -> Error) throws where T: Encodable {
     guard let value else {
       throw error()
     }

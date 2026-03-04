@@ -15,7 +15,7 @@
 import FirebaseAuthInterop
 import Foundation
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
 class AuthInteropFake: NSObject, AuthInterop {
