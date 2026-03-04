@@ -64,6 +64,7 @@ using firebase::firestore::api::CollectionGroupSource;
 using firebase::firestore::api::CollectionSource;
 using firebase::firestore::api::Constant;
 using firebase::firestore::api::DatabaseSource;
+using firebase::firestore::api::DefineStage;
 using firebase::firestore::api::DistinctStage;
 using firebase::firestore::api::DocumentChange;
 using firebase::firestore::api::DocumentReference;
@@ -90,6 +91,43 @@ using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::SortStage;
 using firebase::firestore::api::Union;
 using firebase::firestore::api::Unnest;
+using firebase::firestore::api::Variable;
+using firebase::firestore::api::Where;
+// ... (skip lines to keep context short if possible, but replace needs context)
+// Actually I'll split into multiple chunks for safer replacement.
+
+// Chunk 1: imports
+using firebase::firestore::api::CollectionSource;
+using firebase::firestore::api::Constant;
+using firebase::firestore::api::DatabaseSource;
+using firebase::firestore::api::DefineStage;
+using firebase::firestore::api::DistinctStage;
+using firebase::firestore::api::DocumentChange;
+using firebase::firestore::api::DocumentReference;
+using firebase::firestore::api::DocumentsSource;
+using firebase::firestore::api::Expr;
+using firebase::firestore::api::Field;
+using firebase::firestore::api::FindNearestStage;
+using firebase::firestore::api::FunctionExpr;
+using firebase::firestore::api::LimitStage;
+using firebase::firestore::api::MakeFIRTimestamp;
+using firebase::firestore::api::OffsetStage;
+using firebase::firestore::api::Ordering;
+using firebase::firestore::api::Pipeline;
+using firebase::firestore::api::PipelineResultChange;
+using firebase::firestore::api::QueryListenerRegistration;
+using firebase::firestore::api::RawStage;
+using firebase::firestore::api::RealtimePipeline;
+using firebase::firestore::api::RealtimePipelineSnapshot;
+using firebase::firestore::api::RemoveFieldsStage;
+using firebase::firestore::api::ReplaceWith;
+using firebase::firestore::api::Sample;
+using firebase::firestore::api::SelectStage;
+using firebase::firestore::api::SnapshotMetadata;
+using firebase::firestore::api::SortStage;
+using firebase::firestore::api::Union;
+using firebase::firestore::api::Unnest;
+using firebase::firestore::api::Variable;
 using firebase::firestore::api::Where;
 using firebase::firestore::core::EventListener;
 using firebase::firestore::core::ViewSnapshot;
@@ -146,6 +184,30 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   return MakeNSString([field_path internalValue].CanonicalString());
 }
 
+@end
+
+@implementation FIRVariableBridge {
+  std::shared_ptr<Variable> cpp_variable;
+  NSString *_name;
+  Boolean isUserDataRead;
+}
+
+- (id)initWithName:(NSString *)name {
+  self = [super init];
+  if (self) {
+    _name = name;
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    cpp_variable = std::make_shared<Variable>(MakeString(_name));
+  }
+  isUserDataRead = YES;
+  return cpp_variable;
+}
 @end
 
 @implementation FIRConstantBridge {
@@ -614,6 +676,38 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (NSString *)name {
   return @"select";
+}
+@end
+
+@implementation FIRDefineStageBridge {
+  NSDictionary<NSString *, FIRExprBridge *> *_variables;
+  Boolean isUserDataRead;
+  std::shared_ptr<DefineStage> cpp_define;
+}
+
+- (id)initWithVariables:(NSDictionary<NSString *, FIRExprBridge *> *)variables {
+  self = [super init];
+  if (self) {
+    _variables = variables;
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_fields;
+    for (NSString *key in _variables) {
+      cpp_fields[MakeString(key)] = [_variables[key] cppExprWithReader:reader];
+    }
+    cpp_define = std::make_shared<DefineStage>(std::move(cpp_fields));
+  }
+  isUserDataRead = YES;
+  return cpp_define;
+}
+
+- (NSString *)name {
+  return @"let";
 }
 @end
 

@@ -73,6 +73,24 @@ class Field : public Selectable {
   std::string alias_;
 };
 
+class Variable : public Expr {
+ public:
+  explicit Variable(std::string name) : name_(std::move(name)) {
+  }
+  ~Variable() override = default;
+
+  google_firestore_v1_Value to_proto() const override;
+
+  const std::string& name() const {
+    return name_;
+  }
+
+  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+
+ private:
+  std::string name_;
+};
+
 class Constant : public Expr {
  public:
   explicit Constant(nanopb::SharedMessage<google_firestore_v1_Value> value)

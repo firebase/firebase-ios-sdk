@@ -141,6 +141,26 @@ google_firestore_v1_Pipeline_Stage AddFields::to_proto() const {
   return result;
 }
 
+google_firestore_v1_Pipeline_Stage DefineStage::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray(name());
+
+  result.args_count = 1;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+
+  result.args[0].which_value_type = google_firestore_v1_Value_map_value_tag;
+  nanopb::SetRepeatedField(
+      &result.args[0].map_value.fields, &result.args[0].map_value.fields_count,
+      fields_, [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
+        return _google_firestore_v1_MapValue_FieldsEntry{
+            nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
+      });
+
+  result.options_count = 0;
+  result.options = nullptr;
+  return result;
+}
+
 google_firestore_v1_Pipeline_Stage AggregateStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray(name());

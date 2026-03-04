@@ -190,6 +190,25 @@ class RemoveFieldsStage: Stage {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class Define: Stage {
+  let name: String = "let"
+  let bridge: StageBridge
+  let errorMessage: String?
+
+  init(variables: [Selectable]) {
+    let (exprMap, error) = Helper.selectablesToMap(selectables: variables)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      bridge = DefineStageBridge(variables: [:])
+    } else {
+      errorMessage = nil
+      let bridgeVariables = exprMap.mapValues { $0.toBridge() }
+      bridge = DefineStageBridge(variables: bridgeVariables)
+    }
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Select: Stage {
   let name: String = "select"
   let bridge: StageBridge

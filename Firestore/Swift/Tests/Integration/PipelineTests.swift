@@ -3992,4 +3992,22 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     snapshot = try await pipeline.execute()
     TestHelper.compare(snapshot: snapshot, expectedCount: 0)
   }
+
+  func testDefineAndVariable() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .define([Constant(4.5).as("minRating")])
+      .where(Field("rating").greaterThanOrEqual(Variable("minRating")))
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expectedIDs: ["book2", "book4", "book10"],
+      enforceOrder: false
+    )
+  }
 }

@@ -1665,6 +1665,21 @@ std::unique_ptr<api::EvaluableStage> Serializer::DecodeStage(
     }
     context->Fail("Invalid 'sort' stage: missing arguments");
     return nullptr;
+  } else if (stage_name == "let") {
+    if (args_count >= 1 && current_args[0].which_value_type ==
+                               google_firestore_v1_Value_map_value_tag) {
+      std::unordered_map<std::string, std::shared_ptr<api::Expr>> fields;
+      const auto& map_value = current_args[0].map_value;
+      for (size_t i = 0; i < map_value.fields_count; ++i) {
+        auto key = DecodeString(map_value.fields[i].key);
+        auto value = DecodeExpression(context, map_value.fields[i].value);
+        if (!context->status().ok()) return nullptr;
+        fields[key] = std::move(value);
+      }
+      return std::make_unique<api::DefineStage>(std::move(fields));
+    }
+    context->Fail("Invalid 'let' stage: missing or invalid arguments");
+    return nullptr;
   }
 
   context->Fail(StringFormat("Unsupported stage type: %s", stage_name));
