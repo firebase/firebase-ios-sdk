@@ -75,15 +75,20 @@ public struct Tool: Sendable {
   /// Specifies the Google Search configuration.
   let googleSearch: GoogleSearch?
 
+  /// Specifies the Google Maps configuration.
+  let googleMaps: GoogleMaps?
+
   let codeExecution: CodeExecution?
   let urlContext: URLContext?
 
   init(functionDeclarations: [FunctionDeclaration]? = nil,
        googleSearch: GoogleSearch? = nil,
+       googleMaps: GoogleMaps? = nil,
        urlContext: URLContext? = nil,
        codeExecution: CodeExecution? = nil) {
     self.functionDeclarations = functionDeclarations
     self.googleSearch = googleSearch
+    self.googleMaps = googleMaps
     self.urlContext = urlContext
     self.codeExecution = codeExecution
   }
@@ -129,6 +134,23 @@ public struct Tool: Sendable {
   /// - Returns: A `Tool` configured for Google Search.
   public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
     return self.init(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows the model to use Grounding with Google Maps.
+  ///
+  /// Grounding with Google Maps can be used to allow the model to connect to Google Maps to
+  /// access and incorporate up-to-date information from the web into it's responses.
+  ///
+  /// > Important: When using this feature, you are required to comply with the
+  /// "Grounding with Google Maps" usage requirements for your chosen API provider.
+  ///
+  /// - Parameters:
+  ///   - googleMaps: An empty ``GoogleMaps`` object. The presence of this object in the list
+  ///     of tools enables the model to use Google Maps.
+  ///
+  /// - Returns: A `Tool` configured for Google Maps.
+  public static func googleMaps(_ googleMaps: GoogleMaps = GoogleMaps()) -> Tool {
+    return self.init(googleMaps: googleMaps)
   }
 
   /// Creates a tool that allows you to provide additional context to the models in the form of

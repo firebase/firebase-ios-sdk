@@ -383,6 +383,8 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
   public struct GroundingChunk: Sendable, Equatable, Hashable {
     /// Contains details if the grounding chunk is from a web source.
     public let web: WebGroundingChunk?
+    /// Contains details if the grounding chunk is from a Google Maps source.
+    public let maps: GoogleMapsGroundingChunk?
   }
 
   /// A grounding chunk sourced from the web.
