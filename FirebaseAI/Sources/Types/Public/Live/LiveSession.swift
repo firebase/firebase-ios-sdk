@@ -147,4 +147,18 @@ public final class LiveSession: Sendable {
   }
 
   // TODO: b(445716402) Add a start method when we support session resumption
+  
+
+  /// Resumes an existing live session with the server.
+  ///
+  /// This closes the current WebSocket connection and establishes a new one using
+  /// the same configuration (URI, headers, model, system instruction, tools, etc.)
+  /// as the original session.
+  ///
+  /// - Parameter sessionResumption: The configuration for session resumption,
+  ///   such as the handle to the previous session state to restore.
+  public func resumeSession(sessionResumption: SessionResumptionConfig? = nil) async throws {
+    try await service.connect(sessionResumption: sessionResumption)
+  }
 }
+

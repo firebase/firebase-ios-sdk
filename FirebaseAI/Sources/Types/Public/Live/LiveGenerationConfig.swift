@@ -21,6 +21,7 @@ public struct LiveGenerationConfig: Sendable {
   let bidiGenerationConfig: BidiGenerationConfig
   let inputAudioTranscription: BidiAudioTranscriptionConfig?
   let outputAudioTranscription: BidiAudioTranscriptionConfig?
+  public let contextWindowCompression: ContextWindowCompressionConfig?
 
   /// Creates a new ``LiveGenerationConfig`` value.
   ///
@@ -125,7 +126,8 @@ public struct LiveGenerationConfig: Sendable {
               responseModalities: [ResponseModality]? = nil,
               speech: SpeechConfig? = nil,
               inputAudioTranscription: AudioTranscriptionConfig? = nil,
-              outputAudioTranscription: AudioTranscriptionConfig? = nil) {
+              outputAudioTranscription: AudioTranscriptionConfig? = nil,
+              contextWindowCompression: ContextWindowCompressionConfig? = nil) {
     self.init(
       BidiGenerationConfig(
         temperature: temperature,
@@ -136,18 +138,22 @@ public struct LiveGenerationConfig: Sendable {
         presencePenalty: presencePenalty,
         frequencyPenalty: frequencyPenalty,
         responseModalities: responseModalities,
-        speechConfig: speech?.speechConfig
+        speechConfig: speech?.speechConfig,
+        contextWindowCompression: contextWindowCompression?.bidiContextWindowCompressionConfig
       ),
       inputAudioTranscription: inputAudioTranscription?.audioTranscriptionConfig,
-      outputAudioTranscription: outputAudioTranscription?.audioTranscriptionConfig
+      outputAudioTranscription: outputAudioTranscription?.audioTranscriptionConfig,
+      contextWindowCompression: contextWindowCompression
     )
   }
 
   init(_ bidiGenerationConfig: BidiGenerationConfig,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
-       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil) {
+       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
+       contextWindowCompression: ContextWindowCompressionConfig? = nil) {
     self.bidiGenerationConfig = bidiGenerationConfig
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
+    self.contextWindowCompression = contextWindowCompression
   }
 }
