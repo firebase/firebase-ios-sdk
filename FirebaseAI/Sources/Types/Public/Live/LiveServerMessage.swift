@@ -34,6 +34,9 @@ public struct LiveServerMessage: Sendable {
     /// cancelled.
     case toolCallCancellation(LiveServerToolCallCancellation)
 
+    /// Update with the session state needed to resume the session.
+    case sessionResumptionUpdate(LiveSessionResumptionUpdate)
+
     /// Server will disconnect soon.
     case goingAwayNotice(LiveServerGoingAwayNotice)
   }
@@ -74,6 +77,8 @@ extension LiveServerMessage.Payload {
       self = .toolCall(LiveServerToolCall(msg))
     case let .toolCallCancellation(msg):
       self = .toolCallCancellation(LiveServerToolCallCancellation(msg))
+    case let .sessionResumptionUpdate(msg):
+      self = .sessionResumptionUpdate(LiveSessionResumptionUpdate(msg))
     case let .goAway(msg):
       self = .goingAwayNotice(LiveServerGoingAwayNotice(msg))
     }

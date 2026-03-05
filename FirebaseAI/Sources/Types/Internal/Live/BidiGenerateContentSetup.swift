@@ -56,13 +56,17 @@ struct BidiGenerateContentSetup: Encodable {
   /// turn.
   let outputAudioTranscription: BidiAudioTranscriptionConfig?
 
+  /// Configuration for the session resumption mechanism.
+  let sessionResumption: BidiSessionResumptionConfig?
+
   init(model: String,
        generationConfig: BidiGenerationConfig? = nil,
        systemInstruction: ModelContent? = nil,
        tools: [Tool]? = nil,
        toolConfig: ToolConfig? = nil,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
-       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil) {
+       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
+       sessionResumption: BidiSessionResumptionConfig? = nil) {
     self.model = model
     self.generationConfig = generationConfig
     self.systemInstruction = systemInstruction
@@ -70,6 +74,7 @@ struct BidiGenerateContentSetup: Encodable {
     self.toolConfig = toolConfig
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
+    self.sessionResumption = sessionResumption
   }
 }
 

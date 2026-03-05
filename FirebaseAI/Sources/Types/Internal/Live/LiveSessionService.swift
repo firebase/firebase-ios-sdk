@@ -109,11 +109,11 @@ actor LiveSessionService {
   /// resuming the same session.
   ///
   /// This function will yield until the websocket is ready to communicate with the client.
-  func connect() async throws {
+  func connect(sessionResumption: SessionResumptionConfig? = nil) async throws {
     close()
 
     let stream = try await setupWebsocket()
-    try await waitForSetupComplete(stream: stream)
+    try await waitForSetupComplete(stream: stream, sessionResumption: sessionResumption)
     spawnMessageTasks(stream: stream)
   }
 
@@ -138,10 +138,10 @@ actor LiveSessionService {
   /// - Server sends back `BidiGenerateContentSetupComplete` when it's ready
   ///
   /// This function will yield until the setup is complete.
-  private func waitForSetupComplete(stream: MappedStream<
-    URLSessionWebSocketTask.Message,
-    Data
-  >) async throws {
+  private func waitForSetupComplete(
+    stream: MappedStream<URLSessionWebSocketTask.Message, Data>,
+    sessionResumption: SessionResumptionConfig?
+  ) async throws {
     guard let webSocket else { return }
 
     do {
@@ -152,7 +152,8 @@ actor LiveSessionService {
         tools: tools,
         toolConfig: toolConfig,
         inputAudioTranscription: generationConfig?.inputAudioTranscription,
-        outputAudioTranscription: generationConfig?.outputAudioTranscription
+        outputAudioTranscription: generationConfig?.outputAudioTranscription,
+        sessionResumption: sessionResumption?.bidiSessionResumptionConfig
       )
       let data = try jsonEncoder.encode(BidiGenerateContentClientMessage.setup(setup))
       try await webSocket.send(.data(data))
