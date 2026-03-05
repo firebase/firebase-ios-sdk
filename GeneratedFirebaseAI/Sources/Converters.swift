@@ -17,17 +17,15 @@ import Foundation
 
 // A namespace for all generated converter functions.
 public enum Converters {
-
   public static func fileDataToMldev(apiClient: APIClient, fromObject: FileData) throws -> [String:
-    Any]
-  {
-
+    Any] {
     if fromObject.displayName != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "displayName parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "displayName parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -37,13 +35,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for FileData"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for FileData",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -58,20 +57,20 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode FileData: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode FileData: \(error)"]
+      )
     }
   }
 
   public static func functionCallToMldev(apiClient: APIClient, fromObject: FunctionCall) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.willContinue != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "willContinue parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "willContinue parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -81,14 +80,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for FunctionCall"
-          ])
+              "Failed to convert encoded data to dictionary for FunctionCall",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -103,18 +103,19 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode FunctionCall: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode FunctionCall: \(error)"]
+      )
     }
   }
 
   public static func blobToMldev(apiClient: APIClient, fromObject: Blob) throws -> [String: Any] {
-
     if fromObject.displayName != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "displayName parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "displayName parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -124,13 +125,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Blob"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Blob",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -145,7 +147,8 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Blob: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Blob: \(error)"]
+      )
     }
   }
 
@@ -157,13 +160,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Part"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Part",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -178,13 +182,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Part: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Part: \(error)"]
+      )
     }
   }
 
   public static func contentToMldev(apiClient: APIClient, fromObject: Content) throws -> [String:
-    Any]
-  {
+    Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -192,13 +196,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Content"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Content",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -213,18 +218,18 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Content: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Content: \(error)"]
+      )
     }
   }
 
   public static func safetySettingToMldev(apiClient: APIClient, fromObject: SafetySetting) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.method != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "method parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "method parameter is not supported in Gemini API."]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -234,14 +239,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for SafetySetting"
-          ])
+              "Failed to convert encoded data to dictionary for SafetySetting",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -256,28 +262,29 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SafetySetting: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SafetySetting: \(error)"]
+      )
     }
   }
 
   public static func googleSearchToMldev(apiClient: APIClient, fromObject: GoogleSearch) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.blockingConfidence != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "blockingConfidence parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "blockingConfidence parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.excludeDomains != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "excludeDomains parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "excludeDomains parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -287,14 +294,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GoogleSearch"
-          ])
+              "Failed to convert encoded data to dictionary for GoogleSearch",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -309,26 +317,27 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GoogleSearch: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GoogleSearch: \(error)"]
+      )
     }
   }
 
   public static func authConfigToMldev(apiClient: APIClient, fromObject: AuthConfig) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.apiKeyConfig != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "apiKeyConfig parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "apiKeyConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.authType != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "authType parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "authType parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.googleServiceAccountConfig != nil {
@@ -336,32 +345,36 @@ public enum Converters {
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "googleServiceAccountConfig parameter is not supported in Gemini API."
-        ])
+            "googleServiceAccountConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.httpBasicAuthConfig != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "httpBasicAuthConfig parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "httpBasicAuthConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.oauthConfig != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "oauthConfig parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "oauthConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.oidcConfig != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "oidcConfig parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "oidcConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -371,13 +384,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for AuthConfig"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for AuthConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -392,13 +406,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode AuthConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode AuthConfig: \(error)"]
+      )
     }
   }
 
   public static func googleMapsToMldev(apiClient: APIClient, fromObject: GoogleMaps) throws
-    -> [String: Any]
-  {
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -406,13 +420,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for GoogleMaps"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for GoogleMaps",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -427,12 +442,12 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GoogleMaps: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GoogleMaps: \(error)"]
+      )
     }
   }
 
   public static func toolToMldev(apiClient: APIClient, fromObject: Tool) throws -> [String: Any] {
-
     if fromObject.retrieval != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
@@ -444,16 +459,18 @@ public enum Converters {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "enterpriseWebSearch parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "enterpriseWebSearch parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.parallelAiSearch != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "parallelAiSearch parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "parallelAiSearch parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -463,13 +480,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Tool"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Tool",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -484,21 +502,22 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Tool: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Tool: \(error)"]
+      )
     }
   }
 
-  public static func functionCallingConfigToMldev(
-    apiClient: APIClient, fromObject: FunctionCallingConfig
-  ) throws -> [String: Any] {
-
+  public static func functionCallingConfigToMldev(apiClient: APIClient,
+                                                  fromObject: FunctionCallingConfig) throws
+    -> [String: Any] {
     if fromObject.streamFunctionCallArguments != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "streamFunctionCallArguments parameter is not supported in Gemini API."
-        ])
+            "streamFunctionCallArguments parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -508,14 +527,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for FunctionCallingConfig"
-          ])
+              "Failed to convert encoded data to dictionary for FunctionCallingConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -530,13 +550,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode FunctionCallingConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode FunctionCallingConfig: \(error)"]
+      )
     }
   }
 
   public static func toolConfigToMldev(apiClient: APIClient, fromObject: ToolConfig) throws
-    -> [String: Any]
-  {
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -544,13 +564,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for ToolConfig"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for ToolConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -565,36 +586,38 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ToolConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ToolConfig: \(error)"]
+      )
     }
   }
 
   public static func imageConfigToMldev(apiClient: APIClient, fromObject: ImageConfig) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.personGeneration != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "personGeneration parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "personGeneration parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.prominentPeople != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "prominentPeople parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "prominentPeople parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.outputMimeType != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "outputMimeType parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "outputMimeType parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.outputCompressionQuality != nil {
@@ -602,16 +625,18 @@ public enum Converters {
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "outputCompressionQuality parameter is not supported in Gemini API."
-        ])
+            "outputCompressionQuality parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.imageOutputOptions != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "imageOutputOptions parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "imageOutputOptions parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -621,14 +646,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ImageConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ImageConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -643,37 +669,40 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ImageConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ImageConfig: \(error)"]
+      )
     }
   }
 
-  public static func generateContentConfigToMldev(
-    apiClient: APIClient, fromObject: GenerateContentConfig
-  ) throws -> [String: Any] {
-
+  public static func generateContentConfigToMldev(apiClient: APIClient,
+                                                  fromObject: GenerateContentConfig) throws
+    -> [String: Any] {
     if fromObject.modelSelectionConfig != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "modelSelectionConfig parameter is not supported in Gemini API."
-        ])
+            "modelSelectionConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.audioTimestamp != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "audioTimestamp parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "audioTimestamp parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.modelArmorConfig != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "modelArmorConfig parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "modelArmorConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -683,14 +712,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateContentConfig"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateContentConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -705,13 +735,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateContentConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateContentConfig: \(error)"]
+      )
     }
   }
 
-  public static func generateContentParametersToMldev(
-    apiClient: APIClient, fromObject: GenerateContentParameters
-  ) throws -> [String: Any] {
+  public static func generateContentParametersToMldev(apiClient: APIClient,
+                                                      fromObject: GenerateContentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -719,14 +750,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateContentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateContentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -746,27 +778,28 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode GenerateContentParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode GenerateContentParameters: \(error)",
+        ]
+      )
     }
   }
 
   public static func embedContentConfigToMldev(apiClient: APIClient, fromObject: EmbedContentConfig)
-    throws -> [String: Any]
-  {
-
+    throws -> [String: Any] {
     if fromObject.mimeType != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "mimeType parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "mimeType parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.autoTruncate != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "autoTruncate parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "autoTruncate parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -776,14 +809,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for EmbedContentConfig"
-          ])
+              "Failed to convert encoded data to dictionary for EmbedContentConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -798,13 +832,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EmbedContentConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EmbedContentConfig: \(error)"]
+      )
     }
   }
 
-  public static func embedContentParametersPrivateToMldev(
-    apiClient: APIClient, fromObject: EmbedContentParametersPrivate
-  ) throws -> [String: Any] {
+  public static func embedContentParametersPrivateToMldev(apiClient: APIClient,
+                                                          fromObject: EmbedContentParametersPrivate) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -812,14 +847,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for EmbedContentParametersPrivate"
-          ])
+              "Failed to convert encoded data to dictionary for EmbedContentParametersPrivate",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -839,57 +875,63 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode EmbedContentParametersPrivate: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode EmbedContentParametersPrivate: \(error)",
+        ]
+      )
     }
   }
 
-  public static func generateImagesConfigToMldev(
-    apiClient: APIClient, fromObject: GenerateImagesConfig
-  ) throws -> [String: Any] {
-
+  public static func generateImagesConfigToMldev(apiClient: APIClient,
+                                                 fromObject: GenerateImagesConfig) throws
+    -> [String: Any] {
     if fromObject.outputGcsUri != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "outputGcsUri parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "outputGcsUri parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.negativePrompt != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "negativePrompt parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "negativePrompt parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.seed != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "seed parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "seed parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.addWatermark != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "addWatermark parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "addWatermark parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.labels != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "labels parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "labels parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.enhancePrompt != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "enhancePrompt parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "enhancePrompt parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -899,14 +941,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateImagesConfig"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateImagesConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -921,13 +964,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateImagesConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateImagesConfig: \(error)"]
+      )
     }
   }
 
-  public static func generateImagesParametersToMldev(
-    apiClient: APIClient, fromObject: GenerateImagesParameters
-  ) throws -> [String: Any] {
+  public static func generateImagesParametersToMldev(apiClient: APIClient,
+                                                     fromObject: GenerateImagesParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -935,14 +979,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateImagesParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateImagesParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -967,8 +1012,7 @@ public enum Converters {
   }
 
   public static func getModelParametersToMldev(apiClient: APIClient, fromObject: GetModelParameters)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -976,14 +1020,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetModelParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetModelParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1002,13 +1047,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetModelParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetModelParameters: \(error)"]
+      )
     }
   }
 
   public static func listModelsConfigToMldev(apiClient: APIClient, fromObject: ListModelsConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1016,14 +1061,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListModelsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListModelsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1038,13 +1084,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListModelsConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListModelsConfig: \(error)"]
+      )
     }
   }
 
-  public static func listModelsParametersToMldev(
-    apiClient: APIClient, fromObject: ListModelsParameters
-  ) throws -> [String: Any] {
+  public static func listModelsParametersToMldev(apiClient: APIClient,
+                                                 fromObject: ListModelsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1052,14 +1099,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListModelsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListModelsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1074,13 +1122,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListModelsParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListModelsParameters: \(error)"]
+      )
     }
   }
 
   public static func updateModelConfigToMldev(apiClient: APIClient, fromObject: UpdateModelConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1088,14 +1136,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UpdateModelConfig"
-          ])
+              "Failed to convert encoded data to dictionary for UpdateModelConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1110,13 +1159,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode UpdateModelConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode UpdateModelConfig: \(error)"]
+      )
     }
   }
 
-  public static func updateModelParametersToMldev(
-    apiClient: APIClient, fromObject: UpdateModelParameters
-  ) throws -> [String: Any] {
+  public static func updateModelParametersToMldev(apiClient: APIClient,
+                                                  fromObject: UpdateModelParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1124,14 +1174,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UpdateModelParameters"
-          ])
+              "Failed to convert encoded data to dictionary for UpdateModelParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1150,13 +1201,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode UpdateModelParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode UpdateModelParameters: \(error)"]
+      )
     }
   }
 
-  public static func deleteModelParametersToMldev(
-    apiClient: APIClient, fromObject: DeleteModelParameters
-  ) throws -> [String: Any] {
+  public static func deleteModelParametersToMldev(apiClient: APIClient,
+                                                  fromObject: DeleteModelParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1164,14 +1216,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteModelParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteModelParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1190,34 +1243,36 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode DeleteModelParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode DeleteModelParameters: \(error)"]
+      )
     }
   }
 
   public static func countTokensConfigToMldev(apiClient: APIClient, fromObject: CountTokensConfig)
-    throws -> [String: Any]
-  {
-
+    throws -> [String: Any] {
     if fromObject.systemInstruction != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "systemInstruction parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "systemInstruction parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.tools != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "tools parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "tools parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.generationConfig != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "generationConfig parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "generationConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -1227,14 +1282,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CountTokensConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CountTokensConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1249,13 +1305,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CountTokensConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CountTokensConfig: \(error)"]
+      )
     }
   }
 
-  public static func countTokensParametersToMldev(
-    apiClient: APIClient, fromObject: CountTokensParameters
-  ) throws -> [String: Any] {
+  public static func countTokensParametersToMldev(apiClient: APIClient,
+                                                  fromObject: CountTokensParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1263,14 +1320,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CountTokensParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CountTokensParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1289,18 +1347,18 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CountTokensParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CountTokensParameters: \(error)"]
+      )
     }
   }
 
   public static func imageToMldev(apiClient: APIClient, fromObject: ImagePart) throws -> [String:
-    Any]
-  {
-
+    Any] {
     if fromObject.gcsUri != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "gcsUri parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "gcsUri parameter is not supported in Gemini API."]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -1310,13 +1368,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Image"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Image",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1331,7 +1390,8 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Image: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Image: \(error)"]
+      )
     }
   }
 
@@ -1343,13 +1403,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Video"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Video",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1364,13 +1425,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Video: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Video: \(error)"]
+      )
     }
   }
 
-  public static func generateVideosSourceToMldev(
-    apiClient: APIClient, fromObject: GenerateVideosSource
-  ) throws -> [String: Any] {
+  public static func generateVideosSourceToMldev(apiClient: APIClient,
+                                                 fromObject: GenerateVideosSource) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1378,14 +1440,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateVideosSource"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateVideosSource",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1400,13 +1463,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateVideosSource: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateVideosSource: \(error)"]
+      )
     }
   }
 
-  public static func videoGenerationReferenceImageToMldev(
-    apiClient: APIClient, fromObject: VideoGenerationReferenceImage
-  ) throws -> [String: Any] {
+  public static func videoGenerationReferenceImageToMldev(apiClient: APIClient,
+                                                          fromObject: VideoGenerationReferenceImage) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1414,14 +1478,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for VideoGenerationReferenceImage"
-          ])
+              "Failed to convert encoded data to dictionary for VideoGenerationReferenceImage",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1437,63 +1502,70 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode VideoGenerationReferenceImage: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode VideoGenerationReferenceImage: \(error)",
+        ]
+      )
     }
   }
 
-  public static func generateVideosConfigToMldev(
-    apiClient: APIClient, fromObject: GenerateVideosConfig
-  ) throws -> [String: Any] {
-
+  public static func generateVideosConfigToMldev(apiClient: APIClient,
+                                                 fromObject: GenerateVideosConfig) throws
+    -> [String: Any] {
     if fromObject.outputGcsUri != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "outputGcsUri parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "outputGcsUri parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.fps != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "fps parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "fps parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.seed != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "seed parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "seed parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.pubsubTopic != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "pubsubTopic parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "pubsubTopic parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.generateAudio != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "generateAudio parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "generateAudio parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.mask != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "mask parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "mask parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.compressionQuality != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "compressionQuality parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "compressionQuality parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -1503,14 +1575,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateVideosConfig"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateVideosConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1525,13 +1598,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateVideosConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateVideosConfig: \(error)"]
+      )
     }
   }
 
-  public static func generateVideosParametersToMldev(
-    apiClient: APIClient, fromObject: GenerateVideosParameters
-  ) throws -> [String: Any] {
+  public static func generateVideosParametersToMldev(apiClient: APIClient,
+                                                     fromObject: GenerateVideosParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1539,14 +1613,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateVideosParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateVideosParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1570,14 +1645,14 @@ public enum Converters {
     }
   }
 
-  public static func functionDeclarationToVertex(
-    apiClient: APIClient, fromObject: FunctionDeclaration
-  ) throws -> [String: Any] {
-
+  public static func functionDeclarationToVertex(apiClient: APIClient,
+                                                 fromObject: FunctionDeclaration) throws
+    -> [String: Any] {
     if fromObject.behavior != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "behavior parameter is not supported in Vertex AI."])
+        userInfo: [NSLocalizedDescriptionKey: "behavior parameter is not supported in Vertex AI."]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -1587,14 +1662,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for FunctionDeclaration"
-          ])
+              "Failed to convert encoded data to dictionary for FunctionDeclaration",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1609,12 +1685,12 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode FunctionDeclaration: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode FunctionDeclaration: \(error)"]
+      )
     }
   }
 
   public static func toolToVertex(apiClient: APIClient, fromObject: Tool) throws -> [String: Any] {
-
     if fromObject.fileSearch != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
@@ -1636,13 +1712,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Tool"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Tool",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1657,13 +1734,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Tool: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Tool: \(error)"]
+      )
     }
   }
 
   public static func imageConfigToVertex(apiClient: APIClient, fromObject: ImageConfig) throws
-    -> [String: Any]
-  {
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1671,14 +1748,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ImageConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ImageConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1693,21 +1771,22 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ImageConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ImageConfig: \(error)"]
+      )
     }
   }
 
-  public static func generateContentConfigToVertex(
-    apiClient: APIClient, fromObject: GenerateContentConfig
-  ) throws -> [String: Any] {
-
+  public static func generateContentConfigToVertex(apiClient: APIClient,
+                                                   fromObject: GenerateContentConfig) throws
+    -> [String: Any] {
     if fromObject.enableEnhancedCivicAnswers != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "enableEnhancedCivicAnswers parameter is not supported in Vertex AI."
-        ])
+            "enableEnhancedCivicAnswers parameter is not supported in Vertex AI.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -1717,14 +1796,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateContentConfig"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateContentConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1739,13 +1819,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateContentConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateContentConfig: \(error)"]
+      )
     }
   }
 
-  public static func generateContentParametersToVertex(
-    apiClient: APIClient, fromObject: GenerateContentParameters
-  ) throws -> [String: Any] {
+  public static func generateContentParametersToVertex(apiClient: APIClient,
+                                                       fromObject: GenerateContentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1753,92 +1834,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateContentParameters"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if let value = toObject["model"] {
-        urlParams["model"] = value
-        toObject.removeValue(forKey: "model")
-      }
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode GenerateContentParameters: \(error)"
-        ])
-    }
-  }
-
-  public static func embedContentConfigToVertex(
-    apiClient: APIClient, fromObject: EmbedContentConfig
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for EmbedContentConfig"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EmbedContentConfig: \(error)"])
-    }
-  }
-
-  public static func embedContentParametersPrivateToVertex(
-    apiClient: APIClient, fromObject: EmbedContentParametersPrivate
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for EmbedContentParametersPrivate"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateContentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1858,14 +1862,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode EmbedContentParametersPrivate: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode GenerateContentParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func generateImagesConfigToVertex(
-    apiClient: APIClient, fromObject: GenerateImagesConfig
-  ) throws -> [String: Any] {
+  public static func embedContentConfigToVertex(apiClient: APIClient,
+                                                fromObject: EmbedContentConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1873,14 +1878,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateImagesConfig"
-          ])
+              "Failed to convert encoded data to dictionary for EmbedContentConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1895,13 +1901,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateImagesConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EmbedContentConfig: \(error)"]
+      )
     }
   }
 
-  public static func generateImagesParametersToVertex(
-    apiClient: APIClient, fromObject: GenerateImagesParameters
-  ) throws -> [String: Any] {
+  public static func embedContentParametersPrivateToVertex(apiClient: APIClient,
+                                                           fromObject: EmbedContentParametersPrivate) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1909,14 +1916,97 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateImagesParameters"
-          ])
+              "Failed to convert encoded data to dictionary for EmbedContentParametersPrivate",
+          ]
+        )
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if let value = toObject["model"] {
+        urlParams["model"] = value
+        toObject.removeValue(forKey: "model")
+      }
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to encode EmbedContentParametersPrivate: \(error)",
+        ]
+      )
+    }
+  }
+
+  public static func generateImagesConfigToVertex(apiClient: APIClient,
+                                                  fromObject: GenerateImagesConfig) throws
+    -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for GenerateImagesConfig",
+          ]
+        )
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateImagesConfig: \(error)"]
+      )
+    }
+  }
+
+  public static func generateImagesParametersToVertex(apiClient: APIClient,
+                                                      fromObject: GenerateImagesParameters) throws
+    -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for GenerateImagesParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1941,8 +2031,7 @@ public enum Converters {
   }
 
   public static func imageToVertex(apiClient: APIClient, fromObject: ImagePart) throws -> [String:
-    Any]
-  {
+    Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1950,13 +2039,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Image"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Image",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -1971,13 +2061,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Image: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Image: \(error)"]
+      )
     }
   }
 
-  public static func maskReferenceConfigToVertex(
-    apiClient: APIClient, fromObject: MaskReferenceConfig
-  ) throws -> [String: Any] {
+  public static func maskReferenceConfigToVertex(apiClient: APIClient,
+                                                 fromObject: MaskReferenceConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -1985,14 +2076,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for MaskReferenceConfig"
-          ])
+              "Failed to convert encoded data to dictionary for MaskReferenceConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2007,13 +2099,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode MaskReferenceConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode MaskReferenceConfig: \(error)"]
+      )
     }
   }
 
-  public static func controlReferenceConfigToVertex(
-    apiClient: APIClient, fromObject: ControlReferenceConfig
-  ) throws -> [String: Any] {
+  public static func controlReferenceConfigToVertex(apiClient: APIClient,
+                                                    fromObject: ControlReferenceConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2021,14 +2114,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ControlReferenceConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ControlReferenceConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2043,13 +2137,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ControlReferenceConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ControlReferenceConfig: \(error)"]
+      )
     }
   }
 
-  public static func _ReferenceImageAPIToVertex(
-    apiClient: APIClient, fromObject: _ReferenceImageAPI
-  ) throws -> [String: Any] {
+  public static func _ReferenceImageAPIToVertex(apiClient: APIClient,
+                                                fromObject: _ReferenceImageAPI) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2057,14 +2152,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for _ReferenceImageAPI"
-          ])
+              "Failed to convert encoded data to dictionary for _ReferenceImageAPI",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2079,13 +2175,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode _ReferenceImageAPI: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode _ReferenceImageAPI: \(error)"]
+      )
     }
   }
 
   public static func editImageConfigToVertex(apiClient: APIClient, fromObject: EditImageConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2093,14 +2189,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for EditImageConfig"
-          ])
+              "Failed to convert encoded data to dictionary for EditImageConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2115,13 +2212,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EditImageConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EditImageConfig: \(error)"]
+      )
     }
   }
 
-  public static func _EditImageParametersToVertex(
-    apiClient: APIClient, fromObject: _EditImageParameters
-  ) throws -> [String: Any] {
+  public static func _EditImageParametersToVertex(apiClient: APIClient,
+                                                  fromObject: _EditImageParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2129,14 +2227,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for _EditImageParameters"
-          ])
+              "Failed to convert encoded data to dictionary for _EditImageParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2155,13 +2254,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode _EditImageParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode _EditImageParameters: \(error)"]
+      )
     }
   }
 
-  public static func _UpscaleImageAPIConfigToVertex(
-    apiClient: APIClient, fromObject: _UpscaleImageAPIConfig
-  ) throws -> [String: Any] {
+  public static func _UpscaleImageAPIConfigToVertex(apiClient: APIClient,
+                                                    fromObject: _UpscaleImageAPIConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2169,14 +2269,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for _UpscaleImageAPIConfig"
-          ])
+              "Failed to convert encoded data to dictionary for _UpscaleImageAPIConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2191,13 +2292,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode _UpscaleImageAPIConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode _UpscaleImageAPIConfig: \(error)"]
+      )
     }
   }
 
-  public static func _UpscaleImageAPIParametersToVertex(
-    apiClient: APIClient, fromObject: _UpscaleImageAPIParameters
-  ) throws -> [String: Any] {
+  public static func _UpscaleImageAPIParametersToVertex(apiClient: APIClient,
+                                                        fromObject: _UpscaleImageAPIParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2205,14 +2307,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for _UpscaleImageAPIParameters"
-          ])
+              "Failed to convert encoded data to dictionary for _UpscaleImageAPIParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2232,14 +2335,14 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode _UpscaleImageAPIParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode _UpscaleImageAPIParameters: \(error)",
+        ]
+      )
     }
   }
 
   public static func productImageToVertex(apiClient: APIClient, fromObject: ProductImage) throws
-    -> [String: Any]
-  {
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2247,14 +2350,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ProductImage"
-          ])
+              "Failed to convert encoded data to dictionary for ProductImage",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2269,13 +2373,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ProductImage: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ProductImage: \(error)"]
+      )
     }
   }
 
-  public static func recontextImageSourceToVertex(
-    apiClient: APIClient, fromObject: RecontextImageSource
-  ) throws -> [String: Any] {
+  public static func recontextImageSourceToVertex(apiClient: APIClient,
+                                                  fromObject: RecontextImageSource) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2283,14 +2388,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for RecontextImageSource"
-          ])
+              "Failed to convert encoded data to dictionary for RecontextImageSource",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2305,13 +2411,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode RecontextImageSource: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode RecontextImageSource: \(error)"]
+      )
     }
   }
 
-  public static func recontextImageConfigToVertex(
-    apiClient: APIClient, fromObject: RecontextImageConfig
-  ) throws -> [String: Any] {
+  public static func recontextImageConfigToVertex(apiClient: APIClient,
+                                                  fromObject: RecontextImageConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2319,14 +2426,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for RecontextImageConfig"
-          ])
+              "Failed to convert encoded data to dictionary for RecontextImageConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2341,13 +2449,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode RecontextImageConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode RecontextImageConfig: \(error)"]
+      )
     }
   }
 
-  public static func recontextImageParametersToVertex(
-    apiClient: APIClient, fromObject: RecontextImageParameters
-  ) throws -> [String: Any] {
+  public static func recontextImageParametersToVertex(apiClient: APIClient,
+                                                      fromObject: RecontextImageParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2355,14 +2464,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for RecontextImageParameters"
-          ])
+              "Failed to convert encoded data to dictionary for RecontextImageParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2387,8 +2497,7 @@ public enum Converters {
   }
 
   public static func scribbleImageToVertex(apiClient: APIClient, fromObject: ScribbleImage) throws
-    -> [String: Any]
-  {
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2396,14 +2505,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ScribbleImage"
-          ])
+              "Failed to convert encoded data to dictionary for ScribbleImage",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2418,13 +2528,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ScribbleImage: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ScribbleImage: \(error)"]
+      )
     }
   }
 
-  public static func segmentImageSourceToVertex(
-    apiClient: APIClient, fromObject: SegmentImageSource
-  ) throws -> [String: Any] {
+  public static func segmentImageSourceToVertex(apiClient: APIClient,
+                                                fromObject: SegmentImageSource) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2432,14 +2543,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for SegmentImageSource"
-          ])
+              "Failed to convert encoded data to dictionary for SegmentImageSource",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2454,13 +2566,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SegmentImageSource: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SegmentImageSource: \(error)"]
+      )
     }
   }
 
-  public static func segmentImageConfigToVertex(
-    apiClient: APIClient, fromObject: SegmentImageConfig
-  ) throws -> [String: Any] {
+  public static func segmentImageConfigToVertex(apiClient: APIClient,
+                                                fromObject: SegmentImageConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2468,14 +2581,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for SegmentImageConfig"
-          ])
+              "Failed to convert encoded data to dictionary for SegmentImageConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2490,13 +2604,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SegmentImageConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SegmentImageConfig: \(error)"]
+      )
     }
   }
 
-  public static func segmentImageParametersToVertex(
-    apiClient: APIClient, fromObject: SegmentImageParameters
-  ) throws -> [String: Any] {
+  public static func segmentImageParametersToVertex(apiClient: APIClient,
+                                                    fromObject: SegmentImageParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2504,14 +2619,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for SegmentImageParameters"
-          ])
+              "Failed to convert encoded data to dictionary for SegmentImageParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2530,13 +2646,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SegmentImageParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode SegmentImageParameters: \(error)"]
+      )
     }
   }
 
-  public static func getModelParametersToVertex(
-    apiClient: APIClient, fromObject: GetModelParameters
-  ) throws -> [String: Any] {
+  public static func getModelParametersToVertex(apiClient: APIClient,
+                                                fromObject: GetModelParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2544,14 +2661,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetModelParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetModelParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2570,13 +2688,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetModelParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetModelParameters: \(error)"]
+      )
     }
   }
 
   public static func listModelsConfigToVertex(apiClient: APIClient, fromObject: ListModelsConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2584,14 +2702,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListModelsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListModelsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2606,13 +2725,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListModelsConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListModelsConfig: \(error)"]
+      )
     }
   }
 
-  public static func listModelsParametersToVertex(
-    apiClient: APIClient, fromObject: ListModelsParameters
-  ) throws -> [String: Any] {
+  public static func listModelsParametersToVertex(apiClient: APIClient,
+                                                  fromObject: ListModelsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2620,14 +2740,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListModelsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListModelsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2642,13 +2763,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListModelsParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListModelsParameters: \(error)"]
+      )
     }
   }
 
   public static func updateModelConfigToVertex(apiClient: APIClient, fromObject: UpdateModelConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2656,14 +2777,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UpdateModelConfig"
-          ])
+              "Failed to convert encoded data to dictionary for UpdateModelConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2678,13 +2800,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode UpdateModelConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode UpdateModelConfig: \(error)"]
+      )
     }
   }
 
-  public static func updateModelParametersToVertex(
-    apiClient: APIClient, fromObject: UpdateModelParameters
-  ) throws -> [String: Any] {
+  public static func updateModelParametersToVertex(apiClient: APIClient,
+                                                   fromObject: UpdateModelParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2692,14 +2815,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UpdateModelParameters"
-          ])
+              "Failed to convert encoded data to dictionary for UpdateModelParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2718,13 +2842,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode UpdateModelParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode UpdateModelParameters: \(error)"]
+      )
     }
   }
 
-  public static func deleteModelParametersToVertex(
-    apiClient: APIClient, fromObject: DeleteModelParameters
-  ) throws -> [String: Any] {
+  public static func deleteModelParametersToVertex(apiClient: APIClient,
+                                                   fromObject: DeleteModelParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2732,14 +2857,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteModelParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteModelParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2758,21 +2884,21 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode DeleteModelParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode DeleteModelParameters: \(error)"]
+      )
     }
   }
 
   public static func generationConfigToVertex(apiClient: APIClient, fromObject: GenerationConfig)
-    throws -> [String: Any]
-  {
-
+    throws -> [String: Any] {
     if fromObject.enableEnhancedCivicAnswers != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "enableEnhancedCivicAnswers parameter is not supported in Vertex AI."
-        ])
+            "enableEnhancedCivicAnswers parameter is not supported in Vertex AI.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -2782,14 +2908,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerationConfig"
-          ])
+              "Failed to convert encoded data to dictionary for GenerationConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2804,13 +2931,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerationConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerationConfig: \(error)"]
+      )
     }
   }
 
   public static func countTokensConfigToVertex(apiClient: APIClient, fromObject: CountTokensConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2818,14 +2945,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CountTokensConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CountTokensConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2840,13 +2968,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CountTokensConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CountTokensConfig: \(error)"]
+      )
     }
   }
 
-  public static func countTokensParametersToVertex(
-    apiClient: APIClient, fromObject: CountTokensParameters
-  ) throws -> [String: Any] {
+  public static func countTokensParametersToVertex(apiClient: APIClient,
+                                                   fromObject: CountTokensParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2854,14 +2983,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CountTokensParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CountTokensParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2880,13 +3010,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CountTokensParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CountTokensParameters: \(error)"]
+      )
     }
   }
 
-  public static func computeTokensParametersToVertex(
-    apiClient: APIClient, fromObject: ComputeTokensParameters
-  ) throws -> [String: Any] {
+  public static func computeTokensParametersToVertex(apiClient: APIClient,
+                                                     fromObject: ComputeTokensParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2894,14 +3025,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ComputeTokensParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ComputeTokensParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2920,7 +3052,8 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ComputeTokensParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ComputeTokensParameters: \(error)"]
+      )
     }
   }
 
@@ -2933,13 +3066,14 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
-            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Video"
-          ])
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Video",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2954,13 +3088,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Video: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Video: \(error)"]
+      )
     }
   }
 
-  public static func generateVideosSourceToVertex(
-    apiClient: APIClient, fromObject: GenerateVideosSource
-  ) throws -> [String: Any] {
+  public static func generateVideosSourceToVertex(apiClient: APIClient,
+                                                  fromObject: GenerateVideosSource) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -2968,14 +3103,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateVideosSource"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateVideosSource",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -2990,13 +3126,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateVideosSource: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateVideosSource: \(error)"]
+      )
     }
   }
 
-  public static func videoGenerationReferenceImageToVertex(
-    apiClient: APIClient, fromObject: VideoGenerationReferenceImage
-  ) throws -> [String: Any] {
+  public static func videoGenerationReferenceImageToVertex(apiClient: APIClient,
+                                                           fromObject: VideoGenerationReferenceImage) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -3004,14 +3141,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for VideoGenerationReferenceImage"
-          ])
+              "Failed to convert encoded data to dictionary for VideoGenerationReferenceImage",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -3027,14 +3165,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode VideoGenerationReferenceImage: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode VideoGenerationReferenceImage: \(error)",
+        ]
+      )
     }
   }
 
-  public static func videoGenerationMaskToVertex(
-    apiClient: APIClient, fromObject: VideoGenerationMask
-  ) throws -> [String: Any] {
+  public static func videoGenerationMaskToVertex(apiClient: APIClient,
+                                                 fromObject: VideoGenerationMask) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -3042,14 +3181,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for VideoGenerationMask"
-          ])
+              "Failed to convert encoded data to dictionary for VideoGenerationMask",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -3064,13 +3204,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode VideoGenerationMask: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode VideoGenerationMask: \(error)"]
+      )
     }
   }
 
-  public static func generateVideosConfigToVertex(
-    apiClient: APIClient, fromObject: GenerateVideosConfig
-  ) throws -> [String: Any] {
+  public static func generateVideosConfigToVertex(apiClient: APIClient,
+                                                  fromObject: GenerateVideosConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -3078,14 +3219,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateVideosConfig"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateVideosConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -3100,13 +3242,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateVideosConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GenerateVideosConfig: \(error)"]
+      )
     }
   }
 
-  public static func generateVideosParametersToVertex(
-    apiClient: APIClient, fromObject: GenerateVideosParameters
-  ) throws -> [String: Any] {
+  public static func generateVideosParametersToVertex(apiClient: APIClient,
+                                                      fromObject: GenerateVideosParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -3114,14 +3257,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GenerateVideosParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GenerateVideosParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -3158,8 +3302,7 @@ public enum Converters {
   }
 
   public static func functionCallFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> FunctionCall?
-  {
+    -> FunctionCall? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3220,8 +3363,7 @@ public enum Converters {
   }
 
   public static func citationMetadataFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> CitationMetadata?
-  {
+    -> CitationMetadata? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3233,9 +3375,9 @@ public enum Converters {
     }
   }
 
-  public static func groundingChunkMapsPlaceAnswerSourcesFromMldev(
-    apiClient: APIClient, fromObject: Data
-  ) throws -> GroundingChunkMapsPlaceAnswerSources? {
+  public static func groundingChunkMapsPlaceAnswerSourcesFromMldev(apiClient: APIClient,
+                                                                   fromObject: Data) throws
+    -> GroundingChunkMapsPlaceAnswerSources? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3248,8 +3390,7 @@ public enum Converters {
   }
 
   public static func groundingChunkMapsFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GroundingChunkMaps?
-  {
+    -> GroundingChunkMaps? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3262,8 +3403,7 @@ public enum Converters {
   }
 
   public static func groundingChunkWebFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GroundingChunkWeb?
-  {
+    -> GroundingChunkWeb? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3276,8 +3416,7 @@ public enum Converters {
   }
 
   public static func groundingChunkFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GroundingChunk?
-  {
+    -> GroundingChunk? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3290,8 +3429,7 @@ public enum Converters {
   }
 
   public static func groundingMetadataFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GroundingMetadata?
-  {
+    -> GroundingMetadata? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3304,8 +3442,7 @@ public enum Converters {
   }
 
   public static func safetyRatingFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> SafetyRating?
-  {
+    -> SafetyRating? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3330,14 +3467,15 @@ public enum Converters {
     }
   }
 
-  public static func generateContentResponsePromptFeedbackFromMldev(
-    apiClient: APIClient, fromObject: Data
-  ) throws -> GenerateContentResponsePromptFeedback? {
+  public static func generateContentResponsePromptFeedbackFromMldev(apiClient: APIClient,
+                                                                    fromObject: Data) throws
+    -> GenerateContentResponsePromptFeedback? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
       let instance = try decoder.decode(
-        GenerateContentResponsePromptFeedback.self, from: fromObject)
+        GenerateContentResponsePromptFeedback.self, from: fromObject
+      )
       return instance
     } catch {
       print("Failed to decode GenerateContentResponsePromptFeedback: \(error)")
@@ -3345,9 +3483,9 @@ public enum Converters {
     }
   }
 
-  public static func generateContentResponseUsageMetadataFromMldev(
-    apiClient: APIClient, fromObject: Data
-  ) throws -> GenerateContentResponseUsageMetadata? {
+  public static func generateContentResponseUsageMetadataFromMldev(apiClient: APIClient,
+                                                                   fromObject: Data) throws
+    -> GenerateContentResponseUsageMetadata? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3360,8 +3498,7 @@ public enum Converters {
   }
 
   public static func generateContentResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GenerateContentResponse?
-  {
+    -> GenerateContentResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3374,8 +3511,7 @@ public enum Converters {
   }
 
   public static func contentEmbeddingFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ContentEmbedding?
-  {
+    -> ContentEmbedding? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3388,8 +3524,7 @@ public enum Converters {
   }
 
   public static func embedContentMetadataFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> EmbedContentMetadata?
-  {
+    -> EmbedContentMetadata? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3402,8 +3537,7 @@ public enum Converters {
   }
 
   public static func embedContentResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> EmbedContentResponse?
-  {
+    -> EmbedContentResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3428,8 +3562,7 @@ public enum Converters {
   }
 
   public static func safetyAttributesFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> SafetyAttributes?
-  {
+    -> SafetyAttributes? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3442,8 +3575,7 @@ public enum Converters {
   }
 
   public static func generatedImageFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GeneratedImage?
-  {
+    -> GeneratedImage? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3456,8 +3588,7 @@ public enum Converters {
   }
 
   public static func generateImagesResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GenerateImagesResponse?
-  {
+    -> GenerateImagesResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3482,8 +3613,7 @@ public enum Converters {
   }
 
   public static func listModelsResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ListModelsResponse?
-  {
+    -> ListModelsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3496,8 +3626,7 @@ public enum Converters {
   }
 
   public static func deleteModelResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> DeleteModelResponse?
-  {
+    -> DeleteModelResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3510,8 +3639,7 @@ public enum Converters {
   }
 
   public static func countTokensResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> CountTokensResponse?
-  {
+    -> CountTokensResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3536,8 +3664,7 @@ public enum Converters {
   }
 
   public static func generatedVideoFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GeneratedVideo?
-  {
+    -> GeneratedVideo? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3550,8 +3677,7 @@ public enum Converters {
   }
 
   public static func generateVideosResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GenerateVideosResponse?
-  {
+    -> GenerateVideosResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3564,8 +3690,7 @@ public enum Converters {
   }
 
   public static func generateVideosOperationFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> GenerateVideosOperation?
-  {
+    -> GenerateVideosOperation? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3578,8 +3703,7 @@ public enum Converters {
   }
 
   public static func urlMetadataFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> UrlMetadata?
-  {
+    -> UrlMetadata? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3592,8 +3716,7 @@ public enum Converters {
   }
 
   public static func urlContextMetadataFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> UrlContextMetadata?
-  {
+    -> UrlContextMetadata? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3606,8 +3729,7 @@ public enum Converters {
   }
 
   public static func candidateFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> Candidate?
-  {
+    -> Candidate? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3620,8 +3742,7 @@ public enum Converters {
   }
 
   public static func generateContentResponseFromVertex(apiClient: APIClient, fromObject: Data)
-    throws -> GenerateContentResponse?
-  {
+    throws -> GenerateContentResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3634,8 +3755,7 @@ public enum Converters {
   }
 
   public static func contentEmbeddingStatisticsFromVertex(apiClient: APIClient, fromObject: Data)
-    throws -> ContentEmbeddingStatistics?
-  {
+    throws -> ContentEmbeddingStatistics? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3648,8 +3768,7 @@ public enum Converters {
   }
 
   public static func contentEmbeddingFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> ContentEmbedding?
-  {
+    -> ContentEmbedding? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3662,8 +3781,7 @@ public enum Converters {
   }
 
   public static func embedContentResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> EmbedContentResponse?
-  {
+    -> EmbedContentResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3688,8 +3806,7 @@ public enum Converters {
   }
 
   public static func safetyAttributesFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> SafetyAttributes?
-  {
+    -> SafetyAttributes? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3702,8 +3819,7 @@ public enum Converters {
   }
 
   public static func generatedImageFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> GeneratedImage?
-  {
+    -> GeneratedImage? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3716,8 +3832,7 @@ public enum Converters {
   }
 
   public static func generateImagesResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> GenerateImagesResponse?
-  {
+    -> GenerateImagesResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3730,8 +3845,7 @@ public enum Converters {
   }
 
   public static func editImageResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> EditImageResponse?
-  {
+    -> EditImageResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3744,8 +3858,7 @@ public enum Converters {
   }
 
   public static func upscaleImageResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> UpscaleImageResponse?
-  {
+    -> UpscaleImageResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3758,8 +3871,7 @@ public enum Converters {
   }
 
   public static func recontextImageResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> RecontextImageResponse?
-  {
+    -> RecontextImageResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3772,8 +3884,7 @@ public enum Converters {
   }
 
   public static func generatedImageMaskFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> GeneratedImageMask?
-  {
+    -> GeneratedImageMask? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3786,8 +3897,7 @@ public enum Converters {
   }
 
   public static func segmentImageResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> SegmentImageResponse?
-  {
+    -> SegmentImageResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3813,8 +3923,7 @@ public enum Converters {
   }
 
   public static func tunedModelInfoFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> TunedModelInfo?
-  {
+    -> TunedModelInfo? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3839,8 +3948,7 @@ public enum Converters {
   }
 
   public static func listModelsResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> ListModelsResponse?
-  {
+    -> ListModelsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3853,8 +3961,7 @@ public enum Converters {
   }
 
   public static func deleteModelResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> DeleteModelResponse?
-  {
+    -> DeleteModelResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3867,8 +3974,7 @@ public enum Converters {
   }
 
   public static func countTokensResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> CountTokensResponse?
-  {
+    -> CountTokensResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3881,8 +3987,7 @@ public enum Converters {
   }
 
   public static func computeTokensResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> ComputeTokensResponse?
-  {
+    -> ComputeTokensResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3907,8 +4012,7 @@ public enum Converters {
   }
 
   public static func generatedVideoFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> GeneratedVideo?
-  {
+    -> GeneratedVideo? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3921,8 +4025,7 @@ public enum Converters {
   }
 
   public static func generateVideosResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> GenerateVideosResponse?
-  {
+    -> GenerateVideosResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3935,8 +4038,7 @@ public enum Converters {
   }
 
   public static func generateVideosOperationFromVertex(apiClient: APIClient, fromObject: Data)
-    throws -> GenerateVideosOperation?
-  {
+    throws -> GenerateVideosOperation? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -3947,9 +4049,10 @@ public enum Converters {
       return nil
     }
   }
-  public static func getTuningJobParametersToMldev(
-    apiClient: APIClient, fromObject: GetTuningJobParameters
-  ) throws -> [String: Any] {
+
+  public static func getTuningJobParametersToMldev(apiClient: APIClient,
+                                                   fromObject: GetTuningJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -3957,14 +4060,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetTuningJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetTuningJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -3983,13 +4087,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetTuningJobParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetTuningJobParameters: \(error)"]
+      )
     }
   }
 
-  public static func listTuningJobsConfigToMldev(
-    apiClient: APIClient, fromObject: ListTuningJobsConfig
-  ) throws -> [String: Any] {
+  public static func listTuningJobsConfigToMldev(apiClient: APIClient,
+                                                 fromObject: ListTuningJobsConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -3997,14 +4102,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListTuningJobsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListTuningJobsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4019,13 +4125,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListTuningJobsConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListTuningJobsConfig: \(error)"]
+      )
     }
   }
 
-  public static func listTuningJobsParametersToMldev(
-    apiClient: APIClient, fromObject: ListTuningJobsParameters
-  ) throws -> [String: Any] {
+  public static func listTuningJobsParametersToMldev(apiClient: APIClient,
+                                                     fromObject: ListTuningJobsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4033,14 +4140,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListTuningJobsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListTuningJobsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4060,9 +4168,9 @@ public enum Converters {
     }
   }
 
-  public static func cancelTuningJobParametersToMldev(
-    apiClient: APIClient, fromObject: CancelTuningJobParameters
-  ) throws -> [String: Any] {
+  public static func cancelTuningJobParametersToMldev(apiClient: APIClient,
+                                                      fromObject: CancelTuningJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4070,14 +4178,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CancelTuningJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CancelTuningJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4097,19 +4206,19 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CancelTuningJobParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CancelTuningJobParameters: \(error)",
+        ]
+      )
     }
   }
 
   public static func tuningDatasetToMldev(apiClient: APIClient, fromObject: TuningDataset) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.gcsUri != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "gcsUri parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "gcsUri parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.vertexDatasetResource != nil {
@@ -4117,8 +4226,9 @@ public enum Converters {
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "vertexDatasetResource parameter is not supported in Gemini API."
-        ])
+            "vertexDatasetResource parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -4128,14 +4238,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for TuningDataset"
-          ])
+              "Failed to convert encoded data to dictionary for TuningDataset",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4150,28 +4261,30 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode TuningDataset: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode TuningDataset: \(error)"]
+      )
     }
   }
 
-  public static func createTuningJobConfigToMldev(
-    apiClient: APIClient, fromObject: CreateTuningJobConfig
-  ) throws -> [String: Any] {
-
+  public static func createTuningJobConfigToMldev(apiClient: APIClient,
+                                                  fromObject: CreateTuningJobConfig) throws
+    -> [String: Any] {
     if fromObject.validationDataset != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "validationDataset parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "validationDataset parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.description != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "description parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "description parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.exportLastCheckpointOnly != nil {
@@ -4179,8 +4292,9 @@ public enum Converters {
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "exportLastCheckpointOnly parameter is not supported in Gemini API."
-        ])
+            "exportLastCheckpointOnly parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.preTunedModelCheckpointId != nil {
@@ -4188,60 +4302,68 @@ public enum Converters {
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "preTunedModelCheckpointId parameter is not supported in Gemini API."
-        ])
+            "preTunedModelCheckpointId parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.adapterSize != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "adapterSize parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "adapterSize parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.tuningMode != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "tuningMode parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "tuningMode parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.customBaseModel != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "customBaseModel parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "customBaseModel parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.evaluationConfig != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "evaluationConfig parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "evaluationConfig parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.labels != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "labels parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "labels parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.beta != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "beta parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "beta parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.baseTeacherModel != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "baseTeacherModel parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "baseTeacherModel parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.tunedTeacherModelSource != nil {
@@ -4249,8 +4371,9 @@ public enum Converters {
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "tunedTeacherModelSource parameter is not supported in Gemini API."
-        ])
+            "tunedTeacherModelSource parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.sftLossWeightMultiplier != nil {
@@ -4258,8 +4381,9 @@ public enum Converters {
         domain: "Gemini API", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "sftLossWeightMultiplier parameter is not supported in Gemini API."
-        ])
+            "sftLossWeightMultiplier parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     if fromObject.outputUri != nil {
@@ -4273,8 +4397,9 @@ public enum Converters {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "encryptionSpec parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "encryptionSpec parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -4284,14 +4409,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateTuningJobConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CreateTuningJobConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4306,13 +4432,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateTuningJobConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateTuningJobConfig: \(error)"]
+      )
     }
   }
 
-  public static func createTuningJobParametersPrivateToMldev(
-    apiClient: APIClient, fromObject: CreateTuningJobParametersPrivate
-  ) throws -> [String: Any] {
+  public static func createTuningJobParametersPrivateToMldev(apiClient: APIClient,
+                                                             fromObject: CreateTuningJobParametersPrivate) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4320,14 +4447,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateTuningJobParametersPrivate"
-          ])
+              "Failed to convert encoded data to dictionary for CreateTuningJobParametersPrivate",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4343,14 +4471,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateTuningJobParametersPrivate: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateTuningJobParametersPrivate: \(error)",
+        ]
+      )
     }
   }
 
-  public static func getTuningJobParametersToVertex(
-    apiClient: APIClient, fromObject: GetTuningJobParameters
-  ) throws -> [String: Any] {
+  public static func getTuningJobParametersToVertex(apiClient: APIClient,
+                                                    fromObject: GetTuningJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4358,14 +4487,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetTuningJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetTuningJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4384,13 +4514,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetTuningJobParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetTuningJobParameters: \(error)"]
+      )
     }
   }
 
-  public static func listTuningJobsConfigToVertex(
-    apiClient: APIClient, fromObject: ListTuningJobsConfig
-  ) throws -> [String: Any] {
+  public static func listTuningJobsConfigToVertex(apiClient: APIClient,
+                                                  fromObject: ListTuningJobsConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4398,14 +4529,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListTuningJobsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListTuningJobsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4420,13 +4552,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListTuningJobsConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListTuningJobsConfig: \(error)"]
+      )
     }
   }
 
-  public static func listTuningJobsParametersToVertex(
-    apiClient: APIClient, fromObject: ListTuningJobsParameters
-  ) throws -> [String: Any] {
+  public static func listTuningJobsParametersToVertex(apiClient: APIClient,
+                                                      fromObject: ListTuningJobsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4434,14 +4567,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListTuningJobsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListTuningJobsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4461,9 +4595,9 @@ public enum Converters {
     }
   }
 
-  public static func cancelTuningJobParametersToVertex(
-    apiClient: APIClient, fromObject: CancelTuningJobParameters
-  ) throws -> [String: Any] {
+  public static func cancelTuningJobParametersToVertex(apiClient: APIClient,
+                                                       fromObject: CancelTuningJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4471,14 +4605,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CancelTuningJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CancelTuningJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4498,19 +4633,19 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CancelTuningJobParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CancelTuningJobParameters: \(error)",
+        ]
+      )
     }
   }
 
   public static func tuningDatasetToVertex(apiClient: APIClient, fromObject: TuningDataset) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.examples != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "examples parameter is not supported in Vertex AI."])
+        userInfo: [NSLocalizedDescriptionKey: "examples parameter is not supported in Vertex AI."]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -4520,14 +4655,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for TuningDataset"
-          ])
+              "Failed to convert encoded data to dictionary for TuningDataset",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4542,13 +4678,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode TuningDataset: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode TuningDataset: \(error)"]
+      )
     }
   }
 
-  public static func tuningValidationDatasetToVertex(
-    apiClient: APIClient, fromObject: TuningValidationDataset
-  ) throws -> [String: Any] {
+  public static func tuningValidationDatasetToVertex(apiClient: APIClient,
+                                                     fromObject: TuningValidationDataset) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4556,14 +4693,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for TuningValidationDataset"
-          ])
+              "Failed to convert encoded data to dictionary for TuningValidationDataset",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4578,13 +4716,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode TuningValidationDataset: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode TuningValidationDataset: \(error)"]
+      )
     }
   }
 
   public static func evaluationConfigToVertex(apiClient: APIClient, fromObject: EvaluationConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4592,14 +4730,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for EvaluationConfig"
-          ])
+              "Failed to convert encoded data to dictionary for EvaluationConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4614,13 +4753,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EvaluationConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EvaluationConfig: \(error)"]
+      )
     }
   }
 
-  public static func createTuningJobConfigToVertex(
-    apiClient: APIClient, fromObject: CreateTuningJobConfig
-  ) throws -> [String: Any] {
+  public static func createTuningJobConfigToVertex(apiClient: APIClient,
+                                                   fromObject: CreateTuningJobConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4628,14 +4768,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateTuningJobConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CreateTuningJobConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4650,13 +4791,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateTuningJobConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateTuningJobConfig: \(error)"]
+      )
     }
   }
 
-  public static func createTuningJobParametersPrivateToVertex(
-    apiClient: APIClient, fromObject: CreateTuningJobParametersPrivate
-  ) throws -> [String: Any] {
+  public static func createTuningJobParametersPrivateToVertex(apiClient: APIClient,
+                                                              fromObject: CreateTuningJobParametersPrivate) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4664,14 +4806,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateTuningJobParametersPrivate"
-          ])
+              "Failed to convert encoded data to dictionary for CreateTuningJobParametersPrivate",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4687,14 +4830,14 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateTuningJobParametersPrivate: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateTuningJobParametersPrivate: \(error)",
+        ]
+      )
     }
   }
 
   public static func tunedModelFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> TunedModel?
-  {
+    -> TunedModel? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -4720,8 +4863,7 @@ public enum Converters {
   }
 
   public static func listTuningJobsResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ListTuningJobsResponse?
-  {
+    -> ListTuningJobsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -4734,8 +4876,7 @@ public enum Converters {
   }
 
   public static func cancelTuningJobResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> CancelTuningJobResponse?
-  {
+    -> CancelTuningJobResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -4748,8 +4889,7 @@ public enum Converters {
   }
 
   public static func tuningOperationFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> TuningOperation?
-  {
+    -> TuningOperation? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -4762,8 +4902,7 @@ public enum Converters {
   }
 
   public static func evaluationConfigFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> EvaluationConfig?
-  {
+    -> EvaluationConfig? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -4776,8 +4915,7 @@ public enum Converters {
   }
 
   public static func tuningJobFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> TuningJob?
-  {
+    -> TuningJob? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -4790,8 +4928,7 @@ public enum Converters {
   }
 
   public static func listTuningJobsResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> ListTuningJobsResponse?
-  {
+    -> ListTuningJobsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -4804,8 +4941,7 @@ public enum Converters {
   }
 
   public static func cancelTuningJobResponseFromVertex(apiClient: APIClient, fromObject: Data)
-    throws -> CancelTuningJobResponse?
-  {
+    throws -> CancelTuningJobResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -4816,16 +4952,17 @@ public enum Converters {
       return nil
     }
   }
-  public static func createCachedContentConfigToMldev(
-    apiClient: APIClient, fromObject: CreateCachedContentConfig
-  ) throws -> [String: Any] {
 
+  public static func createCachedContentConfigToMldev(apiClient: APIClient,
+                                                      fromObject: CreateCachedContentConfig) throws
+    -> [String: Any] {
     if fromObject.kmsKeyName != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "kmsKeyName parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "kmsKeyName parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -4835,14 +4972,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateCachedContentConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CreateCachedContentConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4858,14 +4996,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateCachedContentConfig: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateCachedContentConfig: \(error)",
+        ]
+      )
     }
   }
 
-  public static func createCachedContentParametersToMldev(
-    apiClient: APIClient, fromObject: CreateCachedContentParameters
-  ) throws -> [String: Any] {
+  public static func createCachedContentParametersToMldev(apiClient: APIClient,
+                                                          fromObject: CreateCachedContentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4873,14 +5012,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateCachedContentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CreateCachedContentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4896,14 +5036,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateCachedContentParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateCachedContentParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func getCachedContentParametersToMldev(
-    apiClient: APIClient, fromObject: GetCachedContentParameters
-  ) throws -> [String: Any] {
+  public static func getCachedContentParametersToMldev(apiClient: APIClient,
+                                                       fromObject: GetCachedContentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4911,56 +5052,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetCachedContentParameters"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if let value = toObject["name"] {
-        urlParams["name"] = value
-        toObject.removeValue(forKey: "name")
-      }
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode GetCachedContentParameters: \(error)"
-        ])
-    }
-  }
-
-  public static func deleteCachedContentParametersToMldev(
-    apiClient: APIClient, fromObject: DeleteCachedContentParameters
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteCachedContentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetCachedContentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -4980,14 +5080,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode DeleteCachedContentParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode GetCachedContentParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func updateCachedContentConfigToMldev(
-    apiClient: APIClient, fromObject: UpdateCachedContentConfig
-  ) throws -> [String: Any] {
+  public static func deleteCachedContentParametersToMldev(apiClient: APIClient,
+                                                          fromObject: DeleteCachedContentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -4995,52 +5096,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UpdateCachedContentConfig"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode UpdateCachedContentConfig: \(error)"
-        ])
-    }
-  }
-
-  public static func updateCachedContentParametersToMldev(
-    apiClient: APIClient, fromObject: UpdateCachedContentParameters
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UpdateCachedContentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteCachedContentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5060,14 +5124,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode UpdateCachedContentParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode DeleteCachedContentParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func listCachedContentsConfigToMldev(
-    apiClient: APIClient, fromObject: ListCachedContentsConfig
-  ) throws -> [String: Any] {
+  public static func updateCachedContentConfigToMldev(apiClient: APIClient,
+                                                      fromObject: UpdateCachedContentConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5075,14 +5140,99 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListCachedContentsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for UpdateCachedContentConfig",
+          ]
+        )
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to encode UpdateCachedContentConfig: \(error)",
+        ]
+      )
+    }
+  }
+
+  public static func updateCachedContentParametersToMldev(apiClient: APIClient,
+                                                          fromObject: UpdateCachedContentParameters) throws
+    -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for UpdateCachedContentParameters",
+          ]
+        )
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if let value = toObject["name"] {
+        urlParams["name"] = value
+        toObject.removeValue(forKey: "name")
+      }
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to encode UpdateCachedContentParameters: \(error)",
+        ]
+      )
+    }
+  }
+
+  public static func listCachedContentsConfigToMldev(apiClient: APIClient,
+                                                     fromObject: ListCachedContentsConfig) throws
+    -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for ListCachedContentsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5102,9 +5252,9 @@ public enum Converters {
     }
   }
 
-  public static func listCachedContentsParametersToMldev(
-    apiClient: APIClient, fromObject: ListCachedContentsParameters
-  ) throws -> [String: Any] {
+  public static func listCachedContentsParametersToMldev(apiClient: APIClient,
+                                                         fromObject: ListCachedContentsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5112,14 +5262,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListCachedContentsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListCachedContentsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5135,14 +5286,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode ListCachedContentsParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode ListCachedContentsParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func createCachedContentConfigToVertex(
-    apiClient: APIClient, fromObject: CreateCachedContentConfig
-  ) throws -> [String: Any] {
+  public static func createCachedContentConfigToVertex(apiClient: APIClient,
+                                                       fromObject: CreateCachedContentConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5150,14 +5302,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateCachedContentConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CreateCachedContentConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5173,14 +5326,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateCachedContentConfig: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateCachedContentConfig: \(error)",
+        ]
+      )
     }
   }
 
-  public static func createCachedContentParametersToVertex(
-    apiClient: APIClient, fromObject: CreateCachedContentParameters
-  ) throws -> [String: Any] {
+  public static func createCachedContentParametersToVertex(apiClient: APIClient,
+                                                           fromObject: CreateCachedContentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5188,14 +5342,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateCachedContentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CreateCachedContentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5211,14 +5366,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateCachedContentParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateCachedContentParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func getCachedContentParametersToVertex(
-    apiClient: APIClient, fromObject: GetCachedContentParameters
-  ) throws -> [String: Any] {
+  public static func getCachedContentParametersToVertex(apiClient: APIClient,
+                                                        fromObject: GetCachedContentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5226,56 +5382,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetCachedContentParameters"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if let value = toObject["name"] {
-        urlParams["name"] = value
-        toObject.removeValue(forKey: "name")
-      }
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode GetCachedContentParameters: \(error)"
-        ])
-    }
-  }
-
-  public static func deleteCachedContentParametersToVertex(
-    apiClient: APIClient, fromObject: DeleteCachedContentParameters
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteCachedContentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetCachedContentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5295,14 +5410,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode DeleteCachedContentParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode GetCachedContentParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func updateCachedContentConfigToVertex(
-    apiClient: APIClient, fromObject: UpdateCachedContentConfig
-  ) throws -> [String: Any] {
+  public static func deleteCachedContentParametersToVertex(apiClient: APIClient,
+                                                           fromObject: DeleteCachedContentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5310,52 +5426,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UpdateCachedContentConfig"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode UpdateCachedContentConfig: \(error)"
-        ])
-    }
-  }
-
-  public static func updateCachedContentParametersToVertex(
-    apiClient: APIClient, fromObject: UpdateCachedContentParameters
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UpdateCachedContentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteCachedContentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5375,14 +5454,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode UpdateCachedContentParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode DeleteCachedContentParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func listCachedContentsConfigToVertex(
-    apiClient: APIClient, fromObject: ListCachedContentsConfig
-  ) throws -> [String: Any] {
+  public static func updateCachedContentConfigToVertex(apiClient: APIClient,
+                                                       fromObject: UpdateCachedContentConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5390,14 +5470,99 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListCachedContentsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for UpdateCachedContentConfig",
+          ]
+        )
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to encode UpdateCachedContentConfig: \(error)",
+        ]
+      )
+    }
+  }
+
+  public static func updateCachedContentParametersToVertex(apiClient: APIClient,
+                                                           fromObject: UpdateCachedContentParameters) throws
+    -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for UpdateCachedContentParameters",
+          ]
+        )
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if let value = toObject["name"] {
+        urlParams["name"] = value
+        toObject.removeValue(forKey: "name")
+      }
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to encode UpdateCachedContentParameters: \(error)",
+        ]
+      )
+    }
+  }
+
+  public static func listCachedContentsConfigToVertex(apiClient: APIClient,
+                                                      fromObject: ListCachedContentsConfig) throws
+    -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for ListCachedContentsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5417,9 +5582,9 @@ public enum Converters {
     }
   }
 
-  public static func listCachedContentsParametersToVertex(
-    apiClient: APIClient, fromObject: ListCachedContentsParameters
-  ) throws -> [String: Any] {
+  public static func listCachedContentsParametersToVertex(apiClient: APIClient,
+                                                          fromObject: ListCachedContentsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5427,14 +5592,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListCachedContentsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListCachedContentsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5450,14 +5616,14 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode ListCachedContentsParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode ListCachedContentsParameters: \(error)",
+        ]
+      )
     }
   }
 
   public static func cachedContentUsageMetadataFromMldev(apiClient: APIClient, fromObject: Data)
-    throws -> CachedContentUsageMetadata?
-  {
+    throws -> CachedContentUsageMetadata? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -5470,8 +5636,7 @@ public enum Converters {
   }
 
   public static func cachedContentFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> CachedContent?
-  {
+    -> CachedContent? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -5484,8 +5649,7 @@ public enum Converters {
   }
 
   public static func deleteCachedContentResponseFromMldev(apiClient: APIClient, fromObject: Data)
-    throws -> DeleteCachedContentResponse?
-  {
+    throws -> DeleteCachedContentResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -5498,8 +5662,7 @@ public enum Converters {
   }
 
   public static func listCachedContentsResponseFromMldev(apiClient: APIClient, fromObject: Data)
-    throws -> ListCachedContentsResponse?
-  {
+    throws -> ListCachedContentsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -5512,8 +5675,7 @@ public enum Converters {
   }
 
   public static func deleteCachedContentResponseFromVertex(apiClient: APIClient, fromObject: Data)
-    throws -> DeleteCachedContentResponse?
-  {
+    throws -> DeleteCachedContentResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -5526,8 +5688,7 @@ public enum Converters {
   }
 
   public static func listCachedContentsResponseFromVertex(apiClient: APIClient, fromObject: Data)
-    throws -> ListCachedContentsResponse?
-  {
+    throws -> ListCachedContentsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -5538,9 +5699,10 @@ public enum Converters {
       return nil
     }
   }
-  public static func getDocumentParametersToMldev(
-    apiClient: APIClient, fromObject: GetDocumentParameters
-  ) throws -> [String: Any] {
+
+  public static func getDocumentParametersToMldev(apiClient: APIClient,
+                                                  fromObject: GetDocumentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5548,14 +5710,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetDocumentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetDocumentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5574,13 +5737,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetDocumentParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetDocumentParameters: \(error)"]
+      )
     }
   }
 
-  public static func deleteDocumentConfigToMldev(
-    apiClient: APIClient, fromObject: DeleteDocumentConfig
-  ) throws -> [String: Any] {
+  public static func deleteDocumentConfigToMldev(apiClient: APIClient,
+                                                 fromObject: DeleteDocumentConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5588,14 +5752,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteDocumentConfig"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteDocumentConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5610,13 +5775,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode DeleteDocumentConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode DeleteDocumentConfig: \(error)"]
+      )
     }
   }
 
-  public static func deleteDocumentParametersToMldev(
-    apiClient: APIClient, fromObject: DeleteDocumentParameters
-  ) throws -> [String: Any] {
+  public static func deleteDocumentParametersToMldev(apiClient: APIClient,
+                                                     fromObject: DeleteDocumentParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5624,14 +5790,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteDocumentParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteDocumentParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5655,9 +5822,9 @@ public enum Converters {
     }
   }
 
-  public static func listDocumentsConfigToMldev(
-    apiClient: APIClient, fromObject: ListDocumentsConfig
-  ) throws -> [String: Any] {
+  public static func listDocumentsConfigToMldev(apiClient: APIClient,
+                                                fromObject: ListDocumentsConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5665,14 +5832,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListDocumentsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListDocumentsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5687,13 +5855,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListDocumentsConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListDocumentsConfig: \(error)"]
+      )
     }
   }
 
-  public static func listDocumentsParametersToMldev(
-    apiClient: APIClient, fromObject: ListDocumentsParameters
-  ) throws -> [String: Any] {
+  public static func listDocumentsParametersToMldev(apiClient: APIClient,
+                                                    fromObject: ListDocumentsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5701,14 +5870,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListDocumentsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListDocumentsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5727,13 +5897,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListDocumentsParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListDocumentsParameters: \(error)"]
+      )
     }
   }
 
   public static func listDocumentsResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ListDocumentsResponse?
-  {
+    -> ListDocumentsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -5744,9 +5914,10 @@ public enum Converters {
       return nil
     }
   }
-  public static func createFileSearchStoreConfigToMldev(
-    apiClient: APIClient, fromObject: CreateFileSearchStoreConfig
-  ) throws -> [String: Any] {
+
+  public static func createFileSearchStoreConfigToMldev(apiClient: APIClient,
+                                                        fromObject: CreateFileSearchStoreConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5754,14 +5925,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateFileSearchStoreConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CreateFileSearchStoreConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5777,14 +5949,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateFileSearchStoreConfig: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateFileSearchStoreConfig: \(error)",
+        ]
+      )
     }
   }
 
-  public static func createFileSearchStoreParametersToMldev(
-    apiClient: APIClient, fromObject: CreateFileSearchStoreParameters
-  ) throws -> [String: Any] {
+  public static func createFileSearchStoreParametersToMldev(apiClient: APIClient,
+                                                            fromObject: CreateFileSearchStoreParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5792,14 +5965,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateFileSearchStoreParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CreateFileSearchStoreParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5815,14 +5989,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateFileSearchStoreParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateFileSearchStoreParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func getFileSearchStoreParametersToMldev(
-    apiClient: APIClient, fromObject: GetFileSearchStoreParameters
-  ) throws -> [String: Any] {
+  public static func getFileSearchStoreParametersToMldev(apiClient: APIClient,
+                                                         fromObject: GetFileSearchStoreParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5830,94 +6005,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetFileSearchStoreParameters"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if let value = toObject["name"] {
-        urlParams["name"] = value
-        toObject.removeValue(forKey: "name")
-      }
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode GetFileSearchStoreParameters: \(error)"
-        ])
-    }
-  }
-
-  public static func deleteFileSearchStoreConfigToMldev(
-    apiClient: APIClient, fromObject: DeleteFileSearchStoreConfig
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteFileSearchStoreConfig"
-          ])
-      }
-      var toObject = dictionary
-      var urlParams: [String: Any] = [:]
-      var queryParams: [String: Any] = [:]
-      if !urlParams.isEmpty {
-        toObject["_url"] = urlParams
-      }
-      if !queryParams.isEmpty {
-        toObject["_query"] = queryParams
-      }
-      return toObject
-    } catch {
-      throw NSError(
-        domain: "SwiftSDK", code: -1,
-        userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode DeleteFileSearchStoreConfig: \(error)"
-        ])
-    }
-  }
-
-  public static func deleteFileSearchStoreParametersToMldev(
-    apiClient: APIClient, fromObject: DeleteFileSearchStoreParameters
-  ) throws -> [String: Any] {
-    let encoder = JSONEncoder()
-    encoder.userInfo[.configuration] = apiClient
-    encoder.keyEncodingStrategy = .convertToSnakeCase
-    do {
-      let data = try encoder.encode(fromObject)
-      guard
-        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
-      else {
-        throw NSError(
-          domain: "SwiftSDK", code: -1,
-          userInfo: [
-            NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteFileSearchStoreParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetFileSearchStoreParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5937,14 +6033,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode DeleteFileSearchStoreParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode GetFileSearchStoreParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func listFileSearchStoresConfigToMldev(
-    apiClient: APIClient, fromObject: ListFileSearchStoresConfig
-  ) throws -> [String: Any] {
+  public static func deleteFileSearchStoreConfigToMldev(apiClient: APIClient,
+                                                        fromObject: DeleteFileSearchStoreConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5952,14 +6049,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListFileSearchStoresConfig"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteFileSearchStoreConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -5975,14 +6073,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode ListFileSearchStoresConfig: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode DeleteFileSearchStoreConfig: \(error)",
+        ]
+      )
     }
   }
 
-  public static func listFileSearchStoresParametersToMldev(
-    apiClient: APIClient, fromObject: ListFileSearchStoresParameters
-  ) throws -> [String: Any] {
+  public static func deleteFileSearchStoreParametersToMldev(apiClient: APIClient,
+                                                            fromObject: DeleteFileSearchStoreParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -5990,14 +6089,59 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListFileSearchStoresParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteFileSearchStoreParameters",
+          ]
+        )
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if let value = toObject["name"] {
+        urlParams["name"] = value
+        toObject.removeValue(forKey: "name")
+      }
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to encode DeleteFileSearchStoreParameters: \(error)",
+        ]
+      )
+    }
+  }
+
+  public static func listFileSearchStoresConfigToMldev(apiClient: APIClient,
+                                                       fromObject: ListFileSearchStoresConfig) throws
+    -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for ListFileSearchStoresConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6013,14 +6157,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode ListFileSearchStoresParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode ListFileSearchStoresConfig: \(error)",
+        ]
+      )
     }
   }
 
-  public static func uploadToFileSearchStoreConfigToMldev(
-    apiClient: APIClient, fromObject: UploadToFileSearchStoreConfig
-  ) throws -> [String: Any] {
+  public static func listFileSearchStoresParametersToMldev(apiClient: APIClient,
+                                                           fromObject: ListFileSearchStoresParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6028,14 +6173,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UploadToFileSearchStoreConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListFileSearchStoresParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6051,14 +6197,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode UploadToFileSearchStoreConfig: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode ListFileSearchStoresParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func uploadToFileSearchStoreParametersToMldev(
-    apiClient: APIClient, fromObject: UploadToFileSearchStoreParameters
-  ) throws -> [String: Any] {
+  public static func uploadToFileSearchStoreConfigToMldev(apiClient: APIClient,
+                                                          fromObject: UploadToFileSearchStoreConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6066,14 +6213,55 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for UploadToFileSearchStoreParameters"
-          ])
+              "Failed to convert encoded data to dictionary for UploadToFileSearchStoreConfig",
+          ]
+        )
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "Failed to encode UploadToFileSearchStoreConfig: \(error)",
+        ]
+      )
+    }
+  }
+
+  public static func uploadToFileSearchStoreParametersToMldev(apiClient: APIClient,
+                                                              fromObject: UploadToFileSearchStoreParameters) throws
+    -> [String: Any] {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+        as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey:
+              "Failed to convert encoded data to dictionary for UploadToFileSearchStoreParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6093,14 +6281,14 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode UploadToFileSearchStoreParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode UploadToFileSearchStoreParameters: \(error)",
+        ]
+      )
     }
   }
 
   public static func importFileConfigToMldev(apiClient: APIClient, fromObject: ImportFileConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6108,14 +6296,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ImportFileConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ImportFileConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6130,13 +6319,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ImportFileConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ImportFileConfig: \(error)"]
+      )
     }
   }
 
-  public static func importFileParametersToMldev(
-    apiClient: APIClient, fromObject: ImportFileParameters
-  ) throws -> [String: Any] {
+  public static func importFileParametersToMldev(apiClient: APIClient,
+                                                 fromObject: ImportFileParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6144,14 +6334,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ImportFileParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ImportFileParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6170,13 +6361,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ImportFileParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ImportFileParameters: \(error)"]
+      )
     }
   }
 
   public static func listFileSearchStoresResponseFromMldev(apiClient: APIClient, fromObject: Data)
-    throws -> ListFileSearchStoresResponse?
-  {
+    throws -> ListFileSearchStoresResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -6188,14 +6379,15 @@ public enum Converters {
     }
   }
 
-  public static func uploadToFileSearchStoreResumableResponseFromMldev(
-    apiClient: APIClient, fromObject: Data
-  ) throws -> UploadToFileSearchStoreResumableResponse? {
+  public static func uploadToFileSearchStoreResumableResponseFromMldev(apiClient: APIClient,
+                                                                       fromObject: Data) throws
+    -> UploadToFileSearchStoreResumableResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
       let instance = try decoder.decode(
-        UploadToFileSearchStoreResumableResponse.self, from: fromObject)
+        UploadToFileSearchStoreResumableResponse.self, from: fromObject
+      )
       return instance
     } catch {
       print("Failed to decode UploadToFileSearchStoreResumableResponse: \(error)")
@@ -6204,8 +6396,7 @@ public enum Converters {
   }
 
   public static func importFileResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ImportFileResponse?
-  {
+    -> ImportFileResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -6218,8 +6409,7 @@ public enum Converters {
   }
 
   public static func importFileOperationFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ImportFileOperation?
-  {
+    -> ImportFileOperation? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -6230,9 +6420,9 @@ public enum Converters {
       return nil
     }
   }
+
   public static func listFilesConfigToMldev(apiClient: APIClient, fromObject: ListFilesConfig)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6240,14 +6430,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListFilesConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListFilesConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6262,13 +6453,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListFilesConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListFilesConfig: \(error)"]
+      )
     }
   }
 
-  public static func listFilesParametersToMldev(
-    apiClient: APIClient, fromObject: ListFilesParameters
-  ) throws -> [String: Any] {
+  public static func listFilesParametersToMldev(apiClient: APIClient,
+                                                fromObject: ListFilesParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6276,14 +6468,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListFilesParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListFilesParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6298,13 +6491,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListFilesParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListFilesParameters: \(error)"]
+      )
     }
   }
 
-  public static func createFileParametersToMldev(
-    apiClient: APIClient, fromObject: CreateFileParameters
-  ) throws -> [String: Any] {
+  public static func createFileParametersToMldev(apiClient: APIClient,
+                                                 fromObject: CreateFileParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6312,14 +6506,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateFileParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CreateFileParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6334,13 +6529,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateFileParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateFileParameters: \(error)"]
+      )
     }
   }
 
   public static func getFileParametersToMldev(apiClient: APIClient, fromObject: GetFileParameters)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6348,14 +6543,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetFileParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetFileParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6374,13 +6570,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetFileParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetFileParameters: \(error)"]
+      )
     }
   }
 
-  public static func deleteFileParametersToMldev(
-    apiClient: APIClient, fromObject: DeleteFileParameters
-  ) throws -> [String: Any] {
+  public static func deleteFileParametersToMldev(apiClient: APIClient,
+                                                 fromObject: DeleteFileParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6388,14 +6585,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteFileParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteFileParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6414,13 +6612,13 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode DeleteFileParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode DeleteFileParameters: \(error)"]
+      )
     }
   }
 
   public static func listFilesResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ListFilesResponse?
-  {
+    -> ListFilesResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -6433,8 +6631,7 @@ public enum Converters {
   }
 
   public static func createFileResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> CreateFileResponse?
-  {
+    -> CreateFileResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -6447,8 +6644,7 @@ public enum Converters {
   }
 
   public static func deleteFileResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> DeleteFileResponse?
-  {
+    -> DeleteFileResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -6459,9 +6655,9 @@ public enum Converters {
       return nil
     }
   }
+
   public static func inlinedRequestToMldev(apiClient: APIClient, fromObject: InlinedRequest) throws
-    -> [String: Any]
-  {
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6469,14 +6665,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for InlinedRequest"
-          ])
+              "Failed to convert encoded data to dictionary for InlinedRequest",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6491,32 +6688,34 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode InlinedRequest: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode InlinedRequest: \(error)"]
+      )
     }
   }
 
   public static func batchJobSourceToMldev(apiClient: APIClient, fromObject: BatchJobSource) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.format != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "format parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "format parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.gcsUri != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "gcsUri parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "gcsUri parameter is not supported in Gemini API."]
+      )
     }
 
     if fromObject.bigqueryUri != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "bigqueryUri parameter is not supported in Gemini API."
-        ])
+          NSLocalizedDescriptionKey: "bigqueryUri parameter is not supported in Gemini API.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -6526,14 +6725,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for BatchJobSource"
-          ])
+              "Failed to convert encoded data to dictionary for BatchJobSource",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6548,18 +6748,19 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode BatchJobSource: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode BatchJobSource: \(error)"]
+      )
     }
   }
 
-  public static func createBatchJobConfigToMldev(
-    apiClient: APIClient, fromObject: CreateBatchJobConfig
-  ) throws -> [String: Any] {
-
+  public static func createBatchJobConfigToMldev(apiClient: APIClient,
+                                                 fromObject: CreateBatchJobConfig) throws
+    -> [String: Any] {
     if fromObject.dest != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "dest parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "dest parameter is not supported in Gemini API."]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -6569,14 +6770,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateBatchJobConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CreateBatchJobConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6591,13 +6793,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateBatchJobConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateBatchJobConfig: \(error)"]
+      )
     }
   }
 
-  public static func createBatchJobParametersToMldev(
-    apiClient: APIClient, fromObject: CreateBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func createBatchJobParametersToMldev(apiClient: APIClient,
+                                                     fromObject: CreateBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6605,14 +6808,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CreateBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6637,8 +6841,7 @@ public enum Converters {
   }
 
   public static func embedContentBatchToMldev(apiClient: APIClient, fromObject: EmbedContentBatch)
-    throws -> [String: Any]
-  {
+    throws -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6646,14 +6849,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for EmbedContentBatch"
-          ])
+              "Failed to convert encoded data to dictionary for EmbedContentBatch",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6668,13 +6872,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EmbedContentBatch: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode EmbedContentBatch: \(error)"]
+      )
     }
   }
 
-  public static func embeddingsBatchJobSourceToMldev(
-    apiClient: APIClient, fromObject: EmbeddingsBatchJobSource
-  ) throws -> [String: Any] {
+  public static func embeddingsBatchJobSourceToMldev(apiClient: APIClient,
+                                                     fromObject: EmbeddingsBatchJobSource) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6682,14 +6887,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for EmbeddingsBatchJobSource"
-          ])
+              "Failed to convert encoded data to dictionary for EmbeddingsBatchJobSource",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6709,9 +6915,9 @@ public enum Converters {
     }
   }
 
-  public static func createEmbeddingsBatchJobConfigToMldev(
-    apiClient: APIClient, fromObject: CreateEmbeddingsBatchJobConfig
-  ) throws -> [String: Any] {
+  public static func createEmbeddingsBatchJobConfigToMldev(apiClient: APIClient,
+                                                           fromObject: CreateEmbeddingsBatchJobConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6719,14 +6925,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateEmbeddingsBatchJobConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CreateEmbeddingsBatchJobConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6742,14 +6949,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateEmbeddingsBatchJobConfig: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateEmbeddingsBatchJobConfig: \(error)",
+        ]
+      )
     }
   }
 
-  public static func createEmbeddingsBatchJobParametersToMldev(
-    apiClient: APIClient, fromObject: CreateEmbeddingsBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func createEmbeddingsBatchJobParametersToMldev(apiClient: APIClient,
+                                                               fromObject: CreateEmbeddingsBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6757,14 +6965,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateEmbeddingsBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CreateEmbeddingsBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6784,14 +6993,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode CreateEmbeddingsBatchJobParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode CreateEmbeddingsBatchJobParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func getBatchJobParametersToMldev(
-    apiClient: APIClient, fromObject: GetBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func getBatchJobParametersToMldev(apiClient: APIClient,
+                                                  fromObject: GetBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6799,14 +7009,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6825,13 +7036,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetBatchJobParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetBatchJobParameters: \(error)"]
+      )
     }
   }
 
-  public static func cancelBatchJobParametersToMldev(
-    apiClient: APIClient, fromObject: CancelBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func cancelBatchJobParametersToMldev(apiClient: APIClient,
+                                                     fromObject: CancelBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6839,14 +7051,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CancelBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CancelBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6870,14 +7083,14 @@ public enum Converters {
     }
   }
 
-  public static func listBatchJobsConfigToMldev(
-    apiClient: APIClient, fromObject: ListBatchJobsConfig
-  ) throws -> [String: Any] {
-
+  public static func listBatchJobsConfigToMldev(apiClient: APIClient,
+                                                fromObject: ListBatchJobsConfig) throws
+    -> [String: Any] {
     if fromObject.filter != nil {
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "filter parameter is not supported in Gemini API."])
+        userInfo: [NSLocalizedDescriptionKey: "filter parameter is not supported in Gemini API."]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -6887,14 +7100,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListBatchJobsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListBatchJobsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6909,13 +7123,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListBatchJobsConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListBatchJobsConfig: \(error)"]
+      )
     }
   }
 
-  public static func listBatchJobsParametersToMldev(
-    apiClient: APIClient, fromObject: ListBatchJobsParameters
-  ) throws -> [String: Any] {
+  public static func listBatchJobsParametersToMldev(apiClient: APIClient,
+                                                    fromObject: ListBatchJobsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6923,14 +7138,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListBatchJobsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListBatchJobsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6945,13 +7161,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListBatchJobsParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListBatchJobsParameters: \(error)"]
+      )
     }
   }
 
-  public static func deleteBatchJobParametersToMldev(
-    apiClient: APIClient, fromObject: DeleteBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func deleteBatchJobParametersToMldev(apiClient: APIClient,
+                                                     fromObject: DeleteBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -6959,14 +7176,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -6991,21 +7209,21 @@ public enum Converters {
   }
 
   public static func batchJobSourceToVertex(apiClient: APIClient, fromObject: BatchJobSource) throws
-    -> [String: Any]
-  {
-
+    -> [String: Any] {
     if fromObject.fileName != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "fileName parameter is not supported in Vertex AI."])
+        userInfo: [NSLocalizedDescriptionKey: "fileName parameter is not supported in Vertex AI."]
+      )
     }
 
     if fromObject.inlinedRequests != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "inlinedRequests parameter is not supported in Vertex AI."
-        ])
+          NSLocalizedDescriptionKey: "inlinedRequests parameter is not supported in Vertex AI.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -7015,14 +7233,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for BatchJobSource"
-          ])
+              "Failed to convert encoded data to dictionary for BatchJobSource",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7037,26 +7256,28 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode BatchJobSource: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode BatchJobSource: \(error)"]
+      )
     }
   }
 
-  public static func batchJobDestinationToVertex(
-    apiClient: APIClient, fromObject: BatchJobDestination
-  ) throws -> [String: Any] {
-
+  public static func batchJobDestinationToVertex(apiClient: APIClient,
+                                                 fromObject: BatchJobDestination) throws
+    -> [String: Any] {
     if fromObject.fileName != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "fileName parameter is not supported in Vertex AI."])
+        userInfo: [NSLocalizedDescriptionKey: "fileName parameter is not supported in Vertex AI."]
+      )
     }
 
     if fromObject.inlinedResponses != nil {
       throw NSError(
         domain: "Vertex AI", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "inlinedResponses parameter is not supported in Vertex AI."
-        ])
+          NSLocalizedDescriptionKey: "inlinedResponses parameter is not supported in Vertex AI.",
+        ]
+      )
     }
 
     if fromObject.inlinedEmbedContentResponses != nil {
@@ -7064,8 +7285,9 @@ public enum Converters {
         domain: "Vertex AI", code: -1,
         userInfo: [
           NSLocalizedDescriptionKey:
-            "inlinedEmbedContentResponses parameter is not supported in Vertex AI."
-        ])
+            "inlinedEmbedContentResponses parameter is not supported in Vertex AI.",
+        ]
+      )
     }
 
     let encoder = JSONEncoder()
@@ -7075,14 +7297,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for BatchJobDestination"
-          ])
+              "Failed to convert encoded data to dictionary for BatchJobDestination",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7097,13 +7320,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode BatchJobDestination: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode BatchJobDestination: \(error)"]
+      )
     }
   }
 
-  public static func createBatchJobConfigToVertex(
-    apiClient: APIClient, fromObject: CreateBatchJobConfig
-  ) throws -> [String: Any] {
+  public static func createBatchJobConfigToVertex(apiClient: APIClient,
+                                                  fromObject: CreateBatchJobConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7111,14 +7335,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateBatchJobConfig"
-          ])
+              "Failed to convert encoded data to dictionary for CreateBatchJobConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7133,13 +7358,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateBatchJobConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode CreateBatchJobConfig: \(error)"]
+      )
     }
   }
 
-  public static func createBatchJobParametersToVertex(
-    apiClient: APIClient, fromObject: CreateBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func createBatchJobParametersToVertex(apiClient: APIClient,
+                                                      fromObject: CreateBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7147,14 +7373,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CreateBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CreateBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7174,9 +7401,9 @@ public enum Converters {
     }
   }
 
-  public static func getBatchJobParametersToVertex(
-    apiClient: APIClient, fromObject: GetBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func getBatchJobParametersToVertex(apiClient: APIClient,
+                                                   fromObject: GetBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7184,14 +7411,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7210,13 +7438,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetBatchJobParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetBatchJobParameters: \(error)"]
+      )
     }
   }
 
-  public static func cancelBatchJobParametersToVertex(
-    apiClient: APIClient, fromObject: CancelBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func cancelBatchJobParametersToVertex(apiClient: APIClient,
+                                                      fromObject: CancelBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7224,14 +7453,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for CancelBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for CancelBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7255,9 +7485,9 @@ public enum Converters {
     }
   }
 
-  public static func listBatchJobsConfigToVertex(
-    apiClient: APIClient, fromObject: ListBatchJobsConfig
-  ) throws -> [String: Any] {
+  public static func listBatchJobsConfigToVertex(apiClient: APIClient,
+                                                 fromObject: ListBatchJobsConfig) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7265,14 +7495,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListBatchJobsConfig"
-          ])
+              "Failed to convert encoded data to dictionary for ListBatchJobsConfig",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7287,13 +7518,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListBatchJobsConfig: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListBatchJobsConfig: \(error)"]
+      )
     }
   }
 
-  public static func listBatchJobsParametersToVertex(
-    apiClient: APIClient, fromObject: ListBatchJobsParameters
-  ) throws -> [String: Any] {
+  public static func listBatchJobsParametersToVertex(apiClient: APIClient,
+                                                     fromObject: ListBatchJobsParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7301,14 +7533,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for ListBatchJobsParameters"
-          ])
+              "Failed to convert encoded data to dictionary for ListBatchJobsParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7323,13 +7556,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListBatchJobsParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ListBatchJobsParameters: \(error)"]
+      )
     }
   }
 
-  public static func deleteBatchJobParametersToVertex(
-    apiClient: APIClient, fromObject: DeleteBatchJobParameters
-  ) throws -> [String: Any] {
+  public static func deleteBatchJobParametersToVertex(apiClient: APIClient,
+                                                      fromObject: DeleteBatchJobParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7337,14 +7571,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for DeleteBatchJobParameters"
-          ])
+              "Failed to convert encoded data to dictionary for DeleteBatchJobParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7369,8 +7604,7 @@ public enum Converters {
   }
 
   public static func inlinedResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> InlinedResponse?
-  {
+    -> InlinedResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7383,8 +7617,7 @@ public enum Converters {
   }
 
   public static func singleEmbedContentResponseFromMldev(apiClient: APIClient, fromObject: Data)
-    throws -> SingleEmbedContentResponse?
-  {
+    throws -> SingleEmbedContentResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7397,8 +7630,7 @@ public enum Converters {
   }
 
   public static func inlinedEmbedContentResponseFromMldev(apiClient: APIClient, fromObject: Data)
-    throws -> InlinedEmbedContentResponse?
-  {
+    throws -> InlinedEmbedContentResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7411,8 +7643,7 @@ public enum Converters {
   }
 
   public static func batchJobDestinationFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> BatchJobDestination?
-  {
+    -> BatchJobDestination? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7437,8 +7668,7 @@ public enum Converters {
   }
 
   public static func listBatchJobsResponseFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> ListBatchJobsResponse?
-  {
+    -> ListBatchJobsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7451,8 +7681,7 @@ public enum Converters {
   }
 
   public static func deleteResourceJobFromMldev(apiClient: APIClient, fromObject: Data) throws
-    -> DeleteResourceJob?
-  {
+    -> DeleteResourceJob? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7465,8 +7694,7 @@ public enum Converters {
   }
 
   public static func batchJobSourceFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> BatchJobSource?
-  {
+    -> BatchJobSource? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7479,8 +7707,7 @@ public enum Converters {
   }
 
   public static func batchJobDestinationFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> BatchJobDestination?
-  {
+    -> BatchJobDestination? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7506,8 +7733,7 @@ public enum Converters {
   }
 
   public static func listBatchJobsResponseFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> ListBatchJobsResponse?
-  {
+    -> ListBatchJobsResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7520,8 +7746,7 @@ public enum Converters {
   }
 
   public static func deleteResourceJobFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> DeleteResourceJob?
-  {
+    -> DeleteResourceJob? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7532,9 +7757,10 @@ public enum Converters {
       return nil
     }
   }
-  public static func getOperationParametersToMldev(
-    apiClient: APIClient, fromObject: GetOperationParameters
-  ) throws -> [String: Any] {
+
+  public static func getOperationParametersToMldev(apiClient: APIClient,
+                                                   fromObject: GetOperationParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7542,14 +7768,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetOperationParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetOperationParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7568,13 +7795,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetOperationParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetOperationParameters: \(error)"]
+      )
     }
   }
 
-  public static func getOperationParametersToVertex(
-    apiClient: APIClient, fromObject: GetOperationParameters
-  ) throws -> [String: Any] {
+  public static func getOperationParametersToVertex(apiClient: APIClient,
+                                                    fromObject: GetOperationParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7582,14 +7810,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetOperationParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetOperationParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7608,13 +7837,14 @@ public enum Converters {
     } catch {
       throw NSError(
         domain: "SwiftSDK", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetOperationParameters: \(error)"])
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode GetOperationParameters: \(error)"]
+      )
     }
   }
 
-  public static func fetchPredictOperationParametersToVertex(
-    apiClient: APIClient, fromObject: FetchPredictOperationParameters
-  ) throws -> [String: Any] {
+  public static func fetchPredictOperationParametersToVertex(apiClient: APIClient,
+                                                             fromObject: FetchPredictOperationParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7622,14 +7852,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for FetchPredictOperationParameters"
-          ])
+              "Failed to convert encoded data to dictionary for FetchPredictOperationParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7649,14 +7880,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode FetchPredictOperationParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode FetchPredictOperationParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func getProjectOperationParametersToVertex(
-    apiClient: APIClient, fromObject: GetProjectOperationParameters
-  ) throws -> [String: Any] {
+  public static func getProjectOperationParametersToVertex(apiClient: APIClient,
+                                                           fromObject: GetProjectOperationParameters) throws
+    -> [String: Any] {
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -7664,14 +7896,15 @@ public enum Converters {
       let data = try encoder.encode(fromObject)
       guard
         let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-          as? [String: Any]
+        as? [String: Any]
       else {
         throw NSError(
           domain: "SwiftSDK", code: -1,
           userInfo: [
             NSLocalizedDescriptionKey:
-              "Failed to convert encoded data to dictionary for GetProjectOperationParameters"
-          ])
+              "Failed to convert encoded data to dictionary for GetProjectOperationParameters",
+          ]
+        )
       }
       var toObject = dictionary
       var urlParams: [String: Any] = [:]
@@ -7691,14 +7924,15 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [
-          NSLocalizedDescriptionKey: "Failed to encode GetProjectOperationParameters: \(error)"
-        ])
+          NSLocalizedDescriptionKey: "Failed to encode GetProjectOperationParameters: \(error)",
+        ]
+      )
     }
   }
 
-  public static func uploadToFileSearchStoreResponseFromMldev(
-    apiClient: APIClient, fromObject: Data
-  ) throws -> UploadToFileSearchStoreResponse? {
+  public static func uploadToFileSearchStoreResponseFromMldev(apiClient: APIClient,
+                                                              fromObject: Data) throws
+    -> UploadToFileSearchStoreResponse? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7710,9 +7944,9 @@ public enum Converters {
     }
   }
 
-  public static func uploadToFileSearchStoreOperationFromMldev(
-    apiClient: APIClient, fromObject: Data
-  ) throws -> UploadToFileSearchStoreOperation? {
+  public static func uploadToFileSearchStoreOperationFromMldev(apiClient: APIClient,
+                                                               fromObject: Data) throws
+    -> UploadToFileSearchStoreOperation? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7724,9 +7958,9 @@ public enum Converters {
     }
   }
 
-  public static func uploadToFileSearchStoreOperationFromVertex(
-    apiClient: APIClient, fromObject: Data
-  ) throws -> UploadToFileSearchStoreOperation? {
+  public static func uploadToFileSearchStoreOperationFromVertex(apiClient: APIClient,
+                                                                fromObject: Data) throws
+    -> UploadToFileSearchStoreOperation? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient
@@ -7739,8 +7973,7 @@ public enum Converters {
   }
 
   public static func importFileOperationFromVertex(apiClient: APIClient, fromObject: Data) throws
-    -> ImportFileOperation?
-  {
+    -> ImportFileOperation? {
     do {
       let decoder = JSONDecoder()
       decoder.userInfo[.configuration] = apiClient

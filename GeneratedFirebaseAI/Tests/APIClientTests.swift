@@ -12,32 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 import Foundation
+import XCTest
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 @testable import GeneratedFirebaseAI
 
-import FirebaseCore
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+import FirebaseCore
 
 class APIClientTests: XCTestCase {
-  lazy var firebaseApp: FirebaseApp = {
-    FirebaseFake(options: FirebaseOptions(apiKey: TestConstants.APIKey, projectID: TestConstants.ProjectID))
-  }()
+  lazy var firebaseApp: FirebaseApp = FirebaseFake(options: FirebaseOptions(
+    apiKey: TestConstants.APIKey,
+    projectID: TestConstants.ProjectID
+  ))
 
-  lazy var mockSession: URLSession = {
-    mockURLSession { request in
-      let requestData = URLRequestData(from: request)
-      let data = try JSONEncoder().encode(requestData)
-      guard let response = HTTPURLResponse(url: requestData.url, statusCode: 200, httpVersion: nil, headerFields: nil) else {
-        fatalError("Failed to create HTTP response")
-      }
-      return (response, data)
+  lazy var mockSession: URLSession = mockURLSession { request in
+    let requestData = URLRequestData(from: request)
+    let data = try JSONEncoder().encode(requestData)
+    guard let response = HTTPURLResponse(
+      url: requestData.url,
+      statusCode: 200,
+      httpVersion: nil,
+      headerFields: nil
+    ) else {
+      fatalError("Failed to create HTTP response")
     }
-  }()
+    return (response, data)
+  }
 
   override func tearDown() {
     MockURLProtocol.requestHandler = nil
@@ -131,7 +135,11 @@ class APIClientTests: XCTestCase {
     )
 
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
-    let response: URLRequestData = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+    let response: URLRequestData = try await api.loadRequest(
+      params: EmptyRequest(),
+      url: url,
+      method: "POST"
+    )
 
     XCTAssertEqual(response.headers["x-goog-api-key"], TestConstants.APIKey)
     XCTAssertEqual(response.headers["x-goog-api-client"], "gl-swift/5")
@@ -146,7 +154,11 @@ class APIClientTests: XCTestCase {
     )
 
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
-    let response: URLRequestData = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+    let response: URLRequestData = try await api.loadRequest(
+      params: EmptyRequest(),
+      url: url,
+      method: "POST"
+    )
 
     XCTAssertEqual(response.headers["Authorization"], "Bearer \(TestConstants.APIKey)")
     XCTAssertEqual(response.headers["x-goog-api-client"], "gl-swift/5")
@@ -162,7 +174,11 @@ class APIClientTests: XCTestCase {
     )
 
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
-    let response: URLRequestData = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+    let response: URLRequestData = try await api.loadRequest(
+      params: EmptyRequest(),
+      url: url,
+      method: "POST"
+    )
 
     XCTAssertEqual(response.headers["x-goog-api-key"], TestConstants.APIKey)
     XCTAssertEqual(response.headers["x-goog-api-client"], "gl-swift/5 \(FirebaseVersion())")
@@ -180,7 +196,11 @@ class APIClientTests: XCTestCase {
     )
 
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
-    let response: URLRequestData = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+    let response: URLRequestData = try await api.loadRequest(
+      params: EmptyRequest(),
+      url: url,
+      method: "POST"
+    )
 
     XCTAssertEqual(response.headers["X-Firebase-AppCheck"], "fake-test-token")
   }
@@ -196,7 +216,11 @@ class APIClientTests: XCTestCase {
     )
 
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
-    let response: URLRequestData = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+    let response: URLRequestData = try await api.loadRequest(
+      params: EmptyRequest(),
+      url: url,
+      method: "POST"
+    )
 
     XCTAssertEqual(response.headers["Authorization"], "Firebase fake-test-token")
   }
@@ -204,7 +228,8 @@ class APIClientTests: XCTestCase {
   func testAddsFirebaseDataCollectionHeaders() async throws {
     firebaseApp.isDataCollectionDefaultEnabled = true
 
-    guard let bundleVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String else {
+    guard let bundleVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    else {
       XCTFail("Missing short version string in main bundle")
       return
     }
@@ -217,7 +242,11 @@ class APIClientTests: XCTestCase {
     )
 
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
-    let response: URLRequestData = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+    let response: URLRequestData = try await api.loadRequest(
+      params: EmptyRequest(),
+      url: url,
+      method: "POST"
+    )
 
     XCTAssertEqual(response.headers["X-Firebase-AppId"], TestConstants.GoogleAppId)
     XCTAssertEqual(response.headers["X-Firebase-AppVersion"], bundleVersion)
@@ -234,7 +263,11 @@ class APIClientTests: XCTestCase {
     )
 
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
-    let response: URLRequestData = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+    let response: URLRequestData = try await api.loadRequest(
+      params: EmptyRequest(),
+      url: url,
+      method: "POST"
+    )
 
     XCTAssertEqual(response.headers["X-Firebase-AppCheck"], "limited_use_fake-test-token")
   }
@@ -263,7 +296,12 @@ class APIClientTests: XCTestCase {
     let mockSession = mockURLSession { request in
       guard
         let url = request.url,
-        let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)
+        let response = HTTPURLResponse(
+          url: url,
+          statusCode: 500,
+          httpVersion: nil,
+          headerFields: nil
+        )
       else {
         fatalError("Failed to create HTTP response")
       }
@@ -279,7 +317,11 @@ class APIClientTests: XCTestCase {
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
 
     do {
-      let _: EmptyResponse = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+      let _: EmptyResponse = try await api.loadRequest(
+        params: EmptyRequest(),
+        url: url,
+        method: "POST"
+      )
       XCTFail("Expected an error to be thrown.")
     } catch {
       XCTAssert(error is BackendError)
@@ -294,7 +336,12 @@ class APIClientTests: XCTestCase {
     let mockSession = mockURLSession { request in
       guard
         let url = request.url,
-        let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)
+        let response = HTTPURLResponse(
+          url: url,
+          statusCode: 500,
+          httpVersion: nil,
+          headerFields: nil
+        )
       else {
         fatalError("Failed to create HTTP response")
       }
@@ -310,7 +357,11 @@ class APIClientTests: XCTestCase {
     let url = try api.url(for: ":generateContent", model: TestConstants.Model)
 
     do {
-      let _: EmptyResponse = try await api.loadRequest(params: EmptyRequest(), url: url, method: "POST")
+      let _: EmptyResponse = try await api.loadRequest(
+        params: EmptyRequest(),
+        url: url,
+        method: "POST"
+      )
       XCTFail("Expected an error to be thrown.")
     } catch {
       guard let error = error as? UnrecognizedBackendError else {
@@ -323,12 +374,10 @@ class APIClientTests: XCTestCase {
 
 extension FirebaseInfo {
   /// Helper initializer with default values that are only relevant for tests.
-  init(
-    app: FirebaseApp,
-    appCheck: AppCheckInterop? = nil,
-    auth: AuthInterop? = nil,
-    useLimitedUseTokens: Bool = false
-  ) {
+  init(app: FirebaseApp,
+       appCheck: AppCheckInterop? = nil,
+       auth: AuthInterop? = nil,
+       useLimitedUseTokens: Bool = false) {
     self.init(
       appCheck: appCheck,
       auth: auth,

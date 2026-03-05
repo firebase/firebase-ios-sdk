@@ -1098,7 +1098,8 @@ public struct PartMediaResolutionLevel: CodableProtoEnum, Sendable {
 
   /// Media resolution has not been set.
   public static let mediaResolutionUnspecified = PartMediaResolutionLevel(
-    kind: .mediaResolutionUnspecified)
+    kind: .mediaResolutionUnspecified
+  )
 
   /// Media resolution set to low.
   public static let mediaResolutionLow = PartMediaResolutionLevel(kind: .mediaResolutionLow)
@@ -1111,7 +1112,8 @@ public struct PartMediaResolutionLevel: CodableProtoEnum, Sendable {
 
   /// Media resolution set to ultra high.
   public static let mediaResolutionUltraHigh = PartMediaResolutionLevel(
-    kind: .mediaResolutionUltraHigh)
+    kind: .mediaResolutionUltraHigh
+  )
 
   let rawValue: String
 }
@@ -1233,14 +1235,14 @@ public struct SafetyFilterLevel: CodableProtoEnum, Sendable {
 
 public struct ImagePromptLanguage: CodableProtoEnum, Sendable {
   enum Kind: String {
-    case auto = "auto"
-    case en = "en"
-    case ja = "ja"
-    case ko = "ko"
-    case hi = "hi"
-    case zh = "zh"
-    case pt = "pt"
-    case es = "es"
+    case auto
+    case en
+    case ja
+    case ko
+    case hi
+    case zh
+    case pt
+    case es
   }
 
   /// Auto-detect the language.
@@ -1354,7 +1356,7 @@ public struct EditMode: CodableProtoEnum, Sendable {
     case productImage = "EDIT_MODE_PRODUCT_IMAGE"
   }
 
-  public static let `default` = EditMode(kind: .`default`)
+  public static let `default` = EditMode(kind: .default)
 
   public static let inpaintRemoval = EditMode(kind: .inpaintRemoval)
 
@@ -1861,7 +1863,8 @@ public struct LiveMusicPlaybackControl: CodableProtoEnum, Sendable {
 
   /// This value is unused.
   public static let playbackControlUnspecified = LiveMusicPlaybackControl(
-    kind: .playbackControlUnspecified)
+    kind: .playbackControlUnspecified
+  )
 
   /// Start generating the music.
   public static let play = LiveMusicPlaybackControl(kind: .play)
@@ -1890,10 +1893,8 @@ public struct PartMediaResolution: Sendable {
   public let numTokens: Int32?
 
   /// Default initializer.
-  public init(
-    level: PartMediaResolutionLevel? = nil,
-    numTokens: Int32? = nil
-  ) {
+  public init(level: PartMediaResolutionLevel? = nil,
+              numTokens: Int32? = nil) {
     self.level = level
     self.numTokens = numTokens
   }
@@ -1901,12 +1902,11 @@ public struct PartMediaResolution: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PartMediaResolution: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case level = "level"
-    case numTokens = "numTokens"
+    case level
+    case numTokens
   }
 
   public init(from decoder: any Decoder) throws {
@@ -1953,10 +1953,8 @@ public struct CodeExecutionResult: Sendable {
   public let output: String?
 
   /// Default initializer.
-  public init(
-    outcome: Outcome? = nil,
-    output: String? = nil
-  ) {
+  public init(outcome: Outcome? = nil,
+              output: String? = nil) {
     self.outcome = outcome
     self.output = output
   }
@@ -1964,12 +1962,11 @@ public struct CodeExecutionResult: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CodeExecutionResult: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case outcome = "outcome"
-    case output = "output"
+    case outcome
+    case output
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2016,10 +2013,8 @@ public struct ExecutableCode: Sendable {
   public let language: Language?
 
   /// Default initializer.
-  public init(
-    code: String? = nil,
-    language: Language? = nil
-  ) {
+  public init(code: String? = nil,
+              language: Language? = nil) {
     self.code = code
     self.language = language
   }
@@ -2027,12 +2022,11 @@ public struct ExecutableCode: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ExecutableCode: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case code = "code"
-    case language = "language"
+    case code
+    case language
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2085,11 +2079,9 @@ public struct FileData: Sendable {
   public let mimeType: String?
 
   /// Default initializer.
-  public init(
-    displayName: String? = nil,
-    fileUri: String? = nil,
-    mimeType: String? = nil
-  ) {
+  public init(displayName: String? = nil,
+              fileUri: String? = nil,
+              mimeType: String? = nil) {
     self.displayName = displayName
     self.fileUri = fileUri
     self.mimeType = mimeType
@@ -2098,15 +2090,15 @@ public struct FileData: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FileData: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case fileUri = "fileUri"
-    case mimeType = "mimeType"
+    case fileUri
+    case mimeType
   }
+
   public enum VertexKeys: String, CodingKey {
-    case displayName = "displayName"
+    case displayName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2145,13 +2137,11 @@ extension FileData: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         displayName,
         forKey: .displayName
       )
-
     }
   }
 }
@@ -2176,12 +2166,10 @@ public struct FunctionCall: Sendable {
   public let willContinue: Bool?
 
   /// Default initializer.
-  public init(
-    id: String? = nil,
-    args: [String: JSONValue]? = nil,
-    name: String? = nil,
-    willContinue: Bool? = nil
-  ) {
+  public init(id: String? = nil,
+              args: [String: JSONValue]? = nil,
+              name: String? = nil,
+              willContinue: Bool? = nil) {
     self.id = id
     self.args = args
     self.name = name
@@ -2191,16 +2179,16 @@ public struct FunctionCall: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCall: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case id = "id"
-    case args = "args"
-    case name = "name"
+    case id
+    case args
+    case name
   }
+
   public enum VertexKeys: String, CodingKey {
-    case willContinue = "willContinue"
+    case willContinue
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2249,13 +2237,11 @@ extension FunctionCall: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         willContinue,
         forKey: .willContinue
       )
-
     }
   }
 }
@@ -2277,11 +2263,9 @@ public struct FunctionResponseBlob: Sendable {
   public let displayName: String?
 
   /// Default initializer.
-  public init(
-    mimeType: String? = nil,
-    data: Data? = nil,
-    displayName: String? = nil
-  ) {
+  public init(mimeType: String? = nil,
+              data: Data? = nil,
+              displayName: String? = nil) {
     self.mimeType = mimeType
     self.data = data
     self.displayName = displayName
@@ -2290,13 +2274,12 @@ public struct FunctionResponseBlob: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionResponseBlob: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case mimeType = "mimeType"
-    case data = "data"
-    case displayName = "displayName"
+    case mimeType
+    case data
+    case displayName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2354,11 +2337,9 @@ public struct FunctionResponseFileData: Sendable {
   public let displayName: String?
 
   /// Default initializer.
-  public init(
-    fileUri: String? = nil,
-    mimeType: String? = nil,
-    displayName: String? = nil
-  ) {
+  public init(fileUri: String? = nil,
+              mimeType: String? = nil,
+              displayName: String? = nil) {
     self.fileUri = fileUri
     self.mimeType = mimeType
     self.displayName = displayName
@@ -2367,13 +2348,12 @@ public struct FunctionResponseFileData: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionResponseFileData: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case fileUri = "fileUri"
-    case mimeType = "mimeType"
-    case displayName = "displayName"
+    case fileUri
+    case mimeType
+    case displayName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2435,10 +2415,8 @@ public struct FunctionResponsePart: Sendable {
   public let fileData: FunctionResponseFileData?
 
   /// Default initializer.
-  public init(
-    inlineData: FunctionResponseBlob? = nil,
-    fileData: FunctionResponseFileData? = nil
-  ) {
+  public init(inlineData: FunctionResponseBlob? = nil,
+              fileData: FunctionResponseFileData? = nil) {
     self.inlineData = inlineData
     self.fileData = fileData
   }
@@ -2446,12 +2424,11 @@ public struct FunctionResponsePart: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionResponsePart: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case inlineData = "inlineData"
-    case fileData = "fileData"
+    case inlineData
+    case fileData
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2522,14 +2499,12 @@ public struct FunctionResponse: Sendable {
   public let response: [String: JSONValue]?
 
   /// Default initializer.
-  public init(
-    willContinue: Bool? = nil,
-    scheduling: FunctionResponseScheduling? = nil,
-    parts: [FunctionResponsePart]? = nil,
-    id: String? = nil,
-    name: String? = nil,
-    response: [String: JSONValue]? = nil
-  ) {
+  public init(willContinue: Bool? = nil,
+              scheduling: FunctionResponseScheduling? = nil,
+              parts: [FunctionResponsePart]? = nil,
+              id: String? = nil,
+              name: String? = nil,
+              response: [String: JSONValue]? = nil) {
     self.willContinue = willContinue
     self.scheduling = scheduling
     self.parts = parts
@@ -2541,18 +2516,18 @@ public struct FunctionResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case scheduling = "scheduling"
-    case parts = "parts"
-    case id = "id"
-    case name = "name"
-    case response = "response"
+    case scheduling
+    case parts
+    case id
+    case name
+    case response
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case willContinue = "willContinue"
+    case willContinue
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2621,13 +2596,11 @@ extension FunctionResponse: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         willContinue,
         forKey: .willContinue
       )
-
     }
   }
 }
@@ -2650,11 +2623,9 @@ public struct Blob: Sendable {
   public let mimeType: String?
 
   /// Default initializer.
-  public init(
-    data: Data? = nil,
-    displayName: String? = nil,
-    mimeType: String? = nil
-  ) {
+  public init(data: Data? = nil,
+              displayName: String? = nil,
+              mimeType: String? = nil) {
     self.data = data
     self.displayName = displayName
     self.mimeType = mimeType
@@ -2663,15 +2634,15 @@ public struct Blob: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Blob: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case data = "data"
-    case mimeType = "mimeType"
+    case data
+    case mimeType
   }
+
   public enum VertexKeys: String, CodingKey {
-    case displayName = "displayName"
+    case displayName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2710,13 +2681,11 @@ extension Blob: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         displayName,
         forKey: .displayName
       )
-
     }
   }
 }
@@ -2736,11 +2705,9 @@ public struct VideoMetadata: Sendable {
   public let startOffset: TimeInterval?
 
   /// Default initializer.
-  public init(
-    endOffset: TimeInterval? = nil,
-    fps: Double? = nil,
-    startOffset: TimeInterval? = nil
-  ) {
+  public init(endOffset: TimeInterval? = nil,
+              fps: Double? = nil,
+              startOffset: TimeInterval? = nil) {
     self.endOffset = endOffset
     self.fps = fps
     self.startOffset = startOffset
@@ -2749,13 +2716,12 @@ public struct VideoMetadata: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VideoMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case endOffset = "endOffset"
-    case fps = "fps"
-    case startOffset = "startOffset"
+    case endOffset
+    case fps
+    case startOffset
   }
 
   public init(from decoder: any Decoder) throws {
@@ -2850,19 +2816,17 @@ public struct Part: Sendable {
   public let videoMetadata: VideoMetadata?
 
   /// Default initializer.
-  public init(
-    mediaResolution: PartMediaResolution? = nil,
-    codeExecutionResult: CodeExecutionResult? = nil,
-    executableCode: ExecutableCode? = nil,
-    fileData: FileData? = nil,
-    functionCall: FunctionCall? = nil,
-    functionResponse: FunctionResponse? = nil,
-    inlineData: Blob? = nil,
-    text: String? = nil,
-    thought: Bool? = nil,
-    thoughtSignature: Data? = nil,
-    videoMetadata: VideoMetadata? = nil
-  ) {
+  public init(mediaResolution: PartMediaResolution? = nil,
+              codeExecutionResult: CodeExecutionResult? = nil,
+              executableCode: ExecutableCode? = nil,
+              fileData: FileData? = nil,
+              functionCall: FunctionCall? = nil,
+              functionResponse: FunctionResponse? = nil,
+              inlineData: Blob? = nil,
+              text: String? = nil,
+              thought: Bool? = nil,
+              thoughtSignature: Data? = nil,
+              videoMetadata: VideoMetadata? = nil) {
     self.mediaResolution = mediaResolution
     self.codeExecutionResult = codeExecutionResult
     self.executableCode = executableCode
@@ -2879,21 +2843,20 @@ public struct Part: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Part: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case mediaResolution = "mediaResolution"
-    case codeExecutionResult = "codeExecutionResult"
-    case executableCode = "executableCode"
-    case fileData = "fileData"
-    case functionCall = "functionCall"
-    case functionResponse = "functionResponse"
-    case inlineData = "inlineData"
-    case text = "text"
-    case thought = "thought"
-    case thoughtSignature = "thoughtSignature"
-    case videoMetadata = "videoMetadata"
+    case mediaResolution
+    case codeExecutionResult
+    case executableCode
+    case fileData
+    case functionCall
+    case functionResponse
+    case inlineData
+    case text
+    case thought
+    case thoughtSignature
+    case videoMetadata
   }
 
   public init(from decoder: any Decoder) throws {
@@ -3029,10 +2992,8 @@ public struct Content: Sendable {
   public let role: String?
 
   /// Default initializer.
-  public init(
-    parts: [Part]? = nil,
-    role: String? = nil
-  ) {
+  public init(parts: [Part]? = nil,
+              role: String? = nil) {
     self.parts = parts
     self.role = role
   }
@@ -3040,12 +3001,11 @@ public struct Content: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Content: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case parts = "parts"
-    case role = "role"
+    case parts
+    case role
   }
 
   public init(from decoder: any Decoder) throws {
@@ -3107,14 +3067,12 @@ public struct HttpRetryOptions: Sendable {
   public let httpStatusCodes: [Int32]?
 
   /// Default initializer.
-  public init(
-    attempts: Int32? = nil,
-    initialDelay: Double? = nil,
-    maxDelay: Double? = nil,
-    expBase: Double? = nil,
-    jitter: Double? = nil,
-    httpStatusCodes: [Int32]? = nil
-  ) {
+  public init(attempts: Int32? = nil,
+              initialDelay: Double? = nil,
+              maxDelay: Double? = nil,
+              expBase: Double? = nil,
+              jitter: Double? = nil,
+              httpStatusCodes: [Int32]? = nil) {
     self.attempts = attempts
     self.initialDelay = initialDelay
     self.maxDelay = maxDelay
@@ -3126,16 +3084,15 @@ public struct HttpRetryOptions: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension HttpRetryOptions: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case attempts = "attempts"
-    case initialDelay = "initialDelay"
-    case maxDelay = "maxDelay"
-    case expBase = "expBase"
-    case jitter = "jitter"
-    case httpStatusCodes = "httpStatusCodes"
+    case attempts
+    case initialDelay
+    case maxDelay
+    case expBase
+    case jitter
+    case httpStatusCodes
   }
 
   public init(from decoder: any Decoder) throws {
@@ -3241,16 +3198,14 @@ public struct HttpOptions: Sendable {
   public let retryOptions: HttpRetryOptions?
 
   /// Default initializer.
-  public init(
-    baseUrl: String? = nil,
-    apiVersion: String? = nil,
-    headers: [String: String]? = nil,
-    timeout: Int32? = nil,
-    clientArgs: [String: JSONValue]? = nil,
-    asyncClientArgs: [String: JSONValue]? = nil,
-    extraBody: [String: JSONValue]? = nil,
-    retryOptions: HttpRetryOptions? = nil
-  ) {
+  public init(baseUrl: String? = nil,
+              apiVersion: String? = nil,
+              headers: [String: String]? = nil,
+              timeout: Int32? = nil,
+              clientArgs: [String: JSONValue]? = nil,
+              asyncClientArgs: [String: JSONValue]? = nil,
+              extraBody: [String: JSONValue]? = nil,
+              retryOptions: HttpRetryOptions? = nil) {
     self.baseUrl = baseUrl
     self.apiVersion = apiVersion
     self.headers = headers
@@ -3264,18 +3219,17 @@ public struct HttpOptions: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension HttpOptions: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case baseUrl = "baseUrl"
-    case apiVersion = "apiVersion"
-    case headers = "headers"
-    case timeout = "timeout"
-    case clientArgs = "clientArgs"
-    case asyncClientArgs = "asyncClientArgs"
-    case extraBody = "extraBody"
-    case retryOptions = "retryOptions"
+    case baseUrl
+    case apiVersion
+    case headers
+    case timeout
+    case clientArgs
+    case asyncClientArgs
+    case extraBody
+    case retryOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -3377,11 +3331,8 @@ extension HttpOptions: Codable {
 /// make API call to Gemini model.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class JSONSchema: Sendable, Codable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 
   // MARK: - Codable
 
@@ -3507,40 +3458,38 @@ public final class Schema: Sendable, Codable {
   public let type: Type?
 
   /// Default initializer.
-  public init(
-    additionalProperties: JSONValue? = nil,
-    defs: [String: Schema]? = nil,
-    ref: String? = nil,
-    anyOf: [Schema]? = nil,
-    `default`: JSONValue? = nil,
-    description: String? = nil,
-    `enum`: [String]? = nil,
-    example: JSONValue? = nil,
-    format: String? = nil,
-    items: Schema? = nil,
-    maxItems: Int64? = nil,
-    maxLength: Int64? = nil,
-    maxProperties: Int64? = nil,
-    maximum: Double? = nil,
-    minItems: Int64? = nil,
-    minLength: Int64? = nil,
-    minProperties: Int64? = nil,
-    minimum: Double? = nil,
-    nullable: Bool? = nil,
-    pattern: String? = nil,
-    properties: [String: Schema]? = nil,
-    propertyOrdering: [String]? = nil,
-    required: [String]? = nil,
-    title: String? = nil,
-    type: Type? = nil
-  ) {
+  public init(additionalProperties: JSONValue? = nil,
+              defs: [String: Schema]? = nil,
+              ref: String? = nil,
+              anyOf: [Schema]? = nil,
+              default: JSONValue? = nil,
+              description: String? = nil,
+              enum: [String]? = nil,
+              example: JSONValue? = nil,
+              format: String? = nil,
+              items: Schema? = nil,
+              maxItems: Int64? = nil,
+              maxLength: Int64? = nil,
+              maxProperties: Int64? = nil,
+              maximum: Double? = nil,
+              minItems: Int64? = nil,
+              minLength: Int64? = nil,
+              minProperties: Int64? = nil,
+              minimum: Double? = nil,
+              nullable: Bool? = nil,
+              pattern: String? = nil,
+              properties: [String: Schema]? = nil,
+              propertyOrdering: [String]? = nil,
+              required: [String]? = nil,
+              title: String? = nil,
+              type: Type? = nil) {
     self.additionalProperties = additionalProperties
     self.defs = defs
     self.ref = ref
     self.anyOf = anyOf
-    self.`default` = `default`
+    self.default = `default`
     self.description = description
-    self.`enum` = `enum`
+    self.enum = `enum`
     self.example = example
     self.format = format
     self.items = items
@@ -3564,33 +3513,34 @@ public final class Schema: Sendable, Codable {
   // MARK: - Codable
 
   enum CommonKeys: String, CodingKey {
-    case anyOf = "anyOf"
+    case anyOf
     case `default` = "`default`"
-    case description = "description"
+    case description
     case `enum` = "`enum`"
-    case example = "example"
-    case format = "format"
-    case items = "items"
-    case maxItems = "maxItems"
-    case maxLength = "maxLength"
-    case maxProperties = "maxProperties"
-    case maximum = "maximum"
-    case minItems = "minItems"
-    case minLength = "minLength"
-    case minProperties = "minProperties"
-    case minimum = "minimum"
-    case nullable = "nullable"
-    case pattern = "pattern"
-    case properties = "properties"
-    case propertyOrdering = "propertyOrdering"
-    case required = "required"
-    case title = "title"
-    case type = "type"
+    case example
+    case format
+    case items
+    case maxItems
+    case maxLength
+    case maxProperties
+    case maximum
+    case minItems
+    case minLength
+    case minProperties
+    case minimum
+    case nullable
+    case pattern
+    case properties
+    case propertyOrdering
+    case required
+    case title
+    case type
   }
+
   enum VertexKeys: String, CodingKey {
-    case additionalProperties = "additionalProperties"
-    case defs = "defs"
-    case ref = "ref"
+    case additionalProperties
+    case defs
+    case ref
   }
 
   public init(from decoder: any Decoder) throws {
@@ -3604,7 +3554,7 @@ public final class Schema: Sendable, Codable {
 
     `default` = try CommonKeysContainer.decodeIfPresent(
       JSONValue.self,
-      forKey: .`default`
+      forKey: .default
     )
 
     description = try CommonKeysContainer.decodeIfPresent(
@@ -3614,7 +3564,7 @@ public final class Schema: Sendable, Codable {
 
     `enum` = try CommonKeysContainer.decodeIfPresent(
       [String].self,
-      forKey: .`enum`
+      forKey: .enum
     )
 
     example = try CommonKeysContainer.decodeIfPresent(
@@ -3735,7 +3685,7 @@ public final class Schema: Sendable, Codable {
 
     try CommonKeysContainer.encodeIfPresent(
       `default`,
-      forKey: .`default`
+      forKey: .default
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -3745,7 +3695,7 @@ public final class Schema: Sendable, Codable {
 
     try CommonKeysContainer.encodeIfPresent(
       `enum`,
-      forKey: .`enum`
+      forKey: .enum
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -3839,7 +3789,6 @@ public final class Schema: Sendable, Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         additionalProperties,
@@ -3855,7 +3804,6 @@ public final class Schema: Sendable, Codable {
         ref,
         forKey: .ref
       )
-
     }
   }
 }
@@ -3867,19 +3815,17 @@ public struct ModelSelectionConfig: Sendable {
   public let featureSelectionPreference: FeatureSelectionPreference?
 
   /// Default initializer.
-  public init(
-    featureSelectionPreference: FeatureSelectionPreference? = nil
-  ) {
+  public init(featureSelectionPreference: FeatureSelectionPreference? = nil) {
     self.featureSelectionPreference = featureSelectionPreference
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModelSelectionConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case featureSelectionPreference = "featureSelectionPreference"
+    case featureSelectionPreference
   }
 
   public init(from decoder: any Decoder) throws {
@@ -3896,13 +3842,11 @@ extension ModelSelectionConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         featureSelectionPreference,
         forKey: .featureSelectionPreference
       )
-
     }
   }
 }
@@ -3921,10 +3865,8 @@ public struct ComputerUse: Sendable {
   public let excludedPredefinedFunctions: [String]?
 
   /// Default initializer.
-  public init(
-    environment: Environment? = nil,
-    excludedPredefinedFunctions: [String]? = nil
-  ) {
+  public init(environment: Environment? = nil,
+              excludedPredefinedFunctions: [String]? = nil) {
     self.environment = environment
     self.excludedPredefinedFunctions = excludedPredefinedFunctions
   }
@@ -3932,12 +3874,11 @@ public struct ComputerUse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ComputerUse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case environment = "environment"
-    case excludedPredefinedFunctions = "excludedPredefinedFunctions"
+    case environment
+    case excludedPredefinedFunctions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -3986,11 +3927,9 @@ public struct FileSearch: Sendable {
   public let metadataFilter: String?
 
   /// Default initializer.
-  public init(
-    fileSearchStoreNames: [String]? = nil,
-    topK: Int32? = nil,
-    metadataFilter: String? = nil
-  ) {
+  public init(fileSearchStoreNames: [String]? = nil,
+              topK: Int32? = nil,
+              metadataFilter: String? = nil) {
     self.fileSearchStoreNames = fileSearchStoreNames
     self.topK = topK
     self.metadataFilter = metadataFilter
@@ -3999,15 +3938,15 @@ public struct FileSearch: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FileSearch: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case topK = "topK"
-    case metadataFilter = "metadataFilter"
+    case topK
+    case metadataFilter
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case fileSearchStoreNames = "fileSearchStoreNames"
+    case fileSearchStoreNames
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4046,13 +3985,11 @@ extension FileSearch: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         fileSearchStoreNames,
         forKey: .fileSearchStoreNames
       )
-
     }
   }
 }
@@ -4062,16 +3999,12 @@ extension FileSearch: Codable {
 /// Only text results are returned.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct WebSearch: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension WebSearch: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -4086,16 +4019,12 @@ extension WebSearch: Codable {
 /// Image search for grounding and related configurations.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImageSearch: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageSearch: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -4118,10 +4047,8 @@ public struct SearchTypes: Sendable {
   public let imageSearch: ImageSearch?
 
   /// Default initializer.
-  public init(
-    webSearch: WebSearch? = nil,
-    imageSearch: ImageSearch? = nil
-  ) {
+  public init(webSearch: WebSearch? = nil,
+              imageSearch: ImageSearch? = nil) {
     self.webSearch = webSearch
     self.imageSearch = imageSearch
   }
@@ -4129,12 +4056,11 @@ public struct SearchTypes: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SearchTypes: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case webSearch = "webSearch"
-    case imageSearch = "imageSearch"
+    case webSearch
+    case imageSearch
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4183,10 +4109,8 @@ public struct Interval: Sendable {
   public let startTime: String?
 
   /// Default initializer.
-  public init(
-    endTime: String? = nil,
-    startTime: String? = nil
-  ) {
+  public init(endTime: String? = nil,
+              startTime: String? = nil) {
     self.endTime = endTime
     self.startTime = startTime
   }
@@ -4194,12 +4118,11 @@ public struct Interval: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Interval: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case endTime = "endTime"
-    case startTime = "startTime"
+    case endTime
+    case startTime
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4254,12 +4177,10 @@ public struct GoogleSearch: Sendable {
   public let timeRangeFilter: Interval?
 
   /// Default initializer.
-  public init(
-    searchTypes: SearchTypes? = nil,
-    blockingConfidence: PhishBlockThreshold? = nil,
-    excludeDomains: [String]? = nil,
-    timeRangeFilter: Interval? = nil
-  ) {
+  public init(searchTypes: SearchTypes? = nil,
+              blockingConfidence: PhishBlockThreshold? = nil,
+              excludeDomains: [String]? = nil,
+              timeRangeFilter: Interval? = nil) {
     self.searchTypes = searchTypes
     self.blockingConfidence = blockingConfidence
     self.excludeDomains = excludeDomains
@@ -4269,18 +4190,19 @@ public struct GoogleSearch: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleSearch: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case searchTypes = "searchTypes"
+    case searchTypes
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case timeRangeFilter = "timeRangeFilter"
+    case timeRangeFilter
   }
+
   public enum VertexKeys: String, CodingKey {
-    case blockingConfidence = "blockingConfidence"
-    case excludeDomains = "excludeDomains"
+    case blockingConfidence
+    case excludeDomains
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4320,17 +4242,14 @@ extension GoogleSearch: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         timeRangeFilter,
         forKey: .timeRangeFilter
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         blockingConfidence,
@@ -4341,7 +4260,6 @@ extension GoogleSearch: Codable {
         excludeDomains,
         forKey: .excludeDomains
       )
-
     }
   }
 }
@@ -4370,12 +4288,10 @@ public struct ApiKeyConfig: Sendable {
   public let name: String?
 
   /// Default initializer.
-  public init(
-    apiKeySecret: String? = nil,
-    apiKeyString: String? = nil,
-    httpElementLocation: HttpElementLocation? = nil,
-    name: String? = nil
-  ) {
+  public init(apiKeySecret: String? = nil,
+              apiKeyString: String? = nil,
+              httpElementLocation: HttpElementLocation? = nil,
+              name: String? = nil) {
     self.apiKeySecret = apiKeySecret
     self.apiKeyString = apiKeyString
     self.httpElementLocation = httpElementLocation
@@ -4385,13 +4301,13 @@ public struct ApiKeyConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ApiKeyConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case apiKeySecret = "apiKeySecret"
-    case apiKeyString = "apiKeyString"
-    case httpElementLocation = "httpElementLocation"
-    case name = "name"
+    case apiKeySecret
+    case apiKeyString
+    case httpElementLocation
+    case name
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4423,7 +4339,6 @@ extension ApiKeyConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         apiKeySecret,
@@ -4444,7 +4359,6 @@ extension ApiKeyConfig: Codable {
         name,
         forKey: .name
       )
-
     }
   }
 }
@@ -4462,19 +4376,17 @@ public struct AuthConfigGoogleServiceAccountConfig: Sendable {
   public let serviceAccount: String?
 
   /// Default initializer.
-  public init(
-    serviceAccount: String? = nil
-  ) {
+  public init(serviceAccount: String? = nil) {
     self.serviceAccount = serviceAccount
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AuthConfigGoogleServiceAccountConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case serviceAccount = "serviceAccount"
+    case serviceAccount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4491,13 +4403,11 @@ extension AuthConfigGoogleServiceAccountConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         serviceAccount,
         forKey: .serviceAccount
       )
-
     }
   }
 }
@@ -4515,19 +4425,17 @@ public struct AuthConfigHttpBasicAuthConfig: Sendable {
   public let credentialSecret: String?
 
   /// Default initializer.
-  public init(
-    credentialSecret: String? = nil
-  ) {
+  public init(credentialSecret: String? = nil) {
     self.credentialSecret = credentialSecret
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AuthConfigHttpBasicAuthConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case credentialSecret = "credentialSecret"
+    case credentialSecret
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4544,13 +4452,11 @@ extension AuthConfigHttpBasicAuthConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         credentialSecret,
         forKey: .credentialSecret
       )
-
     }
   }
 }
@@ -4570,10 +4476,8 @@ public struct AuthConfigOauthConfig: Sendable {
   public let serviceAccount: String?
 
   /// Default initializer.
-  public init(
-    accessToken: String? = nil,
-    serviceAccount: String? = nil
-  ) {
+  public init(accessToken: String? = nil,
+              serviceAccount: String? = nil) {
     self.accessToken = accessToken
     self.serviceAccount = serviceAccount
   }
@@ -4581,11 +4485,11 @@ public struct AuthConfigOauthConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AuthConfigOauthConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case accessToken = "accessToken"
-    case serviceAccount = "serviceAccount"
+    case accessToken
+    case serviceAccount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4607,7 +4511,6 @@ extension AuthConfigOauthConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         accessToken,
@@ -4618,7 +4521,6 @@ extension AuthConfigOauthConfig: Codable {
         serviceAccount,
         forKey: .serviceAccount
       )
-
     }
   }
 }
@@ -4641,10 +4543,8 @@ public struct AuthConfigOidcConfig: Sendable {
   public let serviceAccount: String?
 
   /// Default initializer.
-  public init(
-    idToken: String? = nil,
-    serviceAccount: String? = nil
-  ) {
+  public init(idToken: String? = nil,
+              serviceAccount: String? = nil) {
     self.idToken = idToken
     self.serviceAccount = serviceAccount
   }
@@ -4652,11 +4552,11 @@ public struct AuthConfigOidcConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AuthConfigOidcConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case idToken = "idToken"
-    case serviceAccount = "serviceAccount"
+    case idToken
+    case serviceAccount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4678,7 +4578,6 @@ extension AuthConfigOidcConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         idToken,
@@ -4689,7 +4588,6 @@ extension AuthConfigOidcConfig: Codable {
         serviceAccount,
         forKey: .serviceAccount
       )
-
     }
   }
 }
@@ -4720,15 +4618,13 @@ public struct AuthConfig: Sendable {
   public let oidcConfig: AuthConfigOidcConfig?
 
   /// Default initializer.
-  public init(
-    apiKey: String? = nil,
-    apiKeyConfig: ApiKeyConfig? = nil,
-    authType: AuthType? = nil,
-    googleServiceAccountConfig: AuthConfigGoogleServiceAccountConfig? = nil,
-    httpBasicAuthConfig: AuthConfigHttpBasicAuthConfig? = nil,
-    oauthConfig: AuthConfigOauthConfig? = nil,
-    oidcConfig: AuthConfigOidcConfig? = nil
-  ) {
+  public init(apiKey: String? = nil,
+              apiKeyConfig: ApiKeyConfig? = nil,
+              authType: AuthType? = nil,
+              googleServiceAccountConfig: AuthConfigGoogleServiceAccountConfig? = nil,
+              httpBasicAuthConfig: AuthConfigHttpBasicAuthConfig? = nil,
+              oauthConfig: AuthConfigOauthConfig? = nil,
+              oidcConfig: AuthConfigOidcConfig? = nil) {
     self.apiKey = apiKey
     self.apiKeyConfig = apiKeyConfig
     self.authType = authType
@@ -4741,19 +4637,19 @@ public struct AuthConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AuthConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case apiKey = "apiKey"
+    case apiKey
   }
+
   public enum VertexKeys: String, CodingKey {
-    case apiKeyConfig = "apiKeyConfig"
-    case authType = "authType"
-    case googleServiceAccountConfig = "googleServiceAccountConfig"
-    case httpBasicAuthConfig = "httpBasicAuthConfig"
-    case oauthConfig = "oauthConfig"
-    case oidcConfig = "oidcConfig"
+    case apiKeyConfig
+    case authType
+    case googleServiceAccountConfig
+    case httpBasicAuthConfig
+    case oauthConfig
+    case oidcConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4807,7 +4703,6 @@ extension AuthConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         apiKeyConfig,
@@ -4838,7 +4733,6 @@ extension AuthConfig: Codable {
         oidcConfig,
         forKey: .oidcConfig
       )
-
     }
   }
 }
@@ -4857,10 +4751,8 @@ public struct GoogleMaps: Sendable {
   public let enableWidget: Bool?
 
   /// Default initializer.
-  public init(
-    authConfig: AuthConfig? = nil,
-    enableWidget: Bool? = nil
-  ) {
+  public init(authConfig: AuthConfig? = nil,
+              enableWidget: Bool? = nil) {
     self.authConfig = authConfig
     self.enableWidget = enableWidget
   }
@@ -4868,12 +4760,11 @@ public struct GoogleMaps: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleMaps: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case authConfig = "authConfig"
-    case enableWidget = "enableWidget"
+    case authConfig
+    case enableWidget
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4918,10 +4809,8 @@ public struct ApiAuthApiKeyConfig: Sendable {
   public let apiKeyString: String?
 
   /// Default initializer.
-  public init(
-    apiKeySecretVersion: String? = nil,
-    apiKeyString: String? = nil
-  ) {
+  public init(apiKeySecretVersion: String? = nil,
+              apiKeyString: String? = nil) {
     self.apiKeySecretVersion = apiKeySecretVersion
     self.apiKeyString = apiKeyString
   }
@@ -4929,11 +4818,11 @@ public struct ApiAuthApiKeyConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ApiAuthApiKeyConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case apiKeySecretVersion = "apiKeySecretVersion"
-    case apiKeyString = "apiKeyString"
+    case apiKeySecretVersion
+    case apiKeyString
   }
 
   public init(from decoder: any Decoder) throws {
@@ -4955,7 +4844,6 @@ extension ApiAuthApiKeyConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         apiKeySecretVersion,
@@ -4966,7 +4854,6 @@ extension ApiAuthApiKeyConfig: Codable {
         apiKeyString,
         forKey: .apiKeyString
       )
-
     }
   }
 }
@@ -4980,19 +4867,17 @@ public struct ApiAuth: Sendable {
   public let apiKeyConfig: ApiAuthApiKeyConfig?
 
   /// Default initializer.
-  public init(
-    apiKeyConfig: ApiAuthApiKeyConfig? = nil
-  ) {
+  public init(apiKeyConfig: ApiAuthApiKeyConfig? = nil) {
     self.apiKeyConfig = apiKeyConfig
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ApiAuth: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case apiKeyConfig = "apiKeyConfig"
+    case apiKeyConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5009,13 +4894,11 @@ extension ApiAuth: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         apiKeyConfig,
         forKey: .apiKeyConfig
       )
-
     }
   }
 }
@@ -5035,11 +4918,9 @@ public struct ExternalApiElasticSearchParams: Sendable {
   public let searchTemplate: String?
 
   /// Default initializer.
-  public init(
-    index: String? = nil,
-    numHits: Int32? = nil,
-    searchTemplate: String? = nil
-  ) {
+  public init(index: String? = nil,
+              numHits: Int32? = nil,
+              searchTemplate: String? = nil) {
     self.index = index
     self.numHits = numHits
     self.searchTemplate = searchTemplate
@@ -5048,12 +4929,12 @@ public struct ExternalApiElasticSearchParams: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ExternalApiElasticSearchParams: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case index = "index"
-    case numHits = "numHits"
-    case searchTemplate = "searchTemplate"
+    case index
+    case numHits
+    case searchTemplate
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5080,7 +4961,6 @@ extension ExternalApiElasticSearchParams: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         index,
@@ -5096,7 +4976,6 @@ extension ExternalApiElasticSearchParams: Codable {
         searchTemplate,
         forKey: .searchTemplate
       )
-
     }
   }
 }
@@ -5105,16 +4984,12 @@ extension ExternalApiElasticSearchParams: Codable {
 /// supported in Gemini API.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ExternalApiSimpleSearchParams: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ExternalApiSimpleSearchParams: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -5152,14 +5027,12 @@ public struct ExternalApi: Sendable {
   public let simpleSearchParams: ExternalApiSimpleSearchParams?
 
   /// Default initializer.
-  public init(
-    apiAuth: ApiAuth? = nil,
-    apiSpec: ApiSpec? = nil,
-    authConfig: AuthConfig? = nil,
-    elasticSearchParams: ExternalApiElasticSearchParams? = nil,
-    endpoint: String? = nil,
-    simpleSearchParams: ExternalApiSimpleSearchParams? = nil
-  ) {
+  public init(apiAuth: ApiAuth? = nil,
+              apiSpec: ApiSpec? = nil,
+              authConfig: AuthConfig? = nil,
+              elasticSearchParams: ExternalApiElasticSearchParams? = nil,
+              endpoint: String? = nil,
+              simpleSearchParams: ExternalApiSimpleSearchParams? = nil) {
     self.apiAuth = apiAuth
     self.apiSpec = apiSpec
     self.authConfig = authConfig
@@ -5171,15 +5044,15 @@ public struct ExternalApi: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ExternalApi: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case apiAuth = "apiAuth"
-    case apiSpec = "apiSpec"
-    case authConfig = "authConfig"
-    case elasticSearchParams = "elasticSearchParams"
-    case endpoint = "endpoint"
-    case simpleSearchParams = "simpleSearchParams"
+    case apiAuth
+    case apiSpec
+    case authConfig
+    case elasticSearchParams
+    case endpoint
+    case simpleSearchParams
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5221,7 +5094,6 @@ extension ExternalApi: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         apiAuth,
@@ -5252,7 +5124,6 @@ extension ExternalApi: Codable {
         simpleSearchParams,
         forKey: .simpleSearchParams
       )
-
     }
   }
 }
@@ -5275,10 +5146,8 @@ public struct VertexAISearchDataStoreSpec: Sendable {
   public let filter: String?
 
   /// Default initializer.
-  public init(
-    dataStore: String? = nil,
-    filter: String? = nil
-  ) {
+  public init(dataStore: String? = nil,
+              filter: String? = nil) {
     self.dataStore = dataStore
     self.filter = filter
   }
@@ -5286,11 +5155,11 @@ public struct VertexAISearchDataStoreSpec: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VertexAISearchDataStoreSpec: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case dataStore = "dataStore"
-    case filter = "filter"
+    case dataStore
+    case filter
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5312,7 +5181,6 @@ extension VertexAISearchDataStoreSpec: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         dataStore,
@@ -5323,7 +5191,6 @@ extension VertexAISearchDataStoreSpec: Codable {
         filter,
         forKey: .filter
       )
-
     }
   }
 }
@@ -5355,13 +5222,11 @@ public struct VertexAISearch: Sendable {
   public let maxResults: Int32?
 
   /// Default initializer.
-  public init(
-    dataStoreSpecs: [VertexAISearchDataStoreSpec]? = nil,
-    datastore: String? = nil,
-    engine: String? = nil,
-    filter: String? = nil,
-    maxResults: Int32? = nil
-  ) {
+  public init(dataStoreSpecs: [VertexAISearchDataStoreSpec]? = nil,
+              datastore: String? = nil,
+              engine: String? = nil,
+              filter: String? = nil,
+              maxResults: Int32? = nil) {
     self.dataStoreSpecs = dataStoreSpecs
     self.datastore = datastore
     self.engine = engine
@@ -5372,14 +5237,14 @@ public struct VertexAISearch: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VertexAISearch: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case dataStoreSpecs = "dataStoreSpecs"
-    case datastore = "datastore"
-    case engine = "engine"
-    case filter = "filter"
-    case maxResults = "maxResults"
+    case dataStoreSpecs
+    case datastore
+    case engine
+    case filter
+    case maxResults
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5416,7 +5281,6 @@ extension VertexAISearch: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         dataStoreSpecs,
@@ -5442,7 +5306,6 @@ extension VertexAISearch: Codable {
         maxResults,
         forKey: .maxResults
       )
-
     }
   }
 }
@@ -5460,10 +5323,8 @@ public struct VertexRagStoreRagResource: Sendable {
   public let ragFileIds: [String]?
 
   /// Default initializer.
-  public init(
-    ragCorpus: String? = nil,
-    ragFileIds: [String]? = nil
-  ) {
+  public init(ragCorpus: String? = nil,
+              ragFileIds: [String]? = nil) {
     self.ragCorpus = ragCorpus
     self.ragFileIds = ragFileIds
   }
@@ -5471,11 +5332,11 @@ public struct VertexRagStoreRagResource: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VertexRagStoreRagResource: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case ragCorpus = "ragCorpus"
-    case ragFileIds = "ragFileIds"
+    case ragCorpus
+    case ragFileIds
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5497,7 +5358,6 @@ extension VertexRagStoreRagResource: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         ragCorpus,
@@ -5508,7 +5368,6 @@ extension VertexRagStoreRagResource: Codable {
         ragFileIds,
         forKey: .ragFileIds
       )
-
     }
   }
 }
@@ -5527,11 +5386,9 @@ public struct RagRetrievalConfigFilter: Sendable {
   public let vectorSimilarityThreshold: Double?
 
   /// Default initializer.
-  public init(
-    metadataFilter: String? = nil,
-    vectorDistanceThreshold: Double? = nil,
-    vectorSimilarityThreshold: Double? = nil
-  ) {
+  public init(metadataFilter: String? = nil,
+              vectorDistanceThreshold: Double? = nil,
+              vectorSimilarityThreshold: Double? = nil) {
     self.metadataFilter = metadataFilter
     self.vectorDistanceThreshold = vectorDistanceThreshold
     self.vectorSimilarityThreshold = vectorSimilarityThreshold
@@ -5540,12 +5397,12 @@ public struct RagRetrievalConfigFilter: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RagRetrievalConfigFilter: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case metadataFilter = "metadataFilter"
-    case vectorDistanceThreshold = "vectorDistanceThreshold"
-    case vectorSimilarityThreshold = "vectorSimilarityThreshold"
+    case metadataFilter
+    case vectorDistanceThreshold
+    case vectorSimilarityThreshold
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5572,7 +5429,6 @@ extension RagRetrievalConfigFilter: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         metadataFilter,
@@ -5588,7 +5444,6 @@ extension RagRetrievalConfigFilter: Codable {
         vectorSimilarityThreshold,
         forKey: .vectorSimilarityThreshold
       )
-
     }
   }
 }
@@ -5603,19 +5458,17 @@ public struct RagRetrievalConfigHybridSearch: Sendable {
   public let alpha: Float?
 
   /// Default initializer.
-  public init(
-    alpha: Float? = nil
-  ) {
+  public init(alpha: Float? = nil) {
     self.alpha = alpha
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RagRetrievalConfigHybridSearch: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case alpha = "alpha"
+    case alpha
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5632,13 +5485,11 @@ extension RagRetrievalConfigHybridSearch: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         alpha,
         forKey: .alpha
       )
-
     }
   }
 }
@@ -5652,19 +5503,17 @@ public struct RagRetrievalConfigRankingLlmRanker: Sendable {
   public let modelName: String?
 
   /// Default initializer.
-  public init(
-    modelName: String? = nil
-  ) {
+  public init(modelName: String? = nil) {
     self.modelName = modelName
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RagRetrievalConfigRankingLlmRanker: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case modelName = "modelName"
+    case modelName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5681,13 +5530,11 @@ extension RagRetrievalConfigRankingLlmRanker: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         modelName,
         forKey: .modelName
       )
-
     }
   }
 }
@@ -5700,19 +5547,17 @@ public struct RagRetrievalConfigRankingRankService: Sendable {
   public let modelName: String?
 
   /// Default initializer.
-  public init(
-    modelName: String? = nil
-  ) {
+  public init(modelName: String? = nil) {
     self.modelName = modelName
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RagRetrievalConfigRankingRankService: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case modelName = "modelName"
+    case modelName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5729,13 +5574,11 @@ extension RagRetrievalConfigRankingRankService: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         modelName,
         forKey: .modelName
       )
-
     }
   }
 }
@@ -5750,10 +5593,8 @@ public struct RagRetrievalConfigRanking: Sendable {
   public let rankService: RagRetrievalConfigRankingRankService?
 
   /// Default initializer.
-  public init(
-    llmRanker: RagRetrievalConfigRankingLlmRanker? = nil,
-    rankService: RagRetrievalConfigRankingRankService? = nil
-  ) {
+  public init(llmRanker: RagRetrievalConfigRankingLlmRanker? = nil,
+              rankService: RagRetrievalConfigRankingRankService? = nil) {
     self.llmRanker = llmRanker
     self.rankService = rankService
   }
@@ -5761,11 +5602,11 @@ public struct RagRetrievalConfigRanking: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RagRetrievalConfigRanking: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case llmRanker = "llmRanker"
-    case rankService = "rankService"
+    case llmRanker
+    case rankService
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5787,7 +5628,6 @@ extension RagRetrievalConfigRanking: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         llmRanker,
@@ -5798,7 +5638,6 @@ extension RagRetrievalConfigRanking: Codable {
         rankService,
         forKey: .rankService
       )
-
     }
   }
 }
@@ -5820,12 +5659,10 @@ public struct RagRetrievalConfig: Sendable {
   public let topK: Int32?
 
   /// Default initializer.
-  public init(
-    filter: RagRetrievalConfigFilter? = nil,
-    hybridSearch: RagRetrievalConfigHybridSearch? = nil,
-    ranking: RagRetrievalConfigRanking? = nil,
-    topK: Int32? = nil
-  ) {
+  public init(filter: RagRetrievalConfigFilter? = nil,
+              hybridSearch: RagRetrievalConfigHybridSearch? = nil,
+              ranking: RagRetrievalConfigRanking? = nil,
+              topK: Int32? = nil) {
     self.filter = filter
     self.hybridSearch = hybridSearch
     self.ranking = ranking
@@ -5835,13 +5672,13 @@ public struct RagRetrievalConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RagRetrievalConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case filter = "filter"
-    case hybridSearch = "hybridSearch"
-    case ranking = "ranking"
-    case topK = "topK"
+    case filter
+    case hybridSearch
+    case ranking
+    case topK
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5873,7 +5710,6 @@ extension RagRetrievalConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         filter,
@@ -5894,7 +5730,6 @@ extension RagRetrievalConfig: Codable {
         topK,
         forKey: .topK
       )
-
     }
   }
 }
@@ -5928,14 +5763,12 @@ public struct VertexRagStore: Sendable {
   public let vectorDistanceThreshold: Double?
 
   /// Default initializer.
-  public init(
-    ragCorpora: [String]? = nil,
-    ragResources: [VertexRagStoreRagResource]? = nil,
-    ragRetrievalConfig: RagRetrievalConfig? = nil,
-    similarityTopK: Int32? = nil,
-    storeContext: Bool? = nil,
-    vectorDistanceThreshold: Double? = nil
-  ) {
+  public init(ragCorpora: [String]? = nil,
+              ragResources: [VertexRagStoreRagResource]? = nil,
+              ragRetrievalConfig: RagRetrievalConfig? = nil,
+              similarityTopK: Int32? = nil,
+              storeContext: Bool? = nil,
+              vectorDistanceThreshold: Double? = nil) {
     self.ragCorpora = ragCorpora
     self.ragResources = ragResources
     self.ragRetrievalConfig = ragRetrievalConfig
@@ -5947,15 +5780,15 @@ public struct VertexRagStore: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VertexRagStore: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case ragCorpora = "ragCorpora"
-    case ragResources = "ragResources"
-    case ragRetrievalConfig = "ragRetrievalConfig"
-    case similarityTopK = "similarityTopK"
-    case storeContext = "storeContext"
-    case vectorDistanceThreshold = "vectorDistanceThreshold"
+    case ragCorpora
+    case ragResources
+    case ragRetrievalConfig
+    case similarityTopK
+    case storeContext
+    case vectorDistanceThreshold
   }
 
   public init(from decoder: any Decoder) throws {
@@ -5997,7 +5830,6 @@ extension VertexRagStore: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         ragCorpora,
@@ -6028,7 +5860,6 @@ extension VertexRagStore: Codable {
         vectorDistanceThreshold,
         forKey: .vectorDistanceThreshold
       )
-
     }
   }
 }
@@ -6051,12 +5882,10 @@ public struct Retrieval: Sendable {
   public let vertexRagStore: VertexRagStore?
 
   /// Default initializer.
-  public init(
-    disableAttribution: Bool? = nil,
-    externalApi: ExternalApi? = nil,
-    vertexAiSearch: VertexAISearch? = nil,
-    vertexRagStore: VertexRagStore? = nil
-  ) {
+  public init(disableAttribution: Bool? = nil,
+              externalApi: ExternalApi? = nil,
+              vertexAiSearch: VertexAISearch? = nil,
+              vertexRagStore: VertexRagStore? = nil) {
     self.disableAttribution = disableAttribution
     self.externalApi = externalApi
     self.vertexAiSearch = vertexAiSearch
@@ -6066,13 +5895,13 @@ public struct Retrieval: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Retrieval: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case disableAttribution = "disableAttribution"
-    case externalApi = "externalApi"
-    case vertexAiSearch = "vertexAiSearch"
-    case vertexRagStore = "vertexRagStore"
+    case disableAttribution
+    case externalApi
+    case vertexAiSearch
+    case vertexRagStore
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6104,7 +5933,6 @@ extension Retrieval: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         disableAttribution,
@@ -6125,7 +5953,6 @@ extension Retrieval: Codable {
         vertexRagStore,
         forKey: .vertexRagStore
       )
-
     }
   }
 }
@@ -6136,16 +5963,12 @@ extension Retrieval: Codable {
 /// API.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ToolCodeExecution: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolCodeExecution: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -6170,10 +5993,8 @@ public struct EnterpriseWebSearch: Sendable {
   public let excludeDomains: [String]?
 
   /// Default initializer.
-  public init(
-    blockingConfidence: PhishBlockThreshold? = nil,
-    excludeDomains: [String]? = nil
-  ) {
+  public init(blockingConfidence: PhishBlockThreshold? = nil,
+              excludeDomains: [String]? = nil) {
     self.blockingConfidence = blockingConfidence
     self.excludeDomains = excludeDomains
   }
@@ -6181,11 +6002,11 @@ public struct EnterpriseWebSearch: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EnterpriseWebSearch: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case blockingConfidence = "blockingConfidence"
-    case excludeDomains = "excludeDomains"
+    case blockingConfidence
+    case excludeDomains
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6207,7 +6028,6 @@ extension EnterpriseWebSearch: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         blockingConfidence,
@@ -6218,7 +6038,6 @@ extension EnterpriseWebSearch: Codable {
         excludeDomains,
         forKey: .excludeDomains
       )
-
     }
   }
 }
@@ -6272,15 +6091,13 @@ public final class FunctionDeclaration: Sendable, Codable {
   public let behavior: Behavior?
 
   /// Default initializer.
-  public init(
-    description: String? = nil,
-    name: String? = nil,
-    parameters: Schema? = nil,
-    parametersJsonSchema: JSONValue? = nil,
-    response: Schema? = nil,
-    responseJsonSchema: JSONValue? = nil,
-    behavior: Behavior? = nil
-  ) {
+  public init(description: String? = nil,
+              name: String? = nil,
+              parameters: Schema? = nil,
+              parametersJsonSchema: JSONValue? = nil,
+              response: Schema? = nil,
+              responseJsonSchema: JSONValue? = nil,
+              behavior: Behavior? = nil) {
     self.description = description
     self.name = name
     self.parameters = parameters
@@ -6295,15 +6112,16 @@ public final class FunctionDeclaration: Sendable, Codable {
   // MARK: - Codable
 
   enum CommonKeys: String, CodingKey {
-    case description = "description"
-    case name = "name"
-    case parameters = "parameters"
-    case parametersJsonSchema = "parametersJsonSchema"
-    case response = "response"
-    case responseJsonSchema = "responseJsonSchema"
+    case description
+    case name
+    case parameters
+    case parametersJsonSchema
+    case response
+    case responseJsonSchema
   }
+
   enum MLDevKeys: String, CodingKey {
-    case behavior = "behavior"
+    case behavior
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6382,13 +6200,11 @@ public final class FunctionDeclaration: Sendable, Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         behavior,
         forKey: .behavior
       )
-
     }
   }
 }
@@ -6404,10 +6220,8 @@ public struct DynamicRetrievalConfig: Sendable {
   public let mode: DynamicRetrievalConfigMode?
 
   /// Default initializer.
-  public init(
-    dynamicThreshold: Float? = nil,
-    mode: DynamicRetrievalConfigMode? = nil
-  ) {
+  public init(dynamicThreshold: Float? = nil,
+              mode: DynamicRetrievalConfigMode? = nil) {
     self.dynamicThreshold = dynamicThreshold
     self.mode = mode
   }
@@ -6415,12 +6229,11 @@ public struct DynamicRetrievalConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DynamicRetrievalConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case dynamicThreshold = "dynamicThreshold"
-    case mode = "mode"
+    case dynamicThreshold
+    case mode
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6461,20 +6274,17 @@ public struct GoogleSearchRetrieval: Sendable {
   public let dynamicRetrievalConfig: DynamicRetrievalConfig?
 
   /// Default initializer.
-  public init(
-    dynamicRetrievalConfig: DynamicRetrievalConfig? = nil
-  ) {
+  public init(dynamicRetrievalConfig: DynamicRetrievalConfig? = nil) {
     self.dynamicRetrievalConfig = dynamicRetrievalConfig
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleSearchRetrieval: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case dynamicRetrievalConfig = "dynamicRetrievalConfig"
+    case dynamicRetrievalConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6519,10 +6329,8 @@ public struct ToolParallelAiSearch: Sendable {
   public let customConfigs: [String: JSONValue]?
 
   /// Default initializer.
-  public init(
-    apiKey: String? = nil,
-    customConfigs: [String: JSONValue]? = nil
-  ) {
+  public init(apiKey: String? = nil,
+              customConfigs: [String: JSONValue]? = nil) {
     self.apiKey = apiKey
     self.customConfigs = customConfigs
   }
@@ -6530,11 +6338,11 @@ public struct ToolParallelAiSearch: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolParallelAiSearch: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case apiKey = "apiKey"
-    case customConfigs = "customConfigs"
+    case apiKey
+    case customConfigs
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6556,7 +6364,6 @@ extension ToolParallelAiSearch: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         apiKey,
@@ -6567,7 +6374,6 @@ extension ToolParallelAiSearch: Codable {
         customConfigs,
         forKey: .customConfigs
       )
-
     }
   }
 }
@@ -6575,16 +6381,12 @@ extension ToolParallelAiSearch: Codable {
 /// Tool to support URL context.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct UrlContext: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UrlContext: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -6616,13 +6418,11 @@ public struct StreamableHttpTransport: Sendable {
   public let url: String?
 
   /// Default initializer.
-  public init(
-    headers: [String: String]? = nil,
-    sseReadTimeout: TimeInterval? = nil,
-    terminateOnClose: Bool? = nil,
-    timeout: TimeInterval? = nil,
-    url: String? = nil
-  ) {
+  public init(headers: [String: String]? = nil,
+              sseReadTimeout: TimeInterval? = nil,
+              terminateOnClose: Bool? = nil,
+              timeout: TimeInterval? = nil,
+              url: String? = nil) {
     self.headers = headers
     self.sseReadTimeout = sseReadTimeout
     self.terminateOnClose = terminateOnClose
@@ -6633,14 +6433,14 @@ public struct StreamableHttpTransport: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension StreamableHttpTransport: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case headers = "headers"
-    case sseReadTimeout = "sseReadTimeout"
-    case terminateOnClose = "terminateOnClose"
-    case timeout = "timeout"
-    case url = "url"
+    case headers
+    case sseReadTimeout
+    case terminateOnClose
+    case timeout
+    case url
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6677,7 +6477,6 @@ extension StreamableHttpTransport: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         headers,
@@ -6703,7 +6502,6 @@ extension StreamableHttpTransport: Codable {
         url,
         forKey: .url
       )
-
     }
   }
 }
@@ -6720,10 +6518,8 @@ public struct McpServer: Sendable {
   public let streamableHttpTransport: StreamableHttpTransport?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    streamableHttpTransport: StreamableHttpTransport? = nil
-  ) {
+  public init(name: String? = nil,
+              streamableHttpTransport: StreamableHttpTransport? = nil) {
     self.name = name
     self.streamableHttpTransport = streamableHttpTransport
   }
@@ -6731,11 +6527,11 @@ public struct McpServer: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension McpServer: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
-    case streamableHttpTransport = "streamableHttpTransport"
+    case name
+    case streamableHttpTransport
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6757,7 +6553,6 @@ extension McpServer: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         name,
@@ -6768,7 +6563,6 @@ extension McpServer: Codable {
         streamableHttpTransport,
         forKey: .streamableHttpTransport
       )
-
     }
   }
 }
@@ -6829,20 +6623,18 @@ public struct Tool: Sendable {
   public let mcpServers: [McpServer]?
 
   /// Default initializer.
-  public init(
-    retrieval: Retrieval? = nil,
-    computerUse: ComputerUse? = nil,
-    fileSearch: FileSearch? = nil,
-    googleSearch: GoogleSearch? = nil,
-    googleMaps: GoogleMaps? = nil,
-    codeExecution: ToolCodeExecution? = nil,
-    enterpriseWebSearch: EnterpriseWebSearch? = nil,
-    functionDeclarations: [FunctionDeclaration]? = nil,
-    googleSearchRetrieval: GoogleSearchRetrieval? = nil,
-    parallelAiSearch: ToolParallelAiSearch? = nil,
-    urlContext: UrlContext? = nil,
-    mcpServers: [McpServer]? = nil
-  ) {
+  public init(retrieval: Retrieval? = nil,
+              computerUse: ComputerUse? = nil,
+              fileSearch: FileSearch? = nil,
+              googleSearch: GoogleSearch? = nil,
+              googleMaps: GoogleMaps? = nil,
+              codeExecution: ToolCodeExecution? = nil,
+              enterpriseWebSearch: EnterpriseWebSearch? = nil,
+              functionDeclarations: [FunctionDeclaration]? = nil,
+              googleSearchRetrieval: GoogleSearchRetrieval? = nil,
+              parallelAiSearch: ToolParallelAiSearch? = nil,
+              urlContext: UrlContext? = nil,
+              mcpServers: [McpServer]? = nil) {
     self.retrieval = retrieval
     self.computerUse = computerUse
     self.fileSearch = fileSearch
@@ -6860,26 +6652,27 @@ public struct Tool: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Tool: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case computerUse = "computerUse"
-    case googleSearch = "googleSearch"
-    case googleMaps = "googleMaps"
-    case codeExecution = "codeExecution"
-    case functionDeclarations = "functionDeclarations"
-    case googleSearchRetrieval = "googleSearchRetrieval"
-    case urlContext = "urlContext"
+    case computerUse
+    case googleSearch
+    case googleMaps
+    case codeExecution
+    case functionDeclarations
+    case googleSearchRetrieval
+    case urlContext
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case fileSearch = "fileSearch"
-    case mcpServers = "mcpServers"
+    case fileSearch
+    case mcpServers
   }
+
   public enum VertexKeys: String, CodingKey {
-    case retrieval = "retrieval"
-    case enterpriseWebSearch = "enterpriseWebSearch"
-    case parallelAiSearch = "parallelAiSearch"
+    case retrieval
+    case enterpriseWebSearch
+    case parallelAiSearch
   }
 
   public init(from decoder: any Decoder) throws {
@@ -6989,7 +6782,6 @@ extension Tool: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         fileSearch,
@@ -7000,11 +6792,9 @@ extension Tool: Codable {
         mcpServers,
         forKey: .mcpServers
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         retrieval,
@@ -7020,7 +6810,6 @@ extension Tool: Codable {
         parallelAiSearch,
         forKey: .parallelAiSearch
       )
-
     }
   }
 }
@@ -7040,10 +6829,8 @@ public struct LatLng: Sendable {
   public let longitude: Double?
 
   /// Default initializer.
-  public init(
-    latitude: Double? = nil,
-    longitude: Double? = nil
-  ) {
+  public init(latitude: Double? = nil,
+              longitude: Double? = nil) {
     self.latitude = latitude
     self.longitude = longitude
   }
@@ -7051,12 +6838,11 @@ public struct LatLng: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LatLng: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case latitude = "latitude"
-    case longitude = "longitude"
+    case latitude
+    case longitude
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7100,10 +6886,8 @@ public struct RetrievalConfig: Sendable {
   public let languageCode: String?
 
   /// Default initializer.
-  public init(
-    latLng: LatLng? = nil,
-    languageCode: String? = nil
-  ) {
+  public init(latLng: LatLng? = nil,
+              languageCode: String? = nil) {
     self.latLng = latLng
     self.languageCode = languageCode
   }
@@ -7111,14 +6895,14 @@ public struct RetrievalConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RetrievalConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case latLng = "latLng"
+    case latLng
   }
+
   public enum VertexKeys: String, CodingKey {
-    case languageCode = "languageCode"
+    case languageCode
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7147,13 +6931,11 @@ extension RetrievalConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         languageCode,
         forKey: .languageCode
       )
-
     }
   }
 }
@@ -7176,11 +6958,9 @@ public struct FunctionCallingConfig: Sendable {
   public let streamFunctionCallArguments: Bool?
 
   /// Default initializer.
-  public init(
-    allowedFunctionNames: [String]? = nil,
-    mode: FunctionCallingConfigMode? = nil,
-    streamFunctionCallArguments: Bool? = nil
-  ) {
+  public init(allowedFunctionNames: [String]? = nil,
+              mode: FunctionCallingConfigMode? = nil,
+              streamFunctionCallArguments: Bool? = nil) {
     self.allowedFunctionNames = allowedFunctionNames
     self.mode = mode
     self.streamFunctionCallArguments = streamFunctionCallArguments
@@ -7189,15 +6969,15 @@ public struct FunctionCallingConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case allowedFunctionNames = "allowedFunctionNames"
-    case mode = "mode"
+    case allowedFunctionNames
+    case mode
   }
+
   public enum VertexKeys: String, CodingKey {
-    case streamFunctionCallArguments = "streamFunctionCallArguments"
+    case streamFunctionCallArguments
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7236,13 +7016,11 @@ extension FunctionCallingConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         streamFunctionCallArguments,
         forKey: .streamFunctionCallArguments
       )
-
     }
   }
 }
@@ -7259,10 +7037,8 @@ public struct ToolConfig: Sendable {
   public let functionCallingConfig: FunctionCallingConfig?
 
   /// Default initializer.
-  public init(
-    retrievalConfig: RetrievalConfig? = nil,
-    functionCallingConfig: FunctionCallingConfig? = nil
-  ) {
+  public init(retrievalConfig: RetrievalConfig? = nil,
+              functionCallingConfig: FunctionCallingConfig? = nil) {
     self.retrievalConfig = retrievalConfig
     self.functionCallingConfig = functionCallingConfig
   }
@@ -7270,12 +7046,11 @@ public struct ToolConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case retrievalConfig = "retrievalConfig"
-    case functionCallingConfig = "functionCallingConfig"
+    case retrievalConfig
+    case functionCallingConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7319,10 +7094,8 @@ public struct ReplicatedVoiceConfig: Sendable {
   public let voiceSampleAudio: Data?
 
   /// Default initializer.
-  public init(
-    mimeType: String? = nil,
-    voiceSampleAudio: Data? = nil
-  ) {
+  public init(mimeType: String? = nil,
+              voiceSampleAudio: Data? = nil) {
     self.mimeType = mimeType
     self.voiceSampleAudio = voiceSampleAudio
   }
@@ -7330,12 +7103,11 @@ public struct ReplicatedVoiceConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ReplicatedVoiceConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case mimeType = "mimeType"
-    case voiceSampleAudio = "voiceSampleAudio"
+    case mimeType
+    case voiceSampleAudio
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7376,20 +7148,17 @@ public struct PrebuiltVoiceConfig: Sendable {
   public let voiceName: String?
 
   /// Default initializer.
-  public init(
-    voiceName: String? = nil
-  ) {
+  public init(voiceName: String? = nil) {
     self.voiceName = voiceName
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PrebuiltVoiceConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case voiceName = "voiceName"
+    case voiceName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7422,10 +7191,8 @@ public struct VoiceConfig: Sendable {
   public let prebuiltVoiceConfig: PrebuiltVoiceConfig?
 
   /// Default initializer.
-  public init(
-    replicatedVoiceConfig: ReplicatedVoiceConfig? = nil,
-    prebuiltVoiceConfig: PrebuiltVoiceConfig? = nil
-  ) {
+  public init(replicatedVoiceConfig: ReplicatedVoiceConfig? = nil,
+              prebuiltVoiceConfig: PrebuiltVoiceConfig? = nil) {
     self.replicatedVoiceConfig = replicatedVoiceConfig
     self.prebuiltVoiceConfig = prebuiltVoiceConfig
   }
@@ -7433,12 +7200,11 @@ public struct VoiceConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VoiceConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case replicatedVoiceConfig = "replicatedVoiceConfig"
-    case prebuiltVoiceConfig = "prebuiltVoiceConfig"
+    case replicatedVoiceConfig
+    case prebuiltVoiceConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7483,10 +7249,8 @@ public struct SpeakerVoiceConfig: Sendable {
   public let voiceConfig: VoiceConfig?
 
   /// Default initializer.
-  public init(
-    speaker: String? = nil,
-    voiceConfig: VoiceConfig? = nil
-  ) {
+  public init(speaker: String? = nil,
+              voiceConfig: VoiceConfig? = nil) {
     self.speaker = speaker
     self.voiceConfig = voiceConfig
   }
@@ -7494,12 +7258,11 @@ public struct SpeakerVoiceConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SpeakerVoiceConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case speaker = "speaker"
-    case voiceConfig = "voiceConfig"
+    case speaker
+    case voiceConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7541,20 +7304,17 @@ public struct MultiSpeakerVoiceConfig: Sendable {
   public let speakerVoiceConfigs: [SpeakerVoiceConfig]?
 
   /// Default initializer.
-  public init(
-    speakerVoiceConfigs: [SpeakerVoiceConfig]? = nil
-  ) {
+  public init(speakerVoiceConfigs: [SpeakerVoiceConfig]? = nil) {
     self.speakerVoiceConfigs = speakerVoiceConfigs
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension MultiSpeakerVoiceConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case speakerVoiceConfigs = "speakerVoiceConfigs"
+    case speakerVoiceConfigs
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7591,11 +7351,9 @@ public struct SpeechConfig: Sendable {
   public let multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig?
 
   /// Default initializer.
-  public init(
-    voiceConfig: VoiceConfig? = nil,
-    languageCode: String? = nil,
-    multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig? = nil
-  ) {
+  public init(voiceConfig: VoiceConfig? = nil,
+              languageCode: String? = nil,
+              multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig? = nil) {
     self.voiceConfig = voiceConfig
     self.languageCode = languageCode
     self.multiSpeakerVoiceConfig = multiSpeakerVoiceConfig
@@ -7604,13 +7362,12 @@ public struct SpeechConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SpeechConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case voiceConfig = "voiceConfig"
-    case languageCode = "languageCode"
-    case multiSpeakerVoiceConfig = "multiSpeakerVoiceConfig"
+    case voiceConfig
+    case languageCode
+    case multiSpeakerVoiceConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7676,11 +7433,9 @@ public struct AutomaticFunctionCallingConfig: Sendable {
   public let ignoreCallHistory: Bool?
 
   /// Default initializer.
-  public init(
-    disable: Bool? = nil,
-    maximumRemoteCalls: Int32? = nil,
-    ignoreCallHistory: Bool? = nil
-  ) {
+  public init(disable: Bool? = nil,
+              maximumRemoteCalls: Int32? = nil,
+              ignoreCallHistory: Bool? = nil) {
     self.disable = disable
     self.maximumRemoteCalls = maximumRemoteCalls
     self.ignoreCallHistory = ignoreCallHistory
@@ -7689,13 +7444,12 @@ public struct AutomaticFunctionCallingConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AutomaticFunctionCallingConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case disable = "disable"
-    case maximumRemoteCalls = "maximumRemoteCalls"
-    case ignoreCallHistory = "ignoreCallHistory"
+    case disable
+    case maximumRemoteCalls
+    case ignoreCallHistory
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7754,11 +7508,9 @@ public struct ThinkingConfig: Sendable {
   public let thinkingLevel: ThinkingLevel?
 
   /// Default initializer.
-  public init(
-    includeThoughts: Bool? = nil,
-    thinkingBudget: Int32? = nil,
-    thinkingLevel: ThinkingLevel? = nil
-  ) {
+  public init(includeThoughts: Bool? = nil,
+              thinkingBudget: Int32? = nil,
+              thinkingLevel: ThinkingLevel? = nil) {
     self.includeThoughts = includeThoughts
     self.thinkingBudget = thinkingBudget
     self.thinkingLevel = thinkingLevel
@@ -7767,13 +7519,12 @@ public struct ThinkingConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ThinkingConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case includeThoughts = "includeThoughts"
-    case thinkingBudget = "thinkingBudget"
-    case thinkingLevel = "thinkingLevel"
+    case includeThoughts
+    case thinkingBudget
+    case thinkingLevel
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7828,10 +7579,8 @@ public struct ImageConfigImageOutputOptions: Sendable {
   public let mimeType: String?
 
   /// Default initializer.
-  public init(
-    compressionQuality: Int32? = nil,
-    mimeType: String? = nil
-  ) {
+  public init(compressionQuality: Int32? = nil,
+              mimeType: String? = nil) {
     self.compressionQuality = compressionQuality
     self.mimeType = mimeType
   }
@@ -7839,11 +7588,11 @@ public struct ImageConfigImageOutputOptions: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageConfigImageOutputOptions: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case compressionQuality = "compressionQuality"
-    case mimeType = "mimeType"
+    case compressionQuality
+    case mimeType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -7865,7 +7614,6 @@ extension ImageConfigImageOutputOptions: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         compressionQuality,
@@ -7876,7 +7624,6 @@ extension ImageConfigImageOutputOptions: Codable {
         mimeType,
         forKey: .mimeType
       )
-
     }
   }
 }
@@ -7916,15 +7663,13 @@ public struct ImageConfig: Sendable {
   public let imageOutputOptions: ImageConfigImageOutputOptions?
 
   /// Default initializer.
-  public init(
-    aspectRatio: String? = nil,
-    imageSize: String? = nil,
-    personGeneration: String? = nil,
-    prominentPeople: ProminentPeople? = nil,
-    outputMimeType: String? = nil,
-    outputCompressionQuality: Int32? = nil,
-    imageOutputOptions: ImageConfigImageOutputOptions? = nil
-  ) {
+  public init(aspectRatio: String? = nil,
+              imageSize: String? = nil,
+              personGeneration: String? = nil,
+              prominentPeople: ProminentPeople? = nil,
+              outputMimeType: String? = nil,
+              outputCompressionQuality: Int32? = nil,
+              imageOutputOptions: ImageConfigImageOutputOptions? = nil) {
     self.aspectRatio = aspectRatio
     self.imageSize = imageSize
     self.personGeneration = personGeneration
@@ -7937,19 +7682,19 @@ public struct ImageConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case aspectRatio = "aspectRatio"
-    case imageSize = "imageSize"
+    case aspectRatio
+    case imageSize
   }
+
   public enum VertexKeys: String, CodingKey {
-    case personGeneration = "personGeneration"
-    case prominentPeople = "prominentPeople"
-    case outputMimeType = "outputMimeType"
-    case outputCompressionQuality = "outputCompressionQuality"
-    case imageOutputOptions = "imageOutputOptions"
+    case personGeneration
+    case prominentPeople
+    case outputMimeType
+    case outputCompressionQuality
+    case imageOutputOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -8008,7 +7753,6 @@ extension ImageConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         personGeneration,
@@ -8034,7 +7778,6 @@ extension ImageConfig: Codable {
         imageOutputOptions,
         forKey: .imageOutputOptions
       )
-
     }
   }
 }
@@ -8056,11 +7799,9 @@ public struct SafetySetting: Sendable {
   public let threshold: HarmBlockThreshold?
 
   /// Default initializer.
-  public init(
-    category: HarmCategory? = nil,
-    method: HarmBlockMethod? = nil,
-    threshold: HarmBlockThreshold? = nil
-  ) {
+  public init(category: HarmCategory? = nil,
+              method: HarmBlockMethod? = nil,
+              threshold: HarmBlockThreshold? = nil) {
     self.category = category
     self.method = method
     self.threshold = threshold
@@ -8069,15 +7810,15 @@ public struct SafetySetting: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetySetting: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case category = "category"
-    case threshold = "threshold"
+    case category
+    case threshold
   }
+
   public enum VertexKeys: String, CodingKey {
-    case method = "method"
+    case method
   }
 
   public init(from decoder: any Decoder) throws {
@@ -8116,13 +7857,11 @@ extension SafetySetting: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         method,
         forKey: .method
       )
-
     }
   }
 }
@@ -8151,10 +7890,8 @@ public struct ModelArmorConfig: Sendable {
   public let responseTemplateName: String?
 
   /// Default initializer.
-  public init(
-    promptTemplateName: String? = nil,
-    responseTemplateName: String? = nil
-  ) {
+  public init(promptTemplateName: String? = nil,
+              responseTemplateName: String? = nil) {
     self.promptTemplateName = promptTemplateName
     self.responseTemplateName = responseTemplateName
   }
@@ -8162,11 +7899,11 @@ public struct ModelArmorConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModelArmorConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case promptTemplateName = "promptTemplateName"
-    case responseTemplateName = "responseTemplateName"
+    case promptTemplateName
+    case responseTemplateName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -8188,7 +7925,6 @@ extension ModelArmorConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         promptTemplateName,
@@ -8199,7 +7935,6 @@ extension ModelArmorConfig: Codable {
         responseTemplateName,
         forKey: .responseTemplateName
       )
-
     }
   }
 }
@@ -8361,39 +8096,37 @@ public struct GenerateContentConfig: Sendable {
   public let modelArmorConfig: ModelArmorConfig?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    shouldReturnHttpResponse: Bool? = nil,
-    systemInstruction: [Content]? = nil,
-    temperature: Float? = nil,
-    topP: Float? = nil,
-    topK: Float? = nil,
-    candidateCount: Int32? = nil,
-    maxOutputTokens: Int32? = nil,
-    stopSequences: [String]? = nil,
-    responseLogprobs: Bool? = nil,
-    logprobs: Int32? = nil,
-    presencePenalty: Float? = nil,
-    frequencyPenalty: Float? = nil,
-    seed: Int32? = nil,
-    responseMimeType: String? = nil,
-    responseSchema: Schema? = nil,
-    responseJsonSchema: JSONValue? = nil,
-    modelSelectionConfig: ModelSelectionConfig? = nil,
-    safetySettings: [SafetySetting]? = nil,
-    tools: [Tool]? = nil,
-    toolConfig: ToolConfig? = nil,
-    cachedContent: String? = nil,
-    responseModalities: [String]? = nil,
-    mediaResolution: MediaResolution? = nil,
-    speechConfig: SpeechConfig? = nil,
-    audioTimestamp: Bool? = nil,
-    automaticFunctionCalling: AutomaticFunctionCallingConfig? = nil,
-    thinkingConfig: ThinkingConfig? = nil,
-    imageConfig: ImageConfig? = nil,
-    enableEnhancedCivicAnswers: Bool? = nil,
-    modelArmorConfig: ModelArmorConfig? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              shouldReturnHttpResponse: Bool? = nil,
+              systemInstruction: [Content]? = nil,
+              temperature: Float? = nil,
+              topP: Float? = nil,
+              topK: Float? = nil,
+              candidateCount: Int32? = nil,
+              maxOutputTokens: Int32? = nil,
+              stopSequences: [String]? = nil,
+              responseLogprobs: Bool? = nil,
+              logprobs: Int32? = nil,
+              presencePenalty: Float? = nil,
+              frequencyPenalty: Float? = nil,
+              seed: Int32? = nil,
+              responseMimeType: String? = nil,
+              responseSchema: Schema? = nil,
+              responseJsonSchema: JSONValue? = nil,
+              modelSelectionConfig: ModelSelectionConfig? = nil,
+              safetySettings: [SafetySetting]? = nil,
+              tools: [Tool]? = nil,
+              toolConfig: ToolConfig? = nil,
+              cachedContent: String? = nil,
+              responseModalities: [String]? = nil,
+              mediaResolution: MediaResolution? = nil,
+              speechConfig: SpeechConfig? = nil,
+              audioTimestamp: Bool? = nil,
+              automaticFunctionCalling: AutomaticFunctionCallingConfig? = nil,
+              thinkingConfig: ThinkingConfig? = nil,
+              imageConfig: ImageConfig? = nil,
+              enableEnhancedCivicAnswers: Bool? = nil,
+              modelArmorConfig: ModelArmorConfig? = nil) {
     self.httpOptions = httpOptions
     self.shouldReturnHttpResponse = shouldReturnHttpResponse
     self.systemInstruction = systemInstruction
@@ -8430,45 +8163,46 @@ public struct GenerateContentConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case shouldReturnHttpResponse = "shouldReturnHttpResponse"
-    case systemInstruction = "systemInstruction"
-    case temperature = "temperature"
-    case topP = "topP"
-    case topK = "topK"
-    case candidateCount = "candidateCount"
-    case maxOutputTokens = "maxOutputTokens"
-    case stopSequences = "stopSequences"
-    case responseLogprobs = "responseLogprobs"
-    case logprobs = "logprobs"
-    case presencePenalty = "presencePenalty"
-    case frequencyPenalty = "frequencyPenalty"
-    case seed = "seed"
-    case responseMimeType = "responseMimeType"
-    case responseSchema = "responseSchema"
-    case responseJsonSchema = "responseJsonSchema"
-    case safetySettings = "safetySettings"
-    case tools = "tools"
-    case toolConfig = "toolConfig"
-    case cachedContent = "cachedContent"
-    case responseModalities = "responseModalities"
-    case mediaResolution = "mediaResolution"
-    case speechConfig = "speechConfig"
-    case automaticFunctionCalling = "automaticFunctionCalling"
-    case thinkingConfig = "thinkingConfig"
-    case imageConfig = "imageConfig"
+    case httpOptions
+    case shouldReturnHttpResponse
+    case systemInstruction
+    case temperature
+    case topP
+    case topK
+    case candidateCount
+    case maxOutputTokens
+    case stopSequences
+    case responseLogprobs
+    case logprobs
+    case presencePenalty
+    case frequencyPenalty
+    case seed
+    case responseMimeType
+    case responseSchema
+    case responseJsonSchema
+    case safetySettings
+    case tools
+    case toolConfig
+    case cachedContent
+    case responseModalities
+    case mediaResolution
+    case speechConfig
+    case automaticFunctionCalling
+    case thinkingConfig
+    case imageConfig
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case enableEnhancedCivicAnswers = "enableEnhancedCivicAnswers"
+    case enableEnhancedCivicAnswers
   }
+
   public enum VertexKeys: String, CodingKey {
-    case modelSelectionConfig = "modelSelectionConfig"
-    case audioTimestamp = "audioTimestamp"
-    case modelArmorConfig = "modelArmorConfig"
+    case modelSelectionConfig
+    case audioTimestamp
+    case modelArmorConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -8773,17 +8507,14 @@ extension GenerateContentConfig: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         enableEnhancedCivicAnswers,
         forKey: .enableEnhancedCivicAnswers
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         modelSelectionConfig,
@@ -8799,7 +8530,6 @@ extension GenerateContentConfig: Codable {
         modelArmorConfig,
         forKey: .modelArmorConfig
       )
-
     }
   }
 }
@@ -8818,11 +8548,9 @@ public struct GenerateContentParameters: Sendable {
   public let config: GenerateContentConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    contents: [Content],
-    config: GenerateContentConfig? = nil
-  ) {
+  public init(model: String,
+              contents: [Content],
+              config: GenerateContentConfig? = nil) {
     self.model = model
     self.contents = contents
     self.config = config
@@ -8831,13 +8559,12 @@ public struct GenerateContentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case contents = "contents"
-    case config = "config"
+    case model
+    case contents
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -8868,14 +8595,16 @@ extension GenerateContentParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GenerateContentParameters", field: "model")
+        backend: configuration.backend, type: "GenerateContentParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       contents,
       forKey: .contents,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GenerateContentParameters", field: "contents")
+        backend: configuration.backend, type: "GenerateContentParameters", field: "contents"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -8895,10 +8624,8 @@ public struct HttpResponse: Sendable {
   public let body: String?
 
   /// Default initializer.
-  public init(
-    headers: [String: String]? = nil,
-    body: String? = nil
-  ) {
+  public init(headers: [String: String]? = nil,
+              body: String? = nil) {
     self.headers = headers
     self.body = body
   }
@@ -8906,12 +8633,11 @@ public struct HttpResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension HttpResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case headers = "headers"
-    case body = "body"
+    case headers
+    case body
   }
 
   public init(from decoder: any Decoder) throws {
@@ -8967,11 +8693,9 @@ public struct GoogleTypeDate: Sendable {
   public let year: Int32?
 
   /// Default initializer.
-  public init(
-    day: Int32? = nil,
-    month: Int32? = nil,
-    year: Int32? = nil
-  ) {
+  public init(day: Int32? = nil,
+              month: Int32? = nil,
+              year: Int32? = nil) {
     self.day = day
     self.month = month
     self.year = year
@@ -8980,12 +8704,12 @@ public struct GoogleTypeDate: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleTypeDate: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case day = "day"
-    case month = "month"
-    case year = "year"
+    case day
+    case month
+    case year
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9012,7 +8736,6 @@ extension GoogleTypeDate: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         day,
@@ -9028,7 +8751,6 @@ extension GoogleTypeDate: Codable {
         year,
         forKey: .year
       )
-
     }
   }
 }
@@ -9056,14 +8778,12 @@ public struct Citation: Sendable {
   public let uri: String?
 
   /// Default initializer.
-  public init(
-    endIndex: Int32? = nil,
-    license: String? = nil,
-    publicationDate: GoogleTypeDate? = nil,
-    startIndex: Int32? = nil,
-    title: String? = nil,
-    uri: String? = nil
-  ) {
+  public init(endIndex: Int32? = nil,
+              license: String? = nil,
+              publicationDate: GoogleTypeDate? = nil,
+              startIndex: Int32? = nil,
+              title: String? = nil,
+              uri: String? = nil) {
     self.endIndex = endIndex
     self.license = license
     self.publicationDate = publicationDate
@@ -9075,15 +8795,15 @@ public struct Citation: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Citation: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case endIndex = "endIndex"
-    case license = "license"
-    case publicationDate = "publicationDate"
-    case startIndex = "startIndex"
-    case title = "title"
-    case uri = "uri"
+    case endIndex
+    case license
+    case publicationDate
+    case startIndex
+    case title
+    case uri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9125,7 +8845,6 @@ extension Citation: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         endIndex,
@@ -9156,7 +8875,6 @@ extension Citation: Codable {
         uri,
         forKey: .uri
       )
-
     }
   }
 }
@@ -9170,20 +8888,17 @@ public struct CitationMetadata: Sendable {
   public let citations: [Citation]?
 
   /// Default initializer.
-  public init(
-    citations: [Citation]? = nil
-  ) {
+  public init(citations: [Citation]? = nil) {
     self.citations = citations
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CitationMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case citations = "citations"
+    case citations
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9227,12 +8942,10 @@ public struct GroundingChunkImage: Sendable {
   public let domain: String?
 
   /// Default initializer.
-  public init(
-    sourceUri: String? = nil,
-    imageUri: String? = nil,
-    title: String? = nil,
-    domain: String? = nil
-  ) {
+  public init(sourceUri: String? = nil,
+              imageUri: String? = nil,
+              title: String? = nil,
+              domain: String? = nil) {
     self.sourceUri = sourceUri
     self.imageUri = imageUri
     self.title = title
@@ -9242,14 +8955,13 @@ public struct GroundingChunkImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingChunkImage: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sourceUri = "sourceUri"
-    case imageUri = "imageUri"
-    case title = "title"
-    case domain = "domain"
+    case sourceUri
+    case imageUri
+    case title
+    case domain
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9316,11 +9028,9 @@ public struct GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution: Sendable {
   public let uri: String?
 
   /// Default initializer.
-  public init(
-    displayName: String? = nil,
-    photoUri: String? = nil,
-    uri: String? = nil
-  ) {
+  public init(displayName: String? = nil,
+              photoUri: String? = nil,
+              uri: String? = nil) {
     self.displayName = displayName
     self.photoUri = photoUri
     self.uri = uri
@@ -9329,13 +9039,12 @@ public struct GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case displayName = "displayName"
-    case photoUri = "photoUri"
-    case uri = "uri"
+    case displayName
+    case photoUri
+    case uri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9406,15 +9115,13 @@ public struct GroundingChunkMapsPlaceAnswerSourcesReviewSnippet: Sendable {
   public let title: String?
 
   /// Default initializer.
-  public init(
-    authorAttribution: GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution? = nil,
-    flagContentUri: String? = nil,
-    googleMapsUri: String? = nil,
-    relativePublishTimeDescription: String? = nil,
-    review: String? = nil,
-    reviewId: String? = nil,
-    title: String? = nil
-  ) {
+  public init(authorAttribution: GroundingChunkMapsPlaceAnswerSourcesAuthorAttribution? = nil,
+              flagContentUri: String? = nil,
+              googleMapsUri: String? = nil,
+              relativePublishTimeDescription: String? = nil,
+              review: String? = nil,
+              reviewId: String? = nil,
+              title: String? = nil) {
     self.authorAttribution = authorAttribution
     self.flagContentUri = flagContentUri
     self.googleMapsUri = googleMapsUri
@@ -9427,17 +9134,16 @@ public struct GroundingChunkMapsPlaceAnswerSourcesReviewSnippet: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingChunkMapsPlaceAnswerSourcesReviewSnippet: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case authorAttribution = "authorAttribution"
-    case flagContentUri = "flagContentUri"
-    case googleMapsUri = "googleMapsUri"
-    case relativePublishTimeDescription = "relativePublishTimeDescription"
-    case review = "review"
-    case reviewId = "reviewId"
-    case title = "title"
+    case authorAttribution
+    case flagContentUri
+    case googleMapsUri
+    case relativePublishTimeDescription
+    case review
+    case reviewId
+    case title
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9537,11 +9243,9 @@ public struct GroundingChunkMapsPlaceAnswerSources: Sendable {
   public let reviewSnippets: [GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]?
 
   /// Default initializer.
-  public init(
-    reviewSnippet: [GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]? = nil,
-    flagContentUri: String? = nil,
-    reviewSnippets: [GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]? = nil
-  ) {
+  public init(reviewSnippet: [GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]? = nil,
+              flagContentUri: String? = nil,
+              reviewSnippets: [GroundingChunkMapsPlaceAnswerSourcesReviewSnippet]? = nil) {
     self.reviewSnippet = reviewSnippet
     self.flagContentUri = flagContentUri
     self.reviewSnippets = reviewSnippets
@@ -9550,15 +9254,15 @@ public struct GroundingChunkMapsPlaceAnswerSources: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingChunkMapsPlaceAnswerSources: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case reviewSnippet = "reviewSnippet"
-    case flagContentUri = "flagContentUri"
+    case reviewSnippet
+    case flagContentUri
   }
+
   public enum VertexKeys: String, CodingKey {
-    case reviewSnippets = "reviewSnippets"
+    case reviewSnippets
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9597,13 +9301,11 @@ extension GroundingChunkMapsPlaceAnswerSources: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         reviewSnippets,
         forKey: .reviewSnippets
       )
-
     }
   }
 }
@@ -9635,13 +9337,11 @@ public struct GroundingChunkMaps: Sendable {
   public let uri: String?
 
   /// Default initializer.
-  public init(
-    placeAnswerSources: GroundingChunkMapsPlaceAnswerSources? = nil,
-    placeId: String? = nil,
-    text: String? = nil,
-    title: String? = nil,
-    uri: String? = nil
-  ) {
+  public init(placeAnswerSources: GroundingChunkMapsPlaceAnswerSources? = nil,
+              placeId: String? = nil,
+              text: String? = nil,
+              title: String? = nil,
+              uri: String? = nil) {
     self.placeAnswerSources = placeAnswerSources
     self.placeId = placeId
     self.text = text
@@ -9652,15 +9352,14 @@ public struct GroundingChunkMaps: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingChunkMaps: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case placeAnswerSources = "placeAnswerSources"
-    case placeId = "placeId"
-    case text = "text"
-    case title = "title"
-    case uri = "uri"
+    case placeAnswerSources
+    case placeId
+    case text
+    case title
+    case uri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9735,10 +9434,8 @@ public struct RagChunkPageSpan: Sendable {
   public let lastPage: Int32?
 
   /// Default initializer.
-  public init(
-    firstPage: Int32? = nil,
-    lastPage: Int32? = nil
-  ) {
+  public init(firstPage: Int32? = nil,
+              lastPage: Int32? = nil) {
     self.firstPage = firstPage
     self.lastPage = lastPage
   }
@@ -9746,11 +9443,11 @@ public struct RagChunkPageSpan: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RagChunkPageSpan: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case firstPage = "firstPage"
-    case lastPage = "lastPage"
+    case firstPage
+    case lastPage
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9772,7 +9469,6 @@ extension RagChunkPageSpan: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         firstPage,
@@ -9783,7 +9479,6 @@ extension RagChunkPageSpan: Codable {
         lastPage,
         forKey: .lastPage
       )
-
     }
   }
 }
@@ -9799,10 +9494,8 @@ public struct RagChunk: Sendable {
   public let text: String?
 
   /// Default initializer.
-  public init(
-    pageSpan: RagChunkPageSpan? = nil,
-    text: String? = nil
-  ) {
+  public init(pageSpan: RagChunkPageSpan? = nil,
+              text: String? = nil) {
     self.pageSpan = pageSpan
     self.text = text
   }
@@ -9810,11 +9503,11 @@ public struct RagChunk: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RagChunk: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case pageSpan = "pageSpan"
-    case text = "text"
+    case pageSpan
+    case text
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9836,7 +9529,6 @@ extension RagChunk: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         pageSpan,
@@ -9847,7 +9539,6 @@ extension RagChunk: Codable {
         text,
         forKey: .text
       )
-
     }
   }
 }
@@ -9877,13 +9568,11 @@ public struct GroundingChunkRetrievedContext: Sendable {
   public let uri: String?
 
   /// Default initializer.
-  public init(
-    documentName: String? = nil,
-    ragChunk: RagChunk? = nil,
-    text: String? = nil,
-    title: String? = nil,
-    uri: String? = nil
-  ) {
+  public init(documentName: String? = nil,
+              ragChunk: RagChunk? = nil,
+              text: String? = nil,
+              title: String? = nil,
+              uri: String? = nil) {
     self.documentName = documentName
     self.ragChunk = ragChunk
     self.text = text
@@ -9894,14 +9583,14 @@ public struct GroundingChunkRetrievedContext: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingChunkRetrievedContext: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case documentName = "documentName"
-    case ragChunk = "ragChunk"
-    case text = "text"
-    case title = "title"
-    case uri = "uri"
+    case documentName
+    case ragChunk
+    case text
+    case title
+    case uri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -9938,7 +9627,6 @@ extension GroundingChunkRetrievedContext: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         documentName,
@@ -9964,7 +9652,6 @@ extension GroundingChunkRetrievedContext: Codable {
         uri,
         forKey: .uri
       )
-
     }
   }
 }
@@ -9985,11 +9672,9 @@ public struct GroundingChunkWeb: Sendable {
   public let uri: String?
 
   /// Default initializer.
-  public init(
-    domain: String? = nil,
-    title: String? = nil,
-    uri: String? = nil
-  ) {
+  public init(domain: String? = nil,
+              title: String? = nil,
+              uri: String? = nil) {
     self.domain = domain
     self.title = title
     self.uri = uri
@@ -9998,15 +9683,15 @@ public struct GroundingChunkWeb: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingChunkWeb: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case title = "title"
-    case uri = "uri"
+    case title
+    case uri
   }
+
   public enum VertexKeys: String, CodingKey {
-    case domain = "domain"
+    case domain
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10045,13 +9730,11 @@ extension GroundingChunkWeb: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         domain,
         forKey: .domain
       )
-
     }
   }
 }
@@ -10084,12 +9767,10 @@ public struct GroundingChunk: Sendable {
   public let web: GroundingChunkWeb?
 
   /// Default initializer.
-  public init(
-    image: GroundingChunkImage? = nil,
-    maps: GroundingChunkMaps? = nil,
-    retrievedContext: GroundingChunkRetrievedContext? = nil,
-    web: GroundingChunkWeb? = nil
-  ) {
+  public init(image: GroundingChunkImage? = nil,
+              maps: GroundingChunkMaps? = nil,
+              retrievedContext: GroundingChunkRetrievedContext? = nil,
+              web: GroundingChunkWeb? = nil) {
     self.image = image
     self.maps = maps
     self.retrievedContext = retrievedContext
@@ -10099,16 +9780,16 @@ public struct GroundingChunk: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingChunk: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case image = "image"
-    case maps = "maps"
-    case web = "web"
+    case image
+    case maps
+    case web
   }
+
   public enum VertexKeys: String, CodingKey {
-    case retrievedContext = "retrievedContext"
+    case retrievedContext
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10157,13 +9838,11 @@ extension GroundingChunk: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         retrievedContext,
         forKey: .retrievedContext
       )
-
     }
   }
 }
@@ -10190,12 +9869,10 @@ public struct Segment: Sendable {
   public let text: String?
 
   /// Default initializer.
-  public init(
-    startIndex: Int32? = nil,
-    endIndex: Int32? = nil,
-    partIndex: Int32? = nil,
-    text: String? = nil
-  ) {
+  public init(startIndex: Int32? = nil,
+              endIndex: Int32? = nil,
+              partIndex: Int32? = nil,
+              text: String? = nil) {
     self.startIndex = startIndex
     self.endIndex = endIndex
     self.partIndex = partIndex
@@ -10205,14 +9882,13 @@ public struct Segment: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Segment: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case startIndex = "startIndex"
-    case endIndex = "endIndex"
-    case partIndex = "partIndex"
-    case text = "text"
+    case startIndex
+    case endIndex
+    case partIndex
+    case text
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10285,11 +9961,9 @@ public struct GroundingSupport: Sendable {
   public let segment: Segment?
 
   /// Default initializer.
-  public init(
-    confidenceScores: [Float]? = nil,
-    groundingChunkIndices: [Int32]? = nil,
-    segment: Segment? = nil
-  ) {
+  public init(confidenceScores: [Float]? = nil,
+              groundingChunkIndices: [Int32]? = nil,
+              segment: Segment? = nil) {
     self.confidenceScores = confidenceScores
     self.groundingChunkIndices = groundingChunkIndices
     self.segment = segment
@@ -10298,13 +9972,12 @@ public struct GroundingSupport: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingSupport: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case confidenceScores = "confidenceScores"
-    case groundingChunkIndices = "groundingChunkIndices"
-    case segment = "segment"
+    case confidenceScores
+    case groundingChunkIndices
+    case segment
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10360,20 +10033,17 @@ public struct RetrievalMetadata: Sendable {
   public let googleSearchDynamicRetrievalScore: Float?
 
   /// Default initializer.
-  public init(
-    googleSearchDynamicRetrievalScore: Float? = nil
-  ) {
+  public init(googleSearchDynamicRetrievalScore: Float? = nil) {
     self.googleSearchDynamicRetrievalScore = googleSearchDynamicRetrievalScore
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RetrievalMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case googleSearchDynamicRetrievalScore = "googleSearchDynamicRetrievalScore"
+    case googleSearchDynamicRetrievalScore
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10408,10 +10078,8 @@ public struct SearchEntryPoint: Sendable {
   public let sdkBlob: Data?
 
   /// Default initializer.
-  public init(
-    renderedContent: String? = nil,
-    sdkBlob: Data? = nil
-  ) {
+  public init(renderedContent: String? = nil,
+              sdkBlob: Data? = nil) {
     self.renderedContent = renderedContent
     self.sdkBlob = sdkBlob
   }
@@ -10419,12 +10087,11 @@ public struct SearchEntryPoint: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SearchEntryPoint: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case renderedContent = "renderedContent"
-    case sdkBlob = "sdkBlob"
+    case renderedContent
+    case sdkBlob
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10470,10 +10137,8 @@ public struct GroundingMetadataSourceFlaggingUri: Sendable {
   public let sourceId: String?
 
   /// Default initializer.
-  public init(
-    flagContentUri: String? = nil,
-    sourceId: String? = nil
-  ) {
+  public init(flagContentUri: String? = nil,
+              sourceId: String? = nil) {
     self.flagContentUri = flagContentUri
     self.sourceId = sourceId
   }
@@ -10481,11 +10146,11 @@ public struct GroundingMetadataSourceFlaggingUri: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadataSourceFlaggingUri: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case flagContentUri = "flagContentUri"
-    case sourceId = "sourceId"
+    case flagContentUri
+    case sourceId
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10507,7 +10172,6 @@ extension GroundingMetadataSourceFlaggingUri: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         flagContentUri,
@@ -10518,7 +10182,6 @@ extension GroundingMetadataSourceFlaggingUri: Codable {
         sourceId,
         forKey: .sourceId
       )
-
     }
   }
 }
@@ -10565,17 +10228,15 @@ public struct GroundingMetadata: Sendable {
   public let sourceFlaggingUris: [GroundingMetadataSourceFlaggingUri]?
 
   /// Default initializer.
-  public init(
-    imageSearchQueries: [String]? = nil,
-    groundingChunks: [GroundingChunk]? = nil,
-    groundingSupports: [GroundingSupport]? = nil,
-    retrievalMetadata: RetrievalMetadata? = nil,
-    searchEntryPoint: SearchEntryPoint? = nil,
-    webSearchQueries: [String]? = nil,
-    googleMapsWidgetContextToken: String? = nil,
-    retrievalQueries: [String]? = nil,
-    sourceFlaggingUris: [GroundingMetadataSourceFlaggingUri]? = nil
-  ) {
+  public init(imageSearchQueries: [String]? = nil,
+              groundingChunks: [GroundingChunk]? = nil,
+              groundingSupports: [GroundingSupport]? = nil,
+              retrievalMetadata: RetrievalMetadata? = nil,
+              searchEntryPoint: SearchEntryPoint? = nil,
+              webSearchQueries: [String]? = nil,
+              googleMapsWidgetContextToken: String? = nil,
+              retrievalQueries: [String]? = nil,
+              sourceFlaggingUris: [GroundingMetadataSourceFlaggingUri]? = nil) {
     self.imageSearchQueries = imageSearchQueries
     self.groundingChunks = groundingChunks
     self.groundingSupports = groundingSupports
@@ -10590,21 +10251,21 @@ public struct GroundingMetadata: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case imageSearchQueries = "imageSearchQueries"
-    case groundingChunks = "groundingChunks"
-    case groundingSupports = "groundingSupports"
-    case retrievalMetadata = "retrievalMetadata"
-    case searchEntryPoint = "searchEntryPoint"
-    case webSearchQueries = "webSearchQueries"
+    case imageSearchQueries
+    case groundingChunks
+    case groundingSupports
+    case retrievalMetadata
+    case searchEntryPoint
+    case webSearchQueries
   }
+
   public enum VertexKeys: String, CodingKey {
-    case googleMapsWidgetContextToken = "googleMapsWidgetContextToken"
-    case retrievalQueries = "retrievalQueries"
-    case sourceFlaggingUris = "sourceFlaggingUris"
+    case googleMapsWidgetContextToken
+    case retrievalQueries
+    case sourceFlaggingUris
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10693,7 +10354,6 @@ extension GroundingMetadata: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         googleMapsWidgetContextToken,
@@ -10709,7 +10369,6 @@ extension GroundingMetadata: Codable {
         sourceFlaggingUris,
         forKey: .sourceFlaggingUris
       )
-
     }
   }
 }
@@ -10733,11 +10392,9 @@ public struct LogprobsResultCandidate: Sendable {
   public let tokenId: Int32?
 
   /// Default initializer.
-  public init(
-    logProbability: Float? = nil,
-    token: String? = nil,
-    tokenId: Int32? = nil
-  ) {
+  public init(logProbability: Float? = nil,
+              token: String? = nil,
+              tokenId: Int32? = nil) {
     self.logProbability = logProbability
     self.token = token
     self.tokenId = tokenId
@@ -10746,13 +10403,12 @@ public struct LogprobsResultCandidate: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LogprobsResultCandidate: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case logProbability = "logProbability"
-    case token = "token"
-    case tokenId = "tokenId"
+    case logProbability
+    case token
+    case tokenId
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10804,20 +10460,17 @@ public struct LogprobsResultTopCandidates: Sendable {
   public let candidates: [LogprobsResultCandidate]?
 
   /// Default initializer.
-  public init(
-    candidates: [LogprobsResultCandidate]? = nil
-  ) {
+  public init(candidates: [LogprobsResultCandidate]? = nil) {
     self.candidates = candidates
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LogprobsResultTopCandidates: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case candidates = "candidates"
+    case candidates
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10859,10 +10512,8 @@ public struct LogprobsResult: Sendable {
   public let topCandidates: [LogprobsResultTopCandidates]?
 
   /// Default initializer.
-  public init(
-    chosenCandidates: [LogprobsResultCandidate]? = nil,
-    topCandidates: [LogprobsResultTopCandidates]? = nil
-  ) {
+  public init(chosenCandidates: [LogprobsResultCandidate]? = nil,
+              topCandidates: [LogprobsResultTopCandidates]? = nil) {
     self.chosenCandidates = chosenCandidates
     self.topCandidates = topCandidates
   }
@@ -10870,12 +10521,11 @@ public struct LogprobsResult: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LogprobsResult: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case chosenCandidates = "chosenCandidates"
-    case topCandidates = "topCandidates"
+    case chosenCandidates
+    case topCandidates
   }
 
   public init(from decoder: any Decoder) throws {
@@ -10941,15 +10591,13 @@ public struct SafetyRating: Sendable {
   public let severityScore: Float?
 
   /// Default initializer.
-  public init(
-    blocked: Bool? = nil,
-    category: HarmCategory? = nil,
-    overwrittenThreshold: HarmBlockThreshold? = nil,
-    probability: HarmProbability? = nil,
-    probabilityScore: Float? = nil,
-    severity: HarmSeverity? = nil,
-    severityScore: Float? = nil
-  ) {
+  public init(blocked: Bool? = nil,
+              category: HarmCategory? = nil,
+              overwrittenThreshold: HarmBlockThreshold? = nil,
+              probability: HarmProbability? = nil,
+              probabilityScore: Float? = nil,
+              severity: HarmSeverity? = nil,
+              severityScore: Float? = nil) {
     self.blocked = blocked
     self.category = category
     self.overwrittenThreshold = overwrittenThreshold
@@ -10962,19 +10610,19 @@ public struct SafetyRating: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case blocked = "blocked"
-    case category = "category"
-    case probability = "probability"
+    case blocked
+    case category
+    case probability
   }
+
   public enum VertexKeys: String, CodingKey {
-    case overwrittenThreshold = "overwrittenThreshold"
-    case probabilityScore = "probabilityScore"
-    case severity = "severity"
-    case severityScore = "severityScore"
+    case overwrittenThreshold
+    case probabilityScore
+    case severity
+    case severityScore
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11038,7 +10686,6 @@ extension SafetyRating: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         overwrittenThreshold,
@@ -11059,7 +10706,6 @@ extension SafetyRating: Codable {
         severityScore,
         forKey: .severityScore
       )
-
     }
   }
 }
@@ -11074,10 +10720,8 @@ public struct UrlMetadata: Sendable {
   public let urlRetrievalStatus: UrlRetrievalStatus?
 
   /// Default initializer.
-  public init(
-    retrievedUrl: String? = nil,
-    urlRetrievalStatus: UrlRetrievalStatus? = nil
-  ) {
+  public init(retrievedUrl: String? = nil,
+              urlRetrievalStatus: UrlRetrievalStatus? = nil) {
     self.retrievedUrl = retrievedUrl
     self.urlRetrievalStatus = urlRetrievalStatus
   }
@@ -11085,12 +10729,11 @@ public struct UrlMetadata: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UrlMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case retrievedUrl = "retrievedUrl"
-    case urlRetrievalStatus = "urlRetrievalStatus"
+    case retrievedUrl
+    case urlRetrievalStatus
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11133,20 +10776,17 @@ public struct UrlContextMetadata: Sendable {
   public let urlMetadata: [UrlMetadata]?
 
   /// Default initializer.
-  public init(
-    urlMetadata: [UrlMetadata]? = nil
-  ) {
+  public init(urlMetadata: [UrlMetadata]? = nil) {
     self.urlMetadata = urlMetadata
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UrlContextMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case urlMetadata = "urlMetadata"
+    case urlMetadata
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11218,19 +10858,17 @@ public struct Candidate: Sendable {
   public let urlContextMetadata: UrlContextMetadata?
 
   /// Default initializer.
-  public init(
-    content: Content? = nil,
-    citationMetadata: CitationMetadata? = nil,
-    finishMessage: String? = nil,
-    tokenCount: Int32? = nil,
-    finishReason: FinishReason? = nil,
-    groundingMetadata: GroundingMetadata? = nil,
-    avgLogprobs: Double? = nil,
-    index: Int32? = nil,
-    logprobsResult: LogprobsResult? = nil,
-    safetyRatings: [SafetyRating]? = nil,
-    urlContextMetadata: UrlContextMetadata? = nil
-  ) {
+  public init(content: Content? = nil,
+              citationMetadata: CitationMetadata? = nil,
+              finishMessage: String? = nil,
+              tokenCount: Int32? = nil,
+              finishReason: FinishReason? = nil,
+              groundingMetadata: GroundingMetadata? = nil,
+              avgLogprobs: Double? = nil,
+              index: Int32? = nil,
+              logprobsResult: LogprobsResult? = nil,
+              safetyRatings: [SafetyRating]? = nil,
+              urlContextMetadata: UrlContextMetadata? = nil) {
     self.content = content
     self.citationMetadata = citationMetadata
     self.finishMessage = finishMessage
@@ -11247,25 +10885,26 @@ public struct Candidate: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Candidate: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case content = "content"
-    case citationMetadata = "citationMetadata"
-    case finishReason = "finishReason"
-    case groundingMetadata = "groundingMetadata"
-    case avgLogprobs = "avgLogprobs"
-    case index = "index"
-    case logprobsResult = "logprobsResult"
-    case safetyRatings = "safetyRatings"
-    case urlContextMetadata = "urlContextMetadata"
+    case content
+    case citationMetadata
+    case finishReason
+    case groundingMetadata
+    case avgLogprobs
+    case index
+    case logprobsResult
+    case safetyRatings
+    case urlContextMetadata
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case tokenCount = "tokenCount"
+    case tokenCount
   }
+
   public enum VertexKeys: String, CodingKey {
-    case finishMessage = "finishMessage"
+    case finishMessage
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11380,23 +11019,19 @@ extension Candidate: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         tokenCount,
         forKey: .tokenCount
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         finishMessage,
         forKey: .finishMessage
       )
-
     }
   }
 }
@@ -11418,11 +11053,9 @@ public struct GenerateContentResponsePromptFeedback: Sendable {
   public let safetyRatings: [SafetyRating]?
 
   /// Default initializer.
-  public init(
-    blockReason: BlockedReason? = nil,
-    blockReasonMessage: String? = nil,
-    safetyRatings: [SafetyRating]? = nil
-  ) {
+  public init(blockReason: BlockedReason? = nil,
+              blockReasonMessage: String? = nil,
+              safetyRatings: [SafetyRating]? = nil) {
     self.blockReason = blockReason
     self.blockReasonMessage = blockReasonMessage
     self.safetyRatings = safetyRatings
@@ -11431,15 +11064,15 @@ public struct GenerateContentResponsePromptFeedback: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponsePromptFeedback: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case blockReason = "blockReason"
-    case safetyRatings = "safetyRatings"
+    case blockReason
+    case safetyRatings
   }
+
   public enum VertexKeys: String, CodingKey {
-    case blockReasonMessage = "blockReasonMessage"
+    case blockReasonMessage
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11478,13 +11111,11 @@ extension GenerateContentResponsePromptFeedback: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         blockReasonMessage,
         forKey: .blockReasonMessage
       )
-
     }
   }
 }
@@ -11499,10 +11130,8 @@ public struct ModalityTokenCount: Sendable {
   public let tokenCount: Int32?
 
   /// Default initializer.
-  public init(
-    modality: MediaModality? = nil,
-    tokenCount: Int32? = nil
-  ) {
+  public init(modality: MediaModality? = nil,
+              tokenCount: Int32? = nil) {
     self.modality = modality
     self.tokenCount = tokenCount
   }
@@ -11510,12 +11139,11 @@ public struct ModalityTokenCount: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModalityTokenCount: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case modality = "modality"
-    case tokenCount = "tokenCount"
+    case modality
+    case tokenCount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11599,19 +11227,17 @@ public struct GenerateContentResponseUsageMetadata: Sendable {
   public let trafficType: TrafficType?
 
   /// Default initializer.
-  public init(
-    cacheTokensDetails: [ModalityTokenCount]? = nil,
-    cachedContentTokenCount: Int32? = nil,
-    candidatesTokenCount: Int32? = nil,
-    candidatesTokensDetails: [ModalityTokenCount]? = nil,
-    promptTokenCount: Int32? = nil,
-    promptTokensDetails: [ModalityTokenCount]? = nil,
-    thoughtsTokenCount: Int32? = nil,
-    toolUsePromptTokenCount: Int32? = nil,
-    toolUsePromptTokensDetails: [ModalityTokenCount]? = nil,
-    totalTokenCount: Int32? = nil,
-    trafficType: TrafficType? = nil
-  ) {
+  public init(cacheTokensDetails: [ModalityTokenCount]? = nil,
+              cachedContentTokenCount: Int32? = nil,
+              candidatesTokenCount: Int32? = nil,
+              candidatesTokensDetails: [ModalityTokenCount]? = nil,
+              promptTokenCount: Int32? = nil,
+              promptTokensDetails: [ModalityTokenCount]? = nil,
+              thoughtsTokenCount: Int32? = nil,
+              toolUsePromptTokenCount: Int32? = nil,
+              toolUsePromptTokensDetails: [ModalityTokenCount]? = nil,
+              totalTokenCount: Int32? = nil,
+              trafficType: TrafficType? = nil) {
     self.cacheTokensDetails = cacheTokensDetails
     self.cachedContentTokenCount = cachedContentTokenCount
     self.candidatesTokenCount = candidatesTokenCount
@@ -11628,20 +11254,20 @@ public struct GenerateContentResponseUsageMetadata: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponseUsageMetadata: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case cacheTokensDetails = "cacheTokensDetails"
-    case cachedContentTokenCount = "cachedContentTokenCount"
-    case candidatesTokenCount = "candidatesTokenCount"
-    case candidatesTokensDetails = "candidatesTokensDetails"
-    case promptTokenCount = "promptTokenCount"
-    case promptTokensDetails = "promptTokensDetails"
-    case thoughtsTokenCount = "thoughtsTokenCount"
-    case toolUsePromptTokenCount = "toolUsePromptTokenCount"
-    case toolUsePromptTokensDetails = "toolUsePromptTokensDetails"
-    case totalTokenCount = "totalTokenCount"
-    case trafficType = "trafficType"
+    case cacheTokensDetails
+    case cachedContentTokenCount
+    case candidatesTokenCount
+    case candidatesTokensDetails
+    case promptTokenCount
+    case promptTokensDetails
+    case thoughtsTokenCount
+    case toolUsePromptTokenCount
+    case toolUsePromptTokensDetails
+    case totalTokenCount
+    case trafficType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11708,7 +11334,6 @@ extension GenerateContentResponseUsageMetadata: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         cacheTokensDetails,
@@ -11764,7 +11389,6 @@ extension GenerateContentResponseUsageMetadata: Codable {
         trafficType,
         forKey: .trafficType
       )
-
     }
   }
 }
@@ -11800,16 +11424,14 @@ public struct GenerateContentResponse: Sendable {
   public let usageMetadata: GenerateContentResponseUsageMetadata?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    candidates: [Candidate]? = nil,
-    createTime: String? = nil,
-    automaticFunctionCallingHistory: [Content]? = nil,
-    modelVersion: String? = nil,
-    promptFeedback: GenerateContentResponsePromptFeedback? = nil,
-    responseId: String? = nil,
-    usageMetadata: GenerateContentResponseUsageMetadata? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              candidates: [Candidate]? = nil,
+              createTime: String? = nil,
+              automaticFunctionCallingHistory: [Content]? = nil,
+              modelVersion: String? = nil,
+              promptFeedback: GenerateContentResponsePromptFeedback? = nil,
+              responseId: String? = nil,
+              usageMetadata: GenerateContentResponseUsageMetadata? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.candidates = candidates
     self.createTime = createTime
@@ -11823,20 +11445,20 @@ public struct GenerateContentResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case candidates = "candidates"
-    case automaticFunctionCallingHistory = "automaticFunctionCallingHistory"
-    case modelVersion = "modelVersion"
-    case promptFeedback = "promptFeedback"
-    case responseId = "responseId"
-    case usageMetadata = "usageMetadata"
+    case sdkHttpResponse
+    case candidates
+    case automaticFunctionCallingHistory
+    case modelVersion
+    case promptFeedback
+    case responseId
+    case usageMetadata
   }
+
   public enum VertexKeys: String, CodingKey {
-    case createTime = "createTime"
+    case createTime
   }
 
   public init(from decoder: any Decoder) throws {
@@ -11925,13 +11547,11 @@ extension GenerateContentResponse: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         createTime,
         forKey: .createTime
       )
-
     }
   }
 }
@@ -11964,14 +11584,12 @@ public struct EmbedContentConfig: Sendable {
   public let autoTruncate: Bool?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    taskType: String? = nil,
-    title: String? = nil,
-    outputDimensionality: Int32? = nil,
-    mimeType: String? = nil,
-    autoTruncate: Bool? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              taskType: String? = nil,
+              title: String? = nil,
+              outputDimensionality: Int32? = nil,
+              mimeType: String? = nil,
+              autoTruncate: Bool? = nil) {
     self.httpOptions = httpOptions
     self.taskType = taskType
     self.title = title
@@ -11983,18 +11601,18 @@ public struct EmbedContentConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EmbedContentConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case taskType = "taskType"
-    case title = "title"
-    case outputDimensionality = "outputDimensionality"
+    case httpOptions
+    case taskType
+    case title
+    case outputDimensionality
   }
+
   public enum VertexKeys: String, CodingKey {
-    case mimeType = "mimeType"
-    case autoTruncate = "autoTruncate"
+    case mimeType
+    case autoTruncate
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12058,7 +11676,6 @@ extension EmbedContentConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         mimeType,
@@ -12069,7 +11686,6 @@ extension EmbedContentConfig: Codable {
         autoTruncate,
         forKey: .autoTruncate
       )
-
     }
   }
 }
@@ -12094,13 +11710,11 @@ public struct EmbedContentParametersPrivate: Sendable {
   public let config: EmbedContentConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    contents: [Content]? = nil,
-    content: [Content]? = nil,
-    embeddingApiType: EmbeddingApiType? = nil,
-    config: EmbedContentConfig? = nil
-  ) {
+  public init(model: String,
+              contents: [Content]? = nil,
+              content: [Content]? = nil,
+              embeddingApiType: EmbeddingApiType? = nil,
+              config: EmbedContentConfig? = nil) {
     self.model = model
     self.contents = contents
     self.content = content
@@ -12111,15 +11725,14 @@ public struct EmbedContentParametersPrivate: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EmbedContentParametersPrivate: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case contents = "contents"
-    case content = "content"
-    case embeddingApiType = "embeddingApiType"
-    case config = "config"
+    case model
+    case contents
+    case content
+    case embeddingApiType
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12160,7 +11773,8 @@ extension EmbedContentParametersPrivate: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "EmbedContentParametersPrivate", field: "model")
+        backend: configuration.backend, type: "EmbedContentParametersPrivate", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -12196,10 +11810,8 @@ public struct ContentEmbeddingStatistics: Sendable {
   public let tokenCount: Float?
 
   /// Default initializer.
-  public init(
-    truncated: Bool? = nil,
-    tokenCount: Float? = nil
-  ) {
+  public init(truncated: Bool? = nil,
+              tokenCount: Float? = nil) {
     self.truncated = truncated
     self.tokenCount = tokenCount
   }
@@ -12207,11 +11819,11 @@ public struct ContentEmbeddingStatistics: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ContentEmbeddingStatistics: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case truncated = "truncated"
-    case tokenCount = "tokenCount"
+    case truncated
+    case tokenCount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12233,7 +11845,6 @@ extension ContentEmbeddingStatistics: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         truncated,
@@ -12244,7 +11855,6 @@ extension ContentEmbeddingStatistics: Codable {
         tokenCount,
         forKey: .tokenCount
       )
-
     }
   }
 }
@@ -12260,10 +11870,8 @@ public struct ContentEmbedding: Sendable {
   public let statistics: ContentEmbeddingStatistics?
 
   /// Default initializer.
-  public init(
-    values: [Float]? = nil,
-    statistics: ContentEmbeddingStatistics? = nil
-  ) {
+  public init(values: [Float]? = nil,
+              statistics: ContentEmbeddingStatistics? = nil) {
     self.values = values
     self.statistics = statistics
   }
@@ -12271,14 +11879,14 @@ public struct ContentEmbedding: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ContentEmbedding: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case values = "values"
+    case values
   }
+
   public enum VertexKeys: String, CodingKey {
-    case statistics = "statistics"
+    case statistics
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12307,13 +11915,11 @@ extension ContentEmbedding: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         statistics,
         forKey: .statistics
       )
-
     }
   }
 }
@@ -12326,19 +11932,17 @@ public struct EmbedContentMetadata: Sendable {
   public let billableCharacterCount: Int32?
 
   /// Default initializer.
-  public init(
-    billableCharacterCount: Int32? = nil
-  ) {
+  public init(billableCharacterCount: Int32? = nil) {
     self.billableCharacterCount = billableCharacterCount
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EmbedContentMetadata: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case billableCharacterCount = "billableCharacterCount"
+    case billableCharacterCount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12355,13 +11959,11 @@ extension EmbedContentMetadata: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         billableCharacterCount,
         forKey: .billableCharacterCount
       )
-
     }
   }
 }
@@ -12380,11 +11982,9 @@ public struct EmbedContentResponse: Sendable {
   public let metadata: EmbedContentMetadata?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    embeddings: [ContentEmbedding]? = nil,
-    metadata: EmbedContentMetadata? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              embeddings: [ContentEmbedding]? = nil,
+              metadata: EmbedContentMetadata? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.embeddings = embeddings
     self.metadata = metadata
@@ -12393,13 +11993,12 @@ public struct EmbedContentResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EmbedContentResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case embeddings = "embeddings"
-    case metadata = "metadata"
+    case sdkHttpResponse
+    case embeddings
+    case metadata
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12509,26 +12108,24 @@ public struct GenerateImagesConfig: Sendable {
   public let enhancePrompt: Bool?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    outputGcsUri: String? = nil,
-    negativePrompt: String? = nil,
-    numberOfImages: Int32? = nil,
-    aspectRatio: String? = nil,
-    guidanceScale: Float? = nil,
-    seed: Int32? = nil,
-    safetyFilterLevel: SafetyFilterLevel? = nil,
-    personGeneration: PersonGeneration? = nil,
-    includeSafetyAttributes: Bool? = nil,
-    includeRaiReason: Bool? = nil,
-    language: ImagePromptLanguage? = nil,
-    outputMimeType: String? = nil,
-    outputCompressionQuality: Int32? = nil,
-    addWatermark: Bool? = nil,
-    labels: [String: String]? = nil,
-    imageSize: String? = nil,
-    enhancePrompt: Bool? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              outputGcsUri: String? = nil,
+              negativePrompt: String? = nil,
+              numberOfImages: Int32? = nil,
+              aspectRatio: String? = nil,
+              guidanceScale: Float? = nil,
+              seed: Int32? = nil,
+              safetyFilterLevel: SafetyFilterLevel? = nil,
+              personGeneration: PersonGeneration? = nil,
+              includeSafetyAttributes: Bool? = nil,
+              includeRaiReason: Bool? = nil,
+              language: ImagePromptLanguage? = nil,
+              outputMimeType: String? = nil,
+              outputCompressionQuality: Int32? = nil,
+              addWatermark: Bool? = nil,
+              labels: [String: String]? = nil,
+              imageSize: String? = nil,
+              enhancePrompt: Bool? = nil) {
     self.httpOptions = httpOptions
     self.outputGcsUri = outputGcsUri
     self.negativePrompt = negativePrompt
@@ -12552,30 +12149,30 @@ public struct GenerateImagesConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateImagesConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case numberOfImages = "numberOfImages"
-    case aspectRatio = "aspectRatio"
-    case guidanceScale = "guidanceScale"
-    case safetyFilterLevel = "safetyFilterLevel"
-    case personGeneration = "personGeneration"
-    case includeSafetyAttributes = "includeSafetyAttributes"
-    case includeRaiReason = "includeRaiReason"
-    case language = "language"
-    case outputMimeType = "outputMimeType"
-    case outputCompressionQuality = "outputCompressionQuality"
-    case imageSize = "imageSize"
+    case httpOptions
+    case numberOfImages
+    case aspectRatio
+    case guidanceScale
+    case safetyFilterLevel
+    case personGeneration
+    case includeSafetyAttributes
+    case includeRaiReason
+    case language
+    case outputMimeType
+    case outputCompressionQuality
+    case imageSize
   }
+
   public enum VertexKeys: String, CodingKey {
-    case outputGcsUri = "outputGcsUri"
-    case negativePrompt = "negativePrompt"
-    case seed = "seed"
-    case addWatermark = "addWatermark"
-    case labels = "labels"
-    case enhancePrompt = "enhancePrompt"
+    case outputGcsUri
+    case negativePrompt
+    case seed
+    case addWatermark
+    case labels
+    case enhancePrompt
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12739,7 +12336,6 @@ extension GenerateImagesConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         outputGcsUri,
@@ -12770,7 +12366,6 @@ extension GenerateImagesConfig: Codable {
         enhancePrompt,
         forKey: .enhancePrompt
       )
-
     }
   }
 }
@@ -12789,11 +12384,9 @@ public struct GenerateImagesParameters: Sendable {
   public let config: GenerateImagesConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    prompt: String,
-    config: GenerateImagesConfig? = nil
-  ) {
+  public init(model: String,
+              prompt: String,
+              config: GenerateImagesConfig? = nil) {
     self.model = model
     self.prompt = prompt
     self.config = config
@@ -12802,13 +12395,12 @@ public struct GenerateImagesParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateImagesParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case prompt = "prompt"
-    case config = "config"
+    case model
+    case prompt
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12839,14 +12431,16 @@ extension GenerateImagesParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GenerateImagesParameters", field: "model")
+        backend: configuration.backend, type: "GenerateImagesParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       prompt,
       forKey: .prompt,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GenerateImagesParameters", field: "prompt")
+        backend: configuration.backend, type: "GenerateImagesParameters", field: "prompt"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -12871,11 +12465,9 @@ public struct ImagePart: Sendable {
   public let mimeType: String?
 
   /// Default initializer.
-  public init(
-    gcsUri: String? = nil,
-    imageBytes: Data? = nil,
-    mimeType: String? = nil
-  ) {
+  public init(gcsUri: String? = nil,
+              imageBytes: Data? = nil,
+              mimeType: String? = nil) {
     self.gcsUri = gcsUri
     self.imageBytes = imageBytes
     self.mimeType = mimeType
@@ -12884,15 +12476,15 @@ public struct ImagePart: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagePart: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case imageBytes = "imageBytes"
-    case mimeType = "mimeType"
+    case imageBytes
+    case mimeType
   }
+
   public enum VertexKeys: String, CodingKey {
-    case gcsUri = "gcsUri"
+    case gcsUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -12931,13 +12523,11 @@ extension ImagePart: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         gcsUri,
         forKey: .gcsUri
       )
-
     }
   }
 }
@@ -12955,11 +12545,9 @@ public struct SafetyAttributes: Sendable {
   public let contentType: String?
 
   /// Default initializer.
-  public init(
-    categories: [String]? = nil,
-    scores: [Float]? = nil,
-    contentType: String? = nil
-  ) {
+  public init(categories: [String]? = nil,
+              scores: [Float]? = nil,
+              contentType: String? = nil) {
     self.categories = categories
     self.scores = scores
     self.contentType = contentType
@@ -12968,13 +12556,12 @@ public struct SafetyAttributes: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyAttributes: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case categories = "categories"
-    case scores = "scores"
-    case contentType = "contentType"
+    case categories
+    case scores
+    case contentType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13037,12 +12624,10 @@ public struct GeneratedImage: Sendable {
   public let enhancedPrompt: String?
 
   /// Default initializer.
-  public init(
-    image: ImagePart? = nil,
-    raiFilteredReason: String? = nil,
-    safetyAttributes: SafetyAttributes? = nil,
-    enhancedPrompt: String? = nil
-  ) {
+  public init(image: ImagePart? = nil,
+              raiFilteredReason: String? = nil,
+              safetyAttributes: SafetyAttributes? = nil,
+              enhancedPrompt: String? = nil) {
     self.image = image
     self.raiFilteredReason = raiFilteredReason
     self.safetyAttributes = safetyAttributes
@@ -13052,16 +12637,16 @@ public struct GeneratedImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GeneratedImage: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case image = "image"
-    case raiFilteredReason = "raiFilteredReason"
-    case safetyAttributes = "safetyAttributes"
+    case image
+    case raiFilteredReason
+    case safetyAttributes
   }
+
   public enum VertexKeys: String, CodingKey {
-    case enhancedPrompt = "enhancedPrompt"
+    case enhancedPrompt
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13110,13 +12695,11 @@ extension GeneratedImage: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         enhancedPrompt,
         forKey: .enhancedPrompt
       )
-
     }
   }
 }
@@ -13135,11 +12718,9 @@ public struct GenerateImagesResponse: Sendable {
   public let positivePromptSafetyAttributes: SafetyAttributes?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    generatedImages: [GeneratedImage]? = nil,
-    positivePromptSafetyAttributes: SafetyAttributes? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              generatedImages: [GeneratedImage]? = nil,
+              positivePromptSafetyAttributes: SafetyAttributes? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.generatedImages = generatedImages
     self.positivePromptSafetyAttributes = positivePromptSafetyAttributes
@@ -13148,13 +12729,12 @@ public struct GenerateImagesResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateImagesResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case generatedImages = "generatedImages"
-    case positivePromptSafetyAttributes = "positivePromptSafetyAttributes"
+    case sdkHttpResponse
+    case generatedImages
+    case positivePromptSafetyAttributes
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13214,11 +12794,9 @@ public struct MaskReferenceConfig: Sendable {
   public let maskDilation: Float?
 
   /// Default initializer.
-  public init(
-    maskMode: MaskReferenceMode? = nil,
-    segmentationClasses: [Int32]? = nil,
-    maskDilation: Float? = nil
-  ) {
+  public init(maskMode: MaskReferenceMode? = nil,
+              segmentationClasses: [Int32]? = nil,
+              maskDilation: Float? = nil) {
     self.maskMode = maskMode
     self.segmentationClasses = segmentationClasses
     self.maskDilation = maskDilation
@@ -13227,12 +12805,12 @@ public struct MaskReferenceConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension MaskReferenceConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case maskMode = "maskMode"
-    case segmentationClasses = "segmentationClasses"
-    case maskDilation = "maskDilation"
+    case maskMode
+    case segmentationClasses
+    case maskDilation
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13259,7 +12837,6 @@ extension MaskReferenceConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         maskMode,
@@ -13275,7 +12852,6 @@ extension MaskReferenceConfig: Codable {
         maskDilation,
         forKey: .maskDilation
       )
-
     }
   }
 }
@@ -13292,10 +12868,8 @@ public struct ControlReferenceConfig: Sendable {
   public let enableControlImageComputation: Bool?
 
   /// Default initializer.
-  public init(
-    controlType: ControlReferenceType? = nil,
-    enableControlImageComputation: Bool? = nil
-  ) {
+  public init(controlType: ControlReferenceType? = nil,
+              enableControlImageComputation: Bool? = nil) {
     self.controlType = controlType
     self.enableControlImageComputation = enableControlImageComputation
   }
@@ -13303,11 +12877,11 @@ public struct ControlReferenceConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ControlReferenceConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case controlType = "controlType"
-    case enableControlImageComputation = "enableControlImageComputation"
+    case controlType
+    case enableControlImageComputation
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13329,7 +12903,6 @@ extension ControlReferenceConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         controlType,
@@ -13340,7 +12913,6 @@ extension ControlReferenceConfig: Codable {
         enableControlImageComputation,
         forKey: .enableControlImageComputation
       )
-
     }
   }
 }
@@ -13352,19 +12924,17 @@ public struct StyleReferenceConfig: Sendable {
   public let styleDescription: String?
 
   /// Default initializer.
-  public init(
-    styleDescription: String? = nil
-  ) {
+  public init(styleDescription: String? = nil) {
     self.styleDescription = styleDescription
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension StyleReferenceConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case styleDescription = "styleDescription"
+    case styleDescription
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13381,13 +12951,11 @@ extension StyleReferenceConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         styleDescription,
         forKey: .styleDescription
       )
-
     }
   }
 }
@@ -13402,10 +12970,8 @@ public struct SubjectReferenceConfig: Sendable {
   public let subjectDescription: String?
 
   /// Default initializer.
-  public init(
-    subjectType: SubjectReferenceType? = nil,
-    subjectDescription: String? = nil
-  ) {
+  public init(subjectType: SubjectReferenceType? = nil,
+              subjectDescription: String? = nil) {
     self.subjectType = subjectType
     self.subjectDescription = subjectDescription
   }
@@ -13413,11 +12979,11 @@ public struct SubjectReferenceConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SubjectReferenceConfig: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case subjectType = "subjectType"
-    case subjectDescription = "subjectDescription"
+    case subjectType
+    case subjectDescription
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13439,7 +13005,6 @@ extension SubjectReferenceConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         subjectType,
@@ -13450,7 +13015,6 @@ extension SubjectReferenceConfig: Codable {
         subjectDescription,
         forKey: .subjectDescription
       )
-
     }
   }
 }
@@ -13480,15 +13044,13 @@ public struct _ReferenceImageAPI: Sendable {
   public let subjectImageConfig: SubjectReferenceConfig?
 
   /// Default initializer.
-  public init(
-    referenceImage: ImagePart? = nil,
-    referenceId: Int32? = nil,
-    referenceType: String? = nil,
-    maskImageConfig: MaskReferenceConfig? = nil,
-    controlImageConfig: ControlReferenceConfig? = nil,
-    styleImageConfig: StyleReferenceConfig? = nil,
-    subjectImageConfig: SubjectReferenceConfig? = nil
-  ) {
+  public init(referenceImage: ImagePart? = nil,
+              referenceId: Int32? = nil,
+              referenceType: String? = nil,
+              maskImageConfig: MaskReferenceConfig? = nil,
+              controlImageConfig: ControlReferenceConfig? = nil,
+              styleImageConfig: StyleReferenceConfig? = nil,
+              subjectImageConfig: SubjectReferenceConfig? = nil) {
     self.referenceImage = referenceImage
     self.referenceId = referenceId
     self.referenceType = referenceType
@@ -13501,16 +13063,16 @@ public struct _ReferenceImageAPI: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _ReferenceImageAPI: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case referenceImage = "referenceImage"
-    case referenceId = "referenceId"
-    case referenceType = "referenceType"
-    case maskImageConfig = "maskImageConfig"
-    case controlImageConfig = "controlImageConfig"
-    case styleImageConfig = "styleImageConfig"
-    case subjectImageConfig = "subjectImageConfig"
+    case referenceImage
+    case referenceId
+    case referenceType
+    case maskImageConfig
+    case controlImageConfig
+    case styleImageConfig
+    case subjectImageConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13557,7 +13119,6 @@ extension _ReferenceImageAPI: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         referenceImage,
@@ -13593,7 +13154,6 @@ extension _ReferenceImageAPI: Codable {
         subjectImageConfig,
         forKey: .subjectImageConfig
       )
-
     }
   }
 }
@@ -13664,26 +13224,24 @@ public struct EditImageConfig: Sendable {
   public let baseSteps: Int32?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    outputGcsUri: String? = nil,
-    negativePrompt: String? = nil,
-    numberOfImages: Int32? = nil,
-    aspectRatio: String? = nil,
-    guidanceScale: Float? = nil,
-    seed: Int32? = nil,
-    safetyFilterLevel: SafetyFilterLevel? = nil,
-    personGeneration: PersonGeneration? = nil,
-    includeSafetyAttributes: Bool? = nil,
-    includeRaiReason: Bool? = nil,
-    language: ImagePromptLanguage? = nil,
-    outputMimeType: String? = nil,
-    outputCompressionQuality: Int32? = nil,
-    addWatermark: Bool? = nil,
-    labels: [String: String]? = nil,
-    editMode: EditMode? = nil,
-    baseSteps: Int32? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              outputGcsUri: String? = nil,
+              negativePrompt: String? = nil,
+              numberOfImages: Int32? = nil,
+              aspectRatio: String? = nil,
+              guidanceScale: Float? = nil,
+              seed: Int32? = nil,
+              safetyFilterLevel: SafetyFilterLevel? = nil,
+              personGeneration: PersonGeneration? = nil,
+              includeSafetyAttributes: Bool? = nil,
+              includeRaiReason: Bool? = nil,
+              language: ImagePromptLanguage? = nil,
+              outputMimeType: String? = nil,
+              outputCompressionQuality: Int32? = nil,
+              addWatermark: Bool? = nil,
+              labels: [String: String]? = nil,
+              editMode: EditMode? = nil,
+              baseSteps: Int32? = nil) {
     self.httpOptions = httpOptions
     self.outputGcsUri = outputGcsUri
     self.negativePrompt = negativePrompt
@@ -13707,30 +13265,30 @@ public struct EditImageConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EditImageConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case numberOfImages = "numberOfImages"
-    case aspectRatio = "aspectRatio"
-    case guidanceScale = "guidanceScale"
-    case safetyFilterLevel = "safetyFilterLevel"
-    case personGeneration = "personGeneration"
-    case includeSafetyAttributes = "includeSafetyAttributes"
-    case includeRaiReason = "includeRaiReason"
-    case language = "language"
-    case outputMimeType = "outputMimeType"
-    case outputCompressionQuality = "outputCompressionQuality"
-    case editMode = "editMode"
+    case httpOptions
+    case numberOfImages
+    case aspectRatio
+    case guidanceScale
+    case safetyFilterLevel
+    case personGeneration
+    case includeSafetyAttributes
+    case includeRaiReason
+    case language
+    case outputMimeType
+    case outputCompressionQuality
+    case editMode
   }
+
   public enum VertexKeys: String, CodingKey {
-    case outputGcsUri = "outputGcsUri"
-    case negativePrompt = "negativePrompt"
-    case seed = "seed"
-    case addWatermark = "addWatermark"
-    case labels = "labels"
-    case baseSteps = "baseSteps"
+    case outputGcsUri
+    case negativePrompt
+    case seed
+    case addWatermark
+    case labels
+    case baseSteps
   }
 
   public init(from decoder: any Decoder) throws {
@@ -13894,7 +13452,6 @@ extension EditImageConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         outputGcsUri,
@@ -13925,7 +13482,6 @@ extension EditImageConfig: Codable {
         baseSteps,
         forKey: .baseSteps
       )
-
     }
   }
 }
@@ -13946,12 +13502,10 @@ public struct _EditImageParameters: Sendable {
   public let config: EditImageConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    prompt: String,
-    referenceImages: [_ReferenceImageAPI],
-    config: EditImageConfig? = nil
-  ) {
+  public init(model: String,
+              prompt: String,
+              referenceImages: [_ReferenceImageAPI],
+              config: EditImageConfig? = nil) {
     self.model = model
     self.prompt = prompt
     self.referenceImages = referenceImages
@@ -13961,14 +13515,13 @@ public struct _EditImageParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _EditImageParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case prompt = "prompt"
-    case referenceImages = "referenceImages"
-    case config = "config"
+    case model
+    case prompt
+    case referenceImages
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14004,21 +13557,24 @@ extension _EditImageParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "_EditImageParameters", field: "model")
+        backend: configuration.backend, type: "_EditImageParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       prompt,
       forKey: .prompt,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "_EditImageParameters", field: "prompt")
+        backend: configuration.backend, type: "_EditImageParameters", field: "prompt"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       referenceImages,
       forKey: .referenceImages,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "_EditImageParameters", field: "referenceImages")
+        backend: configuration.backend, type: "_EditImageParameters", field: "referenceImages"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -14038,10 +13594,8 @@ public struct EditImageResponse: Sendable {
   public let generatedImages: [GeneratedImage]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    generatedImages: [GeneratedImage]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              generatedImages: [GeneratedImage]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.generatedImages = generatedImages
   }
@@ -14049,12 +13603,11 @@ public struct EditImageResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EditImageResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case generatedImages = "generatedImages"
+    case sdkHttpResponse
+    case generatedImages
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14136,20 +13689,18 @@ public struct _UpscaleImageAPIConfig: Sendable {
   public let mode: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    outputGcsUri: String? = nil,
-    safetyFilterLevel: SafetyFilterLevel? = nil,
-    personGeneration: PersonGeneration? = nil,
-    includeRaiReason: Bool? = nil,
-    outputMimeType: String? = nil,
-    outputCompressionQuality: Int32? = nil,
-    enhanceInputImage: Bool? = nil,
-    imagePreservationFactor: Float? = nil,
-    labels: [String: String]? = nil,
-    numberOfImages: Int32? = nil,
-    mode: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              outputGcsUri: String? = nil,
+              safetyFilterLevel: SafetyFilterLevel? = nil,
+              personGeneration: PersonGeneration? = nil,
+              includeRaiReason: Bool? = nil,
+              outputMimeType: String? = nil,
+              outputCompressionQuality: Int32? = nil,
+              enhanceInputImage: Bool? = nil,
+              imagePreservationFactor: Float? = nil,
+              labels: [String: String]? = nil,
+              numberOfImages: Int32? = nil,
+              mode: String? = nil) {
     self.httpOptions = httpOptions
     self.outputGcsUri = outputGcsUri
     self.safetyFilterLevel = safetyFilterLevel
@@ -14167,24 +13718,24 @@ public struct _UpscaleImageAPIConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _UpscaleImageAPIConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case safetyFilterLevel = "safetyFilterLevel"
-    case personGeneration = "personGeneration"
-    case includeRaiReason = "includeRaiReason"
-    case outputMimeType = "outputMimeType"
-    case outputCompressionQuality = "outputCompressionQuality"
-    case enhanceInputImage = "enhanceInputImage"
-    case imagePreservationFactor = "imagePreservationFactor"
-    case numberOfImages = "numberOfImages"
-    case mode = "mode"
+    case httpOptions
+    case safetyFilterLevel
+    case personGeneration
+    case includeRaiReason
+    case outputMimeType
+    case outputCompressionQuality
+    case enhanceInputImage
+    case imagePreservationFactor
+    case numberOfImages
+    case mode
   }
+
   public enum VertexKeys: String, CodingKey {
-    case outputGcsUri = "outputGcsUri"
-    case labels = "labels"
+    case outputGcsUri
+    case labels
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14308,7 +13859,6 @@ extension _UpscaleImageAPIConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         outputGcsUri,
@@ -14319,7 +13869,6 @@ extension _UpscaleImageAPIConfig: Codable {
         labels,
         forKey: .labels
       )
-
     }
   }
 }
@@ -14340,12 +13889,10 @@ public struct _UpscaleImageAPIParameters: Sendable {
   public let config: _UpscaleImageAPIConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    image: ImagePart,
-    upscaleFactor: String,
-    config: _UpscaleImageAPIConfig? = nil
-  ) {
+  public init(model: String,
+              image: ImagePart,
+              upscaleFactor: String,
+              config: _UpscaleImageAPIConfig? = nil) {
     self.model = model
     self.image = image
     self.upscaleFactor = upscaleFactor
@@ -14355,14 +13902,13 @@ public struct _UpscaleImageAPIParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension _UpscaleImageAPIParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case image = "image"
-    case upscaleFactor = "upscaleFactor"
-    case config = "config"
+    case model
+    case image
+    case upscaleFactor
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14398,21 +13944,24 @@ extension _UpscaleImageAPIParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "_UpscaleImageAPIParameters", field: "model")
+        backend: configuration.backend, type: "_UpscaleImageAPIParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       image,
       forKey: .image,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "_UpscaleImageAPIParameters", field: "image")
+        backend: configuration.backend, type: "_UpscaleImageAPIParameters", field: "image"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       upscaleFactor,
       forKey: .upscaleFactor,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "_UpscaleImageAPIParameters", field: "upscaleFactor")
+        backend: configuration.backend, type: "_UpscaleImageAPIParameters", field: "upscaleFactor"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -14431,10 +13980,8 @@ public struct UpscaleImageResponse: Sendable {
   public let generatedImages: [GeneratedImage]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    generatedImages: [GeneratedImage]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              generatedImages: [GeneratedImage]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.generatedImages = generatedImages
   }
@@ -14442,12 +13989,11 @@ public struct UpscaleImageResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UpscaleImageResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case generatedImages = "generatedImages"
+    case sdkHttpResponse
+    case generatedImages
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14488,19 +14034,17 @@ public struct ProductImage: Sendable {
   public let productImage: ImagePart?
 
   /// Default initializer.
-  public init(
-    productImage: ImagePart? = nil
-  ) {
+  public init(productImage: ImagePart? = nil) {
     self.productImage = productImage
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ProductImage: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case productImage = "productImage"
+    case productImage
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14517,13 +14061,11 @@ extension ProductImage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         productImage,
         forKey: .productImage
       )
-
     }
   }
 }
@@ -14543,11 +14085,9 @@ public struct RecontextImageSource: Sendable {
   public let productImages: [ProductImage]?
 
   /// Default initializer.
-  public init(
-    prompt: String? = nil,
-    personImage: ImagePart? = nil,
-    productImages: [ProductImage]? = nil
-  ) {
+  public init(prompt: String? = nil,
+              personImage: ImagePart? = nil,
+              productImages: [ProductImage]? = nil) {
     self.prompt = prompt
     self.personImage = personImage
     self.productImages = productImages
@@ -14556,15 +14096,15 @@ public struct RecontextImageSource: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RecontextImageSource: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case prompt = "prompt"
-    case personImage = "personImage"
+    case prompt
+    case personImage
   }
+
   public enum VertexKeys: String, CodingKey {
-    case productImages = "productImages"
+    case productImages
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14603,13 +14143,11 @@ extension RecontextImageSource: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         productImages,
         forKey: .productImages
       )
-
     }
   }
 }
@@ -14657,20 +14195,18 @@ public struct RecontextImageConfig: Sendable {
   public let labels: [String: String]?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    numberOfImages: Int32? = nil,
-    baseSteps: Int32? = nil,
-    outputGcsUri: String? = nil,
-    seed: Int32? = nil,
-    safetyFilterLevel: SafetyFilterLevel? = nil,
-    personGeneration: PersonGeneration? = nil,
-    addWatermark: Bool? = nil,
-    outputMimeType: String? = nil,
-    outputCompressionQuality: Int32? = nil,
-    enhancePrompt: Bool? = nil,
-    labels: [String: String]? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              numberOfImages: Int32? = nil,
+              baseSteps: Int32? = nil,
+              outputGcsUri: String? = nil,
+              seed: Int32? = nil,
+              safetyFilterLevel: SafetyFilterLevel? = nil,
+              personGeneration: PersonGeneration? = nil,
+              addWatermark: Bool? = nil,
+              outputMimeType: String? = nil,
+              outputCompressionQuality: Int32? = nil,
+              enhancePrompt: Bool? = nil,
+              labels: [String: String]? = nil) {
     self.httpOptions = httpOptions
     self.numberOfImages = numberOfImages
     self.baseSteps = baseSteps
@@ -14688,24 +14224,24 @@ public struct RecontextImageConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RecontextImageConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case numberOfImages = "numberOfImages"
+    case httpOptions
+    case numberOfImages
   }
+
   public enum VertexKeys: String, CodingKey {
-    case baseSteps = "baseSteps"
-    case outputGcsUri = "outputGcsUri"
-    case seed = "seed"
-    case safetyFilterLevel = "safetyFilterLevel"
-    case personGeneration = "personGeneration"
-    case addWatermark = "addWatermark"
-    case outputMimeType = "outputMimeType"
-    case outputCompressionQuality = "outputCompressionQuality"
-    case enhancePrompt = "enhancePrompt"
-    case labels = "labels"
+    case baseSteps
+    case outputGcsUri
+    case seed
+    case safetyFilterLevel
+    case personGeneration
+    case addWatermark
+    case outputMimeType
+    case outputCompressionQuality
+    case enhancePrompt
+    case labels
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14789,7 +14325,6 @@ extension RecontextImageConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         baseSteps,
@@ -14840,7 +14375,6 @@ extension RecontextImageConfig: Codable {
         labels,
         forKey: .labels
       )
-
     }
   }
 }
@@ -14859,11 +14393,9 @@ public struct RecontextImageParameters: Sendable {
   public let config: RecontextImageConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    source: RecontextImageSource,
-    config: RecontextImageConfig? = nil
-  ) {
+  public init(model: String,
+              source: RecontextImageSource,
+              config: RecontextImageConfig? = nil) {
     self.model = model
     self.source = source
     self.config = config
@@ -14872,13 +14404,12 @@ public struct RecontextImageParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RecontextImageParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case source = "source"
-    case config = "config"
+    case model
+    case source
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14909,14 +14440,16 @@ extension RecontextImageParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "RecontextImageParameters", field: "model")
+        backend: configuration.backend, type: "RecontextImageParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       source,
       forKey: .source,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "RecontextImageParameters", field: "source")
+        backend: configuration.backend, type: "RecontextImageParameters", field: "source"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -14933,20 +14466,17 @@ public struct RecontextImageResponse: Sendable {
   public let generatedImages: [GeneratedImage]?
 
   /// Default initializer.
-  public init(
-    generatedImages: [GeneratedImage]? = nil
-  ) {
+  public init(generatedImages: [GeneratedImage]? = nil) {
     self.generatedImages = generatedImages
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RecontextImageResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case generatedImages = "generatedImages"
+    case generatedImages
   }
 
   public init(from decoder: any Decoder) throws {
@@ -14977,19 +14507,17 @@ public struct ScribbleImage: Sendable {
   public let image: ImagePart?
 
   /// Default initializer.
-  public init(
-    image: ImagePart? = nil
-  ) {
+  public init(image: ImagePart? = nil) {
     self.image = image
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ScribbleImage: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case image = "image"
+    case image
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15006,13 +14534,11 @@ extension ScribbleImage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         image,
         forKey: .image
       )
-
     }
   }
 }
@@ -15032,11 +14558,9 @@ public struct SegmentImageSource: Sendable {
   public let scribbleImage: ScribbleImage?
 
   /// Default initializer.
-  public init(
-    prompt: String? = nil,
-    image: ImagePart? = nil,
-    scribbleImage: ScribbleImage? = nil
-  ) {
+  public init(prompt: String? = nil,
+              image: ImagePart? = nil,
+              scribbleImage: ScribbleImage? = nil) {
     self.prompt = prompt
     self.image = image
     self.scribbleImage = scribbleImage
@@ -15045,15 +14569,15 @@ public struct SegmentImageSource: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SegmentImageSource: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case prompt = "prompt"
-    case image = "image"
+    case prompt
+    case image
   }
+
   public enum VertexKeys: String, CodingKey {
-    case scribbleImage = "scribbleImage"
+    case scribbleImage
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15092,13 +14616,11 @@ extension SegmentImageSource: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         scribbleImage,
         forKey: .scribbleImage
       )
-
     }
   }
 }
@@ -15135,15 +14657,13 @@ public struct SegmentImageConfig: Sendable {
   public let labels: [String: String]?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    mode: SegmentMode? = nil,
-    maxPredictions: Int32? = nil,
-    confidenceThreshold: Float? = nil,
-    maskDilation: Float? = nil,
-    binaryColorThreshold: Float? = nil,
-    labels: [String: String]? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              mode: SegmentMode? = nil,
+              maxPredictions: Int32? = nil,
+              confidenceThreshold: Float? = nil,
+              maskDilation: Float? = nil,
+              binaryColorThreshold: Float? = nil,
+              labels: [String: String]? = nil) {
     self.httpOptions = httpOptions
     self.mode = mode
     self.maxPredictions = maxPredictions
@@ -15156,19 +14676,19 @@ public struct SegmentImageConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SegmentImageConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case mode = "mode"
+    case httpOptions
+    case mode
   }
+
   public enum VertexKeys: String, CodingKey {
-    case maxPredictions = "maxPredictions"
-    case confidenceThreshold = "confidenceThreshold"
-    case maskDilation = "maskDilation"
-    case binaryColorThreshold = "binaryColorThreshold"
-    case labels = "labels"
+    case maxPredictions
+    case confidenceThreshold
+    case maskDilation
+    case binaryColorThreshold
+    case labels
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15227,7 +14747,6 @@ extension SegmentImageConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         maxPredictions,
@@ -15253,7 +14772,6 @@ extension SegmentImageConfig: Codable {
         labels,
         forKey: .labels
       )
-
     }
   }
 }
@@ -15272,11 +14790,9 @@ public struct SegmentImageParameters: Sendable {
   public let config: SegmentImageConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    source: SegmentImageSource,
-    config: SegmentImageConfig? = nil
-  ) {
+  public init(model: String,
+              source: SegmentImageSource,
+              config: SegmentImageConfig? = nil) {
     self.model = model
     self.source = source
     self.config = config
@@ -15285,13 +14801,12 @@ public struct SegmentImageParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SegmentImageParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case source = "source"
-    case config = "config"
+    case model
+    case source
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15322,14 +14837,16 @@ extension SegmentImageParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "SegmentImageParameters", field: "model")
+        backend: configuration.backend, type: "SegmentImageParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       source,
       forKey: .source,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "SegmentImageParameters", field: "source")
+        backend: configuration.backend, type: "SegmentImageParameters", field: "source"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -15349,10 +14866,8 @@ public struct EntityLabel: Sendable {
   public let score: Float?
 
   /// Default initializer.
-  public init(
-    label: String? = nil,
-    score: Float? = nil
-  ) {
+  public init(label: String? = nil,
+              score: Float? = nil) {
     self.label = label
     self.score = score
   }
@@ -15360,11 +14875,11 @@ public struct EntityLabel: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EntityLabel: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case label = "label"
-    case score = "score"
+    case label
+    case score
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15386,7 +14901,6 @@ extension EntityLabel: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         label,
@@ -15397,7 +14911,6 @@ extension EntityLabel: Codable {
         score,
         forKey: .score
       )
-
     }
   }
 }
@@ -15412,10 +14925,8 @@ public struct GeneratedImageMask: Sendable {
   public let labels: [EntityLabel]?
 
   /// Default initializer.
-  public init(
-    mask: ImagePart? = nil,
-    labels: [EntityLabel]? = nil
-  ) {
+  public init(mask: ImagePart? = nil,
+              labels: [EntityLabel]? = nil) {
     self.mask = mask
     self.labels = labels
   }
@@ -15423,11 +14934,11 @@ public struct GeneratedImageMask: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GeneratedImageMask: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case mask = "mask"
-    case labels = "labels"
+    case mask
+    case labels
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15449,7 +14960,6 @@ extension GeneratedImageMask: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         mask,
@@ -15460,7 +14970,6 @@ extension GeneratedImageMask: Codable {
         labels,
         forKey: .labels
       )
-
     }
   }
 }
@@ -15472,20 +14981,17 @@ public struct SegmentImageResponse: Sendable {
   public let generatedMasks: [GeneratedImageMask]?
 
   /// Default initializer.
-  public init(
-    generatedMasks: [GeneratedImageMask]? = nil
-  ) {
+  public init(generatedMasks: [GeneratedImageMask]? = nil) {
     self.generatedMasks = generatedMasks
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SegmentImageResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case generatedMasks = "generatedMasks"
+    case generatedMasks
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15516,20 +15022,17 @@ public struct GetModelConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetModelConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15561,10 +15064,8 @@ public struct GetModelParameters: Sendable {
   public let config: GetModelConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    config: GetModelConfig? = nil
-  ) {
+  public init(model: String,
+              config: GetModelConfig? = nil) {
     self.model = model
     self.config = config
   }
@@ -15572,12 +15073,11 @@ public struct GetModelParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetModelParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case config = "config"
+    case model
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15603,7 +15103,8 @@ extension GetModelParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GetModelParameters", field: "model")
+        backend: configuration.backend, type: "GetModelParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -15623,10 +15124,8 @@ public struct Endpoint: Sendable {
   public let deployedModelId: String?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    deployedModelId: String? = nil
-  ) {
+  public init(name: String? = nil,
+              deployedModelId: String? = nil) {
     self.name = name
     self.deployedModelId = deployedModelId
   }
@@ -15634,11 +15133,11 @@ public struct Endpoint: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Endpoint: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case name = "name"
-    case deployedModelId = "deployedModelId"
+    case name
+    case deployedModelId
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15660,7 +15159,6 @@ extension Endpoint: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         name,
@@ -15671,7 +15169,6 @@ extension Endpoint: Codable {
         deployedModelId,
         forKey: .deployedModelId
       )
-
     }
   }
 }
@@ -15689,11 +15186,9 @@ public struct TunedModelInfo: Sendable {
   public let updateTime: String?
 
   /// Default initializer.
-  public init(
-    baseModel: String? = nil,
-    createTime: String? = nil,
-    updateTime: String? = nil
-  ) {
+  public init(baseModel: String? = nil,
+              createTime: String? = nil,
+              updateTime: String? = nil) {
     self.baseModel = baseModel
     self.createTime = createTime
     self.updateTime = updateTime
@@ -15702,13 +15197,12 @@ public struct TunedModelInfo: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TunedModelInfo: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case baseModel = "baseModel"
-    case createTime = "createTime"
-    case updateTime = "updateTime"
+    case baseModel
+    case createTime
+    case updateTime
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15765,11 +15259,9 @@ public struct Checkpoint: Sendable {
   public let step: Int64?
 
   /// Default initializer.
-  public init(
-    checkpointId: String? = nil,
-    epoch: Int64? = nil,
-    step: Int64? = nil
-  ) {
+  public init(checkpointId: String? = nil,
+              epoch: Int64? = nil,
+              step: Int64? = nil) {
     self.checkpointId = checkpointId
     self.epoch = epoch
     self.step = step
@@ -15778,12 +15270,12 @@ public struct Checkpoint: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Checkpoint: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case checkpointId = "checkpointId"
-    case epoch = "epoch"
-    case step = "step"
+    case checkpointId
+    case epoch
+    case step
   }
 
   public init(from decoder: any Decoder) throws {
@@ -15810,7 +15302,6 @@ extension Checkpoint: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         checkpointId,
@@ -15826,7 +15317,6 @@ extension Checkpoint: Codable {
         step,
         forKey: .step
       )
-
     }
   }
 }
@@ -15902,25 +15392,23 @@ public struct Model: Sendable {
   public let thinking: Bool?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    displayName: String? = nil,
-    description: String? = nil,
-    version: String? = nil,
-    endpoints: [Endpoint]? = nil,
-    labels: [String: String]? = nil,
-    tunedModelInfo: TunedModelInfo? = nil,
-    inputTokenLimit: Int32? = nil,
-    outputTokenLimit: Int32? = nil,
-    supportedActions: [String]? = nil,
-    defaultCheckpointId: String? = nil,
-    checkpoints: [Checkpoint]? = nil,
-    temperature: Float? = nil,
-    maxTemperature: Float? = nil,
-    topP: Float? = nil,
-    topK: Int32? = nil,
-    thinking: Bool? = nil
-  ) {
+  public init(name: String? = nil,
+              displayName: String? = nil,
+              description: String? = nil,
+              version: String? = nil,
+              endpoints: [Endpoint]? = nil,
+              labels: [String: String]? = nil,
+              tunedModelInfo: TunedModelInfo? = nil,
+              inputTokenLimit: Int32? = nil,
+              outputTokenLimit: Int32? = nil,
+              supportedActions: [String]? = nil,
+              defaultCheckpointId: String? = nil,
+              checkpoints: [Checkpoint]? = nil,
+              temperature: Float? = nil,
+              maxTemperature: Float? = nil,
+              topP: Float? = nil,
+              topK: Int32? = nil,
+              thinking: Bool? = nil) {
     self.name = name
     self.displayName = displayName
     self.description = description
@@ -15943,31 +15431,32 @@ public struct Model: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Model: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case displayName = "displayName"
-    case description = "description"
-    case version = "version"
-    case tunedModelInfo = "tunedModelInfo"
+    case name
+    case displayName
+    case description
+    case version
+    case tunedModelInfo
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case inputTokenLimit = "inputTokenLimit"
-    case outputTokenLimit = "outputTokenLimit"
-    case supportedActions = "supportedActions"
-    case temperature = "temperature"
-    case maxTemperature = "maxTemperature"
-    case topP = "topP"
-    case topK = "topK"
-    case thinking = "thinking"
+    case inputTokenLimit
+    case outputTokenLimit
+    case supportedActions
+    case temperature
+    case maxTemperature
+    case topP
+    case topK
+    case thinking
   }
+
   public enum VertexKeys: String, CodingKey {
-    case endpoints = "endpoints"
-    case labels = "labels"
-    case defaultCheckpointId = "defaultCheckpointId"
-    case checkpoints = "checkpoints"
+    case endpoints
+    case labels
+    case defaultCheckpointId
+    case checkpoints
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16092,7 +15581,6 @@ extension Model: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         inputTokenLimit,
@@ -16133,11 +15621,9 @@ extension Model: Codable {
         thinking,
         forKey: .thinking
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         endpoints,
@@ -16158,7 +15644,6 @@ extension Model: Codable {
         checkpoints,
         forKey: .checkpoints
       )
-
     }
   }
 }
@@ -16178,13 +15663,11 @@ public struct ListModelsConfig: Sendable {
   public let queryBase: Bool?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    pageSize: Int32? = nil,
-    pageToken: String? = nil,
-    filter: String? = nil,
-    queryBase: Bool? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              pageSize: Int32? = nil,
+              pageToken: String? = nil,
+              filter: String? = nil,
+              queryBase: Bool? = nil) {
     self.httpOptions = httpOptions
     self.pageSize = pageSize
     self.pageToken = pageToken
@@ -16195,15 +15678,14 @@ public struct ListModelsConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListModelsConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case pageSize = "pageSize"
-    case pageToken = "pageToken"
-    case filter = "filter"
-    case queryBase = "queryBase"
+    case httpOptions
+    case pageSize
+    case pageToken
+    case filter
+    case queryBase
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16272,20 +15754,17 @@ public struct ListModelsParameters: Sendable {
   public let config: ListModelsConfig?
 
   /// Default initializer.
-  public init(
-    config: ListModelsConfig? = nil
-  ) {
+  public init(config: ListModelsConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListModelsParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16319,11 +15798,9 @@ public struct ListModelsResponse: Sendable {
   public let models: [Model]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    nextPageToken: String? = nil,
-    models: [Model]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              nextPageToken: String? = nil,
+              models: [Model]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.nextPageToken = nextPageToken
     self.models = models
@@ -16332,13 +15809,12 @@ public struct ListModelsResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListModelsResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case nextPageToken = "nextPageToken"
-    case models = "models"
+    case sdkHttpResponse
+    case nextPageToken
+    case models
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16395,12 +15871,10 @@ public struct UpdateModelConfig: Sendable {
   public let defaultCheckpointId: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    displayName: String? = nil,
-    description: String? = nil,
-    defaultCheckpointId: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              displayName: String? = nil,
+              description: String? = nil,
+              defaultCheckpointId: String? = nil) {
     self.httpOptions = httpOptions
     self.displayName = displayName
     self.description = description
@@ -16410,14 +15884,13 @@ public struct UpdateModelConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UpdateModelConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case displayName = "displayName"
-    case description = "description"
-    case defaultCheckpointId = "defaultCheckpointId"
+    case httpOptions
+    case displayName
+    case description
+    case defaultCheckpointId
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16479,10 +15952,8 @@ public struct UpdateModelParameters: Sendable {
   public let config: UpdateModelConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    config: UpdateModelConfig? = nil
-  ) {
+  public init(model: String,
+              config: UpdateModelConfig? = nil) {
     self.model = model
     self.config = config
   }
@@ -16490,12 +15961,11 @@ public struct UpdateModelParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UpdateModelParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case config = "config"
+    case model
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16521,7 +15991,8 @@ extension UpdateModelParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "UpdateModelParameters", field: "model")
+        backend: configuration.backend, type: "UpdateModelParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -16538,20 +16009,17 @@ public struct DeleteModelConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteModelConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16584,10 +16052,8 @@ public struct DeleteModelParameters: Sendable {
   public let config: DeleteModelConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    config: DeleteModelConfig? = nil
-  ) {
+  public init(model: String,
+              config: DeleteModelConfig? = nil) {
     self.model = model
     self.config = config
   }
@@ -16595,12 +16061,11 @@ public struct DeleteModelParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteModelParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case config = "config"
+    case model
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16626,7 +16091,8 @@ extension DeleteModelParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "DeleteModelParameters", field: "model")
+        backend: configuration.backend, type: "DeleteModelParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -16642,20 +16108,17 @@ public struct DeleteModelResponse: Sendable {
   public let sdkHttpResponse: HttpResponse?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteModelResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
 
   public init(from decoder: any Decoder) throws {
@@ -16810,30 +16273,28 @@ public struct GenerationConfig: Sendable {
   public let enableEnhancedCivicAnswers: Bool?
 
   /// Default initializer.
-  public init(
-    modelSelectionConfig: ModelSelectionConfig? = nil,
-    responseJsonSchema: JSONValue? = nil,
-    audioTimestamp: Bool? = nil,
-    candidateCount: Int32? = nil,
-    enableAffectiveDialog: Bool? = nil,
-    frequencyPenalty: Float? = nil,
-    logprobs: Int32? = nil,
-    maxOutputTokens: Int32? = nil,
-    mediaResolution: MediaResolution? = nil,
-    presencePenalty: Float? = nil,
-    responseLogprobs: Bool? = nil,
-    responseMimeType: String? = nil,
-    responseModalities: [Modality]? = nil,
-    responseSchema: Schema? = nil,
-    seed: Int32? = nil,
-    speechConfig: SpeechConfig? = nil,
-    stopSequences: [String]? = nil,
-    temperature: Float? = nil,
-    thinkingConfig: ThinkingConfig? = nil,
-    topK: Float? = nil,
-    topP: Float? = nil,
-    enableEnhancedCivicAnswers: Bool? = nil
-  ) {
+  public init(modelSelectionConfig: ModelSelectionConfig? = nil,
+              responseJsonSchema: JSONValue? = nil,
+              audioTimestamp: Bool? = nil,
+              candidateCount: Int32? = nil,
+              enableAffectiveDialog: Bool? = nil,
+              frequencyPenalty: Float? = nil,
+              logprobs: Int32? = nil,
+              maxOutputTokens: Int32? = nil,
+              mediaResolution: MediaResolution? = nil,
+              presencePenalty: Float? = nil,
+              responseLogprobs: Bool? = nil,
+              responseMimeType: String? = nil,
+              responseModalities: [Modality]? = nil,
+              responseSchema: Schema? = nil,
+              seed: Int32? = nil,
+              speechConfig: SpeechConfig? = nil,
+              stopSequences: [String]? = nil,
+              temperature: Float? = nil,
+              thinkingConfig: ThinkingConfig? = nil,
+              topK: Float? = nil,
+              topP: Float? = nil,
+              enableEnhancedCivicAnswers: Bool? = nil) {
     self.modelSelectionConfig = modelSelectionConfig
     self.responseJsonSchema = responseJsonSchema
     self.audioTimestamp = audioTimestamp
@@ -16861,36 +16322,37 @@ public struct GenerationConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerationConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case responseJsonSchema = "responseJsonSchema"
-    case candidateCount = "candidateCount"
-    case frequencyPenalty = "frequencyPenalty"
-    case logprobs = "logprobs"
-    case maxOutputTokens = "maxOutputTokens"
-    case mediaResolution = "mediaResolution"
-    case presencePenalty = "presencePenalty"
-    case responseLogprobs = "responseLogprobs"
-    case responseMimeType = "responseMimeType"
-    case responseModalities = "responseModalities"
-    case responseSchema = "responseSchema"
-    case seed = "seed"
-    case speechConfig = "speechConfig"
-    case stopSequences = "stopSequences"
-    case temperature = "temperature"
-    case thinkingConfig = "thinkingConfig"
-    case topK = "topK"
-    case topP = "topP"
+    case responseJsonSchema
+    case candidateCount
+    case frequencyPenalty
+    case logprobs
+    case maxOutputTokens
+    case mediaResolution
+    case presencePenalty
+    case responseLogprobs
+    case responseMimeType
+    case responseModalities
+    case responseSchema
+    case seed
+    case speechConfig
+    case stopSequences
+    case temperature
+    case thinkingConfig
+    case topK
+    case topP
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case enableEnhancedCivicAnswers = "enableEnhancedCivicAnswers"
+    case enableEnhancedCivicAnswers
   }
+
   public enum VertexKeys: String, CodingKey {
-    case modelSelectionConfig = "modelSelectionConfig"
-    case audioTimestamp = "audioTimestamp"
-    case enableAffectiveDialog = "enableAffectiveDialog"
+    case modelSelectionConfig
+    case audioTimestamp
+    case enableAffectiveDialog
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17105,17 +16567,14 @@ extension GenerationConfig: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         enableEnhancedCivicAnswers,
         forKey: .enableEnhancedCivicAnswers
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         modelSelectionConfig,
@@ -17131,7 +16590,6 @@ extension GenerationConfig: Codable {
         enableAffectiveDialog,
         forKey: .enableAffectiveDialog
       )
-
     }
   }
 }
@@ -17154,12 +16612,10 @@ public struct CountTokensConfig: Sendable {
   public let generationConfig: GenerationConfig?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    systemInstruction: [Content]? = nil,
-    tools: [Tool]? = nil,
-    generationConfig: GenerationConfig? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              systemInstruction: [Content]? = nil,
+              tools: [Tool]? = nil,
+              generationConfig: GenerationConfig? = nil) {
     self.httpOptions = httpOptions
     self.systemInstruction = systemInstruction
     self.tools = tools
@@ -17169,16 +16625,16 @@ public struct CountTokensConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
+
   public enum VertexKeys: String, CodingKey {
-    case systemInstruction = "systemInstruction"
-    case tools = "tools"
-    case generationConfig = "generationConfig"
+    case systemInstruction
+    case tools
+    case generationConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17217,7 +16673,6 @@ extension CountTokensConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         systemInstruction,
@@ -17233,7 +16688,6 @@ extension CountTokensConfig: Codable {
         generationConfig,
         forKey: .generationConfig
       )
-
     }
   }
 }
@@ -17252,11 +16706,9 @@ public struct CountTokensParameters: Sendable {
   public let config: CountTokensConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    contents: [Content],
-    config: CountTokensConfig? = nil
-  ) {
+  public init(model: String,
+              contents: [Content],
+              config: CountTokensConfig? = nil) {
     self.model = model
     self.contents = contents
     self.config = config
@@ -17265,13 +16717,12 @@ public struct CountTokensParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case contents = "contents"
-    case config = "config"
+    case model
+    case contents
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17302,14 +16753,16 @@ extension CountTokensParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CountTokensParameters", field: "model")
+        backend: configuration.backend, type: "CountTokensParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       contents,
       forKey: .contents,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CountTokensParameters", field: "contents")
+        backend: configuration.backend, type: "CountTokensParameters", field: "contents"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -17332,11 +16785,9 @@ public struct CountTokensResponse: Sendable {
   public let cachedContentTokenCount: Int32?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    totalTokens: Int32? = nil,
-    cachedContentTokenCount: Int32? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              totalTokens: Int32? = nil,
+              cachedContentTokenCount: Int32? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.totalTokens = totalTokens
     self.cachedContentTokenCount = cachedContentTokenCount
@@ -17345,15 +16796,15 @@ public struct CountTokensResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case totalTokens = "totalTokens"
+    case sdkHttpResponse
+    case totalTokens
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case cachedContentTokenCount = "cachedContentTokenCount"
+    case cachedContentTokenCount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17392,13 +16843,11 @@ extension CountTokensResponse: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         cachedContentTokenCount,
         forKey: .cachedContentTokenCount
       )
-
     }
   }
 }
@@ -17410,20 +16859,17 @@ public struct ComputeTokensConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ComputeTokensConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17461,11 +16907,9 @@ public struct ComputeTokensParameters: Sendable {
   public let config: ComputeTokensConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    contents: [Content],
-    config: ComputeTokensConfig? = nil
-  ) {
+  public init(model: String,
+              contents: [Content],
+              config: ComputeTokensConfig? = nil) {
     self.model = model
     self.contents = contents
     self.config = config
@@ -17474,15 +16918,15 @@ public struct ComputeTokensParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ComputeTokensParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case config = "config"
+    case model
+    case config
   }
+
   public enum VertexKeys: String, CodingKey {
-    case contents = "contents"
+    case contents
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17514,7 +16958,8 @@ extension ComputeTokensParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "ComputeTokensParameters", field: "model")
+        backend: configuration.backend, type: "ComputeTokensParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -17523,15 +16968,14 @@ extension ComputeTokensParameters: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeOrThrow(
         contents,
         forKey: .contents,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "ComputeTokensParameters", field: "contents")
+          backend: configuration.backend, type: "ComputeTokensParameters", field: "contents"
+        )
       )
-
     }
   }
 }
@@ -17549,11 +16993,9 @@ public struct TokensInfo: Sendable {
   public let tokens: [Data]?
 
   /// Default initializer.
-  public init(
-    role: String? = nil,
-    tokenIds: [Int64]? = nil,
-    tokens: [Data]? = nil
-  ) {
+  public init(role: String? = nil,
+              tokenIds: [Int64]? = nil,
+              tokens: [Data]? = nil) {
     self.role = role
     self.tokenIds = tokenIds
     self.tokens = tokens
@@ -17562,13 +17004,12 @@ public struct TokensInfo: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TokensInfo: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case role = "role"
-    case tokenIds = "tokenIds"
-    case tokens = "tokens"
+    case role
+    case tokenIds
+    case tokens
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17624,10 +17065,8 @@ public struct ComputeTokensResponse: Sendable {
   public let tokensInfo: [TokensInfo]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    tokensInfo: [TokensInfo]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              tokensInfo: [TokensInfo]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.tokensInfo = tokensInfo
   }
@@ -17635,14 +17074,14 @@ public struct ComputeTokensResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ComputeTokensResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
+
   public enum VertexKeys: String, CodingKey {
-    case tokensInfo = "tokensInfo"
+    case tokensInfo
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17671,13 +17110,11 @@ extension ComputeTokensResponse: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         tokensInfo,
         forKey: .tokensInfo
       )
-
     }
   }
 }
@@ -17695,11 +17132,9 @@ public struct Video: Sendable {
   public let mimeType: String?
 
   /// Default initializer.
-  public init(
-    uri: String? = nil,
-    videoBytes: Data? = nil,
-    mimeType: String? = nil
-  ) {
+  public init(uri: String? = nil,
+              videoBytes: Data? = nil,
+              mimeType: String? = nil) {
     self.uri = uri
     self.videoBytes = videoBytes
     self.mimeType = mimeType
@@ -17708,13 +17143,12 @@ public struct Video: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Video: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case uri = "uri"
-    case videoBytes = "videoBytes"
-    case mimeType = "mimeType"
+    case uri
+    case videoBytes
+    case mimeType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17774,11 +17208,9 @@ public struct GenerateVideosSource: Sendable {
   public let video: Video?
 
   /// Default initializer.
-  public init(
-    prompt: String? = nil,
-    image: ImagePart? = nil,
-    video: Video? = nil
-  ) {
+  public init(prompt: String? = nil,
+              image: ImagePart? = nil,
+              video: Video? = nil) {
     self.prompt = prompt
     self.image = image
     self.video = video
@@ -17787,13 +17219,12 @@ public struct GenerateVideosSource: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateVideosSource: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case prompt = "prompt"
-    case image = "image"
-    case video = "video"
+    case prompt
+    case image
+    case video
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17848,10 +17279,8 @@ public struct VideoGenerationReferenceImage: Sendable {
   public let referenceType: VideoGenerationReferenceType?
 
   /// Default initializer.
-  public init(
-    image: ImagePart? = nil,
-    referenceType: VideoGenerationReferenceType? = nil
-  ) {
+  public init(image: ImagePart? = nil,
+              referenceType: VideoGenerationReferenceType? = nil) {
     self.image = image
     self.referenceType = referenceType
   }
@@ -17859,12 +17288,11 @@ public struct VideoGenerationReferenceImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VideoGenerationReferenceImage: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case image = "image"
-    case referenceType = "referenceType"
+    case image
+    case referenceType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17910,10 +17338,8 @@ public struct VideoGenerationMask: Sendable {
   public let maskMode: VideoGenerationMaskMode?
 
   /// Default initializer.
-  public init(
-    image: ImagePart? = nil,
-    maskMode: VideoGenerationMaskMode? = nil
-  ) {
+  public init(image: ImagePart? = nil,
+              maskMode: VideoGenerationMaskMode? = nil) {
     self.image = image
     self.maskMode = maskMode
   }
@@ -17921,11 +17347,11 @@ public struct VideoGenerationMask: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VideoGenerationMask: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case image = "image"
-    case maskMode = "maskMode"
+    case image
+    case maskMode
   }
 
   public init(from decoder: any Decoder) throws {
@@ -17947,7 +17373,6 @@ extension VideoGenerationMask: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         image,
@@ -17958,7 +17383,6 @@ extension VideoGenerationMask: Codable {
         maskMode,
         forKey: .maskMode
       )
-
     }
   }
 }
@@ -18031,25 +17455,23 @@ public struct GenerateVideosConfig: Sendable {
   public let compressionQuality: VideoCompressionQuality?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    numberOfVideos: Int32? = nil,
-    outputGcsUri: String? = nil,
-    fps: Int32? = nil,
-    durationSeconds: Int32? = nil,
-    seed: Int32? = nil,
-    aspectRatio: String? = nil,
-    resolution: String? = nil,
-    personGeneration: String? = nil,
-    pubsubTopic: String? = nil,
-    negativePrompt: String? = nil,
-    enhancePrompt: Bool? = nil,
-    generateAudio: Bool? = nil,
-    lastFrame: ImagePart? = nil,
-    referenceImages: [VideoGenerationReferenceImage]? = nil,
-    mask: VideoGenerationMask? = nil,
-    compressionQuality: VideoCompressionQuality? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              numberOfVideos: Int32? = nil,
+              outputGcsUri: String? = nil,
+              fps: Int32? = nil,
+              durationSeconds: Int32? = nil,
+              seed: Int32? = nil,
+              aspectRatio: String? = nil,
+              resolution: String? = nil,
+              personGeneration: String? = nil,
+              pubsubTopic: String? = nil,
+              negativePrompt: String? = nil,
+              enhancePrompt: Bool? = nil,
+              generateAudio: Bool? = nil,
+              lastFrame: ImagePart? = nil,
+              referenceImages: [VideoGenerationReferenceImage]? = nil,
+              mask: VideoGenerationMask? = nil,
+              compressionQuality: VideoCompressionQuality? = nil) {
     self.httpOptions = httpOptions
     self.numberOfVideos = numberOfVideos
     self.outputGcsUri = outputGcsUri
@@ -18072,29 +17494,29 @@ public struct GenerateVideosConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateVideosConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case numberOfVideos = "numberOfVideos"
-    case durationSeconds = "durationSeconds"
-    case aspectRatio = "aspectRatio"
-    case resolution = "resolution"
-    case personGeneration = "personGeneration"
-    case negativePrompt = "negativePrompt"
-    case enhancePrompt = "enhancePrompt"
-    case lastFrame = "lastFrame"
-    case referenceImages = "referenceImages"
+    case httpOptions
+    case numberOfVideos
+    case durationSeconds
+    case aspectRatio
+    case resolution
+    case personGeneration
+    case negativePrompt
+    case enhancePrompt
+    case lastFrame
+    case referenceImages
   }
+
   public enum VertexKeys: String, CodingKey {
-    case outputGcsUri = "outputGcsUri"
-    case fps = "fps"
-    case seed = "seed"
-    case pubsubTopic = "pubsubTopic"
-    case generateAudio = "generateAudio"
-    case mask = "mask"
-    case compressionQuality = "compressionQuality"
+    case outputGcsUri
+    case fps
+    case seed
+    case pubsubTopic
+    case generateAudio
+    case mask
+    case compressionQuality
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18243,7 +17665,6 @@ extension GenerateVideosConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         outputGcsUri,
@@ -18279,7 +17700,6 @@ extension GenerateVideosConfig: Codable {
         compressionQuality,
         forKey: .compressionQuality
       )
-
     }
   }
 }
@@ -18310,14 +17730,12 @@ public struct GenerateVideosParameters: Sendable {
   public let config: GenerateVideosConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    prompt: String? = nil,
-    image: ImagePart? = nil,
-    video: Video? = nil,
-    source: GenerateVideosSource? = nil,
-    config: GenerateVideosConfig? = nil
-  ) {
+  public init(model: String,
+              prompt: String? = nil,
+              image: ImagePart? = nil,
+              video: Video? = nil,
+              source: GenerateVideosSource? = nil,
+              config: GenerateVideosConfig? = nil) {
     self.model = model
     self.prompt = prompt
     self.image = image
@@ -18329,16 +17747,15 @@ public struct GenerateVideosParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateVideosParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case prompt = "prompt"
-    case image = "image"
-    case video = "video"
-    case source = "source"
-    case config = "config"
+    case model
+    case prompt
+    case image
+    case video
+    case source
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18384,7 +17801,8 @@ extension GenerateVideosParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GenerateVideosParameters", field: "model")
+        backend: configuration.backend, type: "GenerateVideosParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -18421,20 +17839,17 @@ public struct GeneratedVideo: Sendable {
   public let video: Video?
 
   /// Default initializer.
-  public init(
-    video: Video? = nil
-  ) {
+  public init(video: Video? = nil) {
     self.video = video
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GeneratedVideo: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case video = "video"
+    case video
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18471,11 +17886,9 @@ public struct GenerateVideosResponse: Sendable {
   public let raiMediaFilteredReasons: [String]?
 
   /// Default initializer.
-  public init(
-    generatedVideos: [GeneratedVideo]? = nil,
-    raiMediaFilteredCount: Int32? = nil,
-    raiMediaFilteredReasons: [String]? = nil
-  ) {
+  public init(generatedVideos: [GeneratedVideo]? = nil,
+              raiMediaFilteredCount: Int32? = nil,
+              raiMediaFilteredReasons: [String]? = nil) {
     self.generatedVideos = generatedVideos
     self.raiMediaFilteredCount = raiMediaFilteredCount
     self.raiMediaFilteredReasons = raiMediaFilteredReasons
@@ -18484,13 +17897,12 @@ public struct GenerateVideosResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateVideosResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case generatedVideos = "generatedVideos"
-    case raiMediaFilteredCount = "raiMediaFilteredCount"
-    case raiMediaFilteredReasons = "raiMediaFilteredReasons"
+    case generatedVideos
+    case raiMediaFilteredCount
+    case raiMediaFilteredReasons
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18556,12 +17968,10 @@ public struct Operation: Sendable {
   public let error: [String: JSONValue]?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    metadata: [String: JSONValue]? = nil,
-    done: Bool? = nil,
-    error: [String: JSONValue]? = nil
-  ) {
+  public init(name: String? = nil,
+              metadata: [String: JSONValue]? = nil,
+              done: Bool? = nil,
+              error: [String: JSONValue]? = nil) {
     self.name = name
     self.metadata = metadata
     self.done = done
@@ -18571,14 +17981,13 @@ public struct Operation: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Operation: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case metadata = "metadata"
-    case done = "done"
-    case error = "error"
+    case name
+    case metadata
+    case done
+    case error
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18660,14 +18069,12 @@ public struct GenerateVideosOperation: Sendable {
   public let result: GenerateVideosResponse?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    metadata: [String: JSONValue]? = nil,
-    done: Bool? = nil,
-    error: [String: JSONValue]? = nil,
-    response: GenerateVideosResponse? = nil,
-    result: GenerateVideosResponse? = nil
-  ) {
+  public init(name: String? = nil,
+              metadata: [String: JSONValue]? = nil,
+              done: Bool? = nil,
+              error: [String: JSONValue]? = nil,
+              response: GenerateVideosResponse? = nil,
+              result: GenerateVideosResponse? = nil) {
     self.name = name
     self.metadata = metadata
     self.done = done
@@ -18679,16 +18086,15 @@ public struct GenerateVideosOperation: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateVideosOperation: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case metadata = "metadata"
-    case done = "done"
-    case error = "error"
-    case response = "response"
-    case result = "result"
+    case name
+    case metadata
+    case done
+    case error
+    case response
+    case result
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18769,20 +18175,17 @@ public struct GetTuningJobConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetTuningJobConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18815,10 +18218,8 @@ public struct GetTuningJobParameters: Sendable {
   public let config: GetTuningJobConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: GetTuningJobConfig? = nil
-  ) {
+  public init(name: String,
+              config: GetTuningJobConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -18826,12 +18227,11 @@ public struct GetTuningJobParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetTuningJobParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18857,7 +18257,8 @@ extension GetTuningJobParameters: Codable {
       name,
       forKey: .name,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GetTuningJobParameters", field: "name")
+        backend: configuration.backend, type: "GetTuningJobParameters", field: "name"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -18884,12 +18285,10 @@ public struct TunedModelCheckpoint: Sendable {
   public let endpoint: String?
 
   /// Default initializer.
-  public init(
-    checkpointId: String? = nil,
-    epoch: Int64? = nil,
-    step: Int64? = nil,
-    endpoint: String? = nil
-  ) {
+  public init(checkpointId: String? = nil,
+              epoch: Int64? = nil,
+              step: Int64? = nil,
+              endpoint: String? = nil) {
     self.checkpointId = checkpointId
     self.epoch = epoch
     self.step = step
@@ -18899,13 +18298,13 @@ public struct TunedModelCheckpoint: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TunedModelCheckpoint: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case checkpointId = "checkpointId"
-    case epoch = "epoch"
-    case step = "step"
-    case endpoint = "endpoint"
+    case checkpointId
+    case epoch
+    case step
+    case endpoint
   }
 
   public init(from decoder: any Decoder) throws {
@@ -18937,7 +18336,6 @@ extension TunedModelCheckpoint: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         checkpointId,
@@ -18958,7 +18356,6 @@ extension TunedModelCheckpoint: Codable {
         endpoint,
         forKey: .endpoint
       )
-
     }
   }
 }
@@ -18984,11 +18381,9 @@ public struct TunedModel: Sendable {
   public let checkpoints: [TunedModelCheckpoint]?
 
   /// Default initializer.
-  public init(
-    model: String? = nil,
-    endpoint: String? = nil,
-    checkpoints: [TunedModelCheckpoint]? = nil
-  ) {
+  public init(model: String? = nil,
+              endpoint: String? = nil,
+              checkpoints: [TunedModelCheckpoint]? = nil) {
     self.model = model
     self.endpoint = endpoint
     self.checkpoints = checkpoints
@@ -18997,15 +18392,15 @@ public struct TunedModel: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TunedModel: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case endpoint = "endpoint"
+    case model
+    case endpoint
   }
+
   public enum VertexKeys: String, CodingKey {
-    case checkpoints = "checkpoints"
+    case checkpoints
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19044,13 +18439,11 @@ extension TunedModel: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         checkpoints,
         forKey: .checkpoints
       )
-
     }
   }
 }
@@ -19079,13 +18472,11 @@ public struct SupervisedHyperParameters: Sendable {
   public let learningRateMultiplier: Double?
 
   /// Default initializer.
-  public init(
-    adapterSize: AdapterSize? = nil,
-    batchSize: Int64? = nil,
-    epochCount: Int64? = nil,
-    learningRate: Double? = nil,
-    learningRateMultiplier: Double? = nil
-  ) {
+  public init(adapterSize: AdapterSize? = nil,
+              batchSize: Int64? = nil,
+              epochCount: Int64? = nil,
+              learningRate: Double? = nil,
+              learningRateMultiplier: Double? = nil) {
     self.adapterSize = adapterSize
     self.batchSize = batchSize
     self.epochCount = epochCount
@@ -19096,14 +18487,14 @@ public struct SupervisedHyperParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SupervisedHyperParameters: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case adapterSize = "adapterSize"
-    case batchSize = "batchSize"
-    case epochCount = "epochCount"
-    case learningRate = "learningRate"
-    case learningRateMultiplier = "learningRateMultiplier"
+    case adapterSize
+    case batchSize
+    case epochCount
+    case learningRate
+    case learningRateMultiplier
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19140,7 +18531,6 @@ extension SupervisedHyperParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         adapterSize,
@@ -19166,7 +18556,6 @@ extension SupervisedHyperParameters: Codable {
         learningRateMultiplier,
         forKey: .learningRateMultiplier
       )
-
     }
   }
 }
@@ -19196,13 +18585,11 @@ public struct SupervisedTuningSpec: Sendable {
   public let validationDatasetUri: String?
 
   /// Default initializer.
-  public init(
-    exportLastCheckpointOnly: Bool? = nil,
-    hyperParameters: SupervisedHyperParameters? = nil,
-    trainingDatasetUri: String? = nil,
-    tuningMode: TuningMode? = nil,
-    validationDatasetUri: String? = nil
-  ) {
+  public init(exportLastCheckpointOnly: Bool? = nil,
+              hyperParameters: SupervisedHyperParameters? = nil,
+              trainingDatasetUri: String? = nil,
+              tuningMode: TuningMode? = nil,
+              validationDatasetUri: String? = nil) {
     self.exportLastCheckpointOnly = exportLastCheckpointOnly
     self.hyperParameters = hyperParameters
     self.trainingDatasetUri = trainingDatasetUri
@@ -19213,14 +18600,14 @@ public struct SupervisedTuningSpec: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SupervisedTuningSpec: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case exportLastCheckpointOnly = "exportLastCheckpointOnly"
-    case hyperParameters = "hyperParameters"
-    case trainingDatasetUri = "trainingDatasetUri"
-    case tuningMode = "tuningMode"
-    case validationDatasetUri = "validationDatasetUri"
+    case exportLastCheckpointOnly
+    case hyperParameters
+    case trainingDatasetUri
+    case tuningMode
+    case validationDatasetUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19257,7 +18644,6 @@ extension SupervisedTuningSpec: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         exportLastCheckpointOnly,
@@ -19283,7 +18669,6 @@ extension SupervisedTuningSpec: Codable {
         validationDatasetUri,
         forKey: .validationDatasetUri
       )
-
     }
   }
 }
@@ -19306,12 +18691,10 @@ public struct PreferenceOptimizationHyperParameters: Sendable {
   public let learningRateMultiplier: Double?
 
   /// Default initializer.
-  public init(
-    adapterSize: AdapterSize? = nil,
-    beta: Double? = nil,
-    epochCount: Int64? = nil,
-    learningRateMultiplier: Double? = nil
-  ) {
+  public init(adapterSize: AdapterSize? = nil,
+              beta: Double? = nil,
+              epochCount: Int64? = nil,
+              learningRateMultiplier: Double? = nil) {
     self.adapterSize = adapterSize
     self.beta = beta
     self.epochCount = epochCount
@@ -19321,13 +18704,13 @@ public struct PreferenceOptimizationHyperParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PreferenceOptimizationHyperParameters: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case adapterSize = "adapterSize"
-    case beta = "beta"
-    case epochCount = "epochCount"
-    case learningRateMultiplier = "learningRateMultiplier"
+    case adapterSize
+    case beta
+    case epochCount
+    case learningRateMultiplier
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19359,7 +18742,6 @@ extension PreferenceOptimizationHyperParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         adapterSize,
@@ -19380,7 +18762,6 @@ extension PreferenceOptimizationHyperParameters: Codable {
         learningRateMultiplier,
         forKey: .learningRateMultiplier
       )
-
     }
   }
 }
@@ -19405,12 +18786,10 @@ public struct PreferenceOptimizationSpec: Sendable {
   public let validationDatasetUri: String?
 
   /// Default initializer.
-  public init(
-    exportLastCheckpointOnly: Bool? = nil,
-    hyperParameters: PreferenceOptimizationHyperParameters? = nil,
-    trainingDatasetUri: String? = nil,
-    validationDatasetUri: String? = nil
-  ) {
+  public init(exportLastCheckpointOnly: Bool? = nil,
+              hyperParameters: PreferenceOptimizationHyperParameters? = nil,
+              trainingDatasetUri: String? = nil,
+              validationDatasetUri: String? = nil) {
     self.exportLastCheckpointOnly = exportLastCheckpointOnly
     self.hyperParameters = hyperParameters
     self.trainingDatasetUri = trainingDatasetUri
@@ -19420,13 +18799,13 @@ public struct PreferenceOptimizationSpec: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PreferenceOptimizationSpec: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case exportLastCheckpointOnly = "exportLastCheckpointOnly"
-    case hyperParameters = "hyperParameters"
-    case trainingDatasetUri = "trainingDatasetUri"
-    case validationDatasetUri = "validationDatasetUri"
+    case exportLastCheckpointOnly
+    case hyperParameters
+    case trainingDatasetUri
+    case validationDatasetUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19458,7 +18837,6 @@ extension PreferenceOptimizationSpec: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         exportLastCheckpointOnly,
@@ -19479,7 +18857,6 @@ extension PreferenceOptimizationSpec: Codable {
         validationDatasetUri,
         forKey: .validationDatasetUri
       )
-
     }
   }
 }
@@ -19498,11 +18875,9 @@ public struct DistillationHyperParameters: Sendable {
   public let learningRateMultiplier: Double?
 
   /// Default initializer.
-  public init(
-    adapterSize: AdapterSize? = nil,
-    epochCount: Int64? = nil,
-    learningRateMultiplier: Double? = nil
-  ) {
+  public init(adapterSize: AdapterSize? = nil,
+              epochCount: Int64? = nil,
+              learningRateMultiplier: Double? = nil) {
     self.adapterSize = adapterSize
     self.epochCount = epochCount
     self.learningRateMultiplier = learningRateMultiplier
@@ -19511,12 +18886,12 @@ public struct DistillationHyperParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DistillationHyperParameters: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case adapterSize = "adapterSize"
-    case epochCount = "epochCount"
-    case learningRateMultiplier = "learningRateMultiplier"
+    case adapterSize
+    case epochCount
+    case learningRateMultiplier
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19543,7 +18918,6 @@ extension DistillationHyperParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         adapterSize,
@@ -19559,7 +18933,6 @@ extension DistillationHyperParameters: Codable {
         learningRateMultiplier,
         forKey: .learningRateMultiplier
       )
-
     }
   }
 }
@@ -19600,16 +18973,14 @@ public struct DistillationSpec: Sendable {
   public let validationDatasetUri: String?
 
   /// Default initializer.
-  public init(
-    promptDatasetUri: String? = nil,
-    baseTeacherModel: String? = nil,
-    hyperParameters: DistillationHyperParameters? = nil,
-    pipelineRootDirectory: String? = nil,
-    studentModel: String? = nil,
-    trainingDatasetUri: String? = nil,
-    tunedTeacherModelSource: String? = nil,
-    validationDatasetUri: String? = nil
-  ) {
+  public init(promptDatasetUri: String? = nil,
+              baseTeacherModel: String? = nil,
+              hyperParameters: DistillationHyperParameters? = nil,
+              pipelineRootDirectory: String? = nil,
+              studentModel: String? = nil,
+              trainingDatasetUri: String? = nil,
+              tunedTeacherModelSource: String? = nil,
+              validationDatasetUri: String? = nil) {
     self.promptDatasetUri = promptDatasetUri
     self.baseTeacherModel = baseTeacherModel
     self.hyperParameters = hyperParameters
@@ -19623,17 +18994,17 @@ public struct DistillationSpec: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DistillationSpec: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case promptDatasetUri = "promptDatasetUri"
-    case baseTeacherModel = "baseTeacherModel"
-    case hyperParameters = "hyperParameters"
-    case pipelineRootDirectory = "pipelineRootDirectory"
-    case studentModel = "studentModel"
-    case trainingDatasetUri = "trainingDatasetUri"
-    case tunedTeacherModelSource = "tunedTeacherModelSource"
-    case validationDatasetUri = "validationDatasetUri"
+    case promptDatasetUri
+    case baseTeacherModel
+    case hyperParameters
+    case pipelineRootDirectory
+    case studentModel
+    case trainingDatasetUri
+    case tunedTeacherModelSource
+    case validationDatasetUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19685,7 +19056,6 @@ extension DistillationSpec: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         promptDatasetUri,
@@ -19726,7 +19096,6 @@ extension DistillationSpec: Codable {
         validationDatasetUri,
         forKey: .validationDatasetUri
       )
-
     }
   }
 }
@@ -19753,11 +19122,9 @@ public struct GoogleRpcStatus: Sendable {
   public let message: String?
 
   /// Default initializer.
-  public init(
-    code: Int32? = nil,
-    details: [[String: JSONValue]]? = nil,
-    message: String? = nil
-  ) {
+  public init(code: Int32? = nil,
+              details: [[String: JSONValue]]? = nil,
+              message: String? = nil) {
     self.code = code
     self.details = details
     self.message = message
@@ -19766,12 +19133,12 @@ public struct GoogleRpcStatus: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleRpcStatus: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case code = "code"
-    case details = "details"
-    case message = "message"
+    case code
+    case details
+    case message
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19798,7 +19165,6 @@ extension GoogleRpcStatus: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         code,
@@ -19814,7 +19180,6 @@ extension GoogleRpcStatus: Codable {
         message,
         forKey: .message
       )
-
     }
   }
 }
@@ -19839,11 +19204,9 @@ public struct PreTunedModel: Sendable {
   public let tunedModelName: String?
 
   /// Default initializer.
-  public init(
-    baseModel: String? = nil,
-    checkpointId: String? = nil,
-    tunedModelName: String? = nil
-  ) {
+  public init(baseModel: String? = nil,
+              checkpointId: String? = nil,
+              tunedModelName: String? = nil) {
     self.baseModel = baseModel
     self.checkpointId = checkpointId
     self.tunedModelName = tunedModelName
@@ -19852,12 +19215,12 @@ public struct PreTunedModel: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PreTunedModel: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case baseModel = "baseModel"
-    case checkpointId = "checkpointId"
-    case tunedModelName = "tunedModelName"
+    case baseModel
+    case checkpointId
+    case tunedModelName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19884,7 +19247,6 @@ extension PreTunedModel: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         baseModel,
@@ -19900,7 +19262,6 @@ extension PreTunedModel: Codable {
         tunedModelName,
         forKey: .tunedModelName
       )
-
     }
   }
 }
@@ -19919,11 +19280,9 @@ public struct DatasetDistributionDistributionBucket: Sendable {
   public let right: Double?
 
   /// Default initializer.
-  public init(
-    count: Int64? = nil,
-    left: Double? = nil,
-    right: Double? = nil
-  ) {
+  public init(count: Int64? = nil,
+              left: Double? = nil,
+              right: Double? = nil) {
     self.count = count
     self.left = left
     self.right = right
@@ -19932,12 +19291,12 @@ public struct DatasetDistributionDistributionBucket: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DatasetDistributionDistributionBucket: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case count = "count"
-    case left = "left"
-    case right = "right"
+    case count
+    case left
+    case right
   }
 
   public init(from decoder: any Decoder) throws {
@@ -19964,7 +19323,6 @@ extension DatasetDistributionDistributionBucket: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         count,
@@ -19980,7 +19338,6 @@ extension DatasetDistributionDistributionBucket: Codable {
         right,
         forKey: .right
       )
-
     }
   }
 }
@@ -20014,16 +19371,14 @@ public struct DatasetDistribution: Sendable {
   public let sum: Double?
 
   /// Default initializer.
-  public init(
-    buckets: [DatasetDistributionDistributionBucket]? = nil,
-    max: Double? = nil,
-    mean: Double? = nil,
-    median: Double? = nil,
-    min: Double? = nil,
-    p5: Double? = nil,
-    p95: Double? = nil,
-    sum: Double? = nil
-  ) {
+  public init(buckets: [DatasetDistributionDistributionBucket]? = nil,
+              max: Double? = nil,
+              mean: Double? = nil,
+              median: Double? = nil,
+              min: Double? = nil,
+              p5: Double? = nil,
+              p95: Double? = nil,
+              sum: Double? = nil) {
     self.buckets = buckets
     self.max = max
     self.mean = mean
@@ -20037,17 +19392,17 @@ public struct DatasetDistribution: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DatasetDistribution: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case buckets = "buckets"
-    case max = "max"
-    case mean = "mean"
-    case median = "median"
-    case min = "min"
-    case p5 = "p5"
-    case p95 = "p95"
-    case sum = "sum"
+    case buckets
+    case max
+    case mean
+    case median
+    case min
+    case p5
+    case p95
+    case sum
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20099,7 +19454,6 @@ extension DatasetDistribution: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         buckets,
@@ -20140,7 +19494,6 @@ extension DatasetDistribution: Codable {
         sum,
         forKey: .sum
       )
-
     }
   }
 }
@@ -20182,18 +19535,16 @@ public struct DatasetStats: Sendable {
   public let userOutputTokenDistribution: DatasetDistribution?
 
   /// Default initializer.
-  public init(
-    droppedExampleIndices: [Int64]? = nil,
-    droppedExampleReasons: [String]? = nil,
-    totalBillableCharacterCount: Int64? = nil,
-    totalTuningCharacterCount: Int64? = nil,
-    tuningDatasetExampleCount: Int64? = nil,
-    tuningStepCount: Int64? = nil,
-    userDatasetExamples: [Content]? = nil,
-    userInputTokenDistribution: DatasetDistribution? = nil,
-    userMessagePerExampleDistribution: DatasetDistribution? = nil,
-    userOutputTokenDistribution: DatasetDistribution? = nil
-  ) {
+  public init(droppedExampleIndices: [Int64]? = nil,
+              droppedExampleReasons: [String]? = nil,
+              totalBillableCharacterCount: Int64? = nil,
+              totalTuningCharacterCount: Int64? = nil,
+              tuningDatasetExampleCount: Int64? = nil,
+              tuningStepCount: Int64? = nil,
+              userDatasetExamples: [Content]? = nil,
+              userInputTokenDistribution: DatasetDistribution? = nil,
+              userMessagePerExampleDistribution: DatasetDistribution? = nil,
+              userOutputTokenDistribution: DatasetDistribution? = nil) {
     self.droppedExampleIndices = droppedExampleIndices
     self.droppedExampleReasons = droppedExampleReasons
     self.totalBillableCharacterCount = totalBillableCharacterCount
@@ -20209,19 +19560,19 @@ public struct DatasetStats: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DatasetStats: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case droppedExampleIndices = "droppedExampleIndices"
-    case droppedExampleReasons = "droppedExampleReasons"
-    case totalBillableCharacterCount = "totalBillableCharacterCount"
-    case totalTuningCharacterCount = "totalTuningCharacterCount"
-    case tuningDatasetExampleCount = "tuningDatasetExampleCount"
-    case tuningStepCount = "tuningStepCount"
-    case userDatasetExamples = "userDatasetExamples"
-    case userInputTokenDistribution = "userInputTokenDistribution"
-    case userMessagePerExampleDistribution = "userMessagePerExampleDistribution"
-    case userOutputTokenDistribution = "userOutputTokenDistribution"
+    case droppedExampleIndices
+    case droppedExampleReasons
+    case totalBillableCharacterCount
+    case totalTuningCharacterCount
+    case tuningDatasetExampleCount
+    case tuningStepCount
+    case userDatasetExamples
+    case userInputTokenDistribution
+    case userMessagePerExampleDistribution
+    case userOutputTokenDistribution
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20283,7 +19634,6 @@ extension DatasetStats: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         droppedExampleIndices,
@@ -20334,7 +19684,6 @@ extension DatasetStats: Codable {
         userOutputTokenDistribution,
         forKey: .userOutputTokenDistribution
       )
-
     }
   }
 }
@@ -20348,19 +19697,17 @@ public struct DistillationDataStats: Sendable {
   public let trainingDatasetStats: DatasetStats?
 
   /// Default initializer.
-  public init(
-    trainingDatasetStats: DatasetStats? = nil
-  ) {
+  public init(trainingDatasetStats: DatasetStats? = nil) {
     self.trainingDatasetStats = trainingDatasetStats
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DistillationDataStats: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case trainingDatasetStats = "trainingDatasetStats"
+    case trainingDatasetStats
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20377,13 +19724,11 @@ extension DistillationDataStats: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         trainingDatasetStats,
         forKey: .trainingDatasetStats
       )
-
     }
   }
 }
@@ -20399,10 +19744,8 @@ public struct GeminiPreferenceExampleCompletion: Sendable {
   public let score: Float?
 
   /// Default initializer.
-  public init(
-    completion: Content? = nil,
-    score: Float? = nil
-  ) {
+  public init(completion: Content? = nil,
+              score: Float? = nil) {
     self.completion = completion
     self.score = score
   }
@@ -20410,11 +19753,11 @@ public struct GeminiPreferenceExampleCompletion: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GeminiPreferenceExampleCompletion: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case completion = "completion"
-    case score = "score"
+    case completion
+    case score
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20436,7 +19779,6 @@ extension GeminiPreferenceExampleCompletion: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         completion,
@@ -20447,7 +19789,6 @@ extension GeminiPreferenceExampleCompletion: Codable {
         score,
         forKey: .score
       )
-
     }
   }
 }
@@ -20463,10 +19804,8 @@ public struct GeminiPreferenceExample: Sendable {
   public let contents: [Content]?
 
   /// Default initializer.
-  public init(
-    completions: [GeminiPreferenceExampleCompletion]? = nil,
-    contents: [Content]? = nil
-  ) {
+  public init(completions: [GeminiPreferenceExampleCompletion]? = nil,
+              contents: [Content]? = nil) {
     self.completions = completions
     self.contents = contents
   }
@@ -20474,11 +19813,11 @@ public struct GeminiPreferenceExample: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GeminiPreferenceExample: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case completions = "completions"
-    case contents = "contents"
+    case completions
+    case contents
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20500,7 +19839,6 @@ extension GeminiPreferenceExample: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         completions,
@@ -20511,7 +19849,6 @@ extension GeminiPreferenceExample: Codable {
         contents,
         forKey: .contents
       )
-
     }
   }
 }
@@ -20553,18 +19890,16 @@ public struct PreferenceOptimizationDataStats: Sendable {
   public let userOutputTokenDistribution: DatasetDistribution?
 
   /// Default initializer.
-  public init(
-    droppedExampleIndices: [Int64]? = nil,
-    droppedExampleReasons: [String]? = nil,
-    scoreVariancePerExampleDistribution: DatasetDistribution? = nil,
-    scoresDistribution: DatasetDistribution? = nil,
-    totalBillableTokenCount: Int64? = nil,
-    tuningDatasetExampleCount: Int64? = nil,
-    tuningStepCount: Int64? = nil,
-    userDatasetExamples: [GeminiPreferenceExample]? = nil,
-    userInputTokenDistribution: DatasetDistribution? = nil,
-    userOutputTokenDistribution: DatasetDistribution? = nil
-  ) {
+  public init(droppedExampleIndices: [Int64]? = nil,
+              droppedExampleReasons: [String]? = nil,
+              scoreVariancePerExampleDistribution: DatasetDistribution? = nil,
+              scoresDistribution: DatasetDistribution? = nil,
+              totalBillableTokenCount: Int64? = nil,
+              tuningDatasetExampleCount: Int64? = nil,
+              tuningStepCount: Int64? = nil,
+              userDatasetExamples: [GeminiPreferenceExample]? = nil,
+              userInputTokenDistribution: DatasetDistribution? = nil,
+              userOutputTokenDistribution: DatasetDistribution? = nil) {
     self.droppedExampleIndices = droppedExampleIndices
     self.droppedExampleReasons = droppedExampleReasons
     self.scoreVariancePerExampleDistribution = scoreVariancePerExampleDistribution
@@ -20580,19 +19915,19 @@ public struct PreferenceOptimizationDataStats: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PreferenceOptimizationDataStats: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case droppedExampleIndices = "droppedExampleIndices"
-    case droppedExampleReasons = "droppedExampleReasons"
-    case scoreVariancePerExampleDistribution = "scoreVariancePerExampleDistribution"
-    case scoresDistribution = "scoresDistribution"
-    case totalBillableTokenCount = "totalBillableTokenCount"
-    case tuningDatasetExampleCount = "tuningDatasetExampleCount"
-    case tuningStepCount = "tuningStepCount"
-    case userDatasetExamples = "userDatasetExamples"
-    case userInputTokenDistribution = "userInputTokenDistribution"
-    case userOutputTokenDistribution = "userOutputTokenDistribution"
+    case droppedExampleIndices
+    case droppedExampleReasons
+    case scoreVariancePerExampleDistribution
+    case scoresDistribution
+    case totalBillableTokenCount
+    case tuningDatasetExampleCount
+    case tuningStepCount
+    case userDatasetExamples
+    case userInputTokenDistribution
+    case userOutputTokenDistribution
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20654,7 +19989,6 @@ extension PreferenceOptimizationDataStats: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         droppedExampleIndices,
@@ -20705,7 +20039,6 @@ extension PreferenceOptimizationDataStats: Codable {
         userOutputTokenDistribution,
         forKey: .userOutputTokenDistribution
       )
-
     }
   }
 }
@@ -20724,11 +20057,9 @@ public struct SupervisedTuningDatasetDistributionDatasetBucket: Sendable {
   public let right: Double?
 
   /// Default initializer.
-  public init(
-    count: Double? = nil,
-    left: Double? = nil,
-    right: Double? = nil
-  ) {
+  public init(count: Double? = nil,
+              left: Double? = nil,
+              right: Double? = nil) {
     self.count = count
     self.left = left
     self.right = right
@@ -20737,12 +20068,12 @@ public struct SupervisedTuningDatasetDistributionDatasetBucket: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SupervisedTuningDatasetDistributionDatasetBucket: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case count = "count"
-    case left = "left"
-    case right = "right"
+    case count
+    case left
+    case right
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20769,7 +20100,6 @@ extension SupervisedTuningDatasetDistributionDatasetBucket: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         count,
@@ -20785,7 +20115,6 @@ extension SupervisedTuningDatasetDistributionDatasetBucket: Codable {
         right,
         forKey: .right
       )
-
     }
   }
 }
@@ -20822,17 +20151,15 @@ public struct SupervisedTuningDatasetDistribution: Sendable {
   public let sum: Int64?
 
   /// Default initializer.
-  public init(
-    billableSum: Int64? = nil,
-    buckets: [SupervisedTuningDatasetDistributionDatasetBucket]? = nil,
-    max: Double? = nil,
-    mean: Double? = nil,
-    median: Double? = nil,
-    min: Double? = nil,
-    p5: Double? = nil,
-    p95: Double? = nil,
-    sum: Int64? = nil
-  ) {
+  public init(billableSum: Int64? = nil,
+              buckets: [SupervisedTuningDatasetDistributionDatasetBucket]? = nil,
+              max: Double? = nil,
+              mean: Double? = nil,
+              median: Double? = nil,
+              min: Double? = nil,
+              p5: Double? = nil,
+              p95: Double? = nil,
+              sum: Int64? = nil) {
     self.billableSum = billableSum
     self.buckets = buckets
     self.max = max
@@ -20847,18 +20174,18 @@ public struct SupervisedTuningDatasetDistribution: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SupervisedTuningDatasetDistribution: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case billableSum = "billableSum"
-    case buckets = "buckets"
-    case max = "max"
-    case mean = "mean"
-    case median = "median"
-    case min = "min"
-    case p5 = "p5"
-    case p95 = "p95"
-    case sum = "sum"
+    case billableSum
+    case buckets
+    case max
+    case mean
+    case median
+    case min
+    case p5
+    case p95
+    case sum
   }
 
   public init(from decoder: any Decoder) throws {
@@ -20915,7 +20242,6 @@ extension SupervisedTuningDatasetDistribution: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         billableSum,
@@ -20961,7 +20287,6 @@ extension SupervisedTuningDatasetDistribution: Codable {
         sum,
         forKey: .sum
       )
-
     }
   }
 }
@@ -21011,20 +20336,18 @@ public struct SupervisedTuningDataStats: Sendable {
   public let userOutputTokenDistribution: SupervisedTuningDatasetDistribution?
 
   /// Default initializer.
-  public init(
-    droppedExampleReasons: [String]? = nil,
-    totalBillableCharacterCount: Int64? = nil,
-    totalBillableTokenCount: Int64? = nil,
-    totalTruncatedExampleCount: Int64? = nil,
-    totalTuningCharacterCount: Int64? = nil,
-    truncatedExampleIndices: [Int64]? = nil,
-    tuningDatasetExampleCount: Int64? = nil,
-    tuningStepCount: Int64? = nil,
-    userDatasetExamples: [Content]? = nil,
-    userInputTokenDistribution: SupervisedTuningDatasetDistribution? = nil,
-    userMessagePerExampleDistribution: SupervisedTuningDatasetDistribution? = nil,
-    userOutputTokenDistribution: SupervisedTuningDatasetDistribution? = nil
-  ) {
+  public init(droppedExampleReasons: [String]? = nil,
+              totalBillableCharacterCount: Int64? = nil,
+              totalBillableTokenCount: Int64? = nil,
+              totalTruncatedExampleCount: Int64? = nil,
+              totalTuningCharacterCount: Int64? = nil,
+              truncatedExampleIndices: [Int64]? = nil,
+              tuningDatasetExampleCount: Int64? = nil,
+              tuningStepCount: Int64? = nil,
+              userDatasetExamples: [Content]? = nil,
+              userInputTokenDistribution: SupervisedTuningDatasetDistribution? = nil,
+              userMessagePerExampleDistribution: SupervisedTuningDatasetDistribution? = nil,
+              userOutputTokenDistribution: SupervisedTuningDatasetDistribution? = nil) {
     self.droppedExampleReasons = droppedExampleReasons
     self.totalBillableCharacterCount = totalBillableCharacterCount
     self.totalBillableTokenCount = totalBillableTokenCount
@@ -21042,21 +20365,21 @@ public struct SupervisedTuningDataStats: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SupervisedTuningDataStats: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case droppedExampleReasons = "droppedExampleReasons"
-    case totalBillableCharacterCount = "totalBillableCharacterCount"
-    case totalBillableTokenCount = "totalBillableTokenCount"
-    case totalTruncatedExampleCount = "totalTruncatedExampleCount"
-    case totalTuningCharacterCount = "totalTuningCharacterCount"
-    case truncatedExampleIndices = "truncatedExampleIndices"
-    case tuningDatasetExampleCount = "tuningDatasetExampleCount"
-    case tuningStepCount = "tuningStepCount"
-    case userDatasetExamples = "userDatasetExamples"
-    case userInputTokenDistribution = "userInputTokenDistribution"
-    case userMessagePerExampleDistribution = "userMessagePerExampleDistribution"
-    case userOutputTokenDistribution = "userOutputTokenDistribution"
+    case droppedExampleReasons
+    case totalBillableCharacterCount
+    case totalBillableTokenCount
+    case totalTruncatedExampleCount
+    case totalTuningCharacterCount
+    case truncatedExampleIndices
+    case tuningDatasetExampleCount
+    case tuningStepCount
+    case userDatasetExamples
+    case userInputTokenDistribution
+    case userMessagePerExampleDistribution
+    case userOutputTokenDistribution
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21128,7 +20451,6 @@ extension SupervisedTuningDataStats: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         droppedExampleReasons,
@@ -21189,7 +20511,6 @@ extension SupervisedTuningDataStats: Codable {
         userOutputTokenDistribution,
         forKey: .userOutputTokenDistribution
       )
-
     }
   }
 }
@@ -21209,11 +20530,9 @@ public struct TuningDataStats: Sendable {
   public let supervisedTuningDataStats: SupervisedTuningDataStats?
 
   /// Default initializer.
-  public init(
-    distillationDataStats: DistillationDataStats? = nil,
-    preferenceOptimizationDataStats: PreferenceOptimizationDataStats? = nil,
-    supervisedTuningDataStats: SupervisedTuningDataStats? = nil
-  ) {
+  public init(distillationDataStats: DistillationDataStats? = nil,
+              preferenceOptimizationDataStats: PreferenceOptimizationDataStats? = nil,
+              supervisedTuningDataStats: SupervisedTuningDataStats? = nil) {
     self.distillationDataStats = distillationDataStats
     self.preferenceOptimizationDataStats = preferenceOptimizationDataStats
     self.supervisedTuningDataStats = supervisedTuningDataStats
@@ -21222,12 +20541,12 @@ public struct TuningDataStats: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TuningDataStats: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case distillationDataStats = "distillationDataStats"
-    case preferenceOptimizationDataStats = "preferenceOptimizationDataStats"
-    case supervisedTuningDataStats = "supervisedTuningDataStats"
+    case distillationDataStats
+    case preferenceOptimizationDataStats
+    case supervisedTuningDataStats
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21254,7 +20573,6 @@ extension TuningDataStats: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         distillationDataStats,
@@ -21270,7 +20588,6 @@ extension TuningDataStats: Codable {
         supervisedTuningDataStats,
         forKey: .supervisedTuningDataStats
       )
-
     }
   }
 }
@@ -21286,19 +20603,17 @@ public struct EncryptionSpec: Sendable {
   public let kmsKeyName: String?
 
   /// Default initializer.
-  public init(
-    kmsKeyName: String? = nil
-  ) {
+  public init(kmsKeyName: String? = nil) {
     self.kmsKeyName = kmsKeyName
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EncryptionSpec: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case kmsKeyName = "kmsKeyName"
+    case kmsKeyName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21315,13 +20630,11 @@ extension EncryptionSpec: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         kmsKeyName,
         forKey: .kmsKeyName
       )
-
     }
   }
 }
@@ -21342,11 +20655,9 @@ public struct PartnerModelTuningSpec: Sendable {
   public let validationDatasetUri: String?
 
   /// Default initializer.
-  public init(
-    hyperParameters: [String: JSONValue]? = nil,
-    trainingDatasetUri: String? = nil,
-    validationDatasetUri: String? = nil
-  ) {
+  public init(hyperParameters: [String: JSONValue]? = nil,
+              trainingDatasetUri: String? = nil,
+              validationDatasetUri: String? = nil) {
     self.hyperParameters = hyperParameters
     self.trainingDatasetUri = trainingDatasetUri
     self.validationDatasetUri = validationDatasetUri
@@ -21355,12 +20666,12 @@ public struct PartnerModelTuningSpec: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PartnerModelTuningSpec: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case hyperParameters = "hyperParameters"
-    case trainingDatasetUri = "trainingDatasetUri"
-    case validationDatasetUri = "validationDatasetUri"
+    case hyperParameters
+    case trainingDatasetUri
+    case validationDatasetUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21387,7 +20698,6 @@ extension PartnerModelTuningSpec: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         hyperParameters,
@@ -21403,7 +20713,6 @@ extension PartnerModelTuningSpec: Codable {
         validationDatasetUri,
         forKey: .validationDatasetUri
       )
-
     }
   }
 }
@@ -21411,16 +20720,12 @@ extension PartnerModelTuningSpec: Codable {
 /// Evaluation config for tuning.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct EvaluationConfig: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EvaluationConfig: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -21440,19 +20745,17 @@ public struct BleuMetricValue: Sendable {
   public let score: Float?
 
   /// Default initializer.
-  public init(
-    score: Float? = nil
-  ) {
+  public init(score: Float? = nil) {
     self.score = score
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension BleuMetricValue: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case score = "score"
+    case score
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21469,13 +20772,11 @@ extension BleuMetricValue: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         score,
         forKey: .score
       )
-
     }
   }
 }
@@ -21488,19 +20789,17 @@ public struct CustomCodeExecutionResult: Sendable {
   public let score: Float?
 
   /// Default initializer.
-  public init(
-    score: Float? = nil
-  ) {
+  public init(score: Float? = nil) {
     self.score = score
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CustomCodeExecutionResult: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case score = "score"
+    case score
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21517,13 +20816,11 @@ extension CustomCodeExecutionResult: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         score,
         forKey: .score
       )
-
     }
   }
 }
@@ -21536,19 +20833,17 @@ public struct ExactMatchMetricValue: Sendable {
   public let score: Float?
 
   /// Default initializer.
-  public init(
-    score: Float? = nil
-  ) {
+  public init(score: Float? = nil) {
     self.score = score
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ExactMatchMetricValue: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case score = "score"
+    case score
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21565,13 +20860,11 @@ extension ExactMatchMetricValue: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         score,
         forKey: .score
       )
-
     }
   }
 }
@@ -21583,19 +20876,17 @@ public struct RawOutput: Sendable {
   public let rawOutput: [String]?
 
   /// Default initializer.
-  public init(
-    rawOutput: [String]? = nil
-  ) {
+  public init(rawOutput: [String]? = nil) {
     self.rawOutput = rawOutput
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RawOutput: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case rawOutput = "rawOutput"
+    case rawOutput
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21612,13 +20903,11 @@ extension RawOutput: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         rawOutput,
         forKey: .rawOutput
       )
-
     }
   }
 }
@@ -21630,19 +20919,17 @@ public struct CustomOutput: Sendable {
   public let rawOutputs: RawOutput?
 
   /// Default initializer.
-  public init(
-    rawOutputs: RawOutput? = nil
-  ) {
+  public init(rawOutputs: RawOutput? = nil) {
     self.rawOutputs = rawOutputs
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CustomOutput: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case rawOutputs = "rawOutputs"
+    case rawOutputs
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21659,13 +20946,11 @@ extension CustomOutput: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         rawOutputs,
         forKey: .rawOutputs
       )
-
     }
   }
 }
@@ -21683,11 +20968,9 @@ public struct PairwiseMetricResult: Sendable {
   public let pairwiseChoice: PairwiseChoice?
 
   /// Default initializer.
-  public init(
-    customOutput: CustomOutput? = nil,
-    explanation: String? = nil,
-    pairwiseChoice: PairwiseChoice? = nil
-  ) {
+  public init(customOutput: CustomOutput? = nil,
+              explanation: String? = nil,
+              pairwiseChoice: PairwiseChoice? = nil) {
     self.customOutput = customOutput
     self.explanation = explanation
     self.pairwiseChoice = pairwiseChoice
@@ -21696,12 +20979,12 @@ public struct PairwiseMetricResult: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PairwiseMetricResult: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case customOutput = "customOutput"
-    case explanation = "explanation"
-    case pairwiseChoice = "pairwiseChoice"
+    case customOutput
+    case explanation
+    case pairwiseChoice
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21728,7 +21011,6 @@ extension PairwiseMetricResult: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         customOutput,
@@ -21744,7 +21026,6 @@ extension PairwiseMetricResult: Codable {
         pairwiseChoice,
         forKey: .pairwiseChoice
       )
-
     }
   }
 }
@@ -21762,11 +21043,9 @@ public struct PointwiseMetricResult: Sendable {
   public let score: Float?
 
   /// Default initializer.
-  public init(
-    customOutput: CustomOutput? = nil,
-    explanation: String? = nil,
-    score: Float? = nil
-  ) {
+  public init(customOutput: CustomOutput? = nil,
+              explanation: String? = nil,
+              score: Float? = nil) {
     self.customOutput = customOutput
     self.explanation = explanation
     self.score = score
@@ -21775,12 +21054,12 @@ public struct PointwiseMetricResult: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PointwiseMetricResult: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case customOutput = "customOutput"
-    case explanation = "explanation"
-    case score = "score"
+    case customOutput
+    case explanation
+    case score
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21807,7 +21086,6 @@ extension PointwiseMetricResult: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         customOutput,
@@ -21823,7 +21101,6 @@ extension PointwiseMetricResult: Codable {
         score,
         forKey: .score
       )
-
     }
   }
 }
@@ -21836,19 +21113,17 @@ public struct RougeMetricValue: Sendable {
   public let score: Float?
 
   /// Default initializer.
-  public init(
-    score: Float? = nil
-  ) {
+  public init(score: Float? = nil) {
     self.score = score
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RougeMetricValue: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case score = "score"
+    case score
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21865,13 +21140,11 @@ extension RougeMetricValue: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         score,
         forKey: .score
       )
-
     }
   }
 }
@@ -21884,19 +21157,17 @@ public struct AggregationResult: Sendable {
   public let customCodeExecutionResult: CustomCodeExecutionResult?
 
   /// Default initializer.
-  public init(
-    customCodeExecutionResult: CustomCodeExecutionResult? = nil
-  ) {
+  public init(customCodeExecutionResult: CustomCodeExecutionResult? = nil) {
     self.customCodeExecutionResult = customCodeExecutionResult
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AggregationResult: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case customCodeExecutionResult = "customCodeExecutionResult"
+    case customCodeExecutionResult
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21913,13 +21184,11 @@ extension AggregationResult: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         customCodeExecutionResult,
         forKey: .customCodeExecutionResult
       )
-
     }
   }
 }
@@ -21933,19 +21202,17 @@ public struct BigQuerySource: Sendable {
   public let inputUri: String?
 
   /// Default initializer.
-  public init(
-    inputUri: String? = nil
-  ) {
+  public init(inputUri: String? = nil) {
     self.inputUri = inputUri
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension BigQuerySource: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case inputUri = "inputUri"
+    case inputUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -21962,13 +21229,11 @@ extension BigQuerySource: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         inputUri,
         forKey: .inputUri
       )
-
     }
   }
 }
@@ -21983,19 +21248,17 @@ public struct GcsSource: Sendable {
   public let uris: [String]?
 
   /// Default initializer.
-  public init(
-    uris: [String]? = nil
-  ) {
+  public init(uris: [String]? = nil) {
     self.uris = uris
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GcsSource: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case uris = "uris"
+    case uris
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22012,13 +21275,11 @@ extension GcsSource: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         uris,
         forKey: .uris
       )
-
     }
   }
 }
@@ -22034,10 +21295,8 @@ public struct EvaluationDataset: Sendable {
   public let gcsSource: GcsSource?
 
   /// Default initializer.
-  public init(
-    bigquerySource: BigQuerySource? = nil,
-    gcsSource: GcsSource? = nil
-  ) {
+  public init(bigquerySource: BigQuerySource? = nil,
+              gcsSource: GcsSource? = nil) {
     self.bigquerySource = bigquerySource
     self.gcsSource = gcsSource
   }
@@ -22045,11 +21304,11 @@ public struct EvaluationDataset: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EvaluationDataset: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case bigquerySource = "bigquerySource"
-    case gcsSource = "gcsSource"
+    case bigquerySource
+    case gcsSource
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22071,7 +21330,6 @@ extension EvaluationDataset: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         bigquerySource,
@@ -22082,7 +21340,6 @@ extension EvaluationDataset: Codable {
         gcsSource,
         forKey: .gcsSource
       )
-
     }
   }
 }
@@ -22098,10 +21355,8 @@ public struct AggregationOutput: Sendable {
   public let dataset: EvaluationDataset?
 
   /// Default initializer.
-  public init(
-    aggregationResults: [AggregationResult]? = nil,
-    dataset: EvaluationDataset? = nil
-  ) {
+  public init(aggregationResults: [AggregationResult]? = nil,
+              dataset: EvaluationDataset? = nil) {
     self.aggregationResults = aggregationResults
     self.dataset = dataset
   }
@@ -22109,11 +21364,11 @@ public struct AggregationOutput: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AggregationOutput: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case aggregationResults = "aggregationResults"
-    case dataset = "dataset"
+    case aggregationResults
+    case dataset
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22135,7 +21390,6 @@ extension AggregationOutput: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         aggregationResults,
@@ -22146,7 +21400,6 @@ extension AggregationOutput: Codable {
         dataset,
         forKey: .dataset
       )
-
     }
   }
 }
@@ -22160,19 +21413,17 @@ public struct OutputInfo: Sendable {
   public let gcsOutputDirectory: String?
 
   /// Default initializer.
-  public init(
-    gcsOutputDirectory: String? = nil
-  ) {
+  public init(gcsOutputDirectory: String? = nil) {
     self.gcsOutputDirectory = gcsOutputDirectory
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension OutputInfo: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case gcsOutputDirectory = "gcsOutputDirectory"
+    case gcsOutputDirectory
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22189,13 +21440,11 @@ extension OutputInfo: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         gcsOutputDirectory,
         forKey: .gcsOutputDirectory
       )
-
     }
   }
 }
@@ -22211,10 +21460,8 @@ public struct EvaluateDatasetResponse: Sendable {
   public let outputInfo: OutputInfo?
 
   /// Default initializer.
-  public init(
-    aggregationOutput: AggregationOutput? = nil,
-    outputInfo: OutputInfo? = nil
-  ) {
+  public init(aggregationOutput: AggregationOutput? = nil,
+              outputInfo: OutputInfo? = nil) {
     self.aggregationOutput = aggregationOutput
     self.outputInfo = outputInfo
   }
@@ -22222,11 +21469,11 @@ public struct EvaluateDatasetResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EvaluateDatasetResponse: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case aggregationOutput = "aggregationOutput"
-    case outputInfo = "outputInfo"
+    case aggregationOutput
+    case outputInfo
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22248,7 +21495,6 @@ extension EvaluateDatasetResponse: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         aggregationOutput,
@@ -22259,7 +21505,6 @@ extension EvaluateDatasetResponse: Codable {
         outputInfo,
         forKey: .outputInfo
       )
-
     }
   }
 }
@@ -22287,13 +21532,11 @@ public struct EvaluateDatasetRun: Sendable {
   public let operationName: String?
 
   /// Default initializer.
-  public init(
-    checkpointId: String? = nil,
-    error: GoogleRpcStatus? = nil,
-    evaluateDatasetResponse: EvaluateDatasetResponse? = nil,
-    evaluationRun: String? = nil,
-    operationName: String? = nil
-  ) {
+  public init(checkpointId: String? = nil,
+              error: GoogleRpcStatus? = nil,
+              evaluateDatasetResponse: EvaluateDatasetResponse? = nil,
+              evaluationRun: String? = nil,
+              operationName: String? = nil) {
     self.checkpointId = checkpointId
     self.error = error
     self.evaluateDatasetResponse = evaluateDatasetResponse
@@ -22304,14 +21547,14 @@ public struct EvaluateDatasetRun: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EvaluateDatasetRun: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case checkpointId = "checkpointId"
-    case error = "error"
-    case evaluateDatasetResponse = "evaluateDatasetResponse"
-    case evaluationRun = "evaluationRun"
-    case operationName = "operationName"
+    case checkpointId
+    case error
+    case evaluateDatasetResponse
+    case evaluationRun
+    case operationName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22348,7 +21591,6 @@ extension EvaluateDatasetRun: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         checkpointId,
@@ -22374,7 +21616,6 @@ extension EvaluateDatasetRun: Codable {
         operationName,
         forKey: .operationName
       )
-
     }
   }
 }
@@ -22396,11 +21637,9 @@ public struct FullFineTuningSpec: Sendable {
   public let validationDatasetUri: String?
 
   /// Default initializer.
-  public init(
-    hyperParameters: SupervisedHyperParameters? = nil,
-    trainingDatasetUri: String? = nil,
-    validationDatasetUri: String? = nil
-  ) {
+  public init(hyperParameters: SupervisedHyperParameters? = nil,
+              trainingDatasetUri: String? = nil,
+              validationDatasetUri: String? = nil) {
     self.hyperParameters = hyperParameters
     self.trainingDatasetUri = trainingDatasetUri
     self.validationDatasetUri = validationDatasetUri
@@ -22409,12 +21648,12 @@ public struct FullFineTuningSpec: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FullFineTuningSpec: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case hyperParameters = "hyperParameters"
-    case trainingDatasetUri = "trainingDatasetUri"
-    case validationDatasetUri = "validationDatasetUri"
+    case hyperParameters
+    case trainingDatasetUri
+    case validationDatasetUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22441,7 +21680,6 @@ extension FullFineTuningSpec: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         hyperParameters,
@@ -22457,7 +21695,6 @@ extension FullFineTuningSpec: Codable {
         validationDatasetUri,
         forKey: .validationDatasetUri
       )
-
     }
   }
 }
@@ -22481,12 +21718,10 @@ public struct VeoHyperParameters: Sendable {
   public let veoDataMixtureRatio: Double?
 
   /// Default initializer.
-  public init(
-    epochCount: Int64? = nil,
-    learningRateMultiplier: Double? = nil,
-    tuningTask: TuningTask? = nil,
-    veoDataMixtureRatio: Double? = nil
-  ) {
+  public init(epochCount: Int64? = nil,
+              learningRateMultiplier: Double? = nil,
+              tuningTask: TuningTask? = nil,
+              veoDataMixtureRatio: Double? = nil) {
     self.epochCount = epochCount
     self.learningRateMultiplier = learningRateMultiplier
     self.tuningTask = tuningTask
@@ -22496,13 +21731,13 @@ public struct VeoHyperParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VeoHyperParameters: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case epochCount = "epochCount"
-    case learningRateMultiplier = "learningRateMultiplier"
-    case tuningTask = "tuningTask"
-    case veoDataMixtureRatio = "veoDataMixtureRatio"
+    case epochCount
+    case learningRateMultiplier
+    case tuningTask
+    case veoDataMixtureRatio
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22534,7 +21769,6 @@ extension VeoHyperParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         epochCount,
@@ -22555,7 +21789,6 @@ extension VeoHyperParameters: Codable {
         veoDataMixtureRatio,
         forKey: .veoDataMixtureRatio
       )
-
     }
   }
 }
@@ -22577,11 +21810,9 @@ public struct VeoTuningSpec: Sendable {
   public let validationDatasetUri: String?
 
   /// Default initializer.
-  public init(
-    hyperParameters: VeoHyperParameters? = nil,
-    trainingDatasetUri: String? = nil,
-    validationDatasetUri: String? = nil
-  ) {
+  public init(hyperParameters: VeoHyperParameters? = nil,
+              trainingDatasetUri: String? = nil,
+              validationDatasetUri: String? = nil) {
     self.hyperParameters = hyperParameters
     self.trainingDatasetUri = trainingDatasetUri
     self.validationDatasetUri = validationDatasetUri
@@ -22590,12 +21821,12 @@ public struct VeoTuningSpec: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VeoTuningSpec: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case hyperParameters = "hyperParameters"
-    case trainingDatasetUri = "trainingDatasetUri"
-    case validationDatasetUri = "validationDatasetUri"
+    case hyperParameters
+    case trainingDatasetUri
+    case validationDatasetUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -22622,7 +21853,6 @@ extension VeoTuningSpec: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         hyperParameters,
@@ -22638,7 +21868,6 @@ extension VeoTuningSpec: Codable {
         validationDatasetUri,
         forKey: .validationDatasetUri
       )
-
     }
   }
 }
@@ -22764,37 +21993,35 @@ public struct TuningJob: Sendable {
   public let veoTuningSpec: VeoTuningSpec?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    name: String? = nil,
-    state: JobState? = nil,
-    createTime: String? = nil,
-    startTime: String? = nil,
-    endTime: String? = nil,
-    updateTime: String? = nil,
-    error: GoogleRpcStatus? = nil,
-    description: String? = nil,
-    baseModel: String? = nil,
-    tunedModel: TunedModel? = nil,
-    preTunedModel: PreTunedModel? = nil,
-    supervisedTuningSpec: SupervisedTuningSpec? = nil,
-    preferenceOptimizationSpec: PreferenceOptimizationSpec? = nil,
-    distillationSpec: DistillationSpec? = nil,
-    tuningDataStats: TuningDataStats? = nil,
-    encryptionSpec: EncryptionSpec? = nil,
-    partnerModelTuningSpec: PartnerModelTuningSpec? = nil,
-    customBaseModel: String? = nil,
-    evaluateDatasetRuns: [EvaluateDatasetRun]? = nil,
-    experiment: String? = nil,
-    fullFineTuningSpec: FullFineTuningSpec? = nil,
-    labels: [String: String]? = nil,
-    outputUri: String? = nil,
-    pipelineJob: String? = nil,
-    serviceAccount: String? = nil,
-    tunedModelDisplayName: String? = nil,
-    tuningJobState: TuningJobState? = nil,
-    veoTuningSpec: VeoTuningSpec? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              name: String? = nil,
+              state: JobState? = nil,
+              createTime: String? = nil,
+              startTime: String? = nil,
+              endTime: String? = nil,
+              updateTime: String? = nil,
+              error: GoogleRpcStatus? = nil,
+              description: String? = nil,
+              baseModel: String? = nil,
+              tunedModel: TunedModel? = nil,
+              preTunedModel: PreTunedModel? = nil,
+              supervisedTuningSpec: SupervisedTuningSpec? = nil,
+              preferenceOptimizationSpec: PreferenceOptimizationSpec? = nil,
+              distillationSpec: DistillationSpec? = nil,
+              tuningDataStats: TuningDataStats? = nil,
+              encryptionSpec: EncryptionSpec? = nil,
+              partnerModelTuningSpec: PartnerModelTuningSpec? = nil,
+              customBaseModel: String? = nil,
+              evaluateDatasetRuns: [EvaluateDatasetRun]? = nil,
+              experiment: String? = nil,
+              fullFineTuningSpec: FullFineTuningSpec? = nil,
+              labels: [String: String]? = nil,
+              outputUri: String? = nil,
+              pipelineJob: String? = nil,
+              serviceAccount: String? = nil,
+              tunedModelDisplayName: String? = nil,
+              tuningJobState: TuningJobState? = nil,
+              veoTuningSpec: VeoTuningSpec? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.name = name
     self.state = state
@@ -22829,41 +22056,41 @@ public struct TuningJob: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TuningJob: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case name = "name"
-    case state = "state"
-    case createTime = "createTime"
-    case startTime = "startTime"
-    case endTime = "endTime"
-    case updateTime = "updateTime"
-    case description = "description"
-    case baseModel = "baseModel"
-    case tunedModel = "tunedModel"
+    case sdkHttpResponse
+    case name
+    case state
+    case createTime
+    case startTime
+    case endTime
+    case updateTime
+    case description
+    case baseModel
+    case tunedModel
   }
+
   public enum VertexKeys: String, CodingKey {
-    case error = "error"
-    case preTunedModel = "preTunedModel"
-    case supervisedTuningSpec = "supervisedTuningSpec"
-    case preferenceOptimizationSpec = "preferenceOptimizationSpec"
-    case distillationSpec = "distillationSpec"
-    case tuningDataStats = "tuningDataStats"
-    case encryptionSpec = "encryptionSpec"
-    case partnerModelTuningSpec = "partnerModelTuningSpec"
-    case customBaseModel = "customBaseModel"
-    case evaluateDatasetRuns = "evaluateDatasetRuns"
-    case experiment = "experiment"
-    case fullFineTuningSpec = "fullFineTuningSpec"
-    case labels = "labels"
-    case outputUri = "outputUri"
-    case pipelineJob = "pipelineJob"
-    case serviceAccount = "serviceAccount"
-    case tunedModelDisplayName = "tunedModelDisplayName"
-    case tuningJobState = "tuningJobState"
-    case veoTuningSpec = "veoTuningSpec"
+    case error
+    case preTunedModel
+    case supervisedTuningSpec
+    case preferenceOptimizationSpec
+    case distillationSpec
+    case tuningDataStats
+    case encryptionSpec
+    case partnerModelTuningSpec
+    case customBaseModel
+    case evaluateDatasetRuns
+    case experiment
+    case fullFineTuningSpec
+    case labels
+    case outputUri
+    case pipelineJob
+    case serviceAccount
+    case tunedModelDisplayName
+    case tuningJobState
+    case veoTuningSpec
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23072,7 +22299,6 @@ extension TuningJob: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         error,
@@ -23168,7 +22394,6 @@ extension TuningJob: Codable {
         veoTuningSpec,
         forKey: .veoTuningSpec
       )
-
     }
   }
 }
@@ -23186,12 +22411,10 @@ public struct ListTuningJobsConfig: Sendable {
   public let filter: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    pageSize: Int32? = nil,
-    pageToken: String? = nil,
-    filter: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              pageSize: Int32? = nil,
+              pageToken: String? = nil,
+              filter: String? = nil) {
     self.httpOptions = httpOptions
     self.pageSize = pageSize
     self.pageToken = pageToken
@@ -23201,14 +22424,13 @@ public struct ListTuningJobsConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListTuningJobsConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case pageSize = "pageSize"
-    case pageToken = "pageToken"
-    case filter = "filter"
+    case httpOptions
+    case pageSize
+    case pageToken
+    case filter
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23268,20 +22490,17 @@ public struct ListTuningJobsParameters: Sendable {
   public let config: ListTuningJobsConfig?
 
   /// Default initializer.
-  public init(
-    config: ListTuningJobsConfig? = nil
-  ) {
+  public init(config: ListTuningJobsConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListTuningJobsParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23319,11 +22538,9 @@ public struct ListTuningJobsResponse: Sendable {
   public let tuningJobs: [TuningJob]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    nextPageToken: String? = nil,
-    tuningJobs: [TuningJob]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              nextPageToken: String? = nil,
+              tuningJobs: [TuningJob]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.nextPageToken = nextPageToken
     self.tuningJobs = tuningJobs
@@ -23332,13 +22549,12 @@ public struct ListTuningJobsResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListTuningJobsResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case nextPageToken = "nextPageToken"
-    case tuningJobs = "tuningJobs"
+    case sdkHttpResponse
+    case nextPageToken
+    case tuningJobs
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23389,20 +22605,17 @@ public struct CancelTuningJobConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CancelTuningJobConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23436,10 +22649,8 @@ public struct CancelTuningJobParameters: Sendable {
   public let config: CancelTuningJobConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: CancelTuningJobConfig? = nil
-  ) {
+  public init(name: String,
+              config: CancelTuningJobConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -23447,12 +22658,11 @@ public struct CancelTuningJobParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CancelTuningJobParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23478,7 +22688,8 @@ extension CancelTuningJobParameters: Codable {
       name,
       forKey: .name,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CancelTuningJobParameters", field: "name")
+        backend: configuration.backend, type: "CancelTuningJobParameters", field: "name"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -23495,20 +22706,17 @@ public struct CancelTuningJobResponse: Sendable {
   public let sdkHttpResponse: HttpResponse?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CancelTuningJobResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23542,10 +22750,8 @@ public struct TuningExample: Sendable {
   public let textInput: String?
 
   /// Default initializer.
-  public init(
-    output: String? = nil,
-    textInput: String? = nil
-  ) {
+  public init(output: String? = nil,
+              textInput: String? = nil) {
     self.output = output
     self.textInput = textInput
   }
@@ -23553,11 +22759,11 @@ public struct TuningExample: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TuningExample: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case output = "output"
-    case textInput = "textInput"
+    case output
+    case textInput
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23579,7 +22785,6 @@ extension TuningExample: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         output,
@@ -23590,7 +22795,6 @@ extension TuningExample: Codable {
         textInput,
         forKey: .textInput
       )
-
     }
   }
 }
@@ -23610,11 +22814,9 @@ public struct TuningDataset: Sendable {
   public let examples: [TuningExample]?
 
   /// Default initializer.
-  public init(
-    gcsUri: String? = nil,
-    vertexDatasetResource: String? = nil,
-    examples: [TuningExample]? = nil
-  ) {
+  public init(gcsUri: String? = nil,
+              vertexDatasetResource: String? = nil,
+              examples: [TuningExample]? = nil) {
     self.gcsUri = gcsUri
     self.vertexDatasetResource = vertexDatasetResource
     self.examples = examples
@@ -23623,14 +22825,15 @@ public struct TuningDataset: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TuningDataset: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case examples = "examples"
+    case examples
   }
+
   public enum VertexKeys: String, CodingKey {
-    case gcsUri = "gcsUri"
-    case vertexDatasetResource = "vertexDatasetResource"
+    case gcsUri
+    case vertexDatasetResource
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23658,17 +22861,14 @@ extension TuningDataset: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         examples,
         forKey: .examples
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         gcsUri,
@@ -23679,7 +22879,6 @@ extension TuningDataset: Codable {
         vertexDatasetResource,
         forKey: .vertexDatasetResource
       )
-
     }
   }
 }
@@ -23695,10 +22894,8 @@ public struct TuningValidationDataset: Sendable {
   public let vertexDatasetResource: String?
 
   /// Default initializer.
-  public init(
-    gcsUri: String? = nil,
-    vertexDatasetResource: String? = nil
-  ) {
+  public init(gcsUri: String? = nil,
+              vertexDatasetResource: String? = nil) {
     self.gcsUri = gcsUri
     self.vertexDatasetResource = vertexDatasetResource
   }
@@ -23706,11 +22903,11 @@ public struct TuningValidationDataset: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TuningValidationDataset: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case gcsUri = "gcsUri"
-    case vertexDatasetResource = "vertexDatasetResource"
+    case gcsUri
+    case vertexDatasetResource
   }
 
   public init(from decoder: any Decoder) throws {
@@ -23732,7 +22929,6 @@ extension TuningValidationDataset: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         gcsUri,
@@ -23743,7 +22939,6 @@ extension TuningValidationDataset: Codable {
         vertexDatasetResource,
         forKey: .vertexDatasetResource
       )
-
     }
   }
 }
@@ -23833,30 +23028,28 @@ public struct CreateTuningJobConfig: Sendable {
   public let encryptionSpec: EncryptionSpec?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    method: TuningMethod? = nil,
-    validationDataset: TuningValidationDataset? = nil,
-    tunedModelDisplayName: String? = nil,
-    description: String? = nil,
-    epochCount: Int32? = nil,
-    learningRateMultiplier: Float? = nil,
-    exportLastCheckpointOnly: Bool? = nil,
-    preTunedModelCheckpointId: String? = nil,
-    adapterSize: AdapterSize? = nil,
-    tuningMode: TuningMode? = nil,
-    customBaseModel: String? = nil,
-    batchSize: Int32? = nil,
-    learningRate: Float? = nil,
-    evaluationConfig: EvaluationConfig? = nil,
-    labels: [String: String]? = nil,
-    beta: Float? = nil,
-    baseTeacherModel: String? = nil,
-    tunedTeacherModelSource: String? = nil,
-    sftLossWeightMultiplier: Float? = nil,
-    outputUri: String? = nil,
-    encryptionSpec: EncryptionSpec? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              method: TuningMethod? = nil,
+              validationDataset: TuningValidationDataset? = nil,
+              tunedModelDisplayName: String? = nil,
+              description: String? = nil,
+              epochCount: Int32? = nil,
+              learningRateMultiplier: Float? = nil,
+              exportLastCheckpointOnly: Bool? = nil,
+              preTunedModelCheckpointId: String? = nil,
+              adapterSize: AdapterSize? = nil,
+              tuningMode: TuningMode? = nil,
+              customBaseModel: String? = nil,
+              batchSize: Int32? = nil,
+              learningRate: Float? = nil,
+              evaluationConfig: EvaluationConfig? = nil,
+              labels: [String: String]? = nil,
+              beta: Float? = nil,
+              baseTeacherModel: String? = nil,
+              tunedTeacherModelSource: String? = nil,
+              sftLossWeightMultiplier: Float? = nil,
+              outputUri: String? = nil,
+              encryptionSpec: EncryptionSpec? = nil) {
     self.httpOptions = httpOptions
     self.method = method
     self.validationDataset = validationDataset
@@ -23884,34 +23077,34 @@ public struct CreateTuningJobConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateTuningJobConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case method = "method"
-    case tunedModelDisplayName = "tunedModelDisplayName"
-    case epochCount = "epochCount"
-    case learningRateMultiplier = "learningRateMultiplier"
-    case batchSize = "batchSize"
-    case learningRate = "learningRate"
+    case httpOptions
+    case method
+    case tunedModelDisplayName
+    case epochCount
+    case learningRateMultiplier
+    case batchSize
+    case learningRate
   }
+
   public enum VertexKeys: String, CodingKey {
-    case validationDataset = "validationDataset"
-    case description = "description"
-    case exportLastCheckpointOnly = "exportLastCheckpointOnly"
-    case preTunedModelCheckpointId = "preTunedModelCheckpointId"
-    case adapterSize = "adapterSize"
-    case tuningMode = "tuningMode"
-    case customBaseModel = "customBaseModel"
-    case evaluationConfig = "evaluationConfig"
-    case labels = "labels"
-    case beta = "beta"
-    case baseTeacherModel = "baseTeacherModel"
-    case tunedTeacherModelSource = "tunedTeacherModelSource"
-    case sftLossWeightMultiplier = "sftLossWeightMultiplier"
-    case outputUri = "outputUri"
-    case encryptionSpec = "encryptionSpec"
+    case validationDataset
+    case description
+    case exportLastCheckpointOnly
+    case preTunedModelCheckpointId
+    case adapterSize
+    case tuningMode
+    case customBaseModel
+    case evaluationConfig
+    case labels
+    case beta
+    case baseTeacherModel
+    case tunedTeacherModelSource
+    case sftLossWeightMultiplier
+    case outputUri
+    case encryptionSpec
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24070,7 +23263,6 @@ extension CreateTuningJobConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         validationDataset,
@@ -24146,7 +23338,6 @@ extension CreateTuningJobConfig: Codable {
         encryptionSpec,
         forKey: .encryptionSpec
       )
-
     }
   }
 }
@@ -24168,12 +23359,10 @@ public struct CreateTuningJobParametersPrivate: Sendable {
   public let config: CreateTuningJobConfig?
 
   /// Default initializer.
-  public init(
-    baseModel: String? = nil,
-    preTunedModel: PreTunedModel? = nil,
-    trainingDataset: TuningDataset,
-    config: CreateTuningJobConfig? = nil
-  ) {
+  public init(baseModel: String? = nil,
+              preTunedModel: PreTunedModel? = nil,
+              trainingDataset: TuningDataset,
+              config: CreateTuningJobConfig? = nil) {
     self.baseModel = baseModel
     self.preTunedModel = preTunedModel
     self.trainingDataset = trainingDataset
@@ -24183,14 +23372,13 @@ public struct CreateTuningJobParametersPrivate: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateTuningJobParametersPrivate: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case baseModel = "baseModel"
-    case preTunedModel = "preTunedModel"
-    case trainingDataset = "trainingDataset"
-    case config = "config"
+    case baseModel
+    case preTunedModel
+    case trainingDataset
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24237,7 +23425,8 @@ extension CreateTuningJobParametersPrivate: Codable {
       forKey: .trainingDataset,
       error: MissingRequiredFieldError(
         backend: configuration.backend, type: "CreateTuningJobParametersPrivate",
-        field: "trainingDataset")
+        field: "trainingDataset"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -24272,13 +23461,11 @@ public struct TuningOperation: Sendable {
   public let error: [String: JSONValue]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    name: String? = nil,
-    metadata: [String: JSONValue]? = nil,
-    done: Bool? = nil,
-    error: [String: JSONValue]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              name: String? = nil,
+              metadata: [String: JSONValue]? = nil,
+              done: Bool? = nil,
+              error: [String: JSONValue]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.name = name
     self.metadata = metadata
@@ -24289,15 +23476,14 @@ public struct TuningOperation: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TuningOperation: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case name = "name"
-    case metadata = "metadata"
-    case done = "done"
-    case error = "error"
+    case sdkHttpResponse
+    case name
+    case metadata
+    case done
+    case error
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24403,17 +23589,15 @@ public struct CreateCachedContentConfig: Sendable {
   public let kmsKeyName: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    ttl: TimeInterval? = nil,
-    expireTime: String? = nil,
-    displayName: String? = nil,
-    contents: [Content]? = nil,
-    systemInstruction: [Content]? = nil,
-    tools: [Tool]? = nil,
-    toolConfig: ToolConfig? = nil,
-    kmsKeyName: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              ttl: TimeInterval? = nil,
+              expireTime: String? = nil,
+              displayName: String? = nil,
+              contents: [Content]? = nil,
+              systemInstruction: [Content]? = nil,
+              tools: [Tool]? = nil,
+              toolConfig: ToolConfig? = nil,
+              kmsKeyName: String? = nil) {
     self.httpOptions = httpOptions
     self.ttl = ttl
     self.expireTime = expireTime
@@ -24428,21 +23612,21 @@ public struct CreateCachedContentConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateCachedContentConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case ttl = "ttl"
-    case expireTime = "expireTime"
-    case displayName = "displayName"
-    case contents = "contents"
-    case systemInstruction = "systemInstruction"
-    case tools = "tools"
-    case toolConfig = "toolConfig"
+    case httpOptions
+    case ttl
+    case expireTime
+    case displayName
+    case contents
+    case systemInstruction
+    case tools
+    case toolConfig
   }
+
   public enum VertexKeys: String, CodingKey {
-    case kmsKeyName = "kmsKeyName"
+    case kmsKeyName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24541,13 +23725,11 @@ extension CreateCachedContentConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         kmsKeyName,
         forKey: .kmsKeyName
       )
-
     }
   }
 }
@@ -24562,10 +23744,8 @@ public struct CreateCachedContentParameters: Sendable {
   public let config: CreateCachedContentConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    config: CreateCachedContentConfig? = nil
-  ) {
+  public init(model: String,
+              config: CreateCachedContentConfig? = nil) {
     self.model = model
     self.config = config
   }
@@ -24573,12 +23753,11 @@ public struct CreateCachedContentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateCachedContentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case config = "config"
+    case model
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24604,7 +23783,8 @@ extension CreateCachedContentParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CreateCachedContentParameters", field: "model")
+        backend: configuration.backend, type: "CreateCachedContentParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -24633,13 +23813,11 @@ public struct CachedContentUsageMetadata: Sendable {
   public let videoDurationSeconds: Int32?
 
   /// Default initializer.
-  public init(
-    audioDurationSeconds: Int32? = nil,
-    imageCount: Int32? = nil,
-    textCount: Int32? = nil,
-    totalTokenCount: Int32? = nil,
-    videoDurationSeconds: Int32? = nil
-  ) {
+  public init(audioDurationSeconds: Int32? = nil,
+              imageCount: Int32? = nil,
+              textCount: Int32? = nil,
+              totalTokenCount: Int32? = nil,
+              videoDurationSeconds: Int32? = nil) {
     self.audioDurationSeconds = audioDurationSeconds
     self.imageCount = imageCount
     self.textCount = textCount
@@ -24650,17 +23828,17 @@ public struct CachedContentUsageMetadata: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CachedContentUsageMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case totalTokenCount = "totalTokenCount"
+    case totalTokenCount
   }
+
   public enum VertexKeys: String, CodingKey {
-    case audioDurationSeconds = "audioDurationSeconds"
-    case imageCount = "imageCount"
-    case textCount = "textCount"
-    case videoDurationSeconds = "videoDurationSeconds"
+    case audioDurationSeconds
+    case imageCount
+    case textCount
+    case videoDurationSeconds
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24704,7 +23882,6 @@ extension CachedContentUsageMetadata: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         audioDurationSeconds,
@@ -24725,7 +23902,6 @@ extension CachedContentUsageMetadata: Codable {
         videoDurationSeconds,
         forKey: .videoDurationSeconds
       )
-
     }
   }
 }
@@ -24755,15 +23931,13 @@ public struct CachedContent: Sendable {
   public let usageMetadata: CachedContentUsageMetadata?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    displayName: String? = nil,
-    model: String? = nil,
-    createTime: String? = nil,
-    updateTime: String? = nil,
-    expireTime: String? = nil,
-    usageMetadata: CachedContentUsageMetadata? = nil
-  ) {
+  public init(name: String? = nil,
+              displayName: String? = nil,
+              model: String? = nil,
+              createTime: String? = nil,
+              updateTime: String? = nil,
+              expireTime: String? = nil,
+              usageMetadata: CachedContentUsageMetadata? = nil) {
     self.name = name
     self.displayName = displayName
     self.model = model
@@ -24776,17 +23950,16 @@ public struct CachedContent: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CachedContent: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case displayName = "displayName"
-    case model = "model"
-    case createTime = "createTime"
-    case updateTime = "updateTime"
-    case expireTime = "expireTime"
-    case usageMetadata = "usageMetadata"
+    case name
+    case displayName
+    case model
+    case createTime
+    case updateTime
+    case expireTime
+    case usageMetadata
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24877,20 +24050,17 @@ public struct GetCachedContentConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetCachedContentConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24924,10 +24094,8 @@ public struct GetCachedContentParameters: Sendable {
   public let config: GetCachedContentConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: GetCachedContentConfig? = nil
-  ) {
+  public init(name: String,
+              config: GetCachedContentConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -24935,12 +24103,11 @@ public struct GetCachedContentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetCachedContentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -24966,7 +24133,8 @@ extension GetCachedContentParameters: Codable {
       name,
       forKey: .name,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GetCachedContentParameters", field: "name")
+        backend: configuration.backend, type: "GetCachedContentParameters", field: "name"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -24983,20 +24151,17 @@ public struct DeleteCachedContentConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteCachedContentConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25030,10 +24195,8 @@ public struct DeleteCachedContentParameters: Sendable {
   public let config: DeleteCachedContentConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: DeleteCachedContentConfig? = nil
-  ) {
+  public init(name: String,
+              config: DeleteCachedContentConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -25041,12 +24204,11 @@ public struct DeleteCachedContentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteCachedContentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25072,7 +24234,8 @@ extension DeleteCachedContentParameters: Codable {
       name,
       forKey: .name,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "DeleteCachedContentParameters", field: "name")
+        backend: configuration.backend, type: "DeleteCachedContentParameters", field: "name"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -25089,20 +24252,17 @@ public struct DeleteCachedContentResponse: Sendable {
   public let sdkHttpResponse: HttpResponse?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteCachedContentResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25142,11 +24302,9 @@ public struct UpdateCachedContentConfig: Sendable {
   public let expireTime: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    ttl: TimeInterval? = nil,
-    expireTime: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              ttl: TimeInterval? = nil,
+              expireTime: String? = nil) {
     self.httpOptions = httpOptions
     self.ttl = ttl
     self.expireTime = expireTime
@@ -25155,13 +24313,12 @@ public struct UpdateCachedContentConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UpdateCachedContentConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case ttl = "ttl"
-    case expireTime = "expireTime"
+    case httpOptions
+    case ttl
+    case expireTime
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25214,10 +24371,8 @@ public struct UpdateCachedContentParameters: Sendable {
   public let config: UpdateCachedContentConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: UpdateCachedContentConfig? = nil
-  ) {
+  public init(name: String,
+              config: UpdateCachedContentConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -25225,12 +24380,11 @@ public struct UpdateCachedContentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UpdateCachedContentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25256,7 +24410,8 @@ extension UpdateCachedContentParameters: Codable {
       name,
       forKey: .name,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "UpdateCachedContentParameters", field: "name")
+        backend: configuration.backend, type: "UpdateCachedContentParameters", field: "name"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -25277,11 +24432,9 @@ public struct ListCachedContentsConfig: Sendable {
   public let pageToken: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    pageSize: Int32? = nil,
-    pageToken: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              pageSize: Int32? = nil,
+              pageToken: String? = nil) {
     self.httpOptions = httpOptions
     self.pageSize = pageSize
     self.pageToken = pageToken
@@ -25290,13 +24443,12 @@ public struct ListCachedContentsConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListCachedContentsConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case pageSize = "pageSize"
-    case pageToken = "pageToken"
+    case httpOptions
+    case pageSize
+    case pageToken
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25347,20 +24499,17 @@ public struct ListCachedContentsParameters: Sendable {
   public let config: ListCachedContentsConfig?
 
   /// Default initializer.
-  public init(
-    config: ListCachedContentsConfig? = nil
-  ) {
+  public init(config: ListCachedContentsConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListCachedContentsParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25395,11 +24544,9 @@ public struct ListCachedContentsResponse: Sendable {
   public let cachedContents: [CachedContent]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    nextPageToken: String? = nil,
-    cachedContents: [CachedContent]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              nextPageToken: String? = nil,
+              cachedContents: [CachedContent]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.nextPageToken = nextPageToken
     self.cachedContents = cachedContents
@@ -25408,13 +24555,12 @@ public struct ListCachedContentsResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListCachedContentsResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case nextPageToken = "nextPageToken"
-    case cachedContents = "cachedContents"
+    case sdkHttpResponse
+    case nextPageToken
+    case cachedContents
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25465,20 +24611,17 @@ public struct GetDocumentConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetDocumentConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25513,10 +24656,8 @@ public struct GetDocumentParameters: Sendable {
   public let config: GetDocumentConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: GetDocumentConfig? = nil
-  ) {
+  public init(name: String,
+              config: GetDocumentConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -25524,14 +24665,14 @@ public struct GetDocumentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetDocumentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
+    case name
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25560,15 +24701,14 @@ extension GetDocumentParameters: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         name,
         forKey: .name,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "GetDocumentParameters", field: "name")
+          backend: configuration.backend, type: "GetDocumentParameters", field: "name"
+        )
       )
-
     }
   }
 }
@@ -25581,19 +24721,17 @@ public struct StringList: Sendable {
   public let values: [String]?
 
   /// Default initializer.
-  public init(
-    values: [String]? = nil
-  ) {
+  public init(values: [String]? = nil) {
     self.values = values
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension StringList: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case values = "values"
+    case values
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25610,13 +24748,11 @@ extension StringList: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         values,
         forKey: .values
       )
-
     }
   }
 }
@@ -25638,12 +24774,10 @@ public struct CustomMetadata: Sendable {
   public let stringValue: String?
 
   /// Default initializer.
-  public init(
-    key: String? = nil,
-    numericValue: Float? = nil,
-    stringListValue: StringList? = nil,
-    stringValue: String? = nil
-  ) {
+  public init(key: String? = nil,
+              numericValue: Float? = nil,
+              stringListValue: StringList? = nil,
+              stringValue: String? = nil) {
     self.key = key
     self.numericValue = numericValue
     self.stringListValue = stringListValue
@@ -25653,13 +24787,13 @@ public struct CustomMetadata: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CustomMetadata: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case key = "key"
-    case numericValue = "numericValue"
-    case stringListValue = "stringListValue"
-    case stringValue = "stringValue"
+    case key
+    case numericValue
+    case stringListValue
+    case stringValue
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25691,7 +24825,6 @@ extension CustomMetadata: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         key,
@@ -25712,7 +24845,6 @@ extension CustomMetadata: Codable {
         stringValue,
         forKey: .stringValue
       )
-
     }
   }
 }
@@ -25747,16 +24879,14 @@ public struct Document: Sendable {
   public let updateTime: String?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    displayName: String? = nil,
-    state: DocumentState? = nil,
-    sizeBytes: Int64? = nil,
-    mimeType: String? = nil,
-    createTime: String? = nil,
-    customMetadata: [CustomMetadata]? = nil,
-    updateTime: String? = nil
-  ) {
+  public init(name: String? = nil,
+              displayName: String? = nil,
+              state: DocumentState? = nil,
+              sizeBytes: Int64? = nil,
+              mimeType: String? = nil,
+              createTime: String? = nil,
+              customMetadata: [CustomMetadata]? = nil,
+              updateTime: String? = nil) {
     self.name = name
     self.displayName = displayName
     self.state = state
@@ -25770,17 +24900,17 @@ public struct Document: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Document: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
-    case displayName = "displayName"
-    case state = "state"
-    case sizeBytes = "sizeBytes"
-    case mimeType = "mimeType"
-    case createTime = "createTime"
-    case customMetadata = "customMetadata"
-    case updateTime = "updateTime"
+    case name
+    case displayName
+    case state
+    case sizeBytes
+    case mimeType
+    case createTime
+    case customMetadata
+    case updateTime
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25832,7 +24962,6 @@ extension Document: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         name,
@@ -25873,7 +25002,6 @@ extension Document: Codable {
         updateTime,
         forKey: .updateTime
       )
-
     }
   }
 }
@@ -25889,10 +25017,8 @@ public struct DeleteDocumentConfig: Sendable {
   public let force: Bool?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    force: Bool? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              force: Bool? = nil) {
     self.httpOptions = httpOptions
     self.force = force
   }
@@ -25900,12 +25026,11 @@ public struct DeleteDocumentConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteDocumentConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case force = "force"
+    case httpOptions
+    case force
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25950,10 +25075,8 @@ public struct DeleteDocumentParameters: Sendable {
   public let config: DeleteDocumentConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: DeleteDocumentConfig? = nil
-  ) {
+  public init(name: String,
+              config: DeleteDocumentConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -25961,14 +25084,14 @@ public struct DeleteDocumentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteDocumentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
+    case name
   }
 
   public init(from decoder: any Decoder) throws {
@@ -25997,15 +25120,14 @@ extension DeleteDocumentParameters: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         name,
         forKey: .name,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "DeleteDocumentParameters", field: "name")
+          backend: configuration.backend, type: "DeleteDocumentParameters", field: "name"
+        )
       )
-
     }
   }
 }
@@ -26021,11 +25143,9 @@ public struct ListDocumentsConfig: Sendable {
   public let pageToken: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    pageSize: Int32? = nil,
-    pageToken: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              pageSize: Int32? = nil,
+              pageToken: String? = nil) {
     self.httpOptions = httpOptions
     self.pageSize = pageSize
     self.pageToken = pageToken
@@ -26034,13 +25154,12 @@ public struct ListDocumentsConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListDocumentsConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case pageSize = "pageSize"
-    case pageToken = "pageToken"
+    case httpOptions
+    case pageSize
+    case pageToken
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26094,10 +25213,8 @@ public struct ListDocumentsParameters: Sendable {
   public let config: ListDocumentsConfig?
 
   /// Default initializer.
-  public init(
-    parent: String,
-    config: ListDocumentsConfig? = nil
-  ) {
+  public init(parent: String,
+              config: ListDocumentsConfig? = nil) {
     self.parent = parent
     self.config = config
   }
@@ -26105,14 +25222,14 @@ public struct ListDocumentsParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListDocumentsParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case parent = "parent"
+    case parent
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26141,15 +25258,14 @@ extension ListDocumentsParameters: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         parent,
         forKey: .parent,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "ListDocumentsParameters", field: "parent")
+          backend: configuration.backend, type: "ListDocumentsParameters", field: "parent"
+        )
       )
-
     }
   }
 }
@@ -26168,11 +25284,9 @@ public struct ListDocumentsResponse: Sendable {
   public let documents: [Document]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    nextPageToken: String? = nil,
-    documents: [Document]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              nextPageToken: String? = nil,
+              documents: [Document]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.nextPageToken = nextPageToken
     self.documents = documents
@@ -26181,15 +25295,15 @@ public struct ListDocumentsResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListDocumentsResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case documents = "documents"
+    case sdkHttpResponse
+    case documents
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case nextPageToken = "nextPageToken"
+    case nextPageToken
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26228,13 +25342,11 @@ extension ListDocumentsResponse: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         nextPageToken,
         forKey: .nextPageToken
       )
-
     }
   }
 }
@@ -26249,10 +25361,8 @@ public struct CreateFileSearchStoreConfig: Sendable {
   public let displayName: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    displayName: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              displayName: String? = nil) {
     self.httpOptions = httpOptions
     self.displayName = displayName
   }
@@ -26260,12 +25370,11 @@ public struct CreateFileSearchStoreConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateFileSearchStoreConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case displayName = "displayName"
+    case httpOptions
+    case displayName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26306,20 +25415,17 @@ public struct CreateFileSearchStoreParameters: Sendable {
   public let config: CreateFileSearchStoreConfig?
 
   /// Default initializer.
-  public init(
-    config: CreateFileSearchStoreConfig? = nil
-  ) {
+  public init(config: CreateFileSearchStoreConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateFileSearchStoreParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26374,16 +25480,14 @@ public struct FileSearchStore: Sendable {
   public let sizeBytes: Int64?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    displayName: String? = nil,
-    createTime: String? = nil,
-    updateTime: String? = nil,
-    activeDocumentsCount: Int64? = nil,
-    pendingDocumentsCount: Int64? = nil,
-    failedDocumentsCount: Int64? = nil,
-    sizeBytes: Int64? = nil
-  ) {
+  public init(name: String? = nil,
+              displayName: String? = nil,
+              createTime: String? = nil,
+              updateTime: String? = nil,
+              activeDocumentsCount: Int64? = nil,
+              pendingDocumentsCount: Int64? = nil,
+              failedDocumentsCount: Int64? = nil,
+              sizeBytes: Int64? = nil) {
     self.name = name
     self.displayName = displayName
     self.createTime = createTime
@@ -26397,17 +25501,17 @@ public struct FileSearchStore: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FileSearchStore: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
-    case displayName = "displayName"
-    case createTime = "createTime"
-    case updateTime = "updateTime"
-    case activeDocumentsCount = "activeDocumentsCount"
-    case pendingDocumentsCount = "pendingDocumentsCount"
-    case failedDocumentsCount = "failedDocumentsCount"
-    case sizeBytes = "sizeBytes"
+    case name
+    case displayName
+    case createTime
+    case updateTime
+    case activeDocumentsCount
+    case pendingDocumentsCount
+    case failedDocumentsCount
+    case sizeBytes
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26459,7 +25563,6 @@ extension FileSearchStore: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         name,
@@ -26500,7 +25603,6 @@ extension FileSearchStore: Codable {
         sizeBytes,
         forKey: .sizeBytes
       )
-
     }
   }
 }
@@ -26512,20 +25614,17 @@ public struct GetFileSearchStoreConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetFileSearchStoreConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26560,10 +25659,8 @@ public struct GetFileSearchStoreParameters: Sendable {
   public let config: GetFileSearchStoreConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: GetFileSearchStoreConfig? = nil
-  ) {
+  public init(name: String,
+              config: GetFileSearchStoreConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -26571,14 +25668,14 @@ public struct GetFileSearchStoreParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetFileSearchStoreParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
+    case name
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26607,15 +25704,14 @@ extension GetFileSearchStoreParameters: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         name,
         forKey: .name,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "GetFileSearchStoreParameters", field: "name")
+          backend: configuration.backend, type: "GetFileSearchStoreParameters", field: "name"
+        )
       )
-
     }
   }
 }
@@ -26633,10 +25729,8 @@ public struct DeleteFileSearchStoreConfig: Sendable {
   public let force: Bool?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    force: Bool? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              force: Bool? = nil) {
     self.httpOptions = httpOptions
     self.force = force
   }
@@ -26644,12 +25738,11 @@ public struct DeleteFileSearchStoreConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteFileSearchStoreConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case force = "force"
+    case httpOptions
+    case force
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26694,10 +25787,8 @@ public struct DeleteFileSearchStoreParameters: Sendable {
   public let config: DeleteFileSearchStoreConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: DeleteFileSearchStoreConfig? = nil
-  ) {
+  public init(name: String,
+              config: DeleteFileSearchStoreConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -26705,14 +25796,14 @@ public struct DeleteFileSearchStoreParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteFileSearchStoreParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
+    case name
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26741,15 +25832,14 @@ extension DeleteFileSearchStoreParameters: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         name,
         forKey: .name,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "DeleteFileSearchStoreParameters", field: "name")
+          backend: configuration.backend, type: "DeleteFileSearchStoreParameters", field: "name"
+        )
       )
-
     }
   }
 }
@@ -26765,11 +25855,9 @@ public struct ListFileSearchStoresConfig: Sendable {
   public let pageToken: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    pageSize: Int32? = nil,
-    pageToken: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              pageSize: Int32? = nil,
+              pageToken: String? = nil) {
     self.httpOptions = httpOptions
     self.pageSize = pageSize
     self.pageToken = pageToken
@@ -26778,13 +25866,12 @@ public struct ListFileSearchStoresConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListFileSearchStoresConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case pageSize = "pageSize"
-    case pageToken = "pageToken"
+    case httpOptions
+    case pageSize
+    case pageToken
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26835,20 +25922,17 @@ public struct ListFileSearchStoresParameters: Sendable {
   public let config: ListFileSearchStoresConfig?
 
   /// Default initializer.
-  public init(
-    config: ListFileSearchStoresConfig? = nil
-  ) {
+  public init(config: ListFileSearchStoresConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListFileSearchStoresParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26884,11 +25968,9 @@ public struct ListFileSearchStoresResponse: Sendable {
   public let fileSearchStores: [FileSearchStore]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    nextPageToken: String? = nil,
-    fileSearchStores: [FileSearchStore]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              nextPageToken: String? = nil,
+              fileSearchStores: [FileSearchStore]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.nextPageToken = nextPageToken
     self.fileSearchStores = fileSearchStores
@@ -26897,15 +25979,15 @@ public struct ListFileSearchStoresResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListFileSearchStoresResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case nextPageToken = "nextPageToken"
+    case sdkHttpResponse
+    case nextPageToken
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case fileSearchStores = "fileSearchStores"
+    case fileSearchStores
   }
 
   public init(from decoder: any Decoder) throws {
@@ -26944,13 +26026,11 @@ extension ListFileSearchStoresResponse: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         fileSearchStores,
         forKey: .fileSearchStores
       )
-
     }
   }
 }
@@ -26965,10 +26045,8 @@ public struct WhiteSpaceConfig: Sendable {
   public let maxOverlapTokens: Int32?
 
   /// Default initializer.
-  public init(
-    maxTokensPerChunk: Int32? = nil,
-    maxOverlapTokens: Int32? = nil
-  ) {
+  public init(maxTokensPerChunk: Int32? = nil,
+              maxOverlapTokens: Int32? = nil) {
     self.maxTokensPerChunk = maxTokensPerChunk
     self.maxOverlapTokens = maxOverlapTokens
   }
@@ -26976,11 +26054,11 @@ public struct WhiteSpaceConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension WhiteSpaceConfig: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case maxTokensPerChunk = "maxTokensPerChunk"
-    case maxOverlapTokens = "maxOverlapTokens"
+    case maxTokensPerChunk
+    case maxOverlapTokens
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27002,7 +26080,6 @@ extension WhiteSpaceConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         maxTokensPerChunk,
@@ -27013,7 +26090,6 @@ extension WhiteSpaceConfig: Codable {
         maxOverlapTokens,
         forKey: .maxOverlapTokens
       )
-
     }
   }
 }
@@ -27025,19 +26101,17 @@ public struct ChunkingConfig: Sendable {
   public let whiteSpaceConfig: WhiteSpaceConfig?
 
   /// Default initializer.
-  public init(
-    whiteSpaceConfig: WhiteSpaceConfig? = nil
-  ) {
+  public init(whiteSpaceConfig: WhiteSpaceConfig? = nil) {
     self.whiteSpaceConfig = whiteSpaceConfig
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ChunkingConfig: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case whiteSpaceConfig = "whiteSpaceConfig"
+    case whiteSpaceConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27054,13 +26128,11 @@ extension ChunkingConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         whiteSpaceConfig,
         forKey: .whiteSpaceConfig
       )
-
     }
   }
 }
@@ -27089,14 +26161,12 @@ public struct UploadToFileSearchStoreConfig: Sendable {
   public let chunkingConfig: ChunkingConfig?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    shouldReturnHttpResponse: Bool? = nil,
-    mimeType: String? = nil,
-    displayName: String? = nil,
-    customMetadata: [CustomMetadata]? = nil,
-    chunkingConfig: ChunkingConfig? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              shouldReturnHttpResponse: Bool? = nil,
+              mimeType: String? = nil,
+              displayName: String? = nil,
+              customMetadata: [CustomMetadata]? = nil,
+              chunkingConfig: ChunkingConfig? = nil) {
     self.httpOptions = httpOptions
     self.shouldReturnHttpResponse = shouldReturnHttpResponse
     self.mimeType = mimeType
@@ -27108,18 +26178,18 @@ public struct UploadToFileSearchStoreConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UploadToFileSearchStoreConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case shouldReturnHttpResponse = "shouldReturnHttpResponse"
+    case httpOptions
+    case shouldReturnHttpResponse
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case mimeType = "mimeType"
-    case displayName = "displayName"
-    case customMetadata = "customMetadata"
-    case chunkingConfig = "chunkingConfig"
+    case mimeType
+    case displayName
+    case customMetadata
+    case chunkingConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27173,7 +26243,6 @@ extension UploadToFileSearchStoreConfig: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         mimeType,
@@ -27194,7 +26263,6 @@ extension UploadToFileSearchStoreConfig: Codable {
         chunkingConfig,
         forKey: .chunkingConfig
       )
-
     }
   }
 }
@@ -27210,10 +26278,8 @@ public struct UploadToFileSearchStoreParameters: Sendable {
   public let config: UploadToFileSearchStoreConfig?
 
   /// Default initializer.
-  public init(
-    fileSearchStoreName: String,
-    config: UploadToFileSearchStoreConfig? = nil
-  ) {
+  public init(fileSearchStoreName: String,
+              config: UploadToFileSearchStoreConfig? = nil) {
     self.fileSearchStoreName = fileSearchStoreName
     self.config = config
   }
@@ -27221,14 +26287,14 @@ public struct UploadToFileSearchStoreParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UploadToFileSearchStoreParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case fileSearchStoreName = "fileSearchStoreName"
+    case fileSearchStoreName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27257,16 +26323,15 @@ extension UploadToFileSearchStoreParameters: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         fileSearchStoreName,
         forKey: .fileSearchStoreName,
         error: MissingRequiredFieldError(
           backend: configuration.backend, type: "UploadToFileSearchStoreParameters",
-          field: "fileSearchStoreName")
+          field: "fileSearchStoreName"
+        )
       )
-
     }
   }
 }
@@ -27278,20 +26343,17 @@ public struct UploadToFileSearchStoreResumableResponse: Sendable {
   public let sdkHttpResponse: HttpResponse?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UploadToFileSearchStoreResumableResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27328,11 +26390,9 @@ public struct ImportFileConfig: Sendable {
   public let chunkingConfig: ChunkingConfig?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    customMetadata: [CustomMetadata]? = nil,
-    chunkingConfig: ChunkingConfig? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              customMetadata: [CustomMetadata]? = nil,
+              chunkingConfig: ChunkingConfig? = nil) {
     self.httpOptions = httpOptions
     self.customMetadata = customMetadata
     self.chunkingConfig = chunkingConfig
@@ -27341,15 +26401,15 @@ public struct ImportFileConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImportFileConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case customMetadata = "customMetadata"
-    case chunkingConfig = "chunkingConfig"
+    case customMetadata
+    case chunkingConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27383,7 +26443,6 @@ extension ImportFileConfig: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         customMetadata,
@@ -27394,7 +26453,6 @@ extension ImportFileConfig: Codable {
         chunkingConfig,
         forKey: .chunkingConfig
       )
-
     }
   }
 }
@@ -27413,11 +26471,9 @@ public struct ImportFileParameters: Sendable {
   public let config: ImportFileConfig?
 
   /// Default initializer.
-  public init(
-    fileSearchStoreName: String,
-    fileName: String,
-    config: ImportFileConfig? = nil
-  ) {
+  public init(fileSearchStoreName: String,
+              fileName: String,
+              config: ImportFileConfig? = nil) {
     self.fileSearchStoreName = fileSearchStoreName
     self.fileName = fileName
     self.config = config
@@ -27426,15 +26482,15 @@ public struct ImportFileParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImportFileParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case fileSearchStoreName = "fileSearchStoreName"
-    case fileName = "fileName"
+    case fileSearchStoreName
+    case fileName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27468,7 +26524,6 @@ extension ImportFileParameters: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         fileSearchStoreName,
@@ -27482,9 +26537,9 @@ extension ImportFileParameters: Codable {
         fileName,
         forKey: .fileName,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "ImportFileParameters", field: "fileName")
+          backend: configuration.backend, type: "ImportFileParameters", field: "fileName"
+        )
       )
-
     }
   }
 }
@@ -27502,11 +26557,9 @@ public struct ImportFileResponse: Sendable {
   public let documentName: String?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    parent: String? = nil,
-    documentName: String? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              parent: String? = nil,
+              documentName: String? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.parent = parent
     self.documentName = documentName
@@ -27515,15 +26568,15 @@ public struct ImportFileResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImportFileResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case parent = "parent"
-    case documentName = "documentName"
+    case parent
+    case documentName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27557,7 +26610,6 @@ extension ImportFileResponse: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         parent,
@@ -27568,7 +26620,6 @@ extension ImportFileResponse: Codable {
         documentName,
         forKey: .documentName
       )
-
     }
   }
 }
@@ -27598,13 +26649,11 @@ public struct ImportFileOperation: Sendable {
   public let response: ImportFileResponse?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    metadata: [String: JSONValue]? = nil,
-    done: Bool? = nil,
-    error: [String: JSONValue]? = nil,
-    response: ImportFileResponse? = nil
-  ) {
+  public init(name: String? = nil,
+              metadata: [String: JSONValue]? = nil,
+              done: Bool? = nil,
+              error: [String: JSONValue]? = nil,
+              response: ImportFileResponse? = nil) {
     self.name = name
     self.metadata = metadata
     self.done = done
@@ -27615,17 +26664,17 @@ public struct ImportFileOperation: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImportFileOperation: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case metadata = "metadata"
-    case done = "done"
-    case error = "error"
+    case name
+    case metadata
+    case done
+    case error
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case response = "response"
+    case response
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27684,13 +26733,11 @@ extension ImportFileOperation: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         response,
         forKey: .response
       )
-
     }
   }
 }
@@ -27706,11 +26753,9 @@ public struct ListFilesConfig: Sendable {
   public let pageToken: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    pageSize: Int32? = nil,
-    pageToken: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              pageSize: Int32? = nil,
+              pageToken: String? = nil) {
     self.httpOptions = httpOptions
     self.pageSize = pageSize
     self.pageToken = pageToken
@@ -27719,13 +26764,12 @@ public struct ListFilesConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListFilesConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case pageSize = "pageSize"
-    case pageToken = "pageToken"
+    case httpOptions
+    case pageSize
+    case pageToken
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27776,19 +26820,17 @@ public struct ListFilesParameters: Sendable {
   public let config: ListFilesConfig?
 
   /// Default initializer.
-  public init(
-    config: ListFilesConfig? = nil
-  ) {
+  public init(config: ListFilesConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListFilesParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27805,13 +26847,11 @@ extension ListFilesParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -27831,11 +26871,9 @@ public struct FileStatus: Sendable {
   public let code: Int32?
 
   /// Default initializer.
-  public init(
-    details: [[String: JSONValue]]? = nil,
-    message: String? = nil,
-    code: Int32? = nil
-  ) {
+  public init(details: [[String: JSONValue]]? = nil,
+              message: String? = nil,
+              code: Int32? = nil) {
     self.details = details
     self.message = message
     self.code = code
@@ -27844,12 +26882,12 @@ public struct FileStatus: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FileStatus: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case details = "details"
-    case message = "message"
-    case code = "code"
+    case details
+    case message
+    case code
   }
 
   public init(from decoder: any Decoder) throws {
@@ -27876,7 +26914,6 @@ extension FileStatus: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         details,
@@ -27892,7 +26929,6 @@ extension FileStatus: Codable {
         code,
         forKey: .code
       )
-
     }
   }
 }
@@ -27950,22 +26986,20 @@ public struct File: Sendable {
   public let error: FileStatus?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    displayName: String? = nil,
-    mimeType: String? = nil,
-    sizeBytes: Int64? = nil,
-    createTime: String? = nil,
-    expirationTime: String? = nil,
-    updateTime: String? = nil,
-    sha256Hash: String? = nil,
-    uri: String? = nil,
-    downloadUri: String? = nil,
-    state: FileState? = nil,
-    source: FileSource? = nil,
-    videoMetadata: [String: JSONValue]? = nil,
-    error: FileStatus? = nil
-  ) {
+  public init(name: String? = nil,
+              displayName: String? = nil,
+              mimeType: String? = nil,
+              sizeBytes: Int64? = nil,
+              createTime: String? = nil,
+              expirationTime: String? = nil,
+              updateTime: String? = nil,
+              sha256Hash: String? = nil,
+              uri: String? = nil,
+              downloadUri: String? = nil,
+              state: FileState? = nil,
+              source: FileSource? = nil,
+              videoMetadata: [String: JSONValue]? = nil,
+              error: FileStatus? = nil) {
     self.name = name
     self.displayName = displayName
     self.mimeType = mimeType
@@ -27985,23 +27019,23 @@ public struct File: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension File: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
-    case displayName = "displayName"
-    case mimeType = "mimeType"
-    case sizeBytes = "sizeBytes"
-    case createTime = "createTime"
-    case expirationTime = "expirationTime"
-    case updateTime = "updateTime"
-    case sha256Hash = "sha256Hash"
-    case uri = "uri"
-    case downloadUri = "downloadUri"
-    case state = "state"
-    case source = "source"
-    case videoMetadata = "videoMetadata"
-    case error = "error"
+    case name
+    case displayName
+    case mimeType
+    case sizeBytes
+    case createTime
+    case expirationTime
+    case updateTime
+    case sha256Hash
+    case uri
+    case downloadUri
+    case state
+    case source
+    case videoMetadata
+    case error
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28083,7 +27117,6 @@ extension File: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         name,
@@ -28154,7 +27187,6 @@ extension File: Codable {
         error,
         forKey: .error
       )
-
     }
   }
 }
@@ -28172,11 +27204,9 @@ public struct ListFilesResponse: Sendable {
   public let files: [File]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    nextPageToken: String? = nil,
-    files: [File]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              nextPageToken: String? = nil,
+              files: [File]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.nextPageToken = nextPageToken
     self.files = files
@@ -28185,15 +27215,15 @@ public struct ListFilesResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListFilesResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case nextPageToken = "nextPageToken"
-    case files = "files"
+    case nextPageToken
+    case files
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28227,7 +27257,6 @@ extension ListFilesResponse: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         nextPageToken,
@@ -28238,7 +27267,6 @@ extension ListFilesResponse: Codable {
         files,
         forKey: .files
       )
-
     }
   }
 }
@@ -28254,10 +27282,8 @@ public struct CreateFileConfig: Sendable {
   public let shouldReturnHttpResponse: Bool?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    shouldReturnHttpResponse: Bool? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              shouldReturnHttpResponse: Bool? = nil) {
     self.httpOptions = httpOptions
     self.shouldReturnHttpResponse = shouldReturnHttpResponse
   }
@@ -28265,12 +27291,11 @@ public struct CreateFileConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateFileConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case shouldReturnHttpResponse = "shouldReturnHttpResponse"
+    case httpOptions
+    case shouldReturnHttpResponse
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28318,10 +27343,8 @@ public struct CreateFileParameters: Sendable {
   public let config: CreateFileConfig?
 
   /// Default initializer.
-  public init(
-    file: File,
-    config: CreateFileConfig? = nil
-  ) {
+  public init(file: File,
+              config: CreateFileConfig? = nil) {
     self.file = file
     self.config = config
   }
@@ -28329,11 +27352,11 @@ public struct CreateFileParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateFileParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case file = "file"
-    case config = "config"
+    case file
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28355,20 +27378,19 @@ extension CreateFileParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         file,
         forKey: .file,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "CreateFileParameters", field: "file")
+          backend: configuration.backend, type: "CreateFileParameters", field: "file"
+        )
       )
 
       try MLDevKeysContainer.encodeIfPresent(
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -28380,20 +27402,17 @@ public struct CreateFileResponse: Sendable {
   public let sdkHttpResponse: HttpResponse?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateFileResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28424,20 +27443,17 @@ public struct GetFileConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetFileConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28471,10 +27487,8 @@ public struct GetFileParameters: Sendable {
   public let config: GetFileConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: GetFileConfig? = nil
-  ) {
+  public init(name: String,
+              config: GetFileConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -28482,11 +27496,11 @@ public struct GetFileParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetFileParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28508,20 +27522,19 @@ extension GetFileParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         name,
         forKey: .name,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "GetFileParameters", field: "name")
+          backend: configuration.backend, type: "GetFileParameters", field: "name"
+        )
       )
 
       try MLDevKeysContainer.encodeIfPresent(
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -28533,20 +27546,17 @@ public struct DeleteFileConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteFileConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28580,10 +27590,8 @@ public struct DeleteFileParameters: Sendable {
   public let config: DeleteFileConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: DeleteFileConfig? = nil
-  ) {
+  public init(name: String,
+              config: DeleteFileConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -28591,11 +27599,11 @@ public struct DeleteFileParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteFileParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28617,20 +27625,19 @@ extension DeleteFileParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         name,
         forKey: .name,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "DeleteFileParameters", field: "name")
+          backend: configuration.backend, type: "DeleteFileParameters", field: "name"
+        )
       )
 
       try MLDevKeysContainer.encodeIfPresent(
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -28642,20 +27649,17 @@ public struct DeleteFileResponse: Sendable {
   public let sdkHttpResponse: HttpResponse?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteFileResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28696,12 +27700,10 @@ public struct InlinedRequest: Sendable {
   public let config: GenerateContentConfig?
 
   /// Default initializer.
-  public init(
-    model: String? = nil,
-    contents: [Content]? = nil,
-    metadata: [String: String]? = nil,
-    config: GenerateContentConfig? = nil
-  ) {
+  public init(model: String? = nil,
+              contents: [Content]? = nil,
+              metadata: [String: String]? = nil,
+              config: GenerateContentConfig? = nil) {
     self.model = model
     self.contents = contents
     self.metadata = metadata
@@ -28711,13 +27713,13 @@ public struct InlinedRequest: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension InlinedRequest: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case model = "model"
-    case contents = "contents"
-    case metadata = "metadata"
-    case config = "config"
+    case model
+    case contents
+    case metadata
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28749,7 +27751,6 @@ extension InlinedRequest: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         model,
@@ -28770,7 +27771,6 @@ extension InlinedRequest: Codable {
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -28796,13 +27796,11 @@ public struct BatchJobSource: Sendable {
   public let inlinedRequests: [InlinedRequest]?
 
   /// Default initializer.
-  public init(
-    format: String? = nil,
-    gcsUri: [String]? = nil,
-    bigqueryUri: String? = nil,
-    fileName: String? = nil,
-    inlinedRequests: [InlinedRequest]? = nil
-  ) {
+  public init(format: String? = nil,
+              gcsUri: [String]? = nil,
+              bigqueryUri: String? = nil,
+              fileName: String? = nil,
+              inlinedRequests: [InlinedRequest]? = nil) {
     self.format = format
     self.gcsUri = gcsUri
     self.bigqueryUri = bigqueryUri
@@ -28813,16 +27811,17 @@ public struct BatchJobSource: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension BatchJobSource: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case fileName = "fileName"
-    case inlinedRequests = "inlinedRequests"
+    case fileName
+    case inlinedRequests
   }
+
   public enum VertexKeys: String, CodingKey {
-    case format = "format"
-    case gcsUri = "gcsUri"
-    case bigqueryUri = "bigqueryUri"
+    case format
+    case gcsUri
+    case bigqueryUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28860,7 +27859,6 @@ extension BatchJobSource: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         fileName,
@@ -28871,11 +27869,9 @@ extension BatchJobSource: Codable {
         inlinedRequests,
         forKey: .inlinedRequests
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         format,
@@ -28891,7 +27887,6 @@ extension BatchJobSource: Codable {
         bigqueryUri,
         forKey: .bigqueryUri
       )
-
     }
   }
 }
@@ -28911,11 +27906,9 @@ public struct JobError: Sendable {
   public let message: String?
 
   /// Default initializer.
-  public init(
-    details: [String]? = nil,
-    code: Int32? = nil,
-    message: String? = nil
-  ) {
+  public init(details: [String]? = nil,
+              code: Int32? = nil,
+              message: String? = nil) {
     self.details = details
     self.code = code
     self.message = message
@@ -28924,13 +27917,12 @@ public struct JobError: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JobError: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case details = "details"
-    case code = "code"
-    case message = "message"
+    case details
+    case code
+    case message
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28987,11 +27979,9 @@ public struct InlinedResponse: Sendable {
   public let error: JobError?
 
   /// Default initializer.
-  public init(
-    response: GenerateContentResponse? = nil,
-    metadata: [String: String]? = nil,
-    error: JobError? = nil
-  ) {
+  public init(response: GenerateContentResponse? = nil,
+              metadata: [String: String]? = nil,
+              error: JobError? = nil) {
     self.response = response
     self.metadata = metadata
     self.error = error
@@ -29000,12 +27990,12 @@ public struct InlinedResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension InlinedResponse: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case response = "response"
-    case metadata = "metadata"
-    case error = "error"
+    case response
+    case metadata
+    case error
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29032,7 +28022,6 @@ extension InlinedResponse: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         response,
@@ -29048,7 +28037,6 @@ extension InlinedResponse: Codable {
         error,
         forKey: .error
       )
-
     }
   }
 }
@@ -29063,10 +28051,8 @@ public struct SingleEmbedContentResponse: Sendable {
   public let tokenCount: Int64?
 
   /// Default initializer.
-  public init(
-    embedding: ContentEmbedding? = nil,
-    tokenCount: Int64? = nil
-  ) {
+  public init(embedding: ContentEmbedding? = nil,
+              tokenCount: Int64? = nil) {
     self.embedding = embedding
     self.tokenCount = tokenCount
   }
@@ -29074,11 +28060,11 @@ public struct SingleEmbedContentResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SingleEmbedContentResponse: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case embedding = "embedding"
-    case tokenCount = "tokenCount"
+    case embedding
+    case tokenCount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29100,7 +28086,6 @@ extension SingleEmbedContentResponse: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         embedding,
@@ -29111,7 +28096,6 @@ extension SingleEmbedContentResponse: Codable {
         tokenCount,
         forKey: .tokenCount
       )
-
     }
   }
 }
@@ -29126,10 +28110,8 @@ public struct InlinedEmbedContentResponse: Sendable {
   public let error: JobError?
 
   /// Default initializer.
-  public init(
-    response: SingleEmbedContentResponse? = nil,
-    error: JobError? = nil
-  ) {
+  public init(response: SingleEmbedContentResponse? = nil,
+              error: JobError? = nil) {
     self.response = response
     self.error = error
   }
@@ -29137,11 +28119,11 @@ public struct InlinedEmbedContentResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension InlinedEmbedContentResponse: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case response = "response"
-    case error = "error"
+    case response
+    case error
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29163,7 +28145,6 @@ extension InlinedEmbedContentResponse: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         response,
@@ -29174,7 +28155,6 @@ extension InlinedEmbedContentResponse: Codable {
         error,
         forKey: .error
       )
-
     }
   }
 }
@@ -29210,14 +28190,12 @@ public struct BatchJobDestination: Sendable {
   public let inlinedEmbedContentResponses: [InlinedEmbedContentResponse]?
 
   /// Default initializer.
-  public init(
-    format: String? = nil,
-    gcsUri: String? = nil,
-    bigqueryUri: String? = nil,
-    fileName: String? = nil,
-    inlinedResponses: [InlinedResponse]? = nil,
-    inlinedEmbedContentResponses: [InlinedEmbedContentResponse]? = nil
-  ) {
+  public init(format: String? = nil,
+              gcsUri: String? = nil,
+              bigqueryUri: String? = nil,
+              fileName: String? = nil,
+              inlinedResponses: [InlinedResponse]? = nil,
+              inlinedEmbedContentResponses: [InlinedEmbedContentResponse]? = nil) {
     self.format = format
     self.gcsUri = gcsUri
     self.bigqueryUri = bigqueryUri
@@ -29229,17 +28207,18 @@ public struct BatchJobDestination: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension BatchJobDestination: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case fileName = "fileName"
-    case inlinedResponses = "inlinedResponses"
-    case inlinedEmbedContentResponses = "inlinedEmbedContentResponses"
+    case fileName
+    case inlinedResponses
+    case inlinedEmbedContentResponses
   }
+
   public enum VertexKeys: String, CodingKey {
-    case format = "format"
-    case gcsUri = "gcsUri"
-    case bigqueryUri = "bigqueryUri"
+    case format
+    case gcsUri
+    case bigqueryUri
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29282,7 +28261,6 @@ extension BatchJobDestination: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         fileName,
@@ -29298,11 +28276,9 @@ extension BatchJobDestination: Codable {
         inlinedEmbedContentResponses,
         forKey: .inlinedEmbedContentResponses
       )
-
     }
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         format,
@@ -29318,7 +28294,6 @@ extension BatchJobDestination: Codable {
         bigqueryUri,
         forKey: .bigqueryUri
       )
-
     }
   }
 }
@@ -29337,11 +28312,9 @@ public struct CreateBatchJobConfig: Sendable {
   public let dest: BatchJobDestination?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    displayName: String? = nil,
-    dest: BatchJobDestination? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              displayName: String? = nil,
+              dest: BatchJobDestination? = nil) {
     self.httpOptions = httpOptions
     self.displayName = displayName
     self.dest = dest
@@ -29350,15 +28323,15 @@ public struct CreateBatchJobConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateBatchJobConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case displayName = "displayName"
+    case httpOptions
+    case displayName
   }
+
   public enum VertexKeys: String, CodingKey {
-    case dest = "dest"
+    case dest
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29397,13 +28370,11 @@ extension CreateBatchJobConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         dest,
         forKey: .dest
       )
-
     }
   }
 }
@@ -29422,11 +28393,9 @@ public struct CreateBatchJobParameters: Sendable {
   public let config: CreateBatchJobConfig?
 
   /// Default initializer.
-  public init(
-    model: String? = nil,
-    src: BatchJobSource,
-    config: CreateBatchJobConfig? = nil
-  ) {
+  public init(model: String? = nil,
+              src: BatchJobSource,
+              config: CreateBatchJobConfig? = nil) {
     self.model = model
     self.src = src
     self.config = config
@@ -29435,13 +28404,12 @@ public struct CreateBatchJobParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateBatchJobParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case src = "src"
-    case config = "config"
+    case model
+    case src
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29477,7 +28445,8 @@ extension CreateBatchJobParameters: Codable {
       src,
       forKey: .src,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CreateBatchJobParameters", field: "src")
+        backend: configuration.backend, type: "CreateBatchJobParameters", field: "src"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -29510,12 +28479,10 @@ public struct CompletionStats: Sendable {
   public let successfulForecastPointCount: Int64?
 
   /// Default initializer.
-  public init(
-    failedCount: Int64? = nil,
-    incompleteCount: Int64? = nil,
-    successfulCount: Int64? = nil,
-    successfulForecastPointCount: Int64? = nil
-  ) {
+  public init(failedCount: Int64? = nil,
+              incompleteCount: Int64? = nil,
+              successfulCount: Int64? = nil,
+              successfulForecastPointCount: Int64? = nil) {
     self.failedCount = failedCount
     self.incompleteCount = incompleteCount
     self.successfulCount = successfulCount
@@ -29525,13 +28492,13 @@ public struct CompletionStats: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CompletionStats: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case failedCount = "failedCount"
-    case incompleteCount = "incompleteCount"
-    case successfulCount = "successfulCount"
-    case successfulForecastPointCount = "successfulForecastPointCount"
+    case failedCount
+    case incompleteCount
+    case successfulCount
+    case successfulForecastPointCount
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29563,7 +28530,6 @@ extension CompletionStats: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         failedCount,
@@ -29584,7 +28550,6 @@ extension CompletionStats: Codable {
         successfulForecastPointCount,
         forKey: .successfulForecastPointCount
       )
-
     }
   }
 }
@@ -29632,20 +28597,18 @@ public struct BatchJob: Sendable {
   public let completionStats: CompletionStats?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    displayName: String? = nil,
-    state: JobState? = nil,
-    error: JobError? = nil,
-    createTime: String? = nil,
-    startTime: String? = nil,
-    endTime: String? = nil,
-    updateTime: String? = nil,
-    model: String? = nil,
-    src: BatchJobSource? = nil,
-    dest: BatchJobDestination? = nil,
-    completionStats: CompletionStats? = nil
-  ) {
+  public init(name: String? = nil,
+              displayName: String? = nil,
+              state: JobState? = nil,
+              error: JobError? = nil,
+              createTime: String? = nil,
+              startTime: String? = nil,
+              endTime: String? = nil,
+              updateTime: String? = nil,
+              model: String? = nil,
+              src: BatchJobSource? = nil,
+              dest: BatchJobDestination? = nil,
+              completionStats: CompletionStats? = nil) {
     self.name = name
     self.displayName = displayName
     self.state = state
@@ -29663,24 +28626,24 @@ public struct BatchJob: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension BatchJob: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case displayName = "displayName"
-    case state = "state"
-    case createTime = "createTime"
-    case endTime = "endTime"
-    case updateTime = "updateTime"
-    case model = "model"
-    case dest = "dest"
+    case name
+    case displayName
+    case state
+    case createTime
+    case endTime
+    case updateTime
+    case model
+    case dest
   }
+
   public enum VertexKeys: String, CodingKey {
-    case error = "error"
-    case startTime = "startTime"
-    case src = "src"
-    case completionStats = "completionStats"
+    case error
+    case startTime
+    case src
+    case completionStats
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29794,7 +28757,6 @@ extension BatchJob: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         error,
@@ -29815,7 +28777,6 @@ extension BatchJob: Codable {
         completionStats,
         forKey: .completionStats
       )
-
     }
   }
 }
@@ -29830,10 +28791,8 @@ public struct EmbedContentBatch: Sendable {
   public let config: EmbedContentConfig?
 
   /// Default initializer.
-  public init(
-    contents: [Content]? = nil,
-    config: EmbedContentConfig? = nil
-  ) {
+  public init(contents: [Content]? = nil,
+              config: EmbedContentConfig? = nil) {
     self.contents = contents
     self.config = config
   }
@@ -29841,11 +28800,11 @@ public struct EmbedContentBatch: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EmbedContentBatch: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case contents = "contents"
-    case config = "config"
+    case contents
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29867,7 +28826,6 @@ extension EmbedContentBatch: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         contents,
@@ -29878,7 +28836,6 @@ extension EmbedContentBatch: Codable {
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -29893,10 +28850,8 @@ public struct EmbeddingsBatchJobSource: Sendable {
   public let inlinedRequests: EmbedContentBatch?
 
   /// Default initializer.
-  public init(
-    fileName: String? = nil,
-    inlinedRequests: EmbedContentBatch? = nil
-  ) {
+  public init(fileName: String? = nil,
+              inlinedRequests: EmbedContentBatch? = nil) {
     self.fileName = fileName
     self.inlinedRequests = inlinedRequests
   }
@@ -29904,11 +28859,11 @@ public struct EmbeddingsBatchJobSource: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EmbeddingsBatchJobSource: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case fileName = "fileName"
-    case inlinedRequests = "inlinedRequests"
+    case fileName
+    case inlinedRequests
   }
 
   public init(from decoder: any Decoder) throws {
@@ -29930,7 +28885,6 @@ extension EmbeddingsBatchJobSource: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         fileName,
@@ -29941,7 +28895,6 @@ extension EmbeddingsBatchJobSource: Codable {
         inlinedRequests,
         forKey: .inlinedRequests
       )
-
     }
   }
 }
@@ -29956,10 +28909,8 @@ public struct CreateEmbeddingsBatchJobConfig: Sendable {
   public let displayName: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    displayName: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              displayName: String? = nil) {
     self.httpOptions = httpOptions
     self.displayName = displayName
   }
@@ -29967,14 +28918,14 @@ public struct CreateEmbeddingsBatchJobConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateEmbeddingsBatchJobConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case displayName = "displayName"
+    case displayName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30003,13 +28954,11 @@ extension CreateEmbeddingsBatchJobConfig: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         displayName,
         forKey: .displayName
       )
-
     }
   }
 }
@@ -30027,11 +28976,9 @@ public struct CreateEmbeddingsBatchJobParameters: Sendable {
   public let config: CreateEmbeddingsBatchJobConfig?
 
   /// Default initializer.
-  public init(
-    model: String? = nil,
-    src: EmbeddingsBatchJobSource,
-    config: CreateEmbeddingsBatchJobConfig? = nil
-  ) {
+  public init(model: String? = nil,
+              src: EmbeddingsBatchJobSource,
+              config: CreateEmbeddingsBatchJobConfig? = nil) {
     self.model = model
     self.src = src
     self.config = config
@@ -30040,12 +28987,12 @@ public struct CreateEmbeddingsBatchJobParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateEmbeddingsBatchJobParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case model = "model"
-    case src = "src"
-    case config = "config"
+    case model
+    case src
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30072,7 +29019,6 @@ extension CreateEmbeddingsBatchJobParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         model,
@@ -30083,14 +29029,14 @@ extension CreateEmbeddingsBatchJobParameters: Codable {
         src,
         forKey: .src,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "CreateEmbeddingsBatchJobParameters", field: "src")
+          backend: configuration.backend, type: "CreateEmbeddingsBatchJobParameters", field: "src"
+        )
       )
 
       try MLDevKeysContainer.encodeIfPresent(
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -30102,20 +29048,17 @@ public struct GetBatchJobConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetBatchJobConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30151,10 +29094,8 @@ public struct GetBatchJobParameters: Sendable {
   public let config: GetBatchJobConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: GetBatchJobConfig? = nil
-  ) {
+  public init(name: String,
+              config: GetBatchJobConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -30162,12 +29103,11 @@ public struct GetBatchJobParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetBatchJobParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30193,7 +29133,8 @@ extension GetBatchJobParameters: Codable {
       name,
       forKey: .name,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GetBatchJobParameters", field: "name")
+        backend: configuration.backend, type: "GetBatchJobParameters", field: "name"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -30210,20 +29151,17 @@ public struct CancelBatchJobConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CancelBatchJobConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30259,10 +29197,8 @@ public struct CancelBatchJobParameters: Sendable {
   public let config: CancelBatchJobConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: CancelBatchJobConfig? = nil
-  ) {
+  public init(name: String,
+              config: CancelBatchJobConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -30270,12 +29206,11 @@ public struct CancelBatchJobParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CancelBatchJobParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30301,7 +29236,8 @@ extension CancelBatchJobParameters: Codable {
       name,
       forKey: .name,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CancelBatchJobParameters", field: "name")
+        backend: configuration.backend, type: "CancelBatchJobParameters", field: "name"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -30324,12 +29260,10 @@ public struct ListBatchJobsConfig: Sendable {
   public let filter: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    pageSize: Int32? = nil,
-    pageToken: String? = nil,
-    filter: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              pageSize: Int32? = nil,
+              pageToken: String? = nil,
+              filter: String? = nil) {
     self.httpOptions = httpOptions
     self.pageSize = pageSize
     self.pageToken = pageToken
@@ -30339,16 +29273,16 @@ public struct ListBatchJobsConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListBatchJobsConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case pageSize = "pageSize"
-    case pageToken = "pageToken"
+    case httpOptions
+    case pageSize
+    case pageToken
   }
+
   public enum VertexKeys: String, CodingKey {
-    case filter = "filter"
+    case filter
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30397,13 +29331,11 @@ extension ListBatchJobsConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         filter,
         forKey: .filter
       )
-
     }
   }
 }
@@ -30414,20 +29346,17 @@ public struct ListBatchJobsParameters: Sendable {
   public let config: ListBatchJobsConfig?
 
   /// Default initializer.
-  public init(
-    config: ListBatchJobsConfig? = nil
-  ) {
+  public init(config: ListBatchJobsConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListBatchJobsParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30462,11 +29391,9 @@ public struct ListBatchJobsResponse: Sendable {
   public let batchJobs: [BatchJob]?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    nextPageToken: String? = nil,
-    batchJobs: [BatchJob]? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              nextPageToken: String? = nil,
+              batchJobs: [BatchJob]? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.nextPageToken = nextPageToken
     self.batchJobs = batchJobs
@@ -30475,13 +29402,12 @@ public struct ListBatchJobsResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ListBatchJobsResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case nextPageToken = "nextPageToken"
-    case batchJobs = "batchJobs"
+    case sdkHttpResponse
+    case nextPageToken
+    case batchJobs
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30532,20 +29458,17 @@ public struct DeleteBatchJobConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteBatchJobConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30581,10 +29504,8 @@ public struct DeleteBatchJobParameters: Sendable {
   public let config: DeleteBatchJobConfig?
 
   /// Default initializer.
-  public init(
-    name: String,
-    config: DeleteBatchJobConfig? = nil
-  ) {
+  public init(name: String,
+              config: DeleteBatchJobConfig? = nil) {
     self.name = name
     self.config = config
   }
@@ -30592,12 +29513,11 @@ public struct DeleteBatchJobParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteBatchJobParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case config = "config"
+    case name
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30623,7 +29543,8 @@ extension DeleteBatchJobParameters: Codable {
       name,
       forKey: .name,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "DeleteBatchJobParameters", field: "name")
+        backend: configuration.backend, type: "DeleteBatchJobParameters", field: "name"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -30646,12 +29567,10 @@ public struct DeleteResourceJob: Sendable {
   public let error: JobError?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    name: String? = nil,
-    done: Bool? = nil,
-    error: JobError? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              name: String? = nil,
+              done: Bool? = nil,
+              error: JobError? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.name = name
     self.done = done
@@ -30661,14 +29580,13 @@ public struct DeleteResourceJob: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DeleteResourceJob: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
-    case name = "name"
-    case done = "done"
-    case error = "error"
+    case sdkHttpResponse
+    case name
+    case done
+    case error
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30728,20 +29646,17 @@ public struct GetOperationConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetOperationConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30775,10 +29690,8 @@ public struct GetOperationParameters: Sendable {
   public let config: GetOperationConfig?
 
   /// Default initializer.
-  public init(
-    operationName: String,
-    config: GetOperationConfig? = nil
-  ) {
+  public init(operationName: String,
+              config: GetOperationConfig? = nil) {
     self.operationName = operationName
     self.config = config
   }
@@ -30786,12 +29699,11 @@ public struct GetOperationParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetOperationParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case operationName = "operationName"
-    case config = "config"
+    case operationName
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30817,7 +29729,8 @@ extension GetOperationParameters: Codable {
       operationName,
       forKey: .operationName,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "GetOperationParameters", field: "operationName")
+        backend: configuration.backend, type: "GetOperationParameters", field: "operationName"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -30833,20 +29746,17 @@ public struct FetchPredictOperationConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FetchPredictOperationConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30882,11 +29792,9 @@ public struct FetchPredictOperationParameters: Sendable {
   public let config: FetchPredictOperationConfig?
 
   /// Default initializer.
-  public init(
-    operationName: String,
-    resourceName: String,
-    config: FetchPredictOperationConfig? = nil
-  ) {
+  public init(operationName: String,
+              resourceName: String,
+              config: FetchPredictOperationConfig? = nil) {
     self.operationName = operationName
     self.resourceName = resourceName
     self.config = config
@@ -30895,12 +29803,12 @@ public struct FetchPredictOperationParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FetchPredictOperationParameters: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case operationName = "operationName"
-    case resourceName = "resourceName"
-    case config = "config"
+    case operationName
+    case resourceName
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -30927,14 +29835,14 @@ extension FetchPredictOperationParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeOrThrow(
         operationName,
         forKey: .operationName,
         error: MissingRequiredFieldError(
           backend: configuration.backend, type: "FetchPredictOperationParameters",
-          field: "operationName")
+          field: "operationName"
+        )
       )
 
       try VertexKeysContainer.encodeOrThrow(
@@ -30942,14 +29850,14 @@ extension FetchPredictOperationParameters: Codable {
         forKey: .resourceName,
         error: MissingRequiredFieldError(
           backend: configuration.backend, type: "FetchPredictOperationParameters",
-          field: "resourceName")
+          field: "resourceName"
+        )
       )
 
       try VertexKeysContainer.encodeIfPresent(
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -30968,11 +29876,9 @@ public struct UploadToFileSearchStoreResponse: Sendable {
   public let documentName: String?
 
   /// Default initializer.
-  public init(
-    sdkHttpResponse: HttpResponse? = nil,
-    parent: String? = nil,
-    documentName: String? = nil
-  ) {
+  public init(sdkHttpResponse: HttpResponse? = nil,
+              parent: String? = nil,
+              documentName: String? = nil) {
     self.sdkHttpResponse = sdkHttpResponse
     self.parent = parent
     self.documentName = documentName
@@ -30981,15 +29887,15 @@ public struct UploadToFileSearchStoreResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UploadToFileSearchStoreResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case sdkHttpResponse = "sdkHttpResponse"
+    case sdkHttpResponse
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case parent = "parent"
-    case documentName = "documentName"
+    case parent
+    case documentName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31023,7 +29929,6 @@ extension UploadToFileSearchStoreResponse: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         parent,
@@ -31034,7 +29939,6 @@ extension UploadToFileSearchStoreResponse: Codable {
         documentName,
         forKey: .documentName
       )
-
     }
   }
 }
@@ -31065,13 +29969,11 @@ public struct UploadToFileSearchStoreOperation: Sendable {
   public let response: UploadToFileSearchStoreResponse?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    metadata: [String: JSONValue]? = nil,
-    done: Bool? = nil,
-    error: [String: JSONValue]? = nil,
-    response: UploadToFileSearchStoreResponse? = nil
-  ) {
+  public init(name: String? = nil,
+              metadata: [String: JSONValue]? = nil,
+              done: Bool? = nil,
+              error: [String: JSONValue]? = nil,
+              response: UploadToFileSearchStoreResponse? = nil) {
     self.name = name
     self.metadata = metadata
     self.done = done
@@ -31082,17 +29984,17 @@ public struct UploadToFileSearchStoreOperation: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UploadToFileSearchStoreOperation: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case metadata = "metadata"
-    case done = "done"
-    case error = "error"
+    case name
+    case metadata
+    case done
+    case error
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case response = "response"
+    case response
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31151,13 +30053,11 @@ extension UploadToFileSearchStoreOperation: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         response,
         forKey: .response
       )
-
     }
   }
 }
@@ -31175,10 +30075,8 @@ public struct GetProjectOperationParameters: Sendable {
   public let config: GetOperationConfig?
 
   /// Default initializer.
-  public init(
-    operationId: String,
-    config: GetOperationConfig? = nil
-  ) {
+  public init(operationId: String,
+              config: GetOperationConfig? = nil) {
     self.operationId = operationId
     self.config = config
   }
@@ -31186,11 +30084,11 @@ public struct GetProjectOperationParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GetProjectOperationParameters: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case operationId = "operationId"
-    case config = "config"
+    case operationId
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31212,21 +30110,20 @@ extension GetProjectOperationParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeOrThrow(
         operationId,
         forKey: .operationId,
         error: MissingRequiredFieldError(
           backend: configuration.backend, type: "GetProjectOperationParameters",
-          field: "operationId")
+          field: "operationId"
+        )
       )
 
       try VertexKeysContainer.encodeIfPresent(
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -31253,12 +30150,10 @@ public struct ProjectOperation: Sendable {
   public let error: [String: JSONValue]?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    metadata: [String: JSONValue]? = nil,
-    done: Bool? = nil,
-    error: [String: JSONValue]? = nil
-  ) {
+  public init(name: String? = nil,
+              metadata: [String: JSONValue]? = nil,
+              done: Bool? = nil,
+              error: [String: JSONValue]? = nil) {
     self.name = name
     self.metadata = metadata
     self.done = done
@@ -31268,14 +30163,13 @@ public struct ProjectOperation: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ProjectOperation: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case name = "name"
-    case metadata = "metadata"
-    case done = "done"
-    case error = "error"
+    case name
+    case metadata
+    case done
+    case error
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31361,16 +30255,14 @@ public struct TestTableItem: Sendable {
   public let ignoreKeys: [String]?
 
   /// Default initializer.
-  public init(
-    name: String? = nil,
-    parameters: [String: JSONValue]? = nil,
-    exceptionIfMldev: String? = nil,
-    exceptionIfVertex: String? = nil,
-    overrideReplayId: String? = nil,
-    hasUnion: Bool? = nil,
-    skipInApiMode: String? = nil,
-    ignoreKeys: [String]? = nil
-  ) {
+  public init(name: String? = nil,
+              parameters: [String: JSONValue]? = nil,
+              exceptionIfMldev: String? = nil,
+              exceptionIfVertex: String? = nil,
+              overrideReplayId: String? = nil,
+              hasUnion: Bool? = nil,
+              skipInApiMode: String? = nil,
+              ignoreKeys: [String]? = nil) {
     self.name = name
     self.parameters = parameters
     self.exceptionIfMldev = exceptionIfMldev
@@ -31384,17 +30276,17 @@ public struct TestTableItem: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TestTableItem: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case name = "name"
-    case parameters = "parameters"
-    case exceptionIfMldev = "exceptionIfMldev"
-    case exceptionIfVertex = "exceptionIfVertex"
-    case overrideReplayId = "overrideReplayId"
-    case hasUnion = "hasUnion"
-    case skipInApiMode = "skipInApiMode"
-    case ignoreKeys = "ignoreKeys"
+    case name
+    case parameters
+    case exceptionIfMldev
+    case exceptionIfVertex
+    case overrideReplayId
+    case hasUnion
+    case skipInApiMode
+    case ignoreKeys
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31446,7 +30338,6 @@ extension TestTableItem: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         name,
@@ -31487,7 +30378,6 @@ extension TestTableItem: Codable {
         ignoreKeys,
         forKey: .ignoreKeys
       )
-
     }
   }
 }
@@ -31503,12 +30393,10 @@ public struct TestTableFile: Sendable {
   public let testTable: [TestTableItem]?
 
   /// Default initializer.
-  public init(
-    comment: String? = nil,
-    testMethod: String? = nil,
-    parameterNames: [String]? = nil,
-    testTable: [TestTableItem]? = nil
-  ) {
+  public init(comment: String? = nil,
+              testMethod: String? = nil,
+              parameterNames: [String]? = nil,
+              testTable: [TestTableItem]? = nil) {
     self.comment = comment
     self.testMethod = testMethod
     self.parameterNames = parameterNames
@@ -31518,13 +30406,13 @@ public struct TestTableFile: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TestTableFile: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case comment = "comment"
-    case testMethod = "testMethod"
-    case parameterNames = "parameterNames"
-    case testTable = "testTable"
+    case comment
+    case testMethod
+    case parameterNames
+    case testTable
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31556,7 +30444,6 @@ extension TestTableFile: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         comment,
@@ -31577,7 +30464,6 @@ extension TestTableFile: Codable {
         testTable,
         forKey: .testTable
       )
-
     }
   }
 }
@@ -31594,12 +30480,10 @@ public struct ReplayRequest: Sendable {
   public let bodySegments: [[String: JSONValue]]?
 
   /// Default initializer.
-  public init(
-    method: String? = nil,
-    url: String? = nil,
-    headers: [String: String]? = nil,
-    bodySegments: [[String: JSONValue]]? = nil
-  ) {
+  public init(method: String? = nil,
+              url: String? = nil,
+              headers: [String: String]? = nil,
+              bodySegments: [[String: JSONValue]]? = nil) {
     self.method = method
     self.url = url
     self.headers = headers
@@ -31609,13 +30493,13 @@ public struct ReplayRequest: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ReplayRequest: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case method = "method"
-    case url = "url"
-    case headers = "headers"
-    case bodySegments = "bodySegments"
+    case method
+    case url
+    case headers
+    case bodySegments
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31647,7 +30531,6 @@ extension ReplayRequest: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         method,
@@ -31668,7 +30551,6 @@ extension ReplayRequest: Codable {
         bodySegments,
         forKey: .bodySegments
       )
-
     }
   }
 }
@@ -31685,12 +30567,10 @@ public struct ReplayResponse: Sendable {
   public let sdkResponseSegments: [[String: JSONValue]]?
 
   /// Default initializer.
-  public init(
-    statusCode: Int32? = nil,
-    headers: [String: String]? = nil,
-    bodySegments: [[String: JSONValue]]? = nil,
-    sdkResponseSegments: [[String: JSONValue]]? = nil
-  ) {
+  public init(statusCode: Int32? = nil,
+              headers: [String: String]? = nil,
+              bodySegments: [[String: JSONValue]]? = nil,
+              sdkResponseSegments: [[String: JSONValue]]? = nil) {
     self.statusCode = statusCode
     self.headers = headers
     self.bodySegments = bodySegments
@@ -31700,13 +30580,13 @@ public struct ReplayResponse: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ReplayResponse: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case statusCode = "statusCode"
-    case headers = "headers"
-    case bodySegments = "bodySegments"
-    case sdkResponseSegments = "sdkResponseSegments"
+    case statusCode
+    case headers
+    case bodySegments
+    case sdkResponseSegments
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31738,7 +30618,6 @@ extension ReplayResponse: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         statusCode,
@@ -31759,7 +30638,6 @@ extension ReplayResponse: Codable {
         sdkResponseSegments,
         forKey: .sdkResponseSegments
       )
-
     }
   }
 }
@@ -31772,10 +30650,8 @@ public struct ReplayInteraction: Sendable {
   public let response: ReplayResponse?
 
   /// Default initializer.
-  public init(
-    request: ReplayRequest? = nil,
-    response: ReplayResponse? = nil
-  ) {
+  public init(request: ReplayRequest? = nil,
+              response: ReplayResponse? = nil) {
     self.request = request
     self.response = response
   }
@@ -31783,11 +30659,11 @@ public struct ReplayInteraction: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ReplayInteraction: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case request = "request"
-    case response = "response"
+    case request
+    case response
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31809,7 +30685,6 @@ extension ReplayInteraction: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         request,
@@ -31820,7 +30695,6 @@ extension ReplayInteraction: Codable {
         response,
         forKey: .response
       )
-
     }
   }
 }
@@ -31833,10 +30707,8 @@ public struct ReplayFile: Sendable {
   public let interactions: [ReplayInteraction]?
 
   /// Default initializer.
-  public init(
-    replayId: String? = nil,
-    interactions: [ReplayInteraction]? = nil
-  ) {
+  public init(replayId: String? = nil,
+              interactions: [ReplayInteraction]? = nil) {
     self.replayId = replayId
     self.interactions = interactions
   }
@@ -31844,11 +30716,11 @@ public struct ReplayFile: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ReplayFile: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case replayId = "replayId"
-    case interactions = "interactions"
+    case replayId
+    case interactions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31870,7 +30742,6 @@ extension ReplayFile: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         replayId,
@@ -31881,7 +30752,6 @@ extension ReplayFile: Codable {
         interactions,
         forKey: .interactions
       )
-
     }
   }
 }
@@ -31904,12 +30774,10 @@ public struct UploadFileConfig: Sendable {
   public let displayName: String?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    name: String? = nil,
-    mimeType: String? = nil,
-    displayName: String? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              name: String? = nil,
+              mimeType: String? = nil,
+              displayName: String? = nil) {
     self.httpOptions = httpOptions
     self.name = name
     self.mimeType = mimeType
@@ -31919,16 +30787,16 @@ public struct UploadFileConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UploadFileConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
-    case mimeType = "mimeType"
-    case displayName = "displayName"
+    case name
+    case mimeType
+    case displayName
   }
 
   public init(from decoder: any Decoder) throws {
@@ -31967,7 +30835,6 @@ extension UploadFileConfig: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         name,
@@ -31983,7 +30850,6 @@ extension UploadFileConfig: Codable {
         displayName,
         forKey: .displayName
       )
-
     }
   }
 }
@@ -31995,20 +30861,17 @@ public struct DownloadFileConfig: Sendable {
   public let httpOptions: HttpOptions?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil) {
     self.httpOptions = httpOptions
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension DownloadFileConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32078,18 +30941,16 @@ public struct UpscaleImageConfig: Sendable {
   public let labels: [String: String]?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    outputGcsUri: String? = nil,
-    safetyFilterLevel: SafetyFilterLevel? = nil,
-    personGeneration: PersonGeneration? = nil,
-    includeRaiReason: Bool? = nil,
-    outputMimeType: String? = nil,
-    outputCompressionQuality: Int32? = nil,
-    enhanceInputImage: Bool? = nil,
-    imagePreservationFactor: Float? = nil,
-    labels: [String: String]? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              outputGcsUri: String? = nil,
+              safetyFilterLevel: SafetyFilterLevel? = nil,
+              personGeneration: PersonGeneration? = nil,
+              includeRaiReason: Bool? = nil,
+              outputMimeType: String? = nil,
+              outputCompressionQuality: Int32? = nil,
+              enhanceInputImage: Bool? = nil,
+              imagePreservationFactor: Float? = nil,
+              labels: [String: String]? = nil) {
     self.httpOptions = httpOptions
     self.outputGcsUri = outputGcsUri
     self.safetyFilterLevel = safetyFilterLevel
@@ -32105,22 +30966,22 @@ public struct UpscaleImageConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UpscaleImageConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case safetyFilterLevel = "safetyFilterLevel"
-    case personGeneration = "personGeneration"
-    case includeRaiReason = "includeRaiReason"
-    case outputMimeType = "outputMimeType"
-    case outputCompressionQuality = "outputCompressionQuality"
-    case enhanceInputImage = "enhanceInputImage"
-    case imagePreservationFactor = "imagePreservationFactor"
+    case httpOptions
+    case safetyFilterLevel
+    case personGeneration
+    case includeRaiReason
+    case outputMimeType
+    case outputCompressionQuality
+    case enhanceInputImage
+    case imagePreservationFactor
   }
+
   public enum VertexKeys: String, CodingKey {
-    case outputGcsUri = "outputGcsUri"
-    case labels = "labels"
+    case outputGcsUri
+    case labels
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32224,7 +31085,6 @@ extension UpscaleImageConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         outputGcsUri,
@@ -32235,7 +31095,6 @@ extension UpscaleImageConfig: Codable {
         labels,
         forKey: .labels
       )
-
     }
   }
 }
@@ -32256,12 +31115,10 @@ public struct UpscaleImageParameters: Sendable {
   public let config: UpscaleImageConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    image: ImagePart,
-    upscaleFactor: String,
-    config: UpscaleImageConfig? = nil
-  ) {
+  public init(model: String,
+              image: ImagePart,
+              upscaleFactor: String,
+              config: UpscaleImageConfig? = nil) {
     self.model = model
     self.image = image
     self.upscaleFactor = upscaleFactor
@@ -32271,14 +31128,13 @@ public struct UpscaleImageParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UpscaleImageParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case image = "image"
-    case upscaleFactor = "upscaleFactor"
-    case config = "config"
+    case model
+    case image
+    case upscaleFactor
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32314,21 +31170,24 @@ extension UpscaleImageParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "UpscaleImageParameters", field: "model")
+        backend: configuration.backend, type: "UpscaleImageParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       image,
       forKey: .image,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "UpscaleImageParameters", field: "image")
+        backend: configuration.backend, type: "UpscaleImageParameters", field: "image"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       upscaleFactor,
       forKey: .upscaleFactor,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "UpscaleImageParameters", field: "upscaleFactor")
+        backend: configuration.backend, type: "UpscaleImageParameters", field: "upscaleFactor"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -32355,11 +31214,9 @@ public struct RawReferenceImage: Sendable {
   public let referenceType: String?
 
   /// Default initializer.
-  public init(
-    referenceImage: ImagePart? = nil,
-    referenceId: Int32? = nil,
-    referenceType: String? = nil
-  ) {
+  public init(referenceImage: ImagePart? = nil,
+              referenceId: Int32? = nil,
+              referenceType: String? = nil) {
     self.referenceImage = referenceImage
     self.referenceId = referenceId
     self.referenceType = referenceType
@@ -32368,12 +31225,12 @@ public struct RawReferenceImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RawReferenceImage: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case referenceImage = "referenceImage"
-    case referenceId = "referenceId"
-    case referenceType = "referenceType"
+    case referenceImage
+    case referenceId
+    case referenceType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32400,7 +31257,6 @@ extension RawReferenceImage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         referenceImage,
@@ -32416,7 +31272,6 @@ extension RawReferenceImage: Codable {
         referenceType,
         forKey: .referenceType
       )
-
     }
   }
 }
@@ -32445,12 +31300,10 @@ public struct MaskReferenceImage: Sendable {
   public let config: MaskReferenceConfig?
 
   /// Default initializer.
-  public init(
-    referenceImage: ImagePart? = nil,
-    referenceId: Int32? = nil,
-    referenceType: String? = nil,
-    config: MaskReferenceConfig? = nil
-  ) {
+  public init(referenceImage: ImagePart? = nil,
+              referenceId: Int32? = nil,
+              referenceType: String? = nil,
+              config: MaskReferenceConfig? = nil) {
     self.referenceImage = referenceImage
     self.referenceId = referenceId
     self.referenceType = referenceType
@@ -32460,13 +31313,13 @@ public struct MaskReferenceImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension MaskReferenceImage: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case referenceImage = "referenceImage"
-    case referenceId = "referenceId"
-    case referenceType = "referenceType"
-    case config = "config"
+    case referenceImage
+    case referenceId
+    case referenceType
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32498,7 +31351,6 @@ extension MaskReferenceImage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         referenceImage,
@@ -32519,7 +31371,6 @@ extension MaskReferenceImage: Codable {
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -32548,12 +31399,10 @@ public struct ControlReferenceImage: Sendable {
   public let config: ControlReferenceConfig?
 
   /// Default initializer.
-  public init(
-    referenceImage: ImagePart? = nil,
-    referenceId: Int32? = nil,
-    referenceType: String? = nil,
-    config: ControlReferenceConfig? = nil
-  ) {
+  public init(referenceImage: ImagePart? = nil,
+              referenceId: Int32? = nil,
+              referenceType: String? = nil,
+              config: ControlReferenceConfig? = nil) {
     self.referenceImage = referenceImage
     self.referenceId = referenceId
     self.referenceType = referenceType
@@ -32563,13 +31412,13 @@ public struct ControlReferenceImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ControlReferenceImage: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case referenceImage = "referenceImage"
-    case referenceId = "referenceId"
-    case referenceType = "referenceType"
-    case config = "config"
+    case referenceImage
+    case referenceId
+    case referenceType
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32601,7 +31450,6 @@ extension ControlReferenceImage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         referenceImage,
@@ -32622,7 +31470,6 @@ extension ControlReferenceImage: Codable {
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -32649,12 +31496,10 @@ public struct StyleReferenceImage: Sendable {
   public let config: StyleReferenceConfig?
 
   /// Default initializer.
-  public init(
-    referenceImage: ImagePart? = nil,
-    referenceId: Int32? = nil,
-    referenceType: String? = nil,
-    config: StyleReferenceConfig? = nil
-  ) {
+  public init(referenceImage: ImagePart? = nil,
+              referenceId: Int32? = nil,
+              referenceType: String? = nil,
+              config: StyleReferenceConfig? = nil) {
     self.referenceImage = referenceImage
     self.referenceId = referenceId
     self.referenceType = referenceType
@@ -32664,13 +31509,13 @@ public struct StyleReferenceImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension StyleReferenceImage: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case referenceImage = "referenceImage"
-    case referenceId = "referenceId"
-    case referenceType = "referenceType"
-    case config = "config"
+    case referenceImage
+    case referenceId
+    case referenceType
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32702,7 +31547,6 @@ extension StyleReferenceImage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         referenceImage,
@@ -32723,7 +31567,6 @@ extension StyleReferenceImage: Codable {
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -32750,12 +31593,10 @@ public struct SubjectReferenceImage: Sendable {
   public let config: SubjectReferenceConfig?
 
   /// Default initializer.
-  public init(
-    referenceImage: ImagePart? = nil,
-    referenceId: Int32? = nil,
-    referenceType: String? = nil,
-    config: SubjectReferenceConfig? = nil
-  ) {
+  public init(referenceImage: ImagePart? = nil,
+              referenceId: Int32? = nil,
+              referenceType: String? = nil,
+              config: SubjectReferenceConfig? = nil) {
     self.referenceImage = referenceImage
     self.referenceId = referenceId
     self.referenceType = referenceType
@@ -32765,13 +31606,13 @@ public struct SubjectReferenceImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SubjectReferenceImage: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case referenceImage = "referenceImage"
-    case referenceId = "referenceId"
-    case referenceType = "referenceType"
-    case config = "config"
+    case referenceImage
+    case referenceId
+    case referenceType
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32803,7 +31644,6 @@ extension SubjectReferenceImage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         referenceImage,
@@ -32824,7 +31664,6 @@ extension SubjectReferenceImage: Codable {
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -32846,11 +31685,9 @@ public struct ContentReferenceImage: Sendable {
   public let referenceType: String?
 
   /// Default initializer.
-  public init(
-    referenceImage: ImagePart? = nil,
-    referenceId: Int32? = nil,
-    referenceType: String? = nil
-  ) {
+  public init(referenceImage: ImagePart? = nil,
+              referenceId: Int32? = nil,
+              referenceType: String? = nil) {
     self.referenceImage = referenceImage
     self.referenceId = referenceId
     self.referenceType = referenceType
@@ -32859,12 +31696,12 @@ public struct ContentReferenceImage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ContentReferenceImage: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case referenceImage = "referenceImage"
-    case referenceId = "referenceId"
-    case referenceType = "referenceType"
+    case referenceImage
+    case referenceId
+    case referenceType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32891,7 +31728,6 @@ extension ContentReferenceImage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         referenceImage,
@@ -32907,7 +31743,6 @@ extension ContentReferenceImage: Codable {
         referenceType,
         forKey: .referenceType
       )
-
     }
   }
 }
@@ -32919,19 +31754,17 @@ public struct LiveServerSetupComplete: Sendable {
   public let sessionId: String?
 
   /// Default initializer.
-  public init(
-    sessionId: String? = nil
-  ) {
+  public init(sessionId: String? = nil) {
     self.sessionId = sessionId
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerSetupComplete: Codable {
-
   // MARK: - Codable
+
   public enum VertexKeys: String, CodingKey {
-    case sessionId = "sessionId"
+    case sessionId
   }
 
   public init(from decoder: any Decoder) throws {
@@ -32948,13 +31781,11 @@ extension LiveServerSetupComplete: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         sessionId,
         forKey: .sessionId
       )
-
     }
   }
 }
@@ -32969,10 +31800,8 @@ public struct Transcription: Sendable {
   public let finished: Bool?
 
   /// Default initializer.
-  public init(
-    text: String? = nil,
-    finished: Bool? = nil
-  ) {
+  public init(text: String? = nil,
+              finished: Bool? = nil) {
     self.text = text
     self.finished = finished
   }
@@ -32980,12 +31809,11 @@ public struct Transcription: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Transcription: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case text = "text"
-    case finished = "finished"
+    case text
+    case finished
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33074,18 +31902,16 @@ public struct LiveServerContent: Sendable {
   public let waitingForInput: Bool?
 
   /// Default initializer.
-  public init(
-    modelTurn: Content? = nil,
-    turnComplete: Bool? = nil,
-    interrupted: Bool? = nil,
-    groundingMetadata: GroundingMetadata? = nil,
-    generationComplete: Bool? = nil,
-    inputTranscription: Transcription? = nil,
-    outputTranscription: Transcription? = nil,
-    urlContextMetadata: UrlContextMetadata? = nil,
-    turnCompleteReason: TurnCompleteReason? = nil,
-    waitingForInput: Bool? = nil
-  ) {
+  public init(modelTurn: Content? = nil,
+              turnComplete: Bool? = nil,
+              interrupted: Bool? = nil,
+              groundingMetadata: GroundingMetadata? = nil,
+              generationComplete: Bool? = nil,
+              inputTranscription: Transcription? = nil,
+              outputTranscription: Transcription? = nil,
+              urlContextMetadata: UrlContextMetadata? = nil,
+              turnCompleteReason: TurnCompleteReason? = nil,
+              waitingForInput: Bool? = nil) {
     self.modelTurn = modelTurn
     self.turnComplete = turnComplete
     self.interrupted = interrupted
@@ -33101,22 +31927,22 @@ public struct LiveServerContent: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerContent: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case modelTurn = "modelTurn"
-    case turnComplete = "turnComplete"
-    case interrupted = "interrupted"
-    case groundingMetadata = "groundingMetadata"
-    case generationComplete = "generationComplete"
-    case inputTranscription = "inputTranscription"
-    case outputTranscription = "outputTranscription"
-    case turnCompleteReason = "turnCompleteReason"
-    case waitingForInput = "waitingForInput"
+    case modelTurn
+    case turnComplete
+    case interrupted
+    case groundingMetadata
+    case generationComplete
+    case inputTranscription
+    case outputTranscription
+    case turnCompleteReason
+    case waitingForInput
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case urlContextMetadata = "urlContextMetadata"
+    case urlContextMetadata
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33225,13 +32051,11 @@ extension LiveServerContent: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         urlContextMetadata,
         forKey: .urlContextMetadata
       )
-
     }
   }
 }
@@ -33244,20 +32068,17 @@ public struct LiveServerToolCall: Sendable {
   public let functionCalls: [FunctionCall]?
 
   /// Default initializer.
-  public init(
-    functionCalls: [FunctionCall]? = nil
-  ) {
+  public init(functionCalls: [FunctionCall]? = nil) {
     self.functionCalls = functionCalls
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerToolCall: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case functionCalls = "functionCalls"
+    case functionCalls
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33293,20 +32114,17 @@ public struct LiveServerToolCallCancellation: Sendable {
   public let ids: [String]?
 
   /// Default initializer.
-  public init(
-    ids: [String]? = nil
-  ) {
+  public init(ids: [String]? = nil) {
     self.ids = ids
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerToolCallCancellation: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case ids = "ids"
+    case ids
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33371,19 +32189,17 @@ public struct UsageMetadata: Sendable {
   public let trafficType: TrafficType?
 
   /// Default initializer.
-  public init(
-    promptTokenCount: Int32? = nil,
-    cachedContentTokenCount: Int32? = nil,
-    responseTokenCount: Int32? = nil,
-    toolUsePromptTokenCount: Int32? = nil,
-    thoughtsTokenCount: Int32? = nil,
-    totalTokenCount: Int32? = nil,
-    promptTokensDetails: [ModalityTokenCount]? = nil,
-    cacheTokensDetails: [ModalityTokenCount]? = nil,
-    responseTokensDetails: [ModalityTokenCount]? = nil,
-    toolUsePromptTokensDetails: [ModalityTokenCount]? = nil,
-    trafficType: TrafficType? = nil
-  ) {
+  public init(promptTokenCount: Int32? = nil,
+              cachedContentTokenCount: Int32? = nil,
+              responseTokenCount: Int32? = nil,
+              toolUsePromptTokenCount: Int32? = nil,
+              thoughtsTokenCount: Int32? = nil,
+              totalTokenCount: Int32? = nil,
+              promptTokensDetails: [ModalityTokenCount]? = nil,
+              cacheTokensDetails: [ModalityTokenCount]? = nil,
+              responseTokensDetails: [ModalityTokenCount]? = nil,
+              toolUsePromptTokensDetails: [ModalityTokenCount]? = nil,
+              trafficType: TrafficType? = nil) {
     self.promptTokenCount = promptTokenCount
     self.cachedContentTokenCount = cachedContentTokenCount
     self.responseTokenCount = responseTokenCount
@@ -33400,23 +32216,23 @@ public struct UsageMetadata: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UsageMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case promptTokenCount = "promptTokenCount"
-    case cachedContentTokenCount = "cachedContentTokenCount"
-    case responseTokenCount = "responseTokenCount"
-    case toolUsePromptTokenCount = "toolUsePromptTokenCount"
-    case thoughtsTokenCount = "thoughtsTokenCount"
-    case totalTokenCount = "totalTokenCount"
-    case promptTokensDetails = "promptTokensDetails"
-    case cacheTokensDetails = "cacheTokensDetails"
-    case responseTokensDetails = "responseTokensDetails"
-    case toolUsePromptTokensDetails = "toolUsePromptTokensDetails"
+    case promptTokenCount
+    case cachedContentTokenCount
+    case responseTokenCount
+    case toolUsePromptTokenCount
+    case thoughtsTokenCount
+    case totalTokenCount
+    case promptTokensDetails
+    case cacheTokensDetails
+    case responseTokensDetails
+    case toolUsePromptTokensDetails
   }
+
   public enum VertexKeys: String, CodingKey {
-    case trafficType = "trafficType"
+    case trafficType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33535,13 +32351,11 @@ extension UsageMetadata: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         trafficType,
         forKey: .trafficType
       )
-
     }
   }
 }
@@ -33555,20 +32369,17 @@ public struct LiveServerGoAway: Sendable {
   public let timeLeft: TimeInterval?
 
   /// Default initializer.
-  public init(
-    timeLeft: TimeInterval? = nil
-  ) {
+  public init(timeLeft: TimeInterval? = nil) {
     self.timeLeft = timeLeft
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerGoAway: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case timeLeft = "timeLeft"
+    case timeLeft
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33624,11 +32435,9 @@ public struct LiveServerSessionResumptionUpdate: Sendable {
   public let lastConsumedClientMessageIndex: Int64?
 
   /// Default initializer.
-  public init(
-    newHandle: String? = nil,
-    resumable: Bool? = nil,
-    lastConsumedClientMessageIndex: Int64? = nil
-  ) {
+  public init(newHandle: String? = nil,
+              resumable: Bool? = nil,
+              lastConsumedClientMessageIndex: Int64? = nil) {
     self.newHandle = newHandle
     self.resumable = resumable
     self.lastConsumedClientMessageIndex = lastConsumedClientMessageIndex
@@ -33637,13 +32446,12 @@ public struct LiveServerSessionResumptionUpdate: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerSessionResumptionUpdate: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case newHandle = "newHandle"
-    case resumable = "resumable"
-    case lastConsumedClientMessageIndex = "lastConsumedClientMessageIndex"
+    case newHandle
+    case resumable
+    case lastConsumedClientMessageIndex
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33693,20 +32501,17 @@ public struct VoiceActivityDetectionSignal: Sendable {
   public let vadSignalType: VadSignalType?
 
   /// Default initializer.
-  public init(
-    vadSignalType: VadSignalType? = nil
-  ) {
+  public init(vadSignalType: VadSignalType? = nil) {
     self.vadSignalType = vadSignalType
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VoiceActivityDetectionSignal: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case vadSignalType = "vadSignalType"
+    case vadSignalType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33737,20 +32542,17 @@ public struct VoiceActivity: Sendable {
   public let voiceActivityType: VoiceActivityType?
 
   /// Default initializer.
-  public init(
-    voiceActivityType: VoiceActivityType? = nil
-  ) {
+  public init(voiceActivityType: VoiceActivityType? = nil) {
     self.voiceActivityType = voiceActivityType
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension VoiceActivity: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case voiceActivityType = "voiceActivityType"
+    case voiceActivityType
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33807,17 +32609,15 @@ public struct LiveServerMessage: Sendable {
   public let voiceActivity: VoiceActivity?
 
   /// Default initializer.
-  public init(
-    setupComplete: LiveServerSetupComplete? = nil,
-    serverContent: LiveServerContent? = nil,
-    toolCall: LiveServerToolCall? = nil,
-    toolCallCancellation: LiveServerToolCallCancellation? = nil,
-    usageMetadata: UsageMetadata? = nil,
-    goAway: LiveServerGoAway? = nil,
-    sessionResumptionUpdate: LiveServerSessionResumptionUpdate? = nil,
-    voiceActivityDetectionSignal: VoiceActivityDetectionSignal? = nil,
-    voiceActivity: VoiceActivity? = nil
-  ) {
+  public init(setupComplete: LiveServerSetupComplete? = nil,
+              serverContent: LiveServerContent? = nil,
+              toolCall: LiveServerToolCall? = nil,
+              toolCallCancellation: LiveServerToolCallCancellation? = nil,
+              usageMetadata: UsageMetadata? = nil,
+              goAway: LiveServerGoAway? = nil,
+              sessionResumptionUpdate: LiveServerSessionResumptionUpdate? = nil,
+              voiceActivityDetectionSignal: VoiceActivityDetectionSignal? = nil,
+              voiceActivity: VoiceActivity? = nil) {
     self.setupComplete = setupComplete
     self.serverContent = serverContent
     self.toolCall = toolCall
@@ -33832,19 +32632,18 @@ public struct LiveServerMessage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveServerMessage: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case setupComplete = "setupComplete"
-    case serverContent = "serverContent"
-    case toolCall = "toolCall"
-    case toolCallCancellation = "toolCallCancellation"
-    case usageMetadata = "usageMetadata"
-    case goAway = "goAway"
-    case sessionResumptionUpdate = "sessionResumptionUpdate"
-    case voiceActivityDetectionSignal = "voiceActivityDetectionSignal"
-    case voiceActivity = "voiceActivity"
+    case setupComplete
+    case serverContent
+    case toolCall
+    case toolCallCancellation
+    case usageMetadata
+    case goAway
+    case sessionResumptionUpdate
+    case voiceActivityDetectionSignal
+    case voiceActivity
   }
 
   public init(from decoder: any Decoder) throws {
@@ -33973,13 +32772,11 @@ public struct AutomaticActivityDetection: Sendable {
   public let silenceDurationMs: Int32?
 
   /// Default initializer.
-  public init(
-    disabled: Bool? = nil,
-    startOfSpeechSensitivity: StartSensitivity? = nil,
-    endOfSpeechSensitivity: EndSensitivity? = nil,
-    prefixPaddingMs: Int32? = nil,
-    silenceDurationMs: Int32? = nil
-  ) {
+  public init(disabled: Bool? = nil,
+              startOfSpeechSensitivity: StartSensitivity? = nil,
+              endOfSpeechSensitivity: EndSensitivity? = nil,
+              prefixPaddingMs: Int32? = nil,
+              silenceDurationMs: Int32? = nil) {
     self.disabled = disabled
     self.startOfSpeechSensitivity = startOfSpeechSensitivity
     self.endOfSpeechSensitivity = endOfSpeechSensitivity
@@ -33990,15 +32787,14 @@ public struct AutomaticActivityDetection: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AutomaticActivityDetection: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case disabled = "disabled"
-    case startOfSpeechSensitivity = "startOfSpeechSensitivity"
-    case endOfSpeechSensitivity = "endOfSpeechSensitivity"
-    case prefixPaddingMs = "prefixPaddingMs"
-    case silenceDurationMs = "silenceDurationMs"
+    case disabled
+    case startOfSpeechSensitivity
+    case endOfSpeechSensitivity
+    case prefixPaddingMs
+    case silenceDurationMs
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34079,11 +32875,9 @@ public struct RealtimeInputConfig: Sendable {
   public let turnCoverage: TurnCoverage?
 
   /// Default initializer.
-  public init(
-    automaticActivityDetection: AutomaticActivityDetection? = nil,
-    activityHandling: ActivityHandling? = nil,
-    turnCoverage: TurnCoverage? = nil
-  ) {
+  public init(automaticActivityDetection: AutomaticActivityDetection? = nil,
+              activityHandling: ActivityHandling? = nil,
+              turnCoverage: TurnCoverage? = nil) {
     self.automaticActivityDetection = automaticActivityDetection
     self.activityHandling = activityHandling
     self.turnCoverage = turnCoverage
@@ -34092,13 +32886,12 @@ public struct RealtimeInputConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RealtimeInputConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case automaticActivityDetection = "automaticActivityDetection"
-    case activityHandling = "activityHandling"
-    case turnCoverage = "turnCoverage"
+    case automaticActivityDetection
+    case activityHandling
+    case turnCoverage
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34158,10 +32951,8 @@ public struct SessionResumptionConfig: Sendable {
   public let transparent: Bool?
 
   /// Default initializer.
-  public init(
-    handle: String? = nil,
-    transparent: Bool? = nil
-  ) {
+  public init(handle: String? = nil,
+              transparent: Bool? = nil) {
     self.handle = handle
     self.transparent = transparent
   }
@@ -34169,14 +32960,14 @@ public struct SessionResumptionConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SessionResumptionConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case handle = "handle"
+    case handle
   }
+
   public enum VertexKeys: String, CodingKey {
-    case transparent = "transparent"
+    case transparent
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34205,13 +32996,11 @@ extension SessionResumptionConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         transparent,
         forKey: .transparent
       )
-
     }
   }
 }
@@ -34230,20 +33019,17 @@ public struct SlidingWindow: Sendable {
   public let targetTokens: Int64?
 
   /// Default initializer.
-  public init(
-    targetTokens: Int64? = nil
-  ) {
+  public init(targetTokens: Int64? = nil) {
     self.targetTokens = targetTokens
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SlidingWindow: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case targetTokens = "targetTokens"
+    case targetTokens
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34279,10 +33065,8 @@ public struct ContextWindowCompressionConfig: Sendable {
   public let slidingWindow: SlidingWindow?
 
   /// Default initializer.
-  public init(
-    triggerTokens: Int64? = nil,
-    slidingWindow: SlidingWindow? = nil
-  ) {
+  public init(triggerTokens: Int64? = nil,
+              slidingWindow: SlidingWindow? = nil) {
     self.triggerTokens = triggerTokens
     self.slidingWindow = slidingWindow
   }
@@ -34290,12 +33074,11 @@ public struct ContextWindowCompressionConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ContextWindowCompressionConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case triggerTokens = "triggerTokens"
-    case slidingWindow = "slidingWindow"
+    case triggerTokens
+    case slidingWindow
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34332,16 +33115,12 @@ extension ContextWindowCompressionConfig: Codable {
 /// The audio transcription configuration in Setup.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct AudioTranscriptionConfig: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AudioTranscriptionConfig: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -34362,20 +33141,17 @@ public struct ProactivityConfig: Sendable {
   public let proactiveAudio: Bool?
 
   /// Default initializer.
-  public init(
-    proactiveAudio: Bool? = nil
-  ) {
+  public init(proactiveAudio: Bool? = nil) {
     self.proactiveAudio = proactiveAudio
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ProactivityConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case proactiveAudio = "proactiveAudio"
+    case proactiveAudio
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34455,19 +33231,17 @@ public struct LiveClientSetup: Sendable {
   public let explicitVadSignal: Bool?
 
   /// Default initializer.
-  public init(
-    model: String? = nil,
-    generationConfig: GenerationConfig? = nil,
-    systemInstruction: [Content]? = nil,
-    tools: [Tool]? = nil,
-    realtimeInputConfig: RealtimeInputConfig? = nil,
-    sessionResumption: SessionResumptionConfig? = nil,
-    contextWindowCompression: ContextWindowCompressionConfig? = nil,
-    inputAudioTranscription: AudioTranscriptionConfig? = nil,
-    outputAudioTranscription: AudioTranscriptionConfig? = nil,
-    proactivity: ProactivityConfig? = nil,
-    explicitVadSignal: Bool? = nil
-  ) {
+  public init(model: String? = nil,
+              generationConfig: GenerationConfig? = nil,
+              systemInstruction: [Content]? = nil,
+              tools: [Tool]? = nil,
+              realtimeInputConfig: RealtimeInputConfig? = nil,
+              sessionResumption: SessionResumptionConfig? = nil,
+              contextWindowCompression: ContextWindowCompressionConfig? = nil,
+              inputAudioTranscription: AudioTranscriptionConfig? = nil,
+              outputAudioTranscription: AudioTranscriptionConfig? = nil,
+              proactivity: ProactivityConfig? = nil,
+              explicitVadSignal: Bool? = nil) {
     self.model = model
     self.generationConfig = generationConfig
     self.systemInstruction = systemInstruction
@@ -34484,23 +33258,23 @@ public struct LiveClientSetup: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveClientSetup: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case generationConfig = "generationConfig"
-    case systemInstruction = "systemInstruction"
-    case tools = "tools"
-    case realtimeInputConfig = "realtimeInputConfig"
-    case sessionResumption = "sessionResumption"
-    case contextWindowCompression = "contextWindowCompression"
-    case inputAudioTranscription = "inputAudioTranscription"
-    case outputAudioTranscription = "outputAudioTranscription"
-    case proactivity = "proactivity"
+    case model
+    case generationConfig
+    case systemInstruction
+    case tools
+    case realtimeInputConfig
+    case sessionResumption
+    case contextWindowCompression
+    case inputAudioTranscription
+    case outputAudioTranscription
+    case proactivity
   }
+
   public enum VertexKeys: String, CodingKey {
-    case explicitVadSignal = "explicitVadSignal"
+    case explicitVadSignal
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34619,13 +33393,11 @@ extension LiveClientSetup: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         explicitVadSignal,
         forKey: .explicitVadSignal
       )
-
     }
   }
 }
@@ -34651,10 +33423,8 @@ public struct LiveClientContent: Sendable {
   public let turnComplete: Bool?
 
   /// Default initializer.
-  public init(
-    turns: [Content]? = nil,
-    turnComplete: Bool? = nil
-  ) {
+  public init(turns: [Content]? = nil,
+              turnComplete: Bool? = nil) {
     self.turns = turns
     self.turnComplete = turnComplete
   }
@@ -34662,12 +33432,11 @@ public struct LiveClientContent: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveClientContent: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case turns = "turns"
-    case turnComplete = "turnComplete"
+    case turns
+    case turnComplete
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34707,16 +33476,12 @@ extension LiveClientContent: Codable {
 /// disabled.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ActivityStart: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ActivityStart: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -34734,16 +33499,12 @@ extension ActivityStart: Codable {
 /// disabled.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ActivityEnd: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ActivityEnd: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -34800,15 +33561,13 @@ public struct LiveClientRealtimeInput: Sendable {
   public let activityEnd: ActivityEnd?
 
   /// Default initializer.
-  public init(
-    mediaChunks: [Blob]? = nil,
-    audio: Blob? = nil,
-    audioStreamEnd: Bool? = nil,
-    video: Blob? = nil,
-    text: String? = nil,
-    activityStart: ActivityStart? = nil,
-    activityEnd: ActivityEnd? = nil
-  ) {
+  public init(mediaChunks: [Blob]? = nil,
+              audio: Blob? = nil,
+              audioStreamEnd: Bool? = nil,
+              video: Blob? = nil,
+              text: String? = nil,
+              activityStart: ActivityStart? = nil,
+              activityEnd: ActivityEnd? = nil) {
     self.mediaChunks = mediaChunks
     self.audio = audio
     self.audioStreamEnd = audioStreamEnd
@@ -34821,19 +33580,19 @@ public struct LiveClientRealtimeInput: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveClientRealtimeInput: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case mediaChunks = "mediaChunks"
-    case audio = "audio"
-    case video = "video"
-    case text = "text"
-    case activityStart = "activityStart"
-    case activityEnd = "activityEnd"
+    case mediaChunks
+    case audio
+    case video
+    case text
+    case activityStart
+    case activityEnd
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case audioStreamEnd = "audioStreamEnd"
+    case audioStreamEnd
   }
 
   public init(from decoder: any Decoder) throws {
@@ -34912,13 +33671,11 @@ extension LiveClientRealtimeInput: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         audioStreamEnd,
         forKey: .audioStreamEnd
       )
-
     }
   }
 }
@@ -34955,15 +33712,13 @@ public struct LiveSendRealtimeInputParameters: Sendable {
   public let activityEnd: ActivityEnd?
 
   /// Default initializer.
-  public init(
-    media: Data? = nil,
-    audio: Blob? = nil,
-    audioStreamEnd: Bool? = nil,
-    video: Data? = nil,
-    text: String? = nil,
-    activityStart: ActivityStart? = nil,
-    activityEnd: ActivityEnd? = nil
-  ) {
+  public init(media: Data? = nil,
+              audio: Blob? = nil,
+              audioStreamEnd: Bool? = nil,
+              video: Data? = nil,
+              text: String? = nil,
+              activityStart: ActivityStart? = nil,
+              activityEnd: ActivityEnd? = nil) {
     self.media = media
     self.audio = audio
     self.audioStreamEnd = audioStreamEnd
@@ -34976,17 +33731,16 @@ public struct LiveSendRealtimeInputParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveSendRealtimeInputParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case media = "media"
-    case audio = "audio"
-    case audioStreamEnd = "audioStreamEnd"
-    case video = "video"
-    case text = "text"
-    case activityStart = "activityStart"
-    case activityEnd = "activityEnd"
+    case media
+    case audio
+    case audioStreamEnd
+    case video
+    case text
+    case activityStart
+    case activityEnd
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35085,20 +33839,17 @@ public struct LiveClientToolResponse: Sendable {
   public let functionResponses: [FunctionResponse]?
 
   /// Default initializer.
-  public init(
-    functionResponses: [FunctionResponse]? = nil
-  ) {
+  public init(functionResponses: [FunctionResponse]? = nil) {
     self.functionResponses = functionResponses
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveClientToolResponse: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case functionResponses = "functionResponses"
+    case functionResponses
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35144,13 +33895,11 @@ public struct LiveClientMessage: Sendable {
   public let toolResponse: LiveClientToolResponse?
 
   /// Default initializer.
-  public init(
-    setup: LiveClientSetup? = nil,
-    clientContent: LiveClientContent? = nil,
-    realtimeInput: LiveClientRealtimeInput? = nil,
-    realtimeInputParameters: LiveSendRealtimeInputParameters? = nil,
-    toolResponse: LiveClientToolResponse? = nil
-  ) {
+  public init(setup: LiveClientSetup? = nil,
+              clientContent: LiveClientContent? = nil,
+              realtimeInput: LiveClientRealtimeInput? = nil,
+              realtimeInputParameters: LiveSendRealtimeInputParameters? = nil,
+              toolResponse: LiveClientToolResponse? = nil) {
     self.setup = setup
     self.clientContent = clientContent
     self.realtimeInput = realtimeInput
@@ -35161,15 +33910,14 @@ public struct LiveClientMessage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveClientMessage: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case setup = "setup"
-    case clientContent = "clientContent"
-    case realtimeInput = "realtimeInput"
-    case realtimeInputParameters = "realtimeInputParameters"
-    case toolResponse = "toolResponse"
+    case setup
+    case clientContent
+    case realtimeInput
+    case realtimeInputParameters
+    case toolResponse
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35329,29 +34077,27 @@ public struct LiveConnectConfig: Sendable {
   public let explicitVadSignal: Bool?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    generationConfig: GenerationConfig? = nil,
-    responseModalities: [Modality]? = nil,
-    temperature: Float? = nil,
-    topP: Float? = nil,
-    topK: Float? = nil,
-    maxOutputTokens: Int32? = nil,
-    mediaResolution: MediaResolution? = nil,
-    seed: Int32? = nil,
-    speechConfig: SpeechConfig? = nil,
-    thinkingConfig: ThinkingConfig? = nil,
-    enableAffectiveDialog: Bool? = nil,
-    systemInstruction: [Content]? = nil,
-    tools: [Tool]? = nil,
-    sessionResumption: SessionResumptionConfig? = nil,
-    inputAudioTranscription: AudioTranscriptionConfig? = nil,
-    outputAudioTranscription: AudioTranscriptionConfig? = nil,
-    realtimeInputConfig: RealtimeInputConfig? = nil,
-    contextWindowCompression: ContextWindowCompressionConfig? = nil,
-    proactivity: ProactivityConfig? = nil,
-    explicitVadSignal: Bool? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              generationConfig: GenerationConfig? = nil,
+              responseModalities: [Modality]? = nil,
+              temperature: Float? = nil,
+              topP: Float? = nil,
+              topK: Float? = nil,
+              maxOutputTokens: Int32? = nil,
+              mediaResolution: MediaResolution? = nil,
+              seed: Int32? = nil,
+              speechConfig: SpeechConfig? = nil,
+              thinkingConfig: ThinkingConfig? = nil,
+              enableAffectiveDialog: Bool? = nil,
+              systemInstruction: [Content]? = nil,
+              tools: [Tool]? = nil,
+              sessionResumption: SessionResumptionConfig? = nil,
+              inputAudioTranscription: AudioTranscriptionConfig? = nil,
+              outputAudioTranscription: AudioTranscriptionConfig? = nil,
+              realtimeInputConfig: RealtimeInputConfig? = nil,
+              contextWindowCompression: ContextWindowCompressionConfig? = nil,
+              proactivity: ProactivityConfig? = nil,
+              explicitVadSignal: Bool? = nil) {
     self.httpOptions = httpOptions
     self.generationConfig = generationConfig
     self.responseModalities = responseModalities
@@ -35378,33 +34124,33 @@ public struct LiveConnectConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveConnectConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
-    case generationConfig = "generationConfig"
-    case responseModalities = "responseModalities"
-    case temperature = "temperature"
-    case topP = "topP"
-    case topK = "topK"
-    case maxOutputTokens = "maxOutputTokens"
-    case mediaResolution = "mediaResolution"
-    case seed = "seed"
-    case speechConfig = "speechConfig"
-    case thinkingConfig = "thinkingConfig"
-    case enableAffectiveDialog = "enableAffectiveDialog"
-    case systemInstruction = "systemInstruction"
-    case tools = "tools"
-    case sessionResumption = "sessionResumption"
-    case inputAudioTranscription = "inputAudioTranscription"
-    case outputAudioTranscription = "outputAudioTranscription"
-    case realtimeInputConfig = "realtimeInputConfig"
-    case contextWindowCompression = "contextWindowCompression"
-    case proactivity = "proactivity"
+    case httpOptions
+    case generationConfig
+    case responseModalities
+    case temperature
+    case topP
+    case topK
+    case maxOutputTokens
+    case mediaResolution
+    case seed
+    case speechConfig
+    case thinkingConfig
+    case enableAffectiveDialog
+    case systemInstruction
+    case tools
+    case sessionResumption
+    case inputAudioTranscription
+    case outputAudioTranscription
+    case realtimeInputConfig
+    case contextWindowCompression
+    case proactivity
   }
+
   public enum VertexKeys: String, CodingKey {
-    case explicitVadSignal = "explicitVadSignal"
+    case explicitVadSignal
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35623,13 +34369,11 @@ extension LiveConnectConfig: Codable {
     )
 
     if configuration.isVertexAI() {
-
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
       try VertexKeysContainer.encodeIfPresent(
         explicitVadSignal,
         forKey: .explicitVadSignal
       )
-
     }
   }
 }
@@ -35645,10 +34389,8 @@ public struct LiveConnectParameters: Sendable {
   public let config: LiveConnectConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    config: LiveConnectConfig? = nil
-  ) {
+  public init(model: String,
+              config: LiveConnectConfig? = nil) {
     self.model = model
     self.config = config
   }
@@ -35656,12 +34398,11 @@ public struct LiveConnectParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveConnectParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case config = "config"
+    case model
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35687,7 +34428,8 @@ extension LiveConnectParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "LiveConnectParameters", field: "model")
+        backend: configuration.backend, type: "LiveConnectParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -35723,11 +34465,9 @@ public struct CreateChatParameters: Sendable {
   public let history: [Content]?
 
   /// Default initializer.
-  public init(
-    model: String,
-    config: GenerateContentConfig? = nil,
-    history: [Content]? = nil
-  ) {
+  public init(model: String,
+              config: GenerateContentConfig? = nil,
+              history: [Content]? = nil) {
     self.model = model
     self.config = config
     self.history = history
@@ -35736,13 +34476,12 @@ public struct CreateChatParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateChatParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case config = "config"
-    case history = "history"
+    case model
+    case config
+    case history
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35773,7 +34512,8 @@ extension CreateChatParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CreateChatParameters", field: "model")
+        backend: configuration.backend, type: "CreateChatParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -35808,10 +34548,8 @@ public struct SendMessageParameters: Sendable {
   public let config: GenerateContentConfig?
 
   /// Default initializer.
-  public init(
-    message: [Part],
-    config: GenerateContentConfig? = nil
-  ) {
+  public init(message: [Part],
+              config: GenerateContentConfig? = nil) {
     self.message = message
     self.config = config
   }
@@ -35819,12 +34557,11 @@ public struct SendMessageParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SendMessageParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case message = "message"
-    case config = "config"
+    case message
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35850,7 +34587,8 @@ extension SendMessageParameters: Codable {
       message,
       forKey: .message,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "SendMessageParameters", field: "message")
+        backend: configuration.backend, type: "SendMessageParameters", field: "message"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -35872,10 +34610,8 @@ public struct LiveSendClientContentParameters: Sendable {
   public let turnComplete: Bool?
 
   /// Default initializer.
-  public init(
-    turns: [Content]? = nil,
-    turnComplete: Bool? = nil
-  ) {
+  public init(turns: [Content]? = nil,
+              turnComplete: Bool? = nil) {
     self.turns = turns
     self.turnComplete = turnComplete
   }
@@ -35883,12 +34619,11 @@ public struct LiveSendClientContentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveSendClientContentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case turns = "turns"
-    case turnComplete = "turnComplete"
+    case turns
+    case turnComplete
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35929,19 +34664,17 @@ public struct LiveMusicClientSetup: Sendable {
   public let model: String?
 
   /// Default initializer.
-  public init(
-    model: String? = nil
-  ) {
+  public init(model: String? = nil) {
     self.model = model
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicClientSetup: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case model = "model"
+    case model
   }
 
   public init(from decoder: any Decoder) throws {
@@ -35958,13 +34691,11 @@ extension LiveMusicClientSetup: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         model,
         forKey: .model
       )
-
     }
   }
 }
@@ -35984,10 +34715,8 @@ public struct WeightedPrompt: Sendable {
   public let weight: Float?
 
   /// Default initializer.
-  public init(
-    text: String? = nil,
-    weight: Float? = nil
-  ) {
+  public init(text: String? = nil,
+              weight: Float? = nil) {
     self.text = text
     self.weight = weight
   }
@@ -35995,11 +34724,11 @@ public struct WeightedPrompt: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension WeightedPrompt: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case text = "text"
-    case weight = "weight"
+    case text
+    case weight
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36021,7 +34750,6 @@ extension WeightedPrompt: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         text,
@@ -36032,7 +34760,6 @@ extension WeightedPrompt: Codable {
         weight,
         forKey: .weight
       )
-
     }
   }
 }
@@ -36044,19 +34771,17 @@ public struct LiveMusicClientContent: Sendable {
   public let weightedPrompts: [WeightedPrompt]?
 
   /// Default initializer.
-  public init(
-    weightedPrompts: [WeightedPrompt]? = nil
-  ) {
+  public init(weightedPrompts: [WeightedPrompt]? = nil) {
     self.weightedPrompts = weightedPrompts
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicClientContent: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case weightedPrompts = "weightedPrompts"
+    case weightedPrompts
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36073,13 +34798,11 @@ extension LiveMusicClientContent: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         weightedPrompts,
         forKey: .weightedPrompts
       )
-
     }
   }
 }
@@ -36129,20 +34852,18 @@ public struct LiveMusicGenerationConfig: Sendable {
   public let musicGenerationMode: MusicGenerationMode?
 
   /// Default initializer.
-  public init(
-    temperature: Float? = nil,
-    topK: Int32? = nil,
-    seed: Int32? = nil,
-    guidance: Float? = nil,
-    bpm: Int32? = nil,
-    density: Float? = nil,
-    brightness: Float? = nil,
-    scale: Scale? = nil,
-    muteBass: Bool? = nil,
-    muteDrums: Bool? = nil,
-    onlyBassAndDrums: Bool? = nil,
-    musicGenerationMode: MusicGenerationMode? = nil
-  ) {
+  public init(temperature: Float? = nil,
+              topK: Int32? = nil,
+              seed: Int32? = nil,
+              guidance: Float? = nil,
+              bpm: Int32? = nil,
+              density: Float? = nil,
+              brightness: Float? = nil,
+              scale: Scale? = nil,
+              muteBass: Bool? = nil,
+              muteDrums: Bool? = nil,
+              onlyBassAndDrums: Bool? = nil,
+              musicGenerationMode: MusicGenerationMode? = nil) {
     self.temperature = temperature
     self.topK = topK
     self.seed = seed
@@ -36160,21 +34881,21 @@ public struct LiveMusicGenerationConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicGenerationConfig: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case temperature = "temperature"
-    case topK = "topK"
-    case seed = "seed"
-    case guidance = "guidance"
-    case bpm = "bpm"
-    case density = "density"
-    case brightness = "brightness"
-    case scale = "scale"
-    case muteBass = "muteBass"
-    case muteDrums = "muteDrums"
-    case onlyBassAndDrums = "onlyBassAndDrums"
-    case musicGenerationMode = "musicGenerationMode"
+    case temperature
+    case topK
+    case seed
+    case guidance
+    case bpm
+    case density
+    case brightness
+    case scale
+    case muteBass
+    case muteDrums
+    case onlyBassAndDrums
+    case musicGenerationMode
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36246,7 +34967,6 @@ extension LiveMusicGenerationConfig: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         temperature,
@@ -36307,7 +35027,6 @@ extension LiveMusicGenerationConfig: Codable {
         musicGenerationMode,
         forKey: .musicGenerationMode
       )
-
     }
   }
 }
@@ -36331,12 +35050,10 @@ public struct LiveMusicClientMessage: Sendable {
   public let playbackControl: LiveMusicPlaybackControl?
 
   /// Default initializer.
-  public init(
-    setup: LiveMusicClientSetup? = nil,
-    clientContent: LiveMusicClientContent? = nil,
-    musicGenerationConfig: LiveMusicGenerationConfig? = nil,
-    playbackControl: LiveMusicPlaybackControl? = nil
-  ) {
+  public init(setup: LiveMusicClientSetup? = nil,
+              clientContent: LiveMusicClientContent? = nil,
+              musicGenerationConfig: LiveMusicGenerationConfig? = nil,
+              playbackControl: LiveMusicPlaybackControl? = nil) {
     self.setup = setup
     self.clientContent = clientContent
     self.musicGenerationConfig = musicGenerationConfig
@@ -36346,13 +35063,13 @@ public struct LiveMusicClientMessage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicClientMessage: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case setup = "setup"
-    case clientContent = "clientContent"
-    case musicGenerationConfig = "musicGenerationConfig"
-    case playbackControl = "playbackControl"
+    case setup
+    case clientContent
+    case musicGenerationConfig
+    case playbackControl
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36384,7 +35101,6 @@ extension LiveMusicClientMessage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         setup,
@@ -36405,7 +35121,6 @@ extension LiveMusicClientMessage: Codable {
         playbackControl,
         forKey: .playbackControl
       )
-
     }
   }
 }
@@ -36413,16 +35128,12 @@ extension LiveMusicClientMessage: Codable {
 /// Sent in response to a `LiveMusicClientSetup` message from the client.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct LiveMusicServerSetupComplete: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicServerSetupComplete: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -36444,10 +35155,8 @@ public struct LiveMusicSourceMetadata: Sendable {
   public let musicGenerationConfig: LiveMusicGenerationConfig?
 
   /// Default initializer.
-  public init(
-    clientContent: LiveMusicClientContent? = nil,
-    musicGenerationConfig: LiveMusicGenerationConfig? = nil
-  ) {
+  public init(clientContent: LiveMusicClientContent? = nil,
+              musicGenerationConfig: LiveMusicGenerationConfig? = nil) {
     self.clientContent = clientContent
     self.musicGenerationConfig = musicGenerationConfig
   }
@@ -36455,12 +35164,11 @@ public struct LiveMusicSourceMetadata: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicSourceMetadata: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case clientContent = "clientContent"
-    case musicGenerationConfig = "musicGenerationConfig"
+    case clientContent
+    case musicGenerationConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36507,11 +35215,9 @@ public struct AudioChunk: Sendable {
   public let sourceMetadata: LiveMusicSourceMetadata?
 
   /// Default initializer.
-  public init(
-    data: Data? = nil,
-    mimeType: String? = nil,
-    sourceMetadata: LiveMusicSourceMetadata? = nil
-  ) {
+  public init(data: Data? = nil,
+              mimeType: String? = nil,
+              sourceMetadata: LiveMusicSourceMetadata? = nil) {
     self.data = data
     self.mimeType = mimeType
     self.sourceMetadata = sourceMetadata
@@ -36520,12 +35226,12 @@ public struct AudioChunk: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AudioChunk: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case data = "data"
-    case mimeType = "mimeType"
-    case sourceMetadata = "sourceMetadata"
+    case data
+    case mimeType
+    case sourceMetadata
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36552,7 +35258,6 @@ extension AudioChunk: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         data,
@@ -36568,7 +35273,6 @@ extension AudioChunk: Codable {
         sourceMetadata,
         forKey: .sourceMetadata
       )
-
     }
   }
 }
@@ -36583,19 +35287,17 @@ public struct LiveMusicServerContent: Sendable {
   public let audioChunks: [AudioChunk]?
 
   /// Default initializer.
-  public init(
-    audioChunks: [AudioChunk]? = nil
-  ) {
+  public init(audioChunks: [AudioChunk]? = nil) {
     self.audioChunks = audioChunks
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicServerContent: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case audioChunks = "audioChunks"
+    case audioChunks
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36612,13 +35314,11 @@ extension LiveMusicServerContent: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         audioChunks,
         forKey: .audioChunks
       )
-
     }
   }
 }
@@ -36633,10 +35333,8 @@ public struct LiveMusicFilteredPrompt: Sendable {
   public let filteredReason: String?
 
   /// Default initializer.
-  public init(
-    text: String? = nil,
-    filteredReason: String? = nil
-  ) {
+  public init(text: String? = nil,
+              filteredReason: String? = nil) {
     self.text = text
     self.filteredReason = filteredReason
   }
@@ -36644,11 +35342,11 @@ public struct LiveMusicFilteredPrompt: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicFilteredPrompt: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case text = "text"
-    case filteredReason = "filteredReason"
+    case text
+    case filteredReason
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36670,7 +35368,6 @@ extension LiveMusicFilteredPrompt: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         text,
@@ -36681,7 +35378,6 @@ extension LiveMusicFilteredPrompt: Codable {
         filteredReason,
         forKey: .filteredReason
       )
-
     }
   }
 }
@@ -36700,11 +35396,9 @@ public struct LiveMusicServerMessage: Sendable {
   public let filteredPrompt: LiveMusicFilteredPrompt?
 
   /// Default initializer.
-  public init(
-    setupComplete: LiveMusicServerSetupComplete? = nil,
-    serverContent: LiveMusicServerContent? = nil,
-    filteredPrompt: LiveMusicFilteredPrompt? = nil
-  ) {
+  public init(setupComplete: LiveMusicServerSetupComplete? = nil,
+              serverContent: LiveMusicServerContent? = nil,
+              filteredPrompt: LiveMusicFilteredPrompt? = nil) {
     self.setupComplete = setupComplete
     self.serverContent = serverContent
     self.filteredPrompt = filteredPrompt
@@ -36713,12 +35407,12 @@ public struct LiveMusicServerMessage: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicServerMessage: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case setupComplete = "setupComplete"
-    case serverContent = "serverContent"
-    case filteredPrompt = "filteredPrompt"
+    case setupComplete
+    case serverContent
+    case filteredPrompt
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36745,7 +35439,6 @@ extension LiveMusicServerMessage: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         setupComplete,
@@ -36761,7 +35454,6 @@ extension LiveMusicServerMessage: Codable {
         filteredPrompt,
         forKey: .filteredPrompt
       )
-
     }
   }
 }
@@ -36773,19 +35465,17 @@ public struct LiveMusicConnectParameters: Sendable {
   public let model: String
 
   /// Default initializer.
-  public init(
-    model: String
-  ) {
+  public init(model: String) {
     self.model = model
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicConnectParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case model = "model"
+    case model
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36802,15 +35492,14 @@ extension LiveMusicConnectParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         model,
         forKey: .model,
         error: MissingRequiredFieldError(
-          backend: configuration.backend, type: "LiveMusicConnectParameters", field: "model")
+          backend: configuration.backend, type: "LiveMusicConnectParameters", field: "model"
+        )
       )
-
     }
   }
 }
@@ -36822,19 +35511,17 @@ public struct LiveMusicSetConfigParameters: Sendable {
   public let musicGenerationConfig: LiveMusicGenerationConfig
 
   /// Default initializer.
-  public init(
-    musicGenerationConfig: LiveMusicGenerationConfig
-  ) {
+  public init(musicGenerationConfig: LiveMusicGenerationConfig) {
     self.musicGenerationConfig = musicGenerationConfig
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicSetConfigParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case musicGenerationConfig = "musicGenerationConfig"
+    case musicGenerationConfig
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36851,16 +35538,15 @@ extension LiveMusicSetConfigParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         musicGenerationConfig,
         forKey: .musicGenerationConfig,
         error: MissingRequiredFieldError(
           backend: configuration.backend, type: "LiveMusicSetConfigParameters",
-          field: "musicGenerationConfig")
+          field: "musicGenerationConfig"
+        )
       )
-
     }
   }
 }
@@ -36872,19 +35558,17 @@ public struct LiveMusicSetWeightedPromptsParameters: Sendable {
   public let weightedPrompts: [WeightedPrompt]
 
   /// Default initializer.
-  public init(
-    weightedPrompts: [WeightedPrompt]
-  ) {
+  public init(weightedPrompts: [WeightedPrompt]) {
     self.weightedPrompts = weightedPrompts
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveMusicSetWeightedPromptsParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case weightedPrompts = "weightedPrompts"
+    case weightedPrompts
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36901,16 +35585,15 @@ extension LiveMusicSetWeightedPromptsParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeOrThrow(
         weightedPrompts,
         forKey: .weightedPrompts,
         error: MissingRequiredFieldError(
           backend: configuration.backend, type: "LiveMusicSetWeightedPromptsParameters",
-          field: "weightedPrompts")
+          field: "weightedPrompts"
+        )
       )
-
     }
   }
 }
@@ -36922,19 +35605,17 @@ public struct AuthToken: Sendable {
   public let name: String?
 
   /// Default initializer.
-  public init(
-    name: String? = nil
-  ) {
+  public init(name: String? = nil) {
     self.name = name
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension AuthToken: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case name = "name"
+    case name
   }
 
   public init(from decoder: any Decoder) throws {
@@ -36951,13 +35632,11 @@ extension AuthToken: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         name,
         forKey: .name
       )
-
     }
   }
 }
@@ -36974,10 +35653,8 @@ public struct LiveConnectConstraints: Sendable {
   public let config: LiveConnectConfig?
 
   /// Default initializer.
-  public init(
-    model: String? = nil,
-    config: LiveConnectConfig? = nil
-  ) {
+  public init(model: String? = nil,
+              config: LiveConnectConfig? = nil) {
     self.model = model
     self.config = config
   }
@@ -36985,11 +35662,11 @@ public struct LiveConnectConstraints: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension LiveConnectConstraints: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case model = "model"
-    case config = "config"
+    case model
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37011,7 +35688,6 @@ extension LiveConnectConstraints: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         model,
@@ -37022,7 +35698,6 @@ extension LiveConnectConstraints: Codable {
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -37060,14 +35735,12 @@ public struct CreateAuthTokenConfig: Sendable {
   public let lockAdditionalFields: [String]?
 
   /// Default initializer.
-  public init(
-    httpOptions: HttpOptions? = nil,
-    expireTime: String? = nil,
-    newSessionExpireTime: String? = nil,
-    uses: Int32? = nil,
-    liveConnectConstraints: LiveConnectConstraints? = nil,
-    lockAdditionalFields: [String]? = nil
-  ) {
+  public init(httpOptions: HttpOptions? = nil,
+              expireTime: String? = nil,
+              newSessionExpireTime: String? = nil,
+              uses: Int32? = nil,
+              liveConnectConstraints: LiveConnectConstraints? = nil,
+              lockAdditionalFields: [String]? = nil) {
     self.httpOptions = httpOptions
     self.expireTime = expireTime
     self.newSessionExpireTime = newSessionExpireTime
@@ -37079,18 +35752,18 @@ public struct CreateAuthTokenConfig: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateAuthTokenConfig: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case httpOptions = "httpOptions"
+    case httpOptions
   }
+
   public enum MLDevKeys: String, CodingKey {
-    case expireTime = "expireTime"
-    case newSessionExpireTime = "newSessionExpireTime"
-    case uses = "uses"
-    case liveConnectConstraints = "liveConnectConstraints"
-    case lockAdditionalFields = "lockAdditionalFields"
+    case expireTime
+    case newSessionExpireTime
+    case uses
+    case liveConnectConstraints
+    case lockAdditionalFields
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37139,7 +35812,6 @@ extension CreateAuthTokenConfig: Codable {
     )
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         expireTime,
@@ -37165,7 +35837,6 @@ extension CreateAuthTokenConfig: Codable {
         lockAdditionalFields,
         forKey: .lockAdditionalFields
       )
-
     }
   }
 }
@@ -37177,19 +35848,17 @@ public struct CreateAuthTokenParameters: Sendable {
   public let config: CreateAuthTokenConfig?
 
   /// Default initializer.
-  public init(
-    config: CreateAuthTokenConfig? = nil
-  ) {
+  public init(config: CreateAuthTokenConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateAuthTokenParameters: Codable {
-
   // MARK: - Codable
+
   public enum MLDevKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37206,13 +35875,11 @@ extension CreateAuthTokenParameters: Codable {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
 
     if configuration.isMlDeveloper() {
-
       var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
       try MLDevKeysContainer.encodeIfPresent(
         config,
         forKey: .config
       )
-
     }
   }
 }
@@ -37227,10 +35894,8 @@ public struct ClientOptions: Sendable {
   public let maxConnectionsPerHost: Int32?
 
   /// Default initializer.
-  public init(
-    maxConnections: Int32? = nil,
-    maxConnectionsPerHost: Int32? = nil
-  ) {
+  public init(maxConnections: Int32? = nil,
+              maxConnectionsPerHost: Int32? = nil) {
     self.maxConnections = maxConnections
     self.maxConnectionsPerHost = maxConnectionsPerHost
   }
@@ -37238,12 +35903,11 @@ public struct ClientOptions: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ClientOptions: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case maxConnections = "maxConnections"
-    case maxConnectionsPerHost = "maxConnectionsPerHost"
+    case maxConnections
+    case maxConnectionsPerHost
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37284,20 +35948,17 @@ public struct OperationGetParameters: Sendable {
   public let config: GetOperationConfig?
 
   /// Default initializer.
-  public init(
-    config: GetOperationConfig? = nil
-  ) {
+  public init(config: GetOperationConfig? = nil) {
     self.config = config
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension OperationGetParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case config = "config"
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37328,20 +35989,17 @@ public struct CountTokensResult: Sendable {
   public let totalTokens: Int32?
 
   /// Default initializer.
-  public init(
-    totalTokens: Int32? = nil
-  ) {
+  public init(totalTokens: Int32? = nil) {
     self.totalTokens = totalTokens
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensResult: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case totalTokens = "totalTokens"
+    case totalTokens
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37372,20 +36030,17 @@ public struct ComputeTokensResult: Sendable {
   public let tokensInfo: [TokensInfo]?
 
   /// Default initializer.
-  public init(
-    tokensInfo: [TokensInfo]? = nil
-  ) {
+  public init(tokensInfo: [TokensInfo]? = nil) {
     self.tokensInfo = tokensInfo
   }
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ComputeTokensResult: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case tokensInfo = "tokensInfo"
+    case tokensInfo
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37423,11 +36078,9 @@ public struct CreateTuningJobParameters: Sendable {
   public let config: CreateTuningJobConfig?
 
   /// Default initializer.
-  public init(
-    baseModel: String,
-    trainingDataset: TuningDataset,
-    config: CreateTuningJobConfig? = nil
-  ) {
+  public init(baseModel: String,
+              trainingDataset: TuningDataset,
+              config: CreateTuningJobConfig? = nil) {
     self.baseModel = baseModel
     self.trainingDataset = trainingDataset
     self.config = config
@@ -37436,13 +36089,12 @@ public struct CreateTuningJobParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CreateTuningJobParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case baseModel = "baseModel"
-    case trainingDataset = "trainingDataset"
-    case config = "config"
+    case baseModel
+    case trainingDataset
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37473,14 +36125,16 @@ extension CreateTuningJobParameters: Codable {
       baseModel,
       forKey: .baseModel,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CreateTuningJobParameters", field: "baseModel")
+        backend: configuration.backend, type: "CreateTuningJobParameters", field: "baseModel"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       trainingDataset,
       forKey: .trainingDataset,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "CreateTuningJobParameters", field: "trainingDataset")
+        backend: configuration.backend, type: "CreateTuningJobParameters", field: "trainingDataset"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -37504,11 +36158,9 @@ public struct EmbedContentParameters: Sendable {
   public let config: EmbedContentConfig?
 
   /// Default initializer.
-  public init(
-    model: String,
-    contents: [Content],
-    config: EmbedContentConfig? = nil
-  ) {
+  public init(model: String,
+              contents: [Content],
+              config: EmbedContentConfig? = nil) {
     self.model = model
     self.contents = contents
     self.config = config
@@ -37517,13 +36169,12 @@ public struct EmbedContentParameters: Sendable {
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension EmbedContentParameters: Codable {
-
   // MARK: - Codable
 
   public enum CommonKeys: String, CodingKey {
-    case model = "model"
-    case contents = "contents"
-    case config = "config"
+    case model
+    case contents
+    case config
   }
 
   public init(from decoder: any Decoder) throws {
@@ -37554,14 +36205,16 @@ extension EmbedContentParameters: Codable {
       model,
       forKey: .model,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "EmbedContentParameters", field: "model")
+        backend: configuration.backend, type: "EmbedContentParameters", field: "model"
+      )
     )
 
     try CommonKeysContainer.encodeOrThrow(
       contents,
       forKey: .contents,
       error: MissingRequiredFieldError(
-        backend: configuration.backend, type: "EmbedContentParameters", field: "contents")
+        backend: configuration.backend, type: "EmbedContentParameters", field: "contents"
+      )
     )
 
     try CommonKeysContainer.encodeIfPresent(
@@ -37590,16 +36243,12 @@ extension EmbedContentParameters: Codable {
 /// You can also create a user Content using a list of Part objects or strings.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct UserContent: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension UserContent: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {
@@ -37629,16 +36278,12 @@ extension UserContent: Codable {
 /// You can also create a model Content using a list of Part objects or strings.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModelContent: Sendable {
-
   /// Default initializer.
-  public init() {
-
-  }
+  public init() {}
 }
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModelContent: Codable {
-
   // MARK: - Codable
 
   public init(from decoder: any Decoder) throws {

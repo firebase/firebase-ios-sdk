@@ -14,16 +14,15 @@
 
 import Foundation
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
-import FirebaseCore
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+import FirebaseCore
 
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class APIClient: Sendable {
-
   /// The language of the SDK in the format `gl-<language>/<version>`.
   static let languageTag = "gl-swift/5"
 
@@ -35,7 +34,7 @@ public final class APIClient: Sendable {
   let decoder = JSONDecoder()
 
   public init(backend: Backend, authentication: AuthenticationMethod, urlSession: URLSession) {
-    if case .firebase(let app, let useLimitedUseAppCheckTokens) = authentication {
+    if case let .firebase(app, useLimitedUseAppCheckTokens) = authentication {
       guard let projectID = app.options.projectID else {
         fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
       }
@@ -59,13 +58,14 @@ public final class APIClient: Sendable {
     }
 
     self.backend = backend
-    self.authenticationMethod = authentication
+    authenticationMethod = authentication
     self.urlSession = urlSession
   }
 
-  init(backend: Backend, authentication: AuthenticationMethod, urlSession: URLSession, firebaseInfo: FirebaseInfo?) {
+  init(backend: Backend, authentication: AuthenticationMethod, urlSession: URLSession,
+       firebaseInfo: FirebaseInfo?) {
     self.backend = backend
-    self.authenticationMethod = authentication
+    authenticationMethod = authentication
     self.urlSession = urlSession
     self.firebaseInfo = firebaseInfo
   }
@@ -104,17 +104,17 @@ public final class APIClient: Sendable {
         domain: "Swift SDK",
         code: 0,
         userInfo: [
-          NSLocalizedFailureReasonErrorKey: "Invalid URL: \(baseURL())"
+          NSLocalizedFailureReasonErrorKey: "Invalid URL: \(baseURL())",
         ]
       )
     }
 
     switch backend {
-    case .vertexAI(_, _, _, let version):
+    case let .vertexAI(_, _, _, version):
       // vertex uses v1beta1 instead of v1beta (unless you're using firebase)
       let versionName = version == .v1beta && !isFirebase() ? "v1beta1" : "\(version)"
       url = url.appendingPathComponent("/\(versionName)", isDirectory: true)
-    case .googleAI(let version, _):
+    case let .googleAI(version, _):
       url = url.appendingPathComponent("/\(version)", isDirectory: true)
     }
 
@@ -134,9 +134,9 @@ public final class APIClient: Sendable {
   /// Also takes into account if the firebase proxy is being used.
   private func modelName(for model: String) -> String {
     switch backend {
-    case .vertexAI(let location, let publisher, let projectId, _):
+    case let .vertexAI(location, publisher, projectId, _):
       return "projects/\(projectId)/locations/\(location)/publishers/\(publisher)/models/\(model)"
-    case .googleAI(_, let direct):
+    case let .googleAI(_, direct):
       if !direct, let projectId = firebaseInfo?.projectID {
         return "projects/\(projectId)/models/\(model)"
       }
@@ -154,7 +154,7 @@ public final class APIClient: Sendable {
       if !isFirebase() {
         return "https://aiplatform.googleapis.com"
       }
-    case .googleAI(_, let direct):
+    case let .googleAI(_, direct):
       if direct || !isFirebase() {
         return "https://generativelanguage.googleapis.com"
       }
@@ -164,28 +164,26 @@ public final class APIClient: Sendable {
     return "https://firebasevertexai.googleapis.com"
   }
 
-  func loadRequest<RequestParams: Encodable, ResponseType: Decodable>(
-    params: RequestParams,
-    url: URL,
-    method: String
-  ) async throws -> ResponseType {
+  func loadRequest<RequestParams: Encodable, ResponseType: Decodable>(params: RequestParams,
+                                                                      url: URL,
+                                                                      method: String) async throws
+    -> ResponseType {
     let urlRequest = try await urlRequest(params: params, url: url, method: method)
     return try await performRequest(urlRequest)
   }
 
-  func loadRequest<ResponseType: Decodable>(
-    params: [String: Any],
-    url: URL,
-    method: String
-  ) async throws -> ResponseType {
+  func loadRequest<ResponseType: Decodable>(params: [String: Any],
+                                            url: URL,
+                                            method: String) async throws -> ResponseType {
     let urlRequest = try await urlRequest(params: params, url: url, method: method)
     return try await performRequest(urlRequest)
   }
 
-  private func performRequest<ResponseType: Decodable>(_ urlRequest: URLRequest) async throws -> ResponseType {
-//#if DEBUG
-  printCURLCommand(from: urlRequest)
-//#endif
+  private func performRequest<ResponseType: Decodable>(_ urlRequest: URLRequest) async throws
+    -> ResponseType {
+    // #if DEBUG
+    printCURLCommand(from: urlRequest)
+    // #endif
 
     let data: Data
     let rawResponse: URLResponse
@@ -220,13 +218,14 @@ public final class APIClient: Sendable {
   }
 
   // TODO(daymxn): implement streaming support once we have proper support/testing for non streaming
- /// Loads a stream request where the parameters are a dictionary `[String: Any]`.
+  /// Loads a stream request where the parameters are a dictionary `[String: Any]`.
   @available(macOS 13.0, *)
-  func loadRequestStream<ResponseType: Decodable>(
-    params: [String: Any],
-    url: URL,
-    method: String
-  ) -> AsyncThrowingStream<ResponseType, Error> {
+  func loadRequestStream<ResponseType: Decodable>(params: [String: Any],
+                                                  url: URL,
+                                                  method: String) -> AsyncThrowingStream<
+    ResponseType,
+    Error
+  > {
     return AsyncThrowingStream { continuation in
       // TODO: Implement actual streaming logic here.
       fatalError("Streaming implementation pending")
@@ -235,22 +234,18 @@ public final class APIClient: Sendable {
 
   // MARK: - Private Helpers
 
-  private func urlRequest<Params: Encodable>(
-    params: Params,
-    url: URL,
-    method: String
-  ) async throws -> URLRequest {
+  private func urlRequest<Params: Encodable>(params: Params,
+                                             url: URL,
+                                             method: String) async throws -> URLRequest {
     var urlRequest = try await makeBaseURLRequest(url: url, method: method)
     encoder.userInfo[.configuration] = self
     urlRequest.httpBody = try encoder.encode(params)
     return urlRequest
   }
 
-  private func urlRequest(
-    params: [String: Any],
-    url: URL,
-    method: String
-  ) async throws -> URLRequest {
+  private func urlRequest(params: [String: Any],
+                          url: URL,
+                          method: String) async throws -> URLRequest {
     var urlRequest = try await makeBaseURLRequest(url: url, method: method)
     urlRequest.httpBody = try JSONSerialization.data(withJSONObject: params)
     return urlRequest
@@ -261,9 +256,9 @@ public final class APIClient: Sendable {
     urlRequest.httpMethod = method
 
     switch authenticationMethod {
-    case .apiKey(let key):
+    case let .apiKey(key):
       urlRequest.setValue(key, forHTTPHeaderField: "x-goog-api-key")
-    case .accessToken(let token):
+    case let .accessToken(token):
       urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
     case .firebase:
       guard let firebaseInfo else {
@@ -311,7 +306,8 @@ public final class APIClient: Sendable {
       }
     }
 
-    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(forcingRefresh: false) {
+    if let auth = firebaseInfo.auth,
+       let authToken = try await auth.getToken(forcingRefresh: false) {
       urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
     }
 
@@ -405,37 +401,37 @@ public final class APIClient: Sendable {
   }
 
 //  #if DEBUG
-    private func cURLCommand(from request: URLRequest) -> String {
-      var returnValue = "curl "
-      if let allHeaders = request.allHTTPHeaderFields {
-        for (key, value) in allHeaders {
-          returnValue += "-H '\(key): \(value)' "
-        }
+  private func cURLCommand(from request: URLRequest) -> String {
+    var returnValue = "curl "
+    if let allHeaders = request.allHTTPHeaderFields {
+      for (key, value) in allHeaders {
+        returnValue += "-H '\(key): \(value)' "
       }
-
-      guard let url = request.url else { return "" }
-      returnValue += "'\(url.absoluteString)' "
-
-      guard let body = request.httpBody,
-            let jsonStr = String(bytes: body, encoding: .utf8) else { return "" }
-      let escapedJSON = jsonStr.replacingOccurrences(of: "'", with: "'\\''")
-      returnValue += "-d '\(escapedJSON)'"
-
-      return returnValue
     }
 
-    private func printCURLCommand(from request: URLRequest) {
-      guard AILog.additionalLoggingEnabled() else {
-        return
-      }
-      let command = cURLCommand(from: request)
-      AILog.debug(code: .fallbackValueUsed,
-        """
-        Creating request with the equivalent cURL command:
-        ----- cURL command -----
-        \(command)
-        ------------------------
-        """)
+    guard let url = request.url else { return "" }
+    returnValue += "'\(url.absoluteString)' "
+
+    guard let body = request.httpBody,
+          let jsonStr = String(bytes: body, encoding: .utf8) else { return "" }
+    let escapedJSON = jsonStr.replacingOccurrences(of: "'", with: "'\\''")
+    returnValue += "-d '\(escapedJSON)'"
+
+    return returnValue
+  }
+
+  private func printCURLCommand(from request: URLRequest) {
+    guard AILog.additionalLoggingEnabled() else {
+      return
     }
+    let command = cURLCommand(from: request)
+    AILog.debug(code: .fallbackValueUsed,
+                """
+                Creating request with the equivalent cURL command:
+                ----- cURL command -----
+                \(command)
+                ------------------------
+                """)
+  }
 //  #endif // DEBUG
 }

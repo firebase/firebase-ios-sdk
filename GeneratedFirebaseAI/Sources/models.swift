@@ -24,15 +24,14 @@ public class Models {
   }
 
   func generateContentInternal(params: GenerateContentParameters) async throws
-    -> GenerateContentResponse
-  {
-    if self.apiClient.isVertexAI() {
-
+    -> GenerateContentResponse {
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":generateContent", model: model)
 
       let requestDict = try Converters.generateContentParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -41,16 +40,16 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(GenerateContentResponse.self, from: responseData)
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: ":generateContent", model: model)
 
       let requestDict = try Converters.generateContentParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -59,22 +58,20 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(GenerateContentResponse.self, from: responseData)
-
     }
   }
 
   func generateContentStreamInternal(params: GenerateContentParameters) throws
-    -> AsyncThrowingStream<GenerateContentResponse, Error>
-  {
-    if self.apiClient.isVertexAI() {
-
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":streamGenerateContent?alt=sse", model: model)
 
       let requestDict = try Converters.generateContentParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       return apiClient.loadRequestStream(
         params: requestDict,
@@ -83,19 +80,18 @@ public class Models {
       )
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: ":streamGenerateContent?alt=sse", model: model)
 
       let requestDict = try Converters.generateContentParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       return apiClient.loadRequestStream(
         params: requestDict,
         url: url,
         method: "POST"
       )
-
     }
   }
 
@@ -121,15 +117,14 @@ public class Models {
    * ```
    */
   func embedContentInternal(params: EmbedContentParametersPrivate) async throws
-    -> EmbedContentResponse
-  {
-    if self.apiClient.isVertexAI() {
-
+    -> EmbedContentResponse {
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":predict", model: model)
 
       let requestDict = try Converters.embedContentParametersPrivateToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -138,16 +133,16 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(EmbedContentResponse.self, from: responseData)
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: ":batchEmbedContents", model: model)
 
       let requestDict = try Converters.embedContentParametersPrivateToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -156,9 +151,8 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(EmbedContentResponse.self, from: responseData)
-
     }
   }
 
@@ -166,15 +160,14 @@ public class Models {
    * Private method for generating images.
    */
   func generateImagesInternal(params: GenerateImagesParameters) async throws
-    -> GenerateImagesResponse
-  {
-    if self.apiClient.isVertexAI() {
-
+    -> GenerateImagesResponse {
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":predict", model: model)
 
       let requestDict = try Converters.generateImagesParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -183,16 +176,16 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(GenerateImagesResponse.self, from: responseData)
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: ":predict", model: model)
 
       let requestDict = try Converters.generateImagesParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -201,9 +194,8 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(GenerateImagesResponse.self, from: responseData)
-
     }
   }
 
@@ -211,13 +203,13 @@ public class Models {
    * Private method for editing an image.
    */
   func editImageInternal(params: _EditImageParameters) async throws -> EditImageResponse {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":predict", model: model)
 
       let requestDict = try Converters._EditImageParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -226,15 +218,14 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(EditImageResponse.self, from: responseData)
 
     } else {
-
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."])
-
+        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."]
+      )
     }
   }
 
@@ -243,13 +234,13 @@ public class Models {
    */
   func upscaleImageInternal(params: _UpscaleImageAPIParameters) async throws -> UpscaleImageResponse
   {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":predict", model: model)
 
       let requestDict = try Converters._UpscaleImageAPIParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -258,15 +249,14 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(UpscaleImageResponse.self, from: responseData)
 
     } else {
-
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."])
-
+        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."]
+      )
     }
   }
 
@@ -309,13 +299,13 @@ public class Models {
    * ```
    */
   func recontextImage(params: RecontextImageParameters) async throws -> RecontextImageResponse {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":predict", model: model)
 
       let requestDict = try Converters.recontextImageParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -324,15 +314,14 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(RecontextImageResponse.self, from: responseData)
 
     } else {
-
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."])
-
+        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."]
+      )
     }
   }
 
@@ -357,13 +346,13 @@ public class Models {
    * ```
    */
   func segmentImage(params: SegmentImageParameters) async throws -> SegmentImageResponse {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":predict", model: model)
 
       let requestDict = try Converters.segmentImageParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -372,15 +361,14 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(SegmentImageResponse.self, from: responseData)
 
     } else {
-
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."])
-
+        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."]
+      )
     }
   }
 
@@ -393,13 +381,13 @@ public class Models {
    * ```
    */
   func get(params: GetModelParameters) async throws -> Model {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: "", model: model)
 
       let requestDict = try Converters.getModelParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -408,16 +396,16 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(Model.self, from: responseData)
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: "", model: model)
 
       let requestDict = try Converters.getModelParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -426,19 +414,18 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(Model.self, from: responseData)
-
     }
   }
 
   func listInternal(params: ListModelsParameters) async throws -> ListModelsResponse {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let url = try apiClient.url(for: "models")
 
       let requestDict = try Converters.listModelsParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -447,15 +434,15 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(ListModelsResponse.self, from: responseData)
 
     } else {
-
       let url = try apiClient.url(for: "models")
 
       let requestDict = try Converters.listModelsParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -464,9 +451,8 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(ListModelsResponse.self, from: responseData)
-
     }
   }
 
@@ -488,13 +474,13 @@ public class Models {
    * ```
    */
   func update(params: UpdateModelParameters) async throws -> Model {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: "", model: model)
 
       let requestDict = try Converters.updateModelParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -503,16 +489,16 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(Model.self, from: responseData)
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: "", model: model)
 
       let requestDict = try Converters.updateModelParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -521,9 +507,8 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(Model.self, from: responseData)
-
     }
   }
 
@@ -539,13 +524,13 @@ public class Models {
    * ```
    */
   func delete(params: DeleteModelParameters) async throws -> DeleteModelResponse {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: "", model: model)
 
       let requestDict = try Converters.deleteModelParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -554,16 +539,16 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(DeleteModelResponse.self, from: responseData)
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: "", model: model)
 
       let requestDict = try Converters.deleteModelParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -572,9 +557,8 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(DeleteModelResponse.self, from: responseData)
-
     }
   }
 
@@ -595,13 +579,13 @@ public class Models {
    * ```
    */
   func countTokens(params: CountTokensParameters) async throws -> CountTokensResponse {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":countTokens", model: model)
 
       let requestDict = try Converters.countTokensParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -610,16 +594,16 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(CountTokensResponse.self, from: responseData)
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: ":countTokens", model: model)
 
       let requestDict = try Converters.countTokensParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -628,9 +612,8 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(CountTokensResponse.self, from: responseData)
-
     }
   }
 
@@ -653,13 +636,13 @@ public class Models {
    * ```
    */
   func computeTokens(params: ComputeTokensParameters) async throws -> ComputeTokensResponse {
-    if self.apiClient.isVertexAI() {
-
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":computeTokens", model: model)
 
       let requestDict = try Converters.computeTokensParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -668,15 +651,14 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(ComputeTokensResponse.self, from: responseData)
 
     } else {
-
       throw NSError(
         domain: "Gemini API", code: -1,
-        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."])
-
+        userInfo: [NSLocalizedDescriptionKey: "This method is only supported by the Gemini API."]
+      )
     }
   }
 
@@ -684,15 +666,14 @@ public class Models {
    * Private method for generating videos.
    */
   func generateVideosInternal(params: GenerateVideosParameters) async throws
-    -> GenerateVideosOperation
-  {
-    if self.apiClient.isVertexAI() {
-
+    -> GenerateVideosOperation {
+    if apiClient.isVertexAI() {
       let model = params.model
       let url = try apiClient.url(for: ":predictLongRunning", model: model)
 
       let requestDict = try Converters.generateVideosParametersToVertex(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -701,16 +682,16 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(GenerateVideosOperation.self, from: responseData)
 
     } else {
-
       let model = params.model
       let url = try apiClient.url(for: ":predictLongRunning", model: model)
 
       let requestDict = try Converters.generateVideosParametersToMldev(
-        apiClient: self.apiClient, fromObject: params)
+        apiClient: apiClient, fromObject: params
+      )
 
       let responseData: Data = try await apiClient.loadRequest(
         params: requestDict,
@@ -719,10 +700,8 @@ public class Models {
       )
 
       let decoder = JSONDecoder()
-      decoder.userInfo[.configuration] = self.apiClient
+      decoder.userInfo[.configuration] = apiClient
       return try decoder.decode(GenerateVideosOperation.self, from: responseData)
-
     }
   }
-
 }
