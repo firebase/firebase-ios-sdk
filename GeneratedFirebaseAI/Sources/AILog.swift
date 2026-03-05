@@ -14,7 +14,7 @@
 
 import Foundation
 #if os(Linux)
-  import FoundationNetworking
+import FoundationNetworking
 #endif
 import Logging
 
@@ -131,18 +131,19 @@ enum AILog {
   ///     `MessageCode.fallbackValueUsed`.
   ///   - caller: The name of the unwrapped value; defaults to the name of the computed property or
   ///     function name from which the unwrapping occurred.
-  static func safeUnwrap<T>(_ optionalValue: T?,
-                            fallback fallbackValue: T,
-                            level: Logger.Level = .debug,
-                            code: MessageCode = .fallbackValueUsed,
-                            caller: String = #function) -> T {
+  static func safeUnwrap<T>(
+    _ optionalValue: T?,
+    fallback fallbackValue: T,
+    level: Logger.Level = .debug,
+    code: MessageCode = .fallbackValueUsed,
+    caller: String = #function
+  ) -> T {
     guard let unwrappedValue = optionalValue else {
       AILog.log(
         level: level, code: code,
         """
         No value specified for '\(caller)' (\(T.self)); using fallback value '\(fallbackValue)'.
-        """
-      )
+        """)
       return fallbackValue
     }
     return unwrappedValue

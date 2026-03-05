@@ -14,7 +14,7 @@
 
 import Foundation
 #if os(Linux)
-  import FoundationNetworking
+import FoundationNetworking
 #endif
 
 /// Configuration for the generative AI backend API used by this SDK.
