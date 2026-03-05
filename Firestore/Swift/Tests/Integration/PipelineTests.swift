@@ -4270,7 +4270,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let db = collRef.firestore
 
     // Basic usage
-    var snapshot = try await db.pipeline()
+    let snapshot = try await db.pipeline()
       .collection(collRef.path)
       .sort([Field("rating").descending()])
       .limit(1)
