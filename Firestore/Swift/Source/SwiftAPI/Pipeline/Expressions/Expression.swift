@@ -1702,8 +1702,7 @@ public protocol Expression: Sendable {
   func snippet(_ rquery: String,
                maxSnippetWidth: Int?,
                maxSnippets: Int?,
-               separator: String?,
-               searchMode: SearchMode?) -> Expression
+               separator: String?) -> Expression
 
   /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
   /// and `upperBound` (inclusive).
@@ -1722,9 +1721,4 @@ public protocol Expression: Sendable {
   ///   - upperBound: The upper bound expression (inclusive).
   /// - Returns: A `BooleanExpression` representing the range check.
   func between(_ lowerBound: Expression, _ upperBound: Expression) -> BooleanExpression
-}
-
-public enum SearchMode: String, Sendable {
-  case standard
-  case semantic
 }

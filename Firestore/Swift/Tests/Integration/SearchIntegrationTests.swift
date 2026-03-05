@@ -34,17 +34,17 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     // Search with documentContainsText
     _ =
       firestore.pipeline().collection("restaurants")
-        .search(query: SearchDocumentFor("waffles"))
+        .search(query: DocumentMatches("waffles"))
 
     // Search with field containsText
     _ =
       firestore.pipeline().collection("restaurants")
-        .search(query: Field("menu").searchFor("waffles"))
+        .search(query: Field("menu").matches("waffles"))
 
     // Semantic search
     _ =
       firestore.pipeline().collection("restaurants")
-        .search(query: SearchDocumentFor("waffles", mode: .semantic))
+        .search(query: DocumentMatches("waffles"))
 
     // Search with geoDistance
     _ =
@@ -59,15 +59,15 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     _ =
       firestore.pipeline().collection("restaurants")
         .search(
-          query: Field("menu").searchFor("waffles") &&
-            Field("description").searchFor("diner")
+          query: Field("menu").matches("waffles") &&
+            Field("description").matches("diner")
         )
 
     // Search with logical AND and geoDistance
     _ =
       firestore.pipeline().collection("restaurants")
         .search(
-          query: Field("menu").searchFor("waffles") &&
+          query: Field("menu").matches("waffles") &&
             Field("location")
             .geoDistance(GeoPoint(
               latitude: 38.989177,
@@ -80,17 +80,17 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     _ =
       // With Not expression
       firestore.pipeline().collection("restaurants")
-      .search(query: !Field("menu").searchFor("waffles"))
+      .search(query: !Field("menu").matches("waffles"))
 
     // With RQuery minus (`-`)
     _ =
       firestore.pipeline().collection("restaurants")
-        .search(query: !Field("menu").searchFor("waffles"))
+        .search(query: !Field("menu").matches("waffles"))
 
     // Search with OR and AND in query string
     _ =
       firestore.pipeline().collection("restaurants")
-        .search(query: SearchDocumentFor("(waffles OR pancakes) AND eggs"))
+        .search(query: DocumentMatches("(waffles OR pancakes) AND eggs"))
 
     // Search with string query
     _ =
@@ -104,21 +104,21 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     // Search with AND and between
     _ =
       firestore.pipeline().collection("products")
-        .search(query: SearchDocumentFor("gaming laptop") &&
+        .search(query: DocumentMatches("gaming laptop") &&
           Field("ram").between(32, 48))
 
     // Search with exclusion and OR
     _ = firestore.pipeline().collection("restaurants")
       .search(query:
-        Field("menu").searchFor("-shellfish AND (hamburger OR steak)"))
+        Field("menu").matches("-shellfish AND (hamburger OR steak)"))
 
     // Search with addFields for score and snippet
     _ =
       firestore.pipeline().collection("restaurants")
         .search(
-          query: Field("menu").searchFor("waffles"),
+          query: Field("menu").matches("waffles"),
           addFields: [
-            TopicalityScore().as("searchScore"),
+            SearchScore().as("searchScore"),
             Field("menu").snippet("waffles").as("snippet"),
           ]
         )
@@ -127,12 +127,12 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     _ =
       firestore.pipeline().collection("restaurants")
         .search(
-          query: Field("menu").searchFor("waffles"),
+          query: Field("menu").matches("waffles"),
           select: [
             Field("menu"),
             Field("location"), // No string shorthand here
             Field(FieldPath.documentID()),
-            TopicalityScore().as("searchScore"),
+            SearchScore().as("searchScore"),
           ]
         )
   }
@@ -144,14 +144,14 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     // Sort by topicality score
     _ = firestore.pipeline().collection("restaurants")
       .search(
-        query: Field("menu").searchFor("waffles"),
-        sort: [TopicalityScore().descending()]
+        query: Field("menu").matches("waffles"),
+        sort: [SearchScore().descending()]
       )
 
     // Sort by geo distance
     _ = firestore.pipeline().collection("restaurants")
       .search(
-        query: Field("menu").searchFor("waffles"),
+        query: Field("menu").matches("waffles"),
         sort: [
           Field("location")
             .geoDistance(GeoPoint(latitude: 38.989177, longitude: -107.065076))
@@ -162,14 +162,14 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     // Sort by distance bracket then score
     _ = firestore.pipeline().collection("restaurants")
       .search(
-        query: Field("menu").searchFor("waffles"),
+        query: Field("menu").matches("waffles"),
         sort: [
           Field("location")
             .geoDistance(GeoPoint(latitude: 38.989177, longitude: -107.065076))
             .divide(10000)
             .floor()
             .ascending(),
-          TopicalityScore().descending(),
+          SearchScore().descending(),
         ]
       )
 
@@ -177,19 +177,19 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     _ =
       firestore.pipeline().collection("restaurants")
         .search(
-          query: Field("menu").searchFor("waffles"),
+          query: Field("menu").matches("waffles"),
           limit: 10,
-          sort: [TopicalityScore().descending()]
+          sort: [SearchScore().descending()]
         )
 
-    // Limit with maxToScore
+    // Limit with retrievalDepth
     _ =
       firestore.pipeline().collection("foodBlogPosts")
         .search(
-          query: SearchDocumentFor("kona coffee"),
+          query: DocumentMatches("kona coffee"),
           limit: 10,
-          maxToScore: 1000,
-          sort: [TopicalityScore().descending()]
+          retrievalDepth: 1000,
+          sort: [SearchScore().descending()]
         )
 
     // Pagination with offset
@@ -197,7 +197,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     _ =
       firestore.pipeline().collection("restaurants")
         .search(
-          query: Field("menu").searchFor("waffles"),
+          query: Field("menu").matches("waffles"),
           limit: 10,
           offset: 10 * (currentPage - 1)
         )
@@ -210,7 +210,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     _ =
       firestore.pipeline().collection("foodBlogPosts")
         .search(
-          query: Field("body").searchFor("kona coffee"),
+          query: Field("body").matches("kona coffee"),
           addFields: [
             Field("body").snippet("kona coffee").as("snippet"),
           ]
@@ -230,23 +230,13 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
           ]
         )
 
-    // Snippet with document-level highlighting
-    let rqueryWithFields = "body:\"mac and cheese\" AND tags:quick"
-
-    _ = firestore.pipeline().collection("foodBlogPosts")
-      .search(
-        query: rqueryWithFields,
-        addFields: [
-          DocumentSnippet(rqueryWithFields).as("snippet"),
-        ]
-      )
 
     // Snippet with multiple fields and OR
     _ =
       firestore.pipeline().collection("restaurants")
         .search(
-          query: Field("menu").searchFor("waffles") ||
-            Field("description").searchFor("\"breakfast all day\""),
+          query: Field("menu").matches("waffles") ||
+            Field("description").matches("\"breakfast all day\""),
           addFields: [
             Field("menu").snippet("waffles")
               .stringConcat([
@@ -261,42 +251,17 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     _ =
       firestore.pipeline().collection("restaurants")
         .search(
-          query: Field("menu").searchFor("waffles", mode: .semantic),
+          query: Field("menu").matches("waffles"),
           addFields: [
             Field("menu")
               .snippet(
                 "waffles",
                 maxSnippetWidth: 2000,
                 maxSnippets: 2,
-                separator: "...",
-                searchMode: .semantic
+                separator: "..."
               )
               .as("snippet"),
           ]
         )
-  }
-
-  func testPartitioning() async throws {
-    // create variable named firestore for consistent code snippets in proposal
-    let firestore = db
-
-    // Partition with a single key
-    _ = firestore.pipeline().collection("emails")
-      .search(
-        query: Field("body").searchFor("urgent"),
-        partition: [
-          "email": "user@domain",
-        ]
-      )
-
-    // Partition with multiple keys
-    _ = firestore.pipeline().collection("emails")
-      .search(
-        query: Field("body").searchFor("urgent"),
-        partition: [
-          "email": "user@domain",
-          "folder": "inbox",
-        ]
-      )
   }
 }

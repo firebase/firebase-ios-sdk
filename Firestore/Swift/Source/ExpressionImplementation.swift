@@ -1094,13 +1094,11 @@ public extension Expression {
   ///   - maxSnippetWidth: The maximum width of the snippet (default: 160).
   ///   - maxSnippets: The maximum number of text pieces to return (default: 1).
   ///   - separator: The string used to join pieces (default: "\n").
-  ///   - searchMode: The mode to use for matching.
   /// - Returns: An `Expression` evaluating to the HTML snippet string.
   func snippet(_ rquery: String,
                maxSnippetWidth: Int? = nil,
                maxSnippets: Int? = nil,
-               separator: String? = nil,
-               searchMode: SearchMode? = nil) -> Expression {
+               separator: String? = nil) -> Expression {
     var args: [Expression] = [self, Constant(rquery)]
 
     var options: [String: Sendable] = [:]
@@ -1112,9 +1110,6 @@ public extension Expression {
     }
     if let separator = separator {
       options["separator"] = separator
-    }
-    if let searchMode = searchMode {
-      options["searchMode"] = searchMode.rawValue
     }
 
     if !options.isEmpty {

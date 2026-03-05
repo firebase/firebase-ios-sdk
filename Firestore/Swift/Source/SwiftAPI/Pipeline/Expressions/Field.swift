@@ -68,13 +68,9 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   ///
   /// - Parameters:
   ///   - query: The text to search for.
-  ///   - mode: The search mode to use (e.g. `.semantic`). Defaults to standard full-text search.
   /// - Returns: A `BooleanExpression` representing the search predicate.
-  public func searchFor(_ query: String, mode: SearchMode? = nil) -> BooleanExpression {
+  public func matches(_ query: String) -> BooleanExpression {
     var args: [Sendable] = [self, query]
-    if let mode = mode {
-      args.append(mode.rawValue)
-    }
     let expressionArgs = args.map { Helper.sendableToExpr($0) }
     return BooleanFunctionExpression(functionName: "search_for", args: expressionArgs)
   }

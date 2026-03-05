@@ -700,39 +700,39 @@ public struct Pipeline: @unchecked Sendable {
     }
   }
 
-  /// Performs a search on the collection.
+  /// Performs a search on the collection, supporting full-text search and geo search expressions.
   ///
   /// - Parameters:
   ///   - query: An `Expression` defining the search criteria (e.g.,
-  /// `Field("menu").searchFor("waffles")`).
+  /// `Field("menu").matches("waffles")`).
   ///   - limit: The maximum number of documents to return.
-  ///   - maxToScore: The maximum number of documents to score.
+  ///   - retrievalDepth: The maximum number of documents to score.
   ///   - sort: An array of `Ordering` objects to sort the results.
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   ///   - select: An array of `Selectable` fields or field names to include in the result.
   ///   - offset: The number of documents to skip.
-  ///   - partition: A dictionary defining the partition key values for the search index.
+  ///   - queryExpansion: specify if query expansion should be applied to the query
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: Expression? = nil,
                      limit: Int? = nil,
-                     maxToScore: Int? = nil,
+                     retrievalDepth: Int? = nil,
                      sort: [Ordering]? = nil,
                      addFields: [Selectable]? = nil,
                      select: [Selectable]? = nil,
                      offset: Int? = nil,
-                     partition: [String: Sendable]? = nil) -> Pipeline {
+                     queryExpansion: QueryExpansion? = nil) -> Pipeline {
     if let errorMessage = errorMessage {
       return withError(errorMessage)
     }
     let stage = Search(
       query: query,
       limit: limit,
-      maxToScore: maxToScore,
+      retrievalDepth: retrievalDepth,
       sort: sort,
       addFields: addFields,
       select: select,
       offset: offset,
-      partition: partition
+      queryExpansion: queryExpansion
     )
     if let errorMessage = stage.errorMessage {
       return withError(errorMessage)
@@ -746,32 +746,32 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameters:
   ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
   ///   - limit: The maximum number of documents to return.
-  ///   - maxToScore: The maximum number of documents to score.
+  ///   - retrievalDepth: The maximum number of documents to score.
   ///   - sort: An array of `Ordering` objects to sort the results.
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   ///   - select: An array of `Selectable` fields or field names to include in the result.
   ///   - offset: The number of documents to skip.
-  ///   - partition: A dictionary defining the partition key values for the search index.
+  ///   - queryExpansion: specify if query expansion should be applied to the query
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: String? = nil,
                      limit: Int? = nil,
-                     maxToScore: Int? = nil,
+                     retrievalDepth: Int? = nil,
                      sort: [Ordering]? = nil,
                      addFields: [Selectable]? = nil,
                      select: [Selectable]? = nil,
                      offset: Int? = nil,
-                     partition: [String: Sendable]? = nil) -> Pipeline {
+                     queryExpansion: QueryExpansion? = nil) -> Pipeline {
     // Convert String? to Expression?
     let expressionQuery = query.map { Constant($0) }
     return search(
       query: expressionQuery,
       limit: limit,
-      maxToScore: maxToScore,
+      retrievalDepth: retrievalDepth,
       sort: sort,
       addFields: addFields,
       select: select,
       offset: offset,
-      partition: partition
+      queryExpansion: queryExpansion
     )
   }
 

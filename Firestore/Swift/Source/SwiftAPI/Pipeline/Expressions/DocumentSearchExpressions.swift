@@ -20,43 +20,28 @@
 import Foundation
 
 /// Represents a full-text search against the entire document content.
-public struct SearchDocumentFor: BooleanExpression, BridgeWrapper, @unchecked Sendable {
+public struct DocumentMatches: BooleanExpression, BridgeWrapper, @unchecked Sendable {
+
   public let bridge: ExprBridge
 
   /// Creates a document search expression.
   /// - Parameters:
   ///   - query: The text to search for.
-  ///   - mode: The search mode to use.
-  public init(_ query: String, mode: SearchMode? = nil) {
+  public init(_ query: String) {
     var args: [Sendable] = [query]
-    if let mode = mode {
-      args.append(mode.rawValue)
-    }
     let exprs = args.map { Helper.sendableToExpr($0) }
     // Assuming a function "search_document_for" that takes query and optional mode as args.
-    let funcExpr = FunctionExpression(functionName: "search_document_for", args: exprs)
+    let funcExpr = FunctionExpression(functionName: "document_matches", args: exprs)
     bridge = funcExpr.bridge
   }
 }
 
 /// Represents the relevance score of a document against the search query.
-public struct TopicalityScore: Expression, BridgeWrapper, @unchecked Sendable {
+public struct SearchScore: Expression, BridgeWrapper, @unchecked Sendable {
   public let bridge: ExprBridge
 
   public init() {
-    let funcExpr = FunctionExpression(functionName: "topicality_score", args: [])
-    bridge = funcExpr.bridge
-  }
-}
-
-/// Generates a snippet highlighting matches within the entire document.
-public struct DocumentSnippet: Expression, BridgeWrapper, @unchecked Sendable {
-  public let bridge: ExprBridge
-
-  /// Creates a document-level snippet expression.
-  /// - Parameter rquery: The search query string used to find matches.
-  public init(_ rquery: String) {
-    let funcExpr = FunctionExpression(functionName: "document_snippet", args: [Constant(rquery)])
+    let funcExpr = FunctionExpression(functionName: "search_score", args: [])
     bridge = funcExpr.bridge
   }
 }

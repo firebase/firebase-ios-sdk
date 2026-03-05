@@ -348,18 +348,19 @@ class Search: Stage {
 
   init(query: Expression? = nil,
        limit: Int? = nil,
-       maxToScore: Int? = nil,
+       retrievalDepth: Int? = nil,
        sort: [Ordering]? = nil,
        addFields: [Selectable]? = nil,
        select: [Selectable]? = nil,
        offset: Int? = nil,
-       partition: [String: Sendable]? = nil) {
+       partition: [String: Sendable]? = nil,
+       queryExpansion: QueryExpansion? = nil) {
     var options: [String: Sendable] = [:]
     if let limit = limit {
       options["limit"] = limit
     }
-    if let maxToScore = maxToScore {
-      options["maxToScore"] = maxToScore
+    if let retrievalDepth = retrievalDepth {
+      options["retrieval_depth"] = retrievalDepth
     }
     if let sort = sort {
       options["sort"] = sort.map { $0.bridge }
@@ -371,7 +372,7 @@ class Search: Stage {
         bridge = RawStageBridge(name: name, params: [], options: [:])
         return
       }
-      options["addFields"] = map.mapValues { $0.toBridge() }
+      options["add_fields"] = map.mapValues { $0.toBridge() }
     }
     if let select = select {
       let (map, error) = Helper.selectablesToMap(selectables: select)
@@ -385,8 +386,8 @@ class Search: Stage {
     if let offset = offset {
       options["offset"] = offset
     }
-    if let partition = partition {
-      options["partition"] = partition
+    if let queryExpansion = queryExpansion {
+      options["query_expansion"] = queryExpansion.rawValue
     }
 
     errorMessage = nil
