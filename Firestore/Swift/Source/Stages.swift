@@ -299,7 +299,7 @@ class Search: Stage {
   let name: String = "search"
   let bridge: StageBridge
   let errorMessage: String?
-
+  
   init(query: Expression? = nil,
        limit: Int? = nil,
        retrievalDepth: Int? = nil,
@@ -307,49 +307,48 @@ class Search: Stage {
        addFields: [Selectable]? = nil,
        select: [Selectable]? = nil,
        offset: Int? = nil,
-       partition: [String: Sendable]? = nil,
-       queryExpansion: QueryEnhancement? = nil) {
-    
-    var _selectMap: [String: ExprBridge]? = nil
-    if let select = select {
-      let (selectMap, error) = Helper.selectablesToMap(selectables: select)
-      if let error = error {
-        errorMessage = error.localizedDescription
-        bridge = RawStageBridge(name: name, params: [], options: [:])
-        return
-      }
-      _selectMap = selectMap.mapValues { $0.toBridge() }
+       queryEnhancement: QueryEnhancement? = nil) {
+    var options: [String: Sendable] = [:]
+    if let query = query {
+      options["query"] = query
     }
-    
-    var _addFieldsMap: [String: ExprBridge]? = nil
-    if let addFields = addFields {
-      let (addFieldsMap, error) = Helper.selectablesToMap(selectables: addFields)
-      if let error = error {
-        errorMessage = error.localizedDescription
-        bridge = RawStageBridge(name: name, params: [], options: [:])
-        return
-      }
-      _addFieldsMap = addFieldsMap.mapValues { $0.toBridge() }
+    if let limit = limit {
+      options["limit"] = limit
     }
-    
-    var _sort: [OrderingBridge]? = nil
+    if let retrievalDepth = retrievalDepth {
+      options["retrieval_depth"] = retrievalDepth
+    }
     if let sort = sort {
-      _sort = sort.map{ $0.bridge }
+      options["sort"] = sort.map { $0.bridge }
     }
-    
-    bridge = SearchStageBridge(
-      query: query?.toBridge(),
-      limit: limit as NSNumber?,
-      retrievalDepth: retrievalDepth as NSNumber?,
-      offset: offset as NSNumber?,
-      queryExpansion: queryExpansion?.rawValue,
-      sort: _sort,
-      addFields: _addFieldsMap,
-      select: _selectMap
-    )
+    if let addFields = addFields {
+      let (map, error) = Helper.selectablesToMap(selectables: addFields)
+      if let error = error {
+        errorMessage = error.localizedDescription
+        bridge = SearchStageBridge(options: [:])
+        return
+      }
+      options["add_fields"] = map.mapValues { $0.toBridge() }
+    }
+    if let select = select {
+      let (map, error) = Helper.selectablesToMap(selectables: select)
+      if let error = error {
+        errorMessage = error.localizedDescription
+        bridge = SearchStageBridge(options: [:])
+        return
+      }
+      options["select"] = map.mapValues { $0.toBridge() }
+    }
+    if let offset = offset {
+      options["offset"] = offset
+    }
+    if let queryEnhancement = queryEnhancement {
+      options["query_enhancement"] = queryEnhancement
+    }
     
     errorMessage = nil
-    //let bridgeOptions = options.mapValues { Helper.sendableToExpr($0).toBridge() }
+    let bridgeOptions = options.mapValues { Helper.sendableToExpr($0).toBridge() }
+    bridge = SearchStageBridge(options: bridgeOptions)
   }
 }
 

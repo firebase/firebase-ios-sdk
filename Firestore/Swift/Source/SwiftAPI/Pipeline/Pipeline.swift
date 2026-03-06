@@ -711,7 +711,7 @@ public struct Pipeline: @unchecked Sendable {
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   ///   - select: An array of `Selectable` fields or field names to include in the result.
   ///   - offset: The number of documents to skip.
-  ///   - queryExpansion: specify if query expansion should be applied to the query
+  ///   - queryEnhancement: specify if query expansion should be applied to the query
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: Expression? = nil,
                      limit: Int? = nil,
@@ -720,7 +720,7 @@ public struct Pipeline: @unchecked Sendable {
                      addFields: [Selectable]? = nil,
                      select: [Selectable]? = nil,
                      offset: Int? = nil,
-                     queryExpansion: QueryEnhancement? = nil) -> Pipeline {
+                     queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
     if let errorMessage = errorMessage {
       return withError(errorMessage)
     }
@@ -732,7 +732,7 @@ public struct Pipeline: @unchecked Sendable {
       addFields: addFields,
       select: select,
       offset: offset,
-      queryExpansion: queryExpansion
+      queryEnhancement: queryEnhancement
     )
     if let errorMessage = stage.errorMessage {
       return withError(errorMessage)
@@ -751,7 +751,7 @@ public struct Pipeline: @unchecked Sendable {
   ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   ///   - select: An array of `Selectable` fields or field names to include in the result.
   ///   - offset: The number of documents to skip.
-  ///   - queryExpansion: specify if query expansion should be applied to the query
+  ///   - queryEnhancement: specify if query expansion should be applied to the query
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: String? = nil,
                      limit: Int? = nil,
@@ -760,9 +760,9 @@ public struct Pipeline: @unchecked Sendable {
                      addFields: [Selectable]? = nil,
                      select: [Selectable]? = nil,
                      offset: Int? = nil,
-                     queryExpansion: QueryEnhancement? = nil) -> Pipeline {
+                     queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
     // Convert String? to Expression?
-    let expressionQuery = query.map { Constant($0) }
+    let expressionQuery = query.map { DocumentMatches($0) }
     return search(
       query: expressionQuery,
       limit: limit,
@@ -771,7 +771,7 @@ public struct Pipeline: @unchecked Sendable {
       addFields: addFields,
       select: select,
       offset: offset,
-      queryExpansion: queryExpansion
+      queryEnhancement: queryEnhancement
     )
   }
 

@@ -288,8 +288,7 @@ class FindNearestStage : public Stage {
 
 class SearchStage : public Stage {
  public:
-  SearchStage(
-      std::unordered_map<std::string, google_firestore_v1_Value> options)
+  SearchStage(std::unordered_map<std::string, std::shared_ptr<Expr>> options)
       : options_(std::move(options)) {
   }
 
@@ -303,7 +302,7 @@ class SearchStage : public Stage {
   }
 
  private:
-  std::unordered_map<std::string, google_firestore_v1_Value> options_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> options_;
 };
 
 class LimitStage : public EvaluableStage {
