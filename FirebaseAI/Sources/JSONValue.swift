@@ -99,3 +99,26 @@ extension JSONValue: Encodable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Equatable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONValue: ConvertibleToFirebaseGeneratedContent {
+  public var firebaseGeneratedContent: FirebaseGeneratedContent {
+    switch self {
+    case .null:
+      return FirebaseGeneratedContent(kind: .null)
+    case let .number(value):
+      return FirebaseGeneratedContent(kind: .number(value))
+    case let .string(value):
+      return FirebaseGeneratedContent(kind: .string(value))
+    case let .bool(value):
+      return FirebaseGeneratedContent(kind: .bool(value))
+    case let .object(dictionary):
+      return FirebaseGeneratedContent(kind: .structure(
+        properties: dictionary.mapValues(FirebaseGeneratedContent.init),
+        orderedKeys: dictionary.keys.map { $0 }
+      ))
+    case let .array(values):
+      return FirebaseGeneratedContent(kind: .array(values.map(FirebaseGeneratedContent.init)))
+    }
+  }
+}
