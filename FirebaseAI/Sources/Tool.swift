@@ -145,7 +145,7 @@ public struct Tool: Sendable {
   /// "Grounding with Google Maps" usage requirements for your chosen API provider.
   ///
   /// - Parameters:
-  ///   - googleMaps: A ``GoogleMapsConfig`` object. The presence of this object in the list
+  ///   - googleMaps: A ``GoogleMaps`` object. The presence of this object in the list
   ///     of tools enables the model to use Google Maps.
   ///
   /// - Returns: A `Tool` configured for Google Maps.
@@ -253,6 +253,8 @@ public struct LatLng: Sendable, Encodable {
   public let longitude: Double
 
   public init(latitude: Double, longitude: Double) {
+    precondition(latitude >= -90.0 && latitude <= 90.0, "Latitude must be in the range [-90.0, 90.0].")
+    precondition(longitude >= -180.0 && longitude <= 180.0, "Longitude must be in the range [-180.0, 180.0].")
     self.latitude = latitude
     self.longitude = longitude
   }

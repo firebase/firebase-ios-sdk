@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for GoogleMaps grounding.
+
 # 12.9.0
 - [changed] The URL context tool APIs are now GA.
 - [feature] Added support for implicit caching (context caching) metadata in `GenerateContentResponse`.

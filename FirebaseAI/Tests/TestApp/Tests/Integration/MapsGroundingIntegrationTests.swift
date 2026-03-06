@@ -34,18 +34,14 @@ struct MapsGroundingIntegrationTests {
     let candidate = try #require(response.candidates.first)
     let groundingMetadata = try #require(candidate.groundingMetadata)
 
-    #expect(!groundingMetadata.groundingChunks.isEmpty)
+    let mapChunks = groundingMetadata.groundingChunks.compactMap { $0.maps }
+    #expect(!mapChunks.isEmpty)
 
-    var foundMapChunk = false
-    for chunk in groundingMetadata.groundingChunks {
-      if let mapsChunk = chunk.maps {
-        #expect(!mapsChunk.uri.isEmpty)
-        #expect(!mapsChunk.title.isEmpty)
-        #expect(!mapsChunk.placeId.isEmpty)
-        foundMapChunk = true
-      }
+    for mapsChunk in mapChunks {
+      #expect(!mapsChunk.uri.isEmpty)
+      #expect(!mapsChunk.title.isEmpty)
+      #expect(!mapsChunk.placeId.isEmpty)
     }
-    #expect(foundMapChunk)
   }
 
   @Test(
@@ -70,17 +66,13 @@ struct MapsGroundingIntegrationTests {
     let candidate = try #require(response.candidates.first)
     let groundingMetadata = try #require(candidate.groundingMetadata)
 
-    #expect(!groundingMetadata.groundingChunks.isEmpty)
+    let mapChunks = groundingMetadata.groundingChunks.compactMap { $0.maps }
+    #expect(!mapChunks.isEmpty)
 
-    var foundMapChunk = false
-    for chunk in groundingMetadata.groundingChunks {
-      if let mapsChunk = chunk.maps {
-        #expect(!mapsChunk.uri.isEmpty)
-        #expect(!mapsChunk.title.isEmpty)
-        #expect(!mapsChunk.placeId.isEmpty)
-        foundMapChunk = true
-      }
+    for mapsChunk in mapChunks {
+      #expect(!mapsChunk.uri.isEmpty)
+      #expect(!mapsChunk.title.isEmpty)
+      #expect(!mapsChunk.placeId.isEmpty)
     }
-    #expect(foundMapChunk)
   }
 }
