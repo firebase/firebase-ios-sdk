@@ -1,0 +1,97 @@
+{
+  "recordID": "GenerateContentFirebaseTest.testGenerateContent",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/vertex-sdk-dev/locations/us-central1/publishers/google/models/gemini-2.5-flash/:generateContent",
+        "request": "POST /v1beta/projects/vertex-sdk-dev/locations/us-central1/publishers/google/models/gemini-2.5-flash/:generateContent HTTP/1.1",
+        "headers": {
+          "Accept": "*/*",
+          "Accept-Encoding": "gzip, deflate",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Connection": "keep-alive",
+          "Content-Length": "72",
+          "Content-Type": "application/json",
+          "Test-Name": "GenerateContentFirebaseTest.testGenerateContent",
+          "X-Firebase-Appid": "1:123:ios:456",
+          "X-Firebase-Appversion": "16.0"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "Hello from Firebase!"
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "e98a08e065c0173a070cedcfa4c33476463e51af3d4df3d0f1c4a9913fdc6ab3",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Alt-Svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+          "Content-Encoding": "gzip",
+          "Content-Length": "528",
+          "Content-Type": "application/json; charset=UTF-8",
+          "Date": "Mon, 02 Feb 2026 21:37:28 GMT",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "avgLogprobs": -5.905505241231715,
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Well hello there, Firebase! 👋\n\nAlways great to hear from the platform that helps so many build amazing apps.\n\nWhat can I help you with today? Are you building something new, debugging an issue, or just saying hi?"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "createTime": "2026-02-02T21:37:23.690164Z",
+            "modelVersion": "gemini-2.5-flash",
+            "responseId": "ExmBafSPKqWisbQP7MSKgAw",
+            "usageMetadata": {
+              "candidatesTokenCount": 47,
+              "candidatesTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 47
+                }
+              ],
+              "promptTokenCount": 4,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 4
+                }
+              ],
+              "thoughtsTokenCount": 734,
+              "totalTokenCount": 785,
+              "trafficType": "ON_DEMAND"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
