@@ -59,7 +59,7 @@
     ///
     /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter model: The `GenerativeModel` to use for generating content.
-    public init(model: GenerativeModel) {
+    init(model: GenerativeModel) {
       session = model.startChat()
     }
 
@@ -103,11 +103,13 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       @discardableResult
-      public nonisolated(nonsending)
-      func respond(to prompt: PartsRepresentable..., schema: GenerationSchema,
+      nonisolated(nonsending)
+      func respond(to prompt: PartsRepresentable..., schema: FoundationModels.GenerationSchema,
                    includeSchemaInPrompt: Bool = true,
                    options: GenerationConfig? = nil) async throws
         -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
+        // TODO: Replace `FoundationModels.GenerationSchema` and make this method public when
+        // `FirebaseAI.GenerationSchema`'s public API is ready.
         return try await respond(
           to: prompt,
           schema: FirebaseAI.GenerationSchema(schema),
@@ -163,13 +165,14 @@
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
-      public func streamResponse(to prompt: PartsRepresentable...,
-                                 schema: GenerationSchema,
-                                 includeSchemaInPrompt: Bool = true,
-                                 options: GenerationConfig? = nil)
+      func streamResponse(to prompt: PartsRepresentable...,
+                          schema: FoundationModels.GenerationSchema,
+                          includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil)
         -> sending GenerativeModelSession.ResponseStream<
           FirebaseAI.GeneratedContent, FirebaseAI.GeneratedContent
         > {
+        // TODO: Replace `FoundationModels.GenerationSchema` and make this method public when
+        // `FirebaseAI.GenerationSchema`'s public API is ready.
         return streamResponse(
           to: prompt,
           schema: FirebaseAI.GenerationSchema(schema),
