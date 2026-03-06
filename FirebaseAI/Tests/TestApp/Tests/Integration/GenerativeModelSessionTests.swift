@@ -25,9 +25,8 @@
   struct GenerativeModelSessionTests {
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     func respondText(_ config: InstanceConfig) async throws {
-      let session = FirebaseAI.componentInstance(config).generativeModelSession(
-        model: ModelNames.gemini2_5_FlashLite,
-      )
+      let firebaseAI = FirebaseAI.componentInstance(config)
+      let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
       let prompt = "Why is the sky blue?"
 
       let response = try await session.respond(to: prompt)
@@ -63,9 +62,8 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGeneratedContent(_ config: InstanceConfig) async throws {
-        let session = FirebaseAI.componentInstance(config).generativeModelSession(
-          model: ModelNames.gemini2_5_FlashLite,
-        )
+        let firebaseAI = FirebaseAI.componentInstance(config)
+        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a cute rescue cat"
 
         let response = try await session.respond(to: prompt, schema: CatProfile.generationSchema)
@@ -88,9 +86,8 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerable(_ config: InstanceConfig) async throws {
-        let session = FirebaseAI.componentInstance(config).generativeModelSession(
-          model: ModelNames.gemini2_5_FlashLite,
-        )
+        let firebaseAI = FirebaseAI.componentInstance(config)
+        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a Ragdoll kitten"
 
         let response = try await session.respond(to: prompt, generating: CatProfile.self)
@@ -165,9 +162,8 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerableRecipe(_ config: InstanceConfig) async throws {
-        let session = FirebaseAI.componentInstance(config).generativeModelSession(
-          model: ModelNames.gemini2_5_FlashLite,
-        )
+        let firebaseAI = FirebaseAI.componentInstance(config)
+        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a recipe for a pasta dish with meat."
 
         let response = try await session.respond(to: prompt, generating: Recipe.self)
@@ -190,9 +186,8 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func respondGenerableRecipeList(_ config: InstanceConfig) async throws {
-        let session = FirebaseAI.componentInstance(config).generativeModelSession(
-          model: ModelNames.gemini2_5_FlashLite,
-        )
+        let firebaseAI = FirebaseAI.componentInstance(config)
+        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt =
           "Generate three recipes for a full-course vegetarian meal (appetizer, main, dessert)."
 
@@ -221,9 +216,8 @@
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     func streamResponseText(_ config: InstanceConfig) async throws {
-      let session = FirebaseAI.componentInstance(config).generativeModelSession(
-        model: ModelNames.gemini2_5_FlashLite,
-      )
+      let firebaseAI = FirebaseAI.componentInstance(config)
+      let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
       let prompt = "Why is the sky blue?"
 
       let stream = session.streamResponse(to: prompt)
@@ -266,9 +260,8 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseGeneratedContent(_ config: InstanceConfig) async throws {
-        let session = FirebaseAI.componentInstance(config).generativeModelSession(
-          model: ModelNames.gemini2_5_FlashLite
-        )
+        let firebaseAI = FirebaseAI.componentInstance(config)
+        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a friendly Persian cat"
 
         let stream = session.streamResponse(
@@ -321,9 +314,8 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       func streamResponseGenerable(_ config: InstanceConfig) async throws {
-        let session = FirebaseAI.componentInstance(config).generativeModelSession(
-          model: ModelNames.gemini2_5_FlashLite,
-        )
+        let firebaseAI = FirebaseAI.componentInstance(config)
+        let session = firebaseAI.generativeModelSession(model: ModelNames.gemini2_5_FlashLite)
         let prompt = "Generate a Ragdoll kitten"
 
         let stream = session.streamResponse(

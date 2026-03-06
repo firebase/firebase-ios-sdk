@@ -24,8 +24,6 @@
   /// A `GenerativeModelSession` retains history between requests. For single-turn requests to a
   /// model, use ``FirebaseAI/generativeModelSession(model:instructions:)`` to start a new session.
   /// `GenerativeModelSession` is particularly useful for generating structured data.
-  /// decode the model's output into a specific Swift type that conforms to the `Generable`
-  /// protocol.
   ///
   /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
@@ -43,8 +41,8 @@
   ///   var favoriteTopics: [String]
   /// }
   ///
-  /// let model = // ... a GenerativeModel instance
-  /// let session = GenerativeModelSession(model: model)
+  /// let firebaseAI = // ... a `FirebaseAI` instance
+  /// let session = firebaseAI.generativeModelSession(model: "gemini-model-name")
   /// let prompt = "Generate a user profile for a cat lover who enjoys hiking."
   /// let response = try await session.respond(to: prompt, generating: UserProfile.self)
   ///
