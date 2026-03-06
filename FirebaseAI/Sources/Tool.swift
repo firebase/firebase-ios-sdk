@@ -63,6 +63,12 @@ public struct GoogleSearch: Sendable {
   public init() {}
 }
 
+/// A tool that allows the generative model to use Google Maps data.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct GoogleMaps: Sendable {
+  init() {}
+}
+
 /// A helper tool that the model may use when generating responses.
 ///
 /// A `Tool` is a piece of code that enables the system to interact with external systems to perform
@@ -75,15 +81,20 @@ public struct Tool: Sendable {
   /// Specifies the Google Search configuration.
   let googleSearch: GoogleSearch?
 
+  /// Specifies the Google Maps configuration.
+  let googleMaps: GoogleMaps?
+
   let codeExecution: CodeExecution?
   let urlContext: URLContext?
 
   init(functionDeclarations: [FunctionDeclaration]? = nil,
        googleSearch: GoogleSearch? = nil,
+       googleMaps: GoogleMaps? = nil,
        urlContext: URLContext? = nil,
        codeExecution: CodeExecution? = nil) {
     self.functionDeclarations = functionDeclarations
     self.googleSearch = googleSearch
+    self.googleMaps = googleMaps
     self.urlContext = urlContext
     self.codeExecution = codeExecution
   }
@@ -129,6 +140,13 @@ public struct Tool: Sendable {
   /// - Returns: A `Tool` configured for Google Search.
   public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
     return self.init(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows the model to use Google Maps.
+  ///
+  /// - Returns: A `Tool` configured for Google Maps.
+  public static func googleMaps() -> Tool {
+    return self.init(googleMaps: GoogleMaps())
   }
 
   /// Creates a tool that allows you to provide additional context to the models in the form of
@@ -233,6 +251,9 @@ extension FunctionCallingConfig.Mode: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleSearch: Encodable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension GoogleMaps: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {}
