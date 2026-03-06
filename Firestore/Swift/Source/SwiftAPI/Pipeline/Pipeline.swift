@@ -720,7 +720,7 @@ public struct Pipeline: @unchecked Sendable {
                      addFields: [Selectable]? = nil,
                      select: [Selectable]? = nil,
                      offset: Int? = nil,
-                     queryExpansion: QueryExpansion? = nil) -> Pipeline {
+                     queryExpansion: QueryEnhancement? = nil) -> Pipeline {
     if let errorMessage = errorMessage {
       return withError(errorMessage)
     }
@@ -760,7 +760,7 @@ public struct Pipeline: @unchecked Sendable {
                      addFields: [Selectable]? = nil,
                      select: [Selectable]? = nil,
                      offset: Int? = nil,
-                     queryExpansion: QueryExpansion? = nil) -> Pipeline {
+                     queryExpansion: QueryEnhancement? = nil) -> Pipeline {
     // Convert String? to Expression?
     let expressionQuery = query.map { Constant($0) }
     return search(

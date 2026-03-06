@@ -295,6 +295,65 @@ class FindNearest: Stage {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class Search: Stage {
+  let name: String = "search"
+  let bridge: StageBridge
+  let errorMessage: String?
+
+  init(query: Expression? = nil,
+       limit: Int? = nil,
+       retrievalDepth: Int? = nil,
+       sort: [Ordering]? = nil,
+       addFields: [Selectable]? = nil,
+       select: [Selectable]? = nil,
+       offset: Int? = nil,
+       partition: [String: Sendable]? = nil,
+       queryExpansion: QueryEnhancement? = nil) {
+    
+    var _selectMap: [String: ExprBridge]? = nil
+    if let select = select {
+      let (selectMap, error) = Helper.selectablesToMap(selectables: select)
+      if let error = error {
+        errorMessage = error.localizedDescription
+        bridge = RawStageBridge(name: name, params: [], options: [:])
+        return
+      }
+      _selectMap = selectMap.mapValues { $0.toBridge() }
+    }
+    
+    var _addFieldsMap: [String: ExprBridge]? = nil
+    if let addFields = addFields {
+      let (addFieldsMap, error) = Helper.selectablesToMap(selectables: addFields)
+      if let error = error {
+        errorMessage = error.localizedDescription
+        bridge = RawStageBridge(name: name, params: [], options: [:])
+        return
+      }
+      _addFieldsMap = addFieldsMap.mapValues { $0.toBridge() }
+    }
+    
+    var _sort: [OrderingBridge]? = nil
+    if let sort = sort {
+      _sort = sort.map{ $0.bridge }
+    }
+    
+    bridge = SearchStageBridge(
+      query: query?.toBridge(),
+      limit: limit as NSNumber?,
+      retrievalDepth: retrievalDepth as NSNumber?,
+      offset: offset as NSNumber?,
+      queryExpansion: queryExpansion?.rawValue,
+      sort: _sort,
+      addFields: _addFieldsMap,
+      select: _selectMap
+    )
+    
+    errorMessage = nil
+    //let bridgeOptions = options.mapValues { Helper.sendableToExpr($0).toBridge() }
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class Sort: Stage {
   let name: String = "sort"
   let bridge: StageBridge
@@ -337,68 +396,6 @@ class Sample: Stage {
     self.percentage = percentage
     count = nil
     bridge = SampleStageBridge(percentage: percentage)
-  }
-}
-
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class Search: Stage {
-  let name: String = "search"
-  let bridge: StageBridge
-  let errorMessage: String?
-
-  init(query: Expression? = nil,
-       limit: Int? = nil,
-       retrievalDepth: Int? = nil,
-       sort: [Ordering]? = nil,
-       addFields: [Selectable]? = nil,
-       select: [Selectable]? = nil,
-       offset: Int? = nil,
-       partition: [String: Sendable]? = nil,
-       queryExpansion: QueryExpansion? = nil) {
-    var options: [String: Sendable] = [:]
-    if let limit = limit {
-      options["limit"] = limit
-    }
-    if let retrievalDepth = retrievalDepth {
-      options["retrieval_depth"] = retrievalDepth
-    }
-    if let sort = sort {
-      options["sort"] = sort.map { $0.bridge }
-    }
-    if let addFields = addFields {
-      let (map, error) = Helper.selectablesToMap(selectables: addFields)
-      if let error = error {
-        errorMessage = error.localizedDescription
-        bridge = RawStageBridge(name: name, params: [], options: [:])
-        return
-      }
-      options["add_fields"] = map.mapValues { $0.toBridge() }
-    }
-    if let select = select {
-      let (map, error) = Helper.selectablesToMap(selectables: select)
-      if let error = error {
-        errorMessage = error.localizedDescription
-        bridge = RawStageBridge(name: name, params: [], options: [:])
-        return
-      }
-      options["select"] = map.mapValues { $0.toBridge() }
-    }
-    if let offset = offset {
-      options["offset"] = offset
-    }
-    if let queryExpansion = queryExpansion {
-      options["query_expansion"] = queryExpansion.rawValue
-    }
-
-    errorMessage = nil
-    // As SearchStageBridge is not available, we use RawStageBridge.
-    // The query is the main parameter.
-    var bridgeParams: [AnyObject] = []
-    if let query = query {
-      bridgeParams.append(Helper.sendableToAnyObjectForRawStage(query))
-    }
-    let bridgeOptions = options.mapValues { Helper.sendableToExpr($0).toBridge() }
-    bridge = RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
 }
 

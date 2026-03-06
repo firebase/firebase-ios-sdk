@@ -71,6 +71,7 @@ using firebase::firestore::api::DocumentsSource;
 using firebase::firestore::api::Expr;
 using firebase::firestore::api::Field;
 using firebase::firestore::api::FindNearestStage;
+using firebase::firestore::api::SearchStage;
 using firebase::firestore::api::FunctionExpr;
 using firebase::firestore::api::LimitStage;
 using firebase::firestore::api::MakeFIRTimestamp;
@@ -945,6 +946,106 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (NSString *)name {
   return @"unnest";
+}
+@end
+
+@implementation FIRSearchStageBridge {
+  FIRExprBridge *_Nullable _query;
+  NSNumber *_Nullable _limit;
+  NSNumber *_Nullable _retrievalDepth;
+  NSNumber *_Nullable _offset;
+  NSString *_Nullable _queryExpansion;
+  NSArray<FIROrderingBridge *> *_Nullable _sort;
+  NSDictionary<NSString *, FIRExprBridge *> *_Nullable _addFields;
+  NSDictionary<NSString *, FIRExprBridge *> *_Nullable _select;
+  Boolean isUserDataRead;
+  std::shared_ptr<SearchStage> cpp_find_nearest;
+}
+
+- (id)initWithQuery:(FIRExprBridge *_Nullable)query
+              limit:(NSNumber *_Nullable)limit
+     retrievalDepth:(NSNumber *_Nullable)retrievalDepth
+             offset:(NSNumber *_Nullable)offset
+     queryExpansion:(NSString *_Nullable)queryExpansion
+               sort:(NSArray<FIROrderingBridge *> *_Nullable)sort
+          addFields:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)addFields
+             select:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)select {
+  self = [super init];
+  if (self) {
+    _query = query;
+    _limit = limit;
+    _retrievalDepth = retrievalDepth;
+    _offset = offset;
+    _queryExpansion = queryExpansion;
+    _sort = sort;
+    _addFields = addFields;
+    _select = select;
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::unordered_map<std::string, firebase::firestore::google_firestore_v1_Value> optional_value;
+
+    if (_query) {
+      std::shared_ptr<Expr> cpp_query = [_query cppExprWithReader:reader];
+      optional_value.emplace(
+          std::make_pair(std::string("query"), cpp_query->to_proto()));
+    }
+    
+    if (_limit) {
+      optional_value.emplace(std::make_pair(
+          std::string("limit"), *DeepClone(*[reader parsedQueryValue:_limit]).release()));
+    }
+    
+    if (_retrievalDepth) {
+      optional_value.emplace(std::make_pair(
+          std::string("retrieval_depth"), *DeepClone(*[reader parsedQueryValue:_retrievalDepth]).release()));
+    }
+    
+    if (_offset) {
+      optional_value.emplace(std::make_pair(
+          std::string("offset"), *DeepClone(*[reader parsedQueryValue:_offset]).release()));
+    }
+    
+    if (_sort) {
+      std::vector<Ordering> cpp_orderings;
+      for (FIROrderingBridge *ordering in _sort) {
+        cpp_orderings.push_back([ordering cppOrderingWithReader:reader]);
+      }
+      
+      optional_value.emplace(std::make_pair(std::string("sort"), std::move(cpp_orderings)));
+    }
+    
+    if (_addFields) {
+      std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_add_fields;
+      for (NSString *key in _addFields) {
+        cpp_add_fields[MakeString(key)] = [_addFields[key] cppExprWithReader:reader];
+      }
+      
+      optional_value.emplace(std::make_pair(std::string("add_fields"), std::move(cpp_add_fields)));
+    }
+    
+    if (_select) {
+      std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_select;
+      for (NSString *key in _select) {
+        cpp_select[MakeString(key)] = [_select[key] cppExprWithReader:reader];
+      }
+      
+      optional_value.emplace(std::make_pair(std::string("select"), std::move(cpp_select)));
+    }
+
+    cpp_find_nearest = std::make_shared<SearchStage>(std::move(optional_value));
+  }
+
+  isUserDataRead = YES;
+  return cpp_find_nearest;
+}
+
+- (NSString *)name {
+  return @"find_nearest";
 }
 @end
 

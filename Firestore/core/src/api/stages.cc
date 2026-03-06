@@ -226,6 +226,23 @@ google_firestore_v1_Pipeline_Stage FindNearestStage::to_proto() const {
   return result;
 }
 
+google_firestore_v1_Pipeline_Stage SearchStage::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray(name());
+
+  result.args_count = 0;
+  result.args = nullptr;
+
+  nanopb::SetRepeatedField(
+      &result.options, &result.options_count, options_,
+      [](const std::pair<std::string, google_firestore_v1_Value>& entry) {
+        return _google_firestore_v1_Pipeline_Stage_OptionsEntry{
+            nanopb::MakeBytesArray(entry.first), entry.second};
+      });
+
+  return result;
+}
+
 google_firestore_v1_Pipeline_Stage LimitStage::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray(name());

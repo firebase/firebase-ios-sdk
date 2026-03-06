@@ -163,6 +163,19 @@ NS_SWIFT_NAME(FindNearestStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SearchStageBridge)
+@interface FIRSearchStageBridge : FIRStageBridge
+- (id)initWithQuery:(FIRExprBridge *_Nullable)query
+              limit:(NSNumber *_Nullable)limit
+     retrievalDepth:(NSNumber *_Nullable)retrievalDepth
+             offset:(NSNumber *_Nullable)offset
+     queryExpansion:(NSString *_Nullable)queryExpansion
+               sort:(NSArray<FIROrderingBridge *> *_Nullable)sort
+          addFields:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)addFields
+             select:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)select;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SortStageBridge)
 @interface FIRSorStageBridge : FIRStageBridge
 - (id)initWithOrderings:(NSArray<id> *)orderings;
