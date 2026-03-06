@@ -14,7 +14,6 @@
 
 // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
 #if compiler(>=6.2)
-  import FirebaseAILogic
   @testable import FirebaseAILogic
   import FirebaseAITestApp
   #if canImport(FoundationModels)
