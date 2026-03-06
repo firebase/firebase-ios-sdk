@@ -253,8 +253,14 @@ public struct LatLng: Sendable, Encodable {
   public let longitude: Double
 
   public init(latitude: Double, longitude: Double) {
-    precondition(latitude >= -90.0 && latitude <= 90.0, "Latitude must be in the range [-90.0, 90.0].")
-    precondition(longitude >= -180.0 && longitude <= 180.0, "Longitude must be in the range [-180.0, 180.0].")
+    precondition(
+      latitude >= -90.0 && latitude <= 90.0,
+      "Latitude must be in the range [-90.0, 90.0]."
+    )
+    precondition(
+      longitude >= -180.0 && longitude <= 180.0,
+      "Longitude must be in the range [-180.0, 180.0]."
+    )
     self.latitude = latitude
     self.longitude = longitude
   }
