@@ -151,6 +151,7 @@ s%^./%%
 
 # Generated source
 \%/Firestore/core/src/util/config.h% d
+\%^GeneratedFirebaseAI/% d
 
 # Generated Code for Data Connect sample
 \%/Examples/FriendlyFlix/app/FriendlyFlixSDK/% d
