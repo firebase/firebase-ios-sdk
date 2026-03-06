@@ -121,9 +121,16 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
   UIApplicationState state = [UIApplication sharedApplication].applicationState;
   if (state == UIApplicationStateBackground) {
-    // SwiftUI apps using @UIApplicationDelegateAdaptor may report .background here
-    // even on normal foreground launches. The actual decision is deferred to didBecomeActive.
-    sLaunchedInBackgroundState = YES;
+    NSDictionary *sceneManifest =
+        [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
+    if (sceneManifest) {
+      // Scene-based apps may report .background here even on foreground launches
+      // because scenes haven't connected yet. Defer decision to didBecomeActive.
+      sLaunchedInBackgroundState = YES;
+    } else {
+      // Non-scene app - .background is reliable, invalidate app start.
+      appStartTime = nil;
+    }
   }
 
   [[NSNotificationCenter defaultCenter] removeObserver:self
