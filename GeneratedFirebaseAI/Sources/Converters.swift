@@ -4761,6 +4761,20 @@ public enum Converters {
     }
   }
 
+  public static func generationConfigFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> GenerationConfig?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GenerationConfig.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GenerationConfig: \(error)")
+      return nil
+    }
+  }
+
   public static func evaluationConfigFromVertex(apiClient: APIClient, fromObject: Data) throws
     -> EvaluationConfig?
   {
