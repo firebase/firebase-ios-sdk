@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
-import FirebaseCore
 @testable import FirebaseAILogic
+import FirebaseCore
+import XCTest
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class MapsGroundingTests: XCTestCase {
@@ -74,7 +74,8 @@ final class MapsGroundingTests: XCTestCase {
     let encoder = JSONEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
     let requestData = try encoder.encode(request)
-    let requestJSON = try XCTUnwrap(try JSONSerialization.jsonObject(with: requestData) as? [String: Any])
+    let requestJSON = try XCTUnwrap(JSONSerialization
+      .jsonObject(with: requestData) as? [String: Any])
     let tools = try XCTUnwrap(requestJSON["tools"] as? [[String: Any]])
     XCTAssertEqual(tools.count, 1)
     let maps = try XCTUnwrap(tools[0]["google_maps"] as? [String: Any])
