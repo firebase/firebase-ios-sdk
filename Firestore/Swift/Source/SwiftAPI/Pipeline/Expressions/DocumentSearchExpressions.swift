@@ -21,7 +21,6 @@ import Foundation
 
 /// Represents a full-text search against the entire document content.
 public struct DocumentMatches: BooleanExpression, BridgeWrapper, @unchecked Sendable {
-
   public let bridge: ExprBridge
 
   /// Creates a document search expression.

@@ -71,7 +71,6 @@ using firebase::firestore::api::DocumentsSource;
 using firebase::firestore::api::Expr;
 using firebase::firestore::api::Field;
 using firebase::firestore::api::FindNearestStage;
-using firebase::firestore::api::SearchStage;
 using firebase::firestore::api::FunctionExpr;
 using firebase::firestore::api::LimitStage;
 using firebase::firestore::api::MakeFIRTimestamp;
@@ -86,6 +85,7 @@ using firebase::firestore::api::RealtimePipelineSnapshot;
 using firebase::firestore::api::RemoveFieldsStage;
 using firebase::firestore::api::ReplaceWith;
 using firebase::firestore::api::Sample;
+using firebase::firestore::api::SearchStage;
 using firebase::firestore::api::SelectStage;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::SortStage;
@@ -950,7 +950,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 @end
 
 @implementation FIRSearchStageBridge {
-  NSDictionary<NSString *, FIRExprBridge *> * _options;
+  NSDictionary<NSString *, FIRExprBridge *> *_options;
   Boolean isUserDataRead;
   std::shared_ptr<SearchStage> cpp_search;
 }

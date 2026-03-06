@@ -299,7 +299,7 @@ class Search: Stage {
   let name: String = "search"
   let bridge: StageBridge
   let errorMessage: String?
-  
+
   init(query: Expression? = nil,
        limit: Int? = nil,
        retrievalDepth: Int? = nil,
@@ -345,7 +345,7 @@ class Search: Stage {
     if let queryEnhancement = queryEnhancement {
       options["query_enhancement"] = queryEnhancement
     }
-    
+
     errorMessage = nil
     let bridgeOptions = options.mapValues { Helper.sendableToExpr($0).toBridge() }
     bridge = SearchStageBridge(options: bridgeOptions)

@@ -230,7 +230,6 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
           ]
         )
 
-
     // Snippet with multiple fields and OR
     _ =
       firestore.pipeline().collection("restaurants")
