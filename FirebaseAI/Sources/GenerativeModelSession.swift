@@ -19,10 +19,11 @@
     import FoundationModels
   #endif // canImport(FoundationModels)
 
-  /// A session that simplifies interaction with a generative model, particularly for generating
-  /// structured data.
+  /// A session that handles multi-turn interactions with a generative model, similar to ``Chat``.
   ///
-  /// A `GenerativeModelSession` is ideal for single-turn requests to a model, where you want to
+  /// A `GenerativeModelSession` retains history between requests. For single-turn requests to a
+  /// model, use ``FirebaseAI/generativeModelSession(model:instructions:)`` to start a new session.
+  /// `GenerativeModelSession` is particularly useful for generating structured data.
   /// decode the model's output into a specific Swift type that conforms to the `Generable`
   /// protocol.
   ///
