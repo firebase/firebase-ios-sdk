@@ -47,4 +47,40 @@ struct MapsGroundingIntegrationTests {
     }
     #expect(foundMapChunk)
   }
+
+  @Test(
+    "generateContent with Google Maps and RetrievalConfig returns grounding metadata",
+    arguments: InstanceConfig.allConfigs
+  )
+  func generateContent_withGoogleMapsAndRetrievalConfig_succeeds(_ config: InstanceConfig) async throws {
+    let toolConfig = ToolConfig(
+      retrievalConfig: RetrievalConfig(
+        latLng: LatLng(latitude: 30.2672, longitude: -97.7431)
+      )
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: ModelNames.gemini2_5_Flash,
+      tools: [.googleMaps()],
+      toolConfig: toolConfig
+    )
+    let prompt = "Find bookstores in my area."
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let groundingMetadata = try #require(candidate.groundingMetadata)
+
+    #expect(!groundingMetadata.groundingChunks.isEmpty)
+
+    var foundMapChunk = false
+    for chunk in groundingMetadata.groundingChunks {
+      if let mapsChunk = chunk.maps {
+        #expect(!mapsChunk.uri.isEmpty)
+        #expect(!mapsChunk.title.isEmpty)
+        #expect(!mapsChunk.placeId.isEmpty)
+        foundMapChunk = true
+      }
+    }
+    #expect(foundMapChunk)
+  }
 }

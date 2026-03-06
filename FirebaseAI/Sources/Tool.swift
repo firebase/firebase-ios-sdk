@@ -145,7 +145,7 @@ public struct Tool: Sendable {
   /// "Grounding with Google Maps" usage requirements for your chosen API provider.
   ///
   /// - Parameters:
-  ///   - googleMaps: An empty ``GoogleMaps`` object. The presence of this object in the list
+  ///   - googleMaps: A ``GoogleMapsConfig`` object. The presence of this object in the list
   ///     of tools enables the model to use Google Maps.
   ///
   /// - Returns: A `Tool` configured for Google Maps.
@@ -220,9 +220,41 @@ public struct FunctionCallingConfig: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ToolConfig: Sendable {
   let functionCallingConfig: FunctionCallingConfig?
+  let retrievalConfig: RetrievalConfig?
 
-  public init(functionCallingConfig: FunctionCallingConfig? = nil) {
+  public init(functionCallingConfig: FunctionCallingConfig? = nil,
+              retrievalConfig: RetrievalConfig? = nil) {
     self.functionCallingConfig = functionCallingConfig
+    self.retrievalConfig = retrievalConfig
+  }
+}
+
+/// The retrieval config for grounding with Google Maps.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct RetrievalConfig: Sendable, Encodable {
+  /// The location for the search.
+  public let latLng: LatLng
+
+  public init(latLng: LatLng) {
+    self.latLng = latLng
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case latLng = "lat_lng"
+  }
+}
+
+/// An object that represents a latitude/longitude pair.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct LatLng: Sendable, Encodable {
+  /// The latitude in degrees. It must be in the range [-90.0, +90.0].
+  public let latitude: Double
+  /// The longitude in degrees. It must be in the range [-180.0, +180.0].
+  public let longitude: Double
+
+  public init(latitude: Double, longitude: Double) {
+    self.latitude = latitude
+    self.longitude = longitude
   }
 }
 
@@ -257,4 +289,9 @@ extension FunctionCallingConfig.Mode: Encodable {}
 extension GoogleSearch: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ToolConfig: Encodable {}
+extension ToolConfig: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case functionCallingConfig
+    case retrievalConfig = "retrieval_config"
+  }
+}
