@@ -34,6 +34,7 @@ static NSTimeInterval gAppStartMaxValidDuration = 60 * 60;  // 60 minutes.
 static FPRCPUGaugeData *gAppStartCPUGaugeData = nil;
 static FPRMemoryGaugeData *gAppStartMemoryGaugeData = nil;
 static BOOL isActivePrewarm = NO;
+static BOOL sLaunchedInBackgroundState = NO;
 
 NSString *const kFPRAppStartTraceName = @"_as";
 NSString *const kFPRAppStartStageNameTimeToUI = @"_astui";
@@ -118,15 +119,18 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 + (void)applicationDidFinishLaunching:(NSNotification *)notification {
   applicationDidFinishLaunchTime = [NSDate date];
 
-  // Detect a background launch and invalidate app start time
-  // this prevents we measure duration from background launch
   UIApplicationState state = [UIApplication sharedApplication].applicationState;
   if (state == UIApplicationStateBackground) {
-    // App launched in background so we invalidate the captured app start time
-    // to prevent incorrect measurement when user later opens the app
-    appStartTime = nil;
-    FPRLogDebug(kFPRTraceNotCreated,
-                @"Background launch detected. App start measurement will be skipped.");
+    NSDictionary *sceneManifest =
+        [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
+    if (sceneManifest) {
+      // Scene-based apps may report .background here even on foreground launches
+      // because scenes haven't connected yet. Defer decision to didBecomeActive.
+      sLaunchedInBackgroundState = YES;
+    } else {
+      // Non-scene app - .background is reliable, invalidate app start.
+      appStartTime = nil;
+    }
   }
 
   [[NSNotificationCenter defaultCenter] removeObserver:self
@@ -259,13 +263,23 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    // Early bailout if background launch was detected, appStartTime will be nil if the app was
-    // launched in background
     if (appStartTime == nil) {
-      FPRLogDebug(kFPRTraceNotCreated,
-                  @"App start trace skipped due to background launch. "
-                  @"This prevents reporting incorrect multi-minute/hour durations.");
+      FPRLogDebug(kFPRTraceNotCreated, @"App start trace skipped due to background launch.");
       return;
+    }
+
+    // Distinguish genuine background launches by checking how long ago +load captured appStartTime.
+    // A real foreground launch reaches didBecomeActive within seconds; a background launch that is
+    // later opened by the user will have a much larger gap.
+    if (sLaunchedInBackgroundState) {
+      NSTimeInterval timeSinceStart = [[NSDate date] timeIntervalSinceDate:appStartTime];
+      // App launched in background so we invalidate the captured app start time
+      // to prevent incorrect measurement when user later opens the app
+      if (timeSinceStart > gAppStartMaxValidDuration) {
+        FPRLogDebug(kFPRTraceNotCreated,
+                    @"Background launch detected. App start measurement will be skipped.");
+        return;
+      }
     }
 
     self.appStartTrace = [[FIRTrace alloc] initInternalTraceWithName:kFPRAppStartTraceName];
@@ -281,8 +295,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
       self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
     [self.appStartTrace cancel];
     self.appStartTrace = nil;
-    FPRLogDebug(kFPRTraceNotCreated,
-                @"App start trace cancelled due to background state contamination.");
+    FPRLogDebug(kFPRTraceNotCreated, @"App start trace cancelled. Trace had background state.");
   }
 
   // Stop the active background session trace.
