@@ -14,8 +14,8 @@
 
 #if compiler(>=6.2)
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-  extension FirebaseAI {
-    public protocol ConvertibleFromGeneratedContent {
+  public extension FirebaseAI {
+    protocol ConvertibleFromGeneratedContent {
       init(_ content: FirebaseAI.GeneratedContent) throws
     }
   }
