@@ -19,12 +19,11 @@
     import FoundationModels
   #endif // canImport(FoundationModels)
 
-  /// A session that simplifies interaction with a generative model, particularly for generating
-  /// structured data.
+  /// A session that handles multi-turn interactions with a generative model, similar to ``Chat``.
   ///
-  /// A `GenerativeModelSession` is ideal for single-turn requests to a model, where you want to
-  /// decode the model's output into a specific Swift type that conforms to the `Generable`
-  /// protocol.
+  /// A `GenerativeModelSession` retains history between requests. For single-turn requests to a
+  /// model, use ``FirebaseAI/generativeModelSession(model:instructions:)`` to start a new session.
+  /// `GenerativeModelSession` is particularly useful for generating structured data.
   ///
   /// **Public Preview**: This API is a public preview and may be subject to change.
   ///
@@ -42,8 +41,8 @@
   ///   var favoriteTopics: [String]
   /// }
   ///
-  /// let model = // ... a GenerativeModel instance
-  /// let session = GenerativeModelSession(model: model)
+  /// let firebaseAI = // ... a `FirebaseAI` instance
+  /// let session = firebaseAI.generativeModelSession(model: "gemini-model-name")
   /// let prompt = "Generate a user profile for a cat lover who enjoys hiking."
   /// let response = try await session.respond(to: prompt, generating: UserProfile.self)
   ///
@@ -59,7 +58,7 @@
     ///
     /// **Public Preview**: This API is a public preview and may be subject to change.
     /// - Parameter model: The `GenerativeModel` to use for generating content.
-    public init(model: GenerativeModel) {
+    init(model: GenerativeModel) {
       session = model.startChat()
     }
 
@@ -103,11 +102,13 @@
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
       @discardableResult
-      public nonisolated(nonsending)
-      func respond(to prompt: PartsRepresentable..., schema: GenerationSchema,
+      nonisolated(nonsending)
+      func respond(to prompt: PartsRepresentable..., schema: FoundationModels.GenerationSchema,
                    includeSchemaInPrompt: Bool = true,
                    options: GenerationConfig? = nil) async throws
         -> GenerativeModelSession.Response<FirebaseAI.GeneratedContent> {
+        // TODO: Replace `FoundationModels.GenerationSchema` and make this method public when
+        // `FirebaseAI.GenerationSchema`'s public API is ready.
         return try await respond(
           to: prompt,
           schema: FirebaseAI.GenerationSchema(schema),
@@ -163,13 +164,14 @@
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
-      public func streamResponse(to prompt: PartsRepresentable...,
-                                 schema: GenerationSchema,
-                                 includeSchemaInPrompt: Bool = true,
-                                 options: GenerationConfig? = nil)
+      func streamResponse(to prompt: PartsRepresentable...,
+                          schema: FoundationModels.GenerationSchema,
+                          includeSchemaInPrompt: Bool = true, options: GenerationConfig? = nil)
         -> sending GenerativeModelSession.ResponseStream<
           FirebaseAI.GeneratedContent, FirebaseAI.GeneratedContent
         > {
+        // TODO: Replace `FoundationModels.GenerationSchema` and make this method public when
+        // `FirebaseAI.GenerationSchema`'s public API is ready.
         return streamResponse(
           to: prompt,
           schema: FirebaseAI.GenerationSchema(schema),
