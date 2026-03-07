@@ -29,6 +29,10 @@ public struct FunctionDeclaration: Sendable {
   /// Describes the parameters to this function; must be of type `DataType.object`.
   let parameters: Schema?
 
+  let parametersJSONSchema: FirebaseAI.GenerationSchema?
+
+  let responseJSONSchema: FirebaseAI.GenerationSchema?
+
   /// Constructs a new `FunctionDeclaration`.
   ///
   /// - Parameters:
@@ -47,6 +51,17 @@ public struct FunctionDeclaration: Sendable {
       optionalProperties: optionalParameters,
       nullable: false
     )
+    parametersJSONSchema = nil
+    responseJSONSchema = nil
+  }
+
+  init(name: String, description: String, parametersSchema: FirebaseAI.GenerationSchema,
+       responseSchema: FirebaseAI.GenerationSchema?) {
+    self.name = name
+    self.description = description
+    parameters = nil
+    parametersJSONSchema = parametersSchema
+    responseJSONSchema = responseSchema
   }
 }
 
@@ -86,65 +101,6 @@ public struct Tool: Sendable {
     self.googleSearch = googleSearch
     self.urlContext = urlContext
     self.codeExecution = codeExecution
-  }
-
-  /// Creates a tool that allows the model to perform function calling.
-  ///
-  /// Function calling can be used to provide data to the model that was not known at the time it
-  /// was trained (for example, the current date or weather conditions) or to allow it to interact
-  /// with external systems (for example, making an API request or querying/updating a database).
-  /// For more details and use cases, see [Function calling using the Gemini
-  /// API](http://firebase.google.com/docs/vertex-ai/function-calling?platform=ios).
-  ///
-  /// - Parameters:
-  ///   - functionDeclarations: A list of `FunctionDeclarations` available to the model that can be
-  ///   used for function calling.
-  ///   The model or system does not execute the function. Instead the defined function may be
-  ///   returned as a ``FunctionCallPart`` with arguments to the client side for execution. The
-  ///   model may decide to call none, some or all of the declared functions; this behavior may be
-  ///   configured by specifying a ``ToolConfig`` when instantiating the model. When a
-  ///   ``FunctionCallPart`` is received, the next conversation turn may contain a
-  ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
-  ///   `"function"`; this response contains the result of executing the function on the client,
-  ///   providing generation context for the model's next turn.
-  public static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
-    return self.init(functionDeclarations: functionDeclarations)
-  }
-
-  /// Creates a tool that allows the model to use Grounding with Google Search.
-  ///
-  /// Grounding with Google Search can be used to allow the model to connect to Google Search to
-  /// access and incorporate up-to-date information from the web into it's responses.
-  ///
-  /// > Important: When using this feature, you are required to comply with the
-  /// "Grounding with Google Search" usage requirements for your chosen API provider:
-  /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-  /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
-  /// section within the Service Specific Terms).
-  ///
-  /// - Parameters:
-  ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list
-  ///     of tools enables the model to use Google Search.
-  ///
-  /// - Returns: A `Tool` configured for Google Search.
-  public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
-    return self.init(googleSearch: googleSearch)
-  }
-
-  /// Creates a tool that allows you to provide additional context to the models in the form of
-  /// public web URLs.
-  ///
-  /// By including URLs in your request, the Gemini model will access the content from those pages
-  /// to inform and enhance its response.
-  public static func urlContext() -> Tool {
-    return self.init(urlContext: URLContext())
-  }
-
-  /// Creates a tool that allows the model to execute code.
-  ///
-  /// For more details, see ``CodeExecution``.
-  public static func codeExecution() -> Tool {
-    return self.init(codeExecution: CodeExecution())
   }
 }
 
@@ -204,6 +160,77 @@ public struct ToolConfig: Sendable {
   }
 }
 
+// MARK: - ToolRepresentable Conformances
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension FirebaseAILogic.Tool: ToolRepresentable {
+  public var toolRepresentation: FirebaseAILogic.Tool {
+    return self
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
+  /// Creates a tool that allows the model to perform function calling.
+  ///
+  /// Function calling can be used to provide data to the model that was not known at the time it
+  /// was trained (for example, the current date or weather conditions) or to allow it to interact
+  /// with external systems (for example, making an API request or querying/updating a database).
+  /// For more details and use cases, see [Function calling using the Gemini
+  /// API](http://firebase.google.com/docs/vertex-ai/function-calling?platform=ios).
+  ///
+  /// - Parameters:
+  ///   - functionDeclarations: A list of `FunctionDeclarations` available to the model that can be
+  ///   used for function calling.
+  ///   The model or system does not execute the function. Instead the defined function may be
+  ///   returned as a ``FunctionCallPart`` with arguments to the client side for execution. The
+  ///   model may decide to call none, some or all of the declared functions; this behavior may be
+  ///   configured by specifying a ``ToolConfig`` when instantiating the model. When a
+  ///   ``FunctionCallPart`` is received, the next conversation turn may contain a
+  ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
+  ///   `"function"`; this response contains the result of executing the function on the client,
+  ///   providing generation context for the model's next turn.
+  static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
+    return self.init(functionDeclarations: functionDeclarations)
+  }
+
+  /// Creates a tool that allows the model to use Grounding with Google Search.
+  ///
+  /// Grounding with Google Search can be used to allow the model to connect to Google Search to
+  /// access and incorporate up-to-date information from the web into it's responses.
+  ///
+  /// > Important: When using this feature, you are required to comply with the
+  /// "Grounding with Google Search" usage requirements for your chosen API provider:
+  /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
+  /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+  /// section within the Service Specific Terms).
+  ///
+  /// - Parameters:
+  ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list
+  ///     of tools enables the model to use Google Search.
+  ///
+  /// - Returns: A `Tool` configured for Google Search.
+  static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
+    return FirebaseAILogic.Tool(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows you to provide additional context to the models in the form of
+  /// public web URLs.
+  ///
+  /// By including URLs in your request, the Gemini model will access the content from those pages
+  /// to inform and enhance its response.
+  static func urlContext() -> Tool {
+    return self.init(urlContext: URLContext())
+  }
+
+  /// Creates a tool that allows the model to execute code.
+  ///
+  /// For more details, see ``CodeExecution``.
+  static func codeExecution() -> Tool {
+    return self.init(codeExecution: CodeExecution())
+  }
+}
+
 // MARK: - Codable Conformance
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -212,13 +239,21 @@ extension FunctionDeclaration: Encodable {
     case name
     case description
     case parameters
+    case parametersJSONSchema = "parametersJsonSchema"
+    case responseJSONSchema = "responseJsonSchema"
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(name, forKey: .name)
     try container.encode(description, forKey: .description)
-    try container.encode(parameters, forKey: .parameters)
+    try container.encodeIfPresent(parameters, forKey: .parameters)
+    #if canImport(FoundationModels)
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+        try container.encodeIfPresent(parametersJSONSchema, forKey: .parametersJSONSchema)
+        try container.encodeIfPresent(responseJSONSchema, forKey: .responseJSONSchema)
+      }
+    #endif // canImport(FoundationModels)
   }
 }
 

@@ -16,6 +16,7 @@
 #if compiler(>=6.2)
   @testable import FirebaseAILogic
   import FirebaseAITestApp
+  import Foundation
   #if canImport(FoundationModels)
     import FoundationModels
   #endif // canImport(FoundationModels)
@@ -213,6 +214,107 @@
         #expect(response.rawContent.generationID != nil)
       }
     #endif // canImport(FoundationModels)
+
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    struct GetTemperature: FoundationModels.Tool {
+      let description = "Returns the current temperature for the specified location."
+
+      @Generable
+      struct Location {
+        let city: String
+        @Guide(description: "The province or state.")
+        let region: String
+        let country: String
+      }
+
+      @Generable
+      struct Temperature {
+        @Generable enum Units { case celsius, fahrenheit, kelvin }
+
+        let temperature: Double
+        let units: Units
+      }
+
+      let testTemperature = Temperature(temperature: 15.0, units: .celsius)
+
+      func call(arguments: Location) async throws -> Temperature {
+        return testTemperature
+      }
+    }
+
+    // TODO: Remove this test after automatic function calling is finished.
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func respondTextWithManualFunctionCalling(_ config: InstanceConfig) async throws {
+      let temperatureTool = GetTemperature()
+      let session = FirebaseAI.componentInstance(config).generativeModelSession(
+        model: ModelNames.gemini3_1_FlashLitePreview,
+        tools: [temperatureTool],
+        instructions: """
+        You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
+
+        Always use the `GetTemperature` function to determine the current temperature in a location.
+
+        Always respond in the format:
+        - Location: City, Province/State, Country
+        - Temperature: #C
+        """
+      )
+      let prompt = "What is the current temperature in Waterloo, Ontario, Canada?"
+
+      let response = try await session.respond(to: prompt)
+
+      #expect(response.rawResponse.functionCalls.count == 1)
+      let temperatureFunctionCall = try #require(response.rawResponse.functionCalls.first)
+      try #require(temperatureFunctionCall.name == temperatureTool.name)
+      #expect(temperatureFunctionCall.args == [
+        "city": .string("Waterloo"),
+        "region": .string("Ontario"),
+        "country": .string("Canada"),
+      ])
+      #expect(temperatureFunctionCall.isThought == false)
+      let thoughtSignature = try #require(temperatureFunctionCall.thoughtSignature)
+      #expect(!thoughtSignature.isEmpty)
+
+      let temperatureFunctionResponse = FunctionResponsePart(
+        name: temperatureFunctionCall.name,
+        response: [
+          "temperature": .number(25.0),
+          "units": .string("Celsius"),
+        ]
+      )
+
+      let response2 = try await session.respond(to: temperatureFunctionResponse)
+
+      #expect(response2.rawResponse.functionCalls.isEmpty)
+      #expect(response2.content.contains("Waterloo"))
+      #expect(response2.content.contains("25"))
+    }
+
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    func respondTextWithURLContext(_ config: InstanceConfig) async throws {
+      let session = FirebaseAI.componentInstance(config).generativeModelSession(
+        model: ModelNames.gemini2_5_Flash,
+        tools: [.urlContext()]
+      )
+      let url = "https://blog.google/innovation-and-ai/technology/developers-tools/functiongemma/"
+      let prompt = "What was the name of the model announced in: \(url)"
+
+      let response = try await session.respond(to: prompt)
+
+      #expect(response.content.contains("FunctionGemma"))
+      let candidate = try #require(response.rawResponse.candidates.first)
+      let urlContextMetadata = try #require(candidate.urlContextMetadata)
+      #expect(urlContextMetadata.urlMetadata.count == 1)
+      let urlMetadata = try #require(urlContextMetadata.urlMetadata.first)
+      #expect(urlMetadata.retrievalStatus == .success)
+      let retrievedURL = try #require(urlMetadata.retrievedURL)
+      #expect(retrievedURL == URL(string: url))
+    }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     func streamResponseText(_ config: InstanceConfig) async throws {

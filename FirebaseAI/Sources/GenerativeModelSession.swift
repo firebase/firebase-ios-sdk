@@ -22,7 +22,7 @@
   /// A session that handles multi-turn interactions with a generative model, similar to ``Chat``.
   ///
   /// A `GenerativeModelSession` retains history between requests. For single-turn requests to a
-  /// model, use ``FirebaseAI/generativeModelSession(model:instructions:)`` to start a new session.
+  /// model, use `generativeModelSession(model:tools:instructions:)` to start a new session.
   /// `GenerativeModelSession` is particularly useful for generating structured data.
   ///
   /// **Public Preview**: This API is a public preview and may be subject to change.
@@ -243,11 +243,13 @@
       )
 
       let response = try await session.sendMessage(parts, generationConfig: config)
-      guard let text = response.text else {
-        throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "No text in response: \(response)")
-        )
-      }
+      // TODO: Handle FunctionCall parts automatically.
+      // guard let text = response.text else {
+      //   throw GenerationError.decodingFailure(
+      //     GenerationError.Context(debugDescription: "No text in response: \(response)")
+      //   )
+      // }
+      let text = response.text ?? ""
       let generationID = response.responseID.map {
         #if canImport(FoundationModels)
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
