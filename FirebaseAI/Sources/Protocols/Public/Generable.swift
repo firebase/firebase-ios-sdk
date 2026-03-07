@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension FirebaseAI {
-  protocol Generable: FirebaseAI.ConvertibleFromGeneratedContent,
-    FirebaseAI.ConvertibleToGeneratedContent {
-    static var firebaseGenerationSchema: FirebaseAI.GenerationSchema { get }
+#if compiler(>=6.2)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+  public extension FirebaseAI {
+    protocol Generable: FirebaseAI.ConvertibleFromGeneratedContent,
+      FirebaseAI.ConvertibleToGeneratedContent {
+      static var firebaseGenerationSchema: FirebaseAI.GenerationSchema { get }
+    }
   }
-}
+#endif // compiler(>=6.2)
