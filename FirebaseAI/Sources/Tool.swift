@@ -75,15 +75,20 @@ public struct Tool: Sendable {
   /// Specifies the Google Search configuration.
   let googleSearch: GoogleSearch?
 
+  /// Specifies the Google Maps configuration.
+  let googleMaps: GoogleMaps?
+
   let codeExecution: CodeExecution?
   let urlContext: URLContext?
 
   init(functionDeclarations: [FunctionDeclaration]? = nil,
        googleSearch: GoogleSearch? = nil,
+       googleMaps: GoogleMaps? = nil,
        urlContext: URLContext? = nil,
        codeExecution: CodeExecution? = nil) {
     self.functionDeclarations = functionDeclarations
     self.googleSearch = googleSearch
+    self.googleMaps = googleMaps
     self.urlContext = urlContext
     self.codeExecution = codeExecution
   }
@@ -129,6 +134,23 @@ public struct Tool: Sendable {
   /// - Returns: A `Tool` configured for Google Search.
   public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
     return self.init(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows the model to use Grounding with Google Maps.
+  ///
+  /// Grounding with Google Maps can be used to allow the model to connect to Google Maps to
+  /// access and incorporate up-to-date information from the web into it's responses.
+  ///
+  /// > Important: When using this feature, you are required to comply with the
+  /// "Grounding with Google Maps" usage requirements for your chosen API provider.
+  ///
+  /// - Parameters:
+  ///   - googleMaps: A ``GoogleMaps`` object. The presence of this object in the list
+  ///     of tools enables the model to use Google Maps.
+  ///
+  /// - Returns: A `Tool` configured for Google Maps.
+  public static func googleMaps(_ googleMaps: GoogleMaps = GoogleMaps()) -> Tool {
+    return self.init(googleMaps: googleMaps)
   }
 
   /// Creates a tool that allows you to provide additional context to the models in the form of
@@ -198,9 +220,49 @@ public struct FunctionCallingConfig: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ToolConfig: Sendable {
   let functionCallingConfig: FunctionCallingConfig?
+  let retrievalConfig: RetrievalConfig?
 
-  public init(functionCallingConfig: FunctionCallingConfig? = nil) {
+  public init(functionCallingConfig: FunctionCallingConfig? = nil,
+              retrievalConfig: RetrievalConfig? = nil) {
     self.functionCallingConfig = functionCallingConfig
+    self.retrievalConfig = retrievalConfig
+  }
+}
+
+/// The retrieval config for grounding with Google Maps.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct RetrievalConfig: Sendable, Encodable {
+  /// The location for the search.
+  public let latLng: LatLng
+
+  public init(latLng: LatLng) {
+    self.latLng = latLng
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case latLng = "lat_lng"
+  }
+}
+
+/// An object that represents a latitude/longitude pair.
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct LatLng: Sendable, Encodable {
+  /// The latitude in degrees. It must be in the range [-90.0, +90.0].
+  public let latitude: Double
+  /// The longitude in degrees. It must be in the range [-180.0, +180.0].
+  public let longitude: Double
+
+  public init(latitude: Double, longitude: Double) {
+    precondition(
+      latitude >= -90.0 && latitude <= 90.0,
+      "Latitude must be in the range [-90.0, 90.0]."
+    )
+    precondition(
+      longitude >= -180.0 && longitude <= 180.0,
+      "Longitude must be in the range [-180.0, 180.0]."
+    )
+    self.latitude = latitude
+    self.longitude = longitude
   }
 }
 
@@ -235,4 +297,9 @@ extension FunctionCallingConfig.Mode: Encodable {}
 extension GoogleSearch: Encodable {}
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ToolConfig: Encodable {}
+extension ToolConfig: Encodable {
+  enum CodingKeys: String, CodingKey {
+    case functionCallingConfig
+    case retrievalConfig = "retrieval_config"
+  }
+}
