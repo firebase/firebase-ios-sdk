@@ -15,14 +15,14 @@
 #if compiler(>=6.2)
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension FirebaseAI {
-    protocol ConvertibleFromGeneratedContent {
+    public protocol ConvertibleFromGeneratedContent {
       init(_ content: FirebaseAI.GeneratedContent) throws
     }
   }
 
   @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension String: FirebaseAI.ConvertibleFromGeneratedContent {
-    init(_ content: FirebaseAI.GeneratedContent) throws {
+    public init(_ content: FirebaseAI.GeneratedContent) throws {
       guard case let .string(value) = content.kind else {
         throw GenerativeModelSession.GenerationError.decodingFailure(
           GenerativeModelSession.GenerationError.Context(debugDescription: """
