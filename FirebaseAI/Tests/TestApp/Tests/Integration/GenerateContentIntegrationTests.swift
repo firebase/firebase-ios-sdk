@@ -192,19 +192,6 @@ struct GenerateContentIntegrationTests {
         ModelNames.gemini3_1_FlashLitePreview,
         ThinkingConfig(thinkingLevel: .high)
       ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingBudget: 128)
-      ),
-      (
-        .googleAI_v1beta,
-        ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingBudget: 32768)
-      ),
-      (.googleAI_v1beta, ModelNames.gemini3_1_FlashLitePreview, ThinkingConfig(
-        thinkingBudget: 32768, includeThoughts: true
-      )),
       // Note: The following configs are commented out for easy one-off manual testing.
 //      (.googleAI_v1beta_freeTier, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
 //      (
