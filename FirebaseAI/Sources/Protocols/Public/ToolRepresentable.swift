@@ -12,7 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif
+
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol ToolRepresentable: Sendable {
   var toolRepresentation: FirebaseAILogic.Tool { get }
 }
+
+#if canImport(FoundationModels)
+  @available(iOS 26.0, macOS 26.0, *)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  extension FoundationModels.Tool
+    where Self.Output: FoundationModels.ConvertibleToGeneratedContent {
+    var toolRepresentation: FirebaseAILogic.Tool {
+      return FirebaseAILogic.Tool.autoFunctionDeclaration(self)
+    }
+  }
+#endif // canImport(FoundationModels)

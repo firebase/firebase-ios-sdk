@@ -18,7 +18,7 @@ import Foundation
 /// the context in memory between each message sent.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class Chat: Sendable {
-  private let model: GenerativeModel
+  let model: GenerativeModel
   private let _history: History
 
   init(model: GenerativeModel, history: [ModelContent]) {

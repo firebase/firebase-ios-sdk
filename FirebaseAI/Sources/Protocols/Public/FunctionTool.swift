@@ -37,48 +37,9 @@
     var responseSchema: FirebaseAI.GenerationSchema? { nil }
     var includesSchemaInInstructions: Bool { true }
     var toolRepresentation: FirebaseAILogic.Tool {
-      return FirebaseAILogic.Tool.functionDeclarations([
-        FirebaseAILogic.FunctionDeclaration(
-          name: name,
-          description: description,
-          parametersSchema: parametersSchema,
-          responseSchema: responseSchema
-        ),
-      ])
+      return FirebaseAILogic.Tool.autoFunctionDeclaration(self)
     }
   }
-
-  #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public extension FoundationModels.Tool {
-      var toolRepresentation: FirebaseAILogic.Tool {
-        return FirebaseAILogic.Tool.functionDeclarations([
-          FirebaseAILogic.FunctionDeclaration(
-            name: name,
-            description: description,
-            parametersSchema: FirebaseAI.GenerationSchema(parameters),
-            responseSchema: nil
-          ),
-        ])
-      }
-    }
-  #endif // canImport(FoundationModels)
-
-  #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public extension FoundationModels.Tool where Self: FirebaseAILogic.FunctionTool {
-      // Disambiguates the identical `name` and `includesSchemaInInstructions` properties when a
-      // type conforms to both `FoundationModels.Tool` and `FirebaseAILogic.FunctionTool`.
-      var name: String { (self as (any FoundationModels.Tool)).name }
-      var includesSchemaInInstructions: Bool {
-        (self as (any FoundationModels.Tool)).includesSchemaInInstructions
-      }
-    }
-  #endif // canImport(FoundationModels)
 
   // MARK: - Default `parametersSchema` Implementations
 
@@ -86,34 +47,6 @@
   public extension FunctionTool where Self.Arguments: FirebaseAI.Generable {
     var parametersSchema: FirebaseAI.GenerationSchema { Arguments.firebaseGenerationSchema }
   }
-
-  #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public extension FunctionTool where Self.Arguments: FoundationModels.Generable {
-      // Default implementation for `parametersSchema` if a Firebase AI Logic `FunctionTool`'s
-      // associated type `Arguments` conforms to `Generable`, in which case the type provides a
-      // Foundation Models schema in its `generationSchema` property (i.e., a `FunctionTool` does
-      // not need to provide a `parametersSchema` property manually if its arguments are Generable).
-      var parametersSchema: FirebaseAI.GenerationSchema {
-        FirebaseAI.GenerationSchema(Arguments.generationSchema)
-      }
-    }
-
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public extension FoundationModels.Tool where Self.Arguments: FoundationModels.Generable {
-      // Default implementation for `parametersSchema` if a Foundation Models `Tool`'s associated
-      // type `Arguments` conforms to `Generable`, in which case the type provides a Foundation
-      // Models schema in its `generationSchema` property (i.e., a Foundation Models `Tool` does not
-      // need to provide a `parametersSchema` property manually if its arguments are `Generable`).
-      var parametersSchema: FirebaseAI.GenerationSchema {
-        FirebaseAI.GenerationSchema(Arguments.generationSchema)
-      }
-    }
-  #endif // canImport(FoundationModels)
 
   // MARK: - Default `responseSchema` Implementations
 
@@ -126,18 +59,6 @@
   }
 
   #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public extension FunctionTool where Self.Output: FoundationModels.Generable {
-      // Default implementation for `responseSchema` if a Firebase AI Logic `FunctionTool`'s
-      // associated type `Output` conforms to `FoundationModels.Generable`, in which case the type
-      // provides a Foundation Models schema in its `generationSchema` property.
-      var responseSchema: FirebaseAI.GenerationSchema? {
-        FirebaseAI.GenerationSchema(Output.generationSchema)
-      }
-    }
-
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)

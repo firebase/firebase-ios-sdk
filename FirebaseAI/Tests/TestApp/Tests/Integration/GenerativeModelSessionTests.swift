@@ -237,19 +237,18 @@
         let units: Units
       }
 
-      let testTemperature = Temperature(temperature: 15.0, units: .celsius)
+      let testTemperature = Temperature(temperature: 25.0, units: .celsius)
 
       func call(arguments: Location) async throws -> Temperature {
         return testTemperature
       }
     }
 
-    // TODO: Remove this test after automatic function calling is finished.
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    func respondTextWithManualFunctionCalling(_ config: InstanceConfig) async throws {
+    func respondTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
       let temperatureTool = GetTemperature()
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
         model: ModelNames.gemini3_1_FlashLitePreview,
@@ -268,31 +267,15 @@
 
       let response = try await session.respond(to: prompt)
 
-      #expect(response.rawResponse.functionCalls.count == 1)
-      let temperatureFunctionCall = try #require(response.rawResponse.functionCalls.first)
-      try #require(temperatureFunctionCall.name == temperatureTool.name)
-      #expect(temperatureFunctionCall.args == [
-        "city": .string("Waterloo"),
-        "region": .string("Ontario"),
-        "country": .string("Canada"),
-      ])
-      #expect(temperatureFunctionCall.isThought == false)
-      let thoughtSignature = try #require(temperatureFunctionCall.thoughtSignature)
-      #expect(!thoughtSignature.isEmpty)
-
-      let temperatureFunctionResponse = FunctionResponsePart(
-        name: temperatureFunctionCall.name,
-        response: [
-          "temperature": .number(25.0),
-          "units": .string("Celsius"),
-        ]
-      )
-
-      let response2 = try await session.respond(to: temperatureFunctionResponse)
-
-      #expect(response2.rawResponse.functionCalls.isEmpty)
-      #expect(response2.content.contains("Waterloo"))
-      #expect(response2.content.contains("25"))
+      let content = response.content
+      #expect(!content.isEmpty)
+      #expect(response.content.contains("Waterloo"))
+      #expect(response.content.contains("25"))
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.kind == .string(content))
+      #expect(response.rawContent.generationID != nil)
+      #expect(response.rawResponse.text == content)
+      #expect(response.rawResponse.functionCalls.isEmpty)
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])

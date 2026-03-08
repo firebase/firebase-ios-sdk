@@ -242,14 +242,54 @@
         includeSchemaInPrompt: includeSchemaInPrompt
       )
 
-      let response = try await session.sendMessage(parts, generationConfig: config)
-      // TODO: Handle FunctionCall parts automatically.
-      // guard let text = response.text else {
-      //   throw GenerationError.decodingFailure(
-      //     GenerationError.Context(debugDescription: "No text in response: \(response)")
-      //   )
-      // }
-      let text = response.text ?? ""
+      var response = try await session.sendMessage(parts, generationConfig: config)
+
+      // TODO: Consider moving the automatic function calling handling into `Chat`.
+      let tools = session.model.tools ?? []
+      // TODO: Convert to Dictionary indexed by `name` for fast lookups.
+      let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
+
+      while !response.functionCalls.isEmpty {
+        var functionResponses = [FunctionResponsePart]()
+        for functionCall in response.functionCalls {
+          let tools = session.model.tools ?? []
+          let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
+          let functionDeclaration = functionDeclarations.first { $0.name == functionCall.name }!
+
+          #if canImport(FoundationModels)
+            if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+              if let foundationModelsTool = functionDeclaration
+                .foundationModelsTool as? FoundationModels.Tool {
+                try functionResponses.append(await FunctionDeclaration.call(
+                  tool: foundationModelsTool,
+                  functionCall: functionCall
+                ))
+                continue
+              }
+            }
+          #endif // canImport(FoundationModels)
+
+          if let functionTool = functionDeclaration.functionTool {
+            try functionResponses.append(await FunctionDeclaration.call(
+              tool: functionTool,
+              functionCall: functionCall
+            ))
+          }
+        }
+
+        if !functionResponses.isEmpty {
+          response = try await session.sendMessage(
+            [ModelContent(role: "user", parts: functionResponses)],
+            generationConfig: config
+          )
+        }
+      }
+
+      guard let text = response.text else {
+        throw GenerationError.decodingFailure(
+          GenerationError.Context(debugDescription: "No text in response: \(response)")
+        )
+      }
       let generationID = response.responseID.map {
         #if canImport(FoundationModels)
           if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {

@@ -150,8 +150,10 @@ public final class FirebaseAI: Sendable {
       @available(watchOS, unavailable)
       public func generativeModelSession(model: String, tools: [any FoundationModels.Tool],
                                          instructions: String? = nil) -> GenerativeModelSession {
-        let tools = tools.compactMap { $0.toolRepresentation }
-        return generativeModelSession(model: model, tools: tools, instructions: instructions)
+        let tools = tools.map { FirebaseAILogic.Tool.autoFunctionDeclaration($0) }
+
+        return generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
+                                      instructions: instructions)
       }
     #endif // canImport(FoundationModels)
   #endif // compiler(>=6.2)
