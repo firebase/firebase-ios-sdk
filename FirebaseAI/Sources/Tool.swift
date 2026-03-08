@@ -36,7 +36,11 @@ public struct FunctionDeclaration: Sendable {
 
   let responseJSONSchema: FirebaseAI.GenerationSchema?
 
-  let functionTool: (any FunctionTool)?
+  #if compiler(>=6.2)
+    let functionTool: (any FunctionTool)?
+  #else
+    let functionTool: (any Sendable)?
+  #endif // compiler(>=6.2)
 
   let foundationModelsTool: (any Sendable)?
 
@@ -64,34 +68,36 @@ public struct FunctionDeclaration: Sendable {
     foundationModelsTool = nil
   }
 
-  init(functionTool: any FunctionTool) {
-    name = functionTool.name
-    description = functionTool.description
-    parameters = nil
-    parametersJSONSchema = functionTool.parametersSchema
-    responseJSONSchema = functionTool.responseSchema
-    self.functionTool = functionTool
-    foundationModelsTool = nil
-  }
-
-  #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    init<T: FoundationModels.Tool>(foundationModelsTool: T) {
-      name = foundationModelsTool.name
-      description = foundationModelsTool.description
+  #if compiler(>=6.2)
+    init(functionTool: any FunctionTool) {
+      name = functionTool.name
+      description = functionTool.description
       parameters = nil
-      parametersJSONSchema = FirebaseAI.GenerationSchema(foundationModelsTool.parameters)
-      if let generableOutputMetatype = T.Output.self as? any FoundationModels.Generable.Type {
-        responseJSONSchema = FirebaseAI.GenerationSchema(generableOutputMetatype.generationSchema)
-      } else {
-        responseJSONSchema = nil
-      }
-      functionTool = nil
-      self.foundationModelsTool = foundationModelsTool
+      parametersJSONSchema = functionTool.parametersSchema
+      responseJSONSchema = functionTool.responseSchema
+      self.functionTool = functionTool
+      foundationModelsTool = nil
     }
-  #endif // canImport(FoundationModels)
+
+    #if canImport(FoundationModels)
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      init<T: FoundationModels.Tool>(foundationModelsTool: T) {
+        name = foundationModelsTool.name
+        description = foundationModelsTool.description
+        parameters = nil
+        parametersJSONSchema = FirebaseAI.GenerationSchema(foundationModelsTool.parameters)
+        if let generableOutputMetatype = T.Output.self as? any FoundationModels.Generable.Type {
+          responseJSONSchema = FirebaseAI.GenerationSchema(generableOutputMetatype.generationSchema)
+        } else {
+          responseJSONSchema = nil
+        }
+        functionTool = nil
+        self.foundationModelsTool = foundationModelsTool
+      }
+    #endif // canImport(FoundationModels)
+  #endif // compiler(>=6.2)
 }
 
 /// A tool that allows the generative model to connect to Google Search to access and incorporate
@@ -223,18 +229,20 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
     return self.init(functionDeclarations: functionDeclarations)
   }
 
-  static func autoFunctionDeclaration(_ tool: any FunctionTool) -> Tool {
-    return self.init(functionDeclarations: [FunctionDeclaration(functionTool: tool)])
-  }
-
-  #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    static func autoFunctionDeclaration(_ tool: any FoundationModels.Tool) -> Tool {
-      return self.init(functionDeclarations: [FunctionDeclaration(foundationModelsTool: tool)])
+  #if compiler(>=6.2)
+    static func autoFunctionDeclaration(_ tool: any FunctionTool) -> Tool {
+      return self.init(functionDeclarations: [FunctionDeclaration(functionTool: tool)])
     }
-  #endif // canImport(FoundationModels)
+
+    #if canImport(FoundationModels)
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      static func autoFunctionDeclaration(_ tool: any FoundationModels.Tool) -> Tool {
+        return self.init(functionDeclarations: [FunctionDeclaration(foundationModelsTool: tool)])
+      }
+    #endif // canImport(FoundationModels)
+  #endif // compiler(>=6.2)
 
   /// Creates a tool that allows the model to use Grounding with Google Search.
   ///
@@ -275,59 +283,64 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
 
 // MARK: - Automatic Function Calling Helpers
 
-extension FunctionDeclaration {
-  static func call<T: FunctionTool>(tool: T, functionCall: FunctionCallPart) async throws
-    -> FunctionResponsePart {
-    let arguments = try T.Arguments(functionCall.args.firebaseGeneratedContent)
-    let output = try await tool.call(arguments: arguments)
-    let outputJSONValue = try JSONValue(output.firebaseGeneratedContent)
-
-    return toFunctionResponse(output: outputJSONValue, functionCall: functionCall)
-  }
-
-  static func toFunctionResponse(output: JSONValue,
-                                 functionCall: FunctionCallPart) -> FunctionResponsePart {
-    let outputJSONObject: JSONObject
-    if case let .object(value) = output {
-      outputJSONObject = value
-    } else {
-      outputJSONObject = ["response": output]
-    }
-
-    return FunctionResponsePart(
-      name: functionCall.name,
-      response: outputJSONObject,
-      functionId: functionCall.functionId
-    )
-  }
-}
-
-#if canImport(FoundationModels)
-  @available(iOS 26.0, macOS 26.0, *)
-  @available(tvOS, unavailable)
-  @available(watchOS, unavailable)
+#if compiler(>=6.2)
   extension FunctionDeclaration {
-    static func call<T: FoundationModels.Tool>(tool: T, functionCall: FunctionCallPart) async throws
+    static func call<T: FunctionTool>(tool: T, functionCall: FunctionCallPart) async throws
       -> FunctionResponsePart {
-      let arguments = try T.Arguments(functionCall.args.firebaseGeneratedContent.generatedContent)
+      let arguments = try T.Arguments(functionCall.args.firebaseGeneratedContent)
       let output = try await tool.call(arguments: arguments)
-      assert(output is (any FoundationModels.ConvertibleToGeneratedContent))
-      guard let output = output as? (any FoundationModels.ConvertibleToGeneratedContent) else {
-        // TODO: Throw error instead.
-        fatalError("Tool.Output for '\(tool)' does not conform to `ConvertibleToGeneratedContent`.")
-      }
-      let generatedContent = output.generatedContent
-      let firebaseGeneratedContent = FirebaseAI.GeneratedContent(
-        kind: generatedContent.kind,
-        id: FirebaseAI.GenerationID(responseID: nil, generationID: generatedContent.id),
-        isComplete: generatedContent.isComplete
-      )
-      let outputJSONValue = try JSONValue(firebaseGeneratedContent)
+      let outputJSONValue = try JSONValue(output.firebaseGeneratedContent)
 
       return toFunctionResponse(output: outputJSONValue, functionCall: functionCall)
     }
+
+    static func toFunctionResponse(output: JSONValue,
+                                   functionCall: FunctionCallPart) -> FunctionResponsePart {
+      let outputJSONObject: JSONObject
+      if case let .object(value) = output {
+        outputJSONObject = value
+      } else {
+        outputJSONObject = ["response": output]
+      }
+
+      return FunctionResponsePart(
+        name: functionCall.name,
+        response: outputJSONObject,
+        functionId: functionCall.functionId
+      )
+    }
   }
-#endif // canImport(FoundationModels)
+
+  #if canImport(FoundationModels)
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    extension FunctionDeclaration {
+      static func call<T: FoundationModels.Tool>(tool: T,
+                                                 functionCall: FunctionCallPart) async throws
+        -> FunctionResponsePart {
+        let arguments = try T.Arguments(functionCall.args.firebaseGeneratedContent.generatedContent)
+        let output = try await tool.call(arguments: arguments)
+        assert(output is (any FoundationModels.ConvertibleToGeneratedContent))
+        guard let output = output as? (any FoundationModels.ConvertibleToGeneratedContent) else {
+          // TODO: Throw error instead.
+          fatalError(
+            "Tool.Output for '\(tool)' does not conform to `ConvertibleToGeneratedContent`."
+          )
+        }
+        let generatedContent = output.generatedContent
+        let firebaseGeneratedContent = FirebaseAI.GeneratedContent(
+          kind: generatedContent.kind,
+          id: FirebaseAI.GenerationID(responseID: nil, generationID: generatedContent.id),
+          isComplete: generatedContent.isComplete
+        )
+        let outputJSONValue = try JSONValue(firebaseGeneratedContent)
+
+        return toFunctionResponse(output: outputJSONValue, functionCall: functionCall)
+      }
+    }
+  #endif // canImport(FoundationModels)
+#endif // compiler(>=6.2)
 
 // MARK: - Codable Conformance
 
