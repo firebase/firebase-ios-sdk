@@ -223,7 +223,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
     return self.init(functionDeclarations: functionDeclarations)
   }
 
-  static func autoFunctionDeclaration(_ tool: FunctionTool) -> Tool {
+  static func autoFunctionDeclaration(_ tool: any FunctionTool) -> Tool {
     return self.init(functionDeclarations: [FunctionDeclaration(functionTool: tool)])
   }
 
@@ -231,7 +231,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
-    static func autoFunctionDeclaration(_ tool: FoundationModels.Tool) -> Tool {
+    static func autoFunctionDeclaration(_ tool: any FoundationModels.Tool) -> Tool {
       return self.init(functionDeclarations: [FunctionDeclaration(foundationModelsTool: tool)])
     }
   #endif // canImport(FoundationModels)

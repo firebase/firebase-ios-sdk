@@ -252,14 +252,17 @@
       while !response.functionCalls.isEmpty {
         var functionResponses = [FunctionResponsePart]()
         for functionCall in response.functionCalls {
-          let tools = session.model.tools ?? []
-          let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
-          let functionDeclaration = functionDeclarations.first { $0.name == functionCall.name }!
+          guard let functionDeclaration = functionDeclarations.first(
+            where: { $0.name == functionCall.name }
+          ) else {
+            // TODO: Throw an error instead.
+            fatalError("No function named '\(functionCall.name) was declared.")
+          }
 
           #if canImport(FoundationModels)
             if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
               if let foundationModelsTool = functionDeclaration
-                .foundationModelsTool as? FoundationModels.Tool {
+                .foundationModelsTool as? (any FoundationModels.Tool) {
                 try functionResponses.append(await FunctionDeclaration.call(
                   tool: foundationModelsTool,
                   functionCall: functionCall
