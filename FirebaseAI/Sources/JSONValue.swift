@@ -99,3 +99,66 @@ extension JSONValue: Encodable {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension JSONValue: Equatable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONValue {
+  var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+    switch self {
+    case .null:
+      return FirebaseAI.GeneratedContent(kind: .null, isComplete: true)
+    case let .number(value):
+      return FirebaseAI.GeneratedContent(kind: .number(value), isComplete: true)
+    case let .string(value):
+      return value.firebaseGeneratedContent
+    case let .bool(value):
+      return FirebaseAI.GeneratedContent(kind: .bool(value), isComplete: true)
+    case let .object(value):
+      return value.firebaseGeneratedContent
+    case let .array(value):
+      return value.firebaseGeneratedContent
+    }
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONObject {
+  var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+    return FirebaseAI.GeneratedContent(
+      kind: .structure(
+        properties: mapValues { $0.firebaseGeneratedContent },
+        orderedKeys: keys.map { $0 }
+      ),
+      isComplete: true
+    )
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension [JSONValue] {
+  var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+    return FirebaseAI.GeneratedContent(
+      kind: .array(map { $0.firebaseGeneratedContent }),
+      isComplete: true
+    )
+  }
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension JSONValue {
+  init(_ content: FirebaseAI.GeneratedContent) throws {
+    switch content.kind {
+    case .null:
+      self = .null
+    case let .bool(value):
+      self = .bool(value)
+    case let .number(value):
+      self = .number(value)
+    case let .string(value):
+      self = .string(value)
+    case let .array(values):
+      self = try .array(values.map { try JSONValue($0) })
+    case let .structure(properties: properties, orderedKeys: _):
+      self = try .object(properties.mapValues { try JSONValue($0) })
+    }
+  }
+}
