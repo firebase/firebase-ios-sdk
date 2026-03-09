@@ -279,6 +279,38 @@
     }
 
     @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
+    @available(iOS 26.0, macOS 26.0, *)
+    @available(tvOS, unavailable)
+    @available(watchOS, unavailable)
+    func respondGenerableWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
+      let temperatureTool = GetTemperature()
+      let session = FirebaseAI.componentInstance(config).generativeModelSession(
+        model: ModelNames.gemini3_1_FlashLitePreview,
+        tools: [temperatureTool],
+        instructions: """
+        You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
+        
+        Always use the `GetTemperature` function to determine the current temperature in a location.
+        
+        Return the final response as JSON.
+        """
+      )
+      let prompt = "What is the current temperature in Waterloo, Ontario, Canada?"
+
+      let response = try await session.respond(
+        to: prompt,
+        generating: GetTemperature.Temperature.self
+      )
+
+      let content = response.content
+      #expect(content.temperature == 25)
+      #expect(content.units == .celsius)
+      #expect(response.rawContent.isComplete)
+      #expect(response.rawContent.generationID != nil)
+      #expect(response.rawResponse.functionCalls.isEmpty)
+    }
+
+    @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
     func respondTextWithURLContext(_ config: InstanceConfig) async throws {
       let session = FirebaseAI.componentInstance(config).generativeModelSession(
         model: ModelNames.gemini2_5_Flash,
