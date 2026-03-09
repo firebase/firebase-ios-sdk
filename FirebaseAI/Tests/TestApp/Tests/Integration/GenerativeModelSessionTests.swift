@@ -488,6 +488,62 @@
         #expect(catProfile.age <= 20)
         #expect(!catProfile.profile.isEmpty)
       }
+
+      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      func streamResponseTextWithAutomaticFunctionCalling(_ config: InstanceConfig) async throws {
+        let temperatureTool = GetTemperature()
+        let session = FirebaseAI.componentInstance(config).generativeModelSession(
+          model: ModelNames.gemini3_1_FlashLitePreview,
+          tools: [temperatureTool],
+          instructions: """
+          You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
+
+          Always use the `GetTemperature` function to determine the location's current temperature.
+
+          Always respond in the format:
+          - Location: City, Province/State, Country
+          - Temperature: #C
+          """
+        )
+        let prompt = "What is the current temperature in Waterloo, Ontario, Canada?"
+
+        let stream = session.streamResponse(to: prompt)
+
+        var generationID: FirebaseAI.GenerationID?
+        var isComplete = false
+        for try await snapshot in stream {
+          #expect(!isComplete, "Stream yielded more elements after a snapshot was marked complete.")
+          // TODO: Stop yielding snapshots when there is no content (function calling in progress)
+          // let partial = snapshot.content
+          // #expect(!partial.isEmpty)
+          if let generationID {
+            #expect(
+              generationID == snapshot.rawContent.generationID,
+              "The generation ID was not stable for the duration of the response."
+            )
+          } else {
+            #expect(snapshot.rawContent.generationID != nil)
+            generationID = snapshot.rawContent.generationID
+          }
+          isComplete = snapshot.rawContent.isComplete
+        }
+        #expect(
+          isComplete, "The stream finished, but the final snapshot was not marked as complete."
+        )
+
+        let response = try await stream.collect()
+        let content = response.content
+        #expect(!content.isEmpty)
+        #expect(response.content.contains("Waterloo"))
+        #expect(response.content.contains("25"))
+        #expect(response.rawContent.isComplete, "The final response was not marked as complete.")
+        #expect(response.rawContent.kind == .string(content))
+        #expect(response.rawContent.generationID == generationID)
+        #expect(response.rawResponse.functionCalls.isEmpty)
+      }
     #endif // canImport(FoundationModels)
   }
 #endif // compiler(>=6.2)
