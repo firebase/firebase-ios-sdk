@@ -284,6 +284,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
 // MARK: - Automatic Function Calling Helpers
 
 #if compiler(>=6.2)
+  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension FunctionDeclaration {
     static func call<T: FunctionTool>(tool: T, functionCall: FunctionCallPart) async throws
       -> FunctionResponsePart {
