@@ -301,7 +301,7 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
       if case let .object(value) = output {
         outputJSONObject = value
       } else {
-        outputJSONObject = ["response": output]
+        outputJSONObject = ["result": output]
       }
 
       return FunctionResponsePart(

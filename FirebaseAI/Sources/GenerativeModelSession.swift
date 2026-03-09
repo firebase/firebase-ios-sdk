@@ -249,7 +249,7 @@
       // TODO: Convert to Dictionary indexed by `name` for fast lookups.
       let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
 
-      while !response.functionCalls.isEmpty {
+      functionCallingLoop: while !response.functionCalls.isEmpty {
         var functionResponses = [FunctionResponsePart]()
         for functionCall in response.functionCalls {
           guard let functionDeclaration = functionDeclarations.first(
@@ -277,7 +277,10 @@
               tool: functionTool,
               functionCall: functionCall
             ))
+            continue
           }
+            
+          break functionCallingLoop
         }
 
         if !functionResponses.isEmpty {
@@ -288,9 +291,14 @@
         }
       }
 
-      guard let text = response.text else {
+      let text: String
+      if let responseText = response.text {
+        text = responseText
+      } else if let parts = response.candidates.first?.content.parts, !parts.isEmpty {
+        text = ""
+      } else {
         throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "No text in response: \(response)")
+          GenerationError.Context(debugDescription: "No parts in response: \(response)")
         )
       }
       let generationID = response.responseID.map {
