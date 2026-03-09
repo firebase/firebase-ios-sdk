@@ -289,9 +289,9 @@
         tools: [temperatureTool],
         instructions: """
         You are a weather bot that specializes in reporting outdoor temperatures in Celsius.
-        
+
         Always use the `GetTemperature` function to determine the current temperature in a location.
-        
+
         Return the final response as JSON.
         """
       )
