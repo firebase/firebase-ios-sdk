@@ -489,7 +489,7 @@
         #expect(!catProfile.profile.isEmpty)
       }
 
-      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global])
+      @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
       @available(iOS 26.0, macOS 26.0, *)
       @available(tvOS, unavailable)
       @available(watchOS, unavailable)
@@ -516,9 +516,8 @@
         var isComplete = false
         for try await snapshot in stream {
           #expect(!isComplete, "Stream yielded more elements after a snapshot was marked complete.")
-          // TODO: Stop yielding snapshots when there is no content (function calling in progress)
-          // let partial = snapshot.content
-          // #expect(!partial.isEmpty)
+          let partial = snapshot.content
+          #expect(!partial.isEmpty)
           if let generationID {
             #expect(
               generationID == snapshot.rawContent.generationID,

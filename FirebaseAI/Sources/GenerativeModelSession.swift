@@ -374,7 +374,7 @@
               }
 
               // 2. If we have pending data, we now know it wasn't the last chunk.
-              if let pending = pendingChunkData {
+              if let pending = pendingChunkData, !pending.text.isEmpty {
                 let rawContent = try Self.makeRawContent(
                   from: pending.text,
                   generationID: pending.id,
