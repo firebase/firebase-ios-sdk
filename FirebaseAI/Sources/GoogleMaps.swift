@@ -31,5 +31,11 @@ public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable, Decodable
   /// The title of the retrieved map data.
   public let title: String
   /// The Place ID of the retrieved map data.
-  public let placeId: String
+  public let placeID: String
+
+  enum CodingKeys: String, CodingKey {
+    case uri
+    case title
+    case placeID = "placeId"
+  }
 }

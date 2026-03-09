@@ -40,7 +40,7 @@ struct MapsGroundingIntegrationTests {
     for mapsChunk in mapChunks {
       #expect(!mapsChunk.uri.isEmpty)
       #expect(!mapsChunk.title.isEmpty)
-      #expect(!mapsChunk.placeId.isEmpty)
+      #expect(!mapsChunk.placeID.isEmpty)
     }
   }
 
@@ -72,7 +72,7 @@ struct MapsGroundingIntegrationTests {
     for mapsChunk in mapChunks {
       #expect(!mapsChunk.uri.isEmpty)
       #expect(!mapsChunk.title.isEmpty)
-      #expect(!mapsChunk.placeId.isEmpty)
+      #expect(!mapsChunk.placeID.isEmpty)
     }
   }
 }
