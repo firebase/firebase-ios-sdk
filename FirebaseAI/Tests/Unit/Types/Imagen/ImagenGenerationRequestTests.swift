@@ -23,6 +23,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   let modelName = "test-model-name"
   let sampleCount = 4
   let aspectRatio = "16:9"
+  let imageSize = "1K"
   let safetyFilterLevel = "block_low_and_above"
   let includeResponsibleAIFilterReason = true
   let includeSafetyAttributes = true
@@ -31,6 +32,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     storageURI: nil,
     negativePrompt: nil,
     aspectRatio: aspectRatio,
+    sampleImageSize: imageSize,
     safetyFilterLevel: safetyFilterLevel,
     personGeneration: nil,
     outputOptions: nil,
@@ -112,7 +114,8 @@ final class ImagenGenerationRequestTests: XCTestCase {
         "includeRaiReason" : \(includeResponsibleAIFilterReason),
         "includeSafetyAttributes" : \(includeSafetyAttributes),
         "safetySetting" : "\(safetyFilterLevel)",
-        "sampleCount" : \(sampleCount)
+        "sampleCount" : \(sampleCount),
+        "sampleImageSize" : "\(imageSize)"
       }
     }
     """)
@@ -142,7 +145,8 @@ final class ImagenGenerationRequestTests: XCTestCase {
         "includeRaiReason" : \(includeResponsibleAIFilterReason),
         "includeSafetyAttributes" : \(includeSafetyAttributes),
         "safetySetting" : "\(safetyFilterLevel)",
-        "sampleCount" : \(sampleCount)
+        "sampleCount" : \(sampleCount),
+        "sampleImageSize" : "\(imageSize)"
       }
     }
     """)
