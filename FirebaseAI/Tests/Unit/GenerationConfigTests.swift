@@ -329,7 +329,7 @@ final class GenerationConfigTests: XCTestCase {
     let result = GenerationConfig.merge(base, with: overrides)
 
     XCTAssertNil(result?.responseSchema)
-    XCTAssertNotNil(result?.responseJSONSchema)
+    XCTAssertEqual(result?.responseJSONSchema, ["type": .string("string")])
     XCTAssertEqual(result?.responseMIMEType, "application/json")
   }
 
