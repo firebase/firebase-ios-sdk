@@ -1,4 +1,4 @@
-# Unreleased
+# 12.11.0
 - [changed] Minor refactor to avoid using an absl internal function. (#15889)
 
 # 12.10.0
