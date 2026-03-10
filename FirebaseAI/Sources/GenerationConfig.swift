@@ -240,7 +240,7 @@ public struct GenerationConfig: Sendable {
     config.responseModalities = overrideConfig.responseModalities ?? config.responseModalities
     config.thinkingConfig = overrideConfig.thinkingConfig ?? config.thinkingConfig
 
-    // 5. Handle Schema mutual exclusivity with precedence for `responseFirebaseGenerationSchema`.
+    // 5. Handle Schema mutual exclusivity with precedence for `responseJSONSchema`.
     if let responseJSONSchema = overrideConfig.responseJSONSchema {
       config.responseJSONSchema = responseJSONSchema
       config.responseSchema = nil
