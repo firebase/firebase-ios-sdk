@@ -259,25 +259,31 @@
             fatalError("No function named '\(functionCall.name) was declared.")
           }
 
-          #if canImport(FoundationModels)
-            if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-              if let foundationModelsTool = functionDeclaration
-                .foundationModelsTool as? (any FoundationModels.Tool) {
+          switch functionDeclaration.kind {
+          case .manual:
+            break functionCallingLoop
+          case let .automatic(tool):
+            try functionResponses.append(await FunctionDeclaration.call(
+              tool: tool,
+              functionCall: functionCall
+            ))
+            continue
+          case let .foundationModels(tool):
+            #if canImport(FoundationModels)
+              if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+                guard let tool = tool as? (any FoundationModels.Tool) else {
+                  // TODO: Throw an error instead.
+                  fatalError("AFM Tool specified but type is not an AFM Tool.")
+                }
                 try functionResponses.append(await FunctionDeclaration.call(
-                  tool: foundationModelsTool,
+                  tool: tool,
                   functionCall: functionCall
                 ))
                 continue
               }
-            }
-          #endif // canImport(FoundationModels)
-
-          if let functionTool = functionDeclaration.functionTool {
-            try functionResponses.append(await FunctionDeclaration.call(
-              tool: functionTool,
-              functionCall: functionCall
-            ))
-            continue
+            #else
+              break functionCallingLoop
+            #endif // canImport(FoundationModels)
           }
 
           break functionCallingLoop
@@ -419,25 +425,31 @@
                   break functionCallingLoop
                 }
 
-                #if canImport(FoundationModels)
-                  if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-                    if let foundationModelsTool = functionDeclaration
-                      .foundationModelsTool as? (any FoundationModels.Tool) {
+                switch functionDeclaration.kind {
+                case .manual:
+                  break functionCallingLoop
+                case let .automatic(tool):
+                  try functionResponses.append(await FunctionDeclaration.call(
+                    tool: tool,
+                    functionCall: functionCall
+                  ))
+                  continue
+                case let .foundationModels(tool):
+                  #if canImport(FoundationModels)
+                    if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+                      guard let tool = tool as? (any FoundationModels.Tool) else {
+                        // TODO: Throw an error instead.
+                        fatalError("AFM Tool specified but type is not an AFM Tool.")
+                      }
                       try functionResponses.append(await FunctionDeclaration.call(
-                        tool: foundationModelsTool,
+                        tool: tool,
                         functionCall: functionCall
                       ))
                       continue
                     }
-                  }
-                #endif // canImport(FoundationModels)
-
-                if let functionTool = functionDeclaration.functionTool {
-                  try functionResponses.append(await FunctionDeclaration.call(
-                    tool: functionTool,
-                    functionCall: functionCall
-                  ))
-                  continue
+                  #else
+                    break functionCallingLoop
+                  #endif // canImport(FoundationModels)
                 }
 
                 break functionCallingLoop

@@ -23,6 +23,16 @@ import Foundation
 /// by the model and executed by the client.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionDeclaration: Sendable {
+  #if compiler(<6.2)
+    typealias FunctionTool = Sendable
+  #endif // compiler(>=6.2)
+
+  enum Kind {
+    case manual
+    case automatic(any FunctionTool)
+    case foundationModels(any Sendable)
+  }
+
   /// The name of the function.
   let name: String
 
@@ -36,13 +46,7 @@ public struct FunctionDeclaration: Sendable {
 
   let responseJSONSchema: FirebaseAI.GenerationSchema?
 
-  #if compiler(>=6.2)
-    let functionTool: (any FunctionTool)?
-  #else
-    let functionTool: (any Sendable)?
-  #endif // compiler(>=6.2)
-
-  let foundationModelsTool: (any Sendable)?
+  let kind: Kind
 
   /// Constructs a new `FunctionDeclaration`.
   ///
@@ -64,8 +68,7 @@ public struct FunctionDeclaration: Sendable {
     )
     parametersJSONSchema = nil
     responseJSONSchema = nil
-    functionTool = nil
-    foundationModelsTool = nil
+    kind = .manual
   }
 
   #if compiler(>=6.2)
@@ -75,8 +78,7 @@ public struct FunctionDeclaration: Sendable {
       parameters = nil
       parametersJSONSchema = functionTool.parametersSchema
       responseJSONSchema = functionTool.responseSchema
-      self.functionTool = functionTool
-      foundationModelsTool = nil
+      kind = .automatic(functionTool)
     }
 
     #if canImport(FoundationModels)
@@ -93,8 +95,7 @@ public struct FunctionDeclaration: Sendable {
         } else {
           responseJSONSchema = nil
         }
-        functionTool = nil
-        self.foundationModelsTool = foundationModelsTool
+        kind = .foundationModels(foundationModelsTool)
       }
     #endif // canImport(FoundationModels)
   #endif // compiler(>=6.2)
