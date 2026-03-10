@@ -1,4 +1,4 @@
-# 12.10.0
+# 12.11.0
 - [feature] **Public Preview**: Introduces `GenerativeModelSession` providing
   APIs for generating structured data from Gemini via the same `@Generable` and
   `@Guide` macros that are used with Foundation Models.
