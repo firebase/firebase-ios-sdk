@@ -33,6 +33,7 @@ public struct ImageConfig: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ImageConfig {
   struct AspectRatio: Sendable {
+    /// An aspect ratio for generated images.
     /// Square (1:1) aspect ratio.
     ///
     /// Common uses for this aspect ratio include social media posts.
@@ -74,32 +75,28 @@ public extension ImageConfig {
     /// 512px (0.5K) image size.
     ///
     /// This corresponds to 512x512 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
-    /// ratio. See the [documentation
-    /// ](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+    /// ratio. See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
     /// for specific sizes in other aspect ratios.
     public static let size512 = ImageSize(kind: .size512)
 
     /// 1K image size.
     ///
     /// This corresponds to 1024x1024 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
-    /// ratio. See the [documentation
-    /// ](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+    /// ratio. See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
     /// for specific sizes in other aspect ratios.
     public static let size1K = ImageSize(kind: .size1K)
 
     /// 2K image size.
     ///
     /// This corresponds to 2048x2048 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
-    /// ratio. See the [documentation
-    /// ](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+    /// ratio. See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
     /// for specific sizes in other aspect ratios.
     public static let size2K = ImageSize(kind: .size2K)
 
     /// 4K image size.
     ///
     /// This corresponds to 4096x4096 pixel images in a ``ImageConfig/AspectRatio/square1x1`` aspect
-    /// ratio. See the [documentation
-    /// ](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+    /// ratio. See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
     /// for specific sizes in other aspect ratios.
     public static let size4K = ImageSize(kind: .size4K)
 
