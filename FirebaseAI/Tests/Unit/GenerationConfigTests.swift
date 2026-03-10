@@ -280,19 +280,63 @@ final class GenerationConfigTests: XCTestCase {
   }
 
   func testMerge_baseNil() throws {
-    let overrides = GenerationConfig(temperature: 0.5)
+    let thinkingConfig = ThinkingConfig(thinkingLevel: .high, includeThoughts: true)
+    let overrides = GenerationConfig(
+      temperature: 0.5,
+      topK: 10,
+      candidateCount: 2,
+      maxOutputTokens: 2048,
+      presencePenalty: 0.3,
+      frequencyPenalty: 0.2,
+      stopSequences: ["stop"],
+      responseMIMEType: "application/json",
+      responseModalities: [.text],
+      thinkingConfig: thinkingConfig
+    )
 
     let result = try XCTUnwrap(GenerationConfig.merge(nil, with: overrides))
 
     XCTAssertEqual(result.temperature, 0.5)
+    XCTAssertNil(result.topP)
+    XCTAssertEqual(result.topK, 10)
+    XCTAssertEqual(result.candidateCount, 2)
+    XCTAssertEqual(result.maxOutputTokens, 2048)
+    XCTAssertEqual(result.presencePenalty, 0.3)
+    XCTAssertEqual(result.frequencyPenalty, 0.2)
+    XCTAssertEqual(result.stopSequences, ["stop"])
+    XCTAssertEqual(result.responseMIMEType, "application/json")
+    XCTAssertEqual(result.responseModalities, [.text])
+    XCTAssertEqual(result.thinkingConfig, thinkingConfig)
   }
 
   func testMerge_overridesNil() throws {
-    let base = GenerationConfig(temperature: 0.5)
+    let thinkingConfig = ThinkingConfig(thinkingLevel: .minimal, includeThoughts: false)
+    let overrides = GenerationConfig(
+      temperature: 0.9,
+      topP: 0.95,
+      topK: 5,
+      candidateCount: 4,
+      maxOutputTokens: 1024,
+      presencePenalty: 0.5,
+      frequencyPenalty: 0.1,
+      stopSequences: ["test"],
+      responseModalities: [.image],
+      thinkingConfig: thinkingConfig
+    )
 
-    let result = try XCTUnwrap(GenerationConfig.merge(base, with: nil))
+    let result = try XCTUnwrap(GenerationConfig.merge(nil, with: overrides))
 
-    XCTAssertEqual(result.temperature, 0.5)
+    XCTAssertEqual(result.temperature, 0.9)
+    XCTAssertEqual(result.topP, 0.95)
+    XCTAssertEqual(result.topK, 5)
+    XCTAssertEqual(result.candidateCount, 4)
+    XCTAssertEqual(result.maxOutputTokens, 1024)
+    XCTAssertEqual(result.presencePenalty, 0.5)
+    XCTAssertEqual(result.frequencyPenalty, 0.1)
+    XCTAssertEqual(result.stopSequences, ["test"])
+    XCTAssertNil(result.responseMIMEType)
+    XCTAssertEqual(result.responseModalities, [.image])
+    XCTAssertEqual(result.thinkingConfig, thinkingConfig)
   }
 
   func testMerge_mergesProperties() throws {
