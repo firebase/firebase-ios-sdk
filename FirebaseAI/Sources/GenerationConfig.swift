@@ -59,7 +59,7 @@ public struct GenerationConfig: Sendable {
   /// Configuration for controlling the "thinking" behavior of compatible Gemini models.
   var thinkingConfig: ThinkingConfig?
 
-  /// Configure the aspect ratio and size of generated images.
+  /// Configuration for the aspect ratio and size of generated images.
   var imageConfig: ImageConfig?
 
   /// Creates a new `GenerationConfig` value.

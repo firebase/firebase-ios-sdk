@@ -12,17 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Configuration for controlling generated image properties such as aspect ratio and image size.
+/// Configuration options for generating images with Gemini models.
+///
+/// See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+/// to learn about parameters available for use with Gemini image models.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImageConfig: Sendable {
-  let aspectRatio: AspectRatio?
-  let imageSize: ImageSize?
+  /// The aspect ratio of generated images.
+  public let aspectRatio: AspectRatio?
 
-  /// Initializes an `ImageConfig` with the given aspect ratio and image size.
+  /// The size of the generated images.
+  public let imageSize: ImageSize?
+
+  /// Initializes configuration options for generating images with Gemini.
   ///
   /// - Parameters:
-  ///   - aspectRatio: The aspect ratio for generated images.
-  ///   - imageSize: The size for generated images.
+  ///   - aspectRatio: The aspect ratio of generated images.
+  ///   - imageSize: The size of the generated images.
   public init(aspectRatio: AspectRatio? = nil, imageSize: ImageSize? = nil) {
     self.aspectRatio = aspectRatio
     self.imageSize = imageSize
@@ -33,7 +39,6 @@ public struct ImageConfig: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ImageConfig {
   struct AspectRatio: Sendable {
-    /// An aspect ratio for generated images.
     /// Square (1:1) aspect ratio.
     ///
     /// Common uses for this aspect ratio include social media posts.
@@ -66,6 +71,33 @@ public extension ImageConfig {
     /// (non-widescreen) TVs and medium format cameras. It captures more of the scene horizontally
     /// (compared to ``square1x1``), making it a preferred aspect ratio for photography.
     public static let landscape4x3 = AspectRatio(kind: .landscape4x3)
+
+    /// Portrait (2:3) aspect ratio.
+    public static let portrait2x3 = AspectRatio(kind: .portrait2x3)
+
+    /// Landscape (3:2) aspect ratio.
+    public static let landscape3x2 = AspectRatio(kind: .landscape3x2)
+
+    /// Portrait (4:5) aspect ratio.
+    public static let portrait4x5 = AspectRatio(kind: .portrait4x5)
+
+    /// Landscape (5:4) aspect ratio.
+    public static let landscape5x4 = AspectRatio(kind: .landscape5x4)
+
+    /// Portrait (1:4) aspect ratio.
+    public static let portrait1x4 = AspectRatio(kind: .portrait1x4)
+
+    /// Landscape (4:1) aspect ratio.
+    public static let landscape4x1 = AspectRatio(kind: .landscape4x1)
+
+    /// Portrait (1:8) aspect ratio.
+    public static let portrait1x8 = AspectRatio(kind: .portrait1x8)
+
+    /// Landscape (8:1) aspect ratio.
+    public static let landscape8x1 = AspectRatio(kind: .landscape8x1)
+
+    /// Ultrawide (21:9) aspect ratio.
+    public static let ultrawide21x9 = AspectRatio(kind: .ultrawide21x9)
 
     let rawValue: String
   }
@@ -112,6 +144,15 @@ extension ImageConfig.AspectRatio: ProtoEnum {
     case landscape16x9 = "16:9"
     case portrait3x4 = "3:4"
     case landscape4x3 = "4:3"
+    case portrait2x3 = "2:3"
+    case landscape3x2 = "3:2"
+    case portrait4x5 = "4:5"
+    case landscape5x4 = "5:4"
+    case portrait1x4 = "1:4"
+    case landscape4x1 = "4:1"
+    case portrait1x8 = "1:8"
+    case landscape8x1 = "8:1"
+    case ultrawide21x9 = "21:9"
   }
 }
 
