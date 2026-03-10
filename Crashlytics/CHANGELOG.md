@@ -1,4 +1,4 @@
-# Unreleased
+# 12.11.0
 - [fixed] Fixed an issue where Crashlytics API calls were silently dropped if invoked immediately after Firebase initialization.
 
 # 12.10.0
