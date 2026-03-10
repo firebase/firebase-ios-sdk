@@ -43,7 +43,9 @@ public struct ImagenGenerationConfig {
   /// ``ImagenAspectRatio`` for more details.
   public var aspectRatio: ImagenAspectRatio?
 
-  // TODO: Add docs
+  /// The size of the generated images.
+  ///
+  /// See ``ImagenImageSize`` for more details.
   public var imageSize: ImagenImageSize?
 
   /// The image format of generated images.
