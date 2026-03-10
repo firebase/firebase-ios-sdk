@@ -270,4 +270,79 @@ final class GenerationConfigTests: XCTestCase {
       """)
     }
   }
+
+  // MARK: GenerationConfig Merging
+
+  func testMerge_bothNil() {
+    let result = GenerationConfig.merge(nil, with: nil)
+
+    XCTAssertNil(result)
+  }
+
+  func testMerge_baseNil() {
+    let overrides = GenerationConfig(temperature: 0.5)
+
+    let result = GenerationConfig.merge(nil, with: overrides)
+
+    XCTAssertEqual(result?.temperature, 0.5)
+  }
+
+  func testMerge_overridesNil() {
+    let base = GenerationConfig(temperature: 0.5)
+
+    let result = GenerationConfig.merge(base, with: nil)
+
+    XCTAssertEqual(result?.temperature, 0.5)
+  }
+
+  func testMerge_mergesProperties() {
+    let base = GenerationConfig(
+      temperature: 0.5,
+      topK: 10,
+      candidateCount: 1,
+      responseMIMEType: "text/plain"
+    )
+    let overrides = GenerationConfig(
+      temperature: 0.8,
+      topP: 0.9,
+      responseMIMEType: "application/json",
+      thinkingConfig: ThinkingConfig(thinkingBudget: 1024)
+    )
+
+    let result = GenerationConfig.merge(base, with: overrides)
+
+    XCTAssertEqual(result?.temperature, 0.8)
+    XCTAssertEqual(result?.topK, 10)
+    XCTAssertEqual(result?.candidateCount, 1)
+    XCTAssertEqual(result?.topP, 0.9)
+    XCTAssertEqual(result?.responseMIMEType, "application/json")
+    XCTAssertEqual(result?.thinkingConfig?.thinkingBudget, 1024)
+  }
+
+  func testMerge_schemaPrecedence_overridesJSONSchema() {
+    let base = GenerationConfig(responseSchema: .string())
+    let overrides = GenerationConfig(
+      responseMIMEType: "application/json",
+      responseJSONSchema: ["type": .string("string")]
+    )
+
+    let result = GenerationConfig.merge(base, with: overrides)
+
+    XCTAssertNil(result?.responseSchema)
+    XCTAssertNotNil(result?.responseJSONSchema)
+    XCTAssertEqual(result?.responseMIMEType, "application/json")
+  }
+
+  func testMerge_schemaPrecedence_overridesSchema() {
+    let base = GenerationConfig(
+      responseMIMEType: "application/json",
+      responseJSONSchema: ["type": .string("string")]
+    )
+    let overrides = GenerationConfig(responseSchema: .string())
+
+    let result = GenerationConfig.merge(base, with: overrides)
+
+    XCTAssertNotNil(result?.responseSchema)
+    XCTAssertNil(result?.responseJSONSchema)
+  }
 }
