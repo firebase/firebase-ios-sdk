@@ -31,6 +31,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     storageURI: nil,
     negativePrompt: nil,
     aspectRatio: aspectRatio,
+    sampleImageSize: nil,
     safetyFilterLevel: safetyFilterLevel,
     personGeneration: nil,
     outputOptions: nil,
