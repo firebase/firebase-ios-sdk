@@ -70,11 +70,12 @@ public struct ImagenGenerationConfig {
   ///     See ``numberOfImages``.
   ///   - aspectRatio: The aspect ratio of generated images; defaults to to square, 1:1. See
   ///     ``aspectRatio``.
+  ///   - imageSize: The size of the generated images. See ``imageSize``,
   ///   - imageFormat: The image format of generated images; defaults to PNG. See ``imageFormat``.
   ///   - addWatermark: Whether to add an invisible watermark to generated images; the default value
   ///     depends on the model. See ``addWatermark``.
   public init(negativePrompt: String? = nil, numberOfImages: Int? = nil,
-              aspectRatio: ImagenAspectRatio? = nil, imageSize: ImagenImageSize?,
+              aspectRatio: ImagenAspectRatio? = nil, imageSize: ImagenImageSize? = nil,
               imageFormat: ImagenImageFormat? = nil, addWatermark: Bool? = nil) {
     self.negativePrompt = negativePrompt
     self.numberOfImages = numberOfImages
