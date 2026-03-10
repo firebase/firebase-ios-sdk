@@ -46,7 +46,7 @@ public extension ImageConfig {
 
     /// Portrait widescreen (9:16) aspect ratio.
     ///
-    /// This is the ``landscape16x9`` aspect ratio rotated 90 degrees. This a relatively new aspect
+    /// This is the ``landscape16x9`` aspect ratio rotated 90 degrees. This is a relatively new aspect
     /// ratio that has been popularized by short form video apps (for example, YouTube shorts). Use
     /// this for tall objects with strong vertical orientations such as buildings, trees,
     /// waterfalls, or other similar objects.
@@ -61,7 +61,7 @@ public extension ImageConfig {
 
     /// Portrait full screen (3:4) aspect ratio.
     ///
-    /// This is the ``landscape4x3`` aspect ratio rotated 90 degrees. This lets to capture more of
+    /// This is the ``landscape4x3`` aspect ratio rotated 90 degrees. This allows you to capture more of
     /// the scene vertically compared to the ``square1x1`` aspect ratio.
     public static let portrait3x4 = AspectRatio(kind: .portrait3x4)
 

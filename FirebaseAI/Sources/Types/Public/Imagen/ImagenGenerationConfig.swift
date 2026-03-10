@@ -71,7 +71,7 @@ public struct ImagenGenerationConfig {
   ///     specified. See ``negativePrompt``.
   ///   - numberOfImages: The number of image samples to generate; defaults to 1 if not specified.
   ///     See ``numberOfImages``.
-  ///   - aspectRatio: The aspect ratio of generated images; defaults to to square, 1:1. See
+  ///   - aspectRatio: The aspect ratio of generated images; defaults to square, 1:1. See
   ///     ``aspectRatio``.
   ///   - imageSize: The size of generated images; defaults to 1K. See ``imageSize``.
   ///   - imageFormat: The image format of generated images; defaults to PNG. See ``imageFormat``.
