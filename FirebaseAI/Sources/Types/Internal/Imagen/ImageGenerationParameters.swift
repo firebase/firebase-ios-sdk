@@ -18,6 +18,7 @@ struct ImageGenerationParameters {
   let storageURI: String?
   let negativePrompt: String?
   let aspectRatio: String?
+  let sampleImageSize: String?
   let safetyFilterLevel: String?
   let personGeneration: String?
   let outputOptions: ImageGenerationOutputOptions?
@@ -38,6 +39,7 @@ extension ImageGenerationParameters: Encodable {
     case storageURI = "storageUri"
     case negativePrompt
     case aspectRatio
+    case sampleImageSize
     case safetyFilterLevel = "safetySetting"
     case personGeneration
     case outputOptions
@@ -52,6 +54,7 @@ extension ImageGenerationParameters: Encodable {
     try container.encodeIfPresent(storageURI, forKey: .storageURI)
     try container.encodeIfPresent(negativePrompt, forKey: .negativePrompt)
     try container.encodeIfPresent(aspectRatio, forKey: .aspectRatio)
+    try container.encodeIfPresent(sampleImageSize, forKey: .sampleImageSize)
     try container.encodeIfPresent(safetyFilterLevel, forKey: .safetyFilterLevel)
     try container.encodeIfPresent(personGeneration, forKey: .personGeneration)
     try container.encodeIfPresent(outputOptions, forKey: .outputOptions)
