@@ -43,7 +43,10 @@ public struct ImagenGenerationConfig {
   /// ``ImagenAspectRatio`` for more details.
   public var aspectRatio: ImagenAspectRatio?
 
-  // TODO: Add docs
+  /// The size of generated images.
+  ///
+  /// Defaults to 1K. Supported image sizes depend on the model; see ``ImagenImageSize`` for more
+  /// details.
   public var imageSize: ImagenImageSize?
 
   /// The image format of generated images.
@@ -70,6 +73,7 @@ public struct ImagenGenerationConfig {
   ///     See ``numberOfImages``.
   ///   - aspectRatio: The aspect ratio of generated images; defaults to to square, 1:1. See
   ///     ``aspectRatio``.
+  ///   - imageSize: The size of generated images; defaults to 1K. See ``imageSize``.
   ///   - imageFormat: The image format of generated images; defaults to PNG. See ``imageFormat``.
   ///   - addWatermark: Whether to add an invisible watermark to generated images; the default value
   ///     depends on the model. See ``addWatermark``.

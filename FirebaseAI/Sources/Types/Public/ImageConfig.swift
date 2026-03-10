@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO: Add docs
+/// Configuration for controlling generated image properties such as aspect ratio and image size.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImageConfig: Sendable {
   let aspectRatio: AspectRatio?
   let imageSize: ImageSize?
 
-  // TODO: Add docs
+  /// Initializes an `ImageConfig` with the given aspect ratio and image size.
+  ///
+  /// - Parameters:
+  ///   - aspectRatio: The aspect ratio for generated images.
+  ///   - imageSize: The size for generated images.
   public init(aspectRatio: AspectRatio? = nil, imageSize: ImageSize? = nil) {
     self.aspectRatio = aspectRatio
     self.imageSize = imageSize
@@ -61,8 +65,6 @@ public extension ImageConfig {
     /// (non-widescreen) TVs and medium format cameras. It captures more of the scene horizontally
     /// (compared to ``square1x1``), making it a preferred aspect ratio for photography.
     public static let landscape4x3 = AspectRatio(kind: .landscape4x3)
-
-    // TODO: Add additional aspect ratios supported by Nano Banana models.
 
     let rawValue: String
   }
