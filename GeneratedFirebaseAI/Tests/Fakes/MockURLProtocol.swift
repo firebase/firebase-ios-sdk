@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,15 +13,17 @@
 // limitations under the License.
 
 import Foundation
+
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
 /// Callback for requests when using ``MockURLRequest``.
-typealias URLProtocolRequestHandler = ((URLRequest) throws -> (
-  URLResponse,
-  Data
-))
+typealias URLProtocolRequestHandler =
+  (URLRequest) throws -> (
+    URLResponse,
+    Data
+  )
 
 /// Helper function for creating a ``MockURLProtocol`` routed through a ``URLSession``.
 ///
@@ -39,7 +41,8 @@ typealias URLProtocolRequestHandler = ((URLRequest) throws -> (
 ///
 ///   guard
 ///     let url = request.url,
-///     let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)
+///     let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields:
+/// nil)
 ///   else {
 ///     fatalError("Failed to create HTTP response")
 ///   }
@@ -104,8 +107,8 @@ struct URLRequestData: Codable {
       fatalError("URLRequest without URL")
     }
     self.url = url
-    self.body = from.httpBody
-    self.headers = from.allHTTPHeaderFields ?? [:]
+    body = from.httpBody
+    headers = from.allHTTPHeaderFields ?? [:]
   }
 }
 

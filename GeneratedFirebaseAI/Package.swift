@@ -37,20 +37,21 @@ let package = Package(
         .product(name: "Logging", package: "swift-log"),
         .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
         // TODO(daymxn): Before release, investigate releasing the Interop layers for AppCheck/Auth.
+        // Maybe with https://github.com/google/interop-ios-for-google-sdks
         .product(name: "FirebaseAppCheck", package: "firebase-ios-sdk"),
-        .product(name: "FirebaseAuth", package: "firebase-ios-sdk")
+        .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
       ]
     ),
     .testTarget(
       name: "GeneratedFirebaseAITests",
       dependencies: [
         "GeneratedFirebaseAI",
-        .product(name: "TestServer", package: "TestServer")
+        .product(name: "TestServer", package: "test-server"),
       ],
       path: "Tests",
       exclude: [
         "test-server.yml",
-        "Recordings"
+        "Recordings",
       ]
     ),
   ]

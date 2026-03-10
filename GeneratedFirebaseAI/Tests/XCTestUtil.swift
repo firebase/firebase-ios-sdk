@@ -12,19 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
+import XCTest
 
-public class FirebaseFake: FirebaseApp {
-  init(options: FirebaseOptions) {
-    super.init(instanceWithName: "test-fake", options: options)
+extension XCTestCase {
+  func XCTAssertEqualAndSameType<T: Equatable>(_ lhs: Any?, _ rhs: T?,
+                                               file: StaticString = #filePath, line: UInt = #line) {
+    if lhs == nil, rhs == nil {
+      return
+    }
+
+    guard let lhs = lhs as? T else {
+      XCTFail("Expected the type \"\(T.self)\" but found \(String(describing: lhs))")
+      return
+    }
+
+    XCTAssertEqual(lhs, rhs, file: file, line: line)
   }
-}
 
-public extension FirebaseOptions {
-  convenience init(apiKey: String,
-                   projectID: String) {
-    self.init(googleAppID: TestConstants.GoogleAppId, gcmSenderID: "TEST_GCM_SENDER_ID")
-    self.apiKey = apiKey
-    self.projectID = projectID
+  func WrongType<T>(for: T.Type, _ value: Any?) {
+    XCTFail("Expected the type \"\(T.self)\" but found \(String(describing: value))")
   }
 }

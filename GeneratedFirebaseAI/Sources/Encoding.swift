@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,40 +13,14 @@
 // limitations under the License.
 
 import Foundation
+
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
-extension CodingUserInfoKey {
-  static let configuration = CodingUserInfoKey(rawValue: "configuration")!
-}
-
-extension Decoder {
-  func userInfoOrThrow<T>(_ name: CodingUserInfoKey) throws -> T {
-    guard let value = self.userInfo[name] as? T else {
-      throw DecodingError.dataCorrupted(
-        .init(
-          codingPath: codingPath,
-          debugDescription: "Missing userInfo entry for: \(name.rawValue)"
-        )
-      )
-    }
-
-    return value
-  }
-}
-
-extension Encoder {
-  func userInfoOrThrow<T>(_ name: CodingUserInfoKey) throws -> T {
-    guard let value = self.userInfo[name] as? T else {
-      throw DecodingError.dataCorrupted(
-        .init(
-          codingPath: codingPath,
-          debugDescription: "Missing userInfo entry for: \(name.rawValue)"
-        )
-      )
-    }
-
-    return value
+extension NSMutableDictionary {
+  func decode<T: Decodable>(to type: T.Type) throws -> T {
+    let data = try JSONSerialization.data(withJSONObject: self, options: [])
+    return try JSONDecoder().decode(T.self, from: data)
   }
 }

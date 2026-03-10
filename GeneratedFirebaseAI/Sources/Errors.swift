@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,71 +13,41 @@
 // limitations under the License.
 
 import Foundation
+
 #if os(Linux)
-import FoundationNetworking
+  import FoundationNetworking
 #endif
 
-/// Wrapper around an RPC error from the backend.
-public struct BackendError: Error, Sendable {
-  let httpResponseCode: Int
-  let message: String
-  let status: String?
-  let details: [[String: JSONValue]]
-
-  init(httpResponseCode: Int, error: RPCError) {
-    self.httpResponseCode = httpResponseCode
-    self.message = error.error.message ?? "Unknown error"
-    self.status = error.error.status
-    self.details = error.error.details ?? []
-  }
-
-  func isVertexAIInFirebaseServiceDisabledError() -> Bool {
-    for detail in details {
-      guard
-        case let .string(reason) = detail["reason"],
-        case let .string(domain) = detail["domain"],
-        case let .string(type) = detail["@type"],
-        case let .object(metadata) = detail["metadata"]
-      else {
-        continue
-      }
-
-      guard
-        type == "type.googleapis.com/google.rpc.ErrorInfo",
-        reason == "SERVICE_DISABLED",
-        domain == "googleapis.com"
-      else {
-        continue
-      }
-
-      guard
-        case let .string(service) = metadata["service"],
-        service == "firebasevertexai.googleapis.com"
-      else {
-        continue
-      }
-
-      return true
-    }
-
-    return false
-  }
+/// Errors that signify something is wrong in either our implementation or the AI Logic SDK.
+public enum InternalError: Error, Sendable {
+  case MethodNotSupportedForGoogleAI
+  case MethodNotSupportedForVertexAI
+  case UnsupportedParameter(parameter: String, backend: Backend)
+  case InvalidURL(url: String)
+  case InvalidURLQueryItems(url: String, queryItems: [URLQueryItem])
+  case UnsupportedTransformerCalled(transformer: String)
+  case InvalidTypeInTransformer(field: String, expectedType: String)
+  case MissingExpectedFieldInTransformer(field: String)
 }
 
-extension BackendError: CustomNSError {
-  public static var errorDomain: String {
-    "\(Constants.baseErrorDomain).\(Self.self)"
-  }
-
-  public var errorCode: Int {
-    httpResponseCode
-  }
-
-  public var errorUserInfo: [String : Any] {
-    [NSLocalizedDescriptionKey: "\(message) (\(Self.errorDomain) - HTTP \(httpResponseCode) \(status ?? "")"]
-  }
+/// Errors regarding the network and backend
+public enum BackendErrors: Error, Sendable {
+  case RPCError(
+    responseCode: Int, message: String?, status: String?, details: [[String: JSONValue]]
+  )
+  case FailedToParseResponse(data: Data, cause: Error)
+  case NonHTTPResponse(response: URLResponse)
+  case UnrecognizedError(responseCode: Int, data: Data, cause: Error)
 }
 
+/// Generic errors that should probably be translated for consumers
+public enum CommonErrors: Error, Sendable {
+  case MissingFirebaseAPIKey(appName: String)
+  case MissingFirebaseProjectID(appName: String)
+  case MissingGetLimitedUseTokenFunction
+  case EmptyModelName
+  case InvalidSymbolsInModelName(name: String)
+}
 
 /// RPC error from any of the backends.
 public struct RPCError: Sendable, Decodable {
@@ -89,51 +59,13 @@ public struct RPCError: Sendable, Decodable {
   }
 
   let error: Error
-}
 
-public struct UnrecognizedBackendError: Error, Sendable, CustomNSError {
-  let underlyingError: Error
-  let httpStatusCode: Int
-
-  init(underlyingError: Error, httpStatusCode: Int) {
-    self.underlyingError = underlyingError
-    self.httpStatusCode = httpStatusCode
-  }
-
-  public var errorUserInfo: [String: Any] {
-    [
-      NSLocalizedDescriptionKey: "(HTTP \(httpStatusCode)) Unrecognized backend error. Cause: \(underlyingError.localizedDescription)",
-    ]
-  }
-}
-
-public struct MissingRequiredFieldError: Error, Sendable, CustomNSError {
-  let backend: Backend
-  let type: String
-  let field: String
-
-  init(backend: Backend, type: String, field: String) {
-    self.backend = backend
-    self.type = type
-    self.field = field
-  }
-
-  public var errorUserInfo: [String: Any] {
-    [
-      NSLocalizedDescriptionKey: "Missing required field '\(field)' for type '\(type)' with the '\(backend)' backend",
-    ]
-  }
-}
-
-extension KeyedEncodingContainer {
-  mutating func encodeOrThrow<T>(
-    _ value: T?,
-    forKey key: Key,
-    error: @autoclosure () -> Error
-  ) throws where T: Encodable {
-    guard let value else {
-      throw error()
-    }
-    try encode(value, forKey: key)
+  func toBackendError(responseCode: Int) -> BackendErrors {
+    BackendErrors.RPCError(
+      responseCode: responseCode,
+      message: error.message,
+      status: error.status,
+      details: error.details ?? []
+    )
   }
 }

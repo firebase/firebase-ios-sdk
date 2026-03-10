@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,17 +33,12 @@ extension AppCheckInterop {
         return token
       }
 
-      let errorMessage =
-        "The provided App Check token provider doesn't implement getLimitedUseToken(), but requireLimitedUseTokens was enabled."
-
       #if Debug
-        fatalError(errorMessage)
-      #else
-        throw NSError(
-          domain: "\(Constants.baseErrorDomain).\(domain)",
-          code: AILog.MessageCode.appCheckTokenFetchFailed.rawValue,
-          userInfo: [NSLocalizedDescriptionKey: errorMessage]
+        fatalError(
+          "The provided App Check token provider doesn't implement getLimitedUseToken(), but requireLimitedUseTokens was enabled."
         )
+      #else
+        throw CommonErrors.MissingGetLimitedUseTokenFunction
       #endif
     }
 
@@ -53,10 +48,11 @@ extension AppCheckInterop {
   private func getLimitedUseTokenAsync() async
     -> FIRAppCheckTokenResultInterop? {
     // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
-    await withCheckedContinuation { (continuation: CheckedContinuation<
-      FIRAppCheckTokenResultInterop?,
-      Never
-    >) in
+    await withCheckedContinuation {
+      (continuation: CheckedContinuation<
+        FIRAppCheckTokenResultInterop?,
+        Never
+      >) in
       guard
         // `getLimitedUseToken(completion:)` is an optional protocol method. Optional binding
         // is performed to make sure `continuation` is called even if the method’s not implemented.

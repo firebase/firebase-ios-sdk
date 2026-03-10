@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,17 +13,23 @@
 // limitations under the License.
 
 import Foundation
-#if os(Linux)
-import FoundationNetworking
-#endif
-
-import FirebaseCore
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+import FirebaseCore
 
-@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+#if os(Linux)
+  import FoundationNetworking
+#endif
+
+
+/// Needs testing, but since our dict is JSON encoded, it should be sendable anyways, but it's hard
+/// to define that in a type safe manner. This wrapper type should help fix that.
+struct SendableDict: @unchecked Sendable {
+  let dictionary: NSDictionary
+}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class APIClient: Sendable {
-
   /// The language of the SDK in the format `gl-<language>/<version>`.
   static let languageTag = "gl-swift/5"
 
@@ -34,13 +40,14 @@ public final class APIClient: Sendable {
   let encoder = JSONEncoder()
   let decoder = JSONDecoder()
 
-  public init(backend: Backend, authentication: AuthenticationMethod, urlSession: URLSession) {
-    if case .firebase(let app, let useLimitedUseAppCheckTokens) = authentication {
+  public init(backend: Backend, authentication: AuthenticationMethod, urlSession: URLSession) throws
+  {
+    if case let .firebase(app, useLimitedUseAppCheckTokens) = authentication {
       guard let projectID = app.options.projectID else {
-        fatalError("The Firebase app named \"\(app.name)\" has no project ID in its configuration.")
+        throw CommonErrors.MissingFirebaseProjectID(appName: app.name)
       }
       guard let apiKey = app.options.apiKey else {
-        fatalError("The Firebase app named \"\(app.name)\" has no API key in its configuration.")
+        throw CommonErrors.MissingFirebaseAPIKey(appName: app.name)
       }
       firebaseInfo = FirebaseInfo(
         appCheck: ComponentType<AppCheckInterop>.instance(
@@ -59,13 +66,14 @@ public final class APIClient: Sendable {
     }
 
     self.backend = backend
-    self.authenticationMethod = authentication
+    authenticationMethod = authentication
     self.urlSession = urlSession
   }
 
-  init(backend: Backend, authentication: AuthenticationMethod, urlSession: URLSession, firebaseInfo: FirebaseInfo?) {
+  init(backend: Backend, authentication: AuthenticationMethod, urlSession: URLSession,
+       firebaseInfo: FirebaseInfo?) {
     self.backend = backend
-    self.authenticationMethod = authentication
+    authenticationMethod = authentication
     self.urlSession = urlSession
     self.firebaseInfo = firebaseInfo
   }
@@ -97,95 +105,31 @@ public final class APIClient: Sendable {
     return true
   }
 
-  // TODO: Add support for extra query parameters whenever we add a proper conversion layer
-  func url(for endpoint: String, model: String? = nil) throws -> URL {
-    guard var url = URL(string: baseURL()) else {
-      throw NSError(
-        domain: "Swift SDK",
-        code: 0,
-        userInfo: [
-          NSLocalizedFailureReasonErrorKey: "Invalid URL: \(baseURL())"
-        ]
-      )
-    }
-
-    switch backend {
-    case .vertexAI(_, _, _, let version):
-      // vertex uses v1beta1 instead of v1beta (unless you're using firebase)
-      let versionName = version == .v1beta && !isFirebase() ? "v1beta1" : "\(version)"
-      url = url.appendingPathComponent("/\(versionName)", isDirectory: true)
-    case .googleAI(let version, _):
-      url = url.appendingPathComponent("/\(version)", isDirectory: true)
-    }
-
-    if let model {
-      url = url.appendingPathComponent(modelName(for: model), isDirectory: true)
-    }
-
-    if !endpoint.isEmpty {
-      url = url.appendingPathComponent("\(endpoint)", isDirectory: false)
-    }
-
-    return url
-  }
-
-  /// Computes the name of a model, depending on the backend.
-  ///
-  /// Also takes into account if the firebase proxy is being used.
-  private func modelName(for model: String) -> String {
-    switch backend {
-    case .vertexAI(let location, let publisher, let projectId, _):
-      return "projects/\(projectId)/locations/\(location)/publishers/\(publisher)/models/\(model)"
-    case .googleAI(_, let direct):
-      if !direct, let projectId = firebaseInfo?.projectID {
-        return "projects/\(projectId)/models/\(model)"
-      }
-      return "models/\(model)"
-    }
-  }
-
   /// Computes the base URL for the currently targeted backend.
   ///
   /// Takes into account if the firebase proxy is being used, and if direct mode is enabled for
   /// the Google AI backend.
   private func baseURL() -> String {
     switch backend {
-    case .vertexAI:
+    case let .vertexAI(_, _, _, version):
       if !isFirebase() {
-        return "https://aiplatform.googleapis.com"
+        // vertex uses v1beta1 instead of v1beta (unless you're using firebase)
+        let versionName = version == .v1beta ? "v1beta1" : "\(version)"
+        return "https://aiplatform.googleapis.com/\(versionName)"
       }
-    case .googleAI(_, let direct):
+      return "https://firebasevertexai.googleapis.com/\(version)"
+    case let .googleAI(version, direct):
       if direct || !isFirebase() {
-        return "https://generativelanguage.googleapis.com"
+        return "https://generativelanguage.googleapis.com/\(version)"
       }
+      return "https://firebasevertexai.googleapis.com/\(version)"
     }
-
-    // Firebase proxy endpoint; supports both Google AI/Vertex AI backends
-    return "https://firebasevertexai.googleapis.com"
   }
 
-  func loadRequest<RequestParams: Encodable, ResponseType: Decodable>(
-    params: RequestParams,
-    url: URL,
-    method: String
-  ) async throws -> ResponseType {
-    let urlRequest = try await urlRequest(params: params, url: url, method: method)
-    return try await performRequest(urlRequest)
-  }
-
-  func loadRequest<ResponseType: Decodable>(
-    params: [String: Any],
-    url: URL,
-    method: String
-  ) async throws -> ResponseType {
-    let urlRequest = try await urlRequest(params: params, url: url, method: method)
-    return try await performRequest(urlRequest)
-  }
-
-  private func performRequest<ResponseType: Decodable>(_ urlRequest: URLRequest) async throws -> ResponseType {
-//#if DEBUG
-  printCURLCommand(from: urlRequest)
-//#endif
+  private func performRequest(_ urlRequest: URLRequest) async throws -> NSMutableDictionary {
+    // #if DEBUG
+    printCURLCommand(from: urlRequest)
+    // #endif
 
     let data: Data
     let rawResponse: URLResponse
@@ -209,61 +153,147 @@ public final class APIClient: Sendable {
       throw parseError(httpResponseCode: response.statusCode, responseData: data)
     }
 
-    decoder.userInfo[.configuration] = self
-
-    // If the expected type is Data, return the raw data directly
-    if ResponseType.self == Data.self {
-      return data as! ResponseType
-    }
-
-    return try parseResponse(ResponseType.self, from: data)
+    return try parseResponse(from: data)
   }
 
-  // TODO(daymxn): implement streaming support once we have proper support/testing for non streaming
- /// Loads a stream request where the parameters are a dictionary `[String: Any]`.
-  @available(macOS 13.0, *)
-  func loadRequestStream<ResponseType: Decodable>(
-    params: [String: Any],
-    url: URL,
-    method: String
-  ) -> AsyncThrowingStream<ResponseType, Error> {
+  func prepareRequest(params: NSMutableDictionary,
+                      url: String) throws -> (URL, SendableDict) {
+    let url = try createURL(params: params, templateUrl: "\(baseURL())/\(url)")
+    let bodyParams = SendableDict(dictionary: params)
+
+    return (url, bodyParams)
+  }
+
+  func loadRequest(params: NSMutableDictionary,
+                   url: String,
+                   method: String) async throws -> NSMutableDictionary {
+    let url = try createURL(params: params, templateUrl: "\(baseURL())/\(url)")
+    let bodyParams = SendableDict(dictionary: params)
+    let urlRequest = try await urlRequest(params: bodyParams, url: url, method: method)
+
+    return try await performRequest(urlRequest)
+  }
+
+  func loadRequestStream(params: SendableDict,
+                         url: URL,
+                         method: String) throws -> AsyncThrowingStream<NSMutableDictionary, Error> {
     return AsyncThrowingStream { continuation in
-      // TODO: Implement actual streaming logic here.
-      fatalError("Streaming implementation pending")
+      Task {
+        let urlRequest: URLRequest
+        do {
+          urlRequest = try await self.urlRequest(params: params, url: url, method: method)
+        } catch {
+          continuation.finish(throwing: error)
+          return
+        }
+
+        // #if DEBUG
+        printCURLCommand(from: urlRequest)
+        // #endif
+
+        let stream: URLSession.AsyncBytes
+        let rawResponse: URLResponse
+        do {
+          (stream, rawResponse) = try await urlSession.bytes(for: urlRequest)
+        } catch {
+          continuation.finish(throwing: error)
+          return
+        }
+
+        // Verify the status code is 200
+        let response: HTTPURLResponse
+        do {
+          response = try httpResponse(urlResponse: rawResponse)
+        } catch {
+          continuation.finish(throwing: error)
+          return
+        }
+
+        // Verify the status code is 200
+        guard response.statusCode == 200 else {
+          AILog.error(
+            code: .loadRequestStreamResponseError,
+            "The server responded with an error: \(response)"
+          )
+          var responseBody = ""
+          for try await line in stream.lines {
+            responseBody += line + "\n"
+          }
+
+          AILog.error(
+            code: .loadRequestStreamResponseErrorPayload,
+            "Response payload: \(responseBody)"
+          )
+          continuation.finish(
+            throwing: parseError(httpResponseCode: response.statusCode, responseBody: responseBody)
+          )
+
+          return
+        }
+
+        // Received lines that are not server-sent events (SSE); these are not prefixed with "data:"
+        var extraLines = ""
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        for try await line in stream.lines {
+          AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
+
+          if line.hasPrefix("data:") {
+            // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
+            let jsonText = String(line.dropFirst(5))
+            let data: Data
+            do {
+              data = try jsonData(jsonText: jsonText)
+            } catch {
+              continuation.finish(throwing: error)
+              return
+            }
+
+            // Handle the content.
+            do {
+              let content = try parseResponse(from: data)
+              continuation.yield(content)
+            } catch {
+              continuation.finish(throwing: error)
+              return
+            }
+          } else {
+            extraLines += line
+          }
+        }
+
+        if extraLines.count > 0 {
+          continuation.finish(
+            throwing: parseError(httpResponseCode: response.statusCode, responseBody: extraLines)
+          )
+          return
+        }
+
+        continuation.finish(throwing: nil)
+      }
     }
+  }
+
+  public func encodeToDict<T>(_ value: T) throws -> NSMutableDictionary where T: Encodable {
+    let json = try encoder.encode(value)
+    return try JSONSerialization.jsonObject(
+      with: json, options: [.mutableContainers, .mutableLeaves]
+    ) as! NSMutableDictionary
   }
 
   // MARK: - Private Helpers
 
-  private func urlRequest<Params: Encodable>(
-    params: Params,
-    url: URL,
-    method: String
-  ) async throws -> URLRequest {
-    var urlRequest = try await makeBaseURLRequest(url: url, method: method)
-    encoder.userInfo[.configuration] = self
-    urlRequest.httpBody = try encoder.encode(params)
-    return urlRequest
-  }
-
-  private func urlRequest(
-    params: [String: Any],
-    url: URL,
-    method: String
-  ) async throws -> URLRequest {
-    var urlRequest = try await makeBaseURLRequest(url: url, method: method)
-    urlRequest.httpBody = try JSONSerialization.data(withJSONObject: params)
-    return urlRequest
-  }
-
-  private func makeBaseURLRequest(url: URL, method: String) async throws -> URLRequest {
+  private func urlRequest(params: SendableDict,
+                          url: URL,
+                          method: String) async throws -> URLRequest {
     var urlRequest = URLRequest(url: url)
     urlRequest.httpMethod = method
 
     switch authenticationMethod {
-    case .apiKey(let key):
+    case let .apiKey(key):
       urlRequest.setValue(key, forHTTPHeaderField: "x-goog-api-key")
-    case .accessToken(let token):
+    case let .accessToken(token):
       urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
     case .firebase:
       guard let firebaseInfo else {
@@ -281,7 +311,47 @@ public final class APIClient: Sendable {
 
     try await addFirebaseHeaders(for: &urlRequest)
 
+    if params.dictionary.count > 0 {
+      urlRequest.httpBody = try JSONSerialization.data(withJSONObject: params.dictionary)
+    }
+
     return urlRequest
+  }
+
+  private func createURL(params: NSMutableDictionary,
+                         templateUrl: String) throws -> URL {
+    var urlString = templateUrl
+
+    var queryItems: [URLQueryItem] = []
+    if let queryParams = params["_query"] as? NSMutableDictionary {
+      for (key, value) in queryParams {
+        queryItems.append(URLQueryItem(name: "\(key)", value: "\(value)"))
+      }
+    }
+    params.removeObject(forKey: "_query")
+
+    if let urlParams = params["_url"] as? NSMutableDictionary {
+      for (key, value) in urlParams {
+        urlString = urlString.replacingOccurrences(of: "{\(key)}", with: "\(value)")
+      }
+    }
+    params.removeObject(forKey: "_url")
+
+    guard var urlComponents = URLComponents(string: urlString) else {
+      throw InternalError.InvalidURL(url: urlString)
+    }
+    urlComponents.queryItems = urlComponents.queryItems ?? []
+    urlComponents.queryItems?.append(contentsOf: queryItems)
+
+    guard let url = urlComponents.url else {
+      // if it fails here, it must be from the query items (since that's all we change from above)
+      throw InternalError.InvalidURLQueryItems(
+        url: urlString,
+        queryItems: urlComponents.queryItems ?? []
+      )
+    }
+
+    return url
   }
 
   /// Adds headers to a url request that are unique to Firebase.
@@ -311,7 +381,8 @@ public final class APIClient: Sendable {
       }
     }
 
-    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(forcingRefresh: false) {
+    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(forcingRefresh: false)
+    {
       urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
     }
 
@@ -328,14 +399,7 @@ public final class APIClient: Sendable {
     // response objects you get back from the URLSession, NSURLConnection, or NSURLDownload class
     // are instances of the HTTPURLResponse class."
     guard let response = urlResponse as? HTTPURLResponse else {
-      AILog.error(
-        code: .generativeAIServiceNonHTTPResponse,
-        "Response wasn't an HTTP response, internal error \(urlResponse)"
-      )
-      throw URLError(
-        .badServerResponse,
-        userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
-      )
+      throw BackendErrors.NonHTTPResponse(response: urlResponse)
     }
 
     return response
@@ -343,10 +407,12 @@ public final class APIClient: Sendable {
 
   private func jsonData(jsonText: String) throws -> Data {
     guard let data = jsonText.data(using: .utf8) else {
-      throw DecodingError.dataCorrupted(DecodingError.Context(
-        codingPath: [],
-        debugDescription: "Could not parse response as UTF8."
-      ))
+      throw DecodingError.dataCorrupted(
+        DecodingError.Context(
+          codingPath: [],
+          debugDescription: "Could not parse response as UTF8."
+        )
+      )
     }
     return data
   }
@@ -363,79 +429,61 @@ public final class APIClient: Sendable {
   private func parseError(httpResponseCode: Int, responseData: Data) -> Error {
     do {
       let rpcError = try decoder.decode(RPCError.self, from: responseData)
-      let backendError = BackendError(httpResponseCode: httpResponseCode, error: rpcError)
-      logRPCError(backendError)
+      let backendError = rpcError.toBackendError(responseCode: httpResponseCode)
+
       return backendError
     } catch {
-      return UnrecognizedBackendError(underlyingError: error, httpStatusCode: httpResponseCode)
-    }
-  }
-
-  // Log specific RPC errors that cannot be mitigated or handled by user code.
-  // These errors do not produce specific GenerateContentError or CountTokensError cases.
-  private func logRPCError(_ error: BackendError) {
-    guard let firebaseInfo else { return }
-
-    let projectID = firebaseInfo.projectID
-    if error.isVertexAIInFirebaseServiceDisabledError() {
-      AILog.error(code: .vertexAIInFirebaseAPIDisabled, """
-      The Firebase AI SDK requires the Firebase AI API \
-      (`firebasevertexai.googleapis.com`) to be enabled in your Firebase project. Enable this API \
-      by visiting the Firebase Console at
-      https://console.firebase.google.com/project/\(projectID)/genai/ and clicking "Get started". \
-      If you enabled this API recently, wait a few minutes for the action to propagate to our \
-      systems and then retry.
-      """)
-    }
-  }
-
-  private func parseResponse<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
-    do {
-      return try JSONDecoder().decode(type, from: data)
-    } catch {
-      if let json = String(data: data, encoding: .utf8) {
-        AILog.error(code: .loadRequestParseResponseFailedJSON, "JSON response: \(json)")
-      }
-      AILog.error(
-        code: .loadRequestParseResponseFailedJSONError,
-        "Error decoding server JSON: \(error)"
+      return BackendErrors.UnrecognizedError(
+        responseCode: httpResponseCode, data: responseData, cause: error
       )
-      throw error
     }
   }
 
-//  #if DEBUG
-    private func cURLCommand(from request: URLRequest) -> String {
-      var returnValue = "curl "
-      if let allHeaders = request.allHTTPHeaderFields {
-        for (key, value) in allHeaders {
-          returnValue += "-H '\(key): \(value)' "
-        }
+  private func parseResponse(from data: Data) throws -> NSMutableDictionary {
+    do {
+      return try JSONSerialization.jsonObject(
+        with: data, options: [.mutableContainers, .mutableLeaves]
+      ) as! NSMutableDictionary
+    } catch {
+      throw BackendErrors.FailedToParseResponse(data: data, cause: error)
+    }
+  }
+
+  //  #if DEBUG
+  private func cURLCommand(from request: URLRequest) -> String {
+    var returnValue = "curl "
+    if let allHeaders = request.allHTTPHeaderFields {
+      for (key, value) in allHeaders {
+        returnValue += "-H '\(key): \(value)' "
       }
-
-      guard let url = request.url else { return "" }
-      returnValue += "'\(url.absoluteString)' "
-
-      guard let body = request.httpBody,
-            let jsonStr = String(bytes: body, encoding: .utf8) else { return "" }
-      let escapedJSON = jsonStr.replacingOccurrences(of: "'", with: "'\\''")
-      returnValue += "-d '\(escapedJSON)'"
-
-      return returnValue
     }
 
-    private func printCURLCommand(from request: URLRequest) {
-      guard AILog.additionalLoggingEnabled() else {
-        return
-      }
-      let command = cURLCommand(from: request)
-      AILog.debug(code: .fallbackValueUsed,
-        """
-        Creating request with the equivalent cURL command:
-        ----- cURL command -----
-        \(command)
-        ------------------------
-        """)
+    guard let url = request.url else { return "" }
+    returnValue += "'\(url.absoluteString)' "
+
+    guard let body = request.httpBody,
+          let jsonStr = String(bytes: body, encoding: .utf8)
+    else { return "" }
+    let escapedJSON = jsonStr.replacingOccurrences(of: "'", with: "'\\''")
+    returnValue += "-d '\(escapedJSON)'"
+
+    return returnValue
+  }
+
+  private func printCURLCommand(from request: URLRequest) {
+    guard AILog.additionalLoggingEnabled() else {
+      return
     }
-//  #endif // DEBUG
+    let command = cURLCommand(from: request)
+    AILog.debug(
+      code: .fallbackValueUsed,
+      """
+      Creating request with the equivalent cURL command:
+      ----- cURL command -----
+      \(command)
+      ------------------------
+      """
+    )
+  }
+  //  #endif // DEBUG
 }
