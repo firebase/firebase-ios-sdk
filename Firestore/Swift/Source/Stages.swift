@@ -374,7 +374,7 @@ class Union: Stage {
 
   init(other: Pipeline) {
     self.other = other
-    bridge = UnionStageBridge(other: other.bridge)
+    bridge = UnionStageBridge(other: other.pipelineBridge)
     errorMessage = other.errorMessage
   }
 }

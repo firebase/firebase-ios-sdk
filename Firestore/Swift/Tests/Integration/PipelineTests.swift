@@ -4013,4 +4013,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       enforceOrder: false
     )
   }
+
+  func testToArrayExpressionPropagatesErrorMessage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([Field("a").as("dup"), Field("b").as("dup")])
+
+    let expression = pipeline.toArrayExpression()
+    XCTAssertNotNil(expression.errorMessage)
+    guard let errorMessage = expression.errorMessage else { return }
+    XCTAssertTrue(errorMessage.contains("Duplicate alias 'dup'"))
+  }
+
+  func testToScalarExpressionPropagatesErrorMessage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([Field("a").as("dup"), Field("b").as("dup")])
+
+    let expression = pipeline.toScalarExpression()
+    XCTAssertNotNil(expression.errorMessage)
+    guard let errorMessage = expression.errorMessage else { return }
+    XCTAssertTrue(errorMessage.contains("Duplicate alias 'dup'"))
+  }
 }

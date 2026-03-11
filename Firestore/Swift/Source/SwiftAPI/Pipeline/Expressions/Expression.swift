@@ -20,6 +20,9 @@
 import Foundation
 
 public protocol Expression: Sendable {
+  /// The error message associated with this expression, if any.
+  var errorMessage: String? { get }
+
   /// Casts the expression to a `BooleanExpression`.
   ///
   /// - Returns: A `BooleanExpression` representing the same expression.

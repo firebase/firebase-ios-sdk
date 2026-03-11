@@ -33,6 +33,8 @@ class EvaluableExpr;
 }  // namespace core
 namespace api {
 
+class Pipeline;
+
 class Expr {
  public:
   Expr() = default;
@@ -127,6 +129,20 @@ class FunctionExpr : public Expr {
  private:
   std::string name_;
   std::vector<std::shared_ptr<Expr>> params_;
+};
+
+class PipelineExpr : public Expr {
+ public:
+  explicit PipelineExpr(std::shared_ptr<Pipeline> pipeline)
+      : pipeline_(std::move(pipeline)) {
+  }
+
+  google_firestore_v1_Value to_proto() const override;
+
+  std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
+
+ private:
+  std::shared_ptr<Pipeline> pipeline_;
 };
 
 }  // namespace api

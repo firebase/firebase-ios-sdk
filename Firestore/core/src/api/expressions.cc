@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/core/expressions_eval.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -90,6 +91,15 @@ google_firestore_v1_Value FunctionExpr::to_proto() const {
 
 std::unique_ptr<core::EvaluableExpr> FunctionExpr::ToEvaluable() const {
   return core::FunctionToEvaluable(*this);
+}
+
+google_firestore_v1_Value PipelineExpr::to_proto() const {
+  return pipeline_->to_proto();
+}
+
+std::unique_ptr<core::EvaluableExpr> PipelineExpr::ToEvaluable() const {
+  HARD_FAIL("PipelineExpr::ToEvaluable() is not implemented");
+  return nullptr;
 }
 
 }  // namespace api

@@ -1299,7 +1299,21 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
   return self;
 }
+@end
 
+@implementation FIRPipelineExprBridge {
+  FIRPipelineBridge *_pipelineBridge;
+}
+- (id)initWithPipelineBridge:(FIRPipelineBridge *)pipelineBridge {
+  self = [super init];
+  if (self) {
+    _pipelineBridge = pipelineBridge;
+  }
+  return self;
+}
+- (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
+  return std::make_shared<api::PipelineExpr>([_pipelineBridge cppPipelineWithReader:reader]);
+}
 @end
 
 @implementation FIRPipelineBridge {
@@ -1341,6 +1355,10 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
   isUserDataRead = YES;
   return cpp_pipeline;
+}
+
+- (FIRExprBridge *)toExprBridge {
+  return [[FIRPipelineExprBridge alloc] initWithPipelineBridge:self];
 }
 
 + (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query {

@@ -74,7 +74,7 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public struct Pipeline: @unchecked Sendable {
   private var stages: [Stage]
-  let bridge: PipelineBridge
+  let pipelineBridge: PipelineBridge
   let db: Firestore
 
   var errorMessage: String? {
@@ -85,7 +85,7 @@ public struct Pipeline: @unchecked Sendable {
   init(stages: [Stage], db: Firestore) {
     self.stages = stages
     self.db = db
-    bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
+    pipelineBridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
   /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
@@ -135,7 +135,7 @@ public struct Pipeline: @unchecked Sendable {
     }
 
     return try await withCheckedThrowingContinuation { continuation in
-      self.bridge.execute { result, error in
+      self.pipelineBridge.execute { result, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
@@ -676,5 +676,31 @@ public struct Pipeline: @unchecked Sendable {
                        options: [String: Sendable]? = nil) -> Pipeline {
     let stage = RawStage(name: name, params: params, options: options)
     return Pipeline(stages: stages + [stage], db: db)
+  }
+
+  /// Converts this Pipeline into an expression that evaluates to an array of results.
+  ///
+  /// **Result Unwrapping:**
+  /// - If the items have a single field, their values are unwrapped and returned directly in the
+  /// array.
+  /// - If the items have multiple fields, they are returned as dictionaries in the array.
+  ///
+  /// - Returns: An `Expression` that executes this pipeline and returns the results as an array.
+  public func toArrayExpression() -> Expression {
+    return FunctionExpression(functionName: "array", args: [PipelineExpression(self)])
+  }
+
+  /// Converts this Pipeline into an expression that evaluates to a single scalar result.
+  ///
+  /// **Runtime Validation:** The runtime validates that the result set contains zero or one item.
+  /// If zero items, it evaluates to `nil`.
+  ///
+  /// **Result Unwrapping:** If the result contains exactly one item:
+  /// - If the item has a single field, its value is unwrapped and returned directly.
+  /// - If the item has multiple fields, they are returned as a dictionary.
+  ///
+  /// - Returns: An `Expression` representing the scalar result.
+  public func toScalarExpression() -> Expression {
+    return FunctionExpression(functionName: "scalar", args: [PipelineExpression(self)])
   }
 }

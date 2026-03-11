@@ -275,7 +275,15 @@ NS_SWIFT_NAME(PipelineBridge)
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion;
 
+- (FIRExprBridge *)toExprBridge;
+
 + (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(PipelineExprBridge)
+@interface FIRPipelineExprBridge : FIRExprBridge
+- (id)initWithPipelineBridge:(FIRPipelineBridge *)pipelineBridge;
 @end
 
 NS_SWIFT_SENDABLE
