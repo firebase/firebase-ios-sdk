@@ -430,6 +430,49 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+  ])
+  func generateImageWithCustomSize(_ config: InstanceConfig, modelName: String) async throws {
+    let imageConfig = ImageConfig(
+      // If not specified, images are generated in a random aspect ratio.
+      // Note: The documentation states that "1:1 squares" are the default.
+      aspectRatio: .square1x1,
+      imageSize: .size2K
+    )
+    let generationConfig = GenerationConfig(
+      temperature: 0.0,
+      topP: 0.0,
+      topK: 1,
+      responseModalities: [.image],
+      imageConfig: imageConfig
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      safetySettings: safetySettings
+    )
+    let prompt = "Generate an image of a cute cartoon puppy catching a ball in the air."
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    let inlineDataPart = try #require(candidate.content.parts
+      .first { $0 is InlineDataPart } as? InlineDataPart)
+    let inlineDataPartsViaAccessor = response.inlineDataParts
+    #expect(inlineDataPartsViaAccessor.count == 1)
+    let inlineDataPartViaAccessor = try #require(inlineDataPartsViaAccessor.first)
+    #expect(inlineDataPart == inlineDataPartViaAccessor)
+    #expect(inlineDataPart.mimeType.starts(with: "image/"))
+    #expect(inlineDataPart.data.count > 0)
+    #if canImport(UIKit)
+      let uiImage = try #require(UIImage(data: inlineDataPart.data))
+      #expect(uiImage.size.width == 2048)
+      #expect(uiImage.size.height == 2048)
+    #endif // canImport(UIKit)
+  }
+
+  @Test(arguments: [
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
