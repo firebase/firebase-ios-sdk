@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   let model: String
   let apiConfig: APIConfig
@@ -35,7 +34,6 @@ struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   typealias Response = ImagenGenerationResponse<ImageType>
 
@@ -49,7 +47,6 @@ extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodabl
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagenGenerationRequest: Encodable {
   enum CodingKeys: CodingKey {
     case instances

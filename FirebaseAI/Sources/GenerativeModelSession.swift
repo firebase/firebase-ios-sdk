@@ -50,7 +50,6 @@
   /// print("Bio: \(response.content.bio)")
   /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public final class GenerativeModelSession: Sendable {
     let session: Chat
 
@@ -217,6 +216,7 @@
     /// - Parameter options: An optional `GenerationConfig` to override the model's default
     /// generation configuration.
     /// - Returns: A `ResponseStream` that yields snapshots of the generated content.
+    @available(macOS 12.0, watchOS 8.0, *)
     public func streamResponse(to prompt: PartsRepresentable..., options: GenerationConfig? = nil)
       -> sending GenerativeModelSession.ResponseStream<String, String> {
       return streamResponse(
@@ -271,6 +271,7 @@
       )
     }
 
+    @available(macOS 12.0, watchOS 8.0, *)
     private func streamResponse<Content, PartialContent>(to prompt: [PartsRepresentable],
                                                          schema: FirebaseAI.GenerationSchema?,
                                                          generating type: Content.Type,
@@ -438,7 +439,6 @@
 
   // MARK: - Response Types
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModelSession {
     /// The response from a `respond` call.
     struct Response<Content> {
@@ -451,7 +451,6 @@
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension GenerativeModelSession {
     /// An asynchronous sequence of snapshots of the model's response.
     struct ResponseStream<Content, PartialContent>: AsyncSequence {
@@ -541,7 +540,6 @@
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension GenerativeModelSession.ResponseStream {
     struct RawResult: Sendable {
       let rawContent: FirebaseAI.GeneratedContent
@@ -639,7 +637,6 @@
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension GenerativeModelSession {
     enum ErrorCodes: Int {
       // Generation Errors
