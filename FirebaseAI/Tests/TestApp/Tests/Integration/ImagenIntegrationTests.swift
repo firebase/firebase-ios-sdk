@@ -75,6 +75,8 @@ struct ImagenIntegrationTests {
     #endif // canImport(UIKit)
   }
 
+  // TODO: Add integration tests for image sizes and update to Imagen 4.
+
   @Test func generateImages_gcsImages() async throws {
     let generationConfig = ImagenGenerationConfig(
       numberOfImages: 3,
