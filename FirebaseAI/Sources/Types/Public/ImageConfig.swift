@@ -35,9 +35,9 @@ public struct ImageConfig: Sendable {
   }
 }
 
-/// An aspect ratio for generated images.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ImageConfig {
+  /// An aspect ratio for generated images.
   struct AspectRatio: Sendable {
     /// Square (1:1) aspect ratio.
     ///
@@ -46,9 +46,9 @@ public extension ImageConfig {
 
     /// Portrait widescreen (9:16) aspect ratio.
     ///
-    /// This is the ``landscape16x9`` aspect ratio rotated 90 degrees. This is a relatively new aspect
-    /// ratio that has been popularized by short form video apps (for example, YouTube shorts). Use
-    /// this for tall objects with strong vertical orientations such as buildings, trees,
+    /// This is the ``landscape16x9`` aspect ratio rotated 90 degrees. This is a relatively new
+    /// aspect ratio that has been popularized by short form video apps (for example, YouTube
+    /// shorts). Use this for tall objects with strong vertical orientations such as buildings, trees,
     /// waterfalls, or other similar objects.
     public static let portrait9x16 = AspectRatio(kind: .portrait9x16)
 
@@ -61,8 +61,8 @@ public extension ImageConfig {
 
     /// Portrait full screen (3:4) aspect ratio.
     ///
-    /// This is the ``landscape4x3`` aspect ratio rotated 90 degrees. This allows you to capture more of
-    /// the scene vertically compared to the ``square1x1`` aspect ratio.
+    /// This is the ``landscape4x3`` aspect ratio rotated 90 degrees. This allows you to capture
+    /// more of the scene vertically compared to the ``square1x1`` aspect ratio.
     public static let portrait3x4 = AspectRatio(kind: .portrait3x4)
 
     /// Fullscreen (4:3) aspect ratio.
