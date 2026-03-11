@@ -475,6 +475,35 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
+  ])
+  func generateContent_finishReason_imageSafety(_ config: InstanceConfig, modelName: String) async throws {
+    let generationConfig = GenerationConfig(
+      responseModalities: [.image]
+    )
+    let model = FirebaseAI.componentInstance(config).generativeModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+//      safetySettings: safetySettings.filter {
+//        // HARM_CATEGORY_CIVIC_INTEGRITY is deprecated in Vertex AI but only rejected when using the
+//        // 'gemini-2.0-flash-preview-image-generation' model.
+//        $0.harmCategory != .civicIntegrity
+//      }
+    )
+    let prompt = "A graphic image of violence" // This prompt should trigger safety violation
+
+    let response = try await model.generateContent(prompt)
+
+    let candidate = try #require(response.candidates.first)
+    #expect(candidate.finishReason == .imageSafety)
+    #expect(candidate.content.parts.isEmpty) // No content expected if filtered
+  }
+
+  @Test(arguments: [
+    (InstanceConfig.vertexAI_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
   ])
