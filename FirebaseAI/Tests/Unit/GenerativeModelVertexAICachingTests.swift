@@ -19,6 +19,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+@available(macOS 12.0, watchOS 8.0, *)
 final class GenerativeModelImplicitCachingTests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let testModelName = "test-model"

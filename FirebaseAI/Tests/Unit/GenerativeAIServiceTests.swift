@@ -20,6 +20,7 @@ import XCTest
 @testable import FirebaseAILogic
 
 #if !os(watchOS)
+  @available(macOS 12.0, *)
   final class GenerativeAIServiceTests: XCTestCase {
     let testModelName = "test-model"
     let testModelResourceName =
