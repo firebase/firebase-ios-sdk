@@ -1,4 +1,5 @@
 # 12.11.0
+- [removed] Removed the `then(_:else:)` API in `BooleanExpression` from the Pipeline Swift API. Use `ConditionalExpression` instead. (#15926)
 - [changed] Minor refactor to avoid using an absl internal function. (#15889)
 
 # 12.10.0
