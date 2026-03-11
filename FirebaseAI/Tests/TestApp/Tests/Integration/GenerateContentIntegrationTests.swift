@@ -392,16 +392,13 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImagePreview),
     (InstanceConfig.vertexAI_v1beta_global, ModelNames.gemini3_1_FlashImagePreview),
   ])
-  func generateImageConfig(_ config: InstanceConfig, modelName: String) async throws {
-    let imageConfig = ImageConfig(
-      aspectRatio: .landscape16x9,
-      imageSize: .size2K
-    )
+  func generateImageWithAspectRatio(_ config: InstanceConfig, modelName: String) async throws {
+    let imageConfig = ImageConfig(aspectRatio: .landscape16x9)
     let generationConfig = GenerationConfig(
       temperature: 0.0,
       topP: 0.0,
       topK: 1,
-      responseModalities: [.text, .image],
+      responseModalities: [.image],
       imageConfig: imageConfig
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -424,8 +421,11 @@ struct GenerateContentIntegrationTests {
     #expect(inlineDataPart.data.count > 0)
     #if canImport(UIKit)
       let uiImage = try #require(UIImage(data: inlineDataPart.data))
-      #expect(uiImage.size.width > 0)
-      #expect(uiImage.size.height > 0)
+      // Note: Images are not exactly 16:9 but align with the documented sizes
+      // (https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
+      #expect(uiImage.size.width >= 1344) // Gemini 2.5 produces images slightly narrower than 16:9
+      #expect(uiImage.size.width <= 1376) // Gemini 3 produces images slightly wider than 16:9
+      #expect(uiImage.size.height == 768)
     #endif // canImport(UIKit)
   }
 
