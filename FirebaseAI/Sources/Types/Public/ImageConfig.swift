@@ -137,7 +137,7 @@ public extension ImageConfig {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageConfig.AspectRatio: ProtoEnum {
+extension ImageConfig.AspectRatio: EncodableProtoEnum {
   enum Kind: String {
     case square1x1 = "1:1"
     case portrait9x16 = "9:16"
@@ -157,7 +157,7 @@ extension ImageConfig.AspectRatio: ProtoEnum {
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageConfig.ImageSize: ProtoEnum {
+extension ImageConfig.ImageSize: EncodableProtoEnum {
   enum Kind: String {
     case size512 = "512"
     case size1K = "1K"
@@ -170,19 +170,3 @@ extension ImageConfig.ImageSize: ProtoEnum {
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageConfig: Encodable {}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageConfig.AspectRatio: Encodable {
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(rawValue)
-  }
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension ImageConfig.ImageSize: Encodable {
-  public func encode(to encoder: any Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(rawValue)
-  }
-}
