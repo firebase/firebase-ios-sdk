@@ -232,4 +232,88 @@ final class APITests: XCTestCase {
     XCTAssertEqual(cacheDetail?.modality, .text)
     XCTAssertEqual(cacheDetail?.tokenCount, 50)
   }
+
+  func testFinishReason_decoding() throws {
+    let decoder = JSONDecoder()
+
+    // Test LANGUAGE
+    var json = createResponseJSON(finishReason: "LANGUAGE")
+    var response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .language)
+
+    // Test UNEXPECTED_TOOL_CALL
+    json = createResponseJSON(finishReason: "UNEXPECTED_TOOL_CALL")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .unexpectedToolCall)
+
+    // Test TOO_MANY_TOOL_CALLS
+    json = createResponseJSON(finishReason: "TOO_MANY_TOOL_CALLS")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .tooManyToolCalls)
+
+    // Test MISSING_THOUGHT_SIGNATURE
+    json = createResponseJSON(finishReason: "MISSING_THOUGHT_SIGNATURE")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .missingThoughtSignature)
+
+    // Test MALFORMED_RESPONSE
+    json = createResponseJSON(finishReason: "MALFORMED_RESPONSE")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .malformedResponse)
+
+    // Test IMAGE_SAFETY
+    json = createResponseJSON(finishReason: "IMAGE_SAFETY")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .imageSafety)
+
+    // Test IMAGE_PROHIBITED_CONTENT
+    json = createResponseJSON(finishReason: "IMAGE_PROHIBITED_CONTENT")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .imageProhibitedContent)
+
+    // Test IMAGE_OTHER
+    json = createResponseJSON(finishReason: "IMAGE_OTHER")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .imageOther)
+
+    // Test NO_IMAGE
+    json = createResponseJSON(finishReason: "NO_IMAGE")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .noImage)
+
+    // Test IMAGE_RECITATION
+    json = createResponseJSON(finishReason: "IMAGE_RECITATION")
+    response = try decoder.decode(GenerateContentResponse.self, from: json)
+    XCTAssertEqual(response.candidates.first?.finishReason, .imageRecitation)
+  }
+
+  // Helper function to create JSON for GenerateContentResponse with a specific finish reason
+  private func createResponseJSON(finishReason: String) -> Data {
+    return """
+    {
+      "candidates": [
+        {
+          "content": {
+            "parts": [
+              { "text": "Test reply" }
+            ],
+            "role": "model"
+          },
+          "finishReason": "\(finishReason)",
+          "index": 0,
+          "safetyRatings": []
+        }
+      ],
+      "usageMetadata": {
+        "promptTokenCount": 10,
+        "cachedContentTokenCount": 0,
+        "candidatesTokenCount": 5,
+        "totalTokenCount": 15,
+        "promptTokensDetails": [],
+        "cacheTokensDetails": [],
+        "candidatesTokensDetails": []
+      }
+    }
+    """.data(using: .utf8)!
+  }
 }
