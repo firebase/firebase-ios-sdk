@@ -292,7 +292,7 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   /// Token generation stopped because generated images contain safety violations.
   public static let imageSafety = FinishReason(kind: .imageSafety)
 
-  /// Image generation stopped because generated images has other prohibited content.
+  /// Image generation stopped because generated images have other prohibited content.
   public static let imageProhibitedContent = FinishReason(kind: .imageProhibitedContent)
 
   /// Image generation stopped because of other miscellaneous issue.
