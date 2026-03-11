@@ -75,6 +75,37 @@ struct ImagenIntegrationTests {
     #endif // canImport(UIKit)
   }
 
+  @Test func generateImage_imageSize() async throws {
+    let generationConfig = ImagenGenerationConfig(
+      aspectRatio: .square1x1,
+      imageSize: .size2K, // Test with size2K
+      imageFormat: .png(),
+      addWatermark: false
+    )
+    let model = vertex.imagenModel(
+      modelName: "imagen-4.0-generate-001",
+      generationConfig: generationConfig,
+      safetySettings: ImagenSafetySettings(
+        safetyFilterLevel: .blockLowAndAbove,
+        personFilterLevel: .allowAdult
+      )
+    )
+    let imagePrompt = "A futuristic city skyline at sunset"
+
+    let response = try await model.generateImages(prompt: imagePrompt)
+
+    #expect(response.filteredReason == nil)
+    #expect(response.images.count == 1)
+    let image = try #require(response.images.first)
+    #expect(image.mimeType == "image/png")
+    #expect(image.data.isEmpty == false)
+    #if canImport(UIKit)
+      let uiImage = try #require(UIImage(data: image.data))
+      #expect(uiImage.size.width == 2048.0) // 2K square image
+      #expect(uiImage.size.height == 2048.0)
+    #endif // canImport(UIKit)
+  }
+
   // TODO: Add integration tests for image sizes and update to Imagen 4.
 
   @Test func generateImages_gcsImages() async throws {
