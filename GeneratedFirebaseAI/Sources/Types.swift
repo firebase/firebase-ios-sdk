@@ -8280,7 +8280,6 @@ public struct GenerateContentConfig: Sendable {
   /// - `application/json`: JSON response in the candidates.
   /// The model needs to be prompted to output the appropriate response type,
   /// otherwise the behavior is undefined.
-  /// This is a preview feature.
   public let responseMimeType: String?
 
   /// The `Schema` object allows the definition of input and output data types.
