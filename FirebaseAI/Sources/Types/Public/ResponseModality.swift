@@ -24,7 +24,7 @@ import Foundation
 /// > Important: Support for each response modality, or combination of modalities, depends on the
 /// > model.
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ResponseModality: EncodableProtoEnum, Sendable {
+public struct ResponseModality: EncodableProtoEnum, Sendable, Equatable {
   enum Kind: String {
     case text = "TEXT"
     case image = "IMAGE"
