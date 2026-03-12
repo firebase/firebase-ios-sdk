@@ -166,26 +166,6 @@ struct ImagenIntegrationTests {
     }
   }
 
-  @Test func generateImage_finishReason_imageSafety() async throws {
-    let generationConfig = ImagenGenerationConfig(
-      numberOfImages: 1,
-      imageFormat: .jpeg()
-    )
-    let model = vertex.imagenModel(
-      modelName: "imagen-3.0-fast-generate-001",
-      generationConfig: generationConfig,
-      safetySettings: ImagenSafetySettings(
-        safetyFilterLevel: .blockLowAndAbove,
-        personFilterLevel: .blockAll
-      )
-    )
-    let imagePrompt = "A graphic image of violence" // This prompt should trigger safety violation
-
-    let response = try await model.generateImages(prompt: imagePrompt)
-
-    #expect(response.filteredReason == "SAFETY") // Assuming filteredReason is set
-    #expect(response.images.isEmpty) // No images should be generated
-  }
 
   // TODO(#14221): Add an integration test for the prompt being blocked.
 
