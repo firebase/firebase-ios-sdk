@@ -121,6 +121,9 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
   UIApplicationState state = [UIApplication sharedApplication].applicationState;
   if (state == UIApplicationStateBackground) {
+    // Check if the app uses the UIScene lifecycle. Scene-based apps (SwiftUI or UIKit with scenes)
+    // connect scenes after didFinishLaunching, so applicationState may report .background even on
+    // normal foreground launches. Non-scene apps report .background reliably.
     NSDictionary *sceneManifest =
         [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
     if (sceneManifest) {
@@ -268,10 +271,13 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
       return;
     }
 
+    // Only applies to scene-based apps where .background at launch may be a false positive.
     // Distinguish genuine background launches by checking how long ago +load captured appStartTime.
     // A real foreground launch reaches didBecomeActive within seconds; a background launch that is
     // later opened by the user will have a much larger gap.
-    if (sLaunchedInBackgroundState) {
+    NSDictionary *sceneManifest =
+        [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
+    if (sLaunchedInBackgroundState && sceneManifest) {
       NSTimeInterval timeSinceStart = [[NSDate date] timeIntervalSinceDate:appStartTime];
       // App launched in background so we invalidate the captured app start time
       // to prevent incorrect measurement when user later opens the app
