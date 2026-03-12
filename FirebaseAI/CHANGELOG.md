@@ -1,13 +1,15 @@
 # Unreleased
-- [feature] Adds support for configuring image generation properties,
-  such as aspect ratio and image size, through the new `ImageConfig` struct
-  and its integration with `GenerationConfig`. (#15923)
 - [feature] Added support for GoogleMaps grounding, including for Server Prompt Templates.
 - [fixed] Fix unfound file warnings from `swift build`. (#16012)
 - [fixed] Fixed a `no member 'autoFunctionDeclaration'` compilation error on
   unofficially supported Xcode versions older than 26.2. (#16037)
 - [fixed] Fixed missing thought summary output in `GenerativeModelSession.streamResponse`. (#16075)
-- [fixed] Removed unnecessary log statements related to retrieving text parts during automatic function calling.
+- [feature] Adds support for configuring image generation properties,
+  such as aspect ratio and image size, through the new `ImageConfig` struct
+  and its integration with `GenerationConfig`. (#15923)
+- [feature] Adds support for new `FinishReason` values including
+  image-related reasons like `imageSafety`, `noImage`, and others for
+  tool-use, language, and malformed responses. (#15931)
 
 # 12.12.0
 - [feature] Added support for automatic function calling in
