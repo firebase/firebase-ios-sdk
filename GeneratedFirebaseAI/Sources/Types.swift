@@ -34448,6 +34448,57 @@ extension ProactivityConfig: Codable {
   }
 }
 
+/// Configuration for history exchange between client and server.
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+public struct HistoryConfig: Sendable {
+  /// If true, after sending `setup_complete`, the server will wait
+  /// and at first process `client_content` messages until `turn_complete` is
+  /// `true`. This initial history will not trigger a model call and
+  /// may end with role `MODEL`. After `turn_complete` is `true`, the client
+  /// can start the realtime conversation via `realtime_input`.
+  public let initialHistoryInClientContent: Bool?
+
+  /// Default initializer.
+  public init(
+    initialHistoryInClientContent: Bool? = nil
+  ) {
+    self.initialHistoryInClientContent = initialHistoryInClientContent
+  }
+}
+
+@available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+extension HistoryConfig: Codable {
+
+  // MARK: - Codable
+  public enum MLDevKeys: String, CodingKey {
+    case initialHistoryInClientContent = "initialHistoryInClientContent"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    initialHistoryInClientContent = try MLDevKeysContainer.decodeIfPresent(
+      Bool.self,
+      forKey: .initialHistoryInClientContent
+    )
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        initialHistoryInClientContent,
+        forKey: .initialHistoryInClientContent
+      )
+
+    }
+  }
+}
+
 /// Message contains configuration that will apply for the duration of the streaming
 /// session.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
@@ -34498,6 +34549,9 @@ public struct LiveClientSetup: Sendable {
   /// the input and to ignore irrelevant input.
   public let proactivity: ProactivityConfig?
 
+  /// Configures the exchange of history between the client and the server.
+  public let historyConfig: HistoryConfig?
+
   /// Configures the explicit VAD signal. If enabled, the client will send
   /// vad_signal to indicate the start and end of speech. This allows the server
   /// to process the audio more efficiently.
@@ -34515,6 +34569,7 @@ public struct LiveClientSetup: Sendable {
     inputAudioTranscription: AudioTranscriptionConfig? = nil,
     outputAudioTranscription: AudioTranscriptionConfig? = nil,
     proactivity: ProactivityConfig? = nil,
+    historyConfig: HistoryConfig? = nil,
     explicitVadSignal: Bool? = nil
   ) {
     self.model = model
@@ -34527,6 +34582,7 @@ public struct LiveClientSetup: Sendable {
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
     self.proactivity = proactivity
+    self.historyConfig = historyConfig
     self.explicitVadSignal = explicitVadSignal
   }
 }
@@ -34547,6 +34603,9 @@ extension LiveClientSetup: Codable {
     case inputAudioTranscription = "inputAudioTranscription"
     case outputAudioTranscription = "outputAudioTranscription"
     case proactivity = "proactivity"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case historyConfig = "historyConfig"
   }
   public enum VertexKeys: String, CodingKey {
     case explicitVadSignal = "explicitVadSignal"
@@ -34604,6 +34663,12 @@ extension LiveClientSetup: Codable {
     proactivity = try CommonKeysContainer.decodeIfPresent(
       ProactivityConfig.self,
       forKey: .proactivity
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    historyConfig = try MLDevKeysContainer.decodeIfPresent(
+      HistoryConfig.self,
+      forKey: .historyConfig
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -34666,6 +34731,16 @@ extension LiveClientSetup: Codable {
       proactivity,
       forKey: .proactivity
     )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        historyConfig,
+        forKey: .historyConfig
+      )
+
+    }
 
     if configuration.isVertexAI() {
 
@@ -35372,6 +35447,9 @@ public struct LiveConnectConfig: Sendable {
   /// the input and to ignore irrelevant input.
   public let proactivity: ProactivityConfig?
 
+  /// Configures the exchange of history between the client and the server.
+  public let historyConfig: HistoryConfig?
+
   /// Configures the explicit VAD signal. If enabled, the client will send
   /// vad_signal to indicate the start and end of speech. This allows the server
   /// to process the audio more efficiently.
@@ -35399,6 +35477,7 @@ public struct LiveConnectConfig: Sendable {
     realtimeInputConfig: RealtimeInputConfig? = nil,
     contextWindowCompression: ContextWindowCompressionConfig? = nil,
     proactivity: ProactivityConfig? = nil,
+    historyConfig: HistoryConfig? = nil,
     explicitVadSignal: Bool? = nil
   ) {
     self.httpOptions = httpOptions
@@ -35421,6 +35500,7 @@ public struct LiveConnectConfig: Sendable {
     self.realtimeInputConfig = realtimeInputConfig
     self.contextWindowCompression = contextWindowCompression
     self.proactivity = proactivity
+    self.historyConfig = historyConfig
     self.explicitVadSignal = explicitVadSignal
   }
 }
@@ -35451,6 +35531,9 @@ extension LiveConnectConfig: Codable {
     case realtimeInputConfig = "realtimeInputConfig"
     case contextWindowCompression = "contextWindowCompression"
     case proactivity = "proactivity"
+  }
+  public enum MLDevKeys: String, CodingKey {
+    case historyConfig = "historyConfig"
   }
   public enum VertexKeys: String, CodingKey {
     case explicitVadSignal = "explicitVadSignal"
@@ -35558,6 +35641,12 @@ extension LiveConnectConfig: Codable {
     proactivity = try CommonKeysContainer.decodeIfPresent(
       ProactivityConfig.self,
       forKey: .proactivity
+    )
+
+    let MLDevKeysContainer = try decoder.container(keyedBy: MLDevKeys.self)
+    historyConfig = try MLDevKeysContainer.decodeIfPresent(
+      HistoryConfig.self,
+      forKey: .historyConfig
     )
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
@@ -35670,6 +35759,16 @@ extension LiveConnectConfig: Codable {
       proactivity,
       forKey: .proactivity
     )
+
+    if configuration.isMlDeveloper() {
+
+      var MLDevKeysContainer = encoder.container(keyedBy: MLDevKeys.self)
+      try MLDevKeysContainer.encodeIfPresent(
+        historyConfig,
+        forKey: .historyConfig
+      )
+
+    }
 
     if configuration.isVertexAI() {
 
