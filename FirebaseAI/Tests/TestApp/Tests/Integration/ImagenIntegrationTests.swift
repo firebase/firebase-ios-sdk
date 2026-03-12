@@ -135,7 +135,6 @@ struct ImagenIntegrationTests {
     }
   }
 
-
   // TODO(#14221): Add an integration test for the prompt being blocked.
 
   // TODO(#14452): Add integration tests for validating that Storage Rules are enforced.

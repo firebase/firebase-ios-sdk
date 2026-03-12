@@ -235,20 +235,21 @@ final class APITests: XCTestCase {
 
   func testFinishReason_decoding() throws {
     let decoder = JSONDecoder()
-    let testCases: [(String, FinishReason)] = [
-      ("LANGUAGE", .language),
-      ("UNEXPECTED_TOOL_CALL", .unexpectedToolCall),
-      ("TOO_MANY_TOOL_CALLS", .tooManyToolCalls),
-      ("MISSING_THOUGHT_SIGNATURE", .missingThoughtSignature),
-      ("MALFORMED_RESPONSE", .malformedResponse),
-      ("IMAGE_SAFETY", .imageSafety),
-      ("IMAGE_PROHIBITED_CONTENT", .imageProhibitedContent),
-      ("IMAGE_OTHER", .imageOther),
-      ("NO_IMAGE", .noImage),
-      ("IMAGE_RECITATION", .imageRecitation),
+    let testCases: [FinishReason] = [
+      .language,
+      .unexpectedToolCall,
+      .tooManyToolCalls,
+      .missingThoughtSignature,
+      .malformedResponse,
+      .imageSafety,
+      .imageProhibitedContent,
+      .imageOther,
+      .noImage,
+      .imageRecitation,
     ]
 
-    for (reasonString, expectedReason) in testCases {
+    for expectedReason in testCases {
+      let reasonString = expectedReason.rawValue
       let json = createResponseJSON(finishReason: reasonString)
       let response = try decoder.decode(GenerateContentResponse.self, from: json)
       XCTAssertEqual(
