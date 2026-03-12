@@ -22,6 +22,8 @@ import Foundation
   @preconcurrency internal import GoogleUtilities
 #endif // SWIFT_PACKAGE
 
+internal import FirebaseCoreInternal
+
 /// CacheKey is like a "key" to a "safe". It provides necessary metadata about the current cache to
 /// know if it should be expired.
 struct CacheKey: Codable {
@@ -32,78 +34,159 @@ struct CacheKey: Codable {
 
 /// SettingsCacheClient is responsible for accessing the cache that Settings are stored in.
 protocol SettingsCacheClient: Sendable {
-  /// Returns in-memory cache content in O(1) time. Returns empty dictionary if it does not exist in
-  /// cache.
-  var cacheContent: [String: Any] { get set }
-  /// Returns in-memory cache-key, no performance guarantee because type-casting depends on size of
-  /// CacheKey
-  var cacheKey: CacheKey? { get set }
+  /// Reads a value from the root level of the cache.
+  func rootValue<T>(forKey key: String) -> T?
+
+  /// Reads a value from the configured namespace within the cache.
+  func namespacedValue<T>(forKey key: String) -> T?
+
+  /// Updates the cache content with the new dictionary.
+  /// If the dictionary contains the namespace key, it merges the inner
+  /// dictionary.
+  func updateContents(_ content: [String: Any])
+
+  /// Updates the cache metadata (CacheKey).
+  func updateMetadata(_ metadata: CacheKey)
+
   /// Removes all cache content and cache-key
   func removeCache()
+
   /// Returns whether the cache is expired for the given app info structure and time.
   func isExpired(for appInfo: ApplicationInfoProtocol, time: Date) -> Bool
 }
 
-/// SettingsCache uses UserDefaults to store Settings on-disk, but also directly query UserDefaults
-/// when accessing Settings values during run-time. This is because UserDefaults encapsulates both
-/// in-memory and persisted-on-disk storage, allowing fast synchronous access in-app while hiding
-/// away the complexity of managing persistence asynchronously.
+/// SettingsCache uses an in-memory cache for fast synchronous access to settings
+/// during runtime. `GULUserDefaults` is used for persisting these settings
+/// to disk, enabling the in-memory cache to provide immediate reads.
+///
+/// The cache content is expected to be a dictionary. Root-level keys like
+/// `cache_duration` are read directly, while other settings are namespaced.
+/// For example:
+///
+/// ```json
+/// {
+///   "cache_duration": 3600, // seconds
+///   "app_quality": {
+///     "sessions_enabled": true,
+///     "sampling_rate": 0.75,
+///     "session_timeout_seconds": 1800
+///   }
+/// }
+/// ```
 final class SettingsCache: SettingsCacheClient {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private static let flagCacheDuration = "cache_duration"
   private static let settingsVersion: Int = 1
+
   private enum UserDefaultsKeys {
     static let forContent = "firebase-sessions-settings"
     static let forCacheKey = "firebase-sessions-cache-key"
   }
 
+  /// Box type to workaround legacy `[String: Any]` type.
+  private struct SendableContainer: @unchecked Sendable {
+    let data: [String: Any]
+  }
+
   /// UserDefaults holds values in memory, making access O(1) and synchronous within the app, while
   /// abstracting away async disk IO.
-  private let cache: GULUserDefaults = .standard()
+  private let diskCache: GULUserDefaults = .standard()
+  private let namespace: String
 
-  /// Converting to dictionary is O(1) because object conversion is O(1)
-  var cacheContent: [String: Any] {
-    get {
-      return (cache.object(forKey: UserDefaultsKeys.forContent) as? [String: Any]) ?? [:]
-    }
-    set {
-      cache.setObject(newValue, forKey: UserDefaultsKeys.forContent)
-    }
-  }
+  private let memoryCache: UnfairLock<[String: Any]>
+  private let memoryCacheKey: UnfairLock<CacheKey?>
 
-  /// Casting to Codable from Data is O(n)
-  var cacheKey: CacheKey? {
-    get {
-      if let data = cache.object(forKey: UserDefaultsKeys.forCacheKey) as? Data {
-        do {
-          return try JSONDecoder().decode(CacheKey.self, from: data)
-        } catch {
-          Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
-        }
-      }
-      return nil
-    }
-    set {
+  init(namespace: String) {
+    self.namespace = namespace
+
+    // Load the cache contents directly (no flattening).
+    let storedContents = diskCache
+      .object(forKey: UserDefaultsKeys.forContent) as? [String: Any] ?? [:]
+    memoryCache = UnfairLock(storedContents)
+
+    // Load the cache key.
+    var storedMetadata: CacheKey?
+    if let data = diskCache.object(forKey: UserDefaultsKeys.forCacheKey) as? Data {
       do {
-        try cache.setObject(JSONEncoder().encode(newValue), forKey: UserDefaultsKeys.forCacheKey)
+        storedMetadata = try JSONDecoder().decode(CacheKey.self, from: data)
       } catch {
-        Logger.logError("[Settings] Encoding CacheKey failed with error: \(error)")
+        Logger.logError("[Settings] Decoding CacheKey failed with error: \(error)")
       }
+    }
+    memoryCacheKey = UnfairLock(storedMetadata)
+  }
+
+  func rootValue<T>(forKey key: String) -> T? {
+    memoryCache.withLock { memoryCache in
+      resolve(key: key, in: SendableContainer(data: memoryCache))
     }
   }
 
-  /// Removes stored cache
+  func namespacedValue<T>(forKey key: String) -> T? {
+    memoryCache.withLock { memoryCache in
+      guard let inner = memoryCache[namespace] as? [String: Any] else {
+        return nil
+      }
+      return resolve(key: key, in: SendableContainer(data: inner))
+    }
+  }
+
+  private func resolve<T>(key: String, in dict: SendableContainer) -> T? {
+    let value = dict.data[key]
+    if let typedValue = value as? T {
+      return typedValue
+    }
+    // Try to bridge via NSNumber to handle Int <-> Double conversions
+    // automatically like UserDefaults/JSONSerialization would in ObjC.
+    if let number = value as? NSNumber {
+      return number as? T
+    }
+    return nil
+  }
+
+  func updateContents(_ contents: [String: Any]) {
+    // Write to in-memory cache directly (no flattening).
+    let container = SendableContainer(data: contents)
+
+    memoryCache.withLock { cache in
+      cache = container.data
+    }
+
+    // Write to disk cache.
+    // We overwrite the entire key to match legacy behavior.
+    diskCache.setObject(contents, forKey: UserDefaultsKeys.forContent)
+  }
+
+  func updateMetadata(_ metadata: CacheKey) {
+    do {
+      let encodedMetadata = try JSONEncoder().encode(metadata)
+      // Write to in-memory cache.
+      memoryCacheKey.withLock { memoryCacheKey in
+        memoryCacheKey = metadata
+      }
+      // Write to disk cache.
+      diskCache.setObject(encodedMetadata, forKey: UserDefaultsKeys.forCacheKey)
+    } catch {
+      Logger.logError("[Settings] Encoding CacheKey failed with error: \(error)")
+    }
+  }
+
   func removeCache() {
-    cache.setObject(nil, forKey: UserDefaultsKeys.forContent)
-    cache.setObject(nil, forKey: UserDefaultsKeys.forCacheKey)
+    memoryCache.withLock { $0 = [:] }
+    memoryCacheKey.withLock { $0 = nil }
+    diskCache.setObject(nil, forKey: UserDefaultsKeys.forContent)
+    diskCache.setObject(nil, forKey: UserDefaultsKeys.forCacheKey)
   }
 
   func isExpired(for appInfo: ApplicationInfoProtocol, time: Date) -> Bool {
-    guard !cacheContent.isEmpty else {
+    let isCacheEmpty = memoryCache.withLock(\.isEmpty)
+    guard !isCacheEmpty else {
       removeCache()
       return true
     }
-    guard let cacheKey = cacheKey else {
+
+    let cacheKey = memoryCacheKey.withLock { $0 }
+    guard let cacheKey else {
       Logger.logError("[Settings] Could not load settings cache key")
       removeCache()
       return true
@@ -126,7 +209,9 @@ final class SettingsCache: SettingsCacheClient {
   }
 
   private func cacheDuration() -> TimeInterval {
-    guard let duration = cacheContent[Self.flagCacheDuration] as? Double else {
+    // cache_duration is always at the root level
+    let cacheDuration: Double? = rootValue(forKey: Self.flagCacheDuration)
+    guard let duration = cacheDuration else {
       return Self.cacheDurationSecondsDefault
     }
     Logger.logDebug("[Settings] Cache duration: \(duration)")

@@ -57,6 +57,7 @@ jobs:
   #       path: quickstart-ios/
 
   quickstart:
+    environment: release-testing
     if: |
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name)

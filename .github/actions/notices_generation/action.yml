@@ -15,8 +15,7 @@ inputs:
   search-local-pod-version:
     description: 'Add pod version from local spec repo'
     required: true
-    default: false
-    type: boolean
+    default: 'false'
   notices-path:
     description: 'Path of Notices file containing all licences.'
     required: true
@@ -30,14 +29,20 @@ runs:
     with:
       ruby-version: "2.7"
   - name: Generate a NOTICES file
+    env:
+      PODS: ${{ inputs.pods }}
+      SOURCES: ${{ inputs.sources }}
+      MIN_IOS_VERSION: ${{ inputs.min-ios-version }}
+      SEARCH_LOCAL_POD_VERSION: ${{ inputs.search-local-pod-version }}
+      NOTICES_PATH: ${{ inputs.notices-path }}
     run: |
       cd "${{ github.action_path }}"
       bundle install
-      if ${{ inputs.search-local-pod-version == 'true' }} ; then
-        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --search_local_pod_version --notices_path ${{ inputs.notices-path }}
-      else
-        ruby app.rb --pods ${{ inputs.pods }} --sources ${{ inputs.sources }} --min_ios_version ${{ inputs.min-ios-version }} --notices_path ${{ inputs.notices-path }}
+      args=("--pods" "$PODS" "--sources" "$SOURCES" "--min_ios_version" "$MIN_IOS_VERSION" "--notices_path" "$NOTICES_PATH")
+      if [ "$SEARCH_LOCAL_POD_VERSION" == "true" ]; then
+        args+=("--search_local_pod_version")
       fi
+      ruby app.rb "${args[@]}"
     shell: bash
   - name: Upload artifacts
     uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0

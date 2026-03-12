@@ -37,6 +37,7 @@ jobs:
       target: FirebaseInstallations-Unit-unit
 
   pod_lib_lint:
+    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseInstallations
@@ -60,6 +61,7 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   installations-cron-only:
+    if: github.event.pull_request.head.repo.fork == false
     needs: pod_lib_lint
     uses: ./.github/workflows/_cocoapods.cron.yml
     with:

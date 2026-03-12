@@ -112,6 +112,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: .build
@@ -133,17 +135,19 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
-      if: contains(join(inputs.platforms), matrix.platform) || matrix.os == 'macos-14'
+      if: contains(inputs.platforms, matrix.platform) || matrix.os == 'macos-14'
       env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
+        TARGET: ${{ inputs.target }}
+        PLATFORM: ${{ matrix.platform }}
       with:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
         command: |
           ./scripts/build.sh \
-            ${{ inputs.target }} \
-            ${{ matrix.platform }} \
+            "$TARGET" \
+            "$PLATFORM" \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }}
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}

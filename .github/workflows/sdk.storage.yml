@@ -38,6 +38,7 @@ jobs:
       target: FirebaseStorage-Unit-unit
 
   storage-integration-tests:
+    if: github.event.pull_request.head.repo.fork == false
     strategy:
       matrix:
         product: [StorageSwift, StorageObjC]

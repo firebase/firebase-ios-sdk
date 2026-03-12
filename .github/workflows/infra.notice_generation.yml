@@ -27,9 +27,9 @@ jobs:
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
         swift run manifest --output-file-path ./output.txt --for-notices-generation
-        PODS=`cat ./output.txt`
-        echo "PODS=${PODS}" >> $GITHUB_ENV
-        echo "NOTICES_PATH=${GITHUB_WORKSPACE}/${NOTICES_PATH}" >> $GITHUB_ENV
+        PODS="$(cat ./output.txt)"
+        echo "PODS=${PODS}" >> "$GITHUB_ENV"
+        echo "NOTICES_PATH=${GITHUB_WORKSPACE}/${NOTICES_PATH}" >> "$GITHUB_ENV"
     - name: Create a local specs repo
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
@@ -49,9 +49,9 @@ jobs:
         RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
         gem install octokit
         ruby scripts/create_pull_request.rb \
-        --repo-root ${GITHUB_WORKSPACE} \
-        --repo-token ${{ secrets.GITHUB_TOKEN }} \
-        --target-path  ${{ env.NOTICES_PATH }} \
+        --repo-root "${GITHUB_WORKSPACE}" \
+        --repo-token "${{ secrets.GITHUB_TOKEN }}" \
+        --target-path  "${NOTICES_PATH}" \
         --pr-title "NOTICES Change" \
         --pr-body "NOTICES Change is detected in [this GitHub Actions Run](${RUN_URL})." \
         --commit-comment "NOTICES change."
