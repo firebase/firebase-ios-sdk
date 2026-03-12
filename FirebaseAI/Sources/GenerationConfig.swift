@@ -16,7 +16,6 @@ import Foundation
 
 /// A struct defining model parameters to be used when sending generative AI
 /// requests to the backend model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerationConfig: Sendable {
   /// Controls the degree of randomness in token selection.
   var temperature: Float?
@@ -255,7 +254,6 @@ public struct GenerationConfig: Sendable {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerationConfig: Encodable {
   enum CodingKeys: String, CodingKey {
     case temperature
