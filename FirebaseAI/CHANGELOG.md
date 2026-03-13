@@ -1,3 +1,11 @@
+# Unreleased
+- [feature] Added support for session resumption in the Live API via the `resumeSession` method on
+  [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  (#15904)
+- [feature] Added support for context window compression in the Liva API via
+  [`ContextWindowCompressionConfig`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/ContextWindowCompressionConfig).
+  (#15904)
+
 # 12.9.0
 - [changed] The URL context tool APIs are now GA.
 - [feature] Added support for implicit caching (context caching) metadata in `GenerateContentResponse`.
