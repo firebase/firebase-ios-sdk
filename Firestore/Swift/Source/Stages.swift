@@ -346,9 +346,12 @@ class Union: Stage {
   let bridge: StageBridge
   private var other: Pipeline
 
+  let errorMessage: String?
+
   init(other: Pipeline) {
     self.other = other
     bridge = UnionStageBridge(other: other.bridge)
+    errorMessage = other.errorMessage
   }
 }
 
