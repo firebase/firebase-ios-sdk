@@ -13,7 +13,6 @@
 // limitations under the License.
 
 /// Update from the  server, generated from the model in response to client messages.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveServerMessage: Sendable {
   let serverMessage: BidiGenerateContentServerMessage
@@ -50,7 +49,6 @@ public struct LiveServerMessage: Sendable {
 
 // MARK: - Internal parsing
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 extension LiveServerMessage {
   init?(from serverMessage: BidiGenerateContentServerMessage) {
@@ -63,7 +61,6 @@ extension LiveServerMessage {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 extension LiveServerMessage.Payload {
   init?(from serverMessage: BidiGenerateContentServerMessage.MessageType) {

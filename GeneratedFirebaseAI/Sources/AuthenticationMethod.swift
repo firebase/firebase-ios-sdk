@@ -14,7 +14,7 @@
 
 import Foundation
 #if os(Linux)
-  import FoundationNetworking
+import FoundationNetworking
 #endif
 
 @preconcurrency import FirebaseCore

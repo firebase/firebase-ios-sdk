@@ -20,9 +20,11 @@ public class FirebaseFake: FirebaseApp {
   }
 }
 
-public extension FirebaseOptions {
-  convenience init(apiKey: String,
-                   projectID: String) {
+extension FirebaseOptions {
+  public convenience init(
+    apiKey: String,
+    projectID: String
+  ) {
     self.init(googleAppID: TestConstants.GoogleAppId, gcmSenderID: "TEST_GCM_SENDER_ID")
     self.apiKey = apiKey
     self.projectID = projectID

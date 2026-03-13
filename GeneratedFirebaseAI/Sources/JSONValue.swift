@@ -14,7 +14,7 @@
 
 import Foundation
 #if os(Linux)
-  import FoundationNetworking
+import FoundationNetworking
 #endif
 
 /// A collection of name-value pairs representing a JSON object.

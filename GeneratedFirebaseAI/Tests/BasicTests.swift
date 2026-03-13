@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import XCTest
+import Foundation
 #if os(Linux)
-  import FoundationNetworking
+import FoundationNetworking
 #endif
 @testable import GeneratedFirebaseAI
 
@@ -44,12 +44,7 @@ class BasicTests: XCTestCase {
     """.data(using: .utf8)!
 
     let session = mockURLSession { request in
-      let response = HTTPURLResponse(
-        url: request.url!,
-        statusCode: 200,
-        httpVersion: nil,
-        headerFields: nil
-      )!
+      let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
       return (response, mockJSON)
     }
 
@@ -58,14 +53,14 @@ class BasicTests: XCTestCase {
                         urlSession: session)
     let models = Models(apiClient: api)
 
-    let response = try await models
-      .listInternal(params: ListModelsParameters(config: ListModelsConfig(filter: "gemini-3")))
+    let response = try await models.listInternal(params: ListModelsParameters(config: ListModelsConfig(filter: "gemini-3")))
 
     XCTAssertNotNil(response.models)
     XCTAssertEqual(response.models?.first?.displayName, "Gemini 3")
   }
 
   func testGenerateContent() async throws {
+
     let mockJSON = """
     {
       "candidates": [
@@ -86,12 +81,7 @@ class BasicTests: XCTestCase {
     """.data(using: .utf8)!
 
     let session = mockURLSession { request in
-      let response = HTTPURLResponse(
-        url: request.url!,
-        statusCode: 200,
-        httpVersion: nil,
-        headerFields: nil
-      )!
+      let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
       return (response, mockJSON)
     }
 

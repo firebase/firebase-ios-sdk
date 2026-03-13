@@ -15,7 +15,6 @@
 import Foundation
 
 /// Speech generation config.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 struct BidiSpeechConfig: Encodable, Sendable {
   /// The configuration for the speaker to use.

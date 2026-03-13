@@ -15,7 +15,7 @@
 import FirebaseAppCheckInterop
 import Foundation
 #if os(Linux)
-  import FoundationNetworking
+import FoundationNetworking
 #endif
 
 class AppCheckInteropFake: NSObject, AppCheckInterop {
