@@ -304,18 +304,6 @@ struct LiveSessionTests {
     #expect(modelResponse == "michael")
   }
 
-  @Test
-  func temp() async throws {
-    let dm = DataManager()
-    await dm.startListening()
-    await dm.emit(value: "Hello")
-    await dm.stopListening()
-    await dm.startListening()
-    await dm.emit(value: "World")
-    await dm.stopListening()
-    print("Done")
-  }
-
   @Test(arguments: arguments)
   func realtime_resumeSession(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
