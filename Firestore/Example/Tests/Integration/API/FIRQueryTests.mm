@@ -1145,6 +1145,30 @@
   [self checkOnlineAndOfflineCollection:collRef query:query matchesResult:expectedDocs];
 }
 
+- (void)testSnapshotListenerSortsNumbersSameWayAsServer {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"intMin" : @{@"value" : @LLONG_MIN},
+    @"doubleMin" : @{@"value" : @((double)LLONG_MIN - 100)},
+    @"intMax" : @{@"value" : @LLONG_MAX},
+    @"doubleMax" : @{@"value" : @((double)LLONG_MAX + 100)},
+    @"NaN" : @{@"value" : [NSNumber numberWithFloat:NAN]},
+    @"integerMax" : @{@"value" : @(INT_MAX)},
+    @"integerMin" : @{@"value" : @(INT_MIN)},
+    @"negativeInfinity" : @{@"value" : @(-INFINITY)},
+    @"positiveInfinity" : @{@"value" : @(INFINITY)}
+  }];
+
+  FIRQuery *query = [collRef queryOrderedByField:@"value"];
+  FIRQuerySnapshot *getSnapshot = [self readDocumentSetForRef:query];
+
+  id<FIRListenerRegistration> registration =
+      [query addSnapshotListener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *watchSnapshot = [self.eventAccumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(watchSnapshot), FIRQuerySnapshotGetIDs(getSnapshot));
+
+  [registration remove];
+}
+
 - (void)testCollectionGroupQueriesWithWhereFiltersOnArbitraryDocumentIDs {
   // Use .document() to get a random collection group name to use but ensure it starts with 'b'
   // for predictable ordering.
