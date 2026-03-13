@@ -268,7 +268,8 @@ struct LiveSessionTests {
   @Test(arguments: arguments)
   // baseline test to ensure the model isn't retaining context automatically; which would invalidate
   // our other sessionResumption tests
-  func realtime_sessionResumption_disabled(_ config: InstanceConfig, modelName: String) async throws {
+  func realtime_sessionResumption_disabled(_ config: InstanceConfig,
+                                           modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
       generationConfig: sessionResumptionGenerationConfig,

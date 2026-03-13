@@ -165,4 +165,3 @@ public final class LiveSession: Sendable {
     try await service.connect(sessionResumption: sessionResumption)
   }
 }
-

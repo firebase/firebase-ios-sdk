@@ -143,10 +143,8 @@ actor LiveSessionService {
   /// - Server sends back `BidiGenerateContentSetupComplete` when it's ready
   ///
   /// This function will yield until the setup is complete.
-  private func waitForSetupComplete(
-    stream: MappedStream<URLSessionWebSocketTask.Message, Data>,
-    sessionResumption: SessionResumptionConfig?
-  ) async throws {
+  private func waitForSetupComplete(stream: MappedStream<URLSessionWebSocketTask.Message, Data>,
+                                    sessionResumption: SessionResumptionConfig?) async throws {
     guard let webSocket else { return }
 
     do {

@@ -31,7 +31,7 @@ public struct SlidingWindow: Sendable {
   }
 
   init(_ slidingWindow: BidiSlidingWindow) {
-    self.bidiSlidingWindow = slidingWindow
+    bidiSlidingWindow = slidingWindow
   }
 }
 
