@@ -8280,7 +8280,6 @@ public struct GenerateContentConfig: Sendable {
   /// - `application/json`: JSON response in the candidates.
   /// The model needs to be prompted to output the appropriate response type,
   /// otherwise the behavior is undefined.
-  /// This is a preview feature.
   public let responseMimeType: String?
 
   /// The `Schema` object allows the definition of input and output data types.
@@ -34355,10 +34354,17 @@ extension ContextWindowCompressionConfig: Codable {
 /// The audio transcription configuration in Setup.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct AudioTranscriptionConfig: Sendable {
+  /// The language codes of the audio. BCP-47 language code. If not set, the
+  /// transcription will be in the language detected by the model. If set, the server
+  /// will use the language code specified in the model config as a hint for the
+  /// language of the audio
+  public let languageCodes: [String]?
 
   /// Default initializer.
-  public init() {
-
+  public init(
+    languageCodes: [String]? = nil
+  ) {
+    self.languageCodes = languageCodes
   }
 }
 
@@ -34366,13 +34372,32 @@ public struct AudioTranscriptionConfig: Sendable {
 extension AudioTranscriptionConfig: Codable {
 
   // MARK: - Codable
+  public enum VertexKeys: String, CodingKey {
+    case languageCodes = "languageCodes"
+  }
 
   public init(from decoder: any Decoder) throws {
     let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
+
+    let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    languageCodes = try VertexKeysContainer.decodeIfPresent(
+      [String].self,
+      forKey: .languageCodes
+    )
   }
 
   public func encode(to encoder: any Encoder) throws {
     let configuration: APIClient = try encoder.userInfoOrThrow(.configuration)
+
+    if configuration.isVertexAI() {
+
+      var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        languageCodes,
+        forKey: .languageCodes
+      )
+
+    }
   }
 }
 

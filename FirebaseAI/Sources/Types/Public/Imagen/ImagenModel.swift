@@ -22,7 +22,6 @@ import Foundation
 /// documentation](https://firebase.google.com/docs/vertex-ai/generate-images-imagen?platform=ios)
 /// for more details about the image generation capabilities offered by the Imagen model in the
 /// Firebase AI SDK SDK.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class ImagenModel {
   /// Model name prefix to identify Imagen models.
   static let imagenModelNamePrefix = "imagen-"

@@ -21,7 +21,6 @@ import Foundation
 internal import FirebaseCoreExtension
 
 /// The Firebase AI SDK provides access to Gemini models directly from your app.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
 
@@ -197,7 +196,6 @@ public final class FirebaseAI: Sendable {
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   @available(watchOS, unavailable)
   public func liveModel(modelName: String,
                         generationConfig: LiveGenerationConfig? = nil,
