@@ -84,7 +84,7 @@ jobs:
       github.repository == 'firebase/firebase-ios-sdk' &&
       contains(fromJSON('["schedule", "pull_request", "workflow_dispatch"]'), github.event_name) &&
       needs.should_package.outputs.should_package == 'true'
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         linking_type: [static, dynamic]
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
