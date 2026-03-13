@@ -22,6 +22,7 @@ import Foundation
 /// ``LiveSession/sendContent(_:turnComplete:)-(PartsRepresentable...,_)``).
 ///
 /// To create an instance of this class, see ``LiveGenerativeModel``.
+// TODO: only mark as needed?
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 public final class LiveSession: Sendable {
@@ -146,16 +147,19 @@ public final class LiveSession: Sendable {
     await service.close()
   }
 
-  // TODO: b(445716402) Add a start method when we support session resumption
-  
-
   /// Resumes an existing live session with the server.
   ///
   /// This closes the current WebSocket connection and establishes a new one using
   /// the same configuration (URI, headers, model, system instruction, tools, etc.)
   /// as the original session.
   ///
-  /// - Parameter sessionResumption: The configuration for session resumption,
+  /// To optain a valid handle, ensure you pass an instance of
+  /// ``SessionResumptionConfig`` to ``LiveGenerativeModel/connect(sessionResumption:)``,
+  /// and then listen for the hande provided from a ``LiveSessionResumptionUpdate``
+  /// server message.
+  ///
+  /// - Parameters:
+  ///   - sessionResumption: The configuration for session resumption,
   ///   such as the handle to the previous session state to restore.
   public func resumeSession(sessionResumption: SessionResumptionConfig? = nil) async throws {
     try await service.connect(sessionResumption: sessionResumption)

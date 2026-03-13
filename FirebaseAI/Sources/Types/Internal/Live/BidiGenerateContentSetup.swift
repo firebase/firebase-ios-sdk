@@ -59,6 +59,9 @@ struct BidiGenerateContentSetup: Encodable {
   /// Configuration for the session resumption mechanism.
   let sessionResumption: BidiSessionResumptionConfig?
 
+  /// If included, the server will compress the context window to fit the given length.
+  let contextWindowCompression: BidiContextWindowCompressionConfig?
+
   init(model: String,
        generationConfig: BidiGenerationConfig? = nil,
        systemInstruction: ModelContent? = nil,
@@ -66,7 +69,8 @@ struct BidiGenerateContentSetup: Encodable {
        toolConfig: ToolConfig? = nil,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
        outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
-       sessionResumption: BidiSessionResumptionConfig? = nil) {
+       sessionResumption: BidiSessionResumptionConfig? = nil,
+       contextWindowCompression: BidiContextWindowCompressionConfig? = nil) {
     self.model = model
     self.generationConfig = generationConfig
     self.systemInstruction = systemInstruction
@@ -75,9 +79,17 @@ struct BidiGenerateContentSetup: Encodable {
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
     self.sessionResumption = sessionResumption
+    self.contextWindowCompression = contextWindowCompression
   }
 }
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 struct BidiAudioTranscriptionConfig: Encodable {}
+
+@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+@available(watchOS, unavailable)
+struct BidiSessionResumptionConfig: Encodable {
+  let handle: String?
+  let transparent: Bool?
+}

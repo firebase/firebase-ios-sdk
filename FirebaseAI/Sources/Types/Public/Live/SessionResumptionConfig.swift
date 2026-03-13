@@ -21,15 +21,18 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct SessionResumptionConfig: Sendable {
-  /// The session resumption handle of the previous session to restore.
-  ///
-  /// If not present, a new session will be started.
-  public let handle: String?
+  let bidiSessionResumptionConfig: BidiSessionResumptionConfig
 
   /// Creates a ``SessionResumptionConfig`` instance.
   ///
-  /// - Parameter handle: The session resumption handle of the previous session to restore.
+  /// - Parameters:
+  ///   - handle: The session resumption handle of the previous session to restore.
+  ///     If not present, a new session will be started.
   public init(handle: String? = nil) {
-    self.handle = handle
+    self.init(BidiSessionResumptionConfig(handle: handle, transparent: nil))
+  }
+
+  init(_ bidiSessionResumptionConfig: BidiSessionResumptionConfig) {
+    self.bidiSessionResumptionConfig = bidiSessionResumptionConfig
   }
 }

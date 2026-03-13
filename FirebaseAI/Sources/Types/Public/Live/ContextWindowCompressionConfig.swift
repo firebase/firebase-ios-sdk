@@ -20,14 +20,18 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct SlidingWindow: Sendable {
-  /// The session reduction target, i.e., how many tokens we should keep.
-  public let targetTokens: Int?
+  let bidiSlidingWindow: BidiSlidingWindow
 
-  /// Creates a ``SlidingWindow`` instance.
+  /// Creates a new ``SlidingWindow`` value.
   ///
-  /// - Parameter targetTokens: The target number of tokens to keep in the context window.
+  /// - Parameters:
+  ///   - targetTokens: The target number of tokens to keep in the context window.
   public init(targetTokens: Int? = nil) {
-    self.targetTokens = targetTokens
+    self.init(BidiSlidingWindow(targetTokens: targetTokens))
+  }
+
+  init(_ slidingWindow: BidiSlidingWindow) {
+    self.bidiSlidingWindow = slidingWindow
   }
 }
 
@@ -37,20 +41,23 @@ public struct SlidingWindow: Sendable {
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct ContextWindowCompressionConfig: Sendable {
-  /// The number of tokens (before running a turn) that triggers the context
-  /// window compression.
-  public let triggerTokens: Int?
+  let bidiContextWindowCompressionConfig: BidiContextWindowCompressionConfig
 
-  /// The sliding window compression mechanism.
-  public let slidingWindow: SlidingWindow?
-
-  /// Creates a ``ContextWindowCompressionConfig`` instance.
+  /// Creates a new ``ContextWindowCompressionConfig`` value.
   ///
   /// - Parameters:
   ///   - triggerTokens: The number of tokens that triggers the compression mechanism.
   ///   - slidingWindow: The sliding window compression mechanism to use.
   public init(triggerTokens: Int? = nil, slidingWindow: SlidingWindow? = nil) {
-    self.triggerTokens = triggerTokens
-    self.slidingWindow = slidingWindow
+    self.init(
+      BidiContextWindowCompressionConfig(
+        triggerTokens: triggerTokens,
+        slidingWindow: slidingWindow?.bidiSlidingWindow
+      )
+    )
+  }
+
+  init(_ bidiContextWindowCompressionConfig: BidiContextWindowCompressionConfig) {
+    self.bidiContextWindowCompressionConfig = bidiContextWindowCompressionConfig
   }
 }

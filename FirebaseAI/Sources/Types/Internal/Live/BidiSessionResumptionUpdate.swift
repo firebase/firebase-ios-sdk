@@ -16,34 +16,8 @@ import Foundation
 
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
-struct BidiSessionResumptionConfig: Encodable, Sendable {
-  let handle: String?
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
-@available(watchOS, unavailable)
 struct BidiSessionResumptionUpdate: Decodable, Sendable {
   let newHandle: String?
   let resumable: Bool?
   let lastConsumedClientMessageIndex: Int?
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
-@available(watchOS, unavailable)
-extension SessionResumptionConfig {
-  var bidiSessionResumptionConfig: BidiSessionResumptionConfig {
-    BidiSessionResumptionConfig(handle: handle)
-  }
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
-@available(watchOS, unavailable)
-extension LiveSessionResumptionUpdate {
-  init(_ msg: BidiSessionResumptionUpdate) {
-    self.init(
-      newHandle: msg.newHandle,
-      resumable: msg.resumable,
-      lastConsumedClientMessageIndex: msg.lastConsumedClientMessageIndex
-    )
-  }
 }

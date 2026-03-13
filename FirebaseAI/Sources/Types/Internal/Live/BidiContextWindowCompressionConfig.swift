@@ -26,22 +26,3 @@ struct BidiContextWindowCompressionConfig: Encodable, Sendable {
   let triggerTokens: Int?
   let slidingWindow: BidiSlidingWindow?
 }
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
-@available(watchOS, unavailable)
-extension SlidingWindow {
-  var bidiSlidingWindow: BidiSlidingWindow {
-    BidiSlidingWindow(targetTokens: targetTokens)
-  }
-}
-
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
-@available(watchOS, unavailable)
-extension ContextWindowCompressionConfig {
-  var bidiContextWindowCompressionConfig: BidiContextWindowCompressionConfig {
-    BidiContextWindowCompressionConfig(
-      triggerTokens: triggerTokens,
-      slidingWindow: slidingWindow?.bidiSlidingWindow
-    )
-  }
-}

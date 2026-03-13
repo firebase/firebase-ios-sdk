@@ -36,8 +36,8 @@ actor LiveSessionService {
     .Continuation
 
   // to ensure messages are sent in order, since swift actors are reentrant
-  private let messageQueue: AsyncStream<BidiGenerateContentClientMessage>
-  private let messageQueueContinuation: AsyncStream<BidiGenerateContentClientMessage>.Continuation
+  private var messageQueue: AsyncStream<BidiGenerateContentClientMessage>
+  private var messageQueueContinuation: AsyncStream<BidiGenerateContentClientMessage>.Continuation
 
   let modelResourceName: String
   let generationConfig: LiveGenerationConfig?
@@ -88,6 +88,11 @@ actor LiveSessionService {
     responsesTask?.cancel()
     messageQueueTask?.cancel()
     webSocket?.disconnect()
+
+    // we only finish the streams when the actor deinits; while the actor is still in scope, the
+    // user could continue using the streams via resumeSession (even after calling close)
+    messageQueueContinuation.finish()
+    responseContinuation.finish()
 
     webSocket = nil
     responsesTask = nil
@@ -153,7 +158,8 @@ actor LiveSessionService {
         toolConfig: toolConfig,
         inputAudioTranscription: generationConfig?.inputAudioTranscription,
         outputAudioTranscription: generationConfig?.outputAudioTranscription,
-        sessionResumption: sessionResumption?.bidiSessionResumptionConfig
+        sessionResumption: sessionResumption?.bidiSessionResumptionConfig,
+        contextWindowCompression: generationConfig?.contextWindowCompression,
       )
       let data = try jsonEncoder.encode(BidiGenerateContentClientMessage.setup(setup))
       try await webSocket.send(.data(data))
@@ -230,6 +236,9 @@ actor LiveSessionService {
   ///  - `messageQueueTask`: Listen to messages from the client and send them through the websocket.
   private func spawnMessageTasks(stream: MappedStream<URLSessionWebSocketTask.Message, Data>) {
     guard let webSocket else { return }
+    // we create a new messageQueue since the iterator below will cancel the old one when the
+    // task is cancelled. this will cause issues when trying to restart a session via resumeSession
+    (messageQueue, messageQueueContinuation) = AsyncStream.makeStream()
 
     responsesTask = Task {
       do {

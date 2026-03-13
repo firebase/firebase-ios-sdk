@@ -21,26 +21,22 @@ import Foundation
 @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionResumptionUpdate: Sendable {
+  let bidiSessionResumptionUpdate: BidiSessionResumptionUpdate
+
   /// The new handle that represents the state that can be resumed. Empty if
-  /// `resumable` is false.
-  public let newHandle: String?
+  /// ``LiveSessionResumptionUpdate/resumable`` is false.
+  public var newHandle: String? { bidiSessionResumptionUpdate.newHandle }
 
   /// Indicates if the session can be resumed at this point.
-  public let resumable: Bool?
+  public var resumable: Bool { bidiSessionResumptionUpdate.resumable ?? (newHandle != nil) }
 
   /// The index of the last client message that is included in the state
   /// represented by this update.
-  public let lastConsumedClientMessageIndex: Int?
+  public var lastConsumedClientMessageIndex: Int? {
+    bidiSessionResumptionUpdate.lastConsumedClientMessageIndex
+  }
 
-  /// Creates a ``LiveSessionResumptionUpdate`` instance.
-  ///
-  /// - Parameters:
-  ///   - newHandle: The new handle that represents the state that can be resumed.
-  ///   - resumable: Indicates if the session can be resumed at this point.
-  ///   - lastConsumedClientMessageIndex: The index of the last client message that is included in the state.
-  public init(newHandle: String? = nil, resumable: Bool? = nil, lastConsumedClientMessageIndex: Int? = nil) {
-    self.newHandle = newHandle
-    self.resumable = resumable
-    self.lastConsumedClientMessageIndex = lastConsumedClientMessageIndex
+  init(_ bidiSessionResumptionUpdate: BidiSessionResumptionUpdate) {
+    self.bidiSessionResumptionUpdate = bidiSessionResumptionUpdate
   }
 }
