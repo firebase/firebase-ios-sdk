@@ -52,6 +52,8 @@
   /// ```
   public final class GenerativeModelSession: Sendable {
     let session: Chat
+    // TODO: Throw on concurrent requests and add a lock for `transcript`.
+    private nonisolated(unsafe) var transcript: FirebaseAI.Transcript
 
     /// Creates a new `GenerativeModelSession` with the given model.
     ///
@@ -59,6 +61,7 @@
     /// - Parameter model: The `GenerativeModel` to use for generating content.
     init(model: GenerativeModel) {
       session = model.startChat()
+      transcript = FirebaseAI.Transcript()
     }
 
     /// Sends a new prompt to the model and returns a `Response` containing the generated content as
@@ -266,8 +269,33 @@
       )
       let content: Content = try Self.resolveContent(from: rawContent)
 
+      // TODO: Extract transcript handling to helper method and add to `streamResponse`.
+      let id = rawContent.generationID?.responseID ?? UUID().uuidString
+      let partsTranscript = FirebaseAI.Transcript(contents: parts)
+
+      var responseSegments = [FirebaseAI.Transcript.Segment]()
+      if let thoughtSummary = response.thoughtSummary {
+        responseSegments.append(.thought(.init(content: thoughtSummary)))
+      }
+      if schema != nil {
+        responseSegments.append(.structure(.init(
+          source: String(describing: Content.self),
+          content: rawContent
+        )))
+      } else {
+        responseSegments.append(.text(.init(content: text)))
+      }
+
+      transcript.entries.append(contentsOf: partsTranscript.entries)
+      let endIndex = transcript.entries.endIndex
+      transcript.entries
+        .append(.response(.init(id: id, assetIDs: [], segments: responseSegments)))
+
       return GenerativeModelSession.Response(
-        content: content, rawContent: rawContent, rawResponse: response
+        content: content,
+        rawContent: rawContent,
+        rawResponse: response,
+        transcriptEntries: transcript.entries[endIndex...]
       )
     }
 
@@ -448,6 +476,9 @@
       public let rawContent: FirebaseAI.GeneratedContent
       /// The raw `GenerateContentResponse` from the model.
       public let rawResponse: GenerateContentResponse
+
+      // TODO: Make `transcriptEntries` public when API is reviewed.
+      let transcriptEntries: ArraySlice<FirebaseAI.Transcript.Entry>
     }
   }
 
@@ -534,7 +565,8 @@
         return GenerativeModelSession.Response(
           content: content,
           rawContent: finalResult.rawContent,
-          rawResponse: finalResult.rawResponse
+          rawResponse: finalResult.rawResponse,
+          transcriptEntries: [] // TODO: Implement this
         )
       }
     }
