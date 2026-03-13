@@ -1,3 +1,11 @@
+# Unreleased
+- [feature] Added support for session resumption in the Live API via the `resumeSession` method on
+  [`LiveSession`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/LiveSession).
+  (#15904)
+- [feature] Added support for context window compression in the Liva API via
+  [`ContextWindowCompressionConfig`](https://firebase.google.com/docs/reference/swift/firebaseai/api/reference/Classes/ContextWindowCompressionConfig).
+  (#15904)
+
 # 12.11.0
 - [feature] **Public Preview**: Introduces `GenerativeModelSession` providing
   APIs for generating structured data from Gemini via the same `@Generable` and
