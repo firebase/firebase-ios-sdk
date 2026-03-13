@@ -16,7 +16,6 @@
 ///
 /// See the [documentation](https://ai.google.dev/gemini-api/docs/image-generation#aspect_ratios_and_image_size)
 /// to learn about parameters available for use with Gemini image models.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImageConfig: Sendable {
   /// The aspect ratio of generated images.
   public let aspectRatio: AspectRatio?
@@ -35,7 +34,6 @@ public struct ImageConfig: Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ImageConfig {
   /// An aspect ratio for generated images.
   struct AspectRatio: Sendable {
@@ -136,7 +134,6 @@ public extension ImageConfig {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageConfig.AspectRatio: EncodableProtoEnum {
   enum Kind: String {
     case square1x1 = "1:1"
@@ -156,7 +153,6 @@ extension ImageConfig.AspectRatio: EncodableProtoEnum {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageConfig.ImageSize: EncodableProtoEnum {
   enum Kind: String {
     case size512 = "512"
@@ -168,5 +164,4 @@ extension ImageConfig.ImageSize: EncodableProtoEnum {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageConfig: Encodable {}
