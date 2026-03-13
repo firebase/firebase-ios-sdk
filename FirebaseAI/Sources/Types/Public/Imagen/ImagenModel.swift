@@ -136,6 +136,7 @@ public final class ImagenModel {
       storageURI: storageURI,
       negativePrompt: generationConfig?.negativePrompt,
       aspectRatio: generationConfig?.aspectRatio?.rawValue,
+      sampleImageSize: generationConfig?.imageSize?.rawValue,
       safetyFilterLevel: safetySettings?.safetyFilterLevel?.rawValue,
       personGeneration: safetySettings?.personFilterLevel?.rawValue,
       outputOptions: generationConfig?.imageFormat.map {

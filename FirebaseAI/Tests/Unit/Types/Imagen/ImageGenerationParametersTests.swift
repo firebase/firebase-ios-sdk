@@ -29,6 +29,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       storageURI: nil,
       negativePrompt: nil,
       aspectRatio: nil,
+      sampleImageSize: nil,
       safetyFilterLevel: nil,
       personGeneration: nil,
       outputOptions: nil,
@@ -53,6 +54,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       storageURI: storageURI,
       negativePrompt: nil,
       aspectRatio: nil,
+      sampleImageSize: nil,
       safetyFilterLevel: nil,
       personGeneration: nil,
       outputOptions: nil,
@@ -76,11 +78,13 @@ final class ImageGenerationParametersTests: XCTestCase {
     let compressionQuality = 80
     let imageFormat = ImagenImageFormat.jpeg(compressionQuality: compressionQuality)
     let aspectRatio = ImagenAspectRatio.landscape16x9
+    let imageSize = ImagenImageSize.size1K
     let addWatermark = true
     let generationConfig = ImagenGenerationConfig(
       negativePrompt: negativePrompt,
       numberOfImages: sampleCount,
       aspectRatio: aspectRatio,
+      imageSize: imageSize,
       imageFormat: imageFormat,
       addWatermark: addWatermark
     )
@@ -89,6 +93,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       storageURI: nil,
       negativePrompt: negativePrompt,
       aspectRatio: aspectRatio.rawValue,
+      sampleImageSize: imageSize.rawValue,
       safetyFilterLevel: nil,
       personGeneration: nil,
       outputOptions: ImageGenerationOutputOptions(
@@ -122,6 +127,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       storageURI: nil,
       negativePrompt: nil,
       aspectRatio: nil,
+      sampleImageSize: nil,
       safetyFilterLevel: safetyFilterLevel.rawValue,
       personGeneration: personFilterLevel.rawValue,
       outputOptions: nil,
@@ -147,11 +153,13 @@ final class ImageGenerationParametersTests: XCTestCase {
     let negativePrompt = "test-negative-prompt"
     let imageFormat = ImagenImageFormat.png()
     let aspectRatio = ImagenAspectRatio.portrait3x4
+    let imageSize = ImagenImageSize.size4K
     let addWatermark = false
     let generationConfig = ImagenGenerationConfig(
       negativePrompt: negativePrompt,
       numberOfImages: sampleCount,
       aspectRatio: aspectRatio,
+      imageSize: imageSize,
       imageFormat: imageFormat,
       addWatermark: addWatermark
     )
@@ -166,6 +174,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       storageURI: storageURI,
       negativePrompt: negativePrompt,
       aspectRatio: aspectRatio.rawValue,
+      sampleImageSize: imageSize.rawValue,
       safetyFilterLevel: safetyFilterLevel.rawValue,
       personGeneration: personFilterLevel.rawValue,
       outputOptions: ImageGenerationOutputOptions(
@@ -191,6 +200,90 @@ final class ImageGenerationParametersTests: XCTestCase {
     XCTAssertNil(parameters.outputOptions?.compressionQuality)
   }
 
+  func testParameters_includeImageSize() throws {
+    let sampleCount = 2
+    let negativePrompt = "test-negative-prompt-image-size"
+    let imageFormat = ImagenImageFormat.png()
+    let imageSize = ImageConfig.ImageSize.size2K
+    let addWatermark = true
+    let generationConfig = ImagenGenerationConfig(
+      negativePrompt: negativePrompt,
+      numberOfImages: sampleCount,
+      imageSize: imageSize,
+      imageFormat: imageFormat,
+      addWatermark: addWatermark
+    )
+    let expectedParameters = ImageGenerationParameters(
+      sampleCount: sampleCount,
+      storageURI: nil,
+      negativePrompt: negativePrompt,
+      aspectRatio: nil,
+      sampleImageSize: imageSize.rawValue,
+      safetyFilterLevel: nil,
+      personGeneration: nil,
+      outputOptions: ImageGenerationOutputOptions(
+        mimeType: imageFormat.mimeType,
+        compressionQuality: imageFormat.compressionQuality
+      ),
+      addWatermark: addWatermark,
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
+    )
+
+    let parameters = ImagenModel.imageGenerationParameters(
+      storageURI: nil,
+      generationConfig: generationConfig,
+      safetySettings: nil
+    )
+
+    XCTAssertEqual(parameters, expectedParameters)
+    XCTAssertEqual(parameters.sampleImageSize, "2K")
+    XCTAssertNil(parameters.aspectRatio)
+  }
+
+  func testParameters_includeAspectRatioAndImageSize() throws {
+    let sampleCount = 3
+    let negativePrompt = "test-negative-prompt-aspect-ratio-and-image-size"
+    let imageFormat = ImagenImageFormat.jpeg(compressionQuality: 70)
+    let aspectRatio = ImageConfig.AspectRatio.portrait9x16
+    let imageSize = ImageConfig.ImageSize.size4K
+    let addWatermark = false
+    let generationConfig = ImagenGenerationConfig(
+      negativePrompt: negativePrompt,
+      numberOfImages: sampleCount,
+      aspectRatio: aspectRatio,
+      imageSize: imageSize,
+      imageFormat: imageFormat,
+      addWatermark: addWatermark
+    )
+    let expectedParameters = ImageGenerationParameters(
+      sampleCount: sampleCount,
+      storageURI: nil,
+      negativePrompt: negativePrompt,
+      aspectRatio: aspectRatio.rawValue,
+      sampleImageSize: imageSize.rawValue,
+      safetyFilterLevel: nil,
+      personGeneration: nil,
+      outputOptions: ImageGenerationOutputOptions(
+        mimeType: imageFormat.mimeType,
+        compressionQuality: imageFormat.compressionQuality
+      ),
+      addWatermark: addWatermark,
+      includeResponsibleAIFilterReason: true,
+      includeSafetyAttributes: true
+    )
+
+    let parameters = ImagenModel.imageGenerationParameters(
+      storageURI: nil,
+      generationConfig: generationConfig,
+      safetySettings: nil
+    )
+
+    XCTAssertEqual(parameters, expectedParameters)
+    XCTAssertEqual(parameters.aspectRatio, "9:16")
+    XCTAssertEqual(parameters.sampleImageSize, "4K")
+  }
+
   // MARK: - Encoding Tests
 
   func testEncodeParameters_allSpecified() throws {
@@ -198,6 +291,7 @@ final class ImageGenerationParametersTests: XCTestCase {
     let storageURI = "gs://bucket/folder"
     let negativePrompt = "test-negative-prompt"
     let aspectRatio = "16:9"
+    let imageSize = "4K"
     let safetyFilterLevel = "block_low_and_above"
     let personGeneration = "allow_adult"
     let mimeType = "image/png"
@@ -210,6 +304,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       storageURI: storageURI,
       negativePrompt: negativePrompt,
       aspectRatio: aspectRatio,
+      sampleImageSize: imageSize,
       safetyFilterLevel: safetyFilterLevel,
       personGeneration: personGeneration,
       outputOptions: outputOptions,
@@ -234,6 +329,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       "personGeneration" : "\(personGeneration)",
       "safetySetting" : "\(safetyFilterLevel)",
       "sampleCount" : \(sampleCount),
+      "sampleImageSize" : "\(imageSize)",
       "storageUri" : "\(storageURI)"
     }
     """)
@@ -242,6 +338,7 @@ final class ImageGenerationParametersTests: XCTestCase {
   func testEncodeParameters_someSpecified() throws {
     let sampleCount = 2
     let aspectRatio = "3:4"
+    let imageSize = "2K"
     let safetyFilterLevel = "block_medium_and_above"
     let addWatermark = true
     let parameters = ImageGenerationParameters(
@@ -249,6 +346,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       storageURI: nil,
       negativePrompt: nil,
       aspectRatio: aspectRatio,
+      sampleImageSize: imageSize,
       safetyFilterLevel: safetyFilterLevel,
       personGeneration: nil,
       outputOptions: nil,
@@ -265,7 +363,8 @@ final class ImageGenerationParametersTests: XCTestCase {
       "addWatermark" : \(addWatermark),
       "aspectRatio" : "\(aspectRatio)",
       "safetySetting" : "\(safetyFilterLevel)",
-      "sampleCount" : \(sampleCount)
+      "sampleCount" : \(sampleCount),
+      "sampleImageSize" : "\(imageSize)"
     }
     """)
   }
@@ -276,6 +375,7 @@ final class ImageGenerationParametersTests: XCTestCase {
       storageURI: nil,
       negativePrompt: nil,
       aspectRatio: nil,
+      sampleImageSize: nil,
       safetyFilterLevel: nil,
       personGeneration: nil,
       outputOptions: nil,
