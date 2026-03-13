@@ -103,8 +103,8 @@ public final class FirebaseAI: Sendable {
     )
   }
 
-  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
-  #if compiler(>=6.2)
+  // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
+#if compiler(>=6.2.3)
     /// Creates a new `GenerativeModelSession` with the given model.
     ///
     /// - Important: **Public Preview** - This API is a public preview and may be subject to change.
@@ -123,7 +123,7 @@ public final class FirebaseAI: Sendable {
 
       return GenerativeModelSession(model: model)
     }
-  #endif // compiler(>=6.2)
+  #endif // compiler(>=6.2.3)
 
   /// Initializes an ``ImagenModel`` with the given parameters.
   ///
