@@ -77,12 +77,14 @@ public struct Pipeline: @unchecked Sendable {
   let bridge: PipelineBridge
   let db: Firestore
 
-  let errorMessage: String?
+  var errorMessage: String? {
+    let errors = stages.compactMap { $0.errorMessage }
+    return errors.isEmpty ? nil : errors.joined(separator: ", ")
+  }
 
-  init(stages: [Stage], db: Firestore, errorMessage: String? = nil) {
+  init(stages: [Stage], db: Firestore) {
     self.stages = stages
     self.db = db
-    self.errorMessage = errorMessage
     bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
@@ -101,21 +103,6 @@ public struct Pipeline: @unchecked Sendable {
       executionTime = self.bridge.execution_time
       results = self.bridge.results.map { PipelineResult($0) }
     }
-  }
-
-  /// Creates a new `Pipeline` instance in a faulted state.
-  ///
-  /// This function is used to propagate an error through the pipeline chain. When a stage
-  /// fails to initialize or if a preceding stage has already failed, this method is called
-  /// to create a new pipeline that holds the error message. The `stages` array is cleared,
-  /// and the `errorMessage` is set.
-  ///
-  /// The stored error is eventually thrown by the `execute()` method.
-  ///
-  /// - Parameter message: The error message to store in the pipeline.
-  /// - Returns: A new `Pipeline` instance with the specified error message.
-  private func withError(_ message: String) -> Pipeline {
-    return Pipeline(stages: [], db: db, errorMessage: message)
   }
 
   /// Executes the defined pipeline and returns a `Pipeline.Snapshot` containing the results.
@@ -177,13 +164,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter selectables: An array of at least one `Selectable` to add to the documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func addFields(_ selectables: [Selectable]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let addFieldsStage = AddFields(selectables: selectables)
-    if let errorMessage = addFieldsStage.errorMessage {
-      return withError(errorMessage)
-    }
     return Pipeline(stages: stages + [addFieldsStage], db: db)
   }
 
@@ -199,18 +180,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter fields: An array of at least one `Field` instance to remove.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func removeFields(_ fields: [Field]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = RemoveFieldsStage(fields: fields)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(
-        stages: stages + [stage],
-        db: db
-      )
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Removes fields from outputs of previous stages using field names.
@@ -225,18 +196,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter fields: An array of at least one field name to remove.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func removeFields(_ fields: [String]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = RemoveFieldsStage(fields: fields)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(
-        stages: stages + [stage],
-        db: db
-      )
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Selects or creates a set of fields from the outputs of previous stages.
@@ -265,13 +226,7 @@ public struct Pipeline: @unchecked Sendable {
   /// output documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func select(_ selections: [Selectable]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let selectStage = Select(selections: selections)
-    if let errorMessage = selectStage.errorMessage {
-      return withError(errorMessage)
-    }
     return Pipeline(stages: stages + [selectStage], db: db)
   }
 
@@ -290,19 +245,9 @@ public struct Pipeline: @unchecked Sendable {
   /// documents.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func select(_ selections: [String]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let selections = selections.map { Field($0) }
     let stage = Select(selections: selections)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(
-        stages: stages + [stage],
-        db: db
-      )
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Filters documents from previous stages, including only those matching the specified
@@ -326,15 +271,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter condition: The `BooleanExpression` to apply.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func `where`(_ condition: BooleanExpression) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Where(condition: condition)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Skips the first `offset` number of documents from the results of previous stages.
@@ -356,15 +294,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter offset: The number of documents to skip (a `Int32` value).
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func offset(_ offset: Int32) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Offset(offset)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Limits the maximum number of documents returned by previous stages to `limit`.
@@ -387,15 +318,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter limit: The maximum number of documents to return (a `Int32` value).
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func limit(_ limit: Int32) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Limit(limit)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Returns a set of distinct documents based on specified grouping field names.
@@ -415,16 +339,9 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter groups: An array of at least one field name for distinct value combinations.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func distinct(_ groups: [String]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let selections = groups.map { Field($0) }
     let stage = Distinct(groups: selections)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Returns a set of distinct documents based on specified `Selectable` expressions.
@@ -452,13 +369,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter groups: An array of at least one `Selectable` expression to consider.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func distinct(_ groups: [Selectable]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let distinctStage = Distinct(groups: groups)
-    if let errorMessage = distinctStage.errorMessage {
-      return withError(errorMessage)
-    }
     return Pipeline(stages: stages + [distinctStage], db: db)
   }
 
@@ -494,13 +405,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func aggregate(_ aggregates: [AliasedAggregate],
                         groups: [Selectable]? = nil) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let aggregateStage = Aggregate(accumulators: aggregates, groups: groups)
-    if let errorMessage = aggregateStage.errorMessage {
-      return withError(errorMessage)
-    }
     return Pipeline(stages: stages + [aggregateStage], db: db)
   }
 
@@ -534,9 +439,6 @@ public struct Pipeline: @unchecked Sendable {
                           distanceMeasure: DistanceMeasure,
                           limit: Int? = nil,
                           distanceField: String? = nil) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = FindNearest(
       field: field,
       vectorValue: vectorValue,
@@ -544,11 +446,7 @@ public struct Pipeline: @unchecked Sendable {
       limit: limit,
       distanceField: distanceField
     )
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Sorts documents from previous stages based on one or more `Ordering` criteria.
@@ -570,15 +468,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter orderings: An array of at least one `Ordering` criterion.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func sort(_ orderings: [Ordering]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Sort(orderings: orderings)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Fully overwrites document fields with those from a nested map identified by an `Expr`.
@@ -602,15 +493,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter expression: The `Expr` (typically a `Field`) that resolves to the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func replace(with expression: Expression) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = ReplaceWith(expr: expression)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Fully overwrites document fields with those from a nested map identified by a field name.
@@ -635,15 +519,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter fieldName: The name of the field containing the nested map.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func replace(with fieldName: String) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = ReplaceWith(expr: Field(fieldName))
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Performs pseudo-random sampling of input documents, returning a specific count.
@@ -662,15 +539,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter count: The target number of documents to sample (a `Int64` value).
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func sample(count: Int64) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Sample(count: count)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Performs pseudo-random sampling of input documents, returning a percentage.
@@ -689,15 +559,8 @@ public struct Pipeline: @unchecked Sendable {
   /// value).
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func sample(percentage: Double) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Sample(percentage: percentage)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Performs a union of all documents from this pipeline and another, including duplicates.
@@ -720,15 +583,8 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameter other: Another `Pipeline` whose documents will be unioned.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func union(with other: Pipeline) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Union(other: other)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Takes an array field from input documents and outputs a new document for each element.
@@ -770,15 +626,8 @@ public struct Pipeline: @unchecked Sendable {
   ///                 zero-based index from the original array.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func unnest(_ field: Selectable, indexField: String? = nil) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Unnest(field: field, indexField: indexField)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 
   /// Adds a generic stage to the pipeline by specifying its name and parameters.
@@ -808,14 +657,7 @@ public struct Pipeline: @unchecked Sendable {
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func rawStage(name: String, params: [Sendable],
                        options: [String: Sendable]? = nil) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = RawStage(name: name, params: params, options: options)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    } else {
-      return Pipeline(stages: stages + [stage], db: db)
-    }
+    return Pipeline(stages: stages + [stage], db: db)
   }
 }
