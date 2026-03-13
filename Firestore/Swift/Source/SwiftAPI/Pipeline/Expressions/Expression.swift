@@ -139,6 +139,45 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the absolute value of the number.
   func abs() -> FunctionExpression
 
+  /// Creates an expression that returns the value of self truncated to an integer.
+  ///
+  /// ```swift
+  /// // Get the value of the "rating" field truncated to an integer.
+  /// Field("rating").trunc()
+  /// ```
+  ///
+  /// - Returns: A new `FunctionExpression` representing the truncated number.
+  func trunc() -> FunctionExpression
+
+  /// Creates an expression that truncates self to a specified number of decimal places.
+  ///
+  /// If `decimalPlace` is positive, truncates names to the right of the decimal point.
+  /// If `decimalPlace` is negative, truncates digits to the left of the decimal point.
+  ///
+  /// ```swift
+  /// // Truncate the value of the "rating" field to 2 decimal places.
+  /// Field("rating").truncToPrecision(2)
+  /// ```
+  ///
+  /// - Parameter decimalPlace: The number of decimal places to truncate to.
+  /// - Returns: A new `FunctionExpression` representing the truncated number.
+  func truncToPrecision(_ decimalPlace: Sendable) -> FunctionExpression
+
+  /// Creates an expression that truncates self to a specified number of decimal places.
+  ///
+  /// If `decimalPlace` is positive, truncates names to the right of the decimal point.
+  /// If `decimalPlace` is negative, truncates digits to the left of the decimal point.
+  ///
+  /// ```swift
+  /// // Truncate the value of the "rating" field to the number of decimal places specified in the
+  /// // "precision" field.
+  /// Field("rating").truncToPrecision(Field("precision"))
+  /// ```
+  ///
+  /// - Parameter decimalPlace: The number of decimal places to truncate to as an expression.
+  /// - Returns: A new `FunctionExpression` representing the truncated number.
+  func truncToPrecision(_ decimalPlace: Expression) -> FunctionExpression
+
   /// Creates an expression that adds another expression to this expression.
   /// To add multiple expressions, chain calls to this method.
   /// Assumes `self` and the parameter evaluate to compatible types for addition (e.g., numbers, or
