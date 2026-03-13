@@ -282,7 +282,7 @@ jobs:
       - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
 
       - name: Install Secret GoogleService-Info.plist
-        run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
+        run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-nightly.plist.gpg \
           Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
       - name: Select Xcode
@@ -305,7 +305,7 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 60
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+          command: export TARGET_BACKEND=nightly && scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
@@ -313,7 +313,7 @@ jobs:
           timeout_minutes: 60
           max_attempts: 3
           retry_wait_seconds: 120
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+          command: export TARGET_BACKEND=nightly && scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   xcodetest_emulator:
     needs: check
