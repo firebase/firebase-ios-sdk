@@ -110,14 +110,17 @@ class Where: Stage {
 
   let bridge: StageBridge
   private var condition: BooleanExpression?
+  let errorMessage: String?
 
   init(condition: BooleanExpression) {
     self.condition = condition
     bridge = WhereStageBridge(expr: condition.toBridge())
+    errorMessage = condition.errorMessage
   }
 
   init(bridge: WhereStageBridge) {
     self.bridge = bridge
+    errorMessage = nil
   }
 }
 
@@ -313,10 +316,12 @@ class ReplaceWith: Stage {
   let name: String = "replace_with"
   let bridge: StageBridge
   private var expr: Expression
+  let errorMessage: String?
 
   init(expr: Expression) {
     self.expr = expr
     bridge = ReplaceWithStageBridge(expr: expr.toBridge())
+    errorMessage = expr.errorMessage
   }
 }
 
@@ -362,12 +367,14 @@ class Unnest: Stage {
   private var alias: Expression
   private var field: Expression
   private var indexField: String?
+  let errorMessage: String?
 
   init(field: Selectable, indexField: String? = nil) {
     let seletable = field as! SelectableWrapper
     self.field = seletable.expr
     alias = Field(seletable.alias)
     self.indexField = indexField
+    errorMessage = self.field.errorMessage ?? alias.errorMessage
 
     bridge = UnnestStageBridge(
       field: self.field.toBridge(),
@@ -383,6 +390,7 @@ class RawStage: Stage {
   let bridge: StageBridge
   private var params: [Sendable]
   private var options: [String: Sendable]?
+  let errorMessage: String? = nil
 
   init(name: String, params: [Sendable], options: [String: Sendable]? = nil) {
     self.name = name
