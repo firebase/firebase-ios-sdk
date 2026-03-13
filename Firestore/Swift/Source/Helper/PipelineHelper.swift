@@ -61,7 +61,14 @@ enum Helper {
       exprMap[alias] = value.expr
     }
     if !errors.isEmpty {
-      return ([:], NSError(domain: "com.google.firebase.firestore", code: 3, userInfo: [NSLocalizedDescriptionKey: errors.joined(separator: "\n")]))
+      return (
+        [:],
+        NSError(
+          domain: "com.google.firebase.firestore",
+          code: 3,
+          userInfo: [NSLocalizedDescriptionKey: errors.joined(separator: "\n")]
+        )
+      )
     }
     return (exprMap, nil)
   }
@@ -81,7 +88,14 @@ enum Helper {
       accumulatorMap[alias] = aliasedAggregate.aggregate
     }
     if !errors.isEmpty {
-      return ([:], NSError(domain: "com.google.firebase.firestore", code: 3, userInfo: [NSLocalizedDescriptionKey: errors.joined(separator: "\n")]))
+      return (
+        [:],
+        NSError(
+          domain: "com.google.firebase.firestore",
+          code: 3,
+          userInfo: [NSLocalizedDescriptionKey: errors.joined(separator: "\n")]
+        )
+      )
     }
     return (accumulatorMap, nil)
   }
