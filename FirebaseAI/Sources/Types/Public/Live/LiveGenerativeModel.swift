@@ -55,8 +55,7 @@ public final class LiveGenerativeModel {
   ///
   /// - Parameters:
   ///   - sessionResumption: Optional configuration for session resumption. Must be specified to
-  /// enable
-  ///     session resumption.
+  ///     enable session resumption.
   ///
   ///     To learn more about session resumption, see ``SessionResumptionConfig`` and
   ///     ``LiveSession/resumeSession(sessionResumption:)``.
