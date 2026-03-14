@@ -452,8 +452,6 @@
                     break functionCallingLoop
                   #endif // canImport(FoundationModels)
                 }
-
-                break functionCallingLoop
               }
 
               if !functionResponses.isEmpty {
