@@ -225,7 +225,6 @@ public struct ToolConfig: Sendable {
 }
 
 /// The retrieval config for grounding with Google Maps.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct RetrievalConfig: Sendable, Encodable {
   /// The location for the search.
   public let latLng: LatLng
@@ -240,7 +239,6 @@ public struct RetrievalConfig: Sendable, Encodable {
 }
 
 /// An object that represents a latitude/longitude pair.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct LatLng: Sendable, Encodable {
   /// The latitude in degrees. It must be in the range [-90.0, +90.0].
   public let latitude: Double
@@ -286,7 +284,6 @@ extension FunctionCallingConfig.Mode: Encodable {}
 
 extension GoogleSearch: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {
   enum CodingKeys: String, CodingKey {
     case functionCallingConfig

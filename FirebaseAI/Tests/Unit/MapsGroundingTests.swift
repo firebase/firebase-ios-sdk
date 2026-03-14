@@ -16,7 +16,6 @@
 import FirebaseCore
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class MapsGroundingTests: XCTestCase {
   private var model: GenerativeModel!
   private let testModelName = "gemini-1.5-flash-001"

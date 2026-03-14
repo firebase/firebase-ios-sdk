@@ -18,13 +18,11 @@ import Foundation
 ///
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Maps" usage requirements for your chosen API provider.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GoogleMaps: Sendable, Encodable {
   public init() {}
 }
 
 /// A grounding chunk sourced from Google Maps.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable, Decodable {
   /// The URI of the retrieved map data.
   public let uri: String
