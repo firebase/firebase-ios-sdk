@@ -195,7 +195,7 @@ struct GenerateContentIntegrationTests {
       (
         .googleAI_v1beta,
         ModelNames.gemini3_1_FlashLitePreview,
-        ThinkingConfig(thinkingBudget: 128)
+        ThinkingConfig(thinkingBudget: 0)
       ),
       (
         .googleAI_v1beta,

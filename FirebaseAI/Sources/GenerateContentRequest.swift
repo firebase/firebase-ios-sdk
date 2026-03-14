@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct GenerateContentRequest: Sendable {
   /// Model name.
   let model: String
@@ -31,7 +30,6 @@ struct GenerateContentRequest: Sendable {
   let options: RequestOptions
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest: Encodable {
   enum CodingKeys: String, CodingKey {
     case model
@@ -60,7 +58,6 @@ extension GenerateContentRequest: Encodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest {
   enum APIMethod: String {
     case generateContent
@@ -69,7 +66,6 @@ extension GenerateContentRequest {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 

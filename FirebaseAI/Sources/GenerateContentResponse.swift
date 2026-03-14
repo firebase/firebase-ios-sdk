@@ -15,10 +15,8 @@
 import Foundation
 
 /// The model's response to a generate content request.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GenerateContentResponse: Sendable {
   /// Token usage metadata for processing the generate content request.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct UsageMetadata: Sendable {
     /// The number of tokens in the request prompt.
     public let promptTokenCount: Int
@@ -70,6 +68,8 @@ public struct GenerateContentResponse: Sendable {
 
   /// Token usage metadata for processing the generate content request.
   public let usageMetadata: UsageMetadata?
+
+  let responseID: String?
 
   /// The response's content as text, if it exists.
   ///
@@ -123,6 +123,7 @@ public struct GenerateContentResponse: Sendable {
     self.candidates = candidates
     self.promptFeedback = promptFeedback
     self.usageMetadata = usageMetadata
+    responseID = nil
   }
 
   func text(isThought: Bool) -> String? {
@@ -152,7 +153,6 @@ public struct GenerateContentResponse: Sendable {
 
 /// A struct representing a possible reply to a content generation prompt. Each content generation
 /// prompt may produce multiple candidate responses.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Candidate: Sendable {
   /// The response's content.
   public let content: ModelContent
@@ -193,14 +193,12 @@ public struct Candidate: Sendable {
 }
 
 /// A collection of source attributions for a piece of content.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CitationMetadata: Sendable {
   /// A list of individual cited sources and the parts of the content to which they apply.
   public let citations: [Citation]
 }
 
 /// A struct describing a source attribution.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Citation: Sendable, Equatable {
   /// The inclusive beginning of a sequence in a model response that derives from a cited source.
   public let startIndex: Int
@@ -238,7 +236,6 @@ public struct Citation: Sendable, Equatable {
 }
 
 /// A value enumerating possible reasons for a model to terminate a content generation request.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case stop = "STOP"
@@ -293,10 +290,8 @@ public struct FinishReason: DecodableProtoEnum, Hashable, Sendable {
 }
 
 /// A metadata struct containing any feedback the model had on the prompt it was provided.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct PromptFeedback: Sendable {
   /// A type describing possible reasons to block a prompt.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct BlockReason: DecodableProtoEnum, Hashable, Sendable {
     enum Kind: String {
       case safety = "SAFETY"
@@ -352,7 +347,6 @@ public struct PromptFeedback: Sendable {
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
 /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GroundingMetadata: Sendable, Equatable, Hashable {
   /// A list of web search queries that the model performed to gather the grounding information.
   /// These can be used to allow users to explore the search results themselves.
@@ -369,7 +363,6 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
   public let searchEntryPoint: SearchEntryPoint?
 
   /// A struct representing the Google Search entry point.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct SearchEntryPoint: Sendable, Equatable, Hashable {
     /// An HTML/CSS snippet that can be embedded in your app.
     ///
@@ -379,7 +372,6 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
 
   /// Represents a chunk of retrieved data that supports a claim in the model's response. This is
   /// part of the grounding information provided when grounding is enabled.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct GroundingChunk: Sendable, Equatable, Hashable {
     /// Contains details if the grounding chunk is from a web source.
     public let web: WebGroundingChunk?
@@ -388,7 +380,6 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
   }
 
   /// A grounding chunk sourced from the web.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct WebGroundingChunk: Sendable, Equatable, Hashable {
     /// The URI of the retrieved web page.
     public let uri: String?
@@ -402,7 +393,6 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
 
   /// Provides information about how a specific segment of the model's response is supported by the
   /// retrieved grounding chunks.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public struct GroundingSupport: Sendable, Equatable, Hashable {
     /// Specifies the segment of the model's response content that this grounding support pertains
     /// to.
@@ -435,7 +425,6 @@ public struct GroundingMetadata: Sendable, Equatable, Hashable {
 
 /// Represents a specific segment within a ``ModelContent`` struct, often used to pinpoint the
 /// exact location of text or data that grounding information refers to.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Segment: Sendable, Equatable, Hashable {
   /// The zero-based index of the ``Part`` object within the `parts` array of its parent
   /// ``ModelContent`` object. This identifies which part of the content the segment belongs to.
@@ -453,12 +442,12 @@ public struct Segment: Sendable, Equatable, Hashable {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse: Decodable {
-  enum CodingKeys: CodingKey {
+  enum CodingKeys: String, CodingKey {
     case candidates
     case promptFeedback
     case usageMetadata
+    case responseID = "responseId"
   }
 
   public init(from decoder: Decoder) throws {
@@ -484,10 +473,10 @@ extension GenerateContentResponse: Decodable {
     }
     promptFeedback = try container.decodeIfPresent(PromptFeedback.self, forKey: .promptFeedback)
     usageMetadata = try container.decodeIfPresent(UsageMetadata.self, forKey: .usageMetadata)
+    responseID = try container.decodeIfPresent(String.self, forKey: .responseID)
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentResponse.UsageMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case promptTokenCount
@@ -529,7 +518,6 @@ extension GenerateContentResponse.UsageMetadata: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Candidate: Decodable {
   enum CodingKeys: CodingKey {
     case content
@@ -590,7 +578,6 @@ extension Candidate: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CitationMetadata: Decodable {
   enum CodingKeys: CodingKey {
     case citations // Vertex AI
@@ -609,7 +596,6 @@ extension CitationMetadata: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Citation: Decodable {
   enum CodingKeys: CodingKey {
     case startIndex
@@ -661,7 +647,6 @@ extension Citation: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension PromptFeedback: Decodable {
   enum CodingKeys: CodingKey {
     case blockReason
@@ -687,7 +672,6 @@ extension PromptFeedback: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata: Decodable {
   enum CodingKeys: String, CodingKey {
     case webSearchQueries
@@ -714,16 +698,12 @@ extension GroundingMetadata: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.SearchEntryPoint: Decodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.GroundingChunk: Decodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.WebGroundingChunk: Decodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GroundingMetadata.GroundingSupport.Internal: Decodable {
   enum CodingKeys: String, CodingKey {
     case segment
@@ -740,7 +720,6 @@ extension GroundingMetadata.GroundingSupport.Internal: Decodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Segment: Decodable {
   enum CodingKeys: String, CodingKey {
     case partIndex

@@ -16,7 +16,6 @@ import Foundation
 
 /// An object that represents a back-and-forth chat with a model, capturing the history and saving
 /// the context in memory between each message sent.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class Chat: Sendable {
   private let model: GenerativeModel
   private let _history: History
@@ -37,6 +36,8 @@ public final class Chat: Sendable {
     }
   }
 
+  var generationConfig: GenerationConfig? { model.generationConfig }
+
   /// Sends a message using the existing history of this chat as context. If successful, the message
   /// and response will be added to the history. If unsuccessful, history will remain unchanged.
   /// - Parameter parts: The new content to send as a single chat message.
@@ -52,14 +53,40 @@ public final class Chat: Sendable {
   /// - Parameter content: The new content to send as a single chat message.
   /// - Returns: The model's response if no error occurred.
   /// - Throws: A ``GenerateContentError`` if an error occurred.
-  public func sendMessage(_ content: [ModelContent]) async throws
-    -> GenerateContentResponse {
+  public func sendMessage(_ content: [ModelContent]) async throws -> GenerateContentResponse {
+    return try await sendMessage(content, generationConfig: generationConfig)
+  }
+
+  /// Sends a message using the existing history of this chat as context. If successful, the message
+  /// and response will be added to the history. If unsuccessful, history will remain unchanged.
+  /// - Parameter parts: The new content to send as a single chat message.
+  /// - Returns: A stream containing the model's response or an error if an error occurred.
+  @available(macOS 12.0, watchOS 8.0, *)
+  public func sendMessageStream(_ parts: any PartsRepresentable...) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    return try sendMessageStream([ModelContent(parts: parts)])
+  }
+
+  /// Sends a message using the existing history of this chat as context. If successful, the message
+  /// and response will be added to the history. If unsuccessful, history will remain unchanged.
+  /// - Parameter content: The new content to send as a single chat message.
+  /// - Returns: A stream containing the model's response or an error if an error occurred.
+  @available(macOS 12.0, watchOS 8.0, *)
+  public func sendMessageStream(_ content: [ModelContent]) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error> {
+    return try sendMessageStream(content, generationConfig: generationConfig)
+  }
+
+  // MARK: - Internal
+
+  func sendMessage(_ content: [ModelContent],
+                   generationConfig: GenerationConfig?) async throws -> GenerateContentResponse {
     // Ensure that the new content has the role set.
     let newContent = content.map(populateContentRole(_:))
 
     // Send the history alongside the new message as context.
     let request = history + newContent
-    let result = try await model.generateContent(request)
+    let result = try await model.generateContent(request, generationConfig: generationConfig)
     guard let reply = result.candidates.first?.content else {
       let error = NSError(domain: "com.google.generative-ai",
                           code: -1,
@@ -78,29 +105,15 @@ public final class Chat: Sendable {
     return result
   }
 
-  /// Sends a message using the existing history of this chat as context. If successful, the message
-  /// and response will be added to the history. If unsuccessful, history will remain unchanged.
-  /// - Parameter parts: The new content to send as a single chat message.
-  /// - Returns: A stream containing the model's response or an error if an error occurred.
-  @available(macOS 12.0, *)
-  public func sendMessageStream(_ parts: any PartsRepresentable...) throws
-    -> AsyncThrowingStream<GenerateContentResponse, Error> {
-    return try sendMessageStream([ModelContent(parts: parts)])
-  }
-
-  /// Sends a message using the existing history of this chat as context. If successful, the message
-  /// and response will be added to the history. If unsuccessful, history will remain unchanged.
-  /// - Parameter content: The new content to send as a single chat message.
-  /// - Returns: A stream containing the model's response or an error if an error occurred.
-  @available(macOS 12.0, *)
-  public func sendMessageStream(_ content: [ModelContent]) throws
+  @available(macOS 12.0, watchOS 8.0, *)
+  func sendMessageStream(_ content: [ModelContent], generationConfig: GenerationConfig?) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     // Ensure that the new content has the role set.
     let newContent: [ModelContent] = content.map(populateContentRole(_:))
 
     // Send the history alongside the new message as context.
     let request = history + newContent
-    let stream = try model.generateContentStream(request)
+    let stream = try model.generateContentStream(request, generationConfig: generationConfig)
     return AsyncThrowingStream { continuation in
       Task {
         var aggregatedContent: [ModelContent] = []

@@ -139,7 +139,6 @@ enum AILog {
     log(level: .debug, code: code, message)
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   static func makeInternalError(message: String, code: MessageCode) -> GenerateContentError {
     let error = GenerateContentError.internalError(underlying: NSError(
       domain: "\(Constants.baseErrorDomain).Internal",
