@@ -16,7 +16,6 @@ import Foundation
 
 /// An object that represents a back-and-forth chat with a model, capturing the history and saving
 /// the context in memory between each message sent.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class Chat: Sendable {
   let model: GenerativeModel
   private let _history: History
@@ -62,7 +61,7 @@ public final class Chat: Sendable {
   /// and response will be added to the history. If unsuccessful, history will remain unchanged.
   /// - Parameter parts: The new content to send as a single chat message.
   /// - Returns: A stream containing the model's response or an error if an error occurred.
-  @available(macOS 12.0, *)
+  @available(macOS 12.0, watchOS 8.0, *)
   public func sendMessageStream(_ parts: any PartsRepresentable...) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     return try sendMessageStream([ModelContent(parts: parts)])
@@ -72,7 +71,7 @@ public final class Chat: Sendable {
   /// and response will be added to the history. If unsuccessful, history will remain unchanged.
   /// - Parameter content: The new content to send as a single chat message.
   /// - Returns: A stream containing the model's response or an error if an error occurred.
-  @available(macOS 12.0, *)
+  @available(macOS 12.0, watchOS 8.0, *)
   public func sendMessageStream(_ content: [ModelContent]) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     return try sendMessageStream(content, generationConfig: generationConfig)
@@ -106,6 +105,7 @@ public final class Chat: Sendable {
     return result
   }
 
+  @available(macOS 12.0, watchOS 8.0, *)
   func sendMessageStream(_ content: [ModelContent], generationConfig: GenerationConfig?) throws
     -> AsyncThrowingStream<GenerateContentResponse, Error> {
     // Ensure that the new content has the role set.

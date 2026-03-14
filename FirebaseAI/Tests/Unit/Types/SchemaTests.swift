@@ -16,7 +16,6 @@ import FirebaseAILogic
 import Foundation
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class SchemaTests: XCTestCase {
   let encoder = JSONEncoder()
 

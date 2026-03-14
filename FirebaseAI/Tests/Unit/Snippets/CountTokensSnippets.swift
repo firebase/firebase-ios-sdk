@@ -19,7 +19,6 @@ import XCTest
 // These snippet tests are intentionally skipped in CI jobs; see the README file in this directory
 // for instructions on running them manually.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class CountTokensSnippets: XCTestCase {
   let bundle = BundleTestUtil.bundle()
   lazy var model = FirebaseAI.firebaseAI().generativeModel(modelName: "gemini-2.0-flash")

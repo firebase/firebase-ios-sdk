@@ -21,7 +21,6 @@ import Foundation
 ///
 /// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
 /// by the model and executed by the client.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionDeclaration: Sendable {
   #if compiler(<6.2)
     typealias FunctionTool = Sendable
@@ -109,7 +108,6 @@ public struct FunctionDeclaration: Sendable {
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
 /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GoogleSearch: Sendable {
   public init() {}
 }
@@ -118,7 +116,6 @@ public struct GoogleSearch: Sendable {
 ///
 /// A `Tool` is a piece of code that enables the system to interact with external systems to perform
 /// an action, or set of actions, outside of knowledge and scope of the model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct Tool: Sendable {
   /// A list of `FunctionDeclarations` available to the model.
   let functionDeclarations: [FunctionDeclaration]?
@@ -141,7 +138,6 @@ public struct Tool: Sendable {
 }
 
 /// Configuration for specifying function calling behavior.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallingConfig: Sendable {
   /// Defines the execution behavior for function calling by defining the execution mode.
   enum Mode: String {
@@ -187,7 +183,6 @@ public struct FunctionCallingConfig: Sendable {
 }
 
 /// Tool configuration for any `Tool` specified in the request.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ToolConfig: Sendable {
   let functionCallingConfig: FunctionCallingConfig?
 
@@ -346,7 +341,6 @@ public extension ToolRepresentable where Self == FirebaseAILogic.Tool {
 
 // MARK: - Codable Conformance
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionDeclaration: Encodable {
   enum CodingKeys: String, CodingKey {
     case name
@@ -370,17 +364,12 @@ extension FunctionDeclaration: Encodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Tool: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig.Mode: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleSearch: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {}
