@@ -19,21 +19,30 @@ import Foundation
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Maps" usage requirements for your chosen API provider.
 public struct GoogleMaps: Sendable, Encodable {
-  public init() {}
+  init() {}
 }
 
 /// A grounding chunk sourced from Google Maps.
 public struct GoogleMapsGroundingChunk: Sendable, Equatable, Hashable, Decodable {
-  /// The URI of the retrieved map data.
-  public let uri: String
+  /// The URL of the retrieved map data.
+  public let url: URL?
   /// The title of the retrieved map data.
   public let title: String
   /// The Place ID of the retrieved map data.
   public let placeID: String
 
   enum CodingKeys: String, CodingKey {
-    case uri
+    case url = "uri" // Decode "uri" from backend, store as "url"
     case title
     case placeID = "placeId"
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let uriString = try container.decode(String.self, forKey: .url)
+    url = URL(string: uriString)
+
+    title = try container.decode(String.self, forKey: .title)
+    placeID = try container.decode(String.self, forKey: .placeID)
   }
 }

@@ -146,8 +146,8 @@ public struct Tool: Sendable {
   ///     of tools enables the model to use Google Maps.
   ///
   /// - Returns: A `Tool` configured for Google Maps.
-  public static func googleMaps(_ googleMaps: GoogleMaps = GoogleMaps()) -> Tool {
-    return self.init(googleMaps: googleMaps)
+  public static func googleMaps() -> Tool {
+    return self.init(googleMaps: GoogleMaps())
   }
 
   /// Creates a tool that allows you to provide additional context to the models in the form of
@@ -232,10 +232,6 @@ public struct RetrievalConfig: Sendable, Encodable {
   public init(latLng: LatLng) {
     self.latLng = latLng
   }
-
-  enum CodingKeys: String, CodingKey {
-    case latLng = "lat_lng"
-  }
 }
 
 /// An object that represents a latitude/longitude pair.
@@ -284,9 +280,4 @@ extension FunctionCallingConfig.Mode: Encodable {}
 
 extension GoogleSearch: Encodable {}
 
-extension ToolConfig: Encodable {
-  enum CodingKeys: String, CodingKey {
-    case functionCallingConfig
-    case retrievalConfig = "retrieval_config"
-  }
-}
+extension ToolConfig: Encodable {}

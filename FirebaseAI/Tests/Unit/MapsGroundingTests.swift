@@ -116,7 +116,7 @@ final class MapsGroundingTests: XCTestCase {
     let chunk = try XCTUnwrap(groundingMetadata.groundingChunks.first)
     let mapsChunk = try XCTUnwrap(chunk.maps)
 
-    XCTAssertEqual(mapsChunk.uri, "https://maps.google.com/?q=ChIJyZ2y_wJz44kR5w8oQ8oQ8oQ")
+    XCTAssertEqual(mapsChunk.url?.absoluteString, "https://maps.google.com/?q=ChIJyZ2y_wJz44kR5w8oQ8oQ8oQ")
     XCTAssertEqual(mapsChunk.title, "Kickstand Cafe")
     XCTAssertEqual(mapsChunk.placeID, "ChIJyZ2y_wJz44kR5w8oQ8oQ8oQ")
   }

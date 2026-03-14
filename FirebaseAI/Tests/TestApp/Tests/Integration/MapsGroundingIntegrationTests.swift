@@ -38,7 +38,7 @@ struct MapsGroundingIntegrationTests {
     #expect(!mapChunks.isEmpty)
 
     for mapsChunk in mapChunks {
-      #expect(!mapsChunk.uri.isEmpty)
+      #expect(mapsChunk.url != nil)
       #expect(!mapsChunk.title.isEmpty)
       #expect(!mapsChunk.placeID.isEmpty)
     }
@@ -70,7 +70,7 @@ struct MapsGroundingIntegrationTests {
     #expect(!mapChunks.isEmpty)
 
     for mapsChunk in mapChunks {
-      #expect(!mapsChunk.uri.isEmpty)
+      #expect(mapsChunk.url != nil)
       #expect(!mapsChunk.title.isEmpty)
       #expect(!mapsChunk.placeID.isEmpty)
     }
