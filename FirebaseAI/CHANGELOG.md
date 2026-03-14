@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for GoogleMaps grounding.
+
 # 12.11.0
 - [feature] **Public Preview**: Introduces `GenerativeModelSession` providing
   APIs for generating structured data from Gemini via the same `@Generable` and
