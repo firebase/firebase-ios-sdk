@@ -16,6 +16,9 @@ import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
 import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
@@ -113,16 +116,45 @@ public final class FirebaseAI: Sendable {
     ///   - model: The name of the model to use; see [available model names
     ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
     ///     for a list of supported model names.
+    ///   - tools: A list of tools that extend the capabilities of the model. These are typically
+    ///     native Gemini ``FirebaseAILogic/Tool``s, such as ``ToolRepresentable/googleSearch(_:)``,
+    ///     or instances conforming to ``FunctionTool`` for automatic function calling.
     ///   - instructions: System instructions that direct the model's behavior.
-    public func generativeModelSession(model: String,
+    public func generativeModelSession(model: String, tools: [any ToolRepresentable]? = nil,
                                        instructions: String? = nil) -> GenerativeModelSession {
+      let tools = tools?.compactMap { $0.toolRepresentation }
       let model = generativeModel(
         modelName: model,
+        tools: tools,
         systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) }
       )
 
       return GenerativeModelSession(model: model)
     }
+
+    #if canImport(FoundationModels)
+      /// **[Public Preview]** Initializes a `GenerativeModelSession` with the given model.
+      ///
+      /// > Warning: This API is a public preview and may be subject to change.
+      ///
+      /// - Parameters:
+      ///   - model: The name of the model to use; see [available model names
+      ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+      ///     for a list of supported model names.
+      ///   - tools: A list of tools that extend the capabilities of the model. These tools must be
+      ///     instances conforming to `FoundationModels.Tool` for automatic function calling.
+      ///   - instructions: System instructions that direct the model's behavior.
+      @available(iOS 26.0, macOS 26.0, *)
+      @available(tvOS, unavailable)
+      @available(watchOS, unavailable)
+      public func generativeModelSession(model: String, tools: [any FoundationModels.Tool],
+                                         instructions: String? = nil) -> GenerativeModelSession {
+        let tools = tools.map { FirebaseAILogic.Tool.autoFunctionDeclaration($0) }
+
+        return generativeModelSession(model: model, tools: tools as [any ToolRepresentable]?,
+                                      instructions: instructions)
+      }
+    #endif // canImport(FoundationModels)
   #endif // compiler(>=6.2)
 
   /// Initializes an ``ImagenModel`` with the given parameters.
