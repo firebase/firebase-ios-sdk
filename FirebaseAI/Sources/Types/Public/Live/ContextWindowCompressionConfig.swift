@@ -17,7 +17,6 @@ import Foundation
 /// Configures the sliding window context compression mechanism.
 ///
 /// The context window will be truncated by keeping only a suffix of it.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct SlidingWindow: Sendable {
   let bidiSlidingWindow: BidiSlidingWindow
@@ -38,7 +37,6 @@ public struct SlidingWindow: Sendable {
 /// Enables context window compression to manage the model's context window.
 ///
 /// This mechanism prevents the context from exceeding a given length.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct ContextWindowCompressionConfig: Sendable {
   let bidiContextWindowCompressionConfig: BidiContextWindowCompressionConfig

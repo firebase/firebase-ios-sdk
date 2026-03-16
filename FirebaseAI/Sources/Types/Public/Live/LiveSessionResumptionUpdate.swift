@@ -18,7 +18,6 @@ import Foundation
 ///
 /// This message is only sent if ``SessionResumptionConfig`` was set in the
 /// session setup.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveSessionResumptionUpdate: Sendable {
   let bidiSessionResumptionUpdate: BidiSessionResumptionUpdate

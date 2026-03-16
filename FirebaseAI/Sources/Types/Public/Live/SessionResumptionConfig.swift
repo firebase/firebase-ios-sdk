@@ -18,7 +18,6 @@ import Foundation
 ///
 /// When included in the session setup, the server will send
 /// ``LiveSessionResumptionUpdate`` messages in the response stream.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct SessionResumptionConfig: Sendable {
   let bidiSessionResumptionConfig: BidiSessionResumptionConfig

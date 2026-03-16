@@ -85,7 +85,6 @@ struct BidiGenerateContentSetup: Encodable {
 @available(watchOS, unavailable)
 struct BidiAudioTranscriptionConfig: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 struct BidiSessionResumptionConfig: Encodable {
   let handle: String?
