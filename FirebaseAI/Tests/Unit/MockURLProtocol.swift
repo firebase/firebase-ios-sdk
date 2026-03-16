@@ -15,12 +15,13 @@
 import Foundation
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 class MockURLProtocol: URLProtocol, @unchecked Sendable {
   nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (
     URLResponse,
     AsyncLineSequence<URL.AsyncBytes>?
   ))?
+
   override class func canInit(with request: URLRequest) -> Bool {
     #if os(watchOS)
       print("MockURLProtocol cannot be used on watchOS.")
@@ -33,11 +34,12 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
   override class func canonicalRequest(for request: URLRequest) -> URLRequest { return request }
 
   override func startLoading() {
-    guard let requestHandler = MockURLProtocol.requestHandler else {
-      fatalError("`requestHandler` is nil.")
-    }
     guard let client = client else {
       fatalError("`client` is nil.")
+    }
+
+    guard let requestHandler = MockURLProtocol.requestHandler else {
+      fatalError("No request handler set.")
     }
 
     Task {

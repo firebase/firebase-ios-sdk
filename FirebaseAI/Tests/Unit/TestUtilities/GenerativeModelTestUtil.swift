@@ -18,9 +18,9 @@ import FirebaseCore
 import Foundation
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 enum GenerativeModelTestUtil {
   /// Returns an HTTP request handler
   static func httpRequestHandler(forResource name: String,
@@ -30,10 +30,12 @@ enum GenerativeModelTestUtil {
                                  timeout: TimeInterval = RequestOptions().timeout,
                                  appCheckToken: String? = nil,
                                  authToken: String? = nil,
-                                 dataCollection: Bool = true) throws -> ((URLRequest) throws -> (
-    URLResponse,
-    AsyncLineSequence<URL.AsyncBytes>?
-  )) {
+                                 dataCollection: Bool = true,
+                                 isTemplateRequest: Bool = false) throws
+    -> ((URLRequest) throws -> (
+      URLResponse,
+      AsyncLineSequence<URL.AsyncBytes>?
+    )) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
     #if os(watchOS)
@@ -45,7 +47,14 @@ enum GenerativeModelTestUtil {
       )
       return { request in
         let requestURL = try XCTUnwrap(request.url)
-        XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
+        if isTemplateRequest {
+          XCTAssertEqual(
+            requestURL.path.occurrenceCount(of: "templates/test-template:template"),
+            1
+          )
+        } else {
+          XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
+        }
         XCTAssertEqual(request.timeoutInterval, timeout)
         let apiClientTags = try XCTUnwrap(request.value(forHTTPHeaderField: "x-goog-api-client"))
           .components(separatedBy: " ")
@@ -59,6 +68,9 @@ enum GenerativeModelTestUtil {
           try? XCTUnwrap(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
         XCTAssertEqual(firebaseAppID, dataCollection ? "My app ID" : nil)
         XCTAssertEqual(appVersion, dataCollection ? expectedAppVersion : nil)
+
+        let bundleID = request.value(forHTTPHeaderField: "x-ios-bundle-identifier")
+        XCTAssertEqual(bundleID, Bundle.main.bundleIdentifier)
 
         if let authToken {
           XCTAssertEqual(
@@ -77,6 +89,19 @@ enum GenerativeModelTestUtil {
         return (response, fileURL.lines)
       }
     #endif // os(watchOS)
+  }
+
+  static func collectTextFromStream(_ stream: AsyncThrowingStream<
+    GenerateContentResponse,
+    Error
+  >) async throws -> String {
+    var content = ""
+    for try await response in stream {
+      if let text = response.text {
+        content += text
+      }
+    }
+    return content
   }
 
   static func nonHTTPRequestHandler() throws -> ((URLRequest) -> (
@@ -103,7 +128,8 @@ enum GenerativeModelTestUtil {
 
   static func testFirebaseInfo(appCheck: AppCheckInterop? = nil,
                                auth: AuthInterop? = nil,
-                               privateAppID: Bool = false) -> FirebaseInfo {
+                               privateAppID: Bool = false,
+                               useLimitedUseAppCheckTokens: Bool = false) -> FirebaseInfo {
     let app = FirebaseApp(instanceWithName: "testApp",
                           options: FirebaseOptions(googleAppID: "ignore",
                                                    gcmSenderID: "ignore"))
@@ -114,7 +140,8 @@ enum GenerativeModelTestUtil {
       projectID: "my-project-id",
       apiKey: "API_KEY",
       firebaseAppID: "My app ID",
-      firebaseApp: app
+      firebaseApp: app,
+      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
   }
 }

@@ -1,0 +1,113 @@
+name: sdk.messaging
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    # Messaging sources
+    - 'FirebaseMessaging/**'
+    # Interop headers
+    - 'Interop/Analytics/Public/*.h'
+    # Podspec
+    - 'FirebaseMessaging.podspec'
+    # This file
+    - '.github/workflows/sdk.messaging.yml'
+    # Re-usable workflows being used by this file.
+    - '.github/workflows/_spm.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
+    # Rebuild on Ruby infrastructure changes
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
+    - cron:  '0 6 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  spm:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: MessagingUnit
+      buildonly_platforms: tvOS, macOS, watchOS, catalyst, visionOS
+
+  catalyst:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseMessaging
+      target: FirebaseMessaging-Unit-unit
+
+  pod_lib_lint:
+    strategy:
+      matrix:
+        product: [FirebaseMessagingInterop, FirebaseMessaging]
+    uses: ./.github/workflows/_cocoapods.yml
+    with:
+      product: ${{  matrix.product }}
+
+  # TODO(#12205) Update the build.sh script for this job from "test" instead of "build"
+  messaging-integration-tests:
+    if: github.event.pull_request.head.repo.fork == false
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: Messaging
+      platform: all
+      method: xcodebuild
+      setup_command: |
+        scripts/configure_test_keychain.sh
+        gem install xcpretty
+        mkdir -p FirebaseMessaging/Tests/IntegrationTests/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
+          FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+  quickstart:
+    uses: ./.github/workflows/_quickstart.yml
+    with:
+      product: Messaging
+      setup_command: scripts/setup_quickstart.sh messaging
+      plist_src_path: scripts/gha-encrypted/qs-messaging.plist.gpg
+      plist_dst_path: quickstart-ios/messaging/GoogleService-Info.plist
+      run_tests: false
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+
+  messaging-cron-only:
+    uses: ./.github/workflows/_cocoapods.cron.yml
+    with:
+      product: FirebaseMessaging
+      platforms: '[ "ios", "tvos", "macos --skip-tests", "watchos --skip-tests" ]'
+      flags: '[ "--use-static-frameworks" ]'
+
+  sample-build-test:
+    if: github.event.pull_request.head.repo.fork == false
+    strategy:
+      matrix:
+        include:
+          - target: MessagingSample
+            platform: iOS
+          - target: SwiftUISample
+            platform: iOS
+          - target: MessagingSampleStandaloneWatchApp
+            platform: watchOS
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.target }}
+      platform: ${{ matrix.platform }}
+      method: xcodebuild
+      setup_command: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
+          FirebaseMessaging/Apps/Shared/GoogleService-Info.plist "$plist_secret"
+        scripts/install_prereqs.sh ${{ matrix.target }} ${{ matrix.platform }}
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+

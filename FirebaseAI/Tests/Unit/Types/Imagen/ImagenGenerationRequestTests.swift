@@ -14,9 +14,8 @@
 
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class ImagenGenerationRequestTests: XCTestCase {
   let encoder = JSONEncoder()
   let requestOptions = RequestOptions(timeout: 30.0)
@@ -25,6 +24,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
   let aspectRatio = "16:9"
   let safetyFilterLevel = "block_low_and_above"
   let includeResponsibleAIFilterReason = true
+  let includeSafetyAttributes = true
   lazy var parameters = ImageGenerationParameters(
     sampleCount: sampleCount,
     storageURI: nil,
@@ -34,7 +34,8 @@ final class ImagenGenerationRequestTests: XCTestCase {
     personGeneration: nil,
     outputOptions: nil,
     addWatermark: nil,
-    includeResponsibleAIFilterReason: includeResponsibleAIFilterReason
+    includeResponsibleAIFilterReason: includeResponsibleAIFilterReason,
+    includeSafetyAttributes: includeSafetyAttributes
   )
   let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
 
@@ -58,7 +59,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(request.instances, [instance])
     XCTAssertEqual(request.parameters, parameters)
     XCTAssertEqual(
-      request.url,
+      try request.getURL(),
       URL(string:
         "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )
@@ -78,7 +79,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
     XCTAssertEqual(request.instances, [instance])
     XCTAssertEqual(request.parameters, parameters)
     XCTAssertEqual(
-      request.url,
+      try request.getURL(),
       URL(string:
         "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(modelName):predict")
     )
@@ -108,6 +109,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
       "parameters" : {
         "aspectRatio" : "\(aspectRatio)",
         "includeRaiReason" : \(includeResponsibleAIFilterReason),
+        "includeSafetyAttributes" : \(includeSafetyAttributes),
         "safetySetting" : "\(safetyFilterLevel)",
         "sampleCount" : \(sampleCount)
       }
@@ -137,6 +139,7 @@ final class ImagenGenerationRequestTests: XCTestCase {
       "parameters" : {
         "aspectRatio" : "\(aspectRatio)",
         "includeRaiReason" : \(includeResponsibleAIFilterReason),
+        "includeSafetyAttributes" : \(includeSafetyAttributes),
         "safetySetting" : "\(safetyFilterLevel)",
         "sampleCount" : \(sampleCount)
       }

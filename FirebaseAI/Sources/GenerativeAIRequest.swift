@@ -14,17 +14,15 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 protocol GenerativeAIRequest: Sendable, Encodable {
   associatedtype Response: Sendable, Decodable
 
-  var url: URL { get }
+  func getURL() throws -> URL
 
   var options: RequestOptions { get }
 }
 
 /// Configuration parameters for sending requests to the backend.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct RequestOptions: Sendable {
   /// The request’s timeout interval in seconds; if not specified uses the default value for a
   /// `URLRequest`.
@@ -39,5 +37,4 @@ public struct RequestOptions: Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension RequestOptions: Equatable {}

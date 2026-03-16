@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
 import Testing
 
-@testable import struct FirebaseAI.APIConfig
+@testable import struct FirebaseAILogic.APIConfig
 
 @Suite(.serialized)
 struct CountTokensIntegrationTests {
@@ -49,7 +49,7 @@ struct CountTokensIntegrationTests {
   func countTokens_text(_ config: InstanceConfig) async throws {
     let prompt = "Why is the sky blue?"
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
+      modelName: ModelNames.gemini2_5_Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
@@ -66,7 +66,7 @@ struct CountTokensIntegrationTests {
   @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
+      modelName: ModelNames.gemini2_5_Flash,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       systemInstruction: systemInstruction
@@ -84,7 +84,7 @@ struct CountTokensIntegrationTests {
   @Test(arguments: InstanceConfig.allConfigs)
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
+      modelName: ModelNames.gemini2_5_Flash,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
         responseSchema: Schema.object(properties: [

@@ -92,7 +92,9 @@ API_AVAILABLE(ios(14))
       [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
   FIRCLSApplicationIdentifierModel *appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   FIRCLSMockSettings *mockSettings =
-      [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager appIDModel:appIDModel];
+      [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
+                                           appIDModel:appIDModel
+                                              appInfo:[[NSDictionary alloc] init]];
 
   // Allow nil values only in tests
 #pragma clang diagnostic push

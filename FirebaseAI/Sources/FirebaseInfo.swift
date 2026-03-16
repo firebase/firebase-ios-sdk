@@ -20,13 +20,13 @@ import Foundation
 @preconcurrency import FirebaseCore
 
 /// Firebase data used by FirebaseAI
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FirebaseInfo: Sendable {
   let appCheck: AppCheckInterop?
   let auth: AuthInterop?
   let projectID: String
   let apiKey: String
   let firebaseAppID: String
+  let useLimitedUseAppCheckTokens: Bool
   let app: FirebaseApp
 
   init(appCheck: AppCheckInterop? = nil,
@@ -34,12 +34,14 @@ struct FirebaseInfo: Sendable {
        projectID: String,
        apiKey: String,
        firebaseAppID: String,
-       firebaseApp: FirebaseApp) {
+       firebaseApp: FirebaseApp,
+       useLimitedUseAppCheckTokens: Bool) {
     self.appCheck = appCheck
     self.auth = auth
     self.projectID = projectID
     self.apiKey = apiKey
     self.firebaseAppID = firebaseAppID
+    self.useLimitedUseAppCheckTokens = useLimitedUseAppCheckTokens
     app = firebaseApp
   }
 }

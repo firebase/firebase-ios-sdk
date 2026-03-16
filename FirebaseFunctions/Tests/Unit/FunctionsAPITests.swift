@@ -85,16 +85,13 @@ final class FunctionsAPITests: XCTestCase {
       }
     }
 
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
-      Task {
-        do {
-          let data: Any? = nil
-          let result = try await callableRef.call(data)
-          _ = result.data
-        } catch {
-          // ...
-        }
+    Task {
+      do {
+        let data: Any? = nil
+        let result = try await callableRef.call(data)
+        _ = result.data
+      } catch {
+        // ...
       }
     }
 
@@ -106,15 +103,12 @@ final class FunctionsAPITests: XCTestCase {
       }
     }
 
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
-      Task {
-        do {
-          let result = try await callableRef.call()
-          _ = result.data
-        } catch {
-          // ...
-        }
+    Task {
+      do {
+        let result = try await callableRef.call()
+        _ = result.data
+      } catch {
+        // ...
       }
     }
 

@@ -126,13 +126,6 @@ if is_platform(:ios)
 
       pod 'leveldb-library'
     end
-
-    target 'Firestore_FuzzTests_iOS' do
-      inherit! :search_paths
-      platform :ios, '15.0'
-
-      pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec', :inhibit_warnings => true
-    end
   end
 end
 

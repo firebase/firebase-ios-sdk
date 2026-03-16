@@ -48,9 +48,6 @@ public class ModelDownloader {
   /// User defaults for model info.
   private let userDefaults: GULUserDefaults
 
-  /// Telemetry logger tied to this instance of model downloader.
-  let telemetryLogger: TelemetryLogger?
-
   /// Number of retries in case of model download URL expiry.
   var numberOfRetries: Int = 1
 
@@ -77,8 +74,6 @@ public class ModelDownloader {
     options = app.options
     installations = Installations.installations(app: app)
     userDefaults = defaults
-    // Respect Firebase-wide data collection setting.
-    telemetryLogger = TelemetryLogger(app: app)
     // Notification of app deletion.
     let notificationName = "FIRAppDeleteNotification"
     NotificationCenter.default.addObserver(
@@ -170,12 +165,6 @@ public class ModelDownloader {
                               message: ModelDownloader.DebugDescription.localModelFound,
                               messageCode: .localModelFound)
         asyncOnMainQueue(completion(.success(localModel)))
-        telemetryLogger?.logModelDownloadEvent(
-          eventName: .modelDownload,
-          status: .scheduled,
-          model: CustomModel(name: modelName, size: 0, path: "", hash: ""),
-          downloadErrorCode: .noError
-        )
         // Update local model in the background.
         DispatchQueue.global(qos: .utility).async { [weak self] in
           self?.getRemoteModel(
@@ -184,28 +173,16 @@ public class ModelDownloader {
             progressHandler: nil,
             completion: { result in
               switch result {
-              case let .success(model):
+              case .success:
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelDownloader.DebugDescription
                                         .backgroundModelDownloaded,
                                       messageCode: .backgroundModelDownloaded)
-                self?.telemetryLogger?.logModelDownloadEvent(
-                  eventName: .modelDownload,
-                  status: .succeeded,
-                  model: model,
-                  downloadErrorCode: .noError
-                )
               case .failure:
                 DeviceLogger.logEvent(level: .debug,
                                       message: ModelDownloader.ErrorDescription
                                         .backgroundModelDownload,
                                       messageCode: .backgroundDownloadError)
-                self?.telemetryLogger?.logModelDownloadEvent(
-                  eventName: .modelDownload,
-                  status: .failed,
-                  model: CustomModel(name: modelName, size: 0, path: "", hash: ""),
-                  downloadErrorCode: .downloadFailed
-                )
               }
             }
           )
@@ -323,28 +300,16 @@ public class ModelDownloader {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.DebugDescription.modelDeleted,
                             messageCode: .modelDeleted)
-      telemetryLogger?.logModelDeletedEvent(
-        eventName: .remoteModelDeleteOnDevice,
-        isSuccessful: true
-      )
       asyncOnMainQueue(completion(.success(())))
     } catch let error as DownloadedModelError {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.ErrorDescription.modelDeletionFailed(error),
                             messageCode: .modelDeletionFailed)
-      telemetryLogger?.logModelDeletedEvent(
-        eventName: .remoteModelDeleteOnDevice,
-        isSuccessful: false
-      )
       asyncOnMainQueue(completion(.failure(error)))
     } catch {
       DeviceLogger.logEvent(level: .debug,
                             message: ModelDownloader.ErrorDescription.modelDeletionFailed(error),
                             messageCode: .modelDeletionFailed)
-      telemetryLogger?.logModelDeletedEvent(
-        eventName: .remoteModelDeleteOnDevice,
-        isSuccessful: false
-      )
       asyncOnMainQueue(completion(.failure(.internalError(description: error
           .localizedDescription))))
     }
@@ -408,8 +373,7 @@ extension ModelDownloader {
       projectID: projectID,
       apiKey: apiKey,
       appName: appName, installations: installations,
-      localModelInfo: localModelInfo,
-      telemetryLogger: telemetryLogger
+      localModelInfo: localModelInfo
     )
     let downloader = ModelFileDownloader(conditions: conditions)
     downloadInfoAndModel(
@@ -512,8 +476,7 @@ extension ModelDownloader {
                 defaults: self.userDefaults,
                 downloader: downloader,
                 progressHandler: taskProgressHandler,
-                completion: taskCompletion,
-                telemetryLogger: self.telemetryLogger
+                completion: taskCompletion
               )
               // Keep track of current download task to allow for merging duplicate requests.
               self.currentDownloadTask[modelName] = downloadTask

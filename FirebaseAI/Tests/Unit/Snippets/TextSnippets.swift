@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseCore
 import XCTest
 
 // These snippet tests are intentionally skipped in CI jobs; see the README file in this directory
 // for instructions on running them manually.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 final class TextSnippets: XCTestCase {
   lazy var model = FirebaseAI.firebaseAI().generativeModel(modelName: "gemini-2.0-flash")
 

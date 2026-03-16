@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   let model: String
   let apiConfig: APIConfig
@@ -35,17 +34,19 @@ struct ImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   typealias Response = ImagenGenerationResponse<ImageType>
 
-  var url: URL {
-    return URL(string:
-      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict")!
+  func getURL() throws -> URL {
+    let urlString =
+      "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model):predict"
+    guard let url = URL(string: urlString) else {
+      throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
+    }
+    return url
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImagenGenerationRequest: Encodable {
   enum CodingKeys: CodingKey {
     case instances

@@ -32,6 +32,7 @@
 #import "FIRListenerRegistration.h"
 #import "FIRLoadBundleTask.h"
 #import "FIRLocalCacheSettings.h"
+#import "FIRPipelineBridge.h"
 #import "FIRQuery.h"
 #import "FIRQuerySnapshot.h"
 #import "FIRSnapshotListenOptions.h"

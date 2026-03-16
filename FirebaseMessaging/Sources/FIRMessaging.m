@@ -391,8 +391,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
   id<UIApplicationDelegate> appDelegate = application.delegate;
-  SEL continueUserActivitySelector = @selector(application:
-                                      continueUserActivity:restorationHandler:);
+  SEL continueUserActivitySelector =
+      @selector(application:continueUserActivity:restorationHandler:);
 
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
@@ -400,8 +400,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // if they haven't implemented it.
   if ([NSUserActivity class] != nil &&
       [appDelegate respondsToSelector:continueUserActivitySelector]) {
-    NSUserActivity *userActivity =
-        [[NSUserActivity alloc] initWithActivityType:NSUserActivityTypeBrowsingWeb];
+    // Use string literal to ensure compatibility with Xcode 26 and iOS 18
+    NSString *browsingWebType = @"NSUserActivityTypeBrowsingWeb";
+    NSUserActivity *userActivity = [[NSUserActivity alloc] initWithActivityType:browsingWebType];
     userActivity.webpageURL = url;
     [appDelegate application:application
         continueUserActivity:userActivity
@@ -616,8 +617,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 // NOTE: Once |didReceiveRegistrationToken:| can be made a required method, this
 // check can be removed.
 - (void)validateDelegateConformsToTokenAvailabilityMethods {
-  if (self.delegate && ![self.delegate respondsToSelector:@selector(messaging:
-                                                              didReceiveRegistrationToken:)]) {
+  if (self.delegate &&
+      ![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
                            @"The object %@ does not respond to "
                            @"-messaging:didReceiveRegistrationToken:. Please implement "

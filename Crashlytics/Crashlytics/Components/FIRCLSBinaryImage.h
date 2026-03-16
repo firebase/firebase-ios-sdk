@@ -31,15 +31,15 @@ __BEGIN_DECLS
 #define FIRCLSUUIDStringLength (33)
 
 typedef struct {
-  _Atomic(void*) volatile baseAddress;
+  _Atomic(void *) volatile baseAddress;
   uint64_t size;
 #if CLS_DWARF_UNWINDING_SUPPORTED
-  const void* ehFrame;
+  const void *ehFrame;
 #endif
 #if CLS_COMPACT_UNWINDING_SUPPORTED
-  const void* unwindInfo;
+  const void *unwindInfo;
 #endif
-  const void* crashInfo;
+  const void *crashInfo;
 #if CLS_BINARY_IMAGE_RUNTIME_NODE_RECORD_NAME
   char name[CLS_BINARY_IMAGE_RUNTIME_NODE_NAME_SIZE];
 #endif
@@ -56,7 +56,7 @@ typedef struct {
 } FIRCLSBinaryImageDetails;
 
 typedef struct {
-  const char* path;
+  const char *path;
 } FIRCLSBinaryImageReadOnlyContext;
 
 typedef struct {
@@ -68,13 +68,13 @@ void FIRCLSBinaryImageInit(void);
 
 #if CLS_COMPACT_UNWINDING_SUPPORTED
 bool FIRCLSBinaryImageSafeFindImageForAddress(uintptr_t address,
-                                              FIRCLSBinaryImageRuntimeNode* image);
-bool FIRCLSBinaryImageSafeHasUnwindInfo(FIRCLSBinaryImageRuntimeNode* image);
+                                              FIRCLSBinaryImageRuntimeNode *image);
+bool FIRCLSBinaryImageSafeHasUnwindInfo(FIRCLSBinaryImageRuntimeNode *image);
 #endif
 
-bool FIRCLSBinaryImageFindImageForUUID(const char* uuidString,
-                                       FIRCLSBinaryImageDetails* imageDetails);
+bool FIRCLSBinaryImageFindImageForUUID(const char *uuidString,
+                                       FIRCLSBinaryImageDetails *imageDetails);
 
-bool FIRCLSBinaryImageRecordMainExecutable(FIRCLSFile* file);
+bool FIRCLSBinaryImageRecordMainExecutable(FIRCLSFile *file);
 
 __END_DECLS

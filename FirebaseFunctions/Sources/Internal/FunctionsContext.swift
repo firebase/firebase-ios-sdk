@@ -36,7 +36,6 @@ struct FunctionsContextProvider: Sendable {
     self.appCheck = appCheck
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   func context(options: HTTPSCallableOptions?) async throws -> FunctionsContext {
     async let authToken = auth?.getToken(forcingRefresh: false)
     async let appCheckToken = getAppCheckToken(options: options)
@@ -52,7 +51,6 @@ struct FunctionsContextProvider: Sendable {
     )
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   private func getAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
     guard
       options?.requireLimitedUseAppCheckTokens != true,
@@ -62,7 +60,6 @@ struct FunctionsContextProvider: Sendable {
     return tokenResult.token
   }
 
-  @available(iOS 13, macCatalyst 13, macOS 10.15, tvOS 13, watchOS 7, *)
   private func getLimitedUseAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
     // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
     await withCheckedContinuation { (continuation: CheckedContinuation<String?, Never>) in

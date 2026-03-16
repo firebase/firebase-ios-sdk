@@ -14,13 +14,11 @@
 
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
 
+#import <CommonCrypto/CommonHMAC.h>
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#import "Crashlytics/Shared/FIRCLSByteUtility.h"
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOSlice.h"
 
-#import <CommonCrypto/CommonHMAC.h>
-
-static void FIRCLSSafeHexToString(const uint8_t* value, size_t length, char* outputBuffer);
-static NSString* FIRCLSNSDataToNSString(NSData* data);
-static NSString* FIRCLSHashBytes(const void* bytes, size_t length);
 static NSString* FIRCLSHashNSString(NSString* value);
 
 @interface FIRCLSMachOBinary ()
@@ -115,58 +113,6 @@ static NSString* FIRCLSHashNSString(NSString* value);
 }
 
 @end
-
-// TODO: Functions copied from the SDK.  We should figure out a way to share this.
-static void FIRCLSSafeHexToString(const uint8_t* value, size_t length, char* outputBuffer) {
-  const char hex[] = "0123456789abcdef";
-
-  if (!value) {
-    outputBuffer[0] = '\0';
-    return;
-  }
-
-  for (size_t i = 0; i < length; ++i) {
-    unsigned char c = value[i];
-    outputBuffer[i * 2] = hex[c >> 4];
-    outputBuffer[i * 2 + 1] = hex[c & 0x0F];
-  }
-
-  outputBuffer[length * 2] = '\0';  // null terminate
-}
-
-static NSString* FIRCLSNSDataToNSString(NSData* data) {
-  NSString* string;
-  char* buffer;
-  size_t size;
-  NSUInteger length;
-
-  // we need 2 hex char for every byte of data, plus one more spot for a
-  // null terminator
-  length = [data length];
-  size = (length * 2) + 1;
-  buffer = calloc(1, sizeof(char) * size);
-
-  if (!buffer) {
-    return nil;
-  }
-
-  FIRCLSSafeHexToString([data bytes], length, buffer);
-
-  string = [NSString stringWithUTF8String:buffer];
-
-  free(buffer);
-
-  return string;
-}
-
-static NSString* FIRCLSHashBytes(const void* bytes, size_t length) {
-  uint8_t digest[CC_SHA1_DIGEST_LENGTH] = {0};
-  CC_SHA1(bytes, (CC_LONG)length, digest);
-
-  NSData* result = [NSData dataWithBytes:digest length:CC_SHA1_DIGEST_LENGTH];
-
-  return FIRCLSNSDataToNSString(result);
-}
 
 static NSString* FIRCLSHashNSString(NSString* value) {
   const char* s = [value cStringUsingEncoding:NSUTF8StringEncoding];

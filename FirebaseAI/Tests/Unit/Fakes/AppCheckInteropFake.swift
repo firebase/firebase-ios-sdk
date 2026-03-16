@@ -15,7 +15,6 @@
 import FirebaseAppCheckInterop
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 class AppCheckInteropFake: NSObject, AppCheckInterop {
   /// The placeholder token value returned when an error occurs
   static let placeholderTokenValue = "placeholder-token"
@@ -40,6 +39,10 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
     return AppCheckTokenResultInteropFake(token: token, error: error)
   }
 
+  func getLimitedUseToken() async -> any FIRAppCheckTokenResultInterop {
+    return AppCheckTokenResultInteropFake(token: "limited_use_\(token)", error: error)
+  }
+
   func tokenDidChangeNotificationName() -> String {
     fatalError("\(#function) not implemented.")
   }
@@ -52,9 +55,10 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
     fatalError("\(#function) not implemented.")
   }
 
-  private class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop {
-    var token: String
-    var error: Error?
+  private class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop,
+    @unchecked Sendable {
+    let token: String
+    let error: Error?
 
     init(token: String, error: Error?) {
       self.token = token

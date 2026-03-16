@@ -1,0 +1,88 @@
+name: infra.samples.client_app
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/infra.samples.client_app.yml"
+      - "Package.swift"
+      - ".swiftpm/*"
+      - "*.podspec"
+      - "scripts/install_prereqs.sh"
+      - "scripts/build.sh"
+      - "IntegrationTesting/ClientApp/**"
+      - "Gemfile*"
+  schedule:
+    # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
+    - cron: "0 8 * * *"
+
+env:
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  client-app-spm:
+    strategy:
+      matrix:
+        #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
+        platform: [iOS]
+        scheme: [ClientApp]
+        os: [macos-14, macos-15]
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.4
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.scheme }}
+      platform: ${{ matrix.platform }}
+      method: xcodebuild
+      os: ${{ matrix.os }}
+      xcode: ${{ matrix.xcode }}
+
+  client-app-spm-source-firestore:
+    strategy:
+      matrix:
+        #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
+        platform: [iOS]
+        scheme: [ClientApp]
+        os: [macos-14, macos-15]
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.4
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.scheme }}
+      platform: ${{ matrix.platform }}
+      method: xcodebuild
+      os: ${{ matrix.os }}
+      xcode: ${{ matrix.xcode }}
+      setup_command: echo "FIREBASE_SOURCE_FIRESTORE=1" >> $GITHUB_ENV
+
+  client-app-cocoapods:
+    strategy:
+      matrix:
+        scheme: [ClientApp-CocoaPods]
+        os: [macos-14, macos-15]
+        include:
+          - os: macos-14
+            xcode: Xcode_16.2
+          - os: macos-15
+            xcode: Xcode_16.4
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.scheme }}
+      platform: iOS
+      method: xcodebuild
+      os: ${{ matrix.os }}
+      xcode: ${{ matrix.xcode }}
+      setup_command: scripts/install_prereqs.sh ClientApp iOS xcodebuild

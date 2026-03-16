@@ -33,7 +33,7 @@
 #define FIRCLSSignalCount (7)
 
 typedef struct {
-  const char* path;
+  const char *path;
   struct sigaction originalActions[FIRCLSSignalCount];
 
 #if CLS_USE_SIGALTSTACK
@@ -41,16 +41,16 @@ typedef struct {
 #endif
 } FIRCLSSignalReadContext;
 
-void FIRCLSSignalInitialize(FIRCLSSignalReadContext* roContext);
+void FIRCLSSignalInitialize(FIRCLSSignalReadContext *roContext);
 void FIRCLSSignalCheckHandlers(void);
 
 void FIRCLSSignalSafeRemoveHandlers(bool includingAbort);
-bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext* roContext,
+bool FIRCLSSignalSafeInstallPreexistingHandlers(FIRCLSSignalReadContext *roContext,
                                                 const int signal,
-                                                siginfo_t* info,
-                                                void* uapVoid);
+                                                siginfo_t *info,
+                                                void *uapVoid);
 
-void FIRCLSSignalNameLookup(int number, int code, const char** name, const char** codeName);
+void FIRCLSSignalNameLookup(int number, int code, const char **name, const char **codeName);
 
 void FIRCLSSignalEnumerateHandledSignals(void (^block)(int idx, int signal));
 #endif

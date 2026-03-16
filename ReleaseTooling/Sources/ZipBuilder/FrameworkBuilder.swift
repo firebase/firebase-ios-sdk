@@ -272,7 +272,7 @@ struct FrameworkBuilder {
   ///
   /// - Parameter framework: The name of the pod to be built.
   /// - Returns: The corresponding framework/module name.
-  private static func frameworkBuildName(_ framework: String) -> String {
+  static func frameworkBuildName(_ framework: String) -> String {
     switch framework {
     case "abseil":
       return "absl"

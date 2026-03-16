@@ -228,9 +228,11 @@
 }
 
 - (void)testFailWithMessageWithConsoleLinkIfMissingIndex {
-  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test when running against the Firestore emulator because the Firestore "
-            "emulator does not use indexes and never fails with a 'missing index' error.");
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator] ||
+                [FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skip this test when running against the Firestore emulator because the Firestore "
+            @"emulator does not use indexes and never fails with a 'missing index' error. "
+            @"Also skip when running against enterprise edition.");
 
   FIRCollectionReference* testCollection = [self collectionRef];
   FIRQuery* compositeIndexQuery = [[testCollection queryWhereField:@"field1"

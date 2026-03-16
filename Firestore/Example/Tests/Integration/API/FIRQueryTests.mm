@@ -586,15 +586,29 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
                         (@[ testDocs[@"a"], testDocs[@"b"], testDocs[@"d"] ]));
 
-  // With null.
-  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
-                                                       arrayContains:[NSNull null]]];
-  XCTAssertTrue(snapshot.isEmpty);
+  switch ([FSTIntegrationTestCase backendEdition]) {
+    case FSTBackendEditionStandard: {
+      snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                           arrayContains:[NSNull null]]];
+      XCTAssertTrue(snapshot.isEmpty);
 
-  // With NAN.
-  snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
-                                                       arrayContains:@(NAN)]];
-  XCTAssertTrue(snapshot.isEmpty);
+      snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                           arrayContains:@(NAN)]];
+      XCTAssertTrue(snapshot.isEmpty);
+      break;
+    }
+    case FSTBackendEditionEnterprise: {
+      snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                           arrayContains:[NSNull null]]];
+      XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"e"] ]));
+
+      snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"array"
+                                                           arrayContains:@(NAN)]];
+      XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"f"] ]));
+
+      break;
+    }
+  }
 }
 
 - (void)testQueriesCanUseInFilters {
@@ -625,21 +639,51 @@
 
   // With null.
   snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip" in:@[ [NSNull null] ]]];
-  XCTAssertTrue(snapshot.isEmpty);
+  switch ([FSTIntegrationTestCase backendEdition]) {
+    case FSTBackendEditionStandard:
+      XCTAssertTrue(snapshot.isEmpty);
+      break;
+    case FSTBackendEditionEnterprise:
+      XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"h"] ]));
+      break;
+  }
 
   // With null and a value.
   snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
                                                                   in:@[ [NSNull null], @98101 ]]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"] ]));
+  switch ([FSTIntegrationTestCase backendEdition]) {
+    case FSTBackendEditionStandard:
+      XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"] ]));
+      break;
+    case FSTBackendEditionEnterprise:
+      XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                            (@[ testDocs[@"a"], testDocs[@"h"] ]));
+      break;
+  }
 
   // With NAN.
   snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip" in:@[ @(NAN) ]]];
-  XCTAssertTrue(snapshot.isEmpty);
+  switch ([FSTIntegrationTestCase backendEdition]) {
+    case FSTBackendEditionStandard:
+      XCTAssertTrue(snapshot.isEmpty);
+      break;
+    case FSTBackendEditionEnterprise:
+      XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"i"] ]));
+      break;
+  }
 
   // With NAN and a value.
   snapshot = [self readDocumentSetForRef:[collection queryWhereField:@"zip"
                                                                   in:@[ @(NAN), @98101 ]]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"] ]));
+  switch ([FSTIntegrationTestCase backendEdition]) {
+    case FSTBackendEditionStandard:
+      XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ testDocs[@"a"] ]));
+      break;
+    case FSTBackendEditionEnterprise:
+      XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot),
+                            (@[ testDocs[@"a"], testDocs[@"i"] ]));
+      break;
+  }
 }
 
 - (void)testQueriesCanUseInFiltersWithDocIds {
@@ -757,6 +801,9 @@
 }
 
 - (void)testQueriesCanUseArrayContainsAnyFilters {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
+
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
@@ -900,6 +947,9 @@
 }
 
 - (void)testSnapshotListenerSortsFilteredQueryByDocumentIdInTheSameOrderAsServer {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
+
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"A" : @{@"a" : @1},
     @"a" : @{@"a" : @1},

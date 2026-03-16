@@ -37,10 +37,18 @@
 FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   NSDate *collectionTime = [NSDate date];
 
-  struct mstats ms = mstats();
-  FPRMemoryGaugeData *gaugeData = [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
-                                                                            heapUsed:ms.bytes_used
-                                                                       heapAvailable:ms.bytes_free];
+  // Use malloc_zone_statistics to get heap memory usage.
+  // Passing nil aggregates statistics from all malloc zones.
+  malloc_statistics_t stats;
+  malloc_zone_statistics(nil, &stats);
+  uint64_t usedBytes = stats.size_in_use;
+  uint64_t totalHeapBytes = stats.size_allocated;
+  uint64_t freeInsideHeap = totalHeapBytes - usedBytes;
+
+  FPRMemoryGaugeData *gaugeData =
+      [[FPRMemoryGaugeData alloc] initWithCollectionTime:collectionTime
+                                                heapUsed:usedBytes
+                                           heapAvailable:freeInsideHeap];
   return gaugeData;
 }
 

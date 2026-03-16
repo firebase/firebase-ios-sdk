@@ -43,6 +43,11 @@ NS_ASSUME_NONNULL_BEGIN
 extern "C" {
 #endif
 
+typedef NS_ENUM(NSInteger, FSTBackendEdition) {
+  FSTBackendEditionStandard,
+  FSTBackendEditionEnterprise,
+};
+
 @interface FSTIntegrationTestCase : XCTestCase
 
 /** Returns the default Firestore project ID for testing. */
@@ -50,6 +55,11 @@ extern "C" {
 
 /** Returns the default Firestore database ID for testing. */
 + (NSString *)databaseID;
+
+/** Returns the backend edition being used for testing. */
++ (FSTBackendEdition)backendEdition;
+
++ (void)switchToEnterpriseMode;
 
 + (bool)isRunningAgainstEmulator;
 

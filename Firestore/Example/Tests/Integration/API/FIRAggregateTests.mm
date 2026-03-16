@@ -470,6 +470,8 @@
 }
 
 - (void)testCannotPerformMoreThanMaxAggregations {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -516,7 +518,9 @@
   [self awaitExpectation:expectation];
 
   XCTAssertNotNil(result);
-  XCTAssertTrue([[result localizedDescription] containsString:@"maximum number of aggregations"]);
+  if (!FSTIntegrationTestCase.isRunningAgainstEmulator) {
+    XCTAssertTrue([[result localizedDescription] containsString:@"maximum number of aggregations"]);
+  }
 }
 
 - (void)testThrowsAnErrorWhenGettingTheResultOfAnUnrequestedAggregation {
@@ -688,18 +692,36 @@
       @"rating" : [NSNumber numberWithLong:LLONG_MAX]
     },
   }];
+  FIRAggregateField* sumOfRating = [FIRAggregateField aggregateFieldForSumOfField:@"rating"];
+  FIRAggregateQuery* query = [testCollection aggregate:@[ sumOfRating ]];
 
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[testCollection
-                                         aggregate:@[ [FIRAggregateField
-                                                       aggregateFieldForSumOfField:@"rating"] ]]];
+  switch ([FSTIntegrationTestCase backendEdition]) {
+    case FSTBackendEditionStandard: {
+      FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:query];
+      // Sum
+      XCTAssertEqual([[snapshot valueForAggregateField:sumOfRating] doubleValue],
+                     [[NSNumber numberWithLong:LLONG_MAX] doubleValue] +
+                         [[NSNumber numberWithLong:LLONG_MAX] doubleValue]);
+      break;
+    }
+    case FSTBackendEditionEnterprise: {
+      XCTSkipIf(
+          [FSTIntegrationTestCase isRunningAgainstEmulator],
+          @"Skipping test because the emulator's behavior deviates from the expected outcome.");
 
-  // Sum
-  XCTAssertEqual(
-      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithLong:LLONG_MAX] doubleValue] +
-          [[NSNumber numberWithLong:LLONG_MAX] doubleValue]);
+      XCTestExpectation* expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+      __block NSError* anError = nil;
+      [query aggregationWithSource:FIRAggregateSourceServer
+                        completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
+                          XCTAssertNil(snapshot);
+                          anError = error;
+                          [expectation fulfill];
+                        }];
+      [self awaitExpectation:expectation];
+      XCTAssertNotNil(anError);
+      break;
+    }
+  }
 }
 
 - (void)testPerformsSumThatCanOverflowLongValuesDuringAccumulation {
@@ -746,17 +768,34 @@
       @"rating" : [NSNumber numberWithLong:-10000]
     }
   }];
+  FIRAggregateField* sumOfRating = [FIRAggregateField aggregateFieldForSumOfField:@"rating"];
+  FIRAggregateQuery* query = [testCollection aggregate:@[ sumOfRating ]];
 
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[testCollection
-                                         aggregate:@[ [FIRAggregateField
-                                                       aggregateFieldForSumOfField:@"rating"] ]]];
+  switch ([FSTIntegrationTestCase backendEdition]) {
+    case FSTBackendEditionStandard: {
+      FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:query];
+      // Sum
+      XCTAssertEqual([[snapshot valueForAggregateField:sumOfRating] longLongValue], -10101LL);
+      break;
+    }
+    case FSTBackendEditionEnterprise: {
+      XCTSkipIf(
+          [FSTIntegrationTestCase isRunningAgainstEmulator],
+          @"Skipping test because the emulator's behavior deviates from the expected outcome.");
 
-  // Sum
-  XCTAssertEqual(
-      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          longLongValue],
-      [[NSNumber numberWithLong:-10101] longLongValue]);
+      XCTestExpectation* expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+      __block NSError* anError = nil;
+      [query aggregationWithSource:FIRAggregateSourceServer
+                        completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
+                          XCTAssertNil(snapshot);
+                          anError = error;
+                          [expectation fulfill];
+                        }];
+      [self awaitExpectation:expectation];
+      XCTAssertNotNil(anError);
+      break;
+    }
+  }
 }
 
 - (void)testPerformsSumThatIsPositiveInfinity {
@@ -859,15 +898,25 @@
     }
   }];
 
-  FIRAggregateQuerySnapshot* snapshot =
-      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"pages" isGreaterThan:@200]
-                                         aggregate:@[ [FIRAggregateField
-                                                       aggregateFieldForSumOfField:@"pages"] ]]];
+  FIRAggregateField* sumOfPages = [FIRAggregateField aggregateFieldForSumOfField:@"pages"];
+  FIRAggregateQuery* query = [[testCollection queryWhereField:@"pages"
+                                                isGreaterThan:@200] aggregate:@[ sumOfPages ]];
+  FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:query];
 
-  // Sum
-  XCTAssertEqual(
-      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
-      [NSNumber numberWithLong:0L]);
+  switch ([FSTIntegrationTestCase backendEdition]) {
+    case FSTBackendEditionStandard: {
+      XCTAssertEqual([snapshot valueForAggregateField:sumOfPages], [NSNumber numberWithLong:0L]);
+      break;
+    }
+    case FSTBackendEditionEnterprise: {
+      XCTSkipIf(
+          [FSTIntegrationTestCase isRunningAgainstEmulator],
+          @"Skipping test because the emulator's behavior deviates from the expected outcome.");
+
+      XCTAssertEqual([snapshot valueForAggregateField:sumOfPages], [NSNull null]);
+      break;
+    }
+  }
 }
 
 - (void)testPerformsSumOnlyOnNumericFields {
@@ -1094,9 +1143,11 @@
 }
 
 - (void)testFailWithMessageWithConsoleLinkIfMissingIndex {
-  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test when running against the Firestore emulator because the Firestore "
-            "emulator does not use indexes and never fails with a 'missing index' error.");
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator] ||
+                [FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skip this test when running against the Firestore emulator because the Firestore "
+            @"emulator does not use indexes and never fails with a 'missing index' error. "
+            @"Also skip when running against enterprise edition.");
 
   FIRCollectionReference* testCollection = [self collectionRef];
   FIRQuery* compositeIndexQuery = [[testCollection queryWhereField:@"field1"

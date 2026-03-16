@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct GenerateContentRequest: Sendable {
   /// Model name.
   let model: String
@@ -31,7 +30,6 @@ struct GenerateContentRequest: Sendable {
   let options: RequestOptions
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest: Encodable {
   enum CodingKeys: String, CodingKey {
     case model
@@ -60,7 +58,6 @@ extension GenerateContentRequest: Encodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest {
   enum APIMethod: String {
     case generateContent
@@ -69,19 +66,26 @@ extension GenerateContentRequest {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GenerateContentRequest: GenerativeAIRequest {
   typealias Response = GenerateContentResponse
 
-  var url: URL {
+  func getURL() throws -> URL {
     let modelURL = "\(apiConfig.service.endpoint.rawValue)/\(apiConfig.version.rawValue)/\(model)"
+    let urlString: String
     switch apiMethod {
     case .generateContent:
-      return URL(string: "\(modelURL):\(apiMethod.rawValue)")!
+      urlString = "\(modelURL):\(apiMethod.rawValue)"
     case .streamGenerateContent:
-      return URL(string: "\(modelURL):\(apiMethod.rawValue)?alt=sse")!
+      urlString = "\(modelURL):\(apiMethod.rawValue)?alt=sse"
     case .countTokens:
-      fatalError("\(Self.self) should be a property of \(CountTokensRequest.self).")
+      throw AILog.makeInternalError(
+        message: "\(Self.self) should be a property of \(CountTokensRequest.self).",
+        code: .malformedURL
+      )
     }
+    guard let url = URL(string: urlString) else {
+      throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
+    }
+    return url
   }
 }

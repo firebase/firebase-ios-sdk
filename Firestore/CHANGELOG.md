@@ -1,6 +1,25 @@
 # Unreleased
 - [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
 
+# 12.11.0
+- [changed] Minor refactor to avoid using an absl internal function. (#15889)
+
+# 12.10.0
+- [feature] Added support for `regexFind` and `regexFindAll` Pipeline expressions.
+
+# 12.8.0
+- [fixed] Fix crash while fetching Auth and App Check tokens. (#15281)
+- [feature] `Pipeline` support is now available for the `Enterprise edition` as a public preview feature. (#15625)
+- [fixed] Fixed an issue where the returned object in transaction blocks could not
+  pass across actor boundaries in Swift 6 (#15467).
+
+# 12.4.0
+- [fixed] Implemented an internal workaround to fix
+  [CVE-2025-0838](https://nvd.nist.gov/vuln/detail/CVE-2025-0838). (#15300)
+
+# 12.1.0
+- [fixed] Fixed accidental removal of `pod "Firebase/Firestore"` for tvOS in 12.0.0.
+
 # 11.12.0
 - [fixed] Fixed the `null` value handling in `isNotEqualTo` and `notIn` filters.
 

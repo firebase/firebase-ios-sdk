@@ -1,4 +1,25 @@
-# Unreleased
+# 12.11.0
+- [fixed] Fixed an issue where Crashlytics API calls were silently dropped if invoked immediately after Firebase initialization.
+
+# 12.10.0
+- [fixed] Fixed a deadlock in Firebase Sessions where the main thread could
+  block waiting for a lock held by a background thread during settings
+  updates. (#15394)
+
+# 12.9.0
+- [fixed] Conformed to Mach IPC security restrictions. (#15393)
+
+# 12.4.0
+- [fixed] Make set development platform APIs to chain on Crashlytics context init promise.
+
+# 12.3.0
+- [fixed] Add missing nanopb dependency to fix SwiftPM builds when building
+  dynamically linked libraries. (#15276)
+
+# 12.1.0
+- [fixed] Do not log using raw print in an internal class. (#15138)
+
+# 12.0.0
 - [fixed] Resolved compiler warnings related to constant definitions. (#15059)
 
 # 11.13.0

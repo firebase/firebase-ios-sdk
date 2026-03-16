@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ImageGenerationParameters {
   let sampleCount: Int?
   let storageURI: String?
@@ -23,14 +22,13 @@ struct ImageGenerationParameters {
   let outputOptions: ImageGenerationOutputOptions?
   let addWatermark: Bool?
   let includeResponsibleAIFilterReason: Bool?
+  let includeSafetyAttributes: Bool?
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageGenerationParameters: Equatable {}
 
 // MARK: - Codable Conformance
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ImageGenerationParameters: Encodable {
   enum CodingKeys: String, CodingKey {
     case sampleCount
@@ -42,6 +40,7 @@ extension ImageGenerationParameters: Encodable {
     case outputOptions
     case addWatermark
     case includeResponsibleAIFilterReason = "includeRaiReason"
+    case includeSafetyAttributes
   }
 
   func encode(to encoder: any Encoder) throws {
@@ -58,5 +57,6 @@ extension ImageGenerationParameters: Encodable {
       includeResponsibleAIFilterReason,
       forKey: .includeResponsibleAIFilterReason
     )
+    try container.encodeIfPresent(includeSafetyAttributes, forKey: .includeSafetyAttributes)
   }
 }

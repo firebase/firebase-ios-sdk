@@ -1,0 +1,84 @@
+name: sdk.storage
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    - 'FirebaseStorage**'
+    - 'FirebaseAuth/Interop/*.h'
+    - '.github/workflows/sdk.storage.yml'
+    - '.github/workflows/_spm.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_quickstart.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
+    # Rebuild on Ruby infrastructure changes.
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
+    - cron:  '0 8 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  spm:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseStorageUnit
+
+  catalyst:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseStorage
+      target: FirebaseStorage-Unit-unit
+
+  storage-integration-tests:
+    if: github.event.pull_request.head.repo.fork == false
+    strategy:
+      matrix:
+        product: [StorageSwift, StorageObjC]
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: ${{ matrix.product }}
+      platform: all
+      method: xcodebuild
+      setup_command: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+            FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
+            FirebaseStorage/Tests/ObjCIntegration/Credentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
+            FirebaseStorage/Tests/Integration/Credentials.swift "$plist_secret"
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+  quickstart:
+    uses: ./.github/workflows/_quickstart.yml
+    with:
+      product: Storage
+      setup_command: scripts/setup_quickstart.sh storage
+      plist_src_path: scripts/gha-encrypted/qs-storage.plist.gpg
+      plist_dst_path: quickstart-ios/storage/GoogleService-Info.plist
+      run_tests: false
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+
+  pod_lib_lint:
+    uses: ./.github/workflows/_cocoapods.yml
+    with:
+      product: FirebaseStorage
+      test_specs: unit
+
+  storage-cron-only:
+    needs: pod_lib_lint
+    uses: ./.github/workflows/_cocoapods.cron.yml
+    with:
+      product: FirebaseStorage
+      platforms: '[ "ios", "tvos", "macos", "watchos" ]'
+      flags: '[ "--use-static-frameworks --skip-tests" ]'

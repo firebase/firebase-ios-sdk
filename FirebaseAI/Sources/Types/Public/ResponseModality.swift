@@ -23,11 +23,11 @@ import Foundation
 ///
 /// > Important: Support for each response modality, or combination of modalities, depends on the
 /// > model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct ResponseModality: EncodableProtoEnum, Sendable {
+public struct ResponseModality: EncodableProtoEnum, Sendable, Equatable {
   enum Kind: String {
     case text = "TEXT"
     case image = "IMAGE"
+    case audio = "AUDIO"
   }
 
   /// Specifies that the model should generate textual content.
@@ -47,6 +47,19 @@ public struct ResponseModality: EncodableProtoEnum, Sendable {
   /// > means that it is not subject to any SLA or deprecation policy and could change in
   /// > backwards-incompatible ways.
   public static let image = ResponseModality(kind: .image)
+
+  /// **Public Preview**: Specifies that the model should generate audio content.
+  ///
+  /// Use this modality when you need the model to produce (spoken) audio responses based on the
+  /// provided input or prompts.
+  ///
+  /// > Warning: This is currently **only** supported via the
+  /// > [live api](https://firebase.google.com/docs/ai-logic/live-api)\.
+  /// >
+  /// > Furthermore, using the Firebase AI Logic SDKs with the Gemini Live API is in Public Preview,
+  /// > which means that the feature is not subject to any SLA or deprecation policy and could
+  /// > change in backwards-incompatible ways.
+  public static let audio = ResponseModality(kind: .audio)
 
   let rawValue: String
 }

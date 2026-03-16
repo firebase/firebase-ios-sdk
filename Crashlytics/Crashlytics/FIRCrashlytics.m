@@ -111,6 +111,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 // Dependencies common to each of the Controllers
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 
+@property(nonatomic, nullable) FBLPromise *contextInitPromise;
+
 @end
 
 @implementation FIRCrashlytics
@@ -148,7 +150,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
     FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
-                                                                appIDModel:appModel];
+                                                                appIDModel:appModel
+                                                                   appInfo:appInfo];
 
     FIRCLSOnDemandModel *onDemandModel =
         [[FIRCLSOnDemandModel alloc] initWithFIRCLSSettings:settings fileManager:_fileManager];
@@ -197,14 +200,15 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       });
     }
 
-    [[[_reportManager startWithProfiling] then:^id _Nullable(NSNumber *_Nullable value) {
-      if (![value boolValue]) {
-        FIRCLSErrorLog(@"Crash reporting could not be initialized");
-      }
-      return value;
-    }] catch:^void(NSError *error) {
-      FIRCLSErrorLog(@"Crash reporting failed to initialize with error: %@", error);
-    }];
+    _contextInitPromise =
+        [[[_reportManager startWithProfiling] then:^id _Nullable(NSNumber *_Nullable value) {
+          if (![value boolValue]) {
+            FIRCLSErrorLog(@"Crash reporting could not be initialized");
+          }
+          return value;
+        }] catch:^void(NSError *error) {
+          FIRCLSErrorLog(@"Crash reporting failed to initialize with error: %@", error);
+        }];
 
     // RemoteConfig subscription should be made after session report directory created.
     if (remoteConfig) {
@@ -307,7 +311,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - API: Logging
 - (void)log:(NSString *)msg {
-  FIRCLSLog(@"%@", msg);
+  [self waitForContextInit:@"log"
+                  callback:^{
+                    FIRCLSLog(@"%@", msg);
+                  }];
 }
 
 - (void)logWithFormat:(NSString *)format, ... {
@@ -350,17 +357,26 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - API: setUserID
 - (void)setUserID:(nullable NSString *)userID {
-  FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey, userID);
+  [self waitForContextInit:@"setUserID"
+                  callback:^{
+                    FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey, userID);
+                  }];
 }
 
 #pragma mark - API: setCustomValue
 
 - (void)setCustomValue:(nullable id)value forKey:(NSString *)key {
-  FIRCLSUserLoggingRecordUserKeyValue(key, value);
+  [self waitForContextInit:@"setCustomValue"
+                  callback:^{
+                    FIRCLSUserLoggingRecordUserKeyValue(key, value);
+                  }];
 }
 
 - (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues {
-  FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
+  [self waitForContextInit:@"setCustomKeysAndValues"
+                  callback:^{
+                    FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
+                  }];
 }
 
 #pragma mark - API: Development Platform
@@ -383,8 +399,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)setDevelopmentPlatformName:(NSString *)developmentPlatformName {
-  FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSDevelopmentPlatformNameKey,
-                                          developmentPlatformName);
+  [self waitForContextInit:developmentPlatformName
+                  callback:^{
+                    FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSDevelopmentPlatformNameKey,
+                                                            developmentPlatformName);
+                  }];
 }
 
 - (NSString *)developmentPlatformVersion {
@@ -393,8 +412,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)setDevelopmentPlatformVersion:(NSString *)developmentPlatformVersion {
-  FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSDevelopmentPlatformVersionKey,
-                                          developmentPlatformVersion);
+  [self waitForContextInit:developmentPlatformVersion
+                  callback:^{
+                    FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSDevelopmentPlatformVersionKey,
+                                                            developmentPlatformVersion);
+                  }];
 }
 
 #pragma mark - API: Errors and Exceptions
@@ -404,19 +426,29 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON);
+  [self waitForContextInit:@"recordError"
+                  callback:^{
+                    FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON);
+                  }];
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
   NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfoJSON);
+  [self waitForContextInit:@"recordExceptionModel"
+                  callback:^{
+                    FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfoJSON);
+                  }];
 }
 
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
-  [self.managerData.onDemandModel
-      recordOnDemandExceptionIfQuota:exceptionModel
-           withDataCollectionEnabled:[self.dataArbiter isCrashlyticsCollectionEnabled]
-          usingExistingReportManager:self.existingReportManager];
+  [self waitForContextInit:@"recordOnDemandExceptionModel"
+                  callback:^{
+                    [self.managerData.onDemandModel
+                        recordOnDemandExceptionIfQuota:exceptionModel
+                             withDataCollectionEnabled:[self.dataArbiter
+                                                               isCrashlyticsCollectionEnabled]
+                            usingExistingReportManager:self.existingReportManager];
+                  }];
 }
 
 #pragma mark - FIRSessionsSubscriber
@@ -444,5 +476,17 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   NSString *currentReportID = _managerData.executionIDModel.executionID;
   [_remoteConfigManager updateRolloutsStateWithRolloutsState:rolloutsState
                                                     reportID:currentReportID];
+}
+
+#pragma mark - Private Helpers
+- (void)waitForContextInit:(NSString *)contextLog callback:(void (^)(void))callback {
+  if (!_contextInitPromise) {
+    FIRCLSErrorLog(@"Crashlytics method called before SDK was initialized: %@", contextLog);
+    return;
+  }
+  [_contextInitPromise then:^id _Nullable(id _Nullable value) {
+    callback();
+    return nil;
+  }];
 }
 @end

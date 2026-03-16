@@ -16,7 +16,10 @@ if(NOT FIREBASE_IOS_BUILD_TESTS)
   return()
 endif()
 
-file(GLOB sources *.cc)
+file(GLOB sources
+        expressions/*.cc
+        pipeline/*.cc
+        *.cc)
 firebase_ios_add_test(firestore_core_test ${sources})
 
 target_link_libraries(

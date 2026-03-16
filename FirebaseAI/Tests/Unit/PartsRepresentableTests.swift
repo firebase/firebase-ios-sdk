@@ -23,9 +23,8 @@ import XCTest
   import CoreImage
 #endif // canImport(CoreImage)
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class PartsRepresentableTests: XCTestCase {
   #if !os(watchOS)
     func testModelContentFromCGImageIsNotEmpty() throws {
@@ -119,6 +118,57 @@ final class PartsRepresentableTests: XCTestCase {
         XCTFail("Expected invalid underlying image conversion error, got \(imageError) instead.")
         return
       }
+    }
+  #endif
+
+  func testMixedParts() throws {
+    let text = "This is a test"
+    let data = try XCTUnwrap("This is some data".data(using: .utf8))
+    let inlineData = InlineDataPart(data: data, mimeType: "text/plain")
+
+    let parts: [any PartsRepresentable] = [text, inlineData]
+    let modelContent = ModelContent(parts: parts)
+
+    XCTAssertEqual(modelContent.parts.count, 2)
+    let textPart = try XCTUnwrap(modelContent.parts[0] as? TextPart)
+    XCTAssertEqual(textPart.text, text)
+    let dataPart = try XCTUnwrap(modelContent.parts[1] as? InlineDataPart)
+    XCTAssertEqual(dataPart, inlineData)
+  }
+
+  #if canImport(UIKit)
+    func testMixedParts_withImage() throws {
+      let text = "This is a test"
+      let image = try XCTUnwrap(UIImage(systemName: "star"))
+      let parts: [any PartsRepresentable] = [text, image]
+      let modelContent = ModelContent(parts: parts)
+
+      XCTAssertEqual(modelContent.parts.count, 2)
+      let textPart = try XCTUnwrap(modelContent.parts[0] as? TextPart)
+      XCTAssertEqual(textPart.text, text)
+      let imagePart = try XCTUnwrap(modelContent.parts[1] as? InlineDataPart)
+      XCTAssertEqual(imagePart.mimeType, "image/jpeg")
+      XCTAssertFalse(imagePart.data.isEmpty)
+    }
+
+  #elseif canImport(AppKit)
+    func testMixedParts_withImage() throws {
+      let text = "This is a test"
+      let coreImage = CIImage(color: CIColor.blue)
+        .cropped(to: CGRect(origin: CGPoint.zero, size: CGSize(width: 16, height: 16)))
+      let rep = NSCIImageRep(ciImage: coreImage)
+      let image = NSImage(size: rep.size)
+      image.addRepresentation(rep)
+
+      let parts: [any PartsRepresentable] = [text, image]
+      let modelContent = ModelContent(parts: parts)
+
+      XCTAssertEqual(modelContent.parts.count, 2)
+      let textPart = try XCTUnwrap(modelContent.parts[0] as? TextPart)
+      XCTAssertEqual(textPart.text, text)
+      let imagePart = try XCTUnwrap(modelContent.parts[1] as? InlineDataPart)
+      XCTAssertEqual(imagePart.mimeType, "image/jpeg")
+      XCTAssertFalse(imagePart.data.isEmpty)
     }
   #endif
 }

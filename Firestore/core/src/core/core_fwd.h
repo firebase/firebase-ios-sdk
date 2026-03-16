@@ -55,6 +55,7 @@ class QueryListener;
 class SyncEngine;
 class SyncEngineCallback;
 class Target;
+class TargetOrPipeline;
 class TargetIdGenerator;
 class Transaction;
 class ViewDocumentChanges;

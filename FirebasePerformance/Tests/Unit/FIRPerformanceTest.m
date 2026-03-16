@@ -118,7 +118,7 @@
 }
 
 /** Validates if attributes property is immutable. */
-- (void)testImmutablityOfAttributesProperty {
+- (void)testImmutabilityOfAttributesProperty {
   [self.performance setValue:@"bar" forAttribute:@"foo"];
   NSMutableDictionary<NSString *, NSString *> *attributes =
       (NSMutableDictionary<NSString *, NSString *> *)self.performance.attributes;

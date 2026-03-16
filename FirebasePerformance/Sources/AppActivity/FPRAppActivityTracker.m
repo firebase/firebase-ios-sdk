@@ -19,6 +19,7 @@
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRSessionManager.h"
+#import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 #import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Gauges/CPU/FPRCPUGaugeCollector+Private.h"
 #import "FirebasePerformance/Sources/Gauges/FPRGaugeManager.h"
@@ -71,6 +72,9 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 /** Tracks if the gauge metrics are dispatched. */
 @property(nonatomic) BOOL appStartGaugeMetricDispatched;
 
+/** Tracks if app start trace completion logic has been executed. */
+@property(nonatomic) BOOL appStartTraceCompleted;
+
 /** Firebase Performance Configuration object */
 @property(nonatomic) FPRConfigurations *configurations;
 
@@ -113,6 +117,18 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
 + (void)applicationDidFinishLaunching:(NSNotification *)notification {
   applicationDidFinishLaunchTime = [NSDate date];
+
+  // Detect a background launch and invalidate app start time
+  // this prevents we measure duration from background launch
+  UIApplicationState state = [UIApplication sharedApplication].applicationState;
+  if (state == UIApplicationStateBackground) {
+    // App launched in background so we invalidate the captured app start time
+    // to prevent incorrect measurement when user later opens the app
+    appStartTime = nil;
+    FPRLogDebug(kFPRTraceNotCreated,
+                @"Background launch detected. App start measurement will be skipped.");
+  }
+
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidFinishLaunchingNotification
                                                 object:nil];
@@ -135,6 +151,7 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   if (self != nil) {
     _applicationState = FPRApplicationStateUnknown;
     _appStartGaugeMetricDispatched = NO;
+    _appStartTraceCompleted = NO;
     _configurations = [FPRConfigurations sharedInstance];
     [self startTrackingNetwork];
   }
@@ -242,6 +259,15 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
 
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
+    // Early bailout if background launch was detected, appStartTime will be nil if the app was
+    // launched in background
+    if (appStartTime == nil) {
+      FPRLogDebug(kFPRTraceNotCreated,
+                  @"App start trace skipped due to background launch. "
+                  @"This prevents reporting incorrect multi-minute/hour durations.");
+      return;
+    }
+
     self.appStartTrace = [[FIRTrace alloc] initInternalTraceWithName:kFPRAppStartTraceName];
     [self.appStartTrace startWithStartTime:appStartTime];
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUI startTime:appStartTime];
@@ -250,9 +276,13 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToFirstDraw];
   });
 
-  // If ever the app start trace had it life in background stage, do not send the trace.
-  if (self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
+  // If ever the app start trace had its life in background stage, do not send the trace.
+  if (self.appStartTrace &&
+      self.appStartTrace.backgroundTraceState != FPRTraceStateForegroundOnly) {
+    [self.appStartTrace cancel];
     self.appStartTrace = nil;
+    FPRLogDebug(kFPRTraceNotCreated,
+                @"App start trace cancelled due to background state contamination.");
   }
 
   // Stop the active background session trace.
@@ -266,28 +296,44 @@ NSString *const kFPRAppCounterNameActivePrewarm = @"_fsapc";
   self.foregroundSessionTrace = appTrace;
 
   // Start measuring time to make the app interactive on the App start trace.
-  static BOOL TTIStageStarted = NO;
-  if (!TTIStageStarted) {
+  if (!self.appStartTraceCompleted && self.appStartTrace) {
     [self.appStartTrace startStageNamed:kFPRAppStartStageNameTimeToUserInteraction];
-    TTIStageStarted = YES;
+    self.appStartTraceCompleted = YES;
 
     // Assumption here is that - the app becomes interactive in the next runloop cycle.
     // It is possible that the app does more things later, but for now we are not measuring that.
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-      NSTimeInterval startTimeSinceEpoch = [self.appStartTrace startTimeSinceEpoch];
-      NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
+      __strong typeof(weakSelf) strongSelf = weakSelf;
+      if (!strongSelf || !strongSelf.appStartTrace) {
+        return;
+      }
 
-      // The below check is to account for 2 scenarios.
-      // 1. The app gets started in the background and might come to foreground a lot later.
-      // 2. The app is launched, but immediately backgrounded for some reason and the actual launch
+      NSTimeInterval startTimeSinceEpoch = [strongSelf.appStartTrace startTimeSinceEpoch];
+      NSTimeInterval currentTimeSinceEpoch = [[NSDate date] timeIntervalSince1970];
+      NSTimeInterval measuredAppStartTime = currentTimeSinceEpoch - startTimeSinceEpoch;
+
+      // The below check accounts for multiple scenarios:
+      // 1. App started in background and comes to foreground later
+      // 2. App launched but immediately backgroundedfor some reason and the actual launch
       // happens a lot later.
-      // Dropping the app start trace in such situations where the launch time is taking more than
-      // 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
-      if ((currentTimeSinceEpoch - startTimeSinceEpoch < gAppStartMaxValidDuration) &&
-          [self isAppStartEnabled] && ![self isApplicationPreWarmed]) {
-        [self.appStartTrace stop];
+      // 3. Network delays during startup inflating metrics
+      // 4. iOS prewarm scenarios
+      // 5. Dropping the app start trace in such situations where the launch time is taking more
+      // than 60 minutes. This is an approximation, but a more agreeable timelimit for app start.
+      BOOL shouldDispatchAppStartTrace = (measuredAppStartTime < gAppStartMaxValidDuration) &&
+                                         [strongSelf isAppStartEnabled] &&
+                                         ![strongSelf isApplicationPreWarmed];
+
+      if (shouldDispatchAppStartTrace) {
+        [strongSelf.appStartTrace stop];
       } else {
-        [self.appStartTrace cancel];
+        [strongSelf.appStartTrace cancel];
+        if (measuredAppStartTime >= gAppStartMaxValidDuration) {
+          FPRLogDebug(kFPRTraceInvalidName,
+                      @"App start trace cancelled due to excessive duration: %.2fs",
+                      measuredAppStartTime);
+        }
       }
     });
   }

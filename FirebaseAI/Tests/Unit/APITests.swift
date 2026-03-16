@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAI
+import FirebaseAILogic
 import FirebaseCore
 import XCTest
 #if canImport(AppKit)
@@ -21,7 +21,6 @@ import XCTest
   import UIKit // For UIImage extensions.
 #endif
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class APITests: XCTestCase {
   func codeSamples() async throws {
     let app = FirebaseApp.app()
@@ -176,11 +175,61 @@ final class APITests: XCTestCase {
     // Usage Metadata
     guard let usageMetadata = response.usageMetadata else { fatalError() }
     let _: Int = usageMetadata.promptTokenCount
+    let _: Int = usageMetadata.cachedContentTokenCount
     let _: Int = usageMetadata.candidatesTokenCount
     let _: Int = usageMetadata.totalTokenCount
 
     // Computed Properties
     let _: String? = response.text
     let _: [FunctionCallPart] = response.functionCalls
+  }
+
+  func testGenerateContentResponseWithCacheMetadata() throws {
+    let json = """
+    {
+      "candidates": [
+        {
+          "content": {
+            "parts": [
+              { "text": "Hello world!" }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0,
+          "safetyRatings": []
+        }
+      ],
+      "usageMetadata": {
+        "promptTokenCount": 100,
+        "cachedContentTokenCount": 50,
+        "candidatesTokenCount": 20,
+        "totalTokenCount": 170,
+        "promptTokensDetails": [],
+        "cacheTokensDetails": [
+          { "modality": "TEXT", "tokenCount": 50 }
+        ],
+        "candidatesTokensDetails": []
+      }
+    }
+    """.data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    let response = try decoder.decode(GenerateContentResponse.self, from: json)
+
+    guard let usageMetadata = response.usageMetadata else {
+      XCTFail("Missing usageMetadata")
+      return
+    }
+
+    XCTAssertEqual(usageMetadata.promptTokenCount, 100)
+    XCTAssertEqual(usageMetadata.cachedContentTokenCount, 50)
+    XCTAssertEqual(usageMetadata.candidatesTokenCount, 20)
+    XCTAssertEqual(usageMetadata.totalTokenCount, 170)
+
+    XCTAssertEqual(usageMetadata.cacheTokensDetails.count, 1)
+    let cacheDetail = usageMetadata.cacheTokensDetails.first
+    XCTAssertEqual(cacheDetail?.modality, .text)
+    XCTAssertEqual(cacheDetail?.tokenCount, 50)
   }
 }

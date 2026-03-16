@@ -110,7 +110,9 @@ class FirebaseSessionsTestsBase: XCTestCase {
                         coordinator: mockCoordinator,
                         initiator: initiator,
                         appInfo: mockAppInfo,
-                        settings: mockSettings) { result in
+                        settings: mockSettings,
+                        // Execute the callback on a higher priority queue to avoid test flakes.
+                        loggedEventCallbackQueue: .global(qos: .userInteractive)) { result in
       DispatchQueue.main.async {
         // Provide the result for tests to test against
         postLogEvent(result, subscriberSDKs)

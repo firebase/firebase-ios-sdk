@@ -81,9 +81,11 @@ auto convertToSet = [](std::vector<FieldIndex>&& vec) {
 
 }  // namespace
 
-INSTANTIATE_TEST_SUITE_P(LevelDbLocalStoreTest,
-                         LocalStoreTest,
-                         ::testing::Values(Factory));
+INSTANTIATE_TEST_SUITE_P(
+    LevelDbLocalStoreTest,
+    LocalStoreTest,
+    testing::Values(LocalStoreTestParams{Factory, /*use_pipeline=*/false},
+                    LocalStoreTestParams{Factory, /*use_pipeline=*/true}));
 
 class LevelDbLocalStoreTest : public LocalStoreTestBase {
  public:

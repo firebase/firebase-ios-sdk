@@ -14,13 +14,12 @@
 
 #if SWIFT_PACKAGE // The FirebaseStorage dependency has only been added in Package.swift.
 
-  import FirebaseAI
+  import FirebaseAILogic
   import FirebaseCore
   import FirebaseStorage
 
   // These CloudStorageSnippets are not currently runnable due to the GCS upload paths but are used
   // as compilation tests.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   final class CloudStorageSnippets {
     let model: GenerativeModel! = nil
 

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <unordered_map>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/value_util.h"
@@ -49,40 +50,6 @@ using nanopb::MakeStringView;
 using nanopb::Message;
 using nanopb::ReleaseFieldOwnership;
 using nanopb::SetRepeatedField;
-
-struct MapEntryKeyCompare {
-  bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
-                  absl::string_view segment) const {
-    return nanopb::MakeStringView(entry.key) < segment;
-  }
-  bool operator()(absl::string_view segment,
-                  const google_firestore_v1_MapValue_FieldsEntry& entry) const {
-    return segment < nanopb::MakeStringView(entry.key);
-  }
-};
-
-/**
- * Finds an entry by key in the provided map value. Returns `nullptr` if the
- * entry does not exist.
- */
-google_firestore_v1_MapValue_FieldsEntry* FindEntry(
-    const google_firestore_v1_Value& value, absl::string_view segment) {
-  if (!IsMap(value)) {
-    return nullptr;
-  }
-  const google_firestore_v1_MapValue& map_value = value.map_value;
-
-  // MapValues in iOS are always stored in sorted order.
-  auto found = std::equal_range(map_value.fields,
-                                map_value.fields + map_value.fields_count,
-                                segment, MapEntryKeyCompare());
-
-  if (found.first == found.second) {
-    return nullptr;
-  }
-
-  return found.first;
-}
 
 size_t CalculateSizeOfUnion(
     const google_firestore_v1_MapValue& map_value,
@@ -227,10 +194,12 @@ ObjectValue ObjectValue::FromFieldsEntry(
   return ObjectValue{std::move(value)};
 }
 
+// TODO(b/443765747) Revert back to absl::flat_hash_map after the absl version
+// is upgraded to later than 20250127.0
 ObjectValue ObjectValue::FromAggregateFieldsEntry(
     google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry,
     pb_size_t count,
-    const absl::flat_hash_map<std::string, std::string>& aliasMap) {
+    const std::unordered_map<std::string, std::string>& aliasMap) {
   Message<google_firestore_v1_Value> value;
   value->which_value_type = google_firestore_v1_Value_map_value_tag;
 
@@ -246,7 +215,9 @@ ObjectValue ObjectValue::FromAggregateFieldsEntry(
         // using the client-side alias.
         ByteString serverAlias(entry.key);
         std::string serverAliasString = serverAlias.ToString();
-        HARD_ASSERT(aliasMap.contains(serverAliasString),
+        // TODO(b/443765747) Revert back to aliasMap.contains(serverAliasString)
+        // after the absl version is upgraded to later than 20250127.0
+        HARD_ASSERT(aliasMap.find(serverAliasString) != aliasMap.end(),
                     "%s not present in aliasMap", serverAlias.ToString());
 
         ByteString clientAlias(aliasMap.find(serverAliasString)->second);

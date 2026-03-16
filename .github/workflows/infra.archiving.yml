@@ -1,0 +1,70 @@
+name: infra.archiving
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    - '.github/workflows/infra.archiving.yml'
+  schedule:
+    # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
+    # This is set to 3 hours after zip workflow finishes so zip testing can run after.
+    - cron:  '0 10 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  # Archive tests for pods that support iOS only.
+  pods-ios-only-cron:
+    # Don't run on private repo.
+    if: github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-15
+    strategy:
+      matrix:
+        # These need to be on a single line or else the formatting won't validate.
+        pod: ["FirebaseAppDistribution", "FirebaseInAppMessaging", "FirebasePerformance"]
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and archive
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        timeout_minutes: 20
+        max_attempts: 3
+        retry_wait_seconds: 300
+        command: scripts/test_archiving.sh ${{ matrix.pod }} ios ArchiveOutputs/ios.xcarchive
+
+
+  # Archive tests for pods that support iOS, tvOS, and macOS.
+  pods-ios-tvos-macos-cron:
+    # Don't run on private repo.
+    if: github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-15
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+        # These need to be on a single line or else the formatting won't validate.
+        pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage"]
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - name: Set Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app
+    - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and archive
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
+      with:
+        # Firestore gets a 60 min. timeout, everything else gets 20 min.
+        timeout_minutes: ${{ matrix.pod == 'FirebaseFirestore' && 60 || 20 }}
+        max_attempts: 3
+        retry_wait_seconds: 300
+        command: scripts/test_archiving.sh ${{ matrix.pod }} ${{ matrix.target }} ArchiveOutputs/${{ matrix.target }}.xcarchive

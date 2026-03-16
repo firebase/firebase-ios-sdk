@@ -70,7 +70,8 @@ class LevelDbTargetCache : public TargetCache {
 
   void RemoveTarget(const TargetData& target_data) override;
 
-  absl::optional<TargetData> GetTarget(const core::Target& target) override;
+  absl::optional<TargetData> GetTarget(
+      const core::TargetOrPipeline& target_or_pipeline) override;
 
   void EnumerateSequenceNumbers(
       const SequenceNumberCallback& callback) override;

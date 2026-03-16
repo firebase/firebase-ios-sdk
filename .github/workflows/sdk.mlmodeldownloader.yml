@@ -1,0 +1,78 @@
+name: sdk.mlmodeldownloader
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    - 'FirebaseMLModelDownloader**'
+    - '.github/workflows/sdk.mlmodeldownloader.yml'
+    - '.github/workflows/_spm.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  spm:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseMLModelDownloaderUnit
+
+  catalyst:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseMLModelDownloader
+      target: FirebaseMLModelDownloader-Unit-unit
+
+  pod_lib_lint:
+    if: github.event.pull_request.head.repo.fork == false
+    uses: ./.github/workflows/_cocoapods.yml
+    with:
+      product: FirebaseMLModelDownloader
+      setup_command: |
+        mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
+          FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+  mlmodeldownloader-cron-only:
+    if: github.event.pull_request.head.repo.fork == false
+    needs: pod_lib_lint
+    uses: ./.github/workflows/_cocoapods.cron.yml
+    with:
+      product: FirebaseMLModelDownloader
+      platforms: '[ "ios", "tvos", "macos" ]'
+      flags: '[ "--use-static-frameworks" ]'
+      setup_command: |
+        scripts/configure_test_keychain.sh
+        mkdir FirebaseMLModelDownloader/Tests/Integration/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
+          FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+  mlmodeldownloader-sample-build-test:
+    if: github.event.pull_request.head.repo.fork == false
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: MLModelDownloaderSample
+      platform: iOS
+      method: xcodebuild
+      setup_command: |
+        mkdir -p FirebaseMLModelDownloader/Apps/Sample/Resources
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/MLModelDownloader/GoogleService-Info.plist.gpg \
+          FirebaseMLModelDownloader/Apps/Sample/Resources/GoogleService-Info.plist "$plist_secret"
+        scripts/install_prereqs.sh MLModelDownloaderSample iOS
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

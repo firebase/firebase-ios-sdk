@@ -17,6 +17,13 @@ import XCTest
 
 @testable import FirebaseSessions
 
+private class SendableBox<Value>: @unchecked Sendable {
+  var value: Value
+  init(value: Value) {
+    self.value = value
+  }
+}
+
 class SessionCoordinatorTests: XCTestCase {
   var installations = MockInstallationsProtocol()
   var time = MockTimeProvider()
@@ -50,13 +57,13 @@ class SessionCoordinatorTests: XCTestCase {
 
   func test_attemptLoggingSessionStart_logsToGDT() throws {
     let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
-    var resultSuccess = false
+    let resultSuccess = SendableBox(value: false)
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
-        resultSuccess = true
+        resultSuccess.value = true
       case .failure:
-        resultSuccess = false
+        resultSuccess.value = false
       }
     }
     // Make sure we've set the Installation ID
@@ -71,7 +78,7 @@ class SessionCoordinatorTests: XCTestCase {
 
     // We should have logged successfully
     XCTAssertEqual(fireLogger.loggedEvent, event)
-    XCTAssert(resultSuccess)
+    XCTAssert(resultSuccess.value)
   }
 
   func test_attemptLoggingSessionStart_handlesGDTError() throws {
@@ -80,13 +87,13 @@ class SessionCoordinatorTests: XCTestCase {
     let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     // Start success so it must be set to false
-    var resultSuccess = true
+    let resultSuccess = SendableBox(value: true)
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
-        resultSuccess = true
+        resultSuccess.value = true
       case .failure:
-        resultSuccess = false
+        resultSuccess.value = false
       }
     }
 
@@ -102,7 +109,7 @@ class SessionCoordinatorTests: XCTestCase {
 
     // We should have logged the event, but with a failed result
     XCTAssertEqual(fireLogger.loggedEvent, event)
-    XCTAssertFalse(resultSuccess)
+    XCTAssertFalse(resultSuccess.value)
   }
 
   func test_attemptLoggingSessionStart_handlesInstallationsError() throws {
@@ -111,13 +118,13 @@ class SessionCoordinatorTests: XCTestCase {
     let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     // Start success so it must be set to false
-    var resultSuccess = true
+    let resultSuccess = SendableBox(value: true)
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
-        resultSuccess = true
+        resultSuccess.value = true
       case .failure:
-        resultSuccess = false
+        resultSuccess.value = false
       }
     }
 
@@ -125,7 +132,7 @@ class SessionCoordinatorTests: XCTestCase {
     XCTAssertTrue(installations.installationIdFinished)
     // We should have logged the event, but with a failed result
     XCTAssertNotNil(fireLogger.loggedEvent)
-    XCTAssertFalse(resultSuccess)
+    XCTAssertFalse(resultSuccess.value)
   }
 
   func test_attemptLoggingSessionStart_handlesGDTAndInstallationsError() throws {
@@ -138,13 +145,13 @@ class SessionCoordinatorTests: XCTestCase {
     let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     // Start success so it must be set to false
-    var resultSuccess = true
+    let resultSuccess = SendableBox(value: true)
     coordinator.attemptLoggingSessionStart(event: event) { result in
       switch result {
       case .success(()):
-        resultSuccess = true
+        resultSuccess.value = true
       case let .failure(err):
-        resultSuccess = false
+        resultSuccess.value = false
         // Result should use the FireLog error if there's an error in both
         // Installations and FireLog
         XCTAssertEqual(err, FirebaseSessionsError.DataTransportError(fireLogError))
@@ -164,6 +171,6 @@ class SessionCoordinatorTests: XCTestCase {
 
     // We should have logged the event, but with a failed result
     XCTAssertEqual(fireLogger.loggedEvent, event)
-    XCTAssertFalse(resultSuccess)
+    XCTAssertFalse(resultSuccess.value)
   }
 }

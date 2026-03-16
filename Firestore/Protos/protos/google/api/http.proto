@@ -79,7 +79,7 @@ message Http {
 //         - selector: <proto_package_name>.Messaging.GetMessage
 //           get: /v1/messages/{message_id}/{sub.subfield}
 //
-// This definition enables an automatic, bidrectional mapping of HTTP
+// This definition enables an automatic, bidirectional mapping of HTTP
 // JSON to RPC. Example:
 //
 // HTTP | RPC

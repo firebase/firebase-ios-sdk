@@ -51,7 +51,7 @@ class SessionInitiator {
 
     let notificationCenter = NotificationCenter.default
     #if os(iOS) || os(tvOS) || os(visionOS)
-      // Change background update event listerner for iPadOS 26 multi-windowing supoort
+      // Change background update event listener for iPadOS 26 multi-windowing support
       if #available(iOS 26, *), GULAppEnvironmentUtil.appleDevicePlatform().contains("ipados") {
         notificationCenter.addObserver(
           self,
@@ -112,7 +112,8 @@ class SessionInitiator {
   @objc private func appForegrounded() {
     let interval = currentTime().timeIntervalSince(backgroundTime)
 
-    // If the interval is greater the the session timeout duration, generate a new session.
+    // If the interval is greater than the session timeout duration, generate
+    // a new session.
     if interval > settings.sessionTimeout {
       initiateSessionStart()
     }

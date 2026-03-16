@@ -21,4 +21,15 @@ enum Constants {
   /// - Important: A suffix must be appended to produce an error domain (e.g.,
   ///   "com.google.firebase.firebaseai.ExampleError").
   static let baseErrorDomain = "com.google.firebase.firebaseai"
+
+  #if DEBUG
+    /// The key for an environment variable containing a Google Cloud Access Token.
+    ///
+    /// This should only be used for SDK development and testing with the Vertex AI direct backend
+    /// that bypasses the Firebase proxy..
+    ///
+    /// The value should is typically obtained from the gcloud CLI by calling
+    /// `gcloud auth print-access-token`.
+    static let gCloudAccessTokenEnvVarKey = "FIRGCloudAuthAccessToken"
+  #endif // DEBUG
 }

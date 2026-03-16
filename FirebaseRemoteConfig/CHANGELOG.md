@@ -1,4 +1,25 @@
-# Unreleased
+# 12.10.0
+- [issue] A workaround to restore service if Remote Config data remains empty
+  after a device restore is to publish a new version of your Remote Config template
+  in the Firebase console to force a full synchronization. This issue can occur if
+  the app was opened with an older SDK version (< 12.6.0) before upgrading. An automatic
+  fix for this scenario is currently under development. (#15764)
+
+# 12.6.0
+- [fixed] Fixed a bug where Remote Config does not work after a restore
+  of a previous backup of the device. (#14459)
+- [fixed] Fixed a data race condition on the global database status flag
+  by synchronizing all read and write operations. (#14715)
+
+# 12.3.0
+- [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
+  building dynamically linked libraries. (#15276)
+
+# 12.2.0
+- [fixed] Fixed a race condition that could lead to a crash during network
+  session recreation. (#15087)
+
+# 12.0.0
 - [added] Improved how the SDK handles real-time requests when a Firebase
   project has exceeded its available quota for real-time services.
   Released in anticipation of future quota enforcement, this change is

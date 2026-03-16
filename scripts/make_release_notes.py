@@ -51,10 +51,9 @@ PRODUCTS = {
 
 
 def main():
-  local_repo = find_local_repo()
 
   parser = argparse.ArgumentParser(description='Create release notes.')
-  parser.add_argument('--repo', '-r', default=local_repo,
+  parser.add_argument('--repo', '-r',
                       help='Specify which GitHub repo is local.')
   parser.add_argument('--only', metavar='VERSION',
                       help='Convert only a specific version')
@@ -63,6 +62,10 @@ def main():
   parser.add_argument('changelog',
                       help='The CHANGELOG.md file to parse')
   args = parser.parse_args()
+
+  repo = args.repo
+  if repo is None:
+    repo = find_local_repo()
 
   if args.all:
     text = read_file(args.changelog)
@@ -73,7 +76,7 @@ def main():
   if not args.all:
     product = PRODUCTS.get(args.changelog)
 
-  renderer = Renderer(args.repo, product)
+  renderer = Renderer(repo, product)
   translator = Translator(renderer)
 
   result = translator.translate(text)

@@ -13,9 +13,8 @@
 // limitations under the License.
 import XCTest
 
-@testable import FirebaseAI
+@testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class JSONValueTests: XCTestCase {
   let decoder = JSONDecoder()
   let encoder = JSONEncoder()
@@ -97,6 +96,48 @@ final class JSONValueTests: XCTestCase {
     XCTAssertEqual(json, "null")
   }
 
+  func testDecodeNestedObject() throws {
+    let nestedObject: JSONObject = [
+      "nestedKey": .string("nestedValue"),
+    ]
+    let expectedObject: JSONObject = [
+      "numberKey": .number(numberValue),
+      "objectKey": .object(nestedObject),
+    ]
+    let json = """
+    {
+      "numberKey": \(numberValue),
+      "objectKey": {
+        "nestedKey": "nestedValue"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let jsonObject = try XCTUnwrap(decoder.decode(JSONValue.self, from: jsonData))
+
+    XCTAssertEqual(jsonObject, .object(expectedObject))
+  }
+
+  func testDecodeNestedArray() throws {
+    let nestedArray: [JSONValue] = [.string("a"), .string("b")]
+    let expectedObject: JSONObject = [
+      "numberKey": .number(numberValue),
+      "arrayKey": .array(nestedArray),
+    ]
+    let json = """
+    {
+      "numberKey": \(numberValue),
+      "arrayKey": ["a", "b"]
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let jsonObject = try XCTUnwrap(decoder.decode(JSONValue.self, from: jsonData))
+
+    XCTAssertEqual(jsonObject, .object(expectedObject))
+  }
+
   func testEncodeNumber() throws {
     let jsonData = try encoder.encode(JSONValue.number(numberValue))
 
@@ -142,5 +183,31 @@ final class JSONValueTests: XCTestCase {
 
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, "[null,\(numberValueEncoded)]")
+  }
+
+  func testEncodeNestedObject() throws {
+    let nestedObject: JSONObject = [
+      "nestedKey": .string("nestedValue"),
+    ]
+    let objectValue: JSONObject = [
+      "numberKey": .number(numberValue),
+      "objectKey": .object(nestedObject),
+    ]
+
+    let jsonData = try encoder.encode(JSONValue.object(objectValue))
+    let jsonObject = try XCTUnwrap(decoder.decode(JSONValue.self, from: jsonData))
+    XCTAssertEqual(jsonObject, .object(objectValue))
+  }
+
+  func testEncodeNestedArray() throws {
+    let nestedArray: [JSONValue] = [.string("a"), .string("b")]
+    let objectValue: JSONObject = [
+      "numberKey": .number(numberValue),
+      "arrayKey": .array(nestedArray),
+    ]
+
+    let jsonData = try encoder.encode(JSONValue.object(objectValue))
+    let jsonObject = try XCTUnwrap(decoder.decode(JSONValue.self, from: jsonData))
+    XCTAssertEqual(jsonObject, .object(objectValue))
   }
 }

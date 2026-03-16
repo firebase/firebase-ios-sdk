@@ -1,0 +1,13 @@
+{
+  "data" : [
+    {
+      "filename" : "videoplayback.mp4",
+      "idiom" : "universal",
+      "universal-type-identifier" : "public.mpeg-4"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

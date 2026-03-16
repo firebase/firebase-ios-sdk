@@ -283,7 +283,7 @@
 }
 
 /** Validates if attributes property is immutable. */
-- (void)testImmutablityOfAttributesProperty {
+- (void)testImmutabilityOfAttributesProperty {
   FIRHTTPMetric *metric = [[FIRHTTPMetric alloc] initWithURL:self.sampleURL
                                                   HTTPMethod:FIRHTTPMethodGET];
   [metric setValue:@"bar" forAttribute:@"foo"];

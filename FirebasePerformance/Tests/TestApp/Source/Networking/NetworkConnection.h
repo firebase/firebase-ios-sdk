@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^SuccessNetworkCallback)();
+typedef void (^SuccessNetworkCallback)(void);
 typedef void (^FailureNetworkCallback)(NSError *error);
 
 /** A protocol for network connection tasks. */

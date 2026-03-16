@@ -112,6 +112,20 @@ FOUNDATION_EXTERN CFTimeInterval const kFPRFrozenFrameThreshold;
  */
 - (void)viewControllerDidDisappear:(id)viewController;
 
+#if TARGET_OS_TV
+/** Handles the UIScreenModeDidChangeNotification. Recomputes the cached slow budget when the screen
+ *  mode changes on tvOS.
+ *
+ *  @param notification The NSNotification object.
+ */
+- (void)screenModeDidChangeNotification:(NSNotification *)notification;
+#endif
+
+/** Updates the cached maxFPS and slowBudget from UIScreen.maximumFramesPerSecond.
+ *  This method must be called on the main thread.
+ */
+- (void)updateCachedSlowBudget;
+
 @end
 
 NS_ASSUME_NONNULL_END

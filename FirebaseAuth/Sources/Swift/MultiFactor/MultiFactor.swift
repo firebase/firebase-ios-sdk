@@ -14,7 +14,7 @@
 
 import Foundation
 
-#if os(iOS)
+#if os(iOS) || os(macOS)
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   extension MultiFactor: NSSecureCoding {}
@@ -22,7 +22,7 @@ import Foundation
   /// The interface defining the multi factor related properties and operations pertaining to a
   /// user.
   ///
-  /// This class is available on iOS only.
+  /// This class is available on iOS and macOS.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactor) open class MultiFactor: NSObject {
     @objc open var enrolledFactors: [MultiFactorInfo]

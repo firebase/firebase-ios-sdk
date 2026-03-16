@@ -36,6 +36,10 @@
 - (void)setUp {
   [super setUp];
 
+  dispatch_sync(FIRCLSGetLoggingQueue(), ^{
+                    // Drain queue to prevent interference from previous tests.
+                });
+
   FIRCLSContextBaseInit();
 
   NSString* tempDir = NSTemporaryDirectory();

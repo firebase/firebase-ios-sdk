@@ -113,6 +113,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 }
 
 /// Force a new NSURLSession creation for updated config.
+/// - Warning: This API is **not** thread-safe.
 - (void)recreateNetworkSession {
   if (_fetchSession) {
     [_fetchSession invalidateAndCancel];

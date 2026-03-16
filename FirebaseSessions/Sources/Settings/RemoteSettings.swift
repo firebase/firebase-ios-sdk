@@ -14,7 +14,6 @@
 // limitations under the License.
 
 import Foundation
-internal import FirebaseCoreInternal
 
 /// Extends ApplicationInfoProtocol to string-format a combined appDisplayVersion and
 /// appBuildVersion
@@ -29,72 +28,60 @@ final class RemoteSettings: SettingsProvider, Sendable {
   private static let flagSessionsCache = "app_quality"
   private let appInfo: ApplicationInfoProtocol
   private let downloader: SettingsDownloadClient
-  private let cache: FIRAllocatedUnfairLock<SettingsCacheClient>
+  private let cache: SettingsCacheClient
 
-  private var sessionsCache: [String: Any] {
-    cache.withLock { cache in
-      cache.cacheContent[RemoteSettings.flagSessionsCache] as? [String: Any] ?? [:]
-    }
+  convenience init(appInfo: ApplicationInfoProtocol,
+                   downloader: SettingsDownloadClient) {
+    let cache = SettingsCache(namespace: Self.flagSessionsCache)
+    self.init(appInfo: appInfo, downloader: downloader, cache: cache)
   }
 
   init(appInfo: ApplicationInfoProtocol,
        downloader: SettingsDownloadClient,
-       cache: SettingsCacheClient = SettingsCache()) {
+       cache: SettingsCacheClient) {
     self.appInfo = appInfo
-    self.cache = FIRAllocatedUnfairLock(initialState: cache)
+    self.cache = cache
     self.downloader = downloader
   }
 
   private func fetchAndCacheSettings(currentTime: Date) {
-    let shouldFetch = cache.withLock { cache in
-      // Only fetch if cache is expired, otherwise do nothing
-      guard cache.isExpired(for: appInfo, time: currentTime) else {
-        Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
-        return false
-      }
-      return true
+    // Only fetch if cache is expired, otherwise do nothing
+    guard cache.isExpired(for: appInfo, time: currentTime) else {
+      Logger.logDebug("[Settings] Cache is not expired, no fetch will be made.")
+      return
     }
 
-    if shouldFetch {
-      downloader.fetch { result in
-
-        switch result {
-        case let .success(dictionary):
-          self.cache.withLock { cache in
-            // Saves all newly fetched Settings to cache
-            cache.cacheContent = dictionary
-            // Saves a "cache-key" which carries TTL metadata about current cache
-            cache.cacheKey = CacheKey(
-              createdAt: currentTime,
-              googleAppID: self.appInfo.appID,
-              appVersion: self.appInfo.synthesizedVersion
-            )
-          }
-        case let .failure(error):
-          Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
-        }
+    downloader.fetch { result in
+      switch result {
+      case let .success(dictionary):
+        // Saves all newly fetched Settings to cache
+        self.cache.updateContents(dictionary)
+        // Saves a "cache-key" which carries TTL metadata about current cache
+        self.cache.updateMetadata(
+          CacheKey(
+            createdAt: currentTime,
+            googleAppID: self.appInfo.appID,
+            appVersion: self.appInfo.synthesizedVersion
+          )
+        )
+      case let .failure(error):
+        Logger.logError("[Settings] Fetching newest settings failed with error: \(error)")
       }
     }
   }
-}
 
-typealias RemoteSettingsConfigurations = RemoteSettings
-extension RemoteSettingsConfigurations {
   var sessionsEnabled: Bool? {
-    return sessionsCache[RemoteSettings.flagSessionsEnabled] as? Bool
+    cache.namespacedValue(forKey: RemoteSettings.flagSessionsEnabled)
   }
 
   var samplingRate: Double? {
-    return sessionsCache[RemoteSettings.flagSamplingRate] as? Double
+    cache.namespacedValue(forKey: RemoteSettings.flagSamplingRate)
   }
 
   var sessionTimeout: TimeInterval? {
-    return sessionsCache[RemoteSettings.flagSessionTimeout] as? Double
+    cache.namespacedValue(forKey: RemoteSettings.flagSessionTimeout)
   }
-}
 
-typealias RemoteSettingsProvider = RemoteSettings
-extension RemoteSettingsConfigurations {
   func updateSettings(currentTime: Date) {
     fetchAndCacheSettings(currentTime: currentTime)
   }
@@ -104,8 +91,6 @@ extension RemoteSettingsConfigurations {
   }
 
   func isSettingsStale() -> Bool {
-    cache.withLock { cache in
-      cache.isExpired(for: appInfo, time: Date())
-    }
+    cache.isExpired(for: appInfo, time: Date())
   }
 }

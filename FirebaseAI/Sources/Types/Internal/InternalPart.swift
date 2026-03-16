@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct InlineData: Codable, Equatable, Sendable {
   let mimeType: String
   let data: Data
@@ -25,7 +24,6 @@ struct InlineData: Codable, Equatable, Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FileData: Codable, Equatable, Sendable {
   let fileURI: String
   let mimeType: String
@@ -41,31 +39,81 @@ struct FileData: Codable, Equatable, Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FunctionCall: Equatable, Sendable {
   let name: String
   let args: JSONObject
+  let id: String?
 
-  init(name: String, args: JSONObject) {
+  init(name: String, args: JSONObject, id: String?) {
     self.name = name
     self.args = args
+    self.id = id
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FunctionResponse: Codable, Equatable, Sendable {
   let name: String
   let response: JSONObject
+  let id: String?
 
-  init(name: String, response: JSONObject) {
+  init(name: String, response: JSONObject, id: String? = nil) {
     self.name = name
     self.response = response
+    self.id = id
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+struct ExecutableCode: Codable, Equatable, Sendable {
+  struct Language: CodableProtoEnum, Sendable, Equatable {
+    enum Kind: String {
+      case unspecified = "LANGUAGE_UNSPECIFIED"
+      case python = "PYTHON"
+    }
+
+    let rawValue: String
+
+    static let unrecognizedValueMessageCode =
+      AILog.MessageCode.executableCodeUnrecognizedLanguage
+  }
+
+  let language: Language?
+  let code: String?
+
+  init(language: Language, code: String) {
+    self.language = language
+    self.code = code
+  }
+}
+
+struct CodeExecutionResult: Codable, Equatable, Sendable {
+  struct Outcome: CodableProtoEnum, Sendable, Equatable {
+    enum Kind: String {
+      case unspecified = "OUTCOME_UNSPECIFIED"
+      case ok = "OUTCOME_OK"
+      case failed = "OUTCOME_FAILED"
+      case deadlineExceeded = "OUTCOME_DEADLINE_EXCEEDED"
+    }
+
+    let rawValue: String
+
+    static let unrecognizedValueMessageCode =
+      AILog.MessageCode.codeExecutionResultUnrecognizedOutcome
+  }
+
+  let outcome: Outcome?
+  let output: String?
+
+  init(outcome: Outcome, output: String) {
+    self.outcome = outcome
+    self.output = output
+  }
+}
+
 struct ErrorPart: Part, Error {
   let error: Error
+
+  let isThought = false
+  let thoughtSignature: String? = nil
 
   init(_ error: Error) {
     self.error = error
@@ -74,7 +122,6 @@ struct ErrorPart: Part, Error {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCall: Codable {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -84,10 +131,10 @@ extension FunctionCall: Codable {
     } else {
       args = JSONObject()
     }
+    id = try container.decodeIfPresent(String.self, forKey: .id)
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ErrorPart: Codable {
   init(from decoder: any Decoder) throws {
     fatalError("Decoding an ErrorPart is not supported.")
@@ -100,7 +147,6 @@ extension ErrorPart: Codable {
 
 // MARK: - Equatable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ErrorPart: Equatable {
   static func == (lhs: ErrorPart, rhs: ErrorPart) -> Bool {
     fatalError("Comparing ErrorParts for equality is not supported.")

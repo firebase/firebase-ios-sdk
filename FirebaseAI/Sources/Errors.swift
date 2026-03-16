@@ -142,3 +142,13 @@ enum InvalidCandidateError: Error {
   case emptyContent(underlyingError: Error)
   case malformedContent(underlyingError: Error)
 }
+
+struct UnrecognizedRPCError: Error {
+  let responseBody: String
+}
+
+extension UnrecognizedRPCError: LocalizedError {
+  var errorDescription: String? {
+    return "Unrecognized error payload: \(responseBody)"
+  }
+}
