@@ -268,34 +268,18 @@
         isComplete: true
       )
       let content: Content = try Self.resolveContent(from: rawContent)
-
-      // TODO: Extract transcript handling to helper method and add to `streamResponse`.
-      let id = rawContent.generationID?.responseID ?? UUID().uuidString
-      let partsTranscript = FirebaseAI.Transcript(contents: parts)
-
-      var responseSegments = [FirebaseAI.Transcript.Segment]()
-      if let thoughtSummary = response.thoughtSummary {
-        responseSegments.append(.thought(.init(content: thoughtSummary)))
-      }
-      if schema != nil {
-        responseSegments.append(.structure(.init(
-          source: String(describing: Content.self),
-          content: rawContent
-        )))
-      } else {
-        responseSegments.append(.text(.init(content: text)))
-      }
-
-      transcript.entries.append(contentsOf: partsTranscript.entries)
-      let endIndex = transcript.entries.endIndex
-      transcript.entries
-        .append(.response(.init(id: id, assetIDs: [], segments: responseSegments)))
+      let responseEntries = updateTranscript(
+        parts: parts, schema: schema,
+        type: type,
+        rawContent: rawContent,
+        response: response
+      )
 
       return GenerativeModelSession.Response(
         content: content,
         rawContent: rawContent,
         rawResponse: response,
-        transcriptEntries: transcript.entries[endIndex...]
+        transcriptEntries: responseEntries
       )
     }
 
@@ -346,7 +330,8 @@
               let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
                 .RawResult(
                   rawContent: rawContent,
-                  rawResponse: pending.response
+                  rawResponse: pending.response,
+                  transcriptEntries: nil // Only included in final result
                 )
               await context.yield(rawResult)
             }
@@ -379,10 +364,19 @@
               hasSchema: schema != nil,
               isComplete: true
             )
+            let rawResponse = finalChunk.response
+            let transcriptEntries = self.updateTranscript(
+              parts: parts,
+              schema: schema,
+              type: type,
+              rawContent: rawContent,
+              response: rawResponse
+            )
             let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
               .RawResult(
                 rawContent: rawContent,
-                rawResponse: finalChunk.response
+                rawResponse: finalChunk.response,
+                transcriptEntries: transcriptEntries
               )
             await context.yield(rawResult)
           }
@@ -462,6 +456,34 @@
       throw GenerativeModelSession.ResponseTypeConversionError(
         from: type(of: rawContent), to: T.self
       )
+    }
+
+    func updateTranscript<Content>(parts: [ModelContent], schema: FirebaseAI.GenerationSchema?,
+                                   type: Content.Type, rawContent: FirebaseAI.GeneratedContent,
+                                   response: GenerateContentResponse)
+      -> ArraySlice<FirebaseAI.Transcript.Entry> {
+      let id = rawContent.generationID?.responseID ?? UUID().uuidString
+      let requestEntries = FirebaseAI.Transcript(contents: parts).entries
+
+      var responseSegments = [FirebaseAI.Transcript.Segment]()
+      if let thoughtSummary = response.thoughtSummary {
+        responseSegments.append(.thought(.init(content: thoughtSummary)))
+      }
+      if schema != nil {
+        responseSegments.append(.structure(.init(
+          source: String(describing: Content.self),
+          content: rawContent
+        )))
+      } else if type == String.self, case let .string(value) = rawContent.kind {
+        responseSegments.append(.text(.init(content: value)))
+      }
+
+      transcript.entries.append(contentsOf: requestEntries)
+      let endIndex = transcript.entries.endIndex
+      transcript.entries
+        .append(.response(.init(id: id, assetIDs: [], segments: responseSegments)))
+
+      return transcript.entries[endIndex...]
     }
   }
 
@@ -559,14 +581,14 @@
       public nonisolated(nonsending)
       func collect() async throws -> sending GenerativeModelSession.Response<Content> {
         let finalResult = try await context.value
-
         let content: Content = try GenerativeModelSession
           .resolveContent(from: finalResult.rawContent)
+
         return GenerativeModelSession.Response(
           content: content,
           rawContent: finalResult.rawContent,
           rawResponse: finalResult.rawResponse,
-          transcriptEntries: [] // TODO: Implement this
+          transcriptEntries: finalResult.transcriptEntries ?? []
         )
       }
     }
@@ -576,6 +598,7 @@
     struct RawResult: Sendable {
       let rawContent: FirebaseAI.GeneratedContent
       let rawResponse: GenerateContentResponse
+      let transcriptEntries: ArraySlice<FirebaseAI.Transcript.Entry>?
     }
 
     actor StreamContext {
