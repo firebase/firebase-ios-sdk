@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
+
 # 12.11.0
 - [changed] Minor refactor to avoid using an absl internal function. (#15889)
 
