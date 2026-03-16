@@ -14,6 +14,7 @@
 
 // TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
 #if compiler(>=6.2.3)
+  private import FirebaseCoreInternal
   import Foundation
   #if canImport(FoundationModels)
     import FoundationModels
@@ -51,9 +52,8 @@
   /// print("Favorite Topics: \(response.content.favoriteTopics.joined(separator: ", "))")
   /// ```
   public final class GenerativeModelSession: Sendable {
-    let session: Chat
-    // TODO: Throw on concurrent requests and add a lock for `transcript`.
-    private nonisolated(unsafe) var transcript: FirebaseAI.Transcript
+    private let session: Chat
+    private let sessionContext: SessionContext
 
     /// Creates a new `GenerativeModelSession` with the given model.
     ///
@@ -61,8 +61,11 @@
     /// - Parameter model: The `GenerativeModel` to use for generating content.
     init(model: GenerativeModel) {
       session = model.startChat()
-      transcript = FirebaseAI.Transcript()
+      sessionContext = SessionContext(transcript: FirebaseAI.Transcript())
     }
+
+    // TODO: Make this public when `Transcript`'s API is reviewed.
+    var transcript: FirebaseAI.Transcript { sessionContext.transcript }
 
     /// Sends a new prompt to the model and returns a `Response` containing the generated content as
     /// a `String`.
@@ -238,6 +241,11 @@
                           generating type: Content.Type, includeSchemaInPrompt: Bool,
                           options: GenerationConfig?) async throws
       -> GenerativeModelSession.Response<Content> {
+      try sessionContext.startResponding()
+      defer {
+        sessionContext.finishResponding()
+      }
+
       let parts = [ModelContent(parts: prompt)]
       let config = try buildConfig(
         options: options,
@@ -293,6 +301,11 @@
       let parts = [ModelContent(parts: prompt)]
       return GenerativeModelSession.ResponseStream { context in
         do {
+          try self.sessionContext.startResponding()
+          defer {
+            self.sessionContext.finishResponding()
+          }
+
           let config = try self.buildConfig(
             options: options,
             schema: schema,
@@ -478,12 +491,56 @@
         responseSegments.append(.text(.init(content: value)))
       }
 
-      transcript.entries.append(contentsOf: requestEntries)
-      let endIndex = transcript.entries.endIndex
-      transcript.entries
-        .append(.response(.init(id: id, assetIDs: [], segments: responseSegments)))
+      return sessionContext.updateTranscript(
+        requestEntries: requestEntries,
+        responseEntries: [.response(.init(id: id, assetIDs: [], segments: responseSegments))]
+      )
+    }
 
-      return transcript.entries[endIndex...]
+    private final class SessionContext: Sendable {
+      private let _isResponding = UnfairLock(false)
+      private let _transcript: UnfairLock<FirebaseAI.Transcript>
+
+      init(transcript: FirebaseAI.Transcript) {
+        self._transcript = UnfairLock(transcript)
+      }
+
+      var isResponding: Bool {
+        _isResponding.value()
+      }
+
+      func startResponding() throws {
+        try _isResponding.withLock { isResponding in
+          guard !isResponding else {
+            throw GenerativeModelSession.GenerationError.concurrentRequests(.init(debugDescription: ""))
+          }
+
+          isResponding = true
+        }
+      }
+
+      func finishResponding() {
+        _isResponding.withLock { isResponding in
+          assert(isResponding, "`finishResponding` called but `isResponding` is false.")
+          isResponding = false
+        }
+      }
+
+      var transcript: FirebaseAI.Transcript {
+        _transcript.value()
+      }
+
+      func updateTranscript(requestEntries: [FirebaseAI.Transcript.Entry],
+                            responseEntries: [FirebaseAI.Transcript.Entry])
+        ->  ArraySlice<FirebaseAI.Transcript.Entry> {
+        return _transcript.withLock { transcript in
+          transcript.entries.append(contentsOf: requestEntries)
+          let endIndex = transcript.entries.endIndex
+          transcript.entries.append(contentsOf: responseEntries)
+
+          return transcript.entries[endIndex...]
+        }
+      }
     }
   }
 
@@ -717,6 +774,8 @@
 
       /// The model's response could not be decoded.
       case decodingFailure(GenerativeModelSession.GenerationError.Context)
+
+      case concurrentRequests(GenerativeModelSession.GenerationError.Context)
     }
 
     struct ResponseTypeConversionError: CustomDebugStringConvertible, CustomNSError {
