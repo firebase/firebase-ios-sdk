@@ -305,14 +305,9 @@ def xcresulttool(*args):
 def xcresulttool_json(*args):
   """Runs xcresulttool and its output as parsed JSON."""
   # Note: --legacy is required for Xcode 16.
-  try:
-    legacy_args = list(args) + ['--format', 'json', '--legacy']
-    contents = xcresulttool(*legacy_args)
-    return json.loads(contents)
-  except subprocess.CalledProcessError:
-    normal_args = list(args) + ['--format', 'json']
-    contents = xcresulttool(*normal_args)
-    return json.loads(contents)
+  args = list(args) + ['--format', 'json', '--legacy']
+  contents = xcresulttool(*args)
+  return json.loads(contents)
 
 
 if __name__ == '__main__':
