@@ -3992,4 +3992,125 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     snapshot = try await pipeline.execute()
     TestHelper.compare(snapshot: snapshot, expectedCount: 0)
   }
+
+  func testWhereByNorCondition() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        nor(
+          Field("genre").equal("Romance"),
+          Field("genre").equal("Dystopian"),
+          Field("genre").equal("Fantasy"),
+          Field("published").greaterThan(1949)
+        )
+      )
+      .select([Field("title")])
+      .sort([Field("title").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [
+        ["title": "Crime and Punishment"],
+        ["title": "The Great Gatsby"],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testNorConditionWithNull() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(
+        with: MapExpression([
+          "a": false,
+          "b": false,
+          "c": true,
+          "d": Constant.nil,
+        ])
+      )
+      .select([
+        nor(Field("a").asBoolean(), Field("b").asBoolean()).as("twoConditions"),
+        nor([Field("a").asBoolean(), Field("b").asBoolean(), Field("c").asBoolean()])
+          .as("threeConditions"),
+        nor(Field("a").asBoolean(), Field("b").asBoolean(), Field("d").asBoolean())
+          .as("threeConditionsWithNull"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [
+        [
+          "twoConditions": true,
+          "threeConditions": false,
+          "threeConditionsWithNull": NSNull(),
+        ],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testSelectWithSwitchOn() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline1 = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression(["value": 2]))
+      .select([
+        switchOn(Field("value").equal(2), Constant("two"), Constant("NA")).as("result1"),
+        switchOn(Field("value").equal(3), Constant("three"), Constant("NA")).as("result2"),
+        switchOn(
+          Field("value").equal(1), Constant("one"),
+          Field("value").equal(2), Constant("two"),
+          Field("value").equal(3), Constant("three"),
+          Constant("NA")
+        ).as("result3"),
+      ])
+
+    let snapshot1 = try await pipeline1.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot1,
+      expected: [
+        [
+          "result1": "two",
+          "result2": "NA",
+          "result3": "two",
+        ],
+      ],
+      enforceOrder: true
+    )
+
+    // Throws error because no default value is provided and no condition is met
+    let pipeline2 = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression(["value": 5]))
+      .select([
+        switchOn(
+          Field("value").equal(1), Constant("one"),
+          Field("value").equal(2), Constant("two")
+        ).as("result"),
+      ])
+
+    do {
+      _ = try await pipeline2.execute()
+      XCTFail("Should have thrown an error for no default value matched")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, FirestoreErrorDomain, "Error domain mismatch")
+    }
+  }
 }
