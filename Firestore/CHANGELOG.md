@@ -1,5 +1,6 @@
 # 12.11.0
 - [feature] Added support for `first`, `last`, `arrayAgg`, and `arrayAggDistinct` Pipeline expressions. (#15941)
+- [feature] Added support for `trunc` and `rand` Pipeline expressions. (#15938)
 - [changed] Minor refactor to avoid using an absl internal function. (#15889)
 
 # 12.10.0

@@ -404,6 +404,21 @@ public extension Expression {
     return FunctionExpression(functionName: "abs", args: [self])
   }
 
+  func trunc() -> FunctionExpression {
+    return FunctionExpression(functionName: "trunc", args: [self])
+  }
+
+  func truncToPrecision(_ decimalPlace: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "trunc",
+      args: [self, Helper.sendableToExpr(decimalPlace)]
+    )
+  }
+
+  func truncToPrecision(_ decimalPlace: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "trunc", args: [self, decimalPlace])
+  }
+
   func ceil() -> FunctionExpression {
     return FunctionExpression(functionName: "ceil", args: [self])
   }

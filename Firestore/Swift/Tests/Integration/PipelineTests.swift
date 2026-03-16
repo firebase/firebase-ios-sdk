@@ -2424,6 +2424,80 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testTrunc() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("Pride and Prejudice"))
+      .limit(1)
+      .select([Field("rating").trunc().as("truncatedRating")])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["truncatedRating": 4.0],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testTruncToPrecision() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+    try await collRef.document("dummy").setData(["a": 1])
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select([
+        Constant(4.123456).truncToPrecision(0).as("p0"),
+        Constant(4.123456).truncToPrecision(1).as("p1"),
+        Constant(4.123456).truncToPrecision(Constant(2)).as("p2"),
+        Constant(4.123456).truncToPrecision(4).as("p4"),
+        Constant(4.123456).truncToPrecision(-1).as("n1"),
+        Constant(42.123456).truncToPrecision(-1).as("n2"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "p0": 4.0,
+        "p1": 4.1,
+        "p2": 4.12,
+        "p4": 4.1234,
+        "n1": 0.0,
+        "n2": 40.0,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testRand() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+    try await collRef.document("dummy").setData(["a": 1])
+
+    let snapshot = try await db
+      .pipeline()
+      .collection(collRef.path)
+      .select([rand().as("randomNumber")])
+      .limit(1)
+      .execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+    guard let randomNumber = data["randomNumber"] as? Double else {
+      XCTFail("randomNumber is not a Double")
+      return
+    }
+    XCTAssertGreaterThanOrEqual(randomNumber, 0.0)
+    XCTAssertLessThan(randomNumber, 1.0)
+  }
+
   func testSqrtWorks() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": ["value": 4],
