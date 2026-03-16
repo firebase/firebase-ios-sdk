@@ -234,7 +234,9 @@ actor LiveSessionService {
       do {
         for try await message in stream {
           #if DEBUG
+          if #available(macOS 11.0, *) {
             logServerMessage(message)
+          }
           #endif
           let response = try decodeServerMessage(message)
 
@@ -277,6 +279,7 @@ actor LiveSessionService {
   }
 
   #if DEBUG
+    @available(macOS 11.0, *)
     private func logServerMessage(_ message: Data) {
       guard AILog.additionalLoggingEnabled() else { return }
 
