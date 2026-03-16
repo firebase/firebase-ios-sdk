@@ -17,7 +17,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   }
 
   s.ios.deployment_target = '15.0'
-  s.osx.deployment_target = '10.15'
+  s.osx.deployment_target = '11.0'
   s.tvos.deployment_target = '15.0'
 
   s.swift_version = '5.9'
@@ -94,7 +94,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'FirebaseAppCheckInterop', '~> 12.0.0'
   s.dependency 'FirebaseCore', '~> 12.0.0'
 
-  abseil_version = '~> 1.20240722.0'
+  abseil_version = '~> 1.20250127.1'
   s.dependency 'abseil/algorithm', abseil_version
   s.dependency 'abseil/base', abseil_version
   s.dependency 'abseil/container/flat_hash_map', abseil_version
@@ -104,8 +104,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'abseil/time', abseil_version
   s.dependency 'abseil/types', abseil_version
 
-  s.dependency 'gRPC-Core', '~> 1.69.0'
-  s.dependency 'gRPC-C++', '~> 1.69.0'
+  s.dependency 'gRPC-Core', '~> 1.71.0'
+  s.dependency 'gRPC-C++', '~> 1.71.0'
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'nanopb', '~> 3.30910.0'
 
@@ -115,7 +115,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.library = 'c++'
   s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'CLANG_CXX_LIBRARY' => 'libc++',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       "FIRFirestore_VERSION=#{s.version} " +
