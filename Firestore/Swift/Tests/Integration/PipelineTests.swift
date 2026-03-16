@@ -2383,6 +2383,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         Constant(4.123456).truncToPrecision(1).as("p1"),
         Constant(4.123456).truncToPrecision(Constant(2)).as("p2"),
         Constant(4.123456).truncToPrecision(4).as("p4"),
+        Constant(4.123456).truncToPrecision(-1).as("n1"),
+        Constant(42.123456).truncToPrecision(-1).as("n2"),
       ])
 
     let snapshot = try await pipeline.execute()
@@ -2393,6 +2395,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         "p1": 4.1,
         "p2": 4.12,
         "p4": 4.1234,
+        "n1": 0.0,
+        "n2": 40.0,
       ],
     ]
 

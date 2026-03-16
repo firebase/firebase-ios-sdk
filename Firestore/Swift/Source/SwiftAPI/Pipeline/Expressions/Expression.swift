@@ -151,8 +151,8 @@ public protocol Expression: Sendable {
 
   /// Creates an expression that truncates self to a specified number of decimal places.
   ///
-  /// If `decimalPlace` is positive, truncates names to the right of the decimal point.
-  /// If `decimalPlace` is negative, truncates digits to the left of the decimal point.
+  /// If `decimalPlace` is positive, truncates number to the right of the decimal point.
+  /// If `decimalPlace` is negative, truncates number to the left of the decimal point.
   ///
   /// ```swift
   /// // Truncate the value of the "rating" field to 2 decimal places.
@@ -165,8 +165,8 @@ public protocol Expression: Sendable {
 
   /// Creates an expression that truncates self to a specified number of decimal places.
   ///
-  /// If `decimalPlace` is positive, truncates names to the right of the decimal point.
-  /// If `decimalPlace` is negative, truncates digits to the left of the decimal point.
+  /// If `decimalPlace` is positive, truncates number to the right of the decimal point.
+  /// If `decimalPlace` is negative, truncates number to the left of the decimal point.
   ///
   /// ```swift
   /// // Truncate the value of the "rating" field to the number of decimal places specified in the
