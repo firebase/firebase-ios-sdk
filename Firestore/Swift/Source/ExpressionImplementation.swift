@@ -907,6 +907,22 @@ public extension Expression {
     return AggregateFunction(functionName: "maximum", args: [self])
   }
 
+  func first() -> AggregateFunction {
+    return AggregateFunction(functionName: "first", args: [self])
+  }
+
+  func last() -> AggregateFunction {
+    return AggregateFunction(functionName: "last", args: [self])
+  }
+
+  func arrayAgg() -> AggregateFunction {
+    return AggregateFunction(functionName: "array_agg", args: [self])
+  }
+
+  func arrayAggDistinct() -> AggregateFunction {
+    return AggregateFunction(functionName: "array_agg_distinct", args: [self])
+  }
+
   // MARK: Logical min/max
 
   func logicalMaximum(_ expressions: [Expression]) -> FunctionExpression {

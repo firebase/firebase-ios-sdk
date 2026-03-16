@@ -875,6 +875,79 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
+  func testFirstAndLastAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .sort([Field("published").ascending()])
+      .aggregate([
+        Field("rating").first().as("firstBookRating"),
+        Field("title").first().as("firstBookTitle"),
+        Field("rating").last().as("lastBookRating"),
+        Field("title").last().as("lastBookTitle"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "firstBookRating": 4.5,
+        "firstBookTitle": "Pride and Prejudice",
+        "lastBookRating": 4.1,
+        "lastBookTitle": "The Handmaid's Tale",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayAggAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .sort([Field("published").ascending()])
+      .aggregate([Field("rating").arrayAgg().as("allRatings")])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "allRatings": [4.5, 4.3, 4.0, 4.2, 4.7, 4.2, 4.6, 4.3, 4.2, 4.1],
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayAggDistinctAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .aggregate([Field("rating").arrayAggDistinct().as("allDistinctRatings")])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    guard let distinctRatings = data["allDistinctRatings"] as? [Double] else {
+      XCTFail("allDistinctRatings is not an array of doubles")
+      return
+    }
+
+    let sortedRatings = distinctRatings.sorted()
+    XCTAssertEqual(sortedRatings, [4.0, 4.1, 4.2, 4.3, 4.5, 4.6, 4.7])
+  }
+
   func testDistinctStage() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore

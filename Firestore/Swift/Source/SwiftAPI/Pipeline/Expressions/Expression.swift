@@ -1295,6 +1295,56 @@ public protocol Expression: Sendable {
   /// - Returns: A new `AggregateFunction` representing the "max" aggregation.
   func maximum() -> AggregateFunction
 
+  /// Creates an aggregation that finds the first value of this expression across multiple stage
+  /// inputs.
+  ///
+  /// ```swift
+  /// // Find the first rating
+  /// Field("rating").first().as("firstRating")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "first" aggregation.
+  func first() -> AggregateFunction
+
+  /// Creates an aggregation that finds the last value of this expression across multiple stage
+  /// inputs.
+  ///
+  /// ```swift
+  /// // Find the last rating
+  /// Field("rating").last().as("lastRating")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "last" aggregation.
+  func last() -> AggregateFunction
+
+  /// Creates an aggregation that collects all values of this expression across multiple stage
+  /// inputs into an array.
+  ///
+  /// If the expression resolves to an absent value, it is converted to `null`.
+  /// The order of elements in the output array is not stable and shouldn't be relied upon.
+  ///
+  /// ```swift
+  /// // Collect all tags into an array
+  /// Field("tags").arrayAgg().as("allTags")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "array_agg" aggregation.
+  func arrayAgg() -> AggregateFunction
+
+  /// Creates an aggregation that collects all distinct values of this expression across multiple
+  /// stage inputs into an array.
+  ///
+  /// If the expression resolves to an absent value, it is converted to `null`.
+  /// The order of elements in the output array is not stable and shouldn't be relied upon.
+  ///
+  /// ```swift
+  /// // Collect all distinct tags into an array
+  /// Field("tags").arrayAggDistinct().as("allDistinctTags")
+  /// ```
+  ///
+  /// - Returns: A new `AggregateFunction` representing the "array_agg_distinct" aggregation.
+  func arrayAggDistinct() -> AggregateFunction
+
   /// Creates an expression that returns the larger value between this expression and other
   /// expressions, based on Firestore"s value type ordering.
   ///
