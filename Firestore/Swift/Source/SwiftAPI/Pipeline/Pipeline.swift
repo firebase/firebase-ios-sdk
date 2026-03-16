@@ -818,4 +818,78 @@ public struct Pipeline: @unchecked Sendable {
       return Pipeline(stages: stages + [stage], db: db)
     }
   }
+
+  /// Deletes documents from the output of the previous stage.
+  ///
+  /// - Parameters:
+  ///   - returns: Specifies what to return after deletion (`.empty` or `.documentID`).
+  ///   - transactional: Whether the deletion should be transactional.
+  ///   - rawOptions: Sendable map of any extra options to configure the stage.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func delete(returns: DeleteReturn? = nil,
+                     transactional: Bool? = nil,
+                     rawOptions: [String: Sendable]? = nil) -> Pipeline {
+    if let errorMessage = errorMessage {
+      return withError(errorMessage)
+    }
+    let stage = DeleteStage(returns: returns, transactional: transactional, rawOptions: rawOptions)
+    return Pipeline(stages: stages + [stage], db: db)
+  }
+
+  /// Upserts documents into a collection.
+  ///
+  /// - Parameters:
+  ///   - collection: The target collection to upsert into.
+  ///   - returns: Specifies what to return after upsert (`.empty` or `.documentID`).
+  ///   - transformations: Expressions to apply during the upsert.
+  ///   - conflictResolution: How to handle conflicts during the upsert.
+  ///   - transactional: Whether the upsert should be transactional.
+  ///   - rawOptions: Sendable map of any extra options to configure the stage.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func upsert(collection: CollectionReference? = nil,
+                     returns: UpsertReturn? = nil,
+                     transformations: [Selectable]? = nil,
+                     conflictResolution: ConflictResolution? = nil,
+                     transactional: Bool? = nil,
+                     rawOptions: [String: Sendable]? = nil) -> Pipeline {
+    if let errorMessage = errorMessage {
+      return withError(errorMessage)
+    }
+    let stage = UpsertStage(
+      collection: collection,
+      returns: returns,
+      transformations: transformations,
+      conflictResolution: conflictResolution,
+      transactional: transactional,
+      rawOptions: rawOptions
+    )
+    return Pipeline(stages: stages + [stage], db: db)
+  }
+
+  /// Inserts documents into a collection.
+  ///
+  /// - Parameters:
+  ///   - collection: The target collection to insert into.
+  ///   - returns: Specifies what to return after insert (`.empty` or `.documentID`).
+  ///   - transformations: Expressions to apply during the insert.
+  ///   - transactional: Whether the insert should be transactional.
+  ///   - rawOptions: Sendable map of any extra options to configure the stage.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func insert(collection: CollectionReference,
+                     returns: InsertReturn? = nil,
+                     transformations: [Selectable]? = nil,
+                     transactional: Bool? = nil,
+                     rawOptions: [String: Sendable]? = nil) -> Pipeline {
+    if let errorMessage = errorMessage {
+      return withError(errorMessage)
+    }
+    let stage = InsertStage(
+      collection: collection,
+      returns: returns,
+      transformations: transformations,
+      transactional: transactional,
+      rawOptions: rawOptions
+    )
+    return Pipeline(stages: stages + [stage], db: db)
+  }
 }
