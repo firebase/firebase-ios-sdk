@@ -502,7 +502,7 @@
       private let _transcript: UnfairLock<FirebaseAI.Transcript>
 
       init(transcript: FirebaseAI.Transcript) {
-        self._transcript = UnfairLock(transcript)
+        _transcript = UnfairLock(transcript)
       }
 
       var isResponding: Bool {
@@ -512,7 +512,9 @@
       func startResponding() throws {
         try _isResponding.withLock { isResponding in
           guard !isResponding else {
-            throw GenerativeModelSession.GenerationError.concurrentRequests(.init(debugDescription: ""))
+            // TODO: Add a debug description
+            throw GenerativeModelSession.GenerationError
+              .concurrentRequests(.init(debugDescription: ""))
           }
 
           isResponding = true
@@ -532,7 +534,7 @@
 
       func updateTranscript(requestEntries: [FirebaseAI.Transcript.Entry],
                             responseEntries: [FirebaseAI.Transcript.Entry])
-        ->  ArraySlice<FirebaseAI.Transcript.Entry> {
+        -> ArraySlice<FirebaseAI.Transcript.Entry> {
         return _transcript.withLock { transcript in
           transcript.entries.append(contentsOf: requestEntries)
           let endIndex = transcript.entries.endIndex
