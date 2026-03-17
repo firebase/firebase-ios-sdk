@@ -95,6 +95,10 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     writeAllDocuments(restaurantData, toCollection: collectionRef())
   }
 
+  override func collectionRef() -> CollectionReference {
+    return db.collection("SearchIntegrationTests")
+  }
+
   func testAllSearchFeatures() async throws {
     let firestore = db
     let queryLocation = GeoPoint(latitude: 0, longitude: 0)
