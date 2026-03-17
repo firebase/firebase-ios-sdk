@@ -27,7 +27,7 @@ public struct DocumentMatches: BooleanExpression, BridgeWrapper, @unchecked Send
   /// - Parameters:
   ///   - query: The text to search for.
   public init(_ query: String) {
-    var args: [Sendable] = [query]
+    let args: [Sendable] = [query]
     let exprs = args.map { Helper.sendableToExpr($0) }
     // Assuming a function "search_document_for" that takes query and optional mode as args.
     let funcExpr = FunctionExpression(functionName: "document_matches", args: exprs)
@@ -36,11 +36,11 @@ public struct DocumentMatches: BooleanExpression, BridgeWrapper, @unchecked Send
 }
 
 /// Represents the relevance score of a document against the search query.
-public struct SearchScore: Expression, BridgeWrapper, @unchecked Sendable {
+public struct Score: Expression, BridgeWrapper, @unchecked Sendable {
   public let bridge: ExprBridge
 
   public init() {
-    let funcExpr = FunctionExpression(functionName: "search_score", args: [])
+    let funcExpr = FunctionExpression(functionName: "score", args: [])
     bridge = funcExpr.bridge
   }
 }

@@ -113,7 +113,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
           Field("location").geoDistance(queryLocation).ascending(),
         ],
         addFields: [
-          SearchScore().as("searchScore"),
+          Score().as("searchScore"),
         ],
         select: [
           Field("title"),
@@ -251,7 +251,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
       .search(
         query: Field("menu").matches("waffles"),
         addFields: [
-          SearchScore().as("searchScore"),
+          Score().as("searchScore"),
           Field("menu").snippet("waffles").as("snippet"),
         ]
       )
@@ -273,7 +273,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
         select: [
           Field("name"),
           Field("location"),
-          SearchScore().as("searchScore"),
+          Score().as("searchScore"),
           Field("menu").snippet("waffles").as("snippet"),
         ]
       )
@@ -296,7 +296,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
         query: Field("menu").matches("tacos"),
-        sort: [SearchScore().descending()]
+        sort: [Score().descending()]
       )
 
     let snapshot = try await (pipeline.execute())
@@ -330,7 +330,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
           Field("location")
             .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
             .ascending(),
-          SearchScore().descending(),
+          Score().descending(),
         ]
       )
 

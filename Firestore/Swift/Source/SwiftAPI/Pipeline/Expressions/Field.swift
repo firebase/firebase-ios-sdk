@@ -72,7 +72,7 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   public func matches(_ query: String) -> BooleanExpression {
     let args: [Sendable] = [self, query]
     let expressionArgs = args.map { Helper.sendableToExpr($0) }
-    return BooleanFunctionExpression(functionName: "search_for", args: expressionArgs)
+    return BooleanFunctionExpression(functionName: "matches", args: expressionArgs)
   }
 
   /// Calculates the distance between the GeoPoint in this field and a target location.

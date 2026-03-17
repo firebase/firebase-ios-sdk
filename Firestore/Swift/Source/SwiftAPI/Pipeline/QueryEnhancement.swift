@@ -12,8 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-public enum QueryEnhancement: String, Sendable {
-  case disabled
-  case required
-  case preferred
+import Foundation
+
+/// Represents the query enhancement to be used in a search stage.
+public struct QueryEnhancement: Sendable, Equatable, Hashable {
+  let kind: Kind
+
+  enum Kind: String, Sendable {
+    case disabled
+    case required
+    case preferred
+  }
+
+  /// Query enhancement is disabled.
+  public static let disabled: QueryEnhancement = .init(kind: .disabled)
+
+  /// Query enhancement is required. If query enhancement fails or times out, the search stage will fail, causing the pipeline to fail.
+  public static let required: QueryEnhancement = .init(kind: .required)
+
+  /// Query enhancement is preferred.If query enhancement fails or times out, the search stage will still execute with the user provided query.
+  public static let preferred: QueryEnhancement = .init(kind: .preferred)
+
+  init(kind: Kind) {
+    self.kind = kind
+  }
 }
+

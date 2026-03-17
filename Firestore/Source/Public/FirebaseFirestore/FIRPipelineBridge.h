@@ -165,7 +165,10 @@ NS_SWIFT_NAME(FindNearestStageBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SearchStageBridge)
 @interface FIRSearchStageBridge : FIRStageBridge
-- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options;
+- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options
+            addFields:(NSDictionary<NSString *, FIRExprBridge *> *)add_fields
+               select:(NSDictionary<NSString *, FIRExprBridge *> *)select
+                 sort:(NSArray<FIROrderingBridge *> *)sort;
 @end
 
 NS_SWIFT_SENDABLE

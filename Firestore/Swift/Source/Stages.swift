@@ -318,37 +318,50 @@ class Search: Stage {
     if let retrievalDepth = retrievalDepth {
       options["retrieval_depth"] = retrievalDepth
     }
-    if let sort = sort {
-      options["sort"] = sort.map { $0.bridge }
-    }
+    
+    var addFieldsBridge: [String: ExprBridge] = [:]
     if let addFields = addFields {
       let (map, error) = Helper.selectablesToMap(selectables: addFields)
       if let error = error {
         errorMessage = error.localizedDescription
-        bridge = SearchStageBridge(options: [:])
+        bridge = SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
         return
       }
-      options["add_fields"] = map.mapValues { $0.toBridge() }
+      
+      addFieldsBridge = map.mapValues{ $0.toBridge() }
     }
+    
+    var selectBridge: [String: ExprBridge] = [:]
     if let select = select {
       let (map, error) = Helper.selectablesToMap(selectables: select)
       if let error = error {
         errorMessage = error.localizedDescription
-        bridge = SearchStageBridge(options: [:])
+        bridge = SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
         return
       }
-      options["select"] = map.mapValues { $0.toBridge() }
+      selectBridge = map.mapValues{ $0.toBridge() }
     }
+    
+    var sortBridge: [OrderingBridge] = []
+    if let sort = sort {
+      sortBridge = sort.map { $0.bridge }
+    }
+    
     if let offset = offset {
       options["offset"] = offset
     }
     if let queryEnhancement = queryEnhancement {
-      options["query_enhancement"] = queryEnhancement
+      options["query_enhancement"] = queryEnhancement.kind.rawValue
     }
 
     errorMessage = nil
     let bridgeOptions = options.mapValues { Helper.sendableToExpr($0).toBridge() }
-    bridge = SearchStageBridge(options: bridgeOptions)
+    bridge = SearchStageBridge(
+      options: bridgeOptions,
+      addFields: addFieldsBridge,
+      select: selectBridge,
+      sort: sortBridge
+    )
   }
 }
 

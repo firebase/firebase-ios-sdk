@@ -951,14 +951,23 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 @implementation FIRSearchStageBridge {
   NSDictionary<NSString *, FIRExprBridge *> *_options;
+  NSDictionary<NSString *, FIRExprBridge *> *_add_fields;
+  NSDictionary<NSString *, FIRExprBridge *> *_select;
+  NSArray<FIROrderingBridge *> *_sort;
   Boolean isUserDataRead;
   std::shared_ptr<SearchStage> cpp_search;
 }
 
-- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options {
+- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options
+            addFields:(NSDictionary<NSString *, FIRExprBridge *> *)add_fields
+               select:(NSDictionary<NSString *, FIRExprBridge *> *)select
+                 sort:(NSArray<FIROrderingBridge *> *)sort {
   self = [super init];
   if (self) {
     _options = options;
+    _add_fields = add_fields;
+    _select = select;
+    _sort = sort;
     isUserDataRead = NO;
   }
   return self;
@@ -966,14 +975,39 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
+    
     std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_options;
     if (_options) {
       for (NSString *key in _options) {
         cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
       }
     }
+    
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_add_fields;
+    if (_add_fields) {
+      for (NSString *key in _add_fields) {
+        cpp_add_fields[MakeString(key)] = [_add_fields[key] cppExprWithReader:reader];
+      }
+    }
+    
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_select;
+    if (_select) {
+      for (NSString *key in _select) {
+        cpp_select[MakeString(key)] = [_select[key] cppExprWithReader:reader];
+      }
+    }
+    
+    std::vector<Ordering> cpp_sort;
+    if (_sort) {
+      for (FIROrderingBridge *ordering in _sort) {
+        cpp_sort.push_back([ordering cppOrderingWithReader:reader]);
+      }
+    }
 
-    cpp_search = std::make_shared<SearchStage>(std::move(cpp_options));
+    cpp_search = std::make_shared<SearchStage>(std::move(cpp_options),
+                                               std::move(cpp_add_fields),
+                                               std::move(cpp_select),
+                                               std::move(cpp_sort));
   }
 
   isUserDataRead = YES;
