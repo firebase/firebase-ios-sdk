@@ -541,7 +541,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
-      run: ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
     uses: ./.github/workflows/_spm.yml
@@ -566,7 +566,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
-      run: ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary-cron:
     # Don't run on private repo.
@@ -582,7 +582,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
-      run: ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.
