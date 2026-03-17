@@ -234,9 +234,9 @@ actor LiveSessionService {
       do {
         for try await message in stream {
           #if DEBUG
-          if #available(macOS 11.0, *) {
-            logServerMessage(message)
-          }
+            if #available(macOS 11.0, *) {
+              logServerMessage(message)
+            }
           #endif
           let response = try decodeServerMessage(message)
 
