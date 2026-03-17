@@ -318,7 +318,7 @@ class Search: Stage {
     if let retrievalDepth = retrievalDepth {
       options["retrieval_depth"] = retrievalDepth
     }
-    
+
     var addFieldsBridge: [String: ExprBridge] = [:]
     if let addFields = addFields {
       let (map, error) = Helper.selectablesToMap(selectables: addFields)
@@ -327,10 +327,10 @@ class Search: Stage {
         bridge = SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
         return
       }
-      
-      addFieldsBridge = map.mapValues{ $0.toBridge() }
+
+      addFieldsBridge = map.mapValues { $0.toBridge() }
     }
-    
+
     var selectBridge: [String: ExprBridge] = [:]
     if let select = select {
       let (map, error) = Helper.selectablesToMap(selectables: select)
@@ -339,14 +339,14 @@ class Search: Stage {
         bridge = SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
         return
       }
-      selectBridge = map.mapValues{ $0.toBridge() }
+      selectBridge = map.mapValues { $0.toBridge() }
     }
-    
+
     var sortBridge: [OrderingBridge] = []
     if let sort = sort {
       sortBridge = sort.map { $0.bridge }
     }
-    
+
     if let offset = offset {
       options["offset"] = offset
     }

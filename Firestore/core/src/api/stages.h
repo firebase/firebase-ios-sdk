@@ -287,24 +287,27 @@ class FindNearestStage : public Stage {
 };
 
 class SearchStage : public Stage {
-public:
+ public:
   SearchStage(std::unordered_map<std::string, std::shared_ptr<Expr>> options,
               std::unordered_map<std::string, std::shared_ptr<Expr>> add_fields,
               std::unordered_map<std::string, std::shared_ptr<Expr>> select,
               std::vector<Ordering> sort)
-  : options_(std::move(options)), add_fields_(std::move(add_fields)), select_(std::move(select)), sort_(std::move(sort)) {
+      : options_(std::move(options)),
+        add_fields_(std::move(add_fields)),
+        select_(std::move(select)),
+        sort_(std::move(sort)) {
   }
-  
+
   ~SearchStage() override = default;
-  
+
   google_firestore_v1_Pipeline_Stage to_proto() const override;
-  
+
   const std::string& name() const override {
     static const std::string kName = "search";
     return kName;
   }
-  
-private:
+
+ private:
   std::unordered_map<std::string, std::shared_ptr<Expr>> options_;
   std::unordered_map<std::string, std::shared_ptr<Expr>> add_fields_;
   std::unordered_map<std::string, std::shared_ptr<Expr>> select_;

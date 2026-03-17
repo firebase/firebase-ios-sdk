@@ -27,14 +27,15 @@ public struct QueryEnhancement: Sendable, Equatable, Hashable {
   /// Query enhancement is disabled.
   public static let disabled: QueryEnhancement = .init(kind: .disabled)
 
-  /// Query enhancement is required. If query enhancement fails or times out, the search stage will fail, causing the pipeline to fail.
+  /// Query enhancement is required. If query enhancement fails or times out, the search stage will
+  /// fail, causing the pipeline to fail.
   public static let required: QueryEnhancement = .init(kind: .required)
 
-  /// Query enhancement is preferred.If query enhancement fails or times out, the search stage will still execute with the user provided query.
+  /// Query enhancement is preferred.If query enhancement fails or times out, the search stage will
+  /// still execute with the user provided query.
   public static let preferred: QueryEnhancement = .init(kind: .preferred)
 
   init(kind: Kind) {
     self.kind = kind
   }
 }
-

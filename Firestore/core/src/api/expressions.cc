@@ -69,14 +69,14 @@ google_firestore_v1_Value FunctionExpr::to_proto() const {
       &result.function_value.args, &result.function_value.args_count, params_,
       [](const std::shared_ptr<Expr>& arg) { return arg->to_proto(); });
 
-  nanopb::SetRepeatedField(&result.function_value.options,
-                           &result.function_value.options_count, options_,
-                           [](const auto& entry) {
-                             google_firestore_v1_Function_OptionsEntry option_entry;
-                             option_entry.key = nanopb::MakeBytesArray(entry.first);
-                             option_entry.value = entry.second->to_proto();
-                             return option_entry;
-                           });
+  nanopb::SetRepeatedField(
+      &result.function_value.options, &result.function_value.options_count,
+      options_, [](const auto& entry) {
+        google_firestore_v1_Function_OptionsEntry option_entry;
+        option_entry.key = nanopb::MakeBytesArray(entry.first);
+        option_entry.value = entry.second->to_proto();
+        return option_entry;
+      });
 
   return result;
 }

@@ -205,8 +205,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
       }
     }
 
-    cpp_function = std::make_shared<FunctionExpr>(MakeString(_name),
-                                                  std::move(cpp_args),
+    cpp_function = std::make_shared<FunctionExpr>(MakeString(_name), std::move(cpp_args),
                                                   std::move(cpp_options));
   }
 
@@ -989,28 +988,27 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
   if (!isUserDataRead) {
-    
     std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_options;
     if (_options) {
       for (NSString *key in _options) {
         cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
       }
     }
-    
+
     std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_add_fields;
     if (_add_fields) {
       for (NSString *key in _add_fields) {
         cpp_add_fields[MakeString(key)] = [_add_fields[key] cppExprWithReader:reader];
       }
     }
-    
+
     std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_select;
     if (_select) {
       for (NSString *key in _select) {
         cpp_select[MakeString(key)] = [_select[key] cppExprWithReader:reader];
       }
     }
-    
+
     std::vector<Ordering> cpp_sort;
     if (_sort) {
       for (FIROrderingBridge *ordering in _sort) {
@@ -1018,10 +1016,8 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
       }
     }
 
-    cpp_search = std::make_shared<SearchStage>(std::move(cpp_options),
-                                               std::move(cpp_add_fields),
-                                               std::move(cpp_select),
-                                               std::move(cpp_sort));
+    cpp_search = std::make_shared<SearchStage>(std::move(cpp_options), std::move(cpp_add_fields),
+                                               std::move(cpp_select), std::move(cpp_sort));
   }
 
   isUserDataRead = YES;
