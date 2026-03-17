@@ -512,9 +512,12 @@
       func startResponding() throws {
         try _isResponding.withLock { isResponding in
           guard !isResponding else {
-            // TODO: Add a debug description
-            throw GenerativeModelSession.GenerationError
-              .concurrentRequests(.init(debugDescription: ""))
+            throw GenerativeModelSession.GenerationError.concurrentRequests(
+              GenerativeModelSession.GenerationError.Context(debugDescription: """
+              Attempted to start a new generation request while one was already in progress. \
+              Create an additional session to perform concurrent requests.
+              """)
+            )
           }
 
           isResponding = true
