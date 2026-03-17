@@ -70,7 +70,7 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   ///   - query: The text to search for.
   /// - Returns: A `BooleanExpression` representing the search predicate.
   public func matches(_ query: String) -> BooleanExpression {
-    var args: [Sendable] = [self, query]
+    let args: [Sendable] = [self, query]
     let expressionArgs = args.map { Helper.sendableToExpr($0) }
     return BooleanFunctionExpression(functionName: "search_for", args: expressionArgs)
   }

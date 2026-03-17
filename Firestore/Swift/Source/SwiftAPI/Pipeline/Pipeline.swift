@@ -753,7 +753,7 @@ public struct Pipeline: @unchecked Sendable {
   ///   - offset: The number of documents to skip.
   ///   - queryEnhancement: specify if query expansion should be applied to the query
   /// - Returns: A new `Pipeline` with the search stage appended.
-  public func search(query: String? = nil,
+  public func search(query: String,
                      limit: Int? = nil,
                      retrievalDepth: Int? = nil,
                      sort: [Ordering]? = nil,
@@ -762,9 +762,8 @@ public struct Pipeline: @unchecked Sendable {
                      offset: Int? = nil,
                      queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
     // Convert String? to Expression?
-    let expressionQuery = query.map { DocumentMatches($0) }
     return search(
-      query: expressionQuery,
+      query: DocumentMatches(query),
       limit: limit,
       retrievalDepth: retrievalDepth,
       sort: sort,
