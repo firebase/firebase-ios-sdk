@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Drop C++14 support, Firestore SDK now requires at least C++17.
+
 # 12.11.0
 - [feature] Added support for `first`, `last`, `arrayAgg`, and `arrayAggDistinct` Pipeline expressions. (#15941)
 - [feature] Added support for `trunc` and `rand` Pipeline expressions. (#15938)

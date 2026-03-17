@@ -88,6 +88,12 @@ def main(args)
   # by the shell when the command is copy-pasted, preventing unintended brace expansion.
   puts command.map { |arg| arg =~ /[{}]/ ? "'#{arg}'" : arg }.join(' ')
 
+  # Inject C++17 patch for pods that require it into RUBYOPT
+  patch_file = File.expand_path('cocoapods_cxx17_patch.rb', __dir__)
+  if File.exist?(patch_file)
+    ENV['RUBYOPT'] = "#{ENV['RUBYOPT']} -r#{patch_file}"
+  end
+
   # Run the lib lint command in a thread.
   pod_lint_status = 1
   t = Thread.new do

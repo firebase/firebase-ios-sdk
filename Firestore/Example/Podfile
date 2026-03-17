@@ -1,6 +1,7 @@
 # Copyright 2017 Google LLC
 
 require 'pathname'
+require_relative '../../scripts/cocoapods_cxx17_patch.rb'
 
 # Uncomment the next two lines for pre-release testing on internal repo
 #source 'sso://cpdc-internal/firebase'
@@ -131,7 +132,7 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.15'
+    platform :osx, '11.0'
 
     configure_local_pods()
 
@@ -187,4 +188,8 @@ if is_platform(:tvos)
       pod 'leveldb-library'
     end
   end
+end
+
+post_install do |installer|
+  CocoapodsCXX17Patch.apply_patch(installer)
 end
