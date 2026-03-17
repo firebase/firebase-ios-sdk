@@ -176,13 +176,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   std::shared_ptr<FunctionExpr> cpp_function;
   NSString *_name;
   NSArray<FIRExprBridge *> *_args;
+  NSDictionary<NSString *, FIRExprBridge *> *_Nullable _options;
   Boolean isUserDataRead;
 }
 
-- (nonnull id)initWithName:(NSString *)name Args:(nonnull NSArray<FIRExprBridge *> *)args {
+- (nonnull id)initWithName:(NSString *)name
+                      Args:(nonnull NSArray<FIRExprBridge *> *)args
+                   Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options {
   self = [super init];
   _name = name;
   _args = args;
+  _options = options;
   isUserDataRead = NO;
   return self;
 }
@@ -193,7 +197,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     for (FIRExprBridge *arg in _args) {
       cpp_args.push_back([arg cppExprWithReader:reader]);
     }
-    cpp_function = std::make_shared<FunctionExpr>(MakeString(_name), std::move(cpp_args));
+
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_options;
+    if (_options) {
+      for (NSString *key in _options) {
+        cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
+      }
+    }
+
+    cpp_function = std::make_shared<FunctionExpr>(MakeString(_name),
+                                                  std::move(cpp_args),
+                                                  std::move(cpp_options));
   }
 
   isUserDataRead = YES;

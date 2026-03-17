@@ -1112,11 +1112,7 @@ public extension Expression {
       options["separator"] = separator
     }
 
-    if !options.isEmpty {
-      args.append(Helper.sendableToExpr(options))
-    }
-
-    return FunctionExpression(functionName: "snippet", args: args)
+    return FunctionExpression(functionName: "snippet", args: args, options: options)
   }
 
   // MARK: - Range Operations

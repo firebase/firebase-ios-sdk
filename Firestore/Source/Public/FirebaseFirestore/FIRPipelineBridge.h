@@ -51,7 +51,9 @@ NS_SWIFT_NAME(ConstantBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FunctionExprBridge)
 @interface FIRFunctionExprBridge : FIRExprBridge
-- (id)initWithName:(NSString *)name Args:(NSArray<FIRExprBridge *> *)args;
+- (id)initWithName:(NSString *)name
+              Args:(NSArray<FIRExprBridge *> *)args
+           Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
 @end
 
 NS_SWIFT_SENDABLE
