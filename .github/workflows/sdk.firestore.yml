@@ -270,7 +270,7 @@ jobs:
     strategy:
       matrix:
         target: [iOS, macOS, tvOS]
-        scheme: [Firestore]
+        scheme: [Firestore, FirestoreEnterprise]
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
