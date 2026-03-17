@@ -875,6 +875,79 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
+  func testFirstAndLastAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .sort([Field("published").ascending()])
+      .aggregate([
+        Field("rating").first().as("firstBookRating"),
+        Field("title").first().as("firstBookTitle"),
+        Field("rating").last().as("lastBookRating"),
+        Field("title").last().as("lastBookTitle"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "firstBookRating": 4.5,
+        "firstBookTitle": "Pride and Prejudice",
+        "lastBookRating": 4.1,
+        "lastBookTitle": "The Handmaid's Tale",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayAggAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .sort([Field("published").ascending()])
+      .aggregate([Field("rating").arrayAgg().as("allRatings")])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "allRatings": [4.5, 4.3, 4.0, 4.2, 4.7, 4.2, 4.6, 4.3, 4.2, 4.1],
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayAggDistinctAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .aggregate([Field("rating").arrayAggDistinct().as("allDistinctRatings")])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    guard let distinctRatings = data["allDistinctRatings"] as? [Double] else {
+      XCTFail("allDistinctRatings is not an array of doubles")
+      return
+    }
+
+    let sortedRatings = distinctRatings.sorted()
+    XCTAssertEqual(sortedRatings, [4.0, 4.1, 4.2, 4.3, 4.5, 4.6, 4.7])
+  }
+
   func testDistinctStage() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
@@ -2349,6 +2422,80 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testTrunc() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("Pride and Prejudice"))
+      .limit(1)
+      .select([Field("rating").trunc().as("truncatedRating")])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["truncatedRating": 4.0],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testTruncToPrecision() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+    try await collRef.document("dummy").setData(["a": 1])
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select([
+        Constant(4.123456).truncToPrecision(0).as("p0"),
+        Constant(4.123456).truncToPrecision(1).as("p1"),
+        Constant(4.123456).truncToPrecision(Constant(2)).as("p2"),
+        Constant(4.123456).truncToPrecision(4).as("p4"),
+        Constant(4.123456).truncToPrecision(-1).as("n1"),
+        Constant(42.123456).truncToPrecision(-1).as("n2"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "p0": 4.0,
+        "p1": 4.1,
+        "p2": 4.12,
+        "p4": 4.1234,
+        "n1": 0.0,
+        "n2": 40.0,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testRand() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+    try await collRef.document("dummy").setData(["a": 1])
+
+    let snapshot = try await db
+      .pipeline()
+      .collection(collRef.path)
+      .select([rand().as("randomNumber")])
+      .limit(1)
+      .execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+    guard let randomNumber = data["randomNumber"] as? Double else {
+      XCTFail("randomNumber is not a Double")
+      return
+    }
+    XCTAssertGreaterThanOrEqual(randomNumber, 0.0)
+    XCTAssertLessThan(randomNumber, 1.0)
   }
 
   func testSqrtWorks() async throws {

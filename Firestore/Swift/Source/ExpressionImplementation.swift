@@ -404,6 +404,21 @@ public extension Expression {
     return FunctionExpression(functionName: "abs", args: [self])
   }
 
+  func trunc() -> FunctionExpression {
+    return FunctionExpression(functionName: "trunc", args: [self])
+  }
+
+  func truncToPrecision(_ decimalPlace: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "trunc",
+      args: [self, Helper.sendableToExpr(decimalPlace)]
+    )
+  }
+
+  func truncToPrecision(_ decimalPlace: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "trunc", args: [self, decimalPlace])
+  }
+
   func ceil() -> FunctionExpression {
     return FunctionExpression(functionName: "ceil", args: [self])
   }
@@ -890,6 +905,22 @@ public extension Expression {
 
   func maximum() -> AggregateFunction {
     return AggregateFunction(functionName: "maximum", args: [self])
+  }
+
+  func first() -> AggregateFunction {
+    return AggregateFunction(functionName: "first", args: [self])
+  }
+
+  func last() -> AggregateFunction {
+    return AggregateFunction(functionName: "last", args: [self])
+  }
+
+  func arrayAgg() -> AggregateFunction {
+    return AggregateFunction(functionName: "array_agg", args: [self])
+  }
+
+  func arrayAggDistinct() -> AggregateFunction {
+    return AggregateFunction(functionName: "array_agg_distinct", args: [self])
   }
 
   // MARK: Logical min/max
