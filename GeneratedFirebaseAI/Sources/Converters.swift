@@ -1800,6 +1800,24 @@ public enum Converters {
   public static func replicatedVoiceConfigToVertex(
     apiClient: APIClient, fromObject: ReplicatedVoiceConfig
   ) throws -> [String: Any] {
+
+    if fromObject.consentAudio != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "consentAudio parameter is not supported in Vertex AI."
+        ])
+    }
+
+    if fromObject.voiceConsentSignature != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "voiceConsentSignature parameter is not supported in Vertex AI."
+        ])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
