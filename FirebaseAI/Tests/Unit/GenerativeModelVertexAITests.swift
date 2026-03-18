@@ -19,7 +19,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 final class GenerativeModelVertexAITests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let safetyRatingsNegligible: [SafetyRating] = [
@@ -1938,7 +1938,6 @@ final class GenerativeModelVertexAITests: XCTestCase {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension SafetyRating: Swift.Comparable {
   public static func < (lhs: SafetyRating, rhs: SafetyRating) -> Bool {
     return lhs.category.rawValue < rhs.category.rawValue

@@ -1570,6 +1570,89 @@ public enum Converters {
     }
   }
 
+  public static func partToVertex(apiClient: APIClient, fromObject: Part) throws -> [String: Any] {
+
+    if fromObject.toolCall != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "toolCall parameter is not supported in Vertex AI."])
+    }
+
+    if fromObject.toolResponse != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "toolResponse parameter is not supported in Vertex AI."
+        ])
+    }
+
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Part"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Part: \(error)"])
+    }
+  }
+
+  public static func contentToVertex(apiClient: APIClient, fromObject: Content) throws -> [String:
+    Any]
+  {
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for Content"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode Content: \(error)"])
+    }
+  }
+
   public static func functionDeclarationToVertex(
     apiClient: APIClient, fromObject: FunctionDeclaration
   ) throws -> [String: Any] {
@@ -1658,6 +1741,51 @@ public enum Converters {
       throw NSError(
         domain: "SwiftSDK", code: -1,
         userInfo: [NSLocalizedDescriptionKey: "Failed to encode Tool: \(error)"])
+    }
+  }
+
+  public static func toolConfigToVertex(apiClient: APIClient, fromObject: ToolConfig) throws
+    -> [String: Any]
+  {
+
+    if fromObject.includeServerSideToolInvocations != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey:
+            "includeServerSideToolInvocations parameter is not supported in Vertex AI."
+        ])
+    }
+
+    let encoder = JSONEncoder()
+    encoder.userInfo[.configuration] = apiClient
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    do {
+      let data = try encoder.encode(fromObject)
+      guard
+        let dictionary = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+          as? [String: Any]
+      else {
+        throw NSError(
+          domain: "SwiftSDK", code: -1,
+          userInfo: [
+            NSLocalizedDescriptionKey: "Failed to convert encoded data to dictionary for ToolConfig"
+          ])
+      }
+      var toObject = dictionary
+      var urlParams: [String: Any] = [:]
+      var queryParams: [String: Any] = [:]
+      if !urlParams.isEmpty {
+        toObject["_url"] = urlParams
+      }
+      if !queryParams.isEmpty {
+        toObject["_query"] = queryParams
+      }
+      return toObject
+    } catch {
+      throw NSError(
+        domain: "SwiftSDK", code: -1,
+        userInfo: [NSLocalizedDescriptionKey: "Failed to encode ToolConfig: \(error)"])
     }
   }
 
@@ -3577,6 +3705,30 @@ public enum Converters {
     }
   }
 
+  public static func partFromVertex(apiClient: APIClient, fromObject: Data) throws -> Part? {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(Part.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode Part: \(error)")
+      return nil
+    }
+  }
+
+  public static func contentFromVertex(apiClient: APIClient, fromObject: Data) throws -> Content? {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(Content.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode Content: \(error)")
+      return nil
+    }
+  }
+
   public static func urlMetadataFromVertex(apiClient: APIClient, fromObject: Data) throws
     -> UrlMetadata?
   {
@@ -4757,6 +4909,104 @@ public enum Converters {
       return instance
     } catch {
       print("Failed to decode TuningOperation: \(error)")
+      return nil
+    }
+  }
+
+  public static func datasetStatsFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> DatasetStats?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(DatasetStats.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode DatasetStats: \(error)")
+      return nil
+    }
+  }
+
+  public static func distillationDataStatsFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> DistillationDataStats?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(DistillationDataStats.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode DistillationDataStats: \(error)")
+      return nil
+    }
+  }
+
+  public static func geminiPreferenceExampleCompletionFromVertex(
+    apiClient: APIClient, fromObject: Data
+  ) throws -> GeminiPreferenceExampleCompletion? {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GeminiPreferenceExampleCompletion.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GeminiPreferenceExampleCompletion: \(error)")
+      return nil
+    }
+  }
+
+  public static func geminiPreferenceExampleFromVertex(apiClient: APIClient, fromObject: Data)
+    throws -> GeminiPreferenceExample?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GeminiPreferenceExample.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GeminiPreferenceExample: \(error)")
+      return nil
+    }
+  }
+
+  public static func preferenceOptimizationDataStatsFromVertex(
+    apiClient: APIClient, fromObject: Data
+  ) throws -> PreferenceOptimizationDataStats? {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(PreferenceOptimizationDataStats.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode PreferenceOptimizationDataStats: \(error)")
+      return nil
+    }
+  }
+
+  public static func supervisedTuningDataStatsFromVertex(apiClient: APIClient, fromObject: Data)
+    throws -> SupervisedTuningDataStats?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(SupervisedTuningDataStats.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode SupervisedTuningDataStats: \(error)")
+      return nil
+    }
+  }
+
+  public static func tuningDataStatsFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> TuningDataStats?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(TuningDataStats.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode TuningDataStats: \(error)")
       return nil
     }
   }
