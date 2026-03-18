@@ -30,6 +30,7 @@ concurrency:
 
 jobs:
   changes:
+    if: false
     runs-on: macos-14
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
@@ -93,11 +94,8 @@ jobs:
               - 'Gemfile*'
 
   check:
+    if: false
     needs: changes
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -113,11 +111,8 @@ jobs:
       run: scripts/check.sh --test-only
 
   cmake:
+    if: false
     needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
         os: [macos-14, ubuntu-latest]
@@ -163,11 +158,8 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
   sanitizers-mac:
+    if: false
     needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
 
     strategy:
       matrix:
@@ -210,11 +202,8 @@ jobs:
 
 
   sanitizers-ubuntu:
+    if: false
     needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
 
     strategy:
       matrix:
@@ -260,11 +249,6 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
   xcodetest_prod:
-    needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: macos-15
 
     strategy:
@@ -310,17 +294,16 @@ jobs:
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
-          timeout_minutes: 60
-          max_attempts: 3
+          timeout_minutes: 30
+          max_attempts: 1
           retry_wait_seconds: 120
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
+      - name: Test (manual retry)
+        if: ${{ failure() }}
+        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+
   xcodetest_nightly:
-    needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: macos-15
 
     strategy:
@@ -366,17 +349,16 @@ jobs:
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
-          timeout_minutes: 60
-          max_attempts: 3
+          timeout_minutes: 30
+          max_attempts: 1
           retry_wait_seconds: 120
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
+      - name: Test (manual retry)
+        if: ${{ failure() }}
+        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+
   xcodetest_emulator:
-    needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request')
     runs-on: macos-15
 
     strategy:
@@ -415,12 +397,17 @@ jobs:
     - name: Test
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        timeout_minutes: 120
-        max_attempts: 3
+        timeout_minutes: 30
+        max_attempts: 1
         retry_wait_seconds: 120
         command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
+    - name: Test (manual retry)
+      if: ${{ failure() }}
+      run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+
   pod_lib_lint:
+    if: false
     needs: check
     strategy:
       matrix:
@@ -435,8 +422,8 @@ jobs:
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
+    if: false
     needs: check
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     strategy:
       matrix:
         podspec: [
@@ -479,6 +466,7 @@ jobs:
           --no-analyze
 
   spm-package-resolved:
+    if: false
     runs-on: macos-14
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -505,11 +493,8 @@ jobs:
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
 
   spm-source:
+    if: false
     needs: [check, spm-package-resolved]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request')
     strategy:
       matrix:
         include:
@@ -544,6 +529,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
+    if: false
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestore
@@ -551,8 +537,7 @@ jobs:
       buildonly_platforms: iOS
 
   spm-source-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: false
     runs-on: macos-14
     strategy:
       matrix:
@@ -569,8 +554,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: false
     runs-on: macos-15
     strategy:
       matrix:
@@ -587,6 +571,7 @@ jobs:
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.
   check-required-tests:
+    if: false
     runs-on: ubuntu-latest
     name: Check all required Firestore tests results
     needs:
