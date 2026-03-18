@@ -18,7 +18,6 @@ enum ImageAPIMethod: String {
   case generateImages = "templatePredict"
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct TemplateImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sendable {
   typealias Response = ImagenGenerationResponse<ImageType>
 
@@ -38,7 +37,6 @@ struct TemplateImagenGenerationRequest<ImageType: ImagenImageRepresentable>: Sen
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TemplateImagenGenerationRequest: GenerativeAIRequest where ImageType: Decodable {
   func getURL() throws -> URL {
     var urlString =
@@ -54,7 +52,6 @@ extension TemplateImagenGenerationRequest: GenerativeAIRequest where ImageType: 
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension TemplateImagenGenerationRequest: Encodable {
   enum CodingKeys: String, CodingKey {
     case inputs

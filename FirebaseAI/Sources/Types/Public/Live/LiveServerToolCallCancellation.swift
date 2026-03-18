@@ -16,7 +16,6 @@
 ///
 /// The client does not need to send ``FunctionResponsePart``s for the cancelled
 /// ``FunctionCallPart``s.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct LiveServerToolCallCancellation: Sendable {
   let serverToolCallCancellation: BidiGenerateContentToolCallCancellation

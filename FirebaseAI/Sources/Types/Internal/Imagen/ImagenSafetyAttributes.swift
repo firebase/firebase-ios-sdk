@@ -18,7 +18,6 @@ import Foundation
 ///
 /// This prediction is currently unused by the SDK and is only checked to be valid JSON. This type
 /// is currently only used to avoid logging unsupported prediction types.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ImagenSafetyAttributes: Decodable {
   let safetyAttributes: JSONObject
 }
