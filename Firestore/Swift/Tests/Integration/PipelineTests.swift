@@ -4178,11 +4178,11 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  func testSelectWithSwitchOn() async throws {
+  func testSwitchOn() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
-    let pipeline1 = db.pipeline()
+    let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(1)
       .replace(with: MapExpression(["value": 2]))
@@ -4197,10 +4197,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         ).as("result3"),
       ])
 
-    let snapshot1 = try await pipeline1.execute()
+    let snapshot = try await pipeline.execute()
 
     TestHelper.compare(
-      snapshot: snapshot1,
+      snapshot: snapshot,
       expected: [
         [
           "result1": "two",
@@ -4210,9 +4210,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
       enforceOrder: true
     )
+  }
 
-    // Throws error because no default value is provided and no condition is met
-    let pipeline2 = db.pipeline()
+  func testSwitchOnNoDefaultValueAndNoMatchingCondition() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
       .collection(collRef.path)
       .limit(1)
       .replace(with: MapExpression(["value": 5]))
@@ -4224,13 +4228,14 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ])
 
     do {
-      _ = try await pipeline2.execute()
+      _ = try await pipeline.execute()
       XCTFail("Should have thrown an error for no default value matched")
     } catch {
       let nsError = error as NSError
       XCTAssertEqual(nsError.domain, FirestoreErrorDomain, "Error domain mismatch")
     }
-   
+  }
+
   func testArrayFirst() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
