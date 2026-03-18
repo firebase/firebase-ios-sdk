@@ -51,6 +51,8 @@
         return
       }
       #expect(textSegment.content == content)
+      #expect(session.transcript
+        .entries[transcriptEntries.startIndex ..< transcriptEntries.endIndex] == transcriptEntries)
     }
 
     #if canImport(FoundationModels)

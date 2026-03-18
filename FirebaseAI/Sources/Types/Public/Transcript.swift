@@ -21,7 +21,7 @@
 
   extension FirebaseAI {
     // TODO: Make `Transcript` public when API is reviewed.
-    struct Transcript: Sendable {
+    struct Transcript: Sendable, Equatable {
       var entries: [Transcript.Entry]
 
       public init(entries: some Sequence<Transcript.Entry> = []) {
@@ -67,19 +67,19 @@
       }
 
       @nonexhaustive
-      public enum Entry: Sendable {
+      public enum Entry: Sendable, Equatable {
         case prompt(Transcript.Prompt)
         case response(Transcript.Response)
       }
 
       @nonexhaustive
-      public enum Segment: Sendable {
+      public enum Segment: Sendable, Equatable {
         case text(Transcript.TextSegment)
         case structure(Transcript.StructuredSegment)
         case thought(Transcript.ThoughtSegment)
       }
 
-      public struct TextSegment: Sendable {
+      public struct TextSegment: Sendable, Equatable, Identifiable {
         public var id: String
         public var content: String
 
@@ -89,7 +89,7 @@
         }
       }
 
-      public struct StructuredSegment: Sendable {
+      public struct StructuredSegment: Sendable, Equatable, Identifiable {
         public var id: String
         public var source: String
         public var content: FirebaseAI.GeneratedContent
@@ -102,7 +102,7 @@
         }
       }
 
-      public struct ThoughtSegment: Sendable {
+      public struct ThoughtSegment: Sendable, Equatable, Identifiable {
         public var id: String
         public var content: String
 
@@ -112,7 +112,7 @@
         }
       }
 
-      public struct Prompt: Sendable {
+      public struct Prompt: Sendable, Equatable, Identifiable {
         public var id: String
         public var segments: [Transcript.Segment]
         public var options: GenerationConfig
@@ -128,7 +128,7 @@
         }
       }
 
-      public struct ResponseFormat: Sendable {
+      public struct ResponseFormat: Sendable, Equatable {
         public internal(set) var name: String
 
         #if canImport(FoundationModels)
@@ -154,7 +154,7 @@
         }
       }
 
-      public struct Response: Sendable {
+      public struct Response: Sendable, Equatable, Identifiable {
         public var id: String
         public var assetIDs: [String]
         public var segments: [Transcript.Segment]
