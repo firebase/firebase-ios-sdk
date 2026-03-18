@@ -343,6 +343,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     let firestore = db
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
+        query: Constant(true),
         limit: 3,
         sort: [
           Field("location")
@@ -373,6 +374,7 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     let firestore = db
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
+        query: Constant(true),
         limit: 2,
         offset: 2
       )
