@@ -705,21 +705,25 @@ public struct Pipeline: @unchecked Sendable {
   /// - Parameters:
   ///   - query: An `Expression` defining the search criteria (e.g.,
   /// `Field("menu").matches("waffles")`).
-  ///   - limit: The maximum number of documents to return.
-  ///   - retrievalDepth: The maximum number of documents to score.
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or
+  /// “sr-Latn”
+  ///   - retrievalDepth: The maximum number of documents to retrieve.
   ///   - sort: An array of `Ordering` objects to sort the results.
-  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
-  ///   - select: An array of `Selectable` fields or field names to include in the result.
   ///   - offset: The number of documents to skip.
+  ///   - limit: The maximum number of documents to return.
+  ///   - select: An array of `Selectable` fields or field names to include in the result.
+  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   ///   - queryEnhancement: specify if query expansion should be applied to the query
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: Expression,
-                     limit: Int? = nil,
+                     languageCode: String? = nil,
+                     // TODO: add indexPartition here
                      retrievalDepth: Int? = nil,
                      sort: [Ordering]? = nil,
-                     addFields: [Selectable]? = nil,
-                     select: [Selectable]? = nil,
                      offset: Int? = nil,
+                     limit: Int? = nil,
+                     select: [Selectable]? = nil,
+                     addFields: [Selectable]? = nil,
                      queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
     if let errorMessage = errorMessage {
       return withError(errorMessage)
@@ -745,23 +749,26 @@ public struct Pipeline: @unchecked Sendable {
   ///
   /// - Parameters:
   ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
-  ///   - limit: The maximum number of documents to return.
-  ///   - retrievalDepth: The maximum number of documents to score.
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or
+  /// “sr-Latn”
+  ///   - retrievalDepth: The maximum number of documents to retrieve.
   ///   - sort: An array of `Ordering` objects to sort the results.
-  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
-  ///   - select: An array of `Selectable` fields or field names to include in the result.
   ///   - offset: The number of documents to skip.
+  ///   - limit: The maximum number of documents to return.
+  ///   - select: An array of `Selectable` fields or field names to include in the result.
+  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
   ///   - queryEnhancement: specify if query expansion should be applied to the query
   /// - Returns: A new `Pipeline` with the search stage appended.
   public func search(query: String,
-                     limit: Int? = nil,
+                     languageCode: String? = nil,
+                     // TODO: add indexPartition here
                      retrievalDepth: Int? = nil,
                      sort: [Ordering]? = nil,
-                     addFields: [Selectable]? = nil,
-                     select: [Selectable]? = nil,
                      offset: Int? = nil,
+                     limit: Int? = nil,
+                     select: [Selectable]? = nil,
+                     addFields: [Selectable]? = nil,
                      queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
-    // Convert String? to Expression?
     return search(
       query: DocumentMatches(query),
       limit: limit,

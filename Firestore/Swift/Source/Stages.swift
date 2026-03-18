@@ -307,7 +307,11 @@ class Search: Stage {
        addFields: [Selectable]? = nil,
        select: [Selectable]? = nil,
        offset: Int? = nil,
-       queryEnhancement: QueryEnhancement? = nil) {
+       queryEnhancement: QueryEnhancement? = nil,
+       languageCode: String? = nil) {
+    // Options represented as a Sendable (e.g. primitive data type or Expression)
+    // can be added to this options map. Map and array values will be repsented
+    // with the map and array function expressions.
     var options: [String: Sendable] = [:]
     if let query = query {
       options["query"] = query
@@ -318,7 +322,21 @@ class Search: Stage {
     if let retrievalDepth = retrievalDepth {
       options["retrieval_depth"] = retrievalDepth
     }
+    if let offset = offset {
+      options["offset"] = offset
+    }
+    if let queryEnhancement = queryEnhancement {
+      options["query_enhancement"] = queryEnhancement.kind.rawValue
+    }
+    if let languageCode = languageCode {
+      options["language_code"] = languageCode
+    }
 
+    // Options represented as an array or map, which should use
+    // the map_value or array_value, and not the map or array function,
+    // must be managed independently of the options object.
+
+    // add_fields is a map_value and map function expression is not supported
     var addFieldsBridge: [String: ExprBridge] = [:]
     if let addFields = addFields {
       let (map, error) = Helper.selectablesToMap(selectables: addFields)
@@ -331,6 +349,7 @@ class Search: Stage {
       addFieldsBridge = map.mapValues { $0.toBridge() }
     }
 
+    // select is a map_value and map function expression is not supported
     var selectBridge: [String: ExprBridge] = [:]
     if let select = select {
       let (map, error) = Helper.selectablesToMap(selectables: select)
@@ -342,16 +361,10 @@ class Search: Stage {
       selectBridge = map.mapValues { $0.toBridge() }
     }
 
+    // sort is an array_value and array function expression is not supported
     var sortBridge: [OrderingBridge] = []
     if let sort = sort {
       sortBridge = sort.map { $0.bridge }
-    }
-
-    if let offset = offset {
-      options["offset"] = offset
-    }
-    if let queryEnhancement = queryEnhancement {
-      options["query_enhancement"] = queryEnhancement.kind.rawValue
     }
 
     errorMessage = nil

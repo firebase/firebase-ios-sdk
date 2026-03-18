@@ -122,7 +122,8 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
           Field("location").geoDistance(queryLocation).as("distance"),
         ],
         offset: 0,
-        queryEnhancement: .disabled
+        queryEnhancement: .disabled,
+        languageCode: "us-EN"
       )
 
     let snapshot = try await (pipeline.execute())
@@ -471,5 +472,34 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     XCTAssertGreaterThan(snippet2.count, 0)
 
     XCTAssertGreaterThan(snippet2.count, snippet1.count)
+  }
+
+  func testSearchLanguageCodeParam() async throws {
+    let firestore = db
+
+    // Scenario 1: Valid languageCode ("us-EN") - should pass and return results
+    let validLanguagePipeline = firestore.pipeline().collection("restaurants")
+      .search(
+        query: DocumentMatches("waffles"),
+        languageCode: "us-EN"
+      )
+    let validLanguageSnapshot = try await validLanguagePipeline.execute()
+    XCTAssertEqual(validLanguageSnapshot.results.count, 1)
+    XCTAssertEqual(validLanguageSnapshot.results[0].id, "goldenWaffle")
+
+    // Scenario 2: Invalid languageCode ("does not exist") - should fail
+    let invalidLanguagePipeline = firestore.pipeline().collection("restaurants")
+      .search(
+        query: DocumentMatches("waffles"),
+        languageCode: "does not exist"
+      )
+    do {
+      _ = try await invalidLanguagePipeline.execute()
+      XCTFail(
+        "Executing pipeline with invalid language code should have thrown an error, but it succeeded."
+      )
+    } catch {
+      // An error was thrown as expected.
+    }
   }
 }
