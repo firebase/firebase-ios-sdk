@@ -771,12 +771,12 @@ public struct Pipeline: @unchecked Sendable {
                      queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
     return search(
       query: DocumentMatches(query),
-      limit: limit,
       retrievalDepth: retrievalDepth,
       sort: sort,
-      addFields: addFields,
-      select: select,
       offset: offset,
+      limit: limit,
+      select: select,
+      addFields: addFields,
       queryEnhancement: queryEnhancement
     )
   }

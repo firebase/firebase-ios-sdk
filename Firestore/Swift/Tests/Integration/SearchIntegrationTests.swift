@@ -107,23 +107,23 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
         query: Field("description").matches("breakfast") &&
           Field("location").geoDistance(queryLocation).lessThan(1000) &&
           Field("avgPrice").between(10, 20),
-        limit: 50,
+        languageCode: "us-EN",
         retrievalDepth: 1000,
         sort: [
           Field("location").geoDistance(queryLocation).ascending(),
         ],
-        addFields: [
-          Score().as("searchScore"),
-        ],
+        offset: 0,
+        limit: 50,
         select: [
           Field("title"),
           Field("menu"),
           Field("description"),
           Field("location").geoDistance(queryLocation).as("distance"),
         ],
-        offset: 0,
-        queryEnhancement: .disabled,
-        languageCode: "us-EN"
+        addFields: [
+          Score().as("searchScore"),
+        ],
+        queryEnhancement: .disabled
       )
 
     let snapshot = try await (pipeline.execute())
@@ -345,12 +345,12 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
         query: Constant(true),
-        limit: 3,
         sort: [
           Field("location")
             .geoDistance(GeoPoint(latitude: 39.6985, longitude: -105.024))
             .ascending(),
-        ]
+        ],
+        limit: 3
       )
 
     let snapshot = try await (pipeline.execute())
@@ -376,8 +376,8 @@ final class SearchIntegrationTests: FSTIntegrationTestCase {
     let pipeline = firestore.pipeline().collection("restaurants")
       .search(
         query: Constant(true),
-        limit: 2,
-        offset: 2
+        offset: 2,
+        limit: 2
       )
 
     let snapshot = try await (pipeline.execute())
