@@ -21,7 +21,7 @@ struct PipelineExpression: Expression, BridgeWrapper, @unchecked Sendable {
   let errorMessage: String?
 
   init(_ pipeline: Pipeline) {
-    bridge = pipeline.pipelineBridge.toExprBridge()
+    bridge = PipelineExprBridge(stages: pipeline.stages.map { $0.bridge })
     errorMessage = pipeline.errorMessage
   }
 }

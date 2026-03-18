@@ -283,7 +283,7 @@ NS_SWIFT_NAME(PipelineBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(PipelineExprBridge)
 @interface FIRPipelineExprBridge : FIRExprBridge
-- (id)initWithPipelineBridge:(FIRPipelineBridge *)pipelineBridge;
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages;
 @end
 
 NS_SWIFT_SENDABLE

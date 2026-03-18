@@ -72,20 +72,25 @@ import Foundation
 /// }
 /// ```
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct Pipeline: @unchecked Sendable {
-  private var stages: [Stage]
-  let pipelineBridge: PipelineBridge
-  let db: Firestore
+public class Pipeline: @unchecked Sendable {
+  private(set) var stages: [Stage]
+  let db: Firestore?
+
+  var pipelineBridge: PipelineBridge {
+    guard let db = db else {
+      fatalError("pipelineBridge cannot be accessed on a pipeline created without a database.")
+    }
+    return PipelineBridge(stages: stages.map { $0.bridge }, db: db)
+  }
 
   var errorMessage: String? {
     let errors = stages.compactMap { $0.errorMessage }
     return errors.isEmpty ? nil : errors.joined(separator: ", ")
   }
 
-  init(stages: [Stage], db: Firestore) {
+  init(stages: [Stage], db: Firestore?) {
     self.stages = stages
     self.db = db
-    pipelineBridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
   /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
@@ -125,12 +130,21 @@ public struct Pipeline: @unchecked Sendable {
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
   public func execute() async throws -> Pipeline.Snapshot {
-    // Check if any errors occurred during stage construction.
-    if let errorMessage = errorMessage {
+    // Check if isolated subcollection execution is being attempted.
+    guard db != nil else {
       throw NSError(
         domain: "com.google.firebase.firestore",
         code: 3 /* kErrorInvalidArgument */,
-        userInfo: [NSLocalizedDescriptionKey: errorMessage]
+        userInfo: [NSLocalizedDescriptionKey: "This pipeline was created without a database (e.g., as a subcollection pipeline) and cannot be executed directly. It can only be used as part of another pipeline."]
+      )
+    }
+
+    // Check if any errors occurred during stage construction.
+    if errorMessage != nil {
+      throw NSError(
+        domain: "com.google.firebase.firestore",
+        code: 3 /* kErrorInvalidArgument */,
+        userInfo: [NSLocalizedDescriptionKey: errorMessage!]
       )
     }
 
@@ -329,13 +343,7 @@ public struct Pipeline: @unchecked Sendable {
   /// literals.
   /// - Returns: A new `Pipeline` with the define stage added.
   public func define(_ variables: [AliasedExpression]) -> Pipeline {
-    if let errorMessage = errorMessage {
-      return withError(errorMessage)
-    }
     let stage = Define(variables: variables)
-    if let errorMessage = stage.errorMessage {
-      return withError(errorMessage)
-    }
     return Pipeline(stages: stages + [stage], db: db)
   }
 
@@ -703,4 +711,6 @@ public struct Pipeline: @unchecked Sendable {
   public func toScalarExpression() -> Expression {
     return FunctionExpression(functionName: "scalar", args: [PipelineExpression(self)])
   }
+
+
 }

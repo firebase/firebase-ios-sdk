@@ -131,10 +131,12 @@ class FunctionExpr : public Expr {
   std::vector<std::shared_ptr<Expr>> params_;
 };
 
+class Stage;
+
 class PipelineExpr : public Expr {
  public:
-  explicit PipelineExpr(std::shared_ptr<Pipeline> pipeline)
-      : pipeline_(std::move(pipeline)) {
+  explicit PipelineExpr(std::vector<std::shared_ptr<Stage>> stages)
+      : stages_(std::move(stages)) {
   }
 
   google_firestore_v1_Value to_proto() const override;
@@ -142,7 +144,7 @@ class PipelineExpr : public Expr {
   std::unique_ptr<core::EvaluableExpr> ToEvaluable() const override;
 
  private:
-  std::shared_ptr<Pipeline> pipeline_;
+  std::vector<std::shared_ptr<Stage>> stages_;
 };
 
 }  // namespace api

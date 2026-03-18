@@ -1302,17 +1302,21 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 @end
 
 @implementation FIRPipelineExprBridge {
-  FIRPipelineBridge *_pipelineBridge;
+  NSArray<FIRStageBridge *> *_stages;
 }
-- (id)initWithPipelineBridge:(FIRPipelineBridge *)pipelineBridge {
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages {
   self = [super init];
   if (self) {
-    _pipelineBridge = pipelineBridge;
+    _stages = stages;
   }
   return self;
 }
 - (std::shared_ptr<api::Expr>)cppExprWithReader:(FSTUserDataReader *)reader {
-  return std::make_shared<api::PipelineExpr>([_pipelineBridge cppPipelineWithReader:reader]);
+  std::vector<std::shared_ptr<api::Stage>> cpp_stages;
+  for (FIRStageBridge *stage in _stages) {
+    cpp_stages.push_back([stage cppStageWithReader:reader]);
+  }
+  return std::make_shared<api::PipelineExpr>(cpp_stages);
 }
 @end
 
@@ -1348,7 +1352,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   if (!isUserDataRead) {
     std::vector<std::shared_ptr<firebase::firestore::api::Stage>> cpp_stages;
     for (FIRStageBridge *stage in _stages) {
-      cpp_stages.push_back([stage cppStageWithReader:firestore.dataReader]);
+      cpp_stages.push_back([stage cppStageWithReader:reader]);
     }
     cpp_pipeline = std::make_shared<Pipeline>(cpp_stages, firestore.wrapped);
   }
@@ -1358,7 +1362,7 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 
 - (FIRExprBridge *)toExprBridge {
-  return [[FIRPipelineExprBridge alloc] initWithPipelineBridge:self];
+  return [[FIRPipelineExprBridge alloc] initWithStages:_stages];
 }
 
 + (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query {

@@ -31,6 +31,7 @@ protocol Stage {
   var errorMessage: String? { get }
 }
 
+
 extension Stage {
   var errorMessage: String? {
     return nil
@@ -52,6 +53,17 @@ class CollectionSource: Stage {
   init(bridge: CollectionSourceStageBridge, db: Firestore) {
     self.db = db
     self.bridge = bridge
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class SubcollectionStage: Stage {
+  let name: String = "subcollection"
+  let bridge: StageBridge
+
+  init(path: String) {
+    // Maps to the backend 'subcollection' stage using RawStageBridge
+    bridge = RawStageBridge(name: "subcollection", params: [Constant(path).bridge], options: nil)
   }
 }
 

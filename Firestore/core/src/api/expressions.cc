@@ -94,7 +94,7 @@ std::unique_ptr<core::EvaluableExpr> FunctionExpr::ToEvaluable() const {
 }
 
 google_firestore_v1_Value PipelineExpr::to_proto() const {
-  return pipeline_->to_proto();
+  return PipelineStagesToProto(stages_);
 }
 
 std::unique_ptr<core::EvaluableExpr> PipelineExpr::ToEvaluable() const {
