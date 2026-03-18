@@ -144,14 +144,13 @@ struct ServerPromptTemplateIntegrationTests {
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
     ]
-    let chatSession = model.startChat(templateID: "chat-history", history: initialHistory)
-
     let userMessage = "What's the weather like?"
+    let chatSession = model.startChat(templateID: "chat-history",
+                                      inputs: ["message": userMessage],
+                                      history: initialHistory)
 
-    let response = try await chatSession.sendMessage(
-      userMessage,
-      inputs: ["message": userMessage]
-    )
+    let response = try await chatSession.sendMessage(userMessage)
+
     let text = try #require(response.text)
     #expect(!text.isEmpty)
     #expect(chatSession.history.count == 4)
@@ -166,14 +165,13 @@ struct ServerPromptTemplateIntegrationTests {
       ModelContent(role: "user", parts: "Hello!"),
       ModelContent(role: "model", parts: "Hi there! How can I help?"),
     ]
-    let chatSession = model.startChat(templateID: "chat-history", history: initialHistory)
-
     let userMessage = "What's the weather like?"
+    let chatSession = model.startChat(templateID: "chat-history",
+                                      inputs: ["message": userMessage],
+                                      history: initialHistory)
 
-    let stream = try chatSession.sendMessageStream(
-      userMessage,
-      inputs: ["message": userMessage]
-    )
+    let stream = try chatSession.sendMessageStream(userMessage)
+
     var resultText = ""
     for try await response in stream {
       if let text = response.text {
