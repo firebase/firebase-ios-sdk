@@ -1738,15 +1738,16 @@ extension User: NSSecureCoding {}
       coder.encode(displayName, forKey: kDisplayNameCodingKey)
       coder.encode(metadata, forKey: kMetadataCodingKey)
       coder.encode(tenantID, forKey: kTenantIDCodingKey)
+
+      if let auth {
+        coder.encode(auth.requestConfiguration.apiKey, forKey: kAPIKeyCodingKey)
+        coder.encode(auth.requestConfiguration.appID, forKey: kFirebaseAppIDCodingKey)
+      }
+      coder.encode(tokenService, forKey: kTokenServiceCodingKey)
+      #if os(iOS) || os(macOS)
+        coder.encode(multiFactor, forKey: kMultiFactorCodingKey)
+      #endif
     }
-    if let auth {
-      coder.encode(auth.requestConfiguration.apiKey, forKey: kAPIKeyCodingKey)
-      coder.encode(auth.requestConfiguration.appID, forKey: kFirebaseAppIDCodingKey)
-    }
-    coder.encode(tokenService, forKey: kTokenServiceCodingKey)
-    #if os(iOS) || os(macOS)
-      coder.encode(multiFactor, forKey: kMultiFactorCodingKey)
-    #endif
   }
 
   public required init?(coder: NSCoder) {
