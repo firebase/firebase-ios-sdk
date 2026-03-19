@@ -52,7 +52,8 @@ actor UserProfileUpdate {
     let request = SetAccountInfoRequest(
       accessToken: accessToken, requestConfiguration: user.requestConfiguration
     )
-    let providerExists = user.providerDataQueue.sync {
+
+    let providerExists = user.propertyAccessQueue.sync {
       user.providerDataRaw[provider] != nil
     }
 
@@ -62,7 +63,7 @@ actor UserProfileUpdate {
     request.deleteProviders = [provider]
     do {
       let response = try await user.backend.call(with: request)
-      user.providerDataQueue.sync {
+      user.propertyAccessQueue.sync {
         // We can't just use the provider info objects in SetAccountInfoResponse
         // because they don't have localID and email fields. Remove the specific
         // provider manually.

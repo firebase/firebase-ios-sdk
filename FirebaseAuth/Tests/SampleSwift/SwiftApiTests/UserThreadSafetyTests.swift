@@ -41,7 +41,8 @@ class UserThreadSafetyTests: XCTestCase {
       XCTFail("Failed to create test user: \(error)")
       return
     }
-    let expectation = self.expectation(description: "Concurrent read/write on providerData should not crash")
+    let expectation = self
+      .expectation(description: "Concurrent read/write on providerData should not crash")
     let dispatchGroup = DispatchGroup()
     let queue = DispatchQueue(
       label: "com.google.firebase.auth.test.concurrent",
@@ -95,32 +96,32 @@ class UserThreadSafetyTests: XCTestCase {
                                       iteration: Int) {
     dispatchGroup.enter()
     queue.async {
+      defer { dispatchGroup.leave() }
+
       // Simulate a write by creating a mock response and updating the user.
-      let mockProviderInfo = GetAccountInfoResponse.ProviderUserInfo(
-        providerID: "provider-\(iteration)",
-        displayName: nil,
-        photoURL: nil,
-        federatedID: nil,
-        email: nil,
-        rawID: nil,
-        phoneNumber: nil
-      )
-      let mockUser = GetAccountInfoResponse.User(
-        localID: "testUserID",
-        email: nil,
-        emailVerified: false,
-        displayName: nil,
-        photoURL: nil,
-        passwordHash: nil,
-        providerUserInfo: [mockProviderInfo],
-        creationDate: Date(),
-        lastLoginDate: Date(),
-        mfaEnrollments: nil,
-        phoneNumber: nil
-      )
-      let mockResponse = GetAccountInfoResponse(withUsers: [mockUser])
-      user.update(withGetAccountInfoResponse: mockResponse)
-      dispatchGroup.leave()
+      // This structure is based on the working unit tests for GetAccountInfoResponse.
+      let providerInfo: [String: AnyHashable] = [
+        "providerId": "provider-\(iteration)",
+      ]
+
+      let userInfo: [String: AnyHashable] = [
+        "providerUserInfo": [providerInfo],
+        "localId": "testLocalId",
+        "displayName": "DisplayName",
+        "email": "testEmail",
+        "photoUrl": "testPhotoURL",
+        "emailVerified": true,
+        "passwordHash": "testPasswordHash",
+      ]
+
+      let responseDict: [String: AnyHashable] = ["users": [userInfo]]
+
+      do {
+        let mockResponse = try GetAccountInfoResponse(dictionary: responseDict)
+        user.update(withGetAccountInfoResponse: mockResponse)
+      } catch {
+        XCTFail("Failed to create mock GetAccountInfoResponse: \(error)")
+      }
     }
   }
 }
