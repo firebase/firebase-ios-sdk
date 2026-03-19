@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
-#if compiler(>=6.2)
+// TODO: Remove the `#if compiler(>=6.2.3)` when Xcode 26.2 is the minimum supported version.
+#if compiler(>=6.2.3)
   @testable import FirebaseAILogic
   import FirebaseAITestApp
   #if canImport(FoundationModels)
@@ -39,6 +39,20 @@
       }
       #expect(response.rawContent.generationID != nil)
       #expect(response.rawResponse.text == content)
+      let transcriptEntries = response.transcriptEntries
+      #expect(transcriptEntries.count == 1)
+      guard case let .response(transcriptResponse) = transcriptEntries.first else {
+        Issue.record("Transcript entry was not a response: \(transcriptEntries)")
+        return
+      }
+      #expect(transcriptResponse.segments.count == 1)
+      guard case let .text(textSegment) = transcriptResponse.segments.first else {
+        Issue.record("Transcript response was not a text segment: \(transcriptResponse)")
+        return
+      }
+      #expect(textSegment.content == content)
+      #expect(session.transcript
+        .entries[transcriptEntries.startIndex ..< transcriptEntries.endIndex] == transcriptEntries)
     }
 
     #if canImport(FoundationModels)
@@ -99,6 +113,18 @@
         #expect(!catProfile.profile.isEmpty)
         #expect(response.rawContent.isComplete)
         #expect(response.rawContent.generationID != nil)
+        let transcriptEntries = response.transcriptEntries
+        #expect(transcriptEntries.count == 1)
+        guard case let .response(transcriptResponse) = transcriptEntries.first else {
+          Issue.record("Transcript entry was not a response: \(transcriptEntries)")
+          return
+        }
+        #expect(transcriptResponse.segments.count == 1)
+        guard case let .structure(structuredSegment) = transcriptResponse.segments.first else {
+          Issue.record("Transcript response was not a structured segment: \(transcriptResponse)")
+          return
+        }
+        #expect(structuredSegment.content == response.rawContent)
       }
 
       @Generable
@@ -179,6 +205,18 @@
         #expect([.appetizer, .main, .dessert].contains(recipe.course))
         #expect(response.rawContent.isComplete)
         #expect(response.rawContent.generationID != nil)
+        let transcriptEntries = response.transcriptEntries
+        #expect(transcriptEntries.count == 1)
+        guard case let .response(transcriptResponse) = transcriptEntries.first else {
+          Issue.record("Transcript entry was not a response: \(transcriptEntries)")
+          return
+        }
+        #expect(transcriptResponse.segments.count == 1)
+        guard case let .structure(structuredSegment) = transcriptResponse.segments.first else {
+          Issue.record("Transcript response was not a structured segment: \(transcriptResponse)")
+          return
+        }
+        #expect(structuredSegment.content == response.rawContent)
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
@@ -211,6 +249,18 @@
         #expect(courses == allCourses)
         #expect(response.rawContent.isComplete)
         #expect(response.rawContent.generationID != nil)
+        let transcriptEntries = response.transcriptEntries
+        #expect(transcriptEntries.count == 1)
+        guard case let .response(transcriptResponse) = transcriptEntries.first else {
+          Issue.record("Transcript entry was not a response: \(transcriptEntries)")
+          return
+        }
+        #expect(transcriptResponse.segments.count == 1)
+        guard case let .structure(structuredSegment) = transcriptResponse.segments.first else {
+          Issue.record("Transcript response was not a structured segment: \(transcriptResponse)")
+          return
+        }
+        #expect(structuredSegment.content == response.rawContent)
       }
     #endif // canImport(FoundationModels)
 
@@ -252,6 +302,18 @@
       if let text = response.rawResponse.text {
         #expect(content.hasSuffix(text))
       }
+      let transcriptEntries = response.transcriptEntries
+      #expect(transcriptEntries.count == 1)
+      guard case let .response(transcriptResponse) = transcriptEntries.first else {
+        Issue.record("Transcript entry was not a response: \(transcriptEntries)")
+        return
+      }
+      #expect(transcriptResponse.segments.count == 1)
+      guard case let .text(textSegment) = transcriptResponse.segments.first else {
+        Issue.record("Transcript response was not a text segment: \(transcriptResponse)")
+        return
+      }
+      #expect(textSegment.content == content)
     }
 
     #if canImport(FoundationModels)
@@ -302,11 +364,24 @@
         let response = try await stream.collect()
         #expect(response.rawContent.isComplete, "The final response was not marked as complete.")
         #expect(response.rawContent.generationID == generationID)
+        #expect(response.content == response.rawContent)
         let catProfile = try CatProfile(response.content)
         #expect(!catProfile.name.isEmpty)
         #expect(catProfile.age >= 1)
         #expect(catProfile.age <= 20)
         #expect(!catProfile.profile.isEmpty)
+        let transcriptEntries = response.transcriptEntries
+        #expect(transcriptEntries.count == 1)
+        guard case let .response(transcriptResponse) = transcriptEntries.first else {
+          Issue.record("Transcript entry was not a response: \(transcriptEntries)")
+          return
+        }
+        #expect(transcriptResponse.segments.count == 1)
+        guard case let .structure(structuredSegment) = transcriptResponse.segments.first else {
+          Issue.record("Transcript response was not a structured segment: \(transcriptResponse)")
+          return
+        }
+        #expect(structuredSegment.content == response.content)
       }
 
       @Test(arguments: [InstanceConfig.vertexAI_v1beta_global, InstanceConfig.googleAI_v1beta])
@@ -370,7 +445,19 @@
         #expect(catProfile.age >= 1)
         #expect(catProfile.age <= 20)
         #expect(!catProfile.profile.isEmpty)
+        let transcriptEntries = response.transcriptEntries
+        #expect(transcriptEntries.count == 1)
+        guard case let .response(transcriptResponse) = transcriptEntries.first else {
+          Issue.record("Transcript entry was not a response: \(transcriptEntries)")
+          return
+        }
+        #expect(transcriptResponse.segments.count == 1)
+        guard case let .structure(structuredSegment) = transcriptResponse.segments.first else {
+          Issue.record("Transcript response was not a structured segment: \(transcriptResponse)")
+          return
+        }
+        #expect(structuredSegment.content == response.rawContent)
       }
     #endif // canImport(FoundationModels)
   }
-#endif // compiler(>=6.2)
+#endif // compiler(>=6.2.3)
