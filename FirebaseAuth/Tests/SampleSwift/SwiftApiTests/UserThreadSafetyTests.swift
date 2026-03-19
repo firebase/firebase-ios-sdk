@@ -33,10 +33,15 @@ class UserThreadSafetyTests: XCTestCase {
     return user
   }
 
-  func testConcurrentProviderDataReadWrite() throws {
-    let user = try createTestUser()
-    let expectation = self
-      .expectation(description: "Concurrent read/write on providerData should not crash")
+  func testConcurrentProviderDataReadWrite() {
+    let user: User
+    do {
+      user = try createTestUser()
+    } catch {
+      XCTFail("Failed to create test user: \(error)")
+      return
+    }
+    let expectation = self.expectation(description: "Concurrent read/write on providerData should not crash")
     let dispatchGroup = DispatchGroup()
     let queue = DispatchQueue(
       label: "com.google.firebase.auth.test.concurrent",
@@ -47,52 +52,75 @@ class UserThreadSafetyTests: XCTestCase {
     let readIterations = 500
     let writeIterations = 500
 
-    // Dispatch concurrent reads.
-    for _ in 0 ..< readIterations {
-      dispatchGroup.enter()
-      queue.async {
-        // Read the property.
-        _ = user.providerData
-        dispatchGroup.leave()
+    // Dispatch concurrent reads and writes.
+    for i in 0 ..< max(readIterations, writeIterations) {
+      if i < readIterations {
+        performConcurrentRead(on: user, queue: queue, dispatchGroup: dispatchGroup)
       }
-    }
-
-    // Dispatch concurrent writes.
-    for i in 0 ..< writeIterations {
-      dispatchGroup.enter()
-      queue.async {
-        // Simulate a write by creating a mock response and updating the user.
-        let mockProviderInfo = GetAccountInfoResponse.ProviderUserInfo(providerID: "provider-\(i)",
-                                                                       displayName: nil,
-                                                                       photoURL: nil,
-                                                                       federatedID: nil,
-                                                                       email: nil,
-                                                                       rawID: nil,
-                                                                       phoneNumber: nil)
-        let mockUser = GetAccountInfoResponse.User(localID: "testUserID",
-                                                   email: nil,
-                                                   emailVerified: false,
-                                                   displayName: nil,
-                                                   photoURL: nil,
-                                                   passwordHash: nil,
-                                                   providerUserInfo: [mockProviderInfo],
-                                                   creationDate: Date(),
-                                                   lastLoginDate: Date(),
-                                                   mfaEnrollments: nil,
-                                                   phoneNumber: nil)
-        let mockResponse = GetAccountInfoResponse(withUsers: [mockUser])
-        user.update(withGetAccountInfoResponse: mockResponse)
-        dispatchGroup.leave()
+      if i < writeIterations {
+        performConcurrentWrite(on: user, queue: queue, dispatchGroup: dispatchGroup, iteration: i)
       }
     }
 
     // Wait for all operations to complete.
-    dispatchGroup.notify(queue: .main) {
+    let workItem = DispatchWorkItem {
+      // Assert that the final state is consistent. Because writes are not ordered, we can't
+      // know *which* provider is the last one, but we know there should only be one.
+      XCTAssertEqual(user.providerData.count, 1)
       expectation.fulfill()
     }
+    dispatchGroup.notify(queue: .main, work: workItem)
 
     // This will fail on timeout, which could indicate a deadlock.
     // The primary assertion is that no crash occurs.
     waitForExpectations(timeout: 10.0)
+  }
+
+  // MARK: - Helper Methods
+
+  private func performConcurrentRead(on user: User,
+                                     queue: DispatchQueue,
+                                     dispatchGroup: DispatchGroup) {
+    dispatchGroup.enter()
+    queue.async {
+      // Read the property.
+      _ = user.providerData
+      dispatchGroup.leave()
+    }
+  }
+
+  private func performConcurrentWrite(on user: User,
+                                      queue: DispatchQueue,
+                                      dispatchGroup: DispatchGroup,
+                                      iteration: Int) {
+    dispatchGroup.enter()
+    queue.async {
+      // Simulate a write by creating a mock response and updating the user.
+      let mockProviderInfo = GetAccountInfoResponse.ProviderUserInfo(
+        providerID: "provider-\(iteration)",
+        displayName: nil,
+        photoURL: nil,
+        federatedID: nil,
+        email: nil,
+        rawID: nil,
+        phoneNumber: nil
+      )
+      let mockUser = GetAccountInfoResponse.User(
+        localID: "testUserID",
+        email: nil,
+        emailVerified: false,
+        displayName: nil,
+        photoURL: nil,
+        passwordHash: nil,
+        providerUserInfo: [mockProviderInfo],
+        creationDate: Date(),
+        lastLoginDate: Date(),
+        mfaEnrollments: nil,
+        phoneNumber: nil
+      )
+      let mockResponse = GetAccountInfoResponse(withUsers: [mockUser])
+      user.update(withGetAccountInfoResponse: mockResponse)
+      dispatchGroup.leave()
+    }
   }
 }

@@ -66,7 +66,7 @@ actor UserProfileUpdate {
         // We can't just use the provider info objects in SetAccountInfoResponse
         // because they don't have localID and email fields. Remove the specific
         // provider manually.
-        user.providerDataRaw.removeValue(forKey: provider)
+        _ = user.providerDataRaw.removeValue(forKey: provider)
       }
 
       if provider == EmailAuthProvider.id {
