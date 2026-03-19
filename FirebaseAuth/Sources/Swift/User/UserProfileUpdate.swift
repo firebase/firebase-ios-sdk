@@ -52,18 +52,22 @@ actor UserProfileUpdate {
     let request = SetAccountInfoRequest(
       accessToken: accessToken, requestConfiguration: user.requestConfiguration
     )
+    let providerExists = user.providerDataQueue.sync {
+      user.providerDataRaw[provider] != nil
+    }
 
-    if user.providerDataRaw[provider] == nil {
+    if !providerExists {
       throw AuthErrorUtils.noSuchProviderError()
     }
     request.deleteProviders = [provider]
     do {
       let response = try await user.backend.call(with: request)
-
-      // We can't just use the provider info objects in SetAccountInfoResponse
-      // because they don't have localID and email fields. Remove the specific
-      // provider manually.
-      user.providerDataRaw.removeValue(forKey: provider)
+      user.providerDataQueue.sync {
+        // We can't just use the provider info objects in SetAccountInfoResponse
+        // because they don't have localID and email fields. Remove the specific
+        // provider manually.
+        user.providerDataRaw.removeValue(forKey: provider)
+      }
 
       if provider == EmailAuthProvider.id {
         user.hasEmailPasswordCredential = false

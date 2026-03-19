@@ -44,10 +44,15 @@ extension User: NSSecureCoding {}
   ///
   /// This data is cached on sign-in and updated when linking or unlinking.
   @objc open var providerData: [UserInfo] {
-    return Array(providerDataRaw.values)
+    return providerDataQueue.sync {
+      Array(providerDataRaw.values)
+    }
   }
 
   var providerDataRaw: [String: UserInfoImpl]
+
+  /// A serial queue to protect read/write access to `providerDataRaw`.
+  let providerDataQueue = DispatchQueue(label: "com.google.firebase.auth.user.providerDataQueue")
 
   /// The backend service for the given instance.
   private(set) var backend: AuthBackend
@@ -662,7 +667,10 @@ extension User: NSSecureCoding {}
   open func link(with credential: AuthCredential,
                  completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
-      if self.providerDataRaw[credential.provider] != nil {
+      let shouldLink = self.providerDataQueue.sync {
+        return self.providerDataRaw[credential.provider] == nil
+      }
+      if !shouldLink {
         User.callInMainThreadWithAuthDataResultAndError(
           callback: completion,
           result: nil,
@@ -1296,7 +1304,9 @@ extension User: NSSecureCoding {}
         }
       }
     }
-    providerDataRaw = providerData
+    providerDataQueue.sync {
+      providerDataRaw = providerData
+    }
     #if os(iOS) || os(macOS)
       if let enrollments = user.mfaEnrollments {
         multiFactor = MultiFactor(withMFAEnrollments: enrollments)
@@ -1705,7 +1715,9 @@ extension User: NSSecureCoding {}
     coder.encode(uid, forKey: kUserIDCodingKey)
     coder.encode(isAnonymous, forKey: kAnonymousCodingKey)
     coder.encode(hasEmailPasswordCredential, forKey: kHasEmailPasswordCredentialCodingKey)
-    coder.encode(providerDataRaw, forKey: kProviderDataKey)
+    providerDataQueue.sync {
+      coder.encode(providerDataRaw, forKey: kProviderDataKey)
+    }
     coder.encode(email, forKey: kEmailCodingKey)
     coder.encode(phoneNumber, forKey: kPhoneNumberCodingKey)
     coder.encode(isEmailVerified, forKey: kEmailVerifiedCodingKey)
