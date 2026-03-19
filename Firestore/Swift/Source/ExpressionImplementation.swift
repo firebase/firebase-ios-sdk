@@ -13,6 +13,13 @@
 // limitations under the License.
 
 extension Expression {
+  /// Returns the internal error message. It is overridden in specific expression implementations
+  /// (like FunctionExpression) but defaults to `nil` for others.
+  /// This design is to support pipeline conversion to expression.
+  var errorMessage: String? {
+    return nil
+  }
+
   func toBridge() -> ExprBridge {
     return (self as! BridgeWrapper).bridge
   }
