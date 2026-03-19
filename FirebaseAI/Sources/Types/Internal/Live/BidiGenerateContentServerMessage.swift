@@ -34,6 +34,9 @@ struct BidiGenerateContentServerMessage: Sendable {
     /// and should be cancelled.
     case toolCallCancellation(BidiGenerateContentToolCallCancellation)
 
+    /// Update with the state needed to resume the session.
+    case sessionResumptionUpdate(BidiSessionResumptionUpdate)
+
     /// Server will disconnect soon.
     case goAway(GoAway)
   }
@@ -54,6 +57,7 @@ extension BidiGenerateContentServerMessage: Decodable {
     case serverContent
     case toolCall
     case toolCallCancellation
+    case sessionResumptionUpdate
     case goAway
     case usageMetadata
   }
@@ -81,6 +85,11 @@ extension BidiGenerateContentServerMessage: Decodable {
       forKey: .toolCallCancellation
     ) {
       messageType = .toolCallCancellation(toolCallCancellation)
+    } else if let sessionResumptionUpdate = try container.decodeIfPresent(
+      BidiSessionResumptionUpdate.self,
+      forKey: .sessionResumptionUpdate
+    ) {
+      messageType = .sessionResumptionUpdate(sessionResumptionUpdate)
     } else if let goAway = try container.decodeIfPresent(GoAway.self, forKey: .goAway) {
       messageType = .goAway(goAway)
     } else {
