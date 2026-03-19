@@ -438,8 +438,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   private func addAuthStateListener() {
     let index = authStateDidChangeListeners.count
     print("Auth State Did Change Listener #\(index) was added.")
-    let handle = Auth.auth().addStateDidChangeListener { [weak weakSelf] auth, user in
-      guard weakSelf != nil else { return }
+    let handle = Auth.auth().addStateDidChangeListener { auth, user in
       print("Auth State Did Change Listener #\(index) was invoked on user '\(user?.uid ?? "nil")'")
     }
     authStateDidChangeListeners.append(handle)
@@ -460,8 +459,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   private func addIDTokenListener() {
     let index = IDTokenDidChangeListeners.count
     print("ID Token Did Change Listener #\(index) was added.")
-    let handle = Auth.auth().addIDTokenDidChangeListener { [weak weakSelf] auth, user in
-      guard weakSelf != nil else { return }
+    let handle = Auth.auth().addIDTokenDidChangeListener { auth, user in
       print("ID Token Did Change Listener #\(index) was invoked on user '\(user?.uid ?? "")'.")
     }
     IDTokenDidChangeListeners.append(handle)
