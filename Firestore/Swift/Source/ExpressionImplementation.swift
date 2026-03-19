@@ -1091,4 +1091,14 @@ public extension Expression {
   func type() -> FunctionExpression {
     return FunctionExpression(functionName: "type", args: [self])
   }
+
+  /// Creates an expression that accesses a field on this expression using a string key.
+  func getField(_ key: String) -> FunctionExpression {
+    return FunctionExpression(functionName: "field", args: [self, Constant(key)])
+  }
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  func getField(_ expression: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "field", args: [self, expression])
+  }
 }

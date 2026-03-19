@@ -169,6 +169,29 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ], enforceOrder: false)
   }
 
+  func testSubqueryExpressionsCompile() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    // Verify CurrentDocument compiles
+    let currentDocExpr = CurrentDocument()
+    
+    // Verify getField compiles
+    let fieldExpr = currentDocExpr.getField("title")
+    let fieldExprDynamic = currentDocExpr.getField(Field("title"))
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select([
+        fieldExpr.as("title_extracted"),
+        fieldExprDynamic.as("title_extracted_dynamic")
+      ])
+    
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1)
+  }
+
   func testSubcollectionIsolatedExecutionThrows() async throws {
     let subQuery = Subcollection("reviews")
     do {
