@@ -71,11 +71,6 @@
       </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "TARGET_BACKEND"
-            value = "nightly"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
             key = "BACKEND_EDITION"
             value = "standard"
             isEnabled = "YES">

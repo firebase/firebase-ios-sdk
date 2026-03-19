@@ -299,10 +299,6 @@ jobs:
           retry_wait_seconds: 120
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
-      - name: Test (manual retry)
-        if: ${{ failure() }}
-        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
-
   xcodetest_nightly:
     runs-on: macos-15
 
@@ -313,6 +309,7 @@ jobs:
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      TARGET_BACKEND: nightly
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -344,7 +341,7 @@ jobs:
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 60
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+          command: TARGET_BACKEND=nightly scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
@@ -352,11 +349,11 @@ jobs:
           timeout_minutes: 30
           max_attempts: 1
           retry_wait_seconds: 120
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+          command: TARGET_BACKEND=nightly scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
       - name: Test (manual retry)
         if: ${{ failure() }}
-        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: TARGET_BACKEND=nightly scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   xcodetest_emulator:
     runs-on: macos-15
