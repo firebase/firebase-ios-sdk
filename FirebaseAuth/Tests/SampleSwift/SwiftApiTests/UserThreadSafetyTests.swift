@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 @testable import FirebaseAuth
 import FirebaseCore
+import XCTest
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class UserThreadSafetyTests: XCTestCase {
-
   // A basic user setup for testing purposes.
   private func createTestUser() throws -> User {
     let app = try XCTUnwrap(FirebaseApp.app())
@@ -36,16 +35,20 @@ class UserThreadSafetyTests: XCTestCase {
 
   func testConcurrentProviderDataReadWrite() throws {
     let user = try createTestUser()
-    let expectation = self.expectation(description: "Concurrent read/write on providerData should not crash")
+    let expectation = self
+      .expectation(description: "Concurrent read/write on providerData should not crash")
     let dispatchGroup = DispatchGroup()
-    let queue = DispatchQueue(label: "com.google.firebase.auth.test.concurrent", attributes: .concurrent)
+    let queue = DispatchQueue(
+      label: "com.google.firebase.auth.test.concurrent",
+      attributes: .concurrent
+    )
 
     // Number of concurrent operations to perform.
     let readIterations = 500
     let writeIterations = 500
 
     // Dispatch concurrent reads.
-    for _ in 0..<readIterations {
+    for _ in 0 ..< readIterations {
       dispatchGroup.enter()
       queue.async {
         // Read the property.
@@ -55,7 +58,7 @@ class UserThreadSafetyTests: XCTestCase {
     }
 
     // Dispatch concurrent writes.
-    for i in 0..<writeIterations {
+    for i in 0 ..< writeIterations {
       dispatchGroup.enter()
       queue.async {
         // Simulate a write by creating a mock response and updating the user.

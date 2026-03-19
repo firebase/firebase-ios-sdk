@@ -668,7 +668,7 @@ extension User: NSSecureCoding {}
                  completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let shouldLink = self.providerDataQueue.sync {
-        return self.providerDataRaw[credential.provider] == nil
+        self.providerDataRaw[credential.provider] == nil
       }
       if !shouldLink {
         User.callInMainThreadWithAuthDataResultAndError(
