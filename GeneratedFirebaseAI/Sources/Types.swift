@@ -31186,8 +31186,8 @@ extension GetBatchJobConfig: Codable {
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GetBatchJobParameters: Sendable {
   /// A fully-qualified BatchJob resource name or ID.
-  /// Example: "projects/.../locations/.../batchPredictionJobs/456"
-  /// or "456" when project and location are initialized in the client.
+  /// Example: "projects/.../locations/.../batchPredictionJobs/123"
+  /// or "123" when project and location are initialized in the client.
   public let name: String
 
   /// Optional parameters for the request.
@@ -31294,8 +31294,8 @@ extension CancelBatchJobConfig: Codable {
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CancelBatchJobParameters: Sendable {
   /// A fully-qualified BatchJob resource name or ID.
-  /// Example: "projects/.../locations/.../batchPredictionJobs/456"
-  /// or "456" when project and location are initialized in the client.
+  /// Example: "projects/.../locations/.../batchPredictionJobs/123"
+  /// or "123" when project and location are initialized in the client.
   public let name: String
 
   /// Optional parameters for the request.
@@ -31616,8 +31616,8 @@ extension DeleteBatchJobConfig: Codable {
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct DeleteBatchJobParameters: Sendable {
   /// A fully-qualified BatchJob resource name or ID.
-  /// Example: "projects/.../locations/.../batchPredictionJobs/456"
-  /// or "456" when project and location are initialized in the client.
+  /// Example: "projects/.../locations/.../batchPredictionJobs/123"
+  /// or "123" when project and location are initialized in the client.
   public let name: String
 
   /// Optional parameters for the request.
