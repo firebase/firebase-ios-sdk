@@ -68,18 +68,17 @@ actor UserProfileUpdate {
         // because they don't have localID and email fields. Remove the specific
         // provider manually.
         _ = user.providerDataRaw.removeValue(forKey: provider)
-      }
-
-      if provider == EmailAuthProvider.id {
-        user.hasEmailPasswordCredential = false
-      }
-      #if os(iOS)
-        // After successfully unlinking a phone auth provider, remove the phone number
-        // from the cached user info.
-        if provider == PhoneAuthProvider.id {
-          user.phoneNumber = nil
+        if provider == EmailAuthProvider.id {
+          user.hasEmailPasswordCredential = false
         }
-      #endif
+        #if os(iOS)
+          // After successfully unlinking a phone auth provider, remove the phone number
+          // from the cached user info.
+          if provider == PhoneAuthProvider.id {
+            user.phoneNumber = nil
+          }
+        #endif
+      }
       if let idToken = response.idToken,
          let refreshToken = response.refreshToken {
         let tokenService = SecureTokenService(

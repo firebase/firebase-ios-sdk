@@ -1167,7 +1167,9 @@ extension User: NSSecureCoding {}
   private func updateEmail(email: String?,
                            password: String?,
                            callback: @escaping (Error?) -> Void) {
-    let hadEmailPasswordCredential = hasEmailPasswordCredential
+    let hadEmailPasswordCredential = propertyAccessQueue.sync {
+      hasEmailPasswordCredential
+    }
     executeUserUpdateWithChanges(changeBlock: { user, request in
       if let email {
         request.email = email
@@ -1181,30 +1183,41 @@ extension User: NSSecureCoding {}
         return
       }
       if let email {
-        self.email = email
+        self.propertyAccessQueue.sync {
+          self.email = email
+        }
       }
-      if self.email != nil {
+
+      let emailIsPresent = self.propertyAccessQueue.sync {
+        self.email != nil
+      }
+
+      if emailIsPresent {
         if !hadEmailPasswordCredential {
           // The list of providers need to be updated for the newly added email-password provider.
           Task {
             do {
               let accessToken = try await self.internalGetTokenAsync(backend: self.backend)
               if let requestConfiguration = self.auth?.requestConfiguration {
-                let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                                  requestConfiguration: requestConfiguration)
+                let getAccountInfoRequest = GetAccountInfoRequest(
+                  accessToken: accessToken,
+                  requestConfiguration: requestConfiguration
+                )
                 do {
                   let accountInfoResponse = try await self.backend.call(with: getAccountInfoRequest)
-                  if let users = accountInfoResponse.users {
-                    for userAccountInfo in users {
-                      // Set the account to non-anonymous if there are any providers, even if
-                      // they're not email/password ones.
-                      if let providerUsers = userAccountInfo.providerUserInfo {
-                        if providerUsers.count > 0 {
-                          self.isAnonymous = false
-                          for providerUserInfo in providerUsers {
-                            if providerUserInfo.providerID == EmailAuthProvider.id {
-                              self.hasEmailPasswordCredential = true
-                              break
+                  self.propertyAccessQueue.sync {
+                    if let users = accountInfoResponse.users {
+                      for userAccountInfo in users {
+                        // Set the account to non-anonymous if there are any providers, even if
+                        // they're not email/password ones.
+                        if let providerUsers = userAccountInfo.providerUserInfo {
+                          if providerUsers.count > 0 {
+                            self.isAnonymous = false
+                            for providerUserInfo in providerUsers {
+                              if providerUserInfo.providerID == EmailAuthProvider.id {
+                                self.hasEmailPasswordCredential = true
+                                break
+                              }
                             }
                           }
                         }
