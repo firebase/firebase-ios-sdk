@@ -1418,7 +1418,7 @@ extension User: NSSecureCoding {}
                   completion(error)
                   return
                 }
-                self._isAnonymous = false
+                self.propertyAccessQueue.sync { self._isAnonymous = false }
                 if let error = self.updateKeychain() {
                   completion(error)
                   return
