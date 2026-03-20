@@ -1190,14 +1190,16 @@ extension User: NSSecureCoding {}
         callback(error)
         return
       }
+      let emailIsPresent: Bool
       if let email {
         self.propertyAccessQueue.sync {
           self.email = email
         }
-      }
-
-      let emailIsPresent = self.propertyAccessQueue.sync {
-        self.email != nil
+        emailIsPresent = true
+      } else {
+        emailIsPresent = self.propertyAccessQueue.sync {
+          self.email != nil
+        }
       }
 
       if emailIsPresent {
