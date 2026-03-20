@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Added support for GoogleMaps grounding.
+
 # 12.12.0
 - [fixed] Updated `GenerativeModelSession` to handle intermediate JSON decoding
   failures when streaming structured data. (#15960)
