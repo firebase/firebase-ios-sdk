@@ -711,6 +711,4 @@ public class Pipeline: @unchecked Sendable {
   public func toScalarExpression() -> Expression {
     return FunctionExpression(functionName: "scalar", args: [PipelineExpression(self)])
   }
-
-
 }

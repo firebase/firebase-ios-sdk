@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 
-import Foundation
-
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternalWrapper
-#else
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
-
 /// A `Subcollection` is a special type of pipeline constructed for sub-queries.
 /// It is not tied to a primary database instance upfront and cannot be executed directly;
 /// instead, it is intended to be converted into an array or scalar expression and joined into

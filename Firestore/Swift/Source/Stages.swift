@@ -31,7 +31,6 @@ protocol Stage {
   var errorMessage: String? { get }
 }
 
-
 extension Stage {
   var errorMessage: String? {
     return nil
