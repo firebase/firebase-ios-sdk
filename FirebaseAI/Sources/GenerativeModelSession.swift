@@ -498,21 +498,15 @@
           var lastDecodingError: Error? = nil
 
           while let rawResult = try await rawIterator.next(isolation: actor) {
-            do {
-              // If it parses successfully, return the snapshot and discard any errors from previous
-              // loop iterations.
-              return try process(rawResult)
-            } catch {
-              // Intermediate failure (e.g., incomplete JSON that could not be parsed).
-              // Hold onto the error and let the loop fetch the next chunk.
-              lastDecodingError = error
+            // If it parses successfully, return the snapshot and discard any errors from previous
+            // loop iterations.
+            if let snapshot = process(rawResult, lastError: &lastDecodingError) {
+              return snapshot
             }
           }
 
           // If the last chunk processed resulted in an error, throw it.
-          if let lastDecodingError {
-            throw lastDecodingError
-          }
+          if let lastDecodingError { throw lastDecodingError }
 
           return nil
         }
@@ -521,29 +515,37 @@
           var lastDecodingError: Error? = nil
 
           while let rawResult = try await rawIterator.next() {
-            do {
-              return try process(rawResult)
-            } catch {
-              lastDecodingError = error
+            // If it parses successfully, return the snapshot and discard any errors from previous
+            // loop iterations.
+            if let snapshot = process(rawResult, lastError: &lastDecodingError) {
+              return snapshot
             }
           }
 
-          if let lastDecodingError {
-            throw lastDecodingError
-          }
+          // If the last chunk processed resulted in an error, throw it.
+          if let lastDecodingError { throw lastDecodingError }
 
           return nil
         }
 
-        private func process(_ rawResult: RawResult) throws -> Snapshot {
-          let partialContent: PartialContent = try GenerativeModelSession
-            .resolveContent(from: rawResult.rawContent)
+        // Returns the snapshot if parseable, or `nil` to signal the loop should continue.
+        private func process(_ rawResult: RawResult, lastError: inout Error?) -> Snapshot? {
+          do {
+            let partialContent: PartialContent = try GenerativeModelSession
+              .resolveContent(from: rawResult.rawContent)
 
-          return Snapshot(
-            content: partialContent,
-            rawContent: rawResult.rawContent,
-            rawResponse: rawResult.rawResponse
-          )
+            return Snapshot(
+              content: partialContent,
+              rawContent: rawResult.rawContent,
+              rawResponse: rawResult.rawResponse
+            )
+          } catch {
+            // Intermediate failure (e.g., incomplete JSON that could not be parsed).
+            // Hold onto the error and let the loop fetch the next chunk.
+            lastError = error
+
+            return nil
+          }
         }
       }
 
