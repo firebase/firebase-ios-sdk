@@ -95,8 +95,9 @@
 
       do {
         for try await _ in stream {
-          XCTFail("Stream should have thrown an error")
+          XCTFail("Stream should have thrown an error but yielded a value instead.")
         }
+        XCTFail("Stream iteration completed without throwing an error.")
       } catch {
         // The error might be `GenerativeModelSession.GenerationError` or
         // `FoundationModels.LanguageModelSession.GenerationError` depending on the environment.
@@ -133,8 +134,10 @@
       do {
         _ = try await task.value
         XCTFail("Task should have been cancelled")
+      } catch is CancellationError {
+        // Expected path, task was cancelled.
       } catch {
-        XCTAssertTrue(error is CancellationError)
+        XCTFail("Task should have been cancelled, but threw an unexpected error: \(error)")
       }
     }
   }
