@@ -92,10 +92,10 @@ public struct FunctionDeclaration: Sendable {
         // Gemini requires function responses to be JSON objects (not arrays or primitives); don't
         // provide a `responseJSONSchema` in this scenario since it is optional.
         if let generableOutputMetatype = T.Output.self as? any FoundationModels.Generable.Type,
-           let responseJSONSchema = try? FirebaseAI
-           .GenerationSchema(generableOutputMetatype.generationSchema).toGeminiJSONSchema(),
-           responseJSONSchema["type"] == .string("object") {
-          self.responseJSONSchema = responseJSONSchema
+           let responseSchema = try? FirebaseAI.GenerationSchema(
+             generableOutputMetatype.generationSchema
+           ).toGeminiJSONSchema(), responseSchema["type"] == .string("object") {
+          responseJSONSchema = responseSchema
         } else {
           responseJSONSchema = nil
         }
