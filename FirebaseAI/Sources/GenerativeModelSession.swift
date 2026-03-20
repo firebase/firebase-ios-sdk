@@ -454,6 +454,8 @@
   public extension GenerativeModelSession {
     /// An asynchronous sequence of snapshots of the model's response.
     struct ResponseStream<Content, PartialContent>: AsyncSequence {
+      // TODO(#15962): Add unit tests for `ResponseStream`.
+
       public typealias Element = Snapshot
 
       /// A snapshot of the model's response at a point in time.
