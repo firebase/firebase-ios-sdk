@@ -33,7 +33,7 @@ extension User: NSSecureCoding {}
     propertyAccessQueue.sync { _isAnonymous }
   }
 
-  private var _isAnonymous: Bool
+  var _isAnonymous: Bool
 
   /// Indicates the user represents an anonymous user.
   @objc open func anonymous() -> Bool { return isAnonymous }
@@ -1086,8 +1086,8 @@ extension User: NSSecureCoding {}
     #if os(iOS) || os(macOS)
       multiFactor = MultiFactor(withMFAEnrollments: [])
     #endif
-    uid = ""
-    hasEmailPasswordCredential = false
+    _uid = ""
+    _hasEmailPasswordCredential = false
     requestConfiguration = AuthRequestConfiguration(apiKey: "", appID: "")
   }
 
@@ -1125,24 +1125,48 @@ extension User: NSSecureCoding {}
   }
 
   /// The provider's user ID for the user.
-  @objc open var uid: String
+  @objc open var uid: String {
+    propertyAccessQueue.sync { _uid }
+  }
+
+  private var _uid: String
 
   /// The name of the user.
-  @objc open var displayName: String?
+  @objc open var displayName: String? {
+    propertyAccessQueue.sync { _displayName }
+  }
+
+  var _displayName: String?
 
   /// The URL of the user's profile photo.
-  @objc open var photoURL: URL?
+  @objc open var photoURL: URL? {
+    propertyAccessQueue.sync { _photoURL }
+  }
+
+  var _photoURL: URL?
 
   /// The user's email address.
-  @objc open var email: String?
+  @objc open var email: String? {
+    propertyAccessQueue.sync { _email }
+  }
+
+  private var _email: String?
 
   /// A phone number associated with the user.
   ///
   /// This property is only available for users authenticated via phone number auth.
-  @objc open var phoneNumber: String?
+  @objc open var phoneNumber: String? {
+    propertyAccessQueue.sync { _phoneNumber }
+  }
+
+  var _phoneNumber: String?
 
   /// Whether or not the user can be authenticated by using Firebase email and password.
-  var hasEmailPasswordCredential: Bool
+  var hasEmailPasswordCredential: Bool {
+    propertyAccessQueue.sync { _hasEmailPasswordCredential }
+  }
+
+  var _hasEmailPasswordCredential: Bool
 
   /// Used to serialize the update profile calls.
   private let userProfileUpdate: UserProfileUpdate
@@ -1193,12 +1217,12 @@ extension User: NSSecureCoding {}
       let emailIsPresent: Bool
       if let email {
         self.propertyAccessQueue.sync {
-          self.email = email
+          self._email = email
         }
         emailIsPresent = true
       } else {
         emailIsPresent = self.propertyAccessQueue.sync {
-          self.email != nil
+          self._email != nil
         }
       }
 
@@ -1225,7 +1249,7 @@ extension User: NSSecureCoding {}
                             self._isAnonymous = false
                             for providerUserInfo in providerUsers {
                               if providerUserInfo.providerID == EmailAuthProvider.id {
-                                self.hasEmailPasswordCredential = true
+                                self._hasEmailPasswordCredential = true
                                 break
                               }
                             }
@@ -1309,13 +1333,13 @@ extension User: NSSecureCoding {}
         AuthLog.logWarning(code: "I-AUT000016", message: "Missing user in GetAccountInfoResponse")
         return
       }
-      uid = user.localID ?? ""
-      email = user.email
-      isEmailVerified = user.emailVerified
-      displayName = user.displayName
-      photoURL = user.photoURL
-      phoneNumber = user.phoneNumber
-      hasEmailPasswordCredential = user.passwordHash != nil && user.passwordHash!.count > 0
+      _uid = user.localID ?? ""
+      _email = user.email
+      _isEmailVerified = user.emailVerified
+      _displayName = user.displayName
+      _photoURL = user.photoURL
+      _phoneNumber = user.phoneNumber
+      _hasEmailPasswordCredential = user.passwordHash != nil && user.passwordHash!.count > 0
       metadata = UserMetadata(withCreationDate: user.creationDate,
                               lastSignInDate: user.lastLoginDate)
       var providerData: [String: UserInfoImpl] = [:]
@@ -1737,15 +1761,15 @@ extension User: NSSecureCoding {}
 
   public func encode(with coder: NSCoder) {
     propertyAccessQueue.sync {
-      coder.encode(uid, forKey: kUserIDCodingKey)
-      coder.encode(isAnonymous, forKey: kAnonymousCodingKey)
-      coder.encode(hasEmailPasswordCredential, forKey: kHasEmailPasswordCredentialCodingKey)
+      coder.encode(_uid, forKey: kUserIDCodingKey)
+      coder.encode(_isAnonymous, forKey: kAnonymousCodingKey)
+      coder.encode(_hasEmailPasswordCredential, forKey: kHasEmailPasswordCredentialCodingKey)
       coder.encode(providerDataRaw, forKey: kProviderDataKey)
-      coder.encode(email, forKey: kEmailCodingKey)
-      coder.encode(phoneNumber, forKey: kPhoneNumberCodingKey)
-      coder.encode(isEmailVerified, forKey: kEmailVerifiedCodingKey)
-      coder.encode(photoURL, forKey: kPhotoURLCodingKey)
-      coder.encode(displayName, forKey: kDisplayNameCodingKey)
+      coder.encode(_email, forKey: kEmailCodingKey)
+      coder.encode(_phoneNumber, forKey: kPhoneNumberCodingKey)
+      coder.encode(_isEmailVerified, forKey: kEmailVerifiedCodingKey)
+      coder.encode(_photoURL, forKey: kPhotoURLCodingKey)
+      coder.encode(_displayName, forKey: kDisplayNameCodingKey)
       coder.encode(metadata, forKey: kMetadataCodingKey)
       coder.encode(tenantID, forKey: kTenantIDCodingKey)
 
@@ -1788,15 +1812,15 @@ extension User: NSSecureCoding {}
       let multiFactor = coder.decodeObject(of: MultiFactor.self, forKey: kMultiFactorCodingKey)
     #endif
     self.tokenService = tokenService
-    uid = userID
+    _uid = userID
     _isAnonymous = anonymous
-    self.hasEmailPasswordCredential = hasEmailPasswordCredential
-    self.email = email
-    isEmailVerified = emailVerified
-    self.displayName = displayName
-    self.photoURL = photoURL
+    _hasEmailPasswordCredential = hasEmailPasswordCredential
+    _email = email
+    _isEmailVerified = emailVerified
+    _displayName = displayName
+    _photoURL = photoURL
     providerDataRaw = providerData ?? [:]
-    self.phoneNumber = phoneNumber
+    _phoneNumber = phoneNumber
     self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
 

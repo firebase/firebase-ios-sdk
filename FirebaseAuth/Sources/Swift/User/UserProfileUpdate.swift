@@ -69,13 +69,13 @@ actor UserProfileUpdate {
         // provider manually.
         _ = user.providerDataRaw.removeValue(forKey: provider)
         if provider == EmailAuthProvider.id {
-          user.hasEmailPasswordCredential = false
+          user._hasEmailPasswordCredential = false
         }
         #if os(iOS)
           // After successfully unlinking a phone auth provider, remove the phone number
           // from the cached user info.
           if provider == PhoneAuthProvider.id {
-            user.phoneNumber = nil
+            user._phoneNumber = nil
           }
         #endif
       }
@@ -154,7 +154,9 @@ actor UserProfileUpdate {
     )
     do {
       let response = try await user.backend.call(with: getAccountInfoRequest)
-      user.isAnonymous = false
+      user.propertyAccessQueue.sync {
+        user._isAnonymous = false
+      }
       user.update(withGetAccountInfoResponse: response)
     } catch {
       user.signOutIfTokenIsInvalid(withError: error)
