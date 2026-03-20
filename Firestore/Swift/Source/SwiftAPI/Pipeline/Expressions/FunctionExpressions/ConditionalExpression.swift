@@ -47,3 +47,37 @@ public class ConditionalExpression: FunctionExpression, @unchecked Sendable {
     super.init(functionName: "conditional", args: [expression, thenExpression, elseExpression])
   }
 }
+
+/// Evaluates alternating condition/result pairs and returns the result corresponding to the first
+/// `true` condition.
+///
+/// This provides a multi-way conditional (switch/case) expression. It accepts a sequence of
+/// `BooleanExpression` and `Expression` pairs. An optional final argument acts as a default
+/// (else) result. If no default is provided and no condition evaluates to `true`, the expression
+// throws an error.
+///
+/// ```swift
+/// // Create a "sizeCategory" field based on the "amount" field.
+/// firestore.pipeline()
+///   .collection("items")
+///   .addFields([
+///     switchOn(
+///       Field("amount").lessThan(10), Constant("Small"),
+///       Field("amount").lessThan(100), Constant("Medium"),
+///       Constant("Large")
+///     ).as("sizeCategory")
+///   ])
+/// ```
+///
+/// - Parameters:
+///   - condition: The first condition to evaluate.
+///   - result: The expression to return if the first condition is `true`.
+///   - others: Additional condition/result pairs, optionally followed by a default expression.
+/// - Returns: A new `Expression` representing the `switchOn` logic.
+public func switchOn(_ condition: BooleanExpression,
+                     _ result: Expression,
+                     _ others: Expression...) -> Expression {
+  var args: [Expression] = [condition, result]
+  args.append(contentsOf: others)
+  return FunctionExpression(functionName: "switch_on", args: args)
+}

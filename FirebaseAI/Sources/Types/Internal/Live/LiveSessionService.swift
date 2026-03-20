@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+import os.log
 
 // TODO: remove @preconcurrency when we update to Swift 6
 // for context, see
@@ -232,6 +233,11 @@ actor LiveSessionService {
     responsesTask = Task {
       do {
         for try await message in stream {
+          #if DEBUG
+            if #available(macOS 11.0, *) {
+              logServerMessage(message)
+            }
+          #endif
           let response = try decodeServerMessage(message)
 
           if case .setupComplete = response.messageType {
@@ -271,6 +277,22 @@ actor LiveSessionService {
       }
     }
   }
+
+  #if DEBUG
+    @available(macOS 11.0, *)
+    private func logServerMessage(_ message: Data) {
+      guard AILog.additionalLoggingEnabled() else { return }
+
+      guard let message = JSONSerialization.prettyString(with: message) else { return }
+
+      os_log(.debug, log: AILog.logObject, """
+      \(AILog.service) Received a message from the server in a LiveSession:
+      ----- LiveServerMessage -----
+      \(message, privacy: .private)
+      ------------------------
+      """)
+    }
+  #endif
 
   /// Checks if an error should be propagated up, and maps it accordingly.
   ///
