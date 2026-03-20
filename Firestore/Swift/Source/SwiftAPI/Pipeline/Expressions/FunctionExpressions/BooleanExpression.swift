@@ -149,6 +149,48 @@ public prefix func ! (lhs: BooleanExpression) -> BooleanExpression {
   return BooleanFunctionExpression(functionName: "not", args: [lhs])
 }
 
+/// Combines given boolean expressions with a logical NOR (`nor`).
+///
+/// The resulting expression is `true` only if all of the provided expressions are `false`.
+///
+/// ```swift
+/// // Find books that are neither "Fantasy" nor have a rating > 4.5
+/// firestore.pipeline()
+///   .collection("books")
+///   .where(nor(Field("genre").equal("Fantasy"), Field("rating").greaterThan(4.5)))
+/// ```
+///
+/// - Parameter condition: The first boolean expression.
+/// - Parameter conditions: Additional boolean expressions.
+/// - Returns: A new `BooleanExpression` representing the logical NOR.
+public func nor(_ condition: BooleanExpression,
+                _ conditions: BooleanExpression...) -> BooleanExpression {
+  var args = [condition]
+  args.append(contentsOf: conditions)
+  return BooleanFunctionExpression(functionName: "nor", args: args)
+}
+
+/// Combines given boolean expressions with a logical NOR (`nor`).
+///
+/// The resulting expression is `true` only if all of the provided expressions are `false`.
+///
+/// ```swift
+/// // Find books that are neither "Fantasy" nor have a rating > 4.5
+/// let conditions: [BooleanExpression] = [
+///   Field("genre").equal("Fantasy"),
+///   Field("rating").greaterThan(4.5)
+/// ]
+/// firestore.pipeline()
+///   .collection("books")
+///   .where(nor(conditions))
+/// ```
+///
+/// - Parameter conditions: An array of boolean expressions. Must contain at least 2 expressions.
+/// - Returns: A new `BooleanExpression` representing the logical NOR.
+public func nor(_ conditions: [BooleanExpression]) -> BooleanExpression {
+  return BooleanFunctionExpression(functionName: "nor", args: conditions)
+}
+
 public extension BooleanExpression {
   /// Creates an aggregation that counts the number of documents for which this boolean expression
   /// evaluates to `true`.

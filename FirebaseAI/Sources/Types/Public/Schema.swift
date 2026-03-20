@@ -478,3 +478,25 @@ extension Schema: Encodable {
     case propertyOrdering
   }
 }
+
+// MARK: - Equatable Conformance
+
+extension Schema: Equatable {
+  public static func == (lhs: Schema, rhs: Schema) -> Bool {
+    return lhs.dataType == rhs.dataType &&
+      lhs.format == rhs.format &&
+      lhs.description == rhs.description &&
+      lhs.title == rhs.title &&
+      lhs.nullable == rhs.nullable &&
+      lhs.enumValues == rhs.enumValues &&
+      lhs.items == rhs.items &&
+      lhs.minItems == rhs.minItems &&
+      lhs.maxItems == rhs.maxItems &&
+      lhs.minimum == rhs.minimum &&
+      lhs.maximum == rhs.maximum &&
+      lhs.properties == rhs.properties &&
+      lhs.anyOf == rhs.anyOf &&
+      lhs.requiredProperties == rhs.requiredProperties &&
+      lhs.propertyOrdering == rhs.propertyOrdering
+  }
+}
