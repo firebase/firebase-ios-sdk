@@ -118,7 +118,7 @@
       XCTAssertTrue(response.rawContent.isComplete)
     }
 
-    func testResponseStream_collectRespectsTaskCancellation() async throws {
+    func testResponseStream_collectRespectsTaskCancellation() async {
       let stream = GenerativeModelSession.ResponseStream<String, String> { _ in
         // Purposefully do not yield or finish to suspend forever
       }
@@ -134,10 +134,8 @@
       do {
         _ = try await task.value
         XCTFail("Task should have been cancelled")
-      } catch is CancellationError {
-        // Expected path, task was cancelled.
       } catch {
-        XCTFail("Task should have been cancelled, but threw an unexpected error: \(error)")
+        XCTAssert(error is CancellationError, "Expected CancellationError, but got \(error) instead.")
       }
     }
   }
