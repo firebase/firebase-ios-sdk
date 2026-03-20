@@ -438,10 +438,6 @@ jobs:
 
   pod_lib_lint:
     needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
         product: ['FirebaseFirestoreInternal', 'FirebaseFirestore']
