@@ -71,7 +71,7 @@ void FIRCLSBinaryImageInit(void) {
   _dyld_register_func_for_add_image(FIRCLSBinaryImageAddedCallback);
   _dyld_register_func_for_remove_image(FIRCLSBinaryImageRemovedCallback);
 
-  dispatch_async(FIRCLSGetBinaryImageQueue(), ^{
+  dispatch_sync(FIRCLSGetBinaryImageQueue(), ^{
     FIRCLSFileClose(&_firclsContext.writable->binaryImage.file);
   });
 }
