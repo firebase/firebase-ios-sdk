@@ -72,20 +72,25 @@ import Foundation
 /// }
 /// ```
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public struct Pipeline: @unchecked Sendable {
-  private var stages: [Stage]
-  let bridge: PipelineBridge
-  let db: Firestore
+public class Pipeline: @unchecked Sendable {
+  private(set) var stages: [Stage]
+  let db: Firestore?
+
+  var pipelineBridge: PipelineBridge {
+    guard let db = db else {
+      fatalError("pipelineBridge cannot be accessed on a pipeline created without a database.")
+    }
+    return PipelineBridge(stages: stages.map { $0.bridge }, db: db)
+  }
 
   var errorMessage: String? {
     let errors = stages.compactMap { $0.errorMessage }
     return errors.isEmpty ? nil : errors.joined(separator: ", ")
   }
 
-  init(stages: [Stage], db: Firestore) {
+  init(stages: [Stage], db: Firestore?) {
     self.stages = stages
     self.db = db
-    bridge = PipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
   /// A `Pipeline.Snapshot` contains the results of a pipeline execution.
@@ -125,17 +130,26 @@ public struct Pipeline: @unchecked Sendable {
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
   public func execute() async throws -> Pipeline.Snapshot {
-    // Check if any errors occurred during stage construction.
-    if let errorMessage = errorMessage {
+    // Check if isolated subcollection execution is being attempted.
+    guard db != nil else {
       throw NSError(
         domain: "com.google.firebase.firestore",
         code: 3 /* kErrorInvalidArgument */,
-        userInfo: [NSLocalizedDescriptionKey: errorMessage]
+        userInfo: [NSLocalizedDescriptionKey: "This pipeline was created without a database (e.g., as a subcollection pipeline) and cannot be executed directly. It can only be used as part of another pipeline."]
+      )
+    }
+
+    // Check if any errors occurred during stage construction.
+    if errorMessage != nil {
+      throw NSError(
+        domain: "com.google.firebase.firestore",
+        code: 3 /* kErrorInvalidArgument */,
+        userInfo: [NSLocalizedDescriptionKey: errorMessage!]
       )
     }
 
     return try await withCheckedThrowingContinuation { continuation in
-      self.bridge.execute { result, error in
+      self.pipelineBridge.execute { result, error in
         if let error {
           continuation.resume(throwing: error)
         } else {
@@ -319,6 +333,17 @@ public struct Pipeline: @unchecked Sendable {
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func limit(_ limit: Int32) -> Pipeline {
     let stage = Limit(limit)
+    return Pipeline(stages: stages + [stage], db: db)
+  }
+
+  /// Defines variables that can be used in subsequent stages.
+  ///
+  /// - Parameter variables: A dictionary where keys are variable names and values are expressions
+  /// or
+  /// literals.
+  /// - Returns: A new `Pipeline` with the define stage added.
+  public func define(_ variables: [AliasedExpression]) -> Pipeline {
+    let stage = Define(variables: variables)
     return Pipeline(stages: stages + [stage], db: db)
   }
 
@@ -659,5 +684,31 @@ public struct Pipeline: @unchecked Sendable {
                        options: [String: Sendable]? = nil) -> Pipeline {
     let stage = RawStage(name: name, params: params, options: options)
     return Pipeline(stages: stages + [stage], db: db)
+  }
+
+  /// Converts this Pipeline into an expression that evaluates to an array of results.
+  ///
+  /// **Result Unwrapping:**
+  /// - If the items have a single field, their values are unwrapped and returned directly in the
+  /// array.
+  /// - If the items have multiple fields, they are returned as dictionaries in the array.
+  ///
+  /// - Returns: An `Expression` that executes this pipeline and returns the results as an array.
+  public func toArrayExpression() -> Expression {
+    return FunctionExpression(functionName: "array", args: [PipelineExpression(self)])
+  }
+
+  /// Converts this Pipeline into an expression that evaluates to a single scalar result.
+  ///
+  /// **Runtime Validation:** The runtime validates that the result set contains zero or one item.
+  /// If zero items, it evaluates to `nil`.
+  ///
+  /// **Result Unwrapping:** If the result contains exactly one item:
+  /// - If the item has a single field, its value is unwrapped and returned directly.
+  /// - If the item has multiple fields, they are returned as a dictionary.
+  ///
+  /// - Returns: An `Expression` representing the scalar result.
+  public func toScalarExpression() -> Expression {
+    return FunctionExpression(functionName: "scalar", args: [PipelineExpression(self)])
   }
 }

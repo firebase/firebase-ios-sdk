@@ -20,6 +20,7 @@
 import Foundation
 
 public protocol Expression: Sendable {
+
   /// Casts the expression to a `BooleanExpression`.
   ///
   /// - Returns: A `BooleanExpression` representing the same expression.
@@ -1121,6 +1122,28 @@ public protocol Expression: Sendable {
 
   // MARK: Map Operations
 
+  /// Creates an expression that accesses a field on this expression using a string key.
+  ///
+  /// ```swift
+  /// // Access the "name" field on a document
+  /// CurrentDocument().getField("name")
+  /// ```
+  ///
+  /// - Parameter key: The string key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ key: String) -> FunctionExpression
+
+  /// Creates an expression that accesses a field on this expression using a dynamic key expression.
+  ///
+  /// ```swift
+  /// // Access a field using a dynamic key stored in a variable
+  /// CurrentDocument().getField(Variable("myKey"))
+  /// ```
+  ///
+  /// - Parameter expression: The expression evaluating to a key to access.
+  /// - Returns: A new `FunctionExpression` representing the field access.
+  func getField(_ expression: Expression) -> FunctionExpression
+
   /// Accesses a value from a map (object) field using the provided literal string key.
   /// Assumes `self` evaluates to a Map.
   ///
@@ -1689,4 +1712,25 @@ public protocol Expression: Sendable {
   ///
   /// - Returns: A new `FunctionExpression` representing the type of the expression as a string.
   func type() -> FunctionExpression
+}
+
+/// A `Variable` is an `Expression` that represents a variable in a Firestore pipeline.
+///
+/// Variables are typically defined in a `define` (let) stage and can be referenced in subsequent
+/// stages.
+public struct Variable: Expression, BridgeWrapper, SelectableWrapper, @unchecked Sendable {
+  let bridge: ExprBridge
+
+  let name: String
+  var alias: String { name }
+
+  var expr: Expression { self }
+
+  /// Creates a new `Variable` expression from a variable name.
+  ///
+  /// - Parameter name: The name of the variable.
+  public init(_ name: String) {
+    self.name = name
+    bridge = VariableBridge(name: name)
+  }
 }

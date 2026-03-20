@@ -43,6 +43,12 @@ NS_SWIFT_NAME(FieldBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(VariableBridge)
+@interface FIRVariableBridge : FIRExprBridge
+- (id)initWithName:(NSString *)name;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(ConstantBridge)
 @interface FIRConstantBridge : FIRExprBridge
 - (id)init:(id)input;
@@ -77,6 +83,13 @@ NS_SWIFT_NAME(CollectionSourceStageBridge)
 @interface FIRCollectionSourceStageBridge : FIRStageBridge
 
 - (id)initWithRef:(FIRCollectionReference *)ref firestore:(FIRFirestore *)db;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SubcollectionSourceStageBridge)
+@interface FIRSubcollectionSourceStageBridge : FIRStageBridge
+
+- (id)initWithPath:(NSString *)path;
 @end
 
 NS_SWIFT_SENDABLE
@@ -137,6 +150,12 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(SelectStageBridge)
 @interface FIRSelectStageBridge : FIRStageBridge
 - (id)initWithSelections:(NSDictionary<NSString *, FIRExprBridge *> *)selections;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(DefineStageBridge)
+@interface FIRDefineStageBridge : FIRStageBridge
+- (id)initWithVariables:(NSDictionary<NSString *, FIRExprBridge *> *)variables;
 @end
 
 NS_SWIFT_SENDABLE
@@ -263,7 +282,15 @@ NS_SWIFT_NAME(PipelineBridge)
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion;
 
+- (FIRExprBridge *)toExprBridge;
+
 + (NSArray<FIRStageBridge *> *)createStageBridgesFromQuery:(FIRQuery *)query;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(PipelineExprBridge)
+@interface FIRPipelineExprBridge : FIRExprBridge
+- (id)initWithStages:(NSArray<FIRStageBridge *> *)stages;
 @end
 
 NS_SWIFT_SENDABLE

@@ -15,7 +15,7 @@
  */
 
 import FirebaseCore
-import FirebaseFirestore
+@testable import FirebaseFirestore
 import Foundation
 import XCTest
 
@@ -167,6 +167,61 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       "book1", "book10", "book2", "book3", "book4",
       "book5", "book6", "book7", "book8", "book9",
     ], enforceOrder: false)
+  }
+
+  func testSubqueryExpressionsCompile() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    // Verify CurrentDocument compiles
+    let currentDocExpr = CurrentDocument()
+    
+    // Verify getField compiles
+    let fieldExpr = currentDocExpr.getField("title")
+    let fieldExprDynamic = currentDocExpr.getField(Field("title"))
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select([
+        fieldExpr.as("title_extracted"),
+        fieldExprDynamic.as("title_extracted_dynamic")
+      ])
+    
+    let snapshot = try await pipeline.execute()
+    XCTAssertEqual(snapshot.results.count, 1)
+  }
+
+  func testSubcollectionIsolatedExecutionThrows() async throws {
+    let subQuery = Subcollection("reviews")
+    do {
+      _ = try await subQuery.execute()
+      XCTFail("Subcollection execute should have thrown isolated execution error.")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, "com.google.firebase.firestore")
+      XCTAssertEqual(nsError.code, 3) // kErrorInvalidArgument
+      XCTAssertTrue(nsError.localizedDescription.contains("This pipeline was created without a database"))
+    }
+  }
+
+  func testSubcollectionInParentPipelineSucceeds() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    // Create subcollection pipeline
+    let subQuery = Subcollection("reviews")
+      .limit(5)
+      .toArrayExpression()
+
+    // Parent pipeline
+    let parentPipeline = db.pipeline()
+      .collection(collRef.path)
+      .addFields([subQuery.as("reviews")])
+      .limit(1)
+
+    let snapshot = try await parentPipeline.execute()
+    XCTAssertGreaterThan(snapshot.results.count, 0)
   }
 
   func testReturnsExecutionTime() async throws {
@@ -3994,5 +4049,53 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .where(Constant(false).asBoolean())
     snapshot = try await pipeline.execute()
     TestHelper.compare(snapshot: snapshot, expectedCount: 0)
+  }
+
+  func testDefineAndVariable() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .define([Constant(4.5).as("minRating")])
+      .where(Field("rating").greaterThanOrEqual(Variable("minRating")))
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expectedIDs: ["book2", "book4", "book10"],
+      enforceOrder: false
+    )
+  }
+
+  func testToArrayExpressionPropagatesErrorMessage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([Field("a").as("dup"), Field("b").as("dup")])
+
+    let expression = pipeline.toArrayExpression()
+    // Cast to access internal `.errorMessage` since type is statically generic Expression.
+    guard let funcExpr = expression as? FunctionExpression,
+          let errorMessage = funcExpr.errorMessage else { return }
+    XCTAssertTrue(errorMessage.contains("Duplicate alias 'dup'"))
+  }
+
+  func testToScalarExpressionPropagatesErrorMessage() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .select([Field("a").as("dup"), Field("b").as("dup")])
+
+    let expression = pipeline.toScalarExpression()
+    // Cast to access internal `.errorMessage` since type is statically generic Expression.
+    guard let funcExpr = expression as? FunctionExpression,
+          let errorMessage = funcExpr.errorMessage else { return }
+    XCTAssertTrue(errorMessage.contains("Duplicate alias 'dup'"))
   }
 }
