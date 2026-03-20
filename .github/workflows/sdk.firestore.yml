@@ -96,6 +96,8 @@ jobs:
     needs: changes
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -321,7 +323,6 @@ jobs:
     runs-on: macos-15
 
     strategy:
-      fail-fast: false
       matrix:
         target: [iOS, macOS, tvOS]
         scheme: [Firestore, FirestoreEnterprise]
@@ -421,7 +422,7 @@ jobs:
     - name: Build
       uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
       with:
-        timeout_minutes: 120
+        timeout_minutes: 60
         command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
     - name: Test
@@ -495,10 +496,6 @@ jobs:
           --no-analyze
 
   spm-package-resolved:
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     runs-on: macos-14
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -529,7 +526,7 @@ jobs:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+      (github.event_name == 'pull_request')
     strategy:
       matrix:
         include:
@@ -564,10 +561,6 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestore
