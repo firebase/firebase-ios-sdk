@@ -63,11 +63,11 @@ extension User: NSSecureCoding {}
   /// This data is cached on sign-in and updated when linking or unlinking.
   @objc open var providerData: [UserInfo] {
     return propertyAccessQueue.sync {
-      Array(providerDataRaw.values)
+      Array(_providerData.values)
     }
   }
 
-  private var providerDataRaw: [String: UserInfoImpl]
+  private var _providerData: [String: UserInfoImpl]
 
   /// A serial queue to protect read/write access to all properties.
   private let propertyAccessQueue =
@@ -687,7 +687,7 @@ extension User: NSSecureCoding {}
                  completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let shouldLink = self.propertyAccessQueue.sync {
-        self.providerDataRaw[credential.provider] == nil
+        self._providerData[credential.provider] == nil
       }
       if !shouldLink {
         User.callInMainThreadWithAuthDataResultAndError(
@@ -1086,7 +1086,7 @@ extension User: NSSecureCoding {}
 
   init(withTokenService tokenService: SecureTokenService, backend: AuthBackend) {
     self.backend = backend
-    providerDataRaw = [:]
+    _providerData = [:]
     userProfileUpdate = UserProfileUpdate()
     self.tokenService = tokenService
     _isAnonymous = false
@@ -1221,7 +1221,7 @@ extension User: NSSecureCoding {}
   /// - Returns: Whether the provider is linked.
   func isProviderLinked(provider: String) -> Bool {
     return propertyAccessQueue.sync {
-      providerDataRaw[provider] != nil
+      _providerData[provider] != nil
     }
   }
 
@@ -1229,7 +1229,7 @@ extension User: NSSecureCoding {}
   /// - Parameter provider: The provider ID to unlink.
   func unlinkProvider(provider: String) {
     propertyAccessQueue.sync {
-      _ = providerDataRaw.removeValue(forKey: provider)
+      _ = _providerData.removeValue(forKey: provider)
       if provider == EmailAuthProvider.id {
         _hasEmailPasswordCredential = false
       }
@@ -1372,19 +1372,19 @@ extension User: NSSecureCoding {}
   }
 
   func update(withGetAccountInfoResponse response: GetAccountInfoResponse) {
+    guard let user = response.users?.first else {
+      // Silent fallthrough in ObjC code.
+      AuthLog.logWarning(code: "I-AUT000016", message: "Missing user in GetAccountInfoResponse")
+      return
+    }
     propertyAccessQueue.sync {
-      guard let user = response.users?.first else {
-        // Silent fallthrough in ObjC code.
-        AuthLog.logWarning(code: "I-AUT000016", message: "Missing user in GetAccountInfoResponse")
-        return
-      }
       _uid = user.localID ?? ""
       _email = user.email
       _isEmailVerified = user.emailVerified
       _displayName = user.displayName
       _photoURL = user.photoURL
       _phoneNumber = user.phoneNumber
-      _hasEmailPasswordCredential = user.passwordHash != nil && user.passwordHash!.count > 0
+      _hasEmailPasswordCredential = user.passwordHash.flatMap { $0.count > 0 } ?? false
       metadata = UserMetadata(withCreationDate: user.creationDate,
                               lastSignInDate: user.lastLoginDate)
       var providerData: [String: UserInfoImpl] = [:]
@@ -1398,14 +1398,14 @@ extension User: NSSecureCoding {}
           }
         }
       }
-      providerDataRaw = providerData
-      #if os(iOS) || os(macOS)
-        if let enrollments = user.mfaEnrollments {
-          multiFactor = MultiFactor(withMFAEnrollments: enrollments)
-        }
-        multiFactor.user = self
-      #endif
+      _providerData = providerData
     }
+    #if os(iOS) || os(macOS)
+      if let enrollments = user.mfaEnrollments {
+        multiFactor = MultiFactor(withMFAEnrollments: enrollments)
+      }
+      multiFactor.user = self
+    #endif
   }
 
   #if os(iOS)
@@ -1809,7 +1809,7 @@ extension User: NSSecureCoding {}
       coder.encode(_uid, forKey: kUserIDCodingKey)
       coder.encode(_isAnonymous, forKey: kAnonymousCodingKey)
       coder.encode(_hasEmailPasswordCredential, forKey: kHasEmailPasswordCredentialCodingKey)
-      coder.encode(providerDataRaw, forKey: kProviderDataKey)
+      coder.encode(_providerData, forKey: kProviderDataKey)
       coder.encode(_email, forKey: kEmailCodingKey)
       coder.encode(_phoneNumber, forKey: kPhoneNumberCodingKey)
       coder.encode(_isEmailVerified, forKey: kEmailVerifiedCodingKey)
@@ -1864,7 +1864,7 @@ extension User: NSSecureCoding {}
     _isEmailVerified = emailVerified
     _displayName = displayName
     _photoURL = photoURL
-    providerDataRaw = providerData ?? [:]
+    _providerData = providerData ?? [:]
     _phoneNumber = phoneNumber
     self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
