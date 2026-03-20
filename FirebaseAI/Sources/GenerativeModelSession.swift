@@ -522,12 +522,17 @@
 
           while let rawResult = try await rawIterator.next() {
             do {
+              // If it parses successfully, return the snapshot and discard any errors from previous
+              // loop iterations.
               return try process(rawResult)
             } catch {
+              // Intermediate failure (e.g., incomplete JSON that could not be parsed).
+              // Hold onto the error and let the loop fetch the next chunk.
               lastDecodingError = error
             }
           }
 
+          // If the last chunk processed resulted in an error, throw it.
           if let lastDecodingError {
             throw lastDecodingError
           }
