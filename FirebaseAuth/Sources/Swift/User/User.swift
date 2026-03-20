@@ -70,7 +70,7 @@ extension User: NSSecureCoding {}
   private var providerDataRaw: [String: UserInfoImpl]
 
   /// A serial queue to protect read/write access to all properties.
-  let propertyAccessQueue =
+  private let propertyAccessQueue =
     DispatchQueue(label: "com.google.firebase.auth.user.propertyAccessQueue")
 
   /// The backend service for the given instance.
