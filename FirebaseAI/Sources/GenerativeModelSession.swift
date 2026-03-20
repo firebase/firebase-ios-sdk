@@ -441,7 +441,7 @@
 
   public extension GenerativeModelSession {
     /// The response from a `respond` call.
-    struct Response<Content> {
+    struct Response<Content: Sendable>: Sendable {
       /// The generated content, decoded into the requested `Generable` type.
       public let content: Content
       /// The raw, undecoded `GeneratedContent` from the model.
@@ -453,13 +453,11 @@
 
   public extension GenerativeModelSession {
     /// An asynchronous sequence of snapshots of the model's response.
-    struct ResponseStream<Content, PartialContent>: AsyncSequence {
-      // TODO(#15962): Add unit tests for `ResponseStream`.
-
+    struct ResponseStream<Content: Sendable, PartialContent: Sendable>: AsyncSequence, Sendable {
       public typealias Element = Snapshot
 
       /// A snapshot of the model's response at a point in time.
-      public struct Snapshot {
+      public struct Snapshot: Sendable {
         /// The partially generated content, decoded into the requested `Generable`'s partial type.
         public let content: PartialContent
         /// The raw, undecoded `GeneratedContent` from the model.
