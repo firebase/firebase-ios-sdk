@@ -30,7 +30,6 @@ concurrency:
 
 jobs:
   changes:
-    if: false
     runs-on: macos-14
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
@@ -94,7 +93,6 @@ jobs:
               - 'Gemfile*'
 
   check:
-    if: false
     needs: changes
     runs-on: macos-14
     steps:
@@ -111,7 +109,6 @@ jobs:
       run: scripts/check.sh --test-only
 
   cmake:
-    if: false
     needs: [changes, check]
     strategy:
       matrix:
@@ -158,7 +155,6 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
   sanitizers-mac:
-    if: false
     needs: [changes, check]
 
     strategy:
@@ -202,7 +198,6 @@ jobs:
 
 
   sanitizers-ubuntu:
-    if: false
     needs: [changes, check]
 
     strategy:
@@ -337,14 +332,24 @@ jobs:
       - name: Setup build
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
+      # XCTest dynamically isolates the test runner app from standard terminal environment variables.
+      # To successfully pass TARGET_BACKEND down to FSTIntegrationTestCase, we must physically inject it 
+      # into the Xcode Schemes rather than using traditional YAML `env:` variables or `export` commands.
+      - name: Inject Nightly Backend into Schemes
+        run: |
+          python3 -c '
+          import glob, re
+          for f in glob.glob("Firestore/Example/Firestore.xcodeproj/xcshareddata/xcschemes/Firestore_IntegrationTests_*.xcscheme"):
+              with open(f, "r") as file: content = file.read()
+              content = re.sub(r"<EnvironmentVariables>", "<EnvironmentVariables>\n         <EnvironmentVariable\n            key = \"TARGET_BACKEND\"\n            value = \"nightly\"\n            isEnabled = \"YES\">\n         </EnvironmentVariable>", content)
+              with open(f, "w") as file: file.write(content)
+          '
 
       - name: Build
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 60
-          command: |
-            export TARGET_BACKEND=nightly
-            scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
@@ -352,15 +357,11 @@ jobs:
           timeout_minutes: 30
           max_attempts: 1
           retry_wait_seconds: 120
-          command: |
-            export TARGET_BACKEND=nightly
-            scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
       - name: Test (manual retry)
         if: ${{ failure() }}
-        run: |
-          export TARGET_BACKEND=nightly
-          scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   xcodetest_emulator:
     runs-on: macos-15
@@ -411,7 +412,6 @@ jobs:
       run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   pod_lib_lint:
-    if: false
     needs: check
     strategy:
       matrix:
@@ -426,7 +426,6 @@ jobs:
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
-    if: false
     needs: check
     strategy:
       matrix:
@@ -470,7 +469,6 @@ jobs:
           --no-analyze
 
   spm-package-resolved:
-    if: false
     runs-on: macos-14
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -497,7 +495,6 @@ jobs:
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
 
   spm-source:
-    if: false
     needs: [check, spm-package-resolved]
     strategy:
       matrix:
@@ -533,7 +530,6 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
-    if: false
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestore
@@ -541,7 +537,6 @@ jobs:
       buildonly_platforms: iOS
 
   spm-source-cron:
-    if: false
     runs-on: macos-14
     strategy:
       matrix:
@@ -558,7 +553,6 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary-cron:
-    if: false
     runs-on: macos-15
     strategy:
       matrix:
@@ -575,13 +569,13 @@ jobs:
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.
   check-required-tests:
-    if: false
     runs-on: ubuntu-latest
     name: Check all required Firestore tests results
+    # xcodetest_prod is skipped for now. After the backend rolls out the new features 
+    # to the production environment, this required test should be added back to the list.
     needs:
       - cmake
       - xcodetest_emulator
-      - xcodetest_prod
       - spm-source
       - spm-binary
       - sanitizers-mac
