@@ -51,7 +51,9 @@ NS_SWIFT_NAME(ConstantBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(FunctionExprBridge)
 @interface FIRFunctionExprBridge : FIRExprBridge
-- (id)initWithName:(NSString *)name Args:(NSArray<FIRExprBridge *> *)args;
+- (id)initWithName:(NSString *)name
+              Args:(NSArray<FIRExprBridge *> *)args
+           Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options;
 @end
 
 NS_SWIFT_SENDABLE
@@ -160,6 +162,15 @@ NS_SWIFT_NAME(FindNearestStageBridge)
     distanceMeasure:(NSString *)distanceMeasure
               limit:(NSNumber *_Nullable)limit
       distanceField:(FIRExprBridge *_Nullable)distanceField;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SearchStageBridge)
+@interface FIRSearchStageBridge : FIRStageBridge
+- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options
+            addFields:(NSDictionary<NSString *, FIRExprBridge *> *)add_fields
+               select:(NSDictionary<NSString *, FIRExprBridge *> *)select
+                 sort:(NSArray<FIROrderingBridge *> *)sort;
 @end
 
 NS_SWIFT_SENDABLE

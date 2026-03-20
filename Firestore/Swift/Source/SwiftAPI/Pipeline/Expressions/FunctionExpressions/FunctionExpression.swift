@@ -24,19 +24,24 @@ public class FunctionExpression: Expression, BridgeWrapper, @unchecked Sendable 
 
   let functionName: String
   let args: [Expression]
+  let options: [String: Sendable]?
 
   /// Creates a new `FunctionExpression`.
   ///
   /// - Parameters:
   ///   - functionName: The name of the function.
   ///   - args: The arguments to the function.
-  public init(functionName: String, args: [Expression]) {
+  ///   - options: The options for the function call.
+  public init(functionName: String,
+              args: [Expression],
+              options: [String: Sendable]? = nil) {
     self.functionName = functionName
     self.args = args
+    self.options = options
     bridge = FunctionExprBridge(
       name: functionName,
-      args: self.args.map { $0.toBridge()
-      }
+      args: self.args.map { $0.toBridge() },
+      options: options?.mapValues { Helper.sendableToExpr($0).toBridge() }
     )
   }
 }

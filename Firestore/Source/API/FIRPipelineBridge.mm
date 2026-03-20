@@ -85,6 +85,7 @@ using firebase::firestore::api::RealtimePipelineSnapshot;
 using firebase::firestore::api::RemoveFieldsStage;
 using firebase::firestore::api::ReplaceWith;
 using firebase::firestore::api::Sample;
+using firebase::firestore::api::SearchStage;
 using firebase::firestore::api::SelectStage;
 using firebase::firestore::api::SnapshotMetadata;
 using firebase::firestore::api::SortStage;
@@ -175,13 +176,17 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
   std::shared_ptr<FunctionExpr> cpp_function;
   NSString *_name;
   NSArray<FIRExprBridge *> *_args;
+  NSDictionary<NSString *, FIRExprBridge *> *_Nullable _options;
   Boolean isUserDataRead;
 }
 
-- (nonnull id)initWithName:(NSString *)name Args:(nonnull NSArray<FIRExprBridge *> *)args {
+- (nonnull id)initWithName:(NSString *)name
+                      Args:(nonnull NSArray<FIRExprBridge *> *)args
+                   Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options {
   self = [super init];
   _name = name;
   _args = args;
+  _options = options;
   isUserDataRead = NO;
   return self;
 }
@@ -192,7 +197,16 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
     for (FIRExprBridge *arg in _args) {
       cpp_args.push_back([arg cppExprWithReader:reader]);
     }
-    cpp_function = std::make_shared<FunctionExpr>(MakeString(_name), std::move(cpp_args));
+
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_options;
+    if (_options) {
+      for (NSString *key in _options) {
+        cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
+      }
+    }
+
+    cpp_function = std::make_shared<FunctionExpr>(MakeString(_name), std::move(cpp_args),
+                                                  std::move(cpp_options));
   }
 
   isUserDataRead = YES;
@@ -945,6 +959,73 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (NSString *)name {
   return @"unnest";
+}
+@end
+
+@implementation FIRSearchStageBridge {
+  NSDictionary<NSString *, FIRExprBridge *> *_options;
+  NSDictionary<NSString *, FIRExprBridge *> *_add_fields;
+  NSDictionary<NSString *, FIRExprBridge *> *_select;
+  NSArray<FIROrderingBridge *> *_sort;
+  Boolean isUserDataRead;
+  std::shared_ptr<SearchStage> cpp_search;
+}
+
+- (id)initWithOptions:(NSDictionary<NSString *, FIRExprBridge *> *)options
+            addFields:(NSDictionary<NSString *, FIRExprBridge *> *)add_fields
+               select:(NSDictionary<NSString *, FIRExprBridge *> *)select
+                 sort:(NSArray<FIROrderingBridge *> *)sort {
+  self = [super init];
+  if (self) {
+    _options = options;
+    _add_fields = add_fields;
+    _select = select;
+    _sort = sort;
+    isUserDataRead = NO;
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  if (!isUserDataRead) {
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_options;
+    if (_options) {
+      for (NSString *key in _options) {
+        cpp_options[MakeString(key)] = [_options[key] cppExprWithReader:reader];
+      }
+    }
+
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_add_fields;
+    if (_add_fields) {
+      for (NSString *key in _add_fields) {
+        cpp_add_fields[MakeString(key)] = [_add_fields[key] cppExprWithReader:reader];
+      }
+    }
+
+    std::unordered_map<std::string, std::shared_ptr<Expr>> cpp_select;
+    if (_select) {
+      for (NSString *key in _select) {
+        cpp_select[MakeString(key)] = [_select[key] cppExprWithReader:reader];
+      }
+    }
+
+    std::vector<Ordering> cpp_sort;
+    if (_sort) {
+      for (FIROrderingBridge *ordering in _sort) {
+        cpp_sort.push_back([ordering cppOrderingWithReader:reader]);
+      }
+    }
+
+    cpp_search = std::make_shared<SearchStage>(std::move(cpp_options), std::move(cpp_add_fields),
+                                               std::move(cpp_select), std::move(cpp_sort));
+  }
+
+  isUserDataRead = YES;
+  return cpp_search;
+}
+
+- (NSString *)name {
+  return @"search";
 }
 @end
 

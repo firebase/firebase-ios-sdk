@@ -700,6 +700,87 @@ public struct Pipeline: @unchecked Sendable {
     }
   }
 
+  /// Performs a search on the collection, supporting full-text search and geo search expressions.
+  ///
+  /// - Parameters:
+  ///   - query: An `Expression` defining the search criteria (e.g.,
+  /// `Field("menu").matches("waffles")`).
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or
+  /// “sr-Latn”
+  ///   - retrievalDepth: The maximum number of documents to retrieve.
+  ///   - sort: An array of `Ordering` objects to sort the results.
+  ///   - offset: The number of documents to skip.
+  ///   - limit: The maximum number of documents to return.
+  ///   - select: An array of `Selectable` fields or field names to include in the result.
+  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
+  ///   - queryEnhancement: specify if query expansion should be applied to the query
+  /// - Returns: A new `Pipeline` with the search stage appended.
+  public func search(query: Expression,
+                     languageCode: String? = nil,
+                     // TODO: add indexPartition here
+                     retrievalDepth: Int? = nil,
+                     sort: [Ordering]? = nil,
+                     offset: Int? = nil,
+                     limit: Int? = nil,
+                     select: [Selectable]? = nil,
+                     addFields: [Selectable]? = nil,
+                     queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
+    if let errorMessage = errorMessage {
+      return withError(errorMessage)
+    }
+    let stage = Search(
+      query: query,
+      limit: limit,
+      retrievalDepth: retrievalDepth,
+      sort: sort,
+      addFields: addFields,
+      select: select,
+      offset: offset,
+      queryEnhancement: queryEnhancement
+    )
+    if let errorMessage = stage.errorMessage {
+      return withError(errorMessage)
+    } else {
+      return Pipeline(stages: stages + [stage], db: db)
+    }
+  }
+
+  /// Performs a search using a raw query string (RQuery).
+  ///
+  /// - Parameters:
+  ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
+  ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or
+  /// “sr-Latn”
+  ///   - retrievalDepth: The maximum number of documents to retrieve.
+  ///   - sort: An array of `Ordering` objects to sort the results.
+  ///   - offset: The number of documents to skip.
+  ///   - limit: The maximum number of documents to return.
+  ///   - select: An array of `Selectable` fields or field names to include in the result.
+  ///   - addFields: An array of `Selectable` fields to compute and add to the result.
+  ///   - queryEnhancement: specify if query expansion should be applied to the query
+  /// - Returns: A new `Pipeline` with the search stage appended.
+  public func search(query: String,
+                     languageCode: String? = nil,
+                     // TODO: add indexPartition here
+                     retrievalDepth: Int? = nil,
+                     sort: [Ordering]? = nil,
+                     offset: Int? = nil,
+                     limit: Int? = nil,
+                     select: [Selectable]? = nil,
+                     addFields: [Selectable]? = nil,
+                     queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
+    return search(
+      query: DocumentMatches(query),
+      retrievalDepth: retrievalDepth,
+      sort: sort,
+      offset: offset,
+      limit: limit,
+      select: select,
+      addFields: addFields,
+      queryEnhancement: queryEnhancement
+    )
+  }
+
   /// Performs a union of all documents from this pipeline and another, including duplicates.
   ///
   /// Passes through documents from this pipeline's previous stage and also those from

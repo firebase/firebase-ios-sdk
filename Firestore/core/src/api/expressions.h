@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -90,8 +91,13 @@ class Constant : public Expr {
 
 class FunctionExpr : public Expr {
  public:
-  FunctionExpr(std::string name, std::vector<std::shared_ptr<Expr>> params)
-      : name_(std::move(name)), params_(std::move(params)) {
+  FunctionExpr(
+      std::string name,
+      std::vector<std::shared_ptr<Expr>> params,
+      std::unordered_map<std::string, std::shared_ptr<Expr>> options = {})
+      : name_(std::move(name)),
+        params_(std::move(params)),
+        options_(std::move(options)) {
   }
 
   google_firestore_v1_Value to_proto() const override;
@@ -106,9 +112,15 @@ class FunctionExpr : public Expr {
     return params_;
   }
 
+  const std::unordered_map<std::string, std::shared_ptr<Expr>>& options()
+      const {
+    return options_;
+  }
+
  private:
   std::string name_;
   std::vector<std::shared_ptr<Expr>> params_;
+  std::unordered_map<std::string, std::shared_ptr<Expr>> options_;
 };
 
 }  // namespace api

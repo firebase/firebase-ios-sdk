@@ -451,6 +451,66 @@ google_firestore_v1_Pipeline_Stage Unnest::to_proto() const {
   return result;
 }
 
+google_firestore_v1_Pipeline_Stage SearchStage::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray(name());
+
+  result.args_count = 0;
+  result.args = nullptr;
+
+  std::unordered_map<std::string, google_firestore_v1_Value> options_proto_map;
+  for (const auto& entry : options_) {
+    options_proto_map[entry.first] = entry.second->to_proto();
+  }
+
+  if (!add_fields_.empty()) {
+    google_firestore_v1_Value add_fields_value;
+    add_fields_value.which_value_type = google_firestore_v1_Value_map_value_tag;
+    add_fields_value.map_value = {};
+    nanopb::SetRepeatedField(
+        &add_fields_value.map_value.fields,
+        &add_fields_value.map_value.fields_count, add_fields_,
+        [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
+          return _google_firestore_v1_MapValue_FieldsEntry{
+              nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
+        });
+    options_proto_map["add_fields"] = add_fields_value;
+  }
+
+  if (!select_.empty()) {
+    google_firestore_v1_Value select_value;
+    select_value.which_value_type = google_firestore_v1_Value_map_value_tag;
+    select_value.map_value = {};
+    nanopb::SetRepeatedField(
+        &select_value.map_value.fields, &select_value.map_value.fields_count,
+        select_,
+        [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
+          return _google_firestore_v1_MapValue_FieldsEntry{
+              nanopb::MakeBytesArray(entry.first), entry.second->to_proto()};
+        });
+    options_proto_map["select"] = select_value;
+  }
+
+  if (!sort_.empty()) {
+    google_firestore_v1_Value sort_value;
+    sort_value.which_value_type = google_firestore_v1_Value_array_value_tag;
+    sort_value.array_value = {};
+    nanopb::SetRepeatedField(
+        &sort_value.array_value.values, &sort_value.array_value.values_count,
+        sort_, [](const auto& order) { return order.to_proto(); });
+    options_proto_map["sort"] = sort_value;
+  }
+
+  nanopb::SetRepeatedField(
+      &result.options, &result.options_count, options_proto_map,
+      [](const std::pair<std::string, google_firestore_v1_Value>& entry) {
+        return _google_firestore_v1_Pipeline_Stage_OptionsEntry{
+            nanopb::MakeBytesArray(entry.first), entry.second};
+      });
+
+  return result;
+}
+
 RawStage::RawStage(
     std::string name,
     std::vector<google_firestore_v1_Value> params,
