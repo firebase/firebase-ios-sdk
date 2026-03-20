@@ -86,6 +86,13 @@ NS_SWIFT_NAME(CollectionSourceStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(SubcollectionSourceStageBridge)
+@interface FIRSubcollectionSourceStageBridge : FIRStageBridge
+
+- (id)initWithPath:(NSString *)path;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(DatabaseSourceStageBridge)
 @interface FIRDatabaseSourceStageBridge : FIRStageBridge
 

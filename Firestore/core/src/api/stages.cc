@@ -65,6 +65,27 @@ google_firestore_v1_Pipeline_Stage CollectionSource::to_proto() const {
   return result;
 }
 
+SubcollectionSource::SubcollectionSource(std::string path)
+    : path_(std::move(path)) {
+}
+
+google_firestore_v1_Pipeline_Stage SubcollectionSource::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+
+  result.name = nanopb::MakeBytesArray(name());
+
+  result.args_count = 1;
+  result.args = nanopb::MakeArray<google_firestore_v1_Value>(1);
+  result.args[0].which_value_type =
+      google_firestore_v1_Value_string_value_tag;
+  result.args[0].string_value = nanopb::MakeBytesArray(path_);
+
+  result.options_count = 0;
+  result.options = nullptr;
+
+  return result;
+}
+
 google_firestore_v1_Pipeline_Stage DatabaseSource::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
 

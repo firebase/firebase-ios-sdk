@@ -98,6 +98,7 @@ using firebase::firestore::api::Where;
 
 // Chunk 1: imports
 using firebase::firestore::api::CollectionSource;
+using firebase::firestore::api::SubcollectionSource;
 using firebase::firestore::api::Constant;
 using firebase::firestore::api::DatabaseSource;
 using firebase::firestore::api::DefineStage;
@@ -361,6 +362,35 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 
 - (NSString *)name {
   return @"collection";
+}
+@end
+
+@implementation FIRSubcollectionSourceStageBridge {
+  std::shared_ptr<SubcollectionSource> cpp_subcollection_source;
+}
+
+- (id)initWithPath:(NSString *)path {
+  self = [super init];
+  if (self) {
+    cpp_subcollection_source = std::make_shared<SubcollectionSource>(MakeString(path));
+  }
+  return self;
+}
+
+- (std::shared_ptr<api::Stage>)cppStageWithReader:(FSTUserDataReader *)reader {
+  return cpp_subcollection_source;
+}
+
+- (id)initWithCppStage:(std::shared_ptr<const api::SubcollectionSource>)stage {
+  self = [super init];
+  if (self) {
+    cpp_subcollection_source = std::const_pointer_cast<api::SubcollectionSource>(stage);
+  }
+  return self;
+}
+
+- (NSString *)name {
+  return @"subcollection";
 }
 @end
 

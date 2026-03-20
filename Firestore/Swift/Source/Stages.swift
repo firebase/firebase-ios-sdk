@@ -61,8 +61,7 @@ class SubcollectionStage: Stage {
   let bridge: StageBridge
 
   init(path: String) {
-    // Maps to the backend 'subcollection' stage using RawStageBridge
-    bridge = RawStageBridge(name: "subcollection", params: [Constant(path).bridge], options: nil)
+    bridge = SubcollectionSourceStageBridge(path: path)
   }
 }
 
