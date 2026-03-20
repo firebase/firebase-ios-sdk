@@ -1199,9 +1199,7 @@ extension User: NSSecureCoding {}
   private func updateEmail(email: String?,
                            password: String?,
                            callback: @escaping (Error?) -> Void) {
-    let hadEmailPasswordCredential = propertyAccessQueue.sync {
-      hasEmailPasswordCredential
-    }
+    let hadEmailPasswordCredential = hasEmailPasswordCredential
     executeUserUpdateWithChanges(changeBlock: { user, request in
       if let email {
         request.email = email
