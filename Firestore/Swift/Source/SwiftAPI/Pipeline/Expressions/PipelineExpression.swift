@@ -21,7 +21,15 @@ struct PipelineExpression: Expression, BridgeWrapper, @unchecked Sendable {
   let errorMessage: String?
 
   init(_ pipeline: Pipeline) {
-    bridge = PipelineExprBridge(stages: pipeline.stages.map { $0.bridge })
-    errorMessage = pipeline.errorMessage
+    if let errorMessage = pipeline.errorMessage {
+      // PipelineExpression must conform to BridgeWrapper for downstream protocol casts
+      // inside `Expression.toBridge()`. Since `BridgeWrapper.bridge` demands a non-optional
+      // ExprBridge, we cannot use an optional field and instead use a safe dummy bridge here.
+      bridge = Constant.nil.bridge
+      self.errorMessage = errorMessage
+    } else {
+      bridge = PipelineExprBridge(stages: pipeline.stages.map { $0.bridge })
+      self.errorMessage = nil
+    }
   }
 }

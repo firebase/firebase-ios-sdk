@@ -335,6 +335,7 @@
 		2A365DB6DF32631964FE690A /* stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5B5414D28802BC76FDADABD6 /* stream_test.cc */; };
 		2A499CFB2831612A045977CD /* message_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CE37875365497FFA8687B745 /* message_test.cc */; };
 		2A86AB04B38DBB770A1D8B13 /* Validation_BloomFilterTest_MD5_1_1_membership_test_result.json in Resources */ = {isa = PBXBuildFile; fileRef = 3369AC938F82A70685C5ED58 /* Validation_BloomFilterTest_MD5_1_1_membership_test_result.json */; };
+		2A9BED29CBDB9815B74506D5 /* PipelineSubqueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED12BF8159EA7E3EF208036 /* PipelineSubqueryTests.swift */; };
 		2AAEABFD550255271E3BAC91 /* to_string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B68B1E002213A764008977EF /* to_string_apple_test.mm */; };
 		2ABA80088D70E7A58F95F7D8 /* delayed_constructor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */; };
 		2AC442FEC73D872B5751523D /* error_handling_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B37729DE4DE097CBBCB9B0DD /* error_handling_test.cc */; };
@@ -717,6 +718,7 @@
 		55427A6CFFB22E069DCC0CC4 /* target_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 526D755F65AC676234F57125 /* target_test.cc */; };
 		555161D6DB2DDC8B57F72A70 /* comparison_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 548DB928200D59F600E00ABC /* comparison_test.cc */; };
 		5556B648B9B1C2F79A706B4F /* common.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D221C2DDC800EFB9CC /* common.pb.cc */; };
+		559205533927D064711DE290 /* PipelineSubqueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED12BF8159EA7E3EF208036 /* PipelineSubqueryTests.swift */; };
 		55B9A6ACDF95D356EA501D92 /* Pods_Firestore_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB5A5E6DD07DA3EB7AD46CA7 /* Pods_Firestore_Example_iOS.framework */; };
 		55E84644D385A70E607A0F91 /* leveldb_local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5FF903AEFA7A3284660FA4C5 /* leveldb_local_store_test.cc */; };
 		568EC1C0F68A7B95E57C8C6C /* leveldb_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54995F6E205B6E12004EFFA0 /* leveldb_key_test.cc */; };
@@ -1407,6 +1409,7 @@
 		BC0C98A9201E8F98B9A176A9 /* FIRWriteBatchTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E06F202154D600B64F25 /* FIRWriteBatchTests.mm */; };
 		BC2D0A8EA272A0058F6C2B9E /* FIRFirestoreSourceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */; };
 		BC4249D72DDB23A04EF272F9 /* Validation_BloomFilterTest_MD5_5000_1_bloom_filter_proto.json in Resources */ = {isa = PBXBuildFile; fileRef = 4375BDCDBCA9938C7F086730 /* Validation_BloomFilterTest_MD5_5000_1_bloom_filter_proto.json */; };
+		BC433C1588F1099308029C37 /* PipelineSubqueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED12BF8159EA7E3EF208036 /* PipelineSubqueryTests.swift */; };
 		BC549E3F3F119D80741D8612 /* leveldb_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */; };
 		BC5AC8890974E0821431267E /* limit_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129F1F315EE100DD57A1 /* limit_spec_test.json */; };
 		BC8DFBCB023DBD914E27AA7D /* query_listener_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7C3F995E040E9E9C5E8514BB /* query_listener_test.cc */; };
@@ -1912,6 +1915,7 @@
 		09D3AC50A8C72D2C1F63F7FE /* Pods_Firestore_IntegrationTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D964D4936953635AC7E0834 /* Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json; sourceTree = "<group>"; };
 		0E73D03B9C02CAC7BEBAFA86 /* TestHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestHelper.swift; path = TestHelper/TestHelper.swift; sourceTree = "<group>"; };
+		0ED12BF8159EA7E3EF208036 /* PipelineSubqueryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PipelineSubqueryTests.swift; sourceTree = "<group>"; };
 		0EE5300F8233D14025EF0456 /* string_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = string_apple_test.mm; sourceTree = "<group>"; };
 		1235769122B7E915007DDFA9 /* EncodableFieldValueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodableFieldValueTests.swift; sourceTree = "<group>"; };
 		1235769422B86E65007DDFA9 /* FirestoreEncoderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirestoreEncoderTests.swift; sourceTree = "<group>"; };
@@ -2496,6 +2500,7 @@
 				3355BE9391CC4857AF0BDAE3 /* DatabaseTests.swift */,
 				62E54B832A9E910A003347C8 /* IndexingTests.swift */,
 				59BF06E5A4988F9F949DD871 /* PipelineApiTests.swift */,
+				0ED12BF8159EA7E3EF208036 /* PipelineSubqueryTests.swift */,
 				861684E49DAC993D153E60D0 /* PipelineTests.swift */,
 				621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */,
 				128F2B002E254E2C0006327E /* QueryToPipelineTests.swift */,
@@ -4975,6 +4980,7 @@
 				3B1E27D951407FD237E64D07 /* FirestoreEncoderTests.swift in Sources */,
 				62E54B862A9E910B003347C8 /* IndexingTests.swift in Sources */,
 				3D5F7AA7BB68529F47BE4B12 /* PipelineApiTests.swift in Sources */,
+				559205533927D064711DE290 /* PipelineSubqueryTests.swift in Sources */,
 				655F8647F57E5F2155DFF7B5 /* PipelineTests.swift in Sources */,
 				621D620C28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				128F2B022E254E2C0006327E /* QueryToPipelineTests.swift in Sources */,
@@ -5012,8 +5018,8 @@
 				E3E6B368A755D892F937DBF7 /* collection_group_test.cc in Sources */,
 				064689971747DA312770AB7A /* collection_test.cc in Sources */,
 				1DB3013C5FC736B519CD65A3 /* common.pb.cc in Sources */,
-				99F97B28DA546D42AB14214B /* comparison_test.cc in Sources */,
 				555161D6DB2DDC8B57F72A70 /* comparison_test.cc in Sources */,
+				99F97B28DA546D42AB14214B /* comparison_test.cc in Sources */,
 				BB5F19878EA5A8D9C7276D40 /* complex_test.cc in Sources */,
 				7394B5C29C6E524C2AF964E6 /* counting_query_engine.cc in Sources */,
 				C02A969BF4BB63ABCB531B4B /* create_noop_connectivity_monitor.cc in Sources */,
@@ -5173,8 +5179,8 @@
 				25D74F38A5EE96CC653ABB49 /* thread_safe_memoizer_testing.cc in Sources */,
 				688AC36AA9D0677E910D5A37 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				6300709ECDE8E0B5A8645F8D /* time_testing.cc in Sources */,
-				0CEE93636BA4852D3C5EC428 /* timestamp_test.cc in Sources */,
 				A405A976DB6444D3ED3FCAB2 /* timestamp_test.cc in Sources */,
+				0CEE93636BA4852D3C5EC428 /* timestamp_test.cc in Sources */,
 				95DCD082374F871A86EF905F /* to_string_apple_test.mm in Sources */,
 				9E656F4FE92E8BFB7F625283 /* to_string_test.cc in Sources */,
 				96D95E144C383459D4E26E47 /* token_test.cc in Sources */,
@@ -5256,6 +5262,7 @@
 				5E89B1A5A5430713C79C4854 /* FirestoreEncoderTests.swift in Sources */,
 				62E54B852A9E910B003347C8 /* IndexingTests.swift in Sources */,
 				DF6FBE5BBD578B0DD34CEFA1 /* PipelineApiTests.swift in Sources */,
+				BC433C1588F1099308029C37 /* PipelineSubqueryTests.swift in Sources */,
 				C8C2B945D84DD98391145F3F /* PipelineTests.swift in Sources */,
 				621D620B28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				128F2B032E254E2C0006327E /* QueryToPipelineTests.swift in Sources */,
@@ -5293,8 +5300,8 @@
 				1CDA0E10BC669276E0EAA1E8 /* collection_group_test.cc in Sources */,
 				C87DF880BADEA1CBF8365700 /* collection_test.cc in Sources */,
 				1D71CA6BBA1E3433F243188E /* common.pb.cc in Sources */,
-				476AE05E0878007DE1BF5460 /* comparison_test.cc in Sources */,
 				9C86EEDEA131BFD50255EEF1 /* comparison_test.cc in Sources */,
+				476AE05E0878007DE1BF5460 /* comparison_test.cc in Sources */,
 				C5434EF8A0C8B79A71F0784C /* complex_test.cc in Sources */,
 				DCD83C545D764FB15FD88B02 /* counting_query_engine.cc in Sources */,
 				ECC433628575AE994C621C54 /* create_noop_connectivity_monitor.cc in Sources */,
@@ -5454,8 +5461,8 @@
 				CF18D52A88F4F6F62C5495EF /* thread_safe_memoizer_testing.cc in Sources */,
 				A7669E72BCED7FBADA4B1314 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				A25FF76DEF542E01A2DF3B0E /* time_testing.cc in Sources */,
-				1E42CD0F60EB22A5D0C86D1F /* timestamp_test.cc in Sources */,
 				BDDAB87A7D76562BCB5D0BF8 /* timestamp_test.cc in Sources */,
+				1E42CD0F60EB22A5D0C86D1F /* timestamp_test.cc in Sources */,
 				F9705E595FC3818F13F6375A /* to_string_apple_test.mm in Sources */,
 				3BAFCABA851AE1865D904323 /* to_string_test.cc in Sources */,
 				1B9E54F4C4280A713B825981 /* token_test.cc in Sources */,
@@ -5819,6 +5826,7 @@
 				6F45846C159D3C063DBD3CBE /* FirestoreEncoderTests.swift in Sources */,
 				62E54B842A9E910B003347C8 /* IndexingTests.swift in Sources */,
 				BD74B0E1FC752236A7376BC3 /* PipelineApiTests.swift in Sources */,
+				2A9BED29CBDB9815B74506D5 /* PipelineSubqueryTests.swift in Sources */,
 				E04CB0D580980748D5DC453F /* PipelineTests.swift in Sources */,
 				621D620A28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				128F2B012E254E2C0006327E /* QueryToPipelineTests.swift in Sources */,
@@ -5856,8 +5864,8 @@
 				4A6B1E0B678E31367A55DC17 /* collection_group_test.cc in Sources */,
 				BACA9CDF0F2E926926B5F36F /* collection_test.cc in Sources */,
 				4C66806697D7BCA730FA3697 /* common.pb.cc in Sources */,
-				C885C84B7549C860784E4E3C /* comparison_test.cc in Sources */,
 				EC7A44792A5513FBB6F501EE /* comparison_test.cc in Sources */,
+				C885C84B7549C860784E4E3C /* comparison_test.cc in Sources */,
 				62C86789E72E624A27BF6AE5 /* complex_test.cc in Sources */,
 				BDF3A6C121F2773BB3A347A7 /* counting_query_engine.cc in Sources */,
 				1F4930A8366F74288121F627 /* create_noop_connectivity_monitor.cc in Sources */,
@@ -6017,8 +6025,8 @@
 				D928302820891CCCAD0437DD /* thread_safe_memoizer_testing.cc in Sources */,
 				C099AEC05D44976755BA32A2 /* thread_safe_memoizer_testing_test.cc in Sources */,
 				2D220B9ABFA36CD7AC43D0A7 /* time_testing.cc in Sources */,
-				D91D86B29B86A60C05879A48 /* timestamp_test.cc in Sources */,
 				06B8A653BC26CB2C96024993 /* timestamp_test.cc in Sources */,
+				D91D86B29B86A60C05879A48 /* timestamp_test.cc in Sources */,
 				60260A06871DCB1A5F3448D3 /* to_string_apple_test.mm in Sources */,
 				ECED3B60C5718B085AAB14FB /* to_string_test.cc in Sources */,
 				F0EA84FB66813F2BC164EF7C /* token_test.cc in Sources */,

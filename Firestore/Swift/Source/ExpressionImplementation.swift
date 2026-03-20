@@ -9,15 +9,12 @@
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 extension Expression {
-  /// Returns the internal error message. It is overridden in specific expression implementations
-  /// (like FunctionExpression) but defaults to `nil` for others.
+  /// Returns the internal error message. It is dynamically dispatched
+  /// to specific expression implementations (like FunctionExpression), and returns `nil` for others.
   /// This design is to support pipeline conversion to expression.
   var errorMessage: String? {
-    return nil
+    return Helper.errorMessage(for: self)
   }
 
   func toBridge() -> ExprBridge {

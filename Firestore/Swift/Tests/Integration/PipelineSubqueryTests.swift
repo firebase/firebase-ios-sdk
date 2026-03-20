@@ -736,4 +736,106 @@ class PipelineSubqueryTests: FSTIntegrationTestCase {
       XCTAssertTrue(error.localizedDescription.contains("This pipeline was created without a database"))
     }
   }
+
+  func testSubqueryDuplicatedAliasToArrayExpression() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+
+    let subquery = db.pipeline()
+      .collection(collRef.path)
+      .select([Field("foo").as("dup"), Field("bar").as("dup")])
+
+    do {
+      _ = try await db.pipeline()
+        .collection(collRef.path)
+        .addFields([subquery.toArrayExpression().as("sub_data")])
+        .execute()
+      XCTFail("Should throw error")
+    } catch {
+      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'dup' found in selectables."), error.localizedDescription)
+    }
+  }
+
+  func testSubqueryDuplicatedAliasToScalarExpression() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+
+    let subquery = db.pipeline()
+      .collection(collRef.path)
+      .select([Field("foo").as("dup"), Field("bar").as("dup")])
+
+    do {
+      _ = try await db.pipeline()
+        .collection(collRef.path)
+        .addFields([subquery.toScalarExpression().as("sub_data")])
+        .execute()
+      XCTFail("Should throw error")
+    } catch {
+      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'dup' found in selectables."), error.localizedDescription)
+    }
+  }
+
+  func testSubqueryWithDefineDuplicatedVariable() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+
+    let subquery = db.pipeline()
+      .collection(collRef.path)
+      .define([Field("foo").as("dup_var"), Field("bar").as("dup_var")])
+
+    do {
+      _ = try await db.pipeline()
+        .collection(collRef.path)
+        .addFields([subquery.toArrayExpression().as("sub_data")])
+        .execute()
+      XCTFail("Should throw error")
+    } catch {
+      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'dup_var' found in selectables."), error.localizedDescription)
+    }
+  }
+
+  func testSubqueryWithGroupDuplicatedAlias() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+
+    let subquery = db.pipeline()
+      .collection(collRef.path)
+      .distinct([Field("foo").as("dup_group"), Field("bar").as("dup_group")])
+
+    do {
+      _ = try await db.pipeline()
+        .collection(collRef.path)
+        .addFields([subquery.toArrayExpression().as("sub_data")])
+        .execute()
+      XCTFail("Should throw error")
+    } catch {
+      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'dup_group' found in selectables."), error.localizedDescription)
+    }
+  }
+
+  func testDeeplyNestedSubqueryErrorPropagation() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+
+    // Level 3 (Deepest subquery with the error)
+    let badInnerSubquery = db.pipeline()
+      .collection(collRef.path)
+      .select([Field("foo").as("deep_dup"), Field("bar").as("deep_dup")])
+
+    // Level 2 (Wraps the bad subquery)
+    let middleSubquery = db.pipeline()
+      .collection(collRef.path)
+      .addFields([badInnerSubquery.toScalarExpression().as("nested_bad")])
+
+    // Level 1 (Outer execution pipeline evaluating level 2)
+    do {
+      _ = try await db.pipeline()
+        .collection(collRef.path)
+        .addFields([middleSubquery.toArrayExpression().as("sub_data")])
+        .execute()
+      XCTFail("Should throw error")
+    } catch {
+      XCTAssertTrue(error.localizedDescription.contains("Duplicate alias 'deep_dup' found in selectables."), error.localizedDescription)
+    }
+  }
 }
