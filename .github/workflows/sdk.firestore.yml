@@ -163,6 +163,7 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
   sanitizers-mac:
+    needs: [changes, check]
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -209,6 +210,7 @@ jobs:
 
 
   sanitizers-ubuntu:
+    needs: [changes, check]
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -453,6 +455,7 @@ jobs:
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
+    needs: check
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     strategy:
       matrix:
@@ -568,6 +571,7 @@ jobs:
       buildonly_platforms: iOS
 
   spm-source-cron:
+    # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-14
     strategy:
@@ -585,6 +589,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary-cron:
+    # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-15
     strategy:
