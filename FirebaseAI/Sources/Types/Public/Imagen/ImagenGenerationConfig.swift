@@ -42,6 +42,12 @@ public struct ImagenGenerationConfig {
   /// ``ImagenAspectRatio`` for more details.
   public var aspectRatio: ImagenAspectRatio?
 
+  /// The size of generated images.
+  ///
+  /// Defaults to 1K. Supported image sizes depend on the model; see ``ImagenImageSize`` for more
+  /// details.
+  public var imageSize: ImagenImageSize?
+
   /// The image format of generated images.
   ///
   /// Defaults to PNG. See ``ImagenImageFormat`` for more details.
@@ -64,18 +70,20 @@ public struct ImagenGenerationConfig {
   ///     specified. See ``negativePrompt``.
   ///   - numberOfImages: The number of image samples to generate; defaults to 1 if not specified.
   ///     See ``numberOfImages``.
-  ///   - aspectRatio: The aspect ratio of generated images; defaults to to square, 1:1. See
+  ///   - aspectRatio: The aspect ratio of generated images; defaults to square, 1:1. See
   ///     ``aspectRatio``.
+  ///   - imageSize: The size of generated images; defaults to 1K. See ``imageSize``.
   ///   - imageFormat: The image format of generated images; defaults to PNG. See ``imageFormat``.
   ///   - addWatermark: Whether to add an invisible watermark to generated images; the default value
   ///     depends on the model. See ``addWatermark``.
   public init(negativePrompt: String? = nil, numberOfImages: Int? = nil,
-              aspectRatio: ImagenAspectRatio? = nil, imageFormat: ImagenImageFormat? = nil,
-              addWatermark: Bool? = nil) {
-    self.numberOfImages = numberOfImages
+              aspectRatio: ImagenAspectRatio? = nil, imageSize: ImagenImageSize? = nil,
+              imageFormat: ImagenImageFormat? = nil, addWatermark: Bool? = nil) {
     self.negativePrompt = negativePrompt
-    self.imageFormat = imageFormat
+    self.numberOfImages = numberOfImages
     self.aspectRatio = aspectRatio
+    self.imageSize = imageSize
+    self.imageFormat = imageFormat
     self.addWatermark = addWatermark
   }
 }

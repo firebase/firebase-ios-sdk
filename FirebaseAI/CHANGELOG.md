@@ -1,3 +1,8 @@
+# Unreleased
+- [feature] Adds support for configuring image generation properties,
+  such as aspect ratio and image size, through the new `ImageConfig` struct
+  and its integration with `GenerationConfig`.
+
 # 12.11.0
 - [feature] **Public Preview**: Introduces `GenerativeModelSession` providing
   APIs for generating structured data from Gemini via the same `@Generable` and
