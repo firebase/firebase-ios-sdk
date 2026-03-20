@@ -135,7 +135,10 @@
         _ = try await task.value
         XCTFail("Task should have been cancelled")
       } catch {
-        XCTAssert(error is CancellationError, "Expected CancellationError, but got \(error) instead.")
+        XCTAssert(
+          error is CancellationError,
+          "Expected CancellationError, but got \(error) instead."
+        )
       }
     }
   }
