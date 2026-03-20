@@ -25,7 +25,7 @@ public protocol ToolRepresentable: Sendable {
   @available(iOS 26.0, macOS 26.0, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  extension FoundationModels.Tool
+  public extension FoundationModels.Tool
     where Self.Output: FoundationModels.ConvertibleToGeneratedContent {
     var toolRepresentation: FirebaseAILogic.Tool {
       return FirebaseAILogic.Tool.autoFunctionDeclaration(self)

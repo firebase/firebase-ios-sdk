@@ -43,7 +43,7 @@ public struct FunctionDeclaration: Sendable {
 
   let parametersJSONSchema: FirebaseAI.GenerationSchema?
 
-  let responseJSONSchema: FirebaseAI.GenerationSchema?
+  let responseJSONSchema: JSONObject?
 
   let kind: Kind
 
@@ -76,7 +76,7 @@ public struct FunctionDeclaration: Sendable {
       description = functionTool.description
       parameters = nil
       parametersJSONSchema = functionTool.parametersSchema
-      responseJSONSchema = functionTool.responseSchema
+      responseJSONSchema = try? functionTool.responseSchema?.toGeminiJSONSchema()
       kind = .automatic(functionTool)
     }
 
@@ -89,8 +89,13 @@ public struct FunctionDeclaration: Sendable {
         description = foundationModelsTool.description
         parameters = nil
         parametersJSONSchema = FirebaseAI.GenerationSchema(foundationModelsTool.parameters)
-        if let generableOutputMetatype = T.Output.self as? any FoundationModels.Generable.Type {
-          responseJSONSchema = FirebaseAI.GenerationSchema(generableOutputMetatype.generationSchema)
+        // Gemini requires function responses to be JSON objects (not arrays or primitives); don't
+        // provide a `responseJSONSchema` in this scenario since it is optional.
+        if let generableOutputMetatype = T.Output.self as? any FoundationModels.Generable.Type,
+           let responseJSONSchema = try? FirebaseAI
+           .GenerationSchema(generableOutputMetatype.generationSchema).toGeminiJSONSchema(),
+           responseJSONSchema["type"] == .string("object") {
+          self.responseJSONSchema = responseJSONSchema
         } else {
           responseJSONSchema = nil
         }
