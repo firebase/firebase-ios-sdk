@@ -87,13 +87,11 @@ import Foundation
           User.callInMainThreadWithError(callback: completion, error: error)
           return
         }
-        self.user.propertyAccessQueue.sync {
-          if displayNameWasSet {
-            self.user._displayName = displayName
-          }
-          if photoURLWasSet {
-            self.user._photoURL = photoURL
-          }
+                if displayNameWasSet {
+          self.user.set(displayName: displayName)
+        }
+        if photoURLWasSet {
+          self.user.set(photoURL: photoURL)
         }
         if let error = self.user.updateKeychain() {
           User.callInMainThreadWithError(callback: completion, error: error)

@@ -53,9 +53,7 @@ actor UserProfileUpdate {
       accessToken: accessToken, requestConfiguration: user.requestConfiguration
     )
 
-    let providerExists = user.propertyAccessQueue.sync {
-      user.providerDataRaw[provider] != nil
-    }
+    let providerExists = user.isProviderLinked(provider: provider)
 
     if !providerExists {
       throw AuthErrorUtils.noSuchProviderError()
@@ -63,22 +61,7 @@ actor UserProfileUpdate {
     request.deleteProviders = [provider]
     do {
       let response = try await user.backend.call(with: request)
-      user.propertyAccessQueue.sync {
-        // We can't just use the provider info objects in SetAccountInfoResponse
-        // because they don't have localID and email fields. Remove the specific
-        // provider manually.
-        _ = user.providerDataRaw.removeValue(forKey: provider)
-        if provider == EmailAuthProvider.id {
-          user._hasEmailPasswordCredential = false
-        }
-        #if os(iOS)
-          // After successfully unlinking a phone auth provider, remove the phone number
-          // from the cached user info.
-          if provider == PhoneAuthProvider.id {
-            user._phoneNumber = nil
-          }
-        #endif
-      }
+      user.unlinkProvider(provider: provider)
       if let idToken = response.idToken,
          let refreshToken = response.refreshToken {
         let tokenService = SecureTokenService(
@@ -154,9 +137,7 @@ actor UserProfileUpdate {
     )
     do {
       let response = try await user.backend.call(with: getAccountInfoRequest)
-      user.propertyAccessQueue.sync {
-        user._isAnonymous = false
-      }
+      user.set(isAnonymous: false)
       user.update(withGetAccountInfoResponse: response)
     } catch {
       user.signOutIfTokenIsInvalid(withError: error)

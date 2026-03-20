@@ -33,7 +33,7 @@ extension User: NSSecureCoding {}
     propertyAccessQueue.sync { _isAnonymous }
   }
 
-  var _isAnonymous: Bool
+  private var _isAnonymous: Bool
 
   /// Indicates the user represents an anonymous user.
   @objc open func anonymous() -> Bool { return isAnonymous }
@@ -57,7 +57,7 @@ extension User: NSSecureCoding {}
     }
   }
 
-  var providerDataRaw: [String: UserInfoImpl]
+  private var providerDataRaw: [String: UserInfoImpl]
 
   /// A serial queue to protect read/write access to all properties.
   let propertyAccessQueue =
@@ -1136,14 +1136,14 @@ extension User: NSSecureCoding {}
     propertyAccessQueue.sync { _displayName }
   }
 
-  var _displayName: String?
+  private var _displayName: String?
 
   /// The URL of the user's profile photo.
   @objc open var photoURL: URL? {
     propertyAccessQueue.sync { _photoURL }
   }
 
-  var _photoURL: URL?
+  private var _photoURL: URL?
 
   /// The user's email address.
   @objc open var email: String? {
@@ -1159,14 +1159,14 @@ extension User: NSSecureCoding {}
     propertyAccessQueue.sync { _phoneNumber }
   }
 
-  var _phoneNumber: String?
+  private var _phoneNumber: String?
 
   /// Whether or not the user can be authenticated by using Firebase email and password.
   var hasEmailPasswordCredential: Bool {
     propertyAccessQueue.sync { _hasEmailPasswordCredential }
   }
 
-  var _hasEmailPasswordCredential: Bool
+  private var _hasEmailPasswordCredential: Bool
 
   /// Used to serialize the update profile calls.
   private let userProfileUpdate: UserProfileUpdate
@@ -1194,7 +1194,60 @@ extension User: NSSecureCoding {}
     get { return _auth }
   }
 
+  
+  // MARK: Internal setters for thread-safe access
+
+  /// Returns whether the provider is linked.
+  /// - Parameter provider: The provider ID.
+  /// - Returns: Whether the provider is linked.
+  internal func isProviderLinked(provider: String) -> Bool {
+    return propertyAccessQueue.sync {
+      return providerDataRaw[provider] != nil
+    }
+  }
+
+  /// Unlinks the given provider.
+  /// - Parameter provider: The provider ID to unlink.
+  internal func unlinkProvider(provider: String) {
+    propertyAccessQueue.sync {
+      _ = providerDataRaw.removeValue(forKey: provider)
+      if provider == EmailAuthProvider.id {
+        _hasEmailPasswordCredential = false
+      }
+      #if os(iOS)
+        if provider == PhoneAuthProvider.id {
+          _phoneNumber = nil
+        }
+      #endif
+    }
+  }
+
+  /// Sets the display name.
+  /// - Parameter displayName: The new display name.
+  internal func set(displayName: String?) {
+    propertyAccessQueue.sync {
+      self._displayName = displayName
+    }
+  }
+
+  /// Sets the photo URL.
+  /// - Parameter photoURL: The new photo URL.
+  internal func set(photoURL: URL?) {
+    propertyAccessQueue.sync {
+      self._photoURL = photoURL
+    }
+  }
+
+  /// Sets the anonymous status of the user.
+  /// - Parameter isAnonymous: The new anonymous status.
+  internal func set(isAnonymous: Bool) {
+    propertyAccessQueue.sync {
+      self._isAnonymous = isAnonymous
+    }
+  }
+
   // MARK: Private functions
+
 
   private func updateEmail(email: String?,
                            password: String?,
