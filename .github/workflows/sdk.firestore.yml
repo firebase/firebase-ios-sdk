@@ -337,21 +337,14 @@ jobs:
       - name: Setup build
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
-      - name: Inject Nightly Backend into Schemes
-        run: |
-          python3 -c '
-          import glob, re
-          for f in glob.glob("Firestore/Example/Firestore.xcodeproj/xcshareddata/xcschemes/Firestore_IntegrationTests_*.xcscheme"):
-              with open(f, "r") as file: content = file.read()
-              content = re.sub(r"<EnvironmentVariables>", "<EnvironmentVariables>\n         <EnvironmentVariable\n            key = \"TARGET_BACKEND\"\n            value = \"nightly\"\n            isEnabled = \"YES\">\n         </EnvironmentVariable>", content)
-              with open(f, "w") as file: file.write(content)
-          '
 
       - name: Build
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 60
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
+          command: |
+            export TARGET_BACKEND=nightly
+            scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
       - name: Test
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
@@ -359,11 +352,15 @@ jobs:
           timeout_minutes: 30
           max_attempts: 1
           retry_wait_seconds: 120
-          command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+          command: |
+            export TARGET_BACKEND=nightly
+            scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
       - name: Test (manual retry)
         if: ${{ failure() }}
-        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: |
+          export TARGET_BACKEND=nightly
+          scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
 
   xcodetest_emulator:
     runs-on: macos-15
