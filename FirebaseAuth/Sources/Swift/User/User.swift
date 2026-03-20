@@ -29,13 +29,21 @@ extension User: NSSecureCoding {}
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUser) open class User: NSObject, UserInfo {
   /// Indicates the user represents an anonymous user.
-  @objc public internal(set) var isAnonymous: Bool
+  @objc open var isAnonymous: Bool {
+    propertyAccessQueue.sync { _isAnonymous }
+  }
+
+  private var _isAnonymous: Bool
 
   /// Indicates the user represents an anonymous user.
   @objc open func anonymous() -> Bool { return isAnonymous }
 
   /// Indicates the email address associated with this user has been verified.
-  @objc public private(set) var isEmailVerified: Bool
+  @objc open var isEmailVerified: Bool {
+    propertyAccessQueue.sync { _isEmailVerified }
+  }
+
+  private var _isEmailVerified: Bool
 
   /// Indicates the email address associated with this user has been verified.
   @objc open func emailVerified() -> Bool { return isEmailVerified }
@@ -1071,8 +1079,8 @@ extension User: NSSecureCoding {}
     providerDataRaw = [:]
     userProfileUpdate = UserProfileUpdate()
     self.tokenService = tokenService
-    isAnonymous = false
-    isEmailVerified = false
+    _isAnonymous = false
+    _isEmailVerified = false
     metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     tenantID = nil
     #if os(iOS) || os(macOS)
@@ -1107,7 +1115,7 @@ extension User: NSSecureCoding {}
       requestConfiguration: user.requestConfiguration
     )
     let response = try await auth.backend.call(with: getAccountInfoRequest)
-    user.isAnonymous = anonymous
+    user._isAnonymous = anonymous
     user.update(withGetAccountInfoResponse: response)
     return user
   }
@@ -1212,7 +1220,7 @@ extension User: NSSecureCoding {}
                         // they're not email/password ones.
                         if let providerUsers = userAccountInfo.providerUserInfo {
                           if providerUsers.count > 0 {
-                            self.isAnonymous = false
+                            self._isAnonymous = false
                             for providerUserInfo in providerUsers {
                               if providerUserInfo.providerID == EmailAuthProvider.id {
                                 self.hasEmailPasswordCredential = true
@@ -1384,7 +1392,7 @@ extension User: NSSecureCoding {}
                   completion(error)
                   return
                 }
-                self.isAnonymous = false
+                self._isAnonymous = false
                 if let error = self.updateKeychain() {
                   completion(error)
                   return
@@ -1779,7 +1787,7 @@ extension User: NSSecureCoding {}
     #endif
     self.tokenService = tokenService
     uid = userID
-    isAnonymous = anonymous
+    _isAnonymous = anonymous
     self.hasEmailPasswordCredential = hasEmailPasswordCredential
     self.email = email
     isEmailVerified = emailVerified
