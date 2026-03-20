@@ -137,7 +137,7 @@ actor UserProfileUpdate {
     )
     do {
       let response = try await user.backend.call(with: getAccountInfoRequest)
-      user.set(isAnonymous: false)
+      user.isAnonymous = false
       user.update(withGetAccountInfoResponse: response)
     } catch {
       user.signOutIfTokenIsInvalid(withError: error)

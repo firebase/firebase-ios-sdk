@@ -87,11 +87,11 @@ import Foundation
           User.callInMainThreadWithError(callback: completion, error: error)
           return
         }
-                if displayNameWasSet {
-          self.user.set(displayName: displayName)
+        if displayNameWasSet {
+          self.user.displayName = displayName
         }
         if photoURLWasSet {
-          self.user.set(photoURL: photoURL)
+          self.user.photoURL = photoURL
         }
         if let error = self.user.updateKeychain() {
           User.callInMainThreadWithError(callback: completion, error: error)
