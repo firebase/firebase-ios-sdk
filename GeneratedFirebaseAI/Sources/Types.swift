@@ -19791,9 +19791,16 @@ extension PreferenceOptimizationSpec: Codable {
   }
 }
 
-/// Hyperparameters for Distillation. This data type is not supported in Gemini API.
+/// Hyperparameters for distillation.
 @available(iOS 15.0, macOS 13.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct DistillationHyperParameters: Sendable {
+  /// The batch size hyperparameter for tuning.
+  /// This is only supported for OSS models in Vertex.
+  public let batchSize: Int32?
+
+  /// The learning rate for tuning. OSS models only.
+  public let learningRate: Float?
+
   /// Optional. Adapter size for distillation.
   public let adapterSize: AdapterSize?
 
@@ -19806,10 +19813,14 @@ public struct DistillationHyperParameters: Sendable {
 
   /// Default initializer.
   public init(
+    batchSize: Int32? = nil,
+    learningRate: Float? = nil,
     adapterSize: AdapterSize? = nil,
     epochCount: Int64? = nil,
     learningRateMultiplier: Double? = nil
   ) {
+    self.batchSize = batchSize
+    self.learningRate = learningRate
     self.adapterSize = adapterSize
     self.epochCount = epochCount
     self.learningRateMultiplier = learningRateMultiplier
@@ -19821,6 +19832,8 @@ extension DistillationHyperParameters: Codable {
 
   // MARK: - Codable
   public enum VertexKeys: String, CodingKey {
+    case batchSize = "batchSize"
+    case learningRate = "learningRate"
     case adapterSize = "adapterSize"
     case epochCount = "epochCount"
     case learningRateMultiplier = "learningRateMultiplier"
@@ -19830,6 +19843,16 @@ extension DistillationHyperParameters: Codable {
     let configuration: APIClient = try decoder.userInfoOrThrow(.configuration)
 
     let VertexKeysContainer = try decoder.container(keyedBy: VertexKeys.self)
+    batchSize = try VertexKeysContainer.decodeIfPresent(
+      Int32.self,
+      forKey: .batchSize
+    )
+
+    learningRate = try VertexKeysContainer.decodeIfPresent(
+      Float.self,
+      forKey: .learningRate
+    )
+
     adapterSize = try VertexKeysContainer.decodeIfPresent(
       AdapterSize.self,
       forKey: .adapterSize
@@ -19852,6 +19875,16 @@ extension DistillationHyperParameters: Codable {
     if configuration.isVertexAI() {
 
       var VertexKeysContainer = encoder.container(keyedBy: VertexKeys.self)
+      try VertexKeysContainer.encodeIfPresent(
+        batchSize,
+        forKey: .batchSize
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        learningRate,
+        forKey: .learningRate
+      )
+
       try VertexKeysContainer.encodeIfPresent(
         adapterSize,
         forKey: .adapterSize
@@ -19877,13 +19910,16 @@ public struct DistillationSpec: Sendable {
   /// The GCS URI of the prompt dataset to use during distillation.
   public let promptDatasetUri: String?
 
+  /// Tuning mode for tuning.
+  public let tuningMode: TuningMode?
+
+  /// Optional. Hyperparameters for Distillation.
+  public let hyperParameters: DistillationHyperParameters?
+
   /// The base teacher model that is being distilled. See [Supported
   /// models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-
   /// reference/tuning#supported_models).
   public let baseTeacherModel: String?
-
-  /// Optional. Hyperparameters for Distillation.
-  public let hyperParameters: DistillationHyperParameters?
 
   /// Deprecated. A path in a Cloud Storage bucket, which will be treated as the root
   /// output directory of the distillation pipeline. It is used by the system to
@@ -19909,8 +19945,9 @@ public struct DistillationSpec: Sendable {
   /// Default initializer.
   public init(
     promptDatasetUri: String? = nil,
-    baseTeacherModel: String? = nil,
+    tuningMode: TuningMode? = nil,
     hyperParameters: DistillationHyperParameters? = nil,
+    baseTeacherModel: String? = nil,
     pipelineRootDirectory: String? = nil,
     studentModel: String? = nil,
     trainingDatasetUri: String? = nil,
@@ -19918,8 +19955,9 @@ public struct DistillationSpec: Sendable {
     validationDatasetUri: String? = nil
   ) {
     self.promptDatasetUri = promptDatasetUri
-    self.baseTeacherModel = baseTeacherModel
+    self.tuningMode = tuningMode
     self.hyperParameters = hyperParameters
+    self.baseTeacherModel = baseTeacherModel
     self.pipelineRootDirectory = pipelineRootDirectory
     self.studentModel = studentModel
     self.trainingDatasetUri = trainingDatasetUri
@@ -19934,8 +19972,9 @@ extension DistillationSpec: Codable {
   // MARK: - Codable
   public enum VertexKeys: String, CodingKey {
     case promptDatasetUri = "promptDatasetUri"
-    case baseTeacherModel = "baseTeacherModel"
+    case tuningMode = "tuningMode"
     case hyperParameters = "hyperParameters"
+    case baseTeacherModel = "baseTeacherModel"
     case pipelineRootDirectory = "pipelineRootDirectory"
     case studentModel = "studentModel"
     case trainingDatasetUri = "trainingDatasetUri"
@@ -19952,14 +19991,19 @@ extension DistillationSpec: Codable {
       forKey: .promptDatasetUri
     )
 
-    baseTeacherModel = try VertexKeysContainer.decodeIfPresent(
-      String.self,
-      forKey: .baseTeacherModel
+    tuningMode = try VertexKeysContainer.decodeIfPresent(
+      TuningMode.self,
+      forKey: .tuningMode
     )
 
     hyperParameters = try VertexKeysContainer.decodeIfPresent(
       DistillationHyperParameters.self,
       forKey: .hyperParameters
+    )
+
+    baseTeacherModel = try VertexKeysContainer.decodeIfPresent(
+      String.self,
+      forKey: .baseTeacherModel
     )
 
     pipelineRootDirectory = try VertexKeysContainer.decodeIfPresent(
@@ -20000,13 +20044,18 @@ extension DistillationSpec: Codable {
       )
 
       try VertexKeysContainer.encodeIfPresent(
-        baseTeacherModel,
-        forKey: .baseTeacherModel
+        tuningMode,
+        forKey: .tuningMode
       )
 
       try VertexKeysContainer.encodeIfPresent(
         hyperParameters,
         forKey: .hyperParameters
+      )
+
+      try VertexKeysContainer.encodeIfPresent(
+        baseTeacherModel,
+        forKey: .baseTeacherModel
       )
 
       try VertexKeysContainer.encodeIfPresent(
@@ -24117,7 +24166,7 @@ public struct CreateTuningJobConfig: Sendable {
   /// Adapter size for tuning.
   public let adapterSize: AdapterSize?
 
-  /// Tuning mode for SFT tuning.
+  /// Tuning mode for tuning.
   public let tuningMode: TuningMode?
 
   /// Custom base model for tuning. This is only supported for OSS models in Vertex.
