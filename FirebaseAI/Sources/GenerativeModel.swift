@@ -321,12 +321,10 @@ public final class GenerativeModel: Sendable {
 
   // MARK: - Internal
 
-  func generateContent(_ content: [ModelContent],
-                       generationConfig: GenerationConfig?) async throws
-    -> GenerateContentResponse {
+  func generateContentRequest(_ content: [ModelContent], generationConfig: GenerationConfig?) throws
+    -> GenerateContentRequest {
     try content.throwIfError()
-    let response: GenerateContentResponse
-    let generateContentRequest = GenerateContentRequest(
+    return GenerateContentRequest(
       model: modelResourceName,
       contents: content,
       generationConfig: generationConfig,
@@ -338,8 +336,25 @@ public final class GenerativeModel: Sendable {
       apiMethod: .generateContent,
       options: requestOptions
     )
+  }
+
+  func generateContent(_ content: [ModelContent], generationConfig: GenerationConfig?) async throws
+    -> GenerateContentResponse {
+    let generateContentRequest = try generateContentRequest(content,
+                                                            generationConfig: generationConfig)
+
+    return try await GenerativeModel.generateContent(
+      service: generativeAIService,
+      request: generateContentRequest
+    )
+  }
+
+  static func generateContent<T: GenerativeAIRequest>(service: GenerativeAIService,
+                                                      request: T) async throws
+    -> GenerateContentResponse where T.Response == GenerateContentResponse {
+    let response: GenerateContentResponse
     do {
-      response = try await generativeAIService.loadRequest(request: generateContentRequest)
+      response = try await service.loadRequest(request: request)
     } catch {
       throw GenerativeModel.generateContentError(from: error)
     }
@@ -382,8 +397,19 @@ public final class GenerativeModel: Sendable {
       options: requestOptions
     )
 
+    return try GenerativeModel.generateContentStream(
+      service: generativeAIService,
+      request: generateContentRequest
+    )
+  }
+
+  @available(macOS 12.0, watchOS 8.0, *)
+  static func generateContentStream<T: GenerativeAIRequest>(service: GenerativeAIService,
+                                                            request: T) throws
+    -> AsyncThrowingStream<GenerateContentResponse, Error>
+    where T.Response == GenerateContentResponse {
     return AsyncThrowingStream { continuation in
-      let responseStream = generativeAIService.loadRequestStream(request: generateContentRequest)
+      let responseStream = service.loadRequestStream(request: request)
       Task {
         do {
           var didYieldResponse = false
