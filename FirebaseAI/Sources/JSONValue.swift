@@ -96,7 +96,6 @@ extension JSONValue: Encodable {
 extension JSONValue: Equatable {}
 
 #if compiler(>=6.2)
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension JSONValue {
     var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
       switch self {
@@ -116,7 +115,6 @@ extension JSONValue: Equatable {}
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension JSONObject {
     var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
       return FirebaseAI.GeneratedContent(
@@ -129,7 +127,6 @@ extension JSONValue: Equatable {}
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension [JSONValue] {
     var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
       return FirebaseAI.GeneratedContent(
@@ -139,7 +136,6 @@ extension JSONValue: Equatable {}
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension JSONValue {
     init(_ content: FirebaseAI.GeneratedContent) throws {
       switch content.kind {

@@ -17,14 +17,12 @@
     import FoundationModels
   #endif // canImport(FoundationModels)
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension FirebaseAI {
     protocol ConvertibleToGeneratedContent {
       var firebaseGeneratedContent: FirebaseAI.GeneratedContent { get }
     }
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   extension String: FirebaseAI.ConvertibleToGeneratedContent {
     public var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
       FirebaseAI.GeneratedContent(kind: .string(self), isComplete: true)

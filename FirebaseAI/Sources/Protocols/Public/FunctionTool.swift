@@ -17,7 +17,6 @@
     import FoundationModels
   #endif // canImport(FoundationModels)
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public protocol FunctionTool<Arguments, Output>: ToolRepresentable {
     associatedtype Arguments: FirebaseAI.ConvertibleFromGeneratedContent
     associatedtype Output: FirebaseAI.ConvertibleToGeneratedContent
@@ -31,7 +30,6 @@
     @Sendable func call(arguments: Self.Arguments) async throws -> Self.Output
   }
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension FunctionTool {
     var name: String { String(describing: Self.self) }
     var responseSchema: FirebaseAI.GenerationSchema? { nil }
@@ -43,14 +41,12 @@
 
   // MARK: - Default `parametersSchema` Implementations
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension FunctionTool where Self.Arguments: FirebaseAI.Generable {
     var parametersSchema: FirebaseAI.GenerationSchema { Arguments.firebaseGenerationSchema }
   }
 
   // MARK: - Default `responseSchema` Implementations
 
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
   public extension FunctionTool where Self.Output: FirebaseAI.Generable {
     // Default implementation for `responseSchema` if a Firebase AI Logic `FunctionTool`'s
     // associated type `Output` conforms to `FirebaseAI.Generable`, in which case the type provides

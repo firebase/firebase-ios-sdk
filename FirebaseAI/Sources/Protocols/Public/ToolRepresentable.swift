@@ -16,7 +16,6 @@
   import FoundationModels
 #endif
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol ToolRepresentable: Sendable {
   var toolRepresentation: FirebaseAILogic.Tool { get }
 }
