@@ -269,7 +269,7 @@
             ))
           case let .foundationModels(tool):
             #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
-              if #available(iOS 26.0, macOS 26.0, *) {
+              if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
                 guard let tool = tool as? (any FoundationModels.Tool) else {
                   // TODO: Throw an error instead.
                   fatalError("AFM Tool specified but type is not an AFM Tool.")
