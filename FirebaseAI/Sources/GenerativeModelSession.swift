@@ -249,7 +249,7 @@
       // TODO: Convert to Dictionary indexed by `name` for fast lookups.
       let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
 
-      functionCallingLoop: while !response.functionCalls.isEmpty {
+      while !response.functionCalls.isEmpty {
         var functionResponses = [FunctionResponsePart]()
         for functionCall in response.functionCalls {
           guard let functionDeclaration = functionDeclarations.first(
@@ -261,16 +261,15 @@
 
           switch functionDeclaration.kind {
           case .manual:
-            break functionCallingLoop
+            continue
           case let .automatic(tool):
             try functionResponses.append(await FunctionDeclaration.call(
               tool: tool,
               functionCall: functionCall
             ))
-            continue
           case let .foundationModels(tool):
-            #if canImport(FoundationModels)
-              if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+            #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
+              if #available(iOS 26.0, macOS 26.0, *) {
                 guard let tool = tool as? (any FoundationModels.Tool) else {
                   // TODO: Throw an error instead.
                   fatalError("AFM Tool specified but type is not an AFM Tool.")
@@ -281,20 +280,16 @@
                 ))
                 continue
               }
-            #else
-              break functionCallingLoop
-            #endif // canImport(FoundationModels)
+            #endif // canImport(FoundationModels) && HAS_FOUNDATION_MODELS
+            fatalError("AFM Tool specified but not running on a supported platform.")
           }
-
-          break functionCallingLoop
         }
 
-        if !functionResponses.isEmpty {
-          response = try await session.sendMessage(
-            [ModelContent(role: "user", parts: functionResponses)],
-            generationConfig: config
-          )
-        }
+        guard !functionResponses.isEmpty else { break }
+        response = try await session.sendMessage(
+          [ModelContent(role: "user", parts: functionResponses)],
+          generationConfig: config
+        )
       }
 
       let text: String
