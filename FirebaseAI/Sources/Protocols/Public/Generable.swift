@@ -14,22 +14,9 @@
 
 #if compiler(>=6.2)
   public extension FirebaseAI {
-    protocol ConvertibleFromGeneratedContent {
-      init(_ content: FirebaseAI.GeneratedContent) throws
-    }
-  }
-
-  extension String: FirebaseAI.ConvertibleFromGeneratedContent {
-    public init(_ content: FirebaseAI.GeneratedContent) throws {
-      guard case let .string(value) = content.kind else {
-        throw GenerativeModelSession.GenerationError.decodingFailure(
-          GenerativeModelSession.GenerationError.Context(debugDescription: """
-          Unsupported FirebaseAI.GeneratedContent.Kind '\(content.kind)' for type String.
-          """)
-        )
-      }
-
-      self = value
+    protocol Generable: FirebaseAI.ConvertibleFromGeneratedContent,
+      FirebaseAI.ConvertibleToGeneratedContent {
+      static var firebaseGenerationSchema: FirebaseAI.GenerationSchema { get }
     }
   }
 #endif // compiler(>=6.2)

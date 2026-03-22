@@ -22,7 +22,7 @@
   /// A session that handles multi-turn interactions with a generative model, similar to ``Chat``.
   ///
   /// A `GenerativeModelSession` retains history between requests. For single-turn requests to a
-  /// model, use ``FirebaseAI/generativeModelSession(model:instructions:)`` to start a new session.
+  /// model, use `generativeModelSession(model:tools:instructions:)` to start a new session.
   /// `GenerativeModelSession` is particularly useful for generating structured data.
   ///
   /// **Public Preview**: This API is a public preview and may be subject to change.
@@ -242,10 +242,64 @@
         includeSchemaInPrompt: includeSchemaInPrompt
       )
 
-      let response = try await session.sendMessage(parts, generationConfig: config)
-      guard let text = response.text else {
+      var response = try await session.sendMessage(parts, generationConfig: config)
+
+      // TODO: Consider moving the automatic function calling handling into `Chat`.
+      let tools = session.model.tools ?? []
+      // TODO: Convert to Dictionary indexed by `name` for fast lookups.
+      let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
+
+      while !response.functionCalls.isEmpty {
+        var functionResponses = [FunctionResponsePart]()
+        for functionCall in response.functionCalls {
+          guard let functionDeclaration = functionDeclarations.first(
+            where: { $0.name == functionCall.name }
+          ) else {
+            // TODO: Throw an error instead.
+            fatalError("No function named '\(functionCall.name) was declared.")
+          }
+
+          switch functionDeclaration.kind {
+          case .manual:
+            continue
+          case let .automatic(tool):
+            try functionResponses.append(await FunctionDeclaration.call(
+              tool: tool,
+              functionCall: functionCall
+            ))
+          case let .foundationModels(tool):
+            #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
+              if #available(iOS 26.0, macOS 26.0, *) {
+                guard let tool = tool as? (any FoundationModels.Tool) else {
+                  // TODO: Throw an error instead.
+                  fatalError("AFM Tool specified but type is not an AFM Tool.")
+                }
+                try functionResponses.append(await FunctionDeclaration.call(
+                  tool: tool,
+                  functionCall: functionCall
+                ))
+                continue
+              }
+            #endif // canImport(FoundationModels) && HAS_FOUNDATION_MODELS
+            fatalError("AFM Tool specified but not running on a supported platform.")
+          }
+        }
+
+        guard !functionResponses.isEmpty else { break }
+        response = try await session.sendMessage(
+          [ModelContent(role: "user", parts: functionResponses)],
+          generationConfig: config
+        )
+      }
+
+      let text: String
+      if let responseText = response.text {
+        text = responseText
+      } else if let parts = response.candidates.first?.content.parts, !parts.isEmpty {
+        text = ""
+      } else {
         throw GenerationError.decodingFailure(
-          GenerationError.Context(debugDescription: "No text in response: \(response)")
+          GenerationError.Context(debugDescription: "No parts in response: \(response)")
         )
       }
       let generationID = response.responseID.map {
@@ -278,7 +332,7 @@
                                                          includeSchemaInPrompt: Bool,
                                                          options: GenerationConfig?)
       -> sending GenerativeModelSession.ResponseStream<Content, PartialContent> {
-      let parts = [ModelContent(parts: prompt)]
+      let initialParts = [ModelContent(parts: prompt)]
       return GenerativeModelSession.ResponseStream { context in
         do {
           let config = try self.buildConfig(
@@ -287,76 +341,153 @@
             includeSchemaInPrompt: includeSchemaInPrompt
           )
 
-          let stream = try self.session.sendMessageStream(parts, generationConfig: config)
+          let tools = self.session.model.tools ?? []
+          let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
 
-          var streamedText = ""
+          var currentParts = initialParts
           var generationID: FirebaseAI.GenerationID?
 
-          // 1. Create a buffer to hold the previous iteration's data in order to differentiate
-          //    the last chunk to accurately set `isComplete`.
-          var pendingChunkData: (
-            text: String,
-            id: FirebaseAI.GenerationID?,
-            response: GenerateContentResponse
-          )?
+          functionCallingLoop: while true {
+            let stream = try self.session.sendMessageStream(currentParts, generationConfig: config)
 
-          for try await chunk in stream {
-            guard let text = chunk.text else {
-              throw GenerationError.decodingFailure(
-                GenerationError.Context(debugDescription: "No text in response: \(chunk)")
-              )
+            var streamedText = ""
+            var functionCalls = [FunctionCallPart]()
+
+            // 1. Create a buffer to hold the previous iteration's data in order to differentiate
+            //    the last chunk to accurately set `isComplete`.
+            var pendingChunkData: (
+              text: String,
+              id: FirebaseAI.GenerationID?,
+              response: GenerateContentResponse
+            )?
+
+            for try await chunk in stream {
+              functionCalls.append(contentsOf: chunk.functionCalls)
+
+              let text: String
+              if let responseText = chunk.text {
+                text = responseText
+              } else if let parts = chunk.candidates.first?.content.parts, !parts.isEmpty {
+                text = ""
+              } else {
+                throw GenerationError.decodingFailure(
+                  GenerationError.Context(debugDescription: "No parts in response: \(chunk)")
+                )
+              }
+
+              // 2. If we have pending data, we now know it wasn't the last chunk.
+              if let pending = pendingChunkData, !pending.text.isEmpty {
+                let rawContent = try Self.makeRawContent(
+                  from: pending.text,
+                  generationID: pending.id,
+                  hasSchema: schema != nil,
+                  isComplete: false
+                )
+                let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
+                  .RawResult(
+                    rawContent: rawContent,
+                    rawResponse: pending.response
+                  )
+                await context.yield(rawResult)
+              }
+
+              // 3. Update our cumulative state for the current chunk
+              streamedText.append(text)
+              if generationID == nil {
+                generationID = chunk.responseID.map {
+                  #if canImport(FoundationModels)
+                    if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+                      return FirebaseAI.GenerationID(
+                        responseID: $0, generationID: FoundationModels.GenerationID()
+                      )
+                    }
+                  #endif // canImport(FoundationModels)
+
+                  return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
+                }
+              }
+
+              // 4. Save the current state as the new pending chunk.
+              pendingChunkData = (text: streamedText, id: generationID, response: chunk)
             }
 
-            // 2. If we have pending data, we now know it wasn't the last chunk.
-            if let pending = pendingChunkData {
+            // Stream for the current turn finished. Check if there are function calls to handle.
+            if !functionCalls.isEmpty {
+              var functionResponses = [FunctionResponsePart]()
+              for functionCall in functionCalls {
+                guard let functionDeclaration = functionDeclarations.first(
+                  where: { $0.name == functionCall.name }
+                ) else {
+                  break functionCallingLoop
+                }
+
+                switch functionDeclaration.kind {
+                case .manual:
+                  break functionCallingLoop
+                case let .automatic(tool):
+                  try functionResponses.append(await FunctionDeclaration.call(
+                    tool: tool,
+                    functionCall: functionCall
+                  ))
+                  continue
+                case let .foundationModels(tool):
+                  #if canImport(FoundationModels)
+                    if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+                      guard let tool = tool as? (any FoundationModels.Tool) else {
+                        // TODO: Throw an error instead.
+                        fatalError("AFM Tool specified but type is not an AFM Tool.")
+                      }
+                      try functionResponses.append(await FunctionDeclaration.call(
+                        tool: tool,
+                        functionCall: functionCall
+                      ))
+                      continue
+                    }
+                  #else
+                    break functionCallingLoop
+                  #endif // canImport(FoundationModels)
+                }
+              }
+
+              if !functionResponses.isEmpty {
+                // Yield any pending text if it's not empty, but mark it as NOT complete yet.
+                if let pending = pendingChunkData, !pending.text.isEmpty {
+                  let rawContent = try Self.makeRawContent(
+                    from: pending.text,
+                    generationID: pending.id,
+                    hasSchema: schema != nil,
+                    isComplete: false
+                  )
+                  let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
+                    .RawResult(
+                      rawContent: rawContent,
+                      rawResponse: pending.response
+                    )
+                  await context.yield(rawResult)
+                }
+
+                currentParts = [ModelContent(role: "user", parts: functionResponses)]
+                continue functionCallingLoop
+              }
+            }
+
+            // 5. The remaining pending chunk is the final one.
+            if let finalChunk = pendingChunkData {
               let rawContent = try Self.makeRawContent(
-                from: pending.text,
-                generationID: pending.id,
+                from: finalChunk.text,
+                generationID: finalChunk.id,
                 hasSchema: schema != nil,
-                isComplete: false
+                isComplete: true
               )
               let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
                 .RawResult(
                   rawContent: rawContent,
-                  rawResponse: pending.response
+                  rawResponse: finalChunk.response
                 )
               await context.yield(rawResult)
             }
 
-            // 3. Update our cumulative state for the current chunk
-            streamedText.append(text)
-            if generationID == nil {
-              generationID = chunk.responseID.map {
-                #if canImport(FoundationModels)
-                  if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-                    return FirebaseAI.GenerationID(
-                      responseID: $0, generationID: FoundationModels.GenerationID()
-                    )
-                  }
-                #endif // canImport(FoundationModels)
-
-                return FirebaseAI.GenerationID(responseID: $0, generationID: nil)
-              }
-            }
-
-            // 4. Save the current state as the new pending chunk.
-            pendingChunkData = (text: streamedText, id: generationID, response: chunk)
-          }
-
-          // 5. The remaining pending chunk is the final one.
-          if let finalChunk = pendingChunkData {
-            let rawContent = try Self.makeRawContent(
-              from: finalChunk.text,
-              generationID: finalChunk.id,
-              hasSchema: schema != nil,
-              isComplete: true
-            )
-            let rawResult = GenerativeModelSession.ResponseStream<Content, PartialContent>
-              .RawResult(
-                rawContent: rawContent,
-                rawResponse: finalChunk.response
-              )
-            await context.yield(rawResult)
+            break functionCallingLoop
           }
 
           await context.finish()

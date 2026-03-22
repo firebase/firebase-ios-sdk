@@ -222,6 +222,12 @@
     }
   }
 
+  extension FirebaseAI.GeneratedContent: FirebaseAI.ConvertibleToGeneratedContent {
+    public var firebaseGeneratedContent: FirebaseAI.GeneratedContent {
+      return self
+    }
+  }
+
   #if canImport(FoundationModels)
     @available(iOS 26.0, macOS 26.0, *)
     @available(tvOS, unavailable)
