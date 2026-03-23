@@ -136,6 +136,36 @@
       XCTAssertTrue(response.rawContent.isComplete)
     }
 
+    func testResponseStream_collectReturnsLatestChunkAfterStreaming() async throws {
+      let stream = GenerativeModelSession.ResponseStream<String, String> { context in
+        await context.yield(Self.makeRawResult(text: "Chunk 1"))
+        await context.yield(Self.makeRawResult(text: "Final Chunk", isComplete: true))
+        await context.finish()
+      }
+
+      // Iterate through the stream before calling `collect()`.
+      var lastSnapshot: GenerativeModelSession.ResponseStream<String, String>.Snapshot?
+      for try await snapshot in stream {
+        lastSnapshot = snapshot
+      }
+
+      let response = try await stream.collect()
+
+      // Verify that `collect()` returned the last result even after streaming.
+      XCTAssertEqual(response.content, "Final Chunk")
+      XCTAssertTrue(response.rawContent.isComplete)
+      let lastResult = try XCTUnwrap(
+        lastSnapshot,
+        "Expected stream to yield at least one snapshot before finishing."
+      )
+      XCTAssertEqual(lastResult.content, response.content)
+      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+        XCTAssertEqual(lastResult.rawContent, response.rawContent)
+      } else {
+        XCTAssertEqual(lastResult.rawContent.isComplete, response.rawContent.isComplete)
+      }
+    }
+
     func testResponseStream_collectReturnsLatestError() async throws {
       let errorDescription = "Decoding failed"
       let expectedError = GenerativeModelSession.GenerationError.decodingFailure(
