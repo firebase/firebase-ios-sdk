@@ -404,6 +404,21 @@ public extension Expression {
     return FunctionExpression(functionName: "abs", args: [self])
   }
 
+  func trunc() -> FunctionExpression {
+    return FunctionExpression(functionName: "trunc", args: [self])
+  }
+
+  func truncToPrecision(_ decimalPlace: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "trunc",
+      args: [self, Helper.sendableToExpr(decimalPlace)]
+    )
+  }
+
+  func truncToPrecision(_ decimalPlace: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "trunc", args: [self, decimalPlace])
+  }
+
   func ceil() -> FunctionExpression {
     return FunctionExpression(functionName: "ceil", args: [self])
   }
@@ -548,6 +563,36 @@ public extension Expression {
     return FunctionExpression(functionName: "array_length", args: [self])
   }
 
+  func arrayFirst() -> FunctionExpression {
+    return FunctionExpression(functionName: "array_first", args: [self])
+  }
+
+  func arrayFirstN(_ n: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_first_n",
+      args: [self, Helper.sendableToExpr(n)]
+    )
+  }
+
+  func arrayFirstN(_ n: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "array_first_n", args: [self, n])
+  }
+
+  func arrayLast() -> FunctionExpression {
+    return FunctionExpression(functionName: "array_last", args: [self])
+  }
+
+  func arrayLastN(_ n: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_last_n",
+      args: [self, Helper.sendableToExpr(n)]
+    )
+  }
+
+  func arrayLastN(_ n: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "array_last_n", args: [self, n])
+  }
+
   func arrayGet(_ offset: Int) -> FunctionExpression {
     return FunctionExpression(
       functionName: "array_get",
@@ -559,12 +604,70 @@ public extension Expression {
     return FunctionExpression(functionName: "array_get", args: [self, offsetExpression])
   }
 
+  func arrayIndexOf(_ value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_index_of",
+      args: [self, Helper.sendableToExpr(value), Constant("first")]
+    )
+  }
+
+  func arrayIndexOf(_ value: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_index_of",
+      args: [self, value, Constant("first")]
+    )
+  }
+
+  func arrayLastIndexOf(_ value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_index_of",
+      args: [self, Helper.sendableToExpr(value), Constant("last")]
+    )
+  }
+
+  func arrayLastIndexOf(_ value: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "array_index_of", args: [self, value, Constant("last")])
+  }
+
+  func arrayIndexOfAll(_ value: Sendable) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_index_of_all",
+      args: [self, Helper.sendableToExpr(value)]
+    )
+  }
+
+  func arrayIndexOfAll(_ value: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "array_index_of_all", args: [self, value])
+  }
+
   func arrayMaximum() -> FunctionExpression {
     return FunctionExpression(functionName: "maximum", args: [self])
   }
 
   func arrayMinimum() -> FunctionExpression {
     return FunctionExpression(functionName: "minimum", args: [self])
+  }
+
+  func arrayMaximumN(_ n: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "maximum_n",
+      args: [self, Helper.sendableToExpr(n)]
+    )
+  }
+
+  func arrayMaximumN(_ n: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "maximum_n", args: [self, n])
+  }
+
+  func arrayMinimumN(_ n: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "minimum_n",
+      args: [self, Helper.sendableToExpr(n)]
+    )
+  }
+
+  func arrayMinimumN(_ n: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "minimum_n", args: [self, n])
   }
 
   func greaterThan(_ other: Expression) -> BooleanExpression {
@@ -890,6 +993,22 @@ public extension Expression {
 
   func maximum() -> AggregateFunction {
     return AggregateFunction(functionName: "maximum", args: [self])
+  }
+
+  func first() -> AggregateFunction {
+    return AggregateFunction(functionName: "first", args: [self])
+  }
+
+  func last() -> AggregateFunction {
+    return AggregateFunction(functionName: "last", args: [self])
+  }
+
+  func arrayAgg() -> AggregateFunction {
+    return AggregateFunction(functionName: "array_agg", args: [self])
+  }
+
+  func arrayAggDistinct() -> AggregateFunction {
+    return AggregateFunction(functionName: "array_agg_distinct", args: [self])
   }
 
   // MARK: Logical min/max

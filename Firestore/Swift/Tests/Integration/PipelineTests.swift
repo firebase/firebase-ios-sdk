@@ -875,6 +875,79 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
+  func testFirstAndLastAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .sort([Field("published").ascending()])
+      .aggregate([
+        Field("rating").first().as("firstBookRating"),
+        Field("title").first().as("firstBookTitle"),
+        Field("rating").last().as("lastBookRating"),
+        Field("title").last().as("lastBookTitle"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "firstBookRating": 4.5,
+        "firstBookTitle": "Pride and Prejudice",
+        "lastBookRating": 4.1,
+        "lastBookTitle": "The Handmaid's Tale",
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayAggAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .sort([Field("published").ascending()])
+      .aggregate([Field("rating").arrayAgg().as("allRatings")])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "allRatings": [4.5, 4.3, 4.0, 4.2, 4.7, 4.2, 4.6, 4.3, 4.2, 4.1],
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayAggDistinctAccumulators() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("published").greaterThan(0))
+      .aggregate([Field("rating").arrayAggDistinct().as("allDistinctRatings")])
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+
+    guard let distinctRatings = data["allDistinctRatings"] as? [Double] else {
+      XCTFail("allDistinctRatings is not an array of doubles")
+      return
+    }
+
+    let sortedRatings = distinctRatings.sorted()
+    XCTAssertEqual(sortedRatings, [4.0, 4.1, 4.2, 4.3, 4.5, 4.6, 4.7])
+  }
+
   func testDistinctStage() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
@@ -2351,6 +2424,80 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testTrunc() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("Pride and Prejudice"))
+      .limit(1)
+      .select([Field("rating").trunc().as("truncatedRating")])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["truncatedRating": 4.0],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testTruncToPrecision() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+    try await collRef.document("dummy").setData(["a": 1])
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .select([
+        Constant(4.123456).truncToPrecision(0).as("p0"),
+        Constant(4.123456).truncToPrecision(1).as("p1"),
+        Constant(4.123456).truncToPrecision(Constant(2)).as("p2"),
+        Constant(4.123456).truncToPrecision(4).as("p4"),
+        Constant(4.123456).truncToPrecision(-1).as("n1"),
+        Constant(42.123456).truncToPrecision(-1).as("n2"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "p0": 4.0,
+        "p1": 4.1,
+        "p2": 4.12,
+        "p4": 4.1234,
+        "n1": 0.0,
+        "n2": 40.0,
+      ],
+    ]
+
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testRand() async throws {
+    let collRef = collectionRef()
+    let db = collRef.firestore
+    try await collRef.document("dummy").setData(["a": 1])
+
+    let snapshot = try await db
+      .pipeline()
+      .collection(collRef.path)
+      .select([rand().as("randomNumber")])
+      .limit(1)
+      .execute()
+
+    XCTAssertEqual(snapshot.results.count, 1)
+    let data = snapshot.results[0].data
+    guard let randomNumber = data["randomNumber"] as? Double else {
+      XCTFail("randomNumber is not a Double")
+      return
+    }
+    XCTAssertGreaterThanOrEqual(randomNumber, 0.0)
+    XCTAssertLessThan(randomNumber, 1.0)
+  }
+
   func testSqrtWorks() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": ["value": 4],
@@ -3702,35 +3849,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
-  func testArrayMaxMinWorks() async throws {
-    let collRef = collectionRef(withDocuments: [
-      "doc1": ["scores": [10, 20, 5]],
-      "doc2": ["scores": [-1, -5, 0]],
-      "doc3": ["scores": [100.5, 99.5, 100.6]],
-      "doc4": ["scores": []],
-    ])
-    let db = collRef.firestore
-
-    let pipeline = db.pipeline()
-      .collection(collRef.path)
-      .sort([Field(FieldPath.documentID()).ascending()])
-      .select([
-        Field("scores").arrayMaximum().as("maxScore"),
-        Field("scores").arrayMinimum().as("minScore"),
-      ])
-
-    let snapshot = try await pipeline.execute()
-
-    let expectedResults: [[String: Sendable?]] = [
-      ["maxScore": 20, "minScore": 5],
-      ["maxScore": 0, "minScore": -5],
-      ["maxScore": 100.6, "minScore": 99.5],
-      ["maxScore": nil, "minScore": nil],
-    ]
-
-    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
-  }
-
   func testTypeWorks() async throws {
     let collRef = collectionRef(withDocuments: [
       "doc1": [
@@ -3991,5 +4109,563 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .where(Constant(false).asBoolean())
     snapshot = try await pipeline.execute()
     TestHelper.compare(snapshot: snapshot, expectedCount: 0)
+  }
+
+  func testWhereByNorCondition() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .where(
+        nor(
+          Field("genre").equal("Romance"),
+          Field("genre").equal("Dystopian"),
+          Field("genre").equal("Fantasy"),
+          Field("published").greaterThan(1949)
+        )
+      )
+      .select([Field("title")])
+      .sort([Field("title").ascending()])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [
+        ["title": "Crime and Punishment"],
+        ["title": "The Great Gatsby"],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testNorConditionWithNull() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(
+        with: MapExpression([
+          "a": false,
+          "b": false,
+          "c": true,
+          "d": Constant.nil,
+        ])
+      )
+      .select([
+        nor(Field("a").asBoolean(), Field("b").asBoolean()).as("twoConditions"),
+        nor([Field("a").asBoolean(), Field("b").asBoolean(), Field("c").asBoolean()])
+          .as("threeConditions"),
+        nor(Field("a").asBoolean(), Field("b").asBoolean(), Field("d").asBoolean())
+          .as("threeConditionsWithNull"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [
+        [
+          "twoConditions": true,
+          "threeConditions": false,
+          "threeConditionsWithNull": NSNull(),
+        ],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testSwitchOn() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression(["value": 2]))
+      .select([
+        switchOn(Field("value").equal(2), Constant("two"), Constant("NA")).as("result1"),
+        switchOn(Field("value").equal(3), Constant("three"), Constant("NA")).as("result2"),
+        switchOn(
+          Field("value").equal(1), Constant("one"),
+          Field("value").equal(2), Constant("two"),
+          Field("value").equal(3), Constant("three"),
+          Constant("NA")
+        ).as("result3"),
+      ])
+
+    let snapshot = try await pipeline.execute()
+
+    TestHelper.compare(
+      snapshot: snapshot,
+      expected: [
+        [
+          "result1": "two",
+          "result2": "NA",
+          "result3": "two",
+        ],
+      ],
+      enforceOrder: true
+    )
+  }
+
+  func testSwitchOnNoDefaultValueAndNoMatchingCondition() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let pipeline = db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression(["value": 5]))
+      .select([
+        switchOn(
+          Field("value").equal(1), Constant("one"),
+          Field("value").equal(2), Constant("two")
+        ).as("result"),
+      ])
+
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Should have thrown an error for no default value matched")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, FirestoreErrorDomain, "Error domain mismatch")
+    }
+  }
+
+  func testArrayFirst() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(3)
+      .select([Field("tags").arrayFirst().as("firstTag")])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["firstTag": "adventure"],
+      ["firstTag": "politics"],
+      ["firstTag": "classic"],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with empty/null/non-existent
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "empty": [],
+        "nullVal": Constant.nil,
+      ]))
+      .select([
+        Field("empty").arrayFirst().as("emptyResult"),
+        Field("nullVal").arrayFirst().as("nullResult"),
+        Field("nonExistent").arrayFirst().as("absentResult"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "nullResult": nil,
+      "absentResult": nil,
+      // emptyResult is missing because UNSET
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
+
+  func testArrayFirstN() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(3)
+      .select([Field("tags").arrayFirstN(2).as("firstTwoTags")])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["firstTwoTags": ["adventure", "magic"]],
+      ["firstTwoTags": ["politics", "desert"]],
+      ["firstTwoTags": ["classic", "social commentary"]],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with empty/null/non-existent
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "empty": [],
+        "nullVal": Constant.nil,
+      ]))
+      .select([
+        Field("empty").arrayFirstN(1).as("emptyResult"),
+        Field("nullVal").arrayFirstN(1).as("nullResult"),
+        Field("nonExistent").arrayFirstN(1).as("absentResult"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "emptyResult": [],
+      "nullResult": nil,
+      "absentResult": nil,
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
+
+  func testArrayLast() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(3)
+      .select([Field("tags").arrayLast().as("lastTag")])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["lastTag": "epic"],
+      ["lastTag": "ecology"],
+      ["lastTag": "love"],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with empty/null/non-existent
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "empty": [],
+        "nullVal": Constant.nil,
+      ]))
+      .select([
+        Field("empty").arrayLast().as("emptyResult"),
+        Field("nullVal").arrayLast().as("nullResult"),
+        Field("nonExistent").arrayLast().as("absentResult"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "nullResult": nil,
+      "absentResult": nil,
+      // emptyResult is missing because UNSET
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
+
+  func testArrayLastN() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(3)
+      .select([Field("tags").arrayLastN(2).as("lastTwoTags")])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["lastTwoTags": ["magic", "epic"]],
+      ["lastTwoTags": ["desert", "ecology"]],
+      ["lastTwoTags": ["social commentary", "love"]],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with empty/null/non-existent
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "empty": [],
+        "nullVal": Constant.nil,
+      ]))
+      .select([
+        Field("empty").arrayLastN(1).as("emptyResult"),
+        Field("nullVal").arrayLastN(1).as("nullResult"),
+        Field("nonExistent").arrayLastN(1).as("absentResult"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "emptyResult": [],
+      "nullResult": nil,
+      "absentResult": nil,
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
+
+  func testArrayMinimum() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(1)
+      .select([Field("tags").arrayMinimum().as("minTag")])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["minTag": "adventure"],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with empty/null/non-existent/mixed
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "empty": [],
+        "nullVal": Constant.nil,
+        "mixed": [1, "2", 3, "10"], // Strings > Numbers in Firestore
+      ]))
+      .select([
+        Field("empty").arrayMinimum().as("emptyResult"),
+        Field("nullVal").arrayMinimum().as("nullResult"),
+        Field("nonExistent").arrayMinimum().as("absentResult"),
+        Field("mixed").arrayMinimum().as("mixedResult"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "emptyResult": nil,
+      "nullResult": nil,
+      "absentResult": nil,
+      "mixedResult": 1, // 1 < 3 < "10" < "2"
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
+
+  func testArrayMinimumN() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(1)
+      .select([Field("tags").arrayMinimumN(2).as("minTwoTags")])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["minTwoTags": ["adventure", "epic"]],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayMaximum() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(1)
+      .select([Field("tags").arrayMaximum().as("maxTag")])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["maxTag": "magic"],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with empty/null/non-existent/mixed
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "empty": [],
+        "nullVal": Constant.nil,
+        "mixed": [1, "2", 3, "10"], // Strings > Numbers in Firestore
+      ]))
+      .select([
+        Field("empty").arrayMaximum().as("emptyResult"),
+        Field("nullVal").arrayMaximum().as("nullResult"),
+        Field("nonExistent").arrayMaximum().as("absentResult"),
+        Field("mixed").arrayMaximum().as("mixedResult"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "emptyResult": nil,
+      "nullResult": nil,
+      "absentResult": nil,
+      "mixedResult": "2", // "2" > "10" > 3 > 1
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
+
+  func testArrayMaximumN() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(1)
+      .select([Field("tags").arrayMaximumN(2).as("maxTwoTags")])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["maxTwoTags": ["magic", "epic"]],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArrayIndexOf() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(1)
+      .select([
+        Field("tags").arrayIndexOf("adventure").as("indexFirst"),
+        Field("tags").arrayIndexOf(Constant("adventure")).as("indexFirst2"),
+        Field("tags").arrayIndexOf(Constant("nonexistent")).as("indexNone"),
+        Field("empty").arrayIndexOf(Constant("anything")).as("indexEmpty"),
+      ])
+      .execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      ["indexFirst": 0, "indexFirst2": 0, "indexNone": -1, "indexEmpty": nil],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with duplicates/null/non-existent
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "arr": [1, 2, 3, 2, 1],
+        "nullArr": Constant.nil,
+        "empty": [],
+        "arrWithNull": [1, Constant.nil, 3],
+      ]))
+      .select([
+        Field("arr").arrayIndexOf(2).as("firstIndex"),
+        Field("arr").arrayIndexOf(99).as("notFoundIndex"),
+        Field("nullArr").arrayIndexOf(1).as("nullResult"),
+        Field("empty").arrayIndexOf(1).as("emptyResult"),
+        Field("arrWithNull").arrayIndexOf(Constant.nil).as("indexOfNull"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "firstIndex": 1,
+      "notFoundIndex": -1, // Not found returns -1
+      "nullResult": nil, // Input is null
+      "indexOfNull": 1,
+      "emptyResult": -1,
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
+
+  func testArrayLastIndexOf() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(1)
+      .select([
+        Field("tags").arrayLastIndexOf("adventure").as("lastIndexFirst"),
+        Field("tags").arrayLastIndexOf(Constant("adventure")).as("lastIndexFirst2"),
+        Field("tags").arrayLastIndexOf(Constant("nonexistent")).as("lastIndexNone"),
+        Field("empty").arrayLastIndexOf(Constant("anything")).as("lastIndexEmpty"),
+      ])
+      .execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      ["lastIndexFirst": 0, "lastIndexFirst2": 0, "lastIndexNone": -1, "lastIndexEmpty": nil],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with duplicates/null/non-existent
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "arr": [1, 2, 3, 2, 1],
+        "nullArr": Constant.nil,
+        "empty": [],
+        "arrWithNull": [1, Constant.nil, 3],
+      ]))
+      .select([
+        Field("arr").arrayLastIndexOf(2).as("lastIndex"),
+        Field("arr").arrayLastIndexOf(99).as("notFoundIndex"),
+        Field("nullArr").arrayLastIndexOf(1).as("nullResult"),
+        Field("empty").arrayLastIndexOf(1).as("emptyResult"),
+        Field("arrWithNull").arrayLastIndexOf(Constant.nil).as("lastIndexOfNull"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "lastIndex": 3,
+      "notFoundIndex": -1,
+      "nullResult": nil,
+      "emptyResult": -1,
+      "lastIndexOfNull": 1,
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
+
+  func testArrayIndexOfAll() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .sort([Field("rating").descending()])
+      .limit(1)
+      .select([
+        Field("tags").arrayIndexOfAll("adventure").as("indicesFirst"),
+        Field("tags").arrayIndexOfAll(Constant("adventure")).as("indicesFirst2"),
+        Field("tags").arrayIndexOfAll(Constant("nonexistent")).as("indicesNone"),
+        Field("empty").arrayIndexOfAll(Constant("anything")).as("indicesEmpty"),
+      ])
+      .execute()
+
+    let expectedResults: [[String: Sendable?]] = [
+      ["indicesFirst": [0], "indicesFirst2": [0], "indicesNone": [], "indicesEmpty": nil],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Test with duplicates/null/non-existent
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "arr": [1, 2, 3, 2, 1],
+        "nullArr": Constant.nil,
+        "empty": [],
+        "arrWithNull": [1, Constant.nil, 3, Constant.nil],
+      ]))
+      .select([
+        Field("arr").arrayIndexOfAll(1).as("indices1"),
+        Field("arr").arrayIndexOfAll(99).as("indicesNone"),
+        Field("nullArr").arrayIndexOfAll(1).as("indicesNull"),
+        Field("empty").arrayIndexOfAll(1).as("indicesEmpty"),
+        Field("arrWithNull").arrayIndexOfAll(Constant.nil).as("indicesOfNull"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "indices1": [0, 4],
+      "indicesNone": [], // Not found returns empty array
+      "indicesNull": nil, // Input is null
+      "indicesEmpty": [], // Input is empty array
+      "indicesOfNull": [1, 3],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
   }
 }

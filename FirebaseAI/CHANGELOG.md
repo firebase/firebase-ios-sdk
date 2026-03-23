@@ -1,3 +1,12 @@
+# 12.12.0
+- [fixed] Updated `GenerativeModelSession` to handle intermediate JSON decoding
+  failures when streaming structured data. (#15960)
+
+# 12.11.0
+- [feature] **Public Preview**: Introduces `GenerativeModelSession` providing
+  APIs for generating structured data from Gemini via the same `@Generable` and
+  `@Guide` macros that are used with Foundation Models.
+
 # 12.9.0
 - [changed] The URL context tool APIs are now GA.
 - [feature] Added support for implicit caching (context caching) metadata in `GenerateContentResponse`.

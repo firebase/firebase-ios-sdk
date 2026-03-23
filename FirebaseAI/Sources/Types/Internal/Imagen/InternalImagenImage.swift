@@ -21,7 +21,6 @@ import Foundation
 ///
 /// TODO(andrewheard): Make this public when the SDK supports Imagen operations that take images as
 /// input (upscaling / editing).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct _InternalImagenImage {
   let mimeType: String
   let bytesBase64Encoded: String?

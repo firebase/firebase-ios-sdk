@@ -1,0 +1,16 @@
+endpoints:
+  - target_host: firebasevertexai.googleapis.com
+    target_port: 443
+    source_port: 1455
+    source_type: http
+    target_type: https
+    health: /healthz
+    redact_request_headers:
+      - X-Goog-Api-Key
+      - Authorization
+      - X-Goog-User-Project
+      - User-Agent
+      - X-Goog-Api-Client
+      - X-Firebase-AppCheck
+      - X-Firebase-AppId
+      - X-Firebase-AppVersion

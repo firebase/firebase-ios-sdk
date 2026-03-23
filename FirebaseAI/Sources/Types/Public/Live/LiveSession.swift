@@ -19,10 +19,9 @@ import Foundation
 /// Messages are streamed through ``LiveSession/responses``, and can be sent through either the
 /// dedicated realtime API function (such as ``LiveSession/sendAudioRealtime(_:)`` and
 /// ``LiveSession/sendTextRealtime(_:)``), or through the incremental API (such as
-/// ``LiveSession/sendContent(_:turnComplete:)-6x3ae``).
+/// ``LiveSession/sendContent(_:turnComplete:)-(PartsRepresentable...,_)``).
 ///
 /// To create an instance of this class, see ``LiveGenerativeModel``.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 public final class LiveSession: Sendable {
   private let service: LiveSessionService
@@ -125,7 +124,7 @@ public final class LiveSession: Sendable {
   /// content.
   ///
   /// - Parameters:
-  ///   - content: Content to append to the current conversation with the model  (see
+  ///   - parts: Content to append to the current conversation with the model  (see
   ///     ``PartsRepresentable`` for conforming types).
   ///   - turnComplete: Whether the server should start generating content with the currently
   ///     accumulated prompt, or await additional messages before starting generation. By default,

@@ -768,13 +768,14 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  # Note that the combine tests require setting the minimum iOS and tvOS version to 13.0
   *-*-spm)
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
-      IPHONEOS_DEPLOYMENT_TARGET=13.0 \
-      TVOS_DEPLOYMENT_TARGET=13.0 \
+      IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+      MACOSX_DEPLOYMENT_TARGET=10.15 \
+      TVOS_DEPLOYMENT_TARGET=15.0 \
+      WATCHOS_DEPLOYMENT_TARGET=7.0 \
       test
     ;;
 

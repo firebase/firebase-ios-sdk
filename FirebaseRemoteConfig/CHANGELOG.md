@@ -1,4 +1,4 @@
-# Unreleased
+# 12.10.0
 - [issue] A workaround to restore service if Remote Config data remains empty
   after a device restore is to publish a new version of your Remote Config template
   in the Firebase console to force a full synchronization. This issue can occur if

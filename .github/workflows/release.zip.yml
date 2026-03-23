@@ -68,11 +68,13 @@ jobs:
         exit 1
     - name: Check if packaging should be skipped
       id: check
+      env:
+        ZIP_RUN_ID: ${{ github.event.inputs.zip_run_id }}
       run: |
-        if [[ -n "${{ env.PINNED_RUN_ID }}" || -n "${{ github.event.inputs.zip_run_id }}" ]]; then
-          echo "should_package=false" >> $GITHUB_OUTPUT
+        if [[ -n "${{ env.PINNED_RUN_ID }}" || -n "$ZIP_RUN_ID" ]]; then
+          echo "should_package=false" >> "$GITHUB_OUTPUT"
         else
-          echo "should_package=true" >> $GITHUB_OUTPUT
+          echo "should_package=true" >> "$GITHUB_OUTPUT"
         fi
 
   package-release:
@@ -85,16 +87,20 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
+      env:
+        SPEC_REPOS: ${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}
       run: |
          mkdir -p release_zip_dir
          sh -x scripts/zip/build_zip.sh release_zip_dir \
-           "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}" \
+           "$SPEC_REPOS" \
            build-release \
            static
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -114,6 +120,8 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
     - name: Build
@@ -130,18 +138,22 @@ jobs:
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
     - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
+      env:
+        SPEC_REPOS: ${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}
       run: |
          mkdir -p zip_output_dir
          sh -x scripts/zip/build_zip.sh \
-           zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}" \
+           zip_output_dir "$SPEC_REPOS" \
            build-head \
-           ${{ matrix.linking_type }}
+           "${{ matrix.linking_type }}"
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: always()
       with:
@@ -164,13 +176,15 @@ jobs:
           exit 1
       - name: Get Run ID
         id: get_run_id
+        env:
+          ZIP_RUN_ID: ${{ github.event.inputs.zip_run_id }}
         run: |
-          if [[ -n "${{ github.event.inputs.zip_run_id }}" ]]; then
-            echo "run_id=${{ github.event.inputs.zip_run_id }}" >> $GITHUB_OUTPUT
+          if [[ -n "$ZIP_RUN_ID" ]]; then
+            echo "run_id=$ZIP_RUN_ID" >> "$GITHUB_OUTPUT"
           elif [[ -n "${{ env.PINNED_RUN_ID }}" ]]; then
-            echo "run_id=${{ env.PINNED_RUN_ID }}" >> $GITHUB_OUTPUT
+            echo "run_id=${{ env.PINNED_RUN_ID }}" >> "$GITHUB_OUTPUT"
           else
-            echo "run_id=${{ github.run_id }}" >> $GITHUB_OUTPUT
+            echo "run_id=${{ github.run_id }}" >> "$GITHUB_OUTPUT"
           fi
 
   check_framework_firestore_symbols:
@@ -183,6 +197,8 @@ jobs:
       - name: Xcode
         run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
       - name: Get framework dir
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
@@ -201,12 +217,12 @@ jobs:
       - name: Check linked Firestore.xcframework for unlinked symbols.
         run: |
           scripts/check_firestore_symbols.sh \
-            $(pwd) \
+            "$(pwd)" \
             "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/FirebaseFirestoreInternal.xcframework
 
   quickstart_framework_matrix:
     needs: packaging_done
-    if: github.event.pull_request.head.repo.fork == false && ${{ !cancelled() }}
+    if: github.event.pull_request.head.repo.fork == false && !cancelled()
     strategy:
       fail-fast: false
       matrix:

@@ -21,7 +21,6 @@ import Foundation
 internal import FirebaseCoreExtension
 
 /// The Firebase AI SDK provides access to Gemini models directly from your app.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
 
@@ -29,7 +28,7 @@ public final class FirebaseAI: Sendable {
   ///
   /// - Parameters:
   ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
-  ///     ``FirebaseApp``.
+  ///     `FirebaseApp`.
   ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
   ///     ``Backend/googleAI()`` (Gemini Developer API).
   ///   - useLimitedUseAppCheckTokens: When sending tokens to the backend, this option enables
@@ -104,6 +103,28 @@ public final class FirebaseAI: Sendable {
     )
   }
 
+  // TODO: Remove the `#if compiler(>=6.2)` when Xcode 26 is the minimum supported version.
+  #if compiler(>=6.2)
+    /// Creates a new `GenerativeModelSession` with the given model.
+    ///
+    /// - Important: **Public Preview** - This API is a public preview and may be subject to change.
+    ///
+    /// - Parameters:
+    ///   - model: The name of the model to use; see [available model names
+    ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names)
+    ///     for a list of supported model names.
+    ///   - instructions: System instructions that direct the model's behavior.
+    public func generativeModelSession(model: String,
+                                       instructions: String? = nil) -> GenerativeModelSession {
+      let model = generativeModel(
+        modelName: model,
+        systemInstruction: instructions.map { ModelContent(role: "system", parts: $0) }
+      )
+
+      return GenerativeModelSession(model: model)
+    }
+  #endif // compiler(>=6.2)
+
   /// Initializes an ``ImagenModel`` with the given parameters.
   ///
   /// - Note: Refer to [Imagen models](https://firebase.google.com/docs/vertex-ai/models) for
@@ -175,7 +196,6 @@ public final class FirebaseAI: Sendable {
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   @available(watchOS, unavailable)
   public func liveModel(modelName: String,
                         generationConfig: LiveGenerationConfig? = nil,

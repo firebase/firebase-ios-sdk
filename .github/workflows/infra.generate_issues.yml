@@ -10,17 +10,19 @@ on:
     # Run every day at 5am (PDT) / 8am (EDT) - cron uses UTC times
     - cron:  '0 12 * * *'
 
-permissions:
-  issues: write
-
 jobs:
   generate_an_issue:
+    permissions:
+      contents: read
+      issues: write
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
     runs-on: ubuntu-latest
     name: Generate a nightly testing report issue
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Create a nightly report
       uses: ./.github/actions/testing_report_generation/
       with:
@@ -29,12 +31,17 @@ jobs:
         exclude-workflow-files: 'performance-integration-tests.yml, sessions-integration-tests.yml, codeql, dependabot-updates'
 
   test_generate_an_issue:
+    permissions:
+      contents: read
+      issues: write
     # Don't run on private repo.
     if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
     name: Test nightly report generations
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
     - name: Create a nightly report
       uses: ./.github/actions/testing_report_generation/
       with:
