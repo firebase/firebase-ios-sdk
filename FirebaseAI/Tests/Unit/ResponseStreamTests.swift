@@ -161,11 +161,12 @@
         "Expected stream to yield at least one snapshot before finishing."
       )
       XCTAssertEqual(lastResult.content, response.content)
-      if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-        XCTAssertEqual(lastResult.rawContent, response.rawContent)
-      } else {
-        XCTAssertEqual(lastResult.rawContent.isComplete, response.rawContent.isComplete)
-      }
+      #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+          XCTAssertEqual(lastResult.rawContent, response.rawContent)
+        }
+      #endif // canImport(FoundationModels)
+      XCTAssertEqual(lastResult.rawContent.isComplete, response.rawContent.isComplete)
     }
 
     func testResponseStream_collectReturnsLatestError() async throws {
