@@ -106,6 +106,7 @@
           // Assert that the error is one of the expected decoding failure types.
           if let genError = error as? GenerativeModelSession.GenerationError,
              case .decodingFailure = genError {
+            // Expected error.
           } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
                     let foundationError = error as? FoundationModels.LanguageModelSession
                     .GenerationError,
