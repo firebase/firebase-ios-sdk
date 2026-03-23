@@ -349,7 +349,7 @@ jobs:
       artifact_name: ${{ matrix.artifact }}
       # Use defaults with option to override
       os: ${{ matrix.config.os || 'macos-15' }}
-      xcode: ${{ matrix.config.xcode || 'Xcode_26.2' }}
+      xcode: ${{ matrix.config.xcode || 'Xcode_26.3' }}
       # Optional scheme (only used by FirebaseAI)
       scheme: ${{ matrix.config.scheme }}
       plist_src_path: ${{ matrix.config.plist_src }}
