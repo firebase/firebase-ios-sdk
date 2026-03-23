@@ -17,6 +17,10 @@
   import Foundation
   import XCTest
 
+#if canImport(FoundationModels)
+   import FoundationModels
+ #endif // canImport(FoundationModels)
+
   final class GenerativeModelSessionTests: XCTestCase {
     // MARK: - Helpers
 
@@ -99,10 +103,19 @@
         }
         XCTFail("Stream iteration completed without throwing an error.")
       } catch {
-        // The error might be `GenerativeModelSession.GenerationError` or
-        // `FoundationModels.LanguageModelSession.GenerationError` depending on the environment.
-        // We just want to ensure that a decoding failure is thrown.
-        XCTAssertNotNil(error)
+        // Assert that the error is one of the expected decoding failure types.
+        let isExpectedError: Bool
+        if let genError = error as? GenerativeModelSession.GenerationError,
+           case .decodingFailure = genError {
+          isExpectedError = true
+        } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
+                  let foundationError = error as? FoundationModels.LanguageModelSession.GenerationError,
+                  case .decodingFailure = foundationError {
+          isExpectedError = true
+        } else {
+          isExpectedError = false
+        }
+        XCTAssertTrue(isExpectedError, "Expected a decoding failure error, but got \(error) instead.")
       }
     }
 
@@ -134,11 +147,37 @@
         _ = try await task.value
         XCTFail("Task should have been cancelled")
       } catch {
-        XCTAssert(
-          error is CancellationError,
-          "Expected CancellationError, but got \(error) instead."
-        )
+        XCTAssert(error is CancellationError, "Expected CancellationError, but got \(error) instead.")
       }
     }
-  }
-#endif // compiler(>=6.2)
+
+    func testResponseStream_emptyStreamBehavior() async throws {
+      let stream = GenerativeModelSession.ResponseStream<String, String> { context in
+        // Finish immediately without yielding any results
+        await context.finish()
+      }
+
+      // 1. Test iteration over an empty stream (should yield nothing and not throw)
+      var snapshots: [GenerativeModelSession.ResponseStream<String, String>.Snapshot] = []
+      for try await snapshot in stream {
+        snapshots.append(snapshot)
+      }
+      XCTAssertTrue(snapshots.isEmpty, "Empty stream should not yield any snapshots.")
+
+      // 2. Test collect() on an empty stream (should throw a decoding failure)
+      do {
+        _ = try await stream.collect()
+        XCTFail("Collect on an empty stream should have thrown an error.")
+      } catch let error as GenerativeModelSession.GenerationError {
+        guard case let .decodingFailure(context) = error else {
+          XCTFail("Expected decodingFailure, but got \(error).")
+          return
+        }
+        XCTAssertEqual(context.debugDescription, "No content generated in stream.")
+      } catch {
+        XCTFail("Expected GenerativeModelSession.GenerationError, but got \(error).")
+      }
+    }
+    }
+    #endif // compiler(>=6.2)
+
