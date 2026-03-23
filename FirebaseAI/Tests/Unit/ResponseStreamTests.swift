@@ -17,11 +17,11 @@
   import Foundation
   import XCTest
 
-#if canImport(FoundationModels)
-   import FoundationModels
- #endif // canImport(FoundationModels)
+  #if canImport(FoundationModels)
+    import FoundationModels
+  #endif // canImport(FoundationModels)
 
-  final class GenerativeModelSessionTests: XCTestCase {
+  final class ResponseStreamTests: XCTestCase {
     // MARK: - Helpers
 
     private static func makeRawResult(text: String,
@@ -109,13 +109,17 @@
            case .decodingFailure = genError {
           isExpectedError = true
         } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
-                  let foundationError = error as? FoundationModels.LanguageModelSession.GenerationError,
+                  let foundationError = error as? FoundationModels.LanguageModelSession
+                  .GenerationError,
                   case .decodingFailure = foundationError {
           isExpectedError = true
         } else {
           isExpectedError = false
         }
-        XCTAssertTrue(isExpectedError, "Expected a decoding failure error, but got \(error) instead.")
+        XCTAssertTrue(
+          isExpectedError,
+          "Expected a decoding failure error, but got \(error) instead."
+        )
       }
     }
 
@@ -147,7 +151,10 @@
         _ = try await task.value
         XCTFail("Task should have been cancelled")
       } catch {
-        XCTAssert(error is CancellationError, "Expected CancellationError, but got \(error) instead.")
+        XCTAssert(
+          error is CancellationError,
+          "Expected CancellationError, but got \(error) instead."
+        )
       }
     }
 
@@ -178,6 +185,5 @@
         XCTFail("Expected GenerativeModelSession.GenerationError, but got \(error).")
       }
     }
-    }
-    #endif // compiler(>=6.2)
-
+  }
+#endif // compiler(>=6.2)
