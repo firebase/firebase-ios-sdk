@@ -19,23 +19,16 @@
 #endif // SWIFT_PACKAGE
 import Foundation
 
-/// Represents a full-text search against the entire document content.
-public struct DocumentMatches: BooleanExpression, BridgeWrapper, @unchecked Sendable {
-  public let bridge: ExprBridge
-
-  /// Creates a document search expression.
-  /// - Parameters:
-  ///   - query: The text to search for.
-  public init(_ query: String) {
-    let args: [Sendable] = [query]
-    let exprs = args.map { Helper.sendableToExpr($0) }
-    // Assuming a function "search_document_for" that takes query and optional mode as args.
-    let funcExpr = FunctionExpression(functionName: "document_matches", args: exprs)
-    bridge = funcExpr.bridge
-  }
-}
-
 /// Represents the relevance score of a document against the search query.
+///
+/// Example usage:
+/// ```swift
+/// firestore.pipeline().collection("restaurants")
+/// .search(
+///   query: "waffles OR pancakes",
+///   sort: [ Score().as("searchScore") ]
+/// )
+/// ```
 public struct Score: Expression, BridgeWrapper, @unchecked Sendable {
   public let bridge: ExprBridge
 

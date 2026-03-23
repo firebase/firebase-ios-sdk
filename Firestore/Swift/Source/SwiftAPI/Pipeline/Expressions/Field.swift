@@ -66,6 +66,14 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
 
   /// Creates a condition that evaluates to true if the field matches the search query.
   ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: Field("menu").matches("waffles OR pancakes")
+  /// )
+  /// ```
+  ///
   /// - Parameters:
   ///   - query: The text to search for.
   /// - Returns: A `BooleanExpression` representing the search predicate.
@@ -76,6 +84,15 @@ public struct Field: Expression, Selectable, BridgeWrapper, SelectableWrapper,
   }
 
   /// Calculates the distance between the GeoPoint in this field and a target location.
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: Field("location").geoDistance(GeoPoint(37.937946, -107.813806)).lessThan(1000 /*
+  /// meters */)
+  /// )
+  /// ```
   ///
   /// - Parameter location: The target `GeoPoint`.
   /// - Returns: An `Expression` representing the distance in meters.

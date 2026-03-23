@@ -18,7 +18,7 @@ import Foundation
 public struct QueryEnhancement: Sendable, Equatable, Hashable {
   let kind: Kind
 
-  enum Kind: String, Sendable {
+  enum Kind: String {
     case disabled
     case required
     case preferred

@@ -1,4 +1,5 @@
 # Unreleased
+- [feature] Add beta support for full-text search and geo search.
 - [feature] Added support for Pipeline expressions `nor` and `switchOn`. (#15943)
 
 # 12.11.0

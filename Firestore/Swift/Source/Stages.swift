@@ -336,17 +336,17 @@ class Search: Stage {
     // the map_value or array_value, and not the map or array function,
     // must be managed independently of the options object.
 
+    var errors: [String] = []
+
     // add_fields is a map_value and map function expression is not supported
     var addFieldsBridge: [String: ExprBridge] = [:]
     if let addFields = addFields {
       let (map, error) = Helper.selectablesToMap(selectables: addFields)
       if let error = error {
-        errorMessage = error.localizedDescription
-        bridge = SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
-        return
+        errors.append(error.localizedDescription)
+      } else {
+        addFieldsBridge = map.mapValues { $0.toBridge() }
       }
-
-      addFieldsBridge = map.mapValues { $0.toBridge() }
     }
 
     // select is a map_value and map function expression is not supported
@@ -354,11 +354,16 @@ class Search: Stage {
     if let select = select {
       let (map, error) = Helper.selectablesToMap(selectables: select)
       if let error = error {
-        errorMessage = error.localizedDescription
-        bridge = SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
-        return
+        errors.append(error.localizedDescription)
+      } else {
+        selectBridge = map.mapValues { $0.toBridge() }
       }
-      selectBridge = map.mapValues { $0.toBridge() }
+    }
+
+    if !errors.isEmpty {
+      errorMessage = errors.joined(separator: "\n")
+      bridge = SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
+      return
     }
 
     // sort is an array_value and array function expression is not supported

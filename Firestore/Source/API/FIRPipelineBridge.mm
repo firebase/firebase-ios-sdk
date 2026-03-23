@@ -156,8 +156,10 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
 }
 - (id)init:(id)input {
   self = [super init];
-  _input = input;
-  isUserDataRead = NO;
+  if (self) {
+    _input = input;
+    isUserDataRead = NO;
+  }
   return self;
 }
 
@@ -184,10 +186,12 @@ inline std::string EnsureLeadingSlash(const std::string &path) {
                       Args:(nonnull NSArray<FIRExprBridge *> *)args
                    Options:(NSDictionary<NSString *, FIRExprBridge *> *_Nullable)options {
   self = [super init];
-  _name = name;
-  _args = args;
-  _options = options;
-  isUserDataRead = NO;
+  if (self) {
+    _name = name;
+    _args = args;
+    _options = options;
+    isUserDataRead = NO;
+  }
   return self;
 }
 

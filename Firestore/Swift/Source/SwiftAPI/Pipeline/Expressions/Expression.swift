@@ -1981,12 +1981,20 @@ public protocol Expression: Sendable {
 
   /// Evaluates to an HTML-formatted text snippet highlighting terms matching the search query.
   ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: "waffles OR pancakes",
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
+  ///
   /// - Parameters:
   ///   - rquery: The search query string used to find matches (Required).
   ///   - maxSnippetWidth: The maximum width of the snippet (default: 160).
   ///   - maxSnippets: The maximum number of text pieces to return (default: 1).
   ///   - separator: The string used to join pieces (default: "\n").
-  ///   - searchMode: The mode to use for matching.
   /// - Returns: An `Expression` evaluating to the HTML snippet string.
   func snippet(_ rquery: String,
                maxSnippetWidth: Int?,
@@ -1996,6 +2004,17 @@ public protocol Expression: Sendable {
   /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
   /// and `upperBound` (inclusive).
   ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: And(
+  ///           Field("menu").matches("waffles OR pancakes"),
+  ///           Field("price_per_guest").between(10, 20))
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
+  ///
   /// - Parameters:
   ///   - lowerBound: The lower bound value (inclusive).
   ///   - upperBound: The upper bound value (inclusive).
@@ -2004,6 +2023,17 @@ public protocol Expression: Sendable {
 
   /// Evaluates if the result of this expression is between the `lowerBound` (inclusive)
   /// and `upperBound` (inclusive).
+  ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: And(
+  ///           Field("menu").matches("waffles OR pancakes"),
+  ///           Field("price_per_guest").between(Constant(10), Constant(20)))
+  ///   addFields: [ Field("menu").snippet("waffles OR pancakes").as("snippet") ]
+  /// )
+  /// ```
   ///
   /// - Parameters:
   ///   - lowerBound: The lower bound expression (inclusive).

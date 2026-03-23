@@ -702,6 +702,25 @@ public struct Pipeline: @unchecked Sendable {
 
   /// Performs a search on the collection, supporting full-text search and geo search expressions.
   ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: DocumentMatches("waffles OR pancakes"),
+  ///   languageCode: "us-EN",
+  ///   retrievalDepth: 1000,
+  ///   sort: [
+  ///     Score().descending(),
+  ///   ],
+  ///   offset: 0,
+  ///   limit: 50,
+  ///   addFields: [
+  ///     Score().as("searchScore"),
+  ///   ],
+  ///   queryEnhancement: .required
+  /// )
+  /// ```
+  ///
   /// - Parameters:
   ///   - query: An `Expression` defining the search criteria (e.g.,
   /// `Field("menu").matches("waffles")`).
@@ -747,6 +766,25 @@ public struct Pipeline: @unchecked Sendable {
 
   /// Performs a search using a raw query string (RQuery).
   ///
+  /// Example usage:
+  /// ```swift
+  /// firestore.pipeline().collection("restaurants")
+  /// .search(
+  ///   query: "waffles OR pancakes",
+  ///   languageCode: "us-EN",
+  ///   retrievalDepth: 1000,
+  ///   sort: [
+  ///     Score().descending(),
+  ///   ],
+  ///   offset: 0,
+  ///   limit: 50,
+  ///   addFields: [
+  ///     Score().as("searchScore"),
+  ///   ],
+  ///   queryEnhancement: .required
+  /// )
+  /// ```
+  ///
   /// - Parameters:
   ///   - query: A raw query string (e.g., `"menu:waffles AND tags:breakfast"`).
   ///   - languageCode: The BCP-47 language code of text in the search query, such as, “en-US” or
@@ -771,6 +809,7 @@ public struct Pipeline: @unchecked Sendable {
                      queryEnhancement: QueryEnhancement? = nil) -> Pipeline {
     return search(
       query: DocumentMatches(query),
+      languageCode: languageCode,
       retrievalDepth: retrievalDepth,
       sort: sort,
       offset: offset,
