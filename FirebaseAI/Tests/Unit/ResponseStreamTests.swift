@@ -104,24 +104,19 @@
           }
         } errorHandler: { error in
           // Assert that the error is one of the expected decoding failure types.
-          let isExpectedError: Bool
           if let genError = error as? GenerativeModelSession.GenerationError,
              case .decodingFailure = genError {
-            isExpectedError = true
           } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
                     let foundationError = error as? FoundationModels.LanguageModelSession
                     .GenerationError,
                     case .decodingFailure = foundationError {
             // TODO: Remove this else-if after wrapping `FoundationModels.GenerationError` errors
             //       into equivalent `GenerativeModelSession.GenerationError` values.
-            isExpectedError = true
+
+            // Expected error.
           } else {
-            isExpectedError = false
+            XCTFail("Expected a decoding failure error, but got \(error) instead.")
           }
-          XCTAssertTrue(
-            isExpectedError,
-            "Expected a decoding failure error, but got \(error) instead."
-          )
         }
       }
     #endif // canImport(FoundationModels)
