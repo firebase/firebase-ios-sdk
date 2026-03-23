@@ -1689,7 +1689,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .select([
         Field("title"),
-        Field("published").logicalMaximum([Constant(1960), 1961]).as("published-safe"),
+        Field("published").logicalMaximum([Constant(1960), 1961]).as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
@@ -1697,9 +1697,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
-      ["title": "1984", "published-safe": 1961],
-      ["title": "Crime and Punishment", "published-safe": 1961],
-      ["title": "Dune", "published-safe": 1965],
+      ["title": "1984", "publishedSafe": 1961],
+      ["title": "Crime and Punishment", "publishedSafe": 1961],
+      ["title": "Dune", "publishedSafe": 1965],
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -1713,7 +1713,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .collection(collRef.path)
       .select([
         Field("title"),
-        Field("published").logicalMinimum([Constant(1960), 1961]).as("published-safe"),
+        Field("published").logicalMinimum([Constant(1960), 1961]).as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
@@ -1721,9 +1721,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
-      ["title": "1984", "published-safe": 1949],
-      ["title": "Crime and Punishment", "published-safe": 1866],
-      ["title": "Dune", "published-safe": 1960],
+      ["title": "1984", "publishedSafe": 1949],
+      ["title": "Crime and Punishment", "publishedSafe": 1866],
+      ["title": "Dune", "publishedSafe": 1960],
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -1738,7 +1738,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       .select([
         Field("title"),
         Field("published").lessThan(1960).then(Constant(1960), else: Field("published"))
-          .as("published-safe"),
+          .as("publishedSafe"),
       ])
       .sort([Field("title").ascending()])
       .limit(3)
@@ -1746,9 +1746,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable]] = [
-      ["title": "1984", "published-safe": 1960],
-      ["title": "Crime and Punishment", "published-safe": 1960],
-      ["title": "Dune", "published-safe": 1965],
+      ["title": "1984", "publishedSafe": 1960],
+      ["title": "Crime and Punishment", "publishedSafe": 1960],
+      ["title": "Dune", "publishedSafe": 1965],
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -2902,8 +2902,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await pipeline.execute()
 
     let expectedResults: [[String: Sendable?]] = [
-      ["title": "The Hitchhiker's Guide to the Galaxy", "awards.hugo": true],
-      ["title": "Dune", "awards.hugo": true],
+      ["title": "The Hitchhiker's Guide to the Galaxy", "awards": ["hugo": true]],
+      ["title": "Dune", "awards": ["hugo": true]],
     ]
 
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
@@ -2930,10 +2930,13 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     let expectedResultsArray: [[String: Sendable?]] = [
       [
         "title": "The Hitchhiker's Guide to the Galaxy",
+        "nestedField": ["level": [String: Any]()],
         "nested": true,
       ],
       [
         "title": "Dune",
+        "nestedField": ["level": [String: Any]()],
+        "nested": nil,
       ],
     ]
     TestHelper.compare(
