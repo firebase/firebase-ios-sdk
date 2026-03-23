@@ -86,42 +86,44 @@
       XCTAssertEqual(snapshots[0].content, "Good chunk")
     }
 
-    func testResponseStream_throwsIfLastChunkFailsToDecode() async {
-      let stream = GenerativeModelSession.ResponseStream<String, String> { context in
-        let badRawContent = FirebaseAI.GeneratedContent(kind: .null, id: nil, isComplete: true)
-        let badRawResult = GenerativeModelSession.ResponseStream<String, String>.RawResult(
-          rawContent: badRawContent,
-          rawResponse: GenerateContentResponse(candidates: [])
-        )
-        await context.yield(badRawResult)
-        await context.finish()
-      }
+    #if canImport(FoundationModels)
+      func testResponseStream_throwsIfLastChunkFailsToDecode() async {
+        let stream = GenerativeModelSession.ResponseStream<String, String> { context in
+          let badRawContent = FirebaseAI.GeneratedContent(kind: .null, id: nil, isComplete: true)
+          let badRawResult = GenerativeModelSession.ResponseStream<String, String>.RawResult(
+            rawContent: badRawContent,
+            rawResponse: GenerateContentResponse(candidates: [])
+          )
+          await context.yield(badRawResult)
+          await context.finish()
+        }
 
-      do {
-        for try await _ in stream {
-          XCTFail("Stream should have thrown an error but yielded a value instead.")
+        do {
+          for try await _ in stream {
+            XCTFail("Stream should have thrown an error but yielded a value instead.")
+          }
+          XCTFail("Stream iteration completed without throwing an error.")
+        } catch {
+          // Assert that the error is one of the expected decoding failure types.
+          let isExpectedError: Bool
+          if let genError = error as? GenerativeModelSession.GenerationError,
+             case .decodingFailure = genError {
+            isExpectedError = true
+          } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
+                    let foundationError = error as? FoundationModels.LanguageModelSession
+                    .GenerationError,
+                    case .decodingFailure = foundationError {
+            isExpectedError = true
+          } else {
+            isExpectedError = false
+          }
+          XCTAssertTrue(
+            isExpectedError,
+            "Expected a decoding failure error, but got \(error) instead."
+          )
         }
-        XCTFail("Stream iteration completed without throwing an error.")
-      } catch {
-        // Assert that the error is one of the expected decoding failure types.
-        let isExpectedError: Bool
-        if let genError = error as? GenerativeModelSession.GenerationError,
-           case .decodingFailure = genError {
-          isExpectedError = true
-        } else if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *),
-                  let foundationError = error as? FoundationModels.LanguageModelSession
-                  .GenerationError,
-                  case .decodingFailure = foundationError {
-          isExpectedError = true
-        } else {
-          isExpectedError = false
-        }
-        XCTAssertTrue(
-          isExpectedError,
-          "Expected a decoding failure error, but got \(error) instead."
-        )
       }
-    }
+    #endif // canImport(FoundationModels)
 
     func testResponseStream_collectReturnsLatestChunk() async throws {
       let stream = GenerativeModelSession.ResponseStream<String, String> { context in
