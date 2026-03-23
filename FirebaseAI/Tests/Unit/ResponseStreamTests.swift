@@ -98,12 +98,11 @@
           await context.finish()
         }
 
-        do {
+        await XCTAssertThrowsError {
           for try await _ in stream {
             XCTFail("Stream should have thrown an error but yielded a value instead.")
           }
-          XCTFail("Stream iteration completed without throwing an error.")
-        } catch {
+        } errorHandler: { error in
           // Assert that the error is one of the expected decoding failure types.
           let isExpectedError: Bool
           if let genError = error as? GenerativeModelSession.GenerationError,
@@ -149,10 +148,9 @@
       await Task.yield()
       task.cancel()
 
-      do {
+      await XCTAssertThrowsError {
         _ = try await task.value
-        XCTFail("Task should have been cancelled")
-      } catch {
+      } errorHandler: { error in
         XCTAssert(
           error is CancellationError,
           "Expected CancellationError, but got \(error) instead."
@@ -174,17 +172,16 @@
       XCTAssertTrue(snapshots.isEmpty, "Empty stream should not yield any snapshots.")
 
       // 2. Test collect() on an empty stream (should throw a decoding failure)
-      do {
+      await XCTAssertThrowsError {
         _ = try await stream.collect()
-        XCTFail("Collect on an empty stream should have thrown an error.")
-      } catch let error as GenerativeModelSession.GenerationError {
-        guard case let .decodingFailure(context) = error else {
-          XCTFail("Expected decodingFailure, but got \(error).")
-          return
+      } errorHandler: { error in
+        guard let genError = error as? GenerativeModelSession.GenerationError,
+              case let .decodingFailure(context) = genError else {
+          return XCTFail(
+            "Expected GenerativeModelSession.GenerationError.decodingFailure, but got \(error)."
+          )
         }
         XCTAssertEqual(context.debugDescription, "No content generated in stream.")
-      } catch {
-        XCTFail("Expected GenerativeModelSession.GenerationError, but got \(error).")
       }
     }
   }
