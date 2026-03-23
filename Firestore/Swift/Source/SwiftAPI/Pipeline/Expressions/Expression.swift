@@ -471,6 +471,85 @@ public protocol Expression: Sendable {
   /// - Returns: A new `FunctionExpression` representing the length of the array.
   func arrayLength() -> FunctionExpression
 
+  /// Filters an array to a subset of elements that match the provided condition.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Filter the "items" array to include elements where "price" > 10
+  /// Field("items").arrayFilter(alias: "item", filter: Field("item.price").greaterThan(10))
+  /// ```
+  ///
+  /// - Parameter alias: The variable name to be used in the filter expression to refer to the current array element.
+  /// - Parameter filter: An `Expression` (evaluating to a boolean) that determines whether an element is included.
+  /// - Returns: A new `FunctionExpression` representing the filtered array.
+  func arrayFilter(alias: String, filter: Expression) -> FunctionExpression
+
+  /// Returns a subset of the array starting at the given offset.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get elements from the "tags" array starting at index 1
+  /// Field("tags").arraySlice(offset: 1)
+  /// ```
+  ///
+  /// - Parameter offset: The starting offset (integer).
+  /// - Returns: A new `FunctionExpression` representing the sliced array.
+  func arraySlice(offset: Int) -> FunctionExpression
+
+  /// Returns a subset of the array starting at the given offset, up to the given length.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get 2 elements from the "tags" array starting at index 1
+  /// Field("tags").arraySlice(offset: 1, length: 2)
+  /// ```
+  ///
+  /// - Parameter offset: The starting offset (integer).
+  /// - Parameter length: The maximum length of the subset (integer).
+  /// - Returns: A new `FunctionExpression` representing the sliced array.
+  func arraySlice(offset: Int, length: Int) -> FunctionExpression
+
+  /// Returns a subset of the array starting at the given offset.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get elements from "tags" starting at an offset defined by a field
+  /// Field("tags").arraySlice(offset: Field("startIdx"))
+  /// ```
+  ///
+  /// - Parameter offset: An `Expression` (evaluating to an integer) for the starting offset.
+  /// - Returns: A new `FunctionExpression` representing the sliced array.
+  func arraySlice(offset: Expression) -> FunctionExpression
+
+  /// Returns a subset of the array starting at the given offset, up to the given length.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// ```swift
+  /// // Get elements using expressions for offset and length
+  /// Field("tags").arraySlice(offset: Field("startIdx"), length: Field("count"))
+  /// ```
+  ///
+  /// - Parameter offset: An `Expression` (evaluating to an integer) for the starting offset.
+  /// - Parameter length: An `Expression` (evaluating to an integer) for the maximum length.
+  /// - Returns: A new `FunctionExpression` representing the sliced array.
+  func arraySlice(offset: Expression, length: Expression) -> FunctionExpression
+
+  /// Returns a subset of the array starting at the given offset, up to the given length.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// - Parameter offset: The starting offset (integer).
+  /// - Parameter length: An `Expression` (evaluating to an integer) for the maximum length.
+  /// - Returns: A new `FunctionExpression` representing the sliced array.
+  func arraySlice(offset: Int, length: Expression) -> FunctionExpression
+
+  /// Returns a subset of the array starting at the given offset, up to the given length.
+  /// Assumes `self` evaluates to an array.
+  ///
+  /// - Parameter offset: An `Expression` (evaluating to an integer) for the starting offset.
+  /// - Parameter length: The maximum length of the subset (integer).
+  /// - Returns: A new `FunctionExpression` representing the sliced array.
+  func arraySlice(offset: Expression, length: Int) -> FunctionExpression
+
   /// Creates an expression that returns the first element of an array.
   /// Assumes `self` evaluates to an array.
   ///

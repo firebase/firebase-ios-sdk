@@ -4668,4 +4668,118 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     ]
     TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
   }
+
+    func testArrayFilter() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("The Lord of the Rings"))
+      .select([
+        Field("tags").arrayFilter(
+          alias: "tag",
+          filter: variable("tag").notEqual("magic")
+        ).as("notMagicTags"),
+        Field("tags").arrayFilter(
+          alias: "tag",
+          filter: variable("tag").notEqual("epic")
+        ).as("notEpicTags"),
+        Field("tags").arrayFilter(
+          alias: "tag",
+          filter: variable("tag").equal("fantasy")
+        ).as("noMatchingTags"),
+      ])
+      .execute()
+
+    var expectedResults: [[String: Sendable]] = [
+      [
+        "notMagicTags": ["adventure", "epic"],
+        "notEpicTags": ["adventure", "magic"],
+        "noMatchingTags": [],
+      ],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "arr": [1, "foo", Constant.nil, 20.0, "bar", 30, "40", Constant.nil],
+      ]))
+      .select([
+        Field("arr").arrayFilter(
+          alias: "element",
+          filter: variable("element").greaterThan(10)
+        ).as("filtered")
+      ])
+      .execute()
+
+    expectedResults = [
+      ["filtered": [20.0, 30]],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testArraySlice() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    var snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .where(Field("title").equal("The Lord of the Rings"))
+      .select([
+        Field("tags").arraySlice(offset: 1, length: 1).as("instanceMethodSlice"),
+        Field("tags").arraySlice(offset: 1).as("instanceMethodSliceToEnd"),
+        arraySlice("tags", 1, 1).as("staticMethodSlice"),
+        arraySlice("tags", 1).as("staticMethodSliceToEnd"),
+        Field("tags").arraySlice(offset: 1, length: 10).as("overflowLength"),
+        Field("tags").arraySlice(offset: 10).as("overflowOffset"),
+        Field("tags").arraySlice(offset: -1).as("negativeOffset"),
+        Field("tags").arraySlice(offset: -1, length: 1).as("negativeOffsetLength"),
+        Field("tags").arraySlice(offset: -1, length: -1).as("negativeOffsetLengthNegative"),
+        Field("tags").arraySlice(offset: -1, length: -10).as("negativeOffsetLengthNegativeOverflow"),
+        Field("tags").arraySlice(offset: -10).as("negativeOffsetOverflow"),
+      ])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "instanceMethodSlice": ["magic"],
+        "instanceMethodSliceToEnd": ["magic", "epic"],
+        "staticMethodSlice": ["magic"],
+        "staticMethodSliceToEnd": ["magic", "epic"],
+        "overflowLength": ["magic", "epic"],
+        "overflowOffset": [],
+        "negativeOffset": ["fantasy"],
+        "negativeOffsetLength": ["fantasy"],
+        "negativeOffsetLengthNegative": ["fantasy"],
+        "negativeOffsetLengthNegativeOverflow": ["fantasy"],
+        "negativeOffsetOverflow": ["fantasy"],
+      ],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+
+    // Tests with null/missing
+    snapshot = try await db.pipeline()
+      .collection(collRef.path)
+      .limit(1)
+      .replace(with: MapExpression([
+        "empty": [],
+        "nullVal": Constant.nil,
+      ]))
+      .select([
+        Field("empty").arraySlice(offset: 1).as("emptyResult"),
+        Field("nullVal").arraySlice(offset: 1).as("nullResult"),
+        Field("nonExistent").arraySlice(offset: 1).as("absentResult"),
+      ])
+      .execute()
+
+    let expectedEdgeCases: [String: Sendable?] = [
+      "emptyResult": [],
+      "nullResult": nil,
+      "absentResult": nil,
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+  }
 }

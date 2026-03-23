@@ -563,6 +563,52 @@ public extension Expression {
     return FunctionExpression(functionName: "array_length", args: [self])
   }
 
+  func arrayFilter(alias: String, filter: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_filter",
+      args: [self, Constant(alias), filter]
+    )
+  }
+
+  func arraySlice(offset: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, Helper.sendableToExpr(offset)]
+    )
+  }
+
+  func arraySlice(offset: Expression) -> FunctionExpression {
+    return FunctionExpression(functionName: "array_slice", args: [self, offset])
+  }
+
+  func arraySlice(offset: Int, length: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, Helper.sendableToExpr(offset), Helper.sendableToExpr(length)]
+    )
+  }
+
+  func arraySlice(offset: Expression, length: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, offset, length]
+    )
+  }
+
+  func arraySlice(offset: Int, length: Expression) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, Helper.sendableToExpr(offset), length]
+    )
+  }
+
+  func arraySlice(offset: Expression, length: Int) -> FunctionExpression {
+    return FunctionExpression(
+      functionName: "array_slice",
+      args: [self, offset, Helper.sendableToExpr(length)]
+    )
+  }
+
   func arrayFirst() -> FunctionExpression {
     return FunctionExpression(functionName: "array_first", args: [self])
   }
