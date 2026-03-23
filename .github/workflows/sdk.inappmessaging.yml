@@ -36,6 +36,7 @@ jobs:
     with:
       product: FirebaseInAppMessaging
       platforms: iOS, tvOS
+      timeout_minutes: 30
 
   tests:
     strategy:

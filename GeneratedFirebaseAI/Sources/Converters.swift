@@ -1586,6 +1586,14 @@ public enum Converters {
         ])
     }
 
+    if fromObject.partMetadata != nil {
+      throw NSError(
+        domain: "Vertex AI", code: -1,
+        userInfo: [
+          NSLocalizedDescriptionKey: "partMetadata parameter is not supported in Vertex AI."
+        ])
+    }
+
     let encoder = JSONEncoder()
     encoder.userInfo[.configuration] = apiClient
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -3389,6 +3397,20 @@ public enum Converters {
     }
   }
 
+  public static func groundingChunkRetrievedContextFromMldev(apiClient: APIClient, fromObject: Data)
+    throws -> GroundingChunkRetrievedContext?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingChunkRetrievedContext.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingChunkRetrievedContext: \(error)")
+      return nil
+    }
+  }
+
   public static func groundingChunkWebFromMldev(apiClient: APIClient, fromObject: Data) throws
     -> GroundingChunkWeb?
   {
@@ -3413,6 +3435,20 @@ public enum Converters {
       return instance
     } catch {
       print("Failed to decode GroundingChunk: \(error)")
+      return nil
+    }
+  }
+
+  public static func groundingSupportFromMldev(apiClient: APIClient, fromObject: Data) throws
+    -> GroundingSupport?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingSupport.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingSupport: \(error)")
       return nil
     }
   }
@@ -3725,6 +3761,62 @@ public enum Converters {
       return instance
     } catch {
       print("Failed to decode Content: \(error)")
+      return nil
+    }
+  }
+
+  public static func groundingChunkRetrievedContextFromVertex(
+    apiClient: APIClient, fromObject: Data
+  ) throws -> GroundingChunkRetrievedContext? {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingChunkRetrievedContext.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingChunkRetrievedContext: \(error)")
+      return nil
+    }
+  }
+
+  public static func groundingChunkFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> GroundingChunk?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingChunk.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingChunk: \(error)")
+      return nil
+    }
+  }
+
+  public static func groundingMetadataFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> GroundingMetadata?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(GroundingMetadata.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode GroundingMetadata: \(error)")
+      return nil
+    }
+  }
+
+  public static func logprobsResultFromVertex(apiClient: APIClient, fromObject: Data) throws
+    -> LogprobsResult?
+  {
+    do {
+      let decoder = JSONDecoder()
+      decoder.userInfo[.configuration] = apiClient
+      let instance = try decoder.decode(LogprobsResult.self, from: fromObject)
+      return instance
+    } catch {
+      print("Failed to decode LogprobsResult: \(error)")
       return nil
     }
   }
