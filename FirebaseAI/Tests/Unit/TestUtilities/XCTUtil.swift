@@ -45,10 +45,8 @@ func XCTAssertContains(_ string: String, _ contains: String) {
 /// - Parameters:
 ///   - expression: An async expression that can throw an error.
 ///   - message: An optional custom message to display if the assertion fails.
-///   - file: The file where the failure occurs. The default is the filename of the test case where
-/// you call this function.
-///   - line: The line number where the failure occurs. The default is the line number where you
-/// call this function.
+///   - file: The file where the failure occurs. The default is the filename of the test case.
+///   - line: The line number where the failure occurs. The default is the line number in the test.
 ///   - errorHandler: An optional handler for errors that `expression` throws.
 func XCTAssertThrowsError(
   _ expression: () async throws -> Void,
