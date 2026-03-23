@@ -136,6 +136,40 @@
       XCTAssertTrue(response.rawContent.isComplete)
     }
 
+    func testResponseStream_collectReturnsLatestError() async throws {
+      let errorDescription = "Decoding failed"
+      let expectedError = GenerativeModelSession.GenerationError.decodingFailure(
+        GenerativeModelSession.GenerationError.Context(debugDescription: errorDescription)
+      )
+      let stream = GenerativeModelSession.ResponseStream<String, String> { context in
+        await context.yield(Self.makeRawResult(text: "Chunk 1"))
+        await context.finish(throwing: expectedError)
+      }
+
+      // 1. Test streaming
+      await XCTAssertThrowsError {
+        for try await _ in stream {}
+      } errorHandler: { error in
+        guard case let GenerativeModelSession.GenerationError.decodingFailure(context) = error
+        else {
+          return XCTFail("Unexpected error type: \(error)")
+        }
+        XCTAssertEqual(context.debugDescription, errorDescription)
+      }
+
+      // 2. Test collect()
+      await XCTAssertThrowsError {
+        // `collect` must return the last error even after already streaming
+        _ = try await stream.collect()
+      } errorHandler: { error in
+        guard case let GenerativeModelSession.GenerationError.decodingFailure(context) = error
+        else {
+          return XCTFail("Unexpected error type: \(error)")
+        }
+        XCTAssertEqual(context.debugDescription, errorDescription)
+      }
+    }
+
     func testResponseStream_collectRespectsTaskCancellation() async {
       let task = Task<Void, Error> {
         let stream = GenerativeModelSession.ResponseStream<String, String> { _ in
