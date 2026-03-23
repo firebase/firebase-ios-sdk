@@ -112,6 +112,8 @@
                     let foundationError = error as? FoundationModels.LanguageModelSession
                     .GenerationError,
                     case .decodingFailure = foundationError {
+            // TODO: Remove this else-if after wrapping `FoundationModels.GenerationError` errors
+            //       into equivalent `GenerativeModelSession.GenerationError` values.
             isExpectedError = true
           } else {
             isExpectedError = false

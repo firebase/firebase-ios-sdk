@@ -604,6 +604,8 @@
       }
 
       func finish(throwing error: Error) {
+        // TODO: Wrap `FoundationModels.GenerationError` errors into equivalent
+        //       `GenerativeModelSession.GenerationError` values.
         continuation.finish(throwing: error)
         finalize(with: error)
       }
