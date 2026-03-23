@@ -119,12 +119,11 @@
     }
 
     func testResponseStream_collectRespectsTaskCancellation() async {
-      let stream = GenerativeModelSession.ResponseStream<String, String> { _ in
-        // Purposefully do not yield or finish to suspend forever
-      }
-
-      let task = Task {
-        try await stream.collect()
+      let task = Task<Void, Error> {
+        let stream = GenerativeModelSession.ResponseStream<String, String> { _ in
+          // Purposefully do not yield or finish to suspend forever
+        }
+        _ = try await stream.collect()
       }
 
       // Give the task a chance to start and suspend
