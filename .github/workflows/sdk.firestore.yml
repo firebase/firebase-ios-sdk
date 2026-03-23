@@ -359,7 +359,7 @@ jobs:
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
       # XCTest dynamically isolates the test runner app from standard terminal environment variables.
-      # To successfully pass TARGET_BACKEND down to FSTIntegrationTestCase, we must physically inject it 
+      # To successfully pass TARGET_BACKEND down to FSTIntegrationTestCase, we must physically inject it
       # into the Xcode Schemes rather than using traditional YAML `env:` variables or `export` commands.
       - name: Inject Nightly Backend into Schemes
         run: |
@@ -605,7 +605,7 @@ jobs:
   check-required-tests:
     runs-on: ubuntu-latest
     name: Check all required Firestore tests results
-    # xcodetest_prod is skipped for now. After the backend rolls out the new features 
+    # xcodetest_prod is skipped for now. After the backend rolls out the new features
     # to the production environment, this required test should be added back to the list.
     needs:
       - cmake
