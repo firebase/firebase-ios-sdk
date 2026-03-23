@@ -244,46 +244,8 @@
 
       var response = try await session.sendMessage(parts, generationConfig: config)
 
-      // TODO: Consider moving the automatic function calling handling into `Chat`.
-      let tools = session.model.tools ?? []
-      // TODO: Convert to Dictionary indexed by `name` for fast lookups.
-      let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
-
       while !response.functionCalls.isEmpty {
-        var functionResponses = [FunctionResponsePart]()
-        for functionCall in response.functionCalls {
-          guard let functionDeclaration = functionDeclarations.first(
-            where: { $0.name == functionCall.name }
-          ) else {
-            // TODO: Throw an error instead.
-            fatalError("No function named '\(functionCall.name) was declared.")
-          }
-
-          switch functionDeclaration.kind {
-          case .manual:
-            continue
-          case let .automatic(tool):
-            try functionResponses.append(await FunctionDeclaration.call(
-              tool: tool,
-              functionCall: functionCall
-            ))
-          case let .foundationModels(tool):
-            #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
-              if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-                guard let tool = tool as? (any FoundationModels.Tool) else {
-                  // TODO: Throw an error instead.
-                  fatalError("AFM Tool specified but type is not an AFM Tool.")
-                }
-                try functionResponses.append(await FunctionDeclaration.call(
-                  tool: tool,
-                  functionCall: functionCall
-                ))
-                continue
-              }
-            #endif // canImport(FoundationModels) && HAS_FOUNDATION_MODELS
-            fatalError("AFM Tool specified but not running on a supported platform.")
-          }
-        }
+        let functionResponses = try await execute(functionCalls: response.functionCalls)
 
         guard !functionResponses.isEmpty else { break }
         response = try await session.sendMessage(
@@ -340,9 +302,6 @@
             schema: schema,
             includeSchemaInPrompt: includeSchemaInPrompt
           )
-
-          let tools = self.session.model.tools ?? []
-          let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
 
           var currentParts = initialParts
           var generationID: FirebaseAI.GenerationID?
@@ -413,41 +372,7 @@
 
             // Stream for the current turn finished. Check if there are function calls to handle.
             if !functionCalls.isEmpty {
-              var functionResponses = [FunctionResponsePart]()
-              for functionCall in functionCalls {
-                guard let functionDeclaration = functionDeclarations.first(
-                  where: { $0.name == functionCall.name }
-                ) else {
-                  break functionCallingLoop
-                }
-
-                switch functionDeclaration.kind {
-                case .manual:
-                  break functionCallingLoop
-                case let .automatic(tool):
-                  try functionResponses.append(await FunctionDeclaration.call(
-                    tool: tool,
-                    functionCall: functionCall
-                  ))
-                  continue
-                case let .foundationModels(tool):
-                  #if canImport(FoundationModels)
-                    if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
-                      guard let tool = tool as? (any FoundationModels.Tool) else {
-                        // TODO: Throw an error instead.
-                        fatalError("AFM Tool specified but type is not an AFM Tool.")
-                      }
-                      try functionResponses.append(await FunctionDeclaration.call(
-                        tool: tool,
-                        functionCall: functionCall
-                      ))
-                      continue
-                    }
-                  #else
-                    break functionCallingLoop
-                  #endif // canImport(FoundationModels)
-                }
-              }
+              let functionResponses = try await self.execute(functionCalls: functionCalls)
 
               if !functionResponses.isEmpty {
                 // Yield any pending text if it's not empty, but mark it as NOT complete yet.
@@ -495,6 +420,50 @@
           await context.finish(throwing: error)
         }
       }
+    }
+
+    private func execute(functionCalls: [FunctionCallPart]) async throws -> [FunctionResponsePart] {
+      // TODO: Consider moving the automatic function calling handling into `Chat`.
+      let tools = session.model.tools ?? []
+      // TODO: Convert to Dictionary indexed by `name` for fast lookups.
+      let functionDeclarations = tools.compactMap { $0.functionDeclarations }.flatMap { $0 }
+
+      var functionResponses = [FunctionResponsePart]()
+      for functionCall in functionCalls {
+        guard let functionDeclaration = functionDeclarations.first(
+          where: { $0.name == functionCall.name }
+        ) else {
+          // TODO: Throw an error instead.
+          fatalError("No function named '\(functionCall.name) was declared.")
+        }
+
+        switch functionDeclaration.kind {
+        case .manual:
+          continue
+        case let .automatic(tool):
+          try functionResponses.append(await FunctionDeclaration.call(
+            tool: tool,
+            functionCall: functionCall
+          ))
+        case let .foundationModels(tool):
+          #if canImport(FoundationModels) && HAS_FOUNDATION_MODELS
+            if #available(iOS 26.0, macOS 26.0, visionOS 26.0, *) {
+              guard let tool = tool as? (any FoundationModels.Tool) else {
+                // TODO: Throw an error instead.
+                fatalError("AFM Tool specified but type is not an AFM Tool.")
+              }
+              try functionResponses.append(await FunctionDeclaration.call(
+                tool: tool,
+                functionCall: functionCall
+              ))
+              continue
+            }
+          #endif // canImport(FoundationModels) && HAS_FOUNDATION_MODELS
+          fatalError("AFM Tool specified but not running on a supported platform.")
+        }
+      }
+
+      return functionResponses
     }
 
     private func buildConfig(options: GenerationConfig?,
