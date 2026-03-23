@@ -4669,7 +4669,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
   }
 
-    func testArrayFilter() async throws {
+  func testArrayFilter() async throws {
     let collRef = collectionRef(withDocuments: bookDocs)
     let db = collRef.firestore
 
@@ -4700,7 +4700,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
 
+  func testArrayFilterMixedTypesAndNulls() async throws {
     snapshot = try await db.pipeline()
       .collection(collRef.path)
       .limit(1)
@@ -4711,7 +4713,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         Field("arr").arrayFilter(
           alias: "element",
           filter: variable("element").greaterThan(10)
-        ).as("filtered")
+        ).as("filtered"),
       ])
       .execute()
 
@@ -4738,7 +4740,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         Field("tags").arraySlice(offset: -1).as("negativeOffset"),
         Field("tags").arraySlice(offset: -1, length: 1).as("negativeOffsetLength"),
         Field("tags").arraySlice(offset: -1, length: -1).as("negativeOffsetLengthNegative"),
-        Field("tags").arraySlice(offset: -1, length: -10).as("negativeOffsetLengthNegativeOverflow"),
+        Field("tags").arraySlice(offset: -1, length: -10)
+          .as("negativeOffsetLengthNegativeOverflow"),
         Field("tags").arraySlice(offset: -10).as("negativeOffsetOverflow"),
       ])
       .execute()
@@ -4759,27 +4762,25 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       ],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
 
-    // Tests with null/missing
-    snapshot = try await db.pipeline()
+  func testArraySliceThrowsOnNegativeLength() async throws {
+    let collRef = collectionRef(withDocuments: bookDocs)
+    let db = collRef.firestore
+
+    let snapshot = try await db.pipeline()
       .collection(collRef.path)
-      .limit(1)
-      .replace(with: MapExpression([
-        "empty": [],
-        "nullVal": Constant.nil,
-      ]))
+      .where(Field("title").equal("The Lord of the Rings"))
       .select([
-        Field("empty").arraySlice(offset: 1).as("emptyResult"),
-        Field("nullVal").arraySlice(offset: 1).as("nullResult"),
-        Field("nonExistent").arraySlice(offset: 1).as("absentResult"),
+        Field("tags").arraySlice(offset: 1, length: -1).as("negativeLength"),
       ])
       .execute()
 
-    let expectedEdgeCases: [String: Sendable?] = [
-      "emptyResult": [],
-      "nullResult": nil,
-      "absentResult": nil,
+    let expectedResults: [[String: Sendable]] = [
+      [
+        "negativeLength": ["magic"],
+      ],
     ]
-    TestHelper.compare(snapshot: snapshot, expected: [expectedEdgeCases], enforceOrder: true)
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 }

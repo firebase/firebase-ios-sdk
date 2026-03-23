@@ -563,7 +563,7 @@ public extension Expression {
     return FunctionExpression(functionName: "array_length", args: [self])
   }
 
-  func arrayFilter(alias: String, filter: Expression) -> FunctionExpression {
+  func arrayFilter(alias: String, filter: BooleanExpression) -> FunctionExpression {
     return FunctionExpression(
       functionName: "array_filter",
       args: [self, Constant(alias), filter]

@@ -476,13 +476,14 @@ public protocol Expression: Sendable {
   ///
   /// ```swift
   /// // Filter the "items" array to include elements where "price" > 10
-  /// Field("items").arrayFilter(alias: "item", filter: Field("item.price").greaterThan(10))
+  /// Field("items").arrayFilter(alias: "item", filter: Variable("item.price").greaterThan(10))
   /// ```
   ///
-  /// - Parameter alias: The variable name to be used in the filter expression to refer to the current array element.
-  /// - Parameter filter: An `Expression` (evaluating to a boolean) that determines whether an element is included.
+  /// - Parameter alias: The variable name to be used in the filter expression to refer to the
+  /// current array element.
+  /// - Parameter filter: A `BooleanExpression` that determines whether an element is included.
   /// - Returns: A new `FunctionExpression` representing the filtered array.
-  func arrayFilter(alias: String, filter: Expression) -> FunctionExpression
+  func arrayFilter(alias: String, filter: BooleanExpression) -> FunctionExpression
 
   /// Returns a subset of the array starting at the given offset.
   /// Assumes `self` evaluates to an array.
