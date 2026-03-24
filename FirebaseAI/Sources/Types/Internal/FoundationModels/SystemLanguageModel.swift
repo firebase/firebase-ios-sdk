@@ -44,9 +44,11 @@ extension FirebaseAI {
     var isAvailable: Bool {
       #if canImport(FoundationModels)
         guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *), let model else { return false }
-      #endif // canImport(FoundationModels)
 
-      return model.isAvailable
+        return model.isAvailable
+      #else
+        return false
+      #endif // canImport(FoundationModels)
     }
   }
 }

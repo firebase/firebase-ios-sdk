@@ -32,9 +32,11 @@ extension FirebaseAI {
     var isResponding: Bool {
       #if canImport(FoundationModels)
         guard #available(iOS 26.0, macOS 26.0, visionOS 26.0, *), let session else { return false }
-      #endif // canImport(FoundationModels)
 
-      return session.isResponding
+        return session.isResponding
+      #else
+        return false
+      #endif // canImport(FoundationModels)
     }
 
     init(model: FirebaseAI.SystemLanguageModel) {

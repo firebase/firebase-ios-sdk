@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FoundationModels
+import Foundation
+#if canImport(FoundationModels)
+  import FoundationModels
+#endif // canImport(FoundationModels)
 
 extension FirebaseAI.LanguageModelSession: ModelSession {
   func respond<Content>(to prompt: [any PartsRepresentable], schema: FirebaseAI.GenerationSchema?,
@@ -47,7 +50,10 @@ extension FirebaseAI.LanguageModelSession: ModelSession {
 
         let rawContent = FirebaseAI.GeneratedContent(
           kind: response.rawContent.kind,
-          id: FirebaseAI.GenerationID(responseID: nil, generationID: response.rawContent.id),
+          id: FirebaseAI.GenerationID(
+            responseID: UUID().uuidString,
+            generationID: response.rawContent.id
+          ),
           isComplete: response.rawContent.isComplete
         )
 
