@@ -2927,18 +2927,32 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
     XCTAssertEqual(snapshot.results.count, 2, "Should retrieve two documents")
 
-    let expectedResultsArray: [[String: Sendable?]] = [
-      [
-        "title": "The Hitchhiker's Guide to the Galaxy",
-        "nestedField": ["level": [String: Any]()],
-        "nested": true,
-      ],
-      [
-        "title": "Dune",
-        "nestedField": ["level": [String: Any]()],
-        "nested": nil,
-      ],
-    ]
+    let expectedResultsArray: [[String: Sendable?]]
+    switch FSTIntegrationTestCase.targetBackend() {
+    case .nightly:
+      expectedResultsArray = [
+        [
+          "title": "The Hitchhiker's Guide to the Galaxy",
+          "nestedField": ["level": [String: Any]()],
+          "nested": true,
+        ],
+        [
+          "title": "Dune",
+          "nestedField": ["level": [String: Any]()],
+          "nested": nil,
+        ],
+      ]
+    default:
+      expectedResultsArray = [
+        [
+          "title": "The Hitchhiker's Guide to the Galaxy",
+          "nested": true,
+        ],
+        [
+          "title": "Dune",
+        ],
+      ]
+    }
     TestHelper.compare(
       snapshot: snapshot,
       expected: expectedResultsArray,
