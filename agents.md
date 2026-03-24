@@ -12,7 +12,7 @@ following setup is beneficial.
 
 ### Prerequisites
 
-1.  **Xcode**: The development environment relies on Xcode 16.2 or above.
+1.  **Xcode**: The development environment relies on Xcode 26.2 or above.
 2.  **Command-Line Tools**:
     *   `clang-format`: Used for C, C++, and Objective-C code formatting. Version 20 is
         specifically mentioned.

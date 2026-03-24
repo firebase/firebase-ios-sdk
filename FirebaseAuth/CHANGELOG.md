@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fix a race condition with User.providerData getter. (#15950)
+
 # 12.9.0
 - [fixed] Stop doing unnecessary AppCheck token refreshes. Introduced
   in 11.0.0. (#15372)

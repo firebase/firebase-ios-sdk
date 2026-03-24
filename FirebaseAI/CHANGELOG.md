@@ -1,6 +1,10 @@
 # Unreleased
 - [feature] Added support for GoogleMaps grounding.
 
+# 12.12.0
+- [fixed] Updated `GenerativeModelSession` to handle intermediate JSON decoding
+  failures when streaming structured data. (#15960)
+
 # 12.11.0
 - [feature] **Public Preview**: Introduces `GenerativeModelSession` providing
   APIs for generating structured data from Gemini via the same `@Generable` and
